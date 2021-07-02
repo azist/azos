@@ -65,6 +65,19 @@ namespace Azos.IO.Sipc
       }
     }
 
+    //return connection id/name
+    public static string ReceiveHandshake(TcpClient client)
+    {
+      const int GUID_SZ = 16;
+
+      var nets = client.NonNull(nameof(client)).GetStream();
+
+      var buf = new byte[GUID_SZ];
+      socketRead(nets, buf, 0, GUID_SZ);
+
+      return buf.GuidFromNetworkByteOrder().ToString();
+    }
+
     private static void socketRead(NetworkStream nets, byte[] buffer, int offset, int total)
     {
       int cnt = 0;

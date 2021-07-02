@@ -25,33 +25,8 @@ namespace Azos.IO.Sipc
   {
     public const int DEFAULT_PORT = 49123;
 
-
-    public sealed class Connection : INamed
+    protected SipcServer(int startPort, int endPort)
     {
-      public readonly string ID;
-      internal TcpClient Client;
-
-      public string Name => ID;
-
-      public string TryReceive()
-      {
-        if (Client.Available<=0) return null;
-
-        return Utils.Receive(Client);
-      }
-
-      public void Send(string command)
-      {
-        if (command.IsNullOrWhiteSpace()) return;
-        Utils.Send(Client, command);
-      }
-    }
-
-
-    protected SipcServer(ILog log, int startPort, int endPort)
-    {
-      m_Log = log.NonNull(nameof(log));
-
       if (startPort <=0 ) startPort = DEFAULT_PORT;
       if (endPort <= 0) endPort = DEFAULT_PORT;
 
@@ -67,12 +42,13 @@ namespace Azos.IO.Sipc
       base.Destructor();
     }
 
-    private ILog m_Log;
+    private object m_Lock = new object();
     private int m_StartPort;
     private int m_EndPort;
     private int m_AssignedPort;
-    private TcpListener m_Listener;
+    private volatile TcpListener m_Listener;
     private Thread m_Thread;
+    private AutoResetEvent m_Signal;
 
     private Registry<Connection> m_Connections = new Registry<Connection>();
 
@@ -100,65 +76,122 @@ namespace Azos.IO.Sipc
 
     public void Start()
     {
-      m_Listener = tryBind();
+      lock(m_Lock)
+      {
+        m_Listener = tryBind();
 
-      m_Thread = new Thread(threadBody);
-      m_Thread.Name = GetType().Name;
-      m_Thread.IsBackground = false;
-      m_Thread.Start();
+        if (m_Listener == null)
+         throw new AzosIOException("Unable to start SIPC server in the port range {0}-{1}".Args(m_StartPort, m_EndPort));
 
-      m_Listener.Pending();
+        m_Signal = new AutoResetEvent(false);
+
+        m_Thread = new Thread(threadBody);
+        m_Thread.Name = GetType().Name;
+        m_Thread.IsBackground = false;
+        m_Thread.Start();
+      }
     }
 
     public void Stop()
     {
-      if (m_Listener==null) return;
-      m_Listener.Stop();
-      m_Listener = null;
-      if (m_Thread!=null)
+      lock(m_Lock)
       {
-        m_Thread.Join();
-        m_Thread = null;
+        if (m_Listener != null)
+        {
+          m_Listener.Stop();
+          m_Listener = null;
+        }
+
+        if (m_Signal != null)
+        {
+          m_Signal.Set();
+        }
+
+        if (m_Thread != null)
+        {
+          m_Thread.Join();
+          m_Thread = null;
+        }
+
+        DisposeAndNull(ref m_Signal); //after thread Join
       }
     }
 
+    /// <summary>
+    /// Override to create a connection instance needed for your use case
+    /// </summary>
+    protected abstract Connection MakeNewConnection(string name, TcpClient client);
+
+    /// <summary>
+    /// Override to handle exceptions, e.g. log them
+    /// </summary>
+    /// <param name="error">Error to handle</param>
+    /// <param name="isCommunication">True if error came from communication circuit (e.g. socket)</param>
+    protected virtual void DoHandleError(Exception error, bool isCommunication)
+    {
+      //use Log here
+      throw error;
+    }
+
+    /// <summary>
+    /// Override to take action per received command.
+    /// The handler is called on the main thread and should not leak errors
+    /// </summary>
+    /// <param name="connection">Connection which received the command</param>
+    /// <param name="command">Command text</param>
+    protected abstract void DoHandleCommand(Connection connection, string command);
+
+
+    //returns null on bind inability
     private TcpListener tryBind()
     {
-      var port = AssignedPort;
-      try
+      for(var port = m_StartPort; port <= m_EndPort; port++)
       {
-        var result = new TcpListener(IPAddress.Loopback, port);
-        result.ExclusiveAddressUse = true;
-        result.Start();
-        return result;
-      }
-      catch
-      {
-
+        try
+        {
+          var result = new TcpListener(IPAddress.Loopback, port);
+          result.ExclusiveAddressUse = true;
+          result.Start();
+          m_AssignedPort = port;
+          return result;
+        }
+        catch(Exception error)
+        {
+          DoHandleError(error, true);
+        }
       }
       return null;
     }
 
     private void threadBody()
     {
+      const int GRANULARITY_MS = 357;
+
       while(true)
       {
         var listener = m_Listener;
         if (listener == null) break;
 
-        if (listener.Pending())
+        try
         {
-          var client = listener.AcceptTcpClient();
-          //read ID header
-          var connection = connect(client);
+          if (listener.Pending())
+          {
+            var client = listener.AcceptTcpClient();
+            connect(client);
+          }
+        }
+        catch(Exception error)
+        {
+          DoHandleError(error, true);
         }
 
         foreach(var one in m_Connections)
         {
-          read(one);
+          readAndHandleSafe(one);
         }
 
-      }
+        m_Signal.WaitOne(GRANULARITY_MS);
+      }//while
     }
 
 
@@ -166,12 +199,27 @@ namespace Azos.IO.Sipc
     {
       client.SendBufferSize = 8 * 1024;
       client.SendTimeout = 8000;
-      return null;
+
+      string name;
+      try
+      {
+        name = Utils.ReceiveHandshake(client);
+      }
+      catch(Exception error)
+      {
+        DoHandleError(error, true);
+        return null;
+      }
+
+      var connection = m_Connections.GetOrRegister(name, n => MakeNewConnection(n, client), name, out var wasAdded);
+      if (!wasAdded) connection.Reconnect(client);
+
+      return connection;
     }
 
-    private void read(Connection connection)
+    private void readAndHandleSafe(Connection connection)
     {
-      //read socket if nothing the return;
+      //read socket if nothing then return;
       string command = connection.TryReceive();
 
       if (command.IsNullOrWhiteSpace()) return;
@@ -182,17 +230,9 @@ namespace Azos.IO.Sipc
       }
       catch(Exception error)
       {
-        DoHandleError(error);
+        DoHandleError(error, false);
       }
     }
-
-    protected virtual void DoHandleError(Exception error)
-    {
-      //use Log here
-      throw error;
-    }
-
-    protected abstract void DoHandleCommand(Connection connection, string command);
 
   }
 }
