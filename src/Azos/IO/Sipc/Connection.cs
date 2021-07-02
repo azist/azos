@@ -88,7 +88,7 @@ namespace Azos.IO.Sipc
       if (m_State != ConnectionState.OK && m_State != ConnectionState.Limbo) return null;//failed to get
       try
       {
-        var result = Utils.Receive(Client);
+        var result = Protocol.Receive(Client);
         m_State = ConnectionState.OK;
         m_LastReceiveUtc = DateTime.UtcNow;
         return result;
@@ -114,7 +114,7 @@ namespace Azos.IO.Sipc
         if (m_State != ConnectionState.OK && m_State != ConnectionState.Limbo) return false;//failed to send
         try
         {
-          Utils.Send(Client, command);
+          Protocol.Send(Client, command);
           m_LastSendUtc = DateTime.UtcNow;
           return true;
         }

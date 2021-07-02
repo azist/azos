@@ -5,16 +5,11 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
 
-using Azos.Apps;
 using Azos.Collections;
-using Azos.Log;
 
 namespace Azos.IO.Sipc
 {
@@ -23,17 +18,15 @@ namespace Azos.IO.Sipc
   /// </summary>
   public abstract class SipcServer : DisposableObject
   {
-    public const int DEFAULT_PORT = 49123;
-
     protected SipcServer(int startPort, int endPort)
     {
-      if (startPort <=0 ) startPort = DEFAULT_PORT;
-      if (endPort <= 0) endPort = DEFAULT_PORT;
+      if (startPort <=0 ) startPort = Protocol.LISTENER_PORT_DEFAULT;
+      if (endPort <= 0) endPort = Protocol.LISTENER_PORT_DEFAULT + Protocol.LISTENER_PORT_RANGE_DEFAULT;
 
       (startPort <= endPort).IsTrue("{0} <= {1}".Args(nameof(startPort), nameof(endPort)));
 
-      m_StartPort = startPort;
-      m_EndPort = endPort;
+      m_StartPort = Protocol.GuardPort(startPort, nameof(startPort));
+      m_EndPort = Protocol.GuardPort(endPort, nameof(endPort)); ;
     }
 
     protected override void Destructor()
@@ -123,14 +116,12 @@ namespace Azos.IO.Sipc
     protected abstract Connection MakeNewConnection(string name, TcpClient client);
 
     /// <summary>
-    /// Override to handle exceptions, e.g. log them
+    /// Override to handle exceptions, e.g. log them. Default implementation does nothing
     /// </summary>
     /// <param name="error">Error to handle</param>
     /// <param name="isCommunication">True if error came from communication circuit (e.g. socket)</param>
     protected virtual void DoHandleError(Exception error, bool isCommunication)
     {
-      //use Log here
-      throw error;
     }
 
     /// <summary>
@@ -197,13 +188,17 @@ namespace Azos.IO.Sipc
 
     private Connection connect(TcpClient client)
     {
-      client.SendBufferSize = 8 * 1024;
-      client.SendTimeout = 8000;
+      client.ReceiveBufferSize = Protocol.RECEIVE_BUFFER_SIZE;
+      client.SendBufferSize = Protocol.SEND_BUFFER_SIZE;
+      client.ReceiveTimeout = Protocol.RECEIVE_TIMEOUT_MS;
+      client.SendTimeout = Protocol.SEND_TIMEOUT_MS;
 
       string name;
       try
       {
-        name = Utils.ReceiveHandshake(client);
+        //upon connection to server, client sends a GUID which identifies the running instance
+        //client generates the guid on its startup only once per instance
+        name = Protocol.ReceiveHandshake(client);
       }
       catch(Exception error)
       {
