@@ -13,7 +13,7 @@ using Azos.Security;
 using Azos.Serialization.JSON;
 using Azos.Wave;
 
-namespace Azos.Apps
+namespace Azos.Apps.Hosting
 {
   /// <summary>
   /// Provides program body for generic application host which boots a Daemon upon start.
