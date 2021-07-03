@@ -25,7 +25,7 @@ namespace Azos.Apps.Hosting
   {
     public const string CONFIG_BOOT_SECTION = "boot";
 
-    public static int ConsoleMain(string[] args)
+    public static int ConsoleMain(BootArgs args)
     {
       var result = consoleMainBody(args);
 
@@ -38,7 +38,7 @@ namespace Azos.Apps.Hosting
       return result;
     }
 
-    private static int consoleMainBody(string[] args)
+    private static int consoleMainBody(BootArgs args)
     {
       Console.CancelKeyPress += (_, e) => {
           var app = s_Application;//capture
@@ -123,13 +123,22 @@ namespace Azos.Apps.Hosting
 
     //note: this is a static class because it uses process-wide console hooks and
     //process return codes. There is no need to make it an instance class for any practical reason
+    private static BootArgs s_Args;
+    private static GovernorSipcClient s_Sipc;
     private static AzosApplication s_Application;
     private static Daemon s_Server;
 
-    public static void Start(string[] args)
+    //need to protect with crash dump into file
+    public static void Start(BootArgs args)
     {
-      s_Application = new AzosApplication(args, null);
+      s_Args = args;
+      if (args.IsGoverned)
+      {
+        //todo: Establish SIPC
+        s_Sipc = new GovernorSipcClient(args.GovernorPort);
+      }
 
+      s_Application = new AzosApplication(args.ForApplication, null);
       var nBoot = s_Application.ConfigRoot[CONFIG_BOOT_SECTION];
       s_Server = FactoryUtils.MakeAndConfigureComponent<Daemon>(s_Application, nBoot, typeof(WaveServer));
       s_Server.Start();
@@ -139,6 +148,12 @@ namespace Azos.Apps.Hosting
     {
       DisposableObject.DisposeAndNull(ref s_Server);
       DisposableObject.DisposeAndNull(ref s_Application);
+
+      if (s_Sipc != null)
+      {
+      //todo: Disconnect SIPC
+        DisposableObject.DisposeAndNull(ref s_Sipc);
+      }
     }
   }
 }

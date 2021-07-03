@@ -9,7 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Azos.Sky.Apps.Hosting
+namespace Azos.Apps.Hosting
 {
   /// <summary>
   /// Assists app host in interpreting boot arguments
