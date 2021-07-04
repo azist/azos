@@ -89,7 +89,6 @@ namespace Azos.IO.Sipc
         if (m_Connection != null)
         {
           m_Connection.Send(Protocol.CMD_DISCONNECT);
-          m_Connection = null;
         }
 
 #pragma warning disable CS0420 // A reference to a volatile field will not be treated as volatile
@@ -106,6 +105,8 @@ namespace Azos.IO.Sipc
           m_Thread.Join();
           m_Thread = null;
         }
+
+        m_Connection = null;
 
         DisposeAndNull(ref m_Signal); //after thread Join
       }
@@ -157,7 +158,6 @@ namespace Azos.IO.Sipc
         client.SendTimeout = Protocol.SEND_TIMEOUT_MS;
 
         Protocol.Send(client, m_Name);//handshake
-System.Console.WriteLine("Client poslal: " + m_Name);
 
         return client;
       }

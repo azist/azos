@@ -31,11 +31,11 @@ namespace Azos.Tests.Nub.IO.Ipc
           cli.Start();
           Aver.IsTrue(cli.Active);
 
-          Thread.Sleep(2000);
+          Thread.Sleep(1200);//allow client to connect
 
-          lock(srv.Errors)
-            foreach(var e in srv.Errors)
-             new WrappedExceptionData(e.err).See();
+          //lock(srv.Errors)
+          //  foreach(var e in srv.Errors)
+          //   new WrappedExceptionData(e.err).See();
 
           Aver.IsTrue(srv.Connections.Count > 0);
           var srvConnection = srv.Connections.First();

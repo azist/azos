@@ -40,16 +40,15 @@ namespace Azos.IO.Sipc
     public static int GuardPort(this int port, string name)
      => port.IsTrue(v => v >= LISTENER_PORT_MIN && v <= LISTENER_PORT_MAX, "{2} >= (`{0}`={1}) <= {3}".Args(name, port, LISTENER_PORT_MIN, LISTENER_PORT_MAX));
 
-    private const int DEFAULT_STREAM_SZ = 32 * 1024;
+    private const int DEFAULT_STREAM_CAPACITY = 32 * 1024;
 
     public static void Send(TcpClient client, string data)
     {
       client.NonNull(nameof(client));
       data.NonBlank(nameof(data));
 
-      using (var ms = new MemoryStream())
+      using (var ms = new MemoryStream(DEFAULT_STREAM_CAPACITY))
       {
-        ms.SetLength(DEFAULT_STREAM_SZ);
         ms.Position = sizeof(int);  //skip 4 bytes
 
         using (var wri = new StreamWriter(ms, Encoding.UTF8, 8 * 1024, true))
@@ -58,13 +57,13 @@ namespace Azos.IO.Sipc
           wri.Flush();
         }
 
-        var sz = (int)ms.Position;//with 4 bytes size preamble
+        var sz = (int)ms.Length - sizeof(int);//just the size of string w/o first 4 bytes
 
         (sz < MAX_BYTE_SZ).IsTrue("sz < {0}".Args(MAX_BYTE_SZ));
 
         ms.Position = 0;
-        ms.WriteBEInt32(sz);//write size
-        client.GetStream().Write(ms.GetBuffer(), 0, sz);
+        ms.WriteBEInt32(sz);//write byte size of data
+        client.GetStream().Write(ms.GetBuffer(), 0, (int)ms.Length);
       }
     }
 
@@ -72,19 +71,20 @@ namespace Azos.IO.Sipc
     {
       var nets = client.NonNull(nameof(client)).GetStream();
 
-      using(var ms = new MemoryStream())
+      using(var ms = new MemoryStream(DEFAULT_STREAM_CAPACITY))
       {
-        ms.SetLength(DEFAULT_STREAM_SZ);
+        ms.SetLength(sizeof(int));
         socketRead(nets, ms.GetBuffer(), 0, sizeof(int));
 
         ms.Position = 0;
         var sz = ms.ReadBEInt32();
         (sz < MAX_BYTE_SZ).IsTrue("sz < {0}".Args(MAX_BYTE_SZ));
 
-        ms.SetLength(sz - sizeof(int));
+        ms.SetLength(sz);
 
-        socketRead(nets, ms.GetBuffer(), 0, (int)ms.Length);
+        socketRead(nets, ms.GetBuffer(), 0, sz);
 
+        ms.Position = 0;
         using(var reader = new StreamReader(ms, Encoding.UTF8))
           return reader.ReadToEnd();
       }
