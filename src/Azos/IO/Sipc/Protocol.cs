@@ -40,6 +40,8 @@ namespace Azos.IO.Sipc
     public static int GuardPort(this int port, string name)
      => port.IsTrue(v => v >= LISTENER_PORT_MIN && v <= LISTENER_PORT_MAX, "{2} >= (`{0}`={1}) <= {3}".Args(name, port, LISTENER_PORT_MIN, LISTENER_PORT_MAX));
 
+    private const int DEFAULT_STREAM_SZ = 32 * 1024;
+
     public static void Send(TcpClient client, string data)
     {
       client.NonNull(nameof(client));
@@ -47,9 +49,10 @@ namespace Azos.IO.Sipc
 
       using (var ms = new MemoryStream())
       {
+        ms.SetLength(DEFAULT_STREAM_SZ);
         ms.Position = sizeof(int);  //skip 4 bytes
 
-        using (var wri = new StreamWriter(ms, Encoding.UTF8))
+        using (var wri = new StreamWriter(ms, Encoding.UTF8, 8 * 1024, true))
         {
           wri.Write(data);
           wri.Flush();
@@ -61,7 +64,6 @@ namespace Azos.IO.Sipc
 
         ms.Position = 0;
         ms.WriteBEInt32(sz);//write size
-
         client.GetStream().Write(ms.GetBuffer(), 0, sz);
       }
     }
@@ -72,17 +74,16 @@ namespace Azos.IO.Sipc
 
       using(var ms = new MemoryStream())
       {
-        ms.Position = sizeof(int);
-        socketRead(nets, ms.GetBuffer(), 0, 4);
+        ms.SetLength(DEFAULT_STREAM_SZ);
+        socketRead(nets, ms.GetBuffer(), 0, sizeof(int));
 
         ms.Position = 0;
         var sz = ms.ReadBEInt32();
-
         (sz < MAX_BYTE_SZ).IsTrue("sz < {0}".Args(MAX_BYTE_SZ));
 
-        ms.SetLength(sz);
+        ms.SetLength(sz - sizeof(int));
 
-        socketRead(nets, ms.GetBuffer(), 0, sz - sizeof(int));
+        socketRead(nets, ms.GetBuffer(), 0, (int)ms.Length);
 
         using(var reader = new StreamReader(ms, Encoding.UTF8))
           return reader.ReadToEnd();

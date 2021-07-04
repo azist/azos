@@ -149,13 +149,15 @@ namespace Azos.IO.Sipc
     {
       try
       {
-        var client = new TcpClient(new IPEndPoint(IPAddress.Loopback, m_ServerPort));
+        var client = new TcpClient();
+        client.Connect(new IPEndPoint(IPAddress.Loopback, m_ServerPort));
         client.ReceiveBufferSize = Protocol.RECEIVE_BUFFER_SIZE;
         client.SendBufferSize = Protocol.SEND_BUFFER_SIZE;
         client.ReceiveTimeout = Protocol.RECEIVE_TIMEOUT_MS;
         client.SendTimeout = Protocol.SEND_TIMEOUT_MS;
 
         Protocol.Send(client, m_Name);//handshake
+System.Console.WriteLine("Client poslal: " + m_Name);
 
         return client;
       }

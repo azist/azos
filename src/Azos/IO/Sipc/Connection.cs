@@ -43,10 +43,10 @@ namespace Azos.IO.Sipc
   /// Represents a connection between server/client. Derived class may represent something more
   /// concrete such as a connected process with `AppProcessConnection`
   /// </summary>
-  public abstract class Connection : INamed
+  public class Connection : INamed
   {
 
-    protected Connection(string name, TcpClient client)
+    public Connection(string name, TcpClient client)
     {
       m_Client = client.NonNull(nameof(client));
       m_State = ConnectionState.OK;

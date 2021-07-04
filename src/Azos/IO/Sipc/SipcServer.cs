@@ -66,6 +66,11 @@ namespace Azos.IO.Sipc
     /// </summary>
     public int AssignedPort => m_AssignedPort;
 
+    /// <summary>
+    /// Connections
+    /// </summary>
+    public IRegistry<Connection> Connections => m_Connections;
+
 
     public void Start()
     {
@@ -200,6 +205,7 @@ namespace Azos.IO.Sipc
         //upon connection to server, client sends a name(GUID) which identifies the running instance
         //client generates the guid on its startup only once per instance
         name = Protocol.Receive(client);
+System.Console.WriteLine("Server poluchil: "+name);
       }
       catch(Exception error)
       {
