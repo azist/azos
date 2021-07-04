@@ -154,8 +154,12 @@ namespace Azos.Apps.Hosting
           Start(args);
 
           //blocks until application is running
-//          s_Application.AsTask.Wait();
-
+          while(true)
+          {
+            var stopped = s_Application.WaitForStopOrShutdown(5000);
+            if (stopped) break;
+            //s_Sipc.Connection.Send("MAIN");
+          }
         }
         finally
         {

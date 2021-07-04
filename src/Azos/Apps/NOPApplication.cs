@@ -208,6 +208,12 @@ namespace Azos.Apps
 
     public void SetConsolePort(IO.Console.IConsolePort port) { }
 
+    public bool WaitForStopOrShutdown(int waitIntervalMs)
+    {
+      if (waitIntervalMs > 0) System.Threading.Thread.Sleep(waitIntervalMs);
+      return false;
+    }
+
     #endregion
 
   }

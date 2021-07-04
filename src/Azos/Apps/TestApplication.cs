@@ -251,7 +251,7 @@ namespace Azos.Apps
       return false;
     }
 
-    public void Stop()
+    public virtual void Stop()
     {
 
     }
@@ -272,11 +272,17 @@ namespace Azos.Apps
       return ApplicationComponent.GetAppComponentByCommonName(this, name);
     }
 
-    public bool ResolveNamedVar(string name, out string value)
+    public virtual bool ResolveNamedVar(string name, out string value)
     {
       return DefaultAppVarResolver.ResolveNamedVar(this, name, out value);
     }
 
-    public void SetConsolePort(IO.Console.IConsolePort port) => this.ConsolePort = port;
+    public virtual void SetConsolePort(IO.Console.IConsolePort port) => this.ConsolePort = port;
+
+    public virtual bool WaitForStopOrShutdown(int waitIntervalMs)
+    {
+      if (waitIntervalMs > 0) System.Threading.Thread.Sleep(waitIntervalMs);
+      return false;
+    }
   }
 }
