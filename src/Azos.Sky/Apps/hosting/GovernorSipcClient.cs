@@ -15,20 +15,40 @@ namespace Azos.Apps.Hosting
 {
   public sealed class GovernorSipcClient : SipcClient
   {
-    public GovernorSipcClient(int serverPort) : base(serverPort)
+    public GovernorSipcClient(int serverPort, Func<IApplicationImplementation> appAccessor) : base(serverPort)
     {
+      m_AppAccessor = appAccessor.NonNull(nameof(appAccessor));
     }
 
-    //todo we need to use app thread instead of allocating one, so
-    //console blocks until app becomes inactive
-    //maybe have a delegate which takes App init under client ctor
+    private Func<IApplicationImplementation> m_AppAccessor;
+
+    private IApplicationImplementation App => m_AppAccessor() ?? (IApplicationImplementation)NOPApplication.Instance;
+
 
     protected override void DoHandleCommand(Connection connection, string command)
     {
       if (command.EqualsOrdIgnoreCase(Protocol.CMD_STOP))
       {
-        ((IApplicationImplementation)Azos.Apps.ExecutionContext.Application).Stop();
+        App.Stop();
       }
+    }
+
+    protected override void DoHandleError(Exception error, bool isCommunication)
+    {
+      var msg = new Log.Message
+      {
+        Type = Log.MessageType.CriticalAlert,
+        Topic = "todo",
+        From = nameof(GovernorSipcClient),
+        Text = "{0} error: ".Args(error.ToMessageWithType()),
+        Exception = error
+      };
+      App.Log.Write(msg);
+    }
+
+    protected override void DoHandleFailure()
+    {
+      App.Stop();
     }
 
     protected override Connection MakeNewConnection(string name, TcpClient client)

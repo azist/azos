@@ -8,6 +8,7 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Azos.IO.Sipc
 {
@@ -57,9 +58,10 @@ namespace Azos.IO.Sipc
     public bool Active => m_Client != null;
 
     /// <summary>
-    /// Connection to send data into
+    /// Connection to send data into. Null if not active
     /// </summary>
     public Connection Connection => m_Connection;
+
 
     public void Start()
     {
@@ -84,6 +86,12 @@ namespace Azos.IO.Sipc
     {
       lock(m_Lock)
       {
+        if (m_Connection != null)
+        {
+          m_Connection.Send(Protocol.CMD_DISCONNECT);
+          m_Connection = null;
+        }
+
 #pragma warning disable CS0420 // A reference to a volatile field will not be treated as volatile
         DisposeAndNull(ref m_Client);
 #pragma warning restore CS0420 // A reference to a volatile field will not be treated as volatile
@@ -109,11 +117,21 @@ namespace Azos.IO.Sipc
     protected abstract Connection MakeNewConnection(string name, TcpClient client);
 
     /// <summary>
-    /// Override to handle exceptions, e.g. log them. Default implementation does nothing
+    /// Override to handle exceptions, e.g. log them. Default implementation does nothing.
+    /// Implementation may not leak.
     /// </summary>
     /// <param name="error">Error to handle</param>
     /// <param name="isCommunication">True if error came from communication circuit (e.g. socket)</param>
     protected virtual void DoHandleError(Exception error, bool isCommunication)
+    {
+    }
+
+    /// <summary>
+    /// Override to handle operation failure - when the client can not communicate with
+    /// server. Override will typically abort the hosting process.
+    /// This is called only once by main thread - do not block and do not leak exceptions
+    /// </summary>
+    protected virtual void DoHandleFailure()
     {
     }
 
@@ -151,7 +169,11 @@ namespace Azos.IO.Sipc
     private void threadBody()
     {
       const int GRANULARITY_MS = 357;
+      const int PROGRESSIVE_FAILURE_DELAY_MS = 250;
+      const int MAX_CONSEQUITIVE_FAILURES = 10;
 
+      var failures = 0;
+      var nextReconnectAttempt = DateTime.UtcNow;
       while(true)
       {
         var client = m_Client;
@@ -162,15 +184,30 @@ namespace Azos.IO.Sipc
 
         if (state != ConnectionState.OK && state != ConnectionState.Limbo)
         {
+          if (now < nextReconnectAttempt)
+          {
+            m_Signal.WaitOne(GRANULARITY_MS);
+            continue;
+          }
+
           var newClient = tryConnect();
           if (newClient != null)
           {
             m_Client.Dispose();
             m_Client = newClient;
             m_Connection.Reconnect(newClient);
+            failures = 0;
           }
           else
           {
+            //uplink lost
+            failures++;
+            if (failures > MAX_CONSEQUITIVE_FAILURES)
+            {
+              DoHandleFailure();
+              break;//permanently tear the connection
+            }
+            nextReconnectAttempt = DateTime.UtcNow.AddMilliseconds(PROGRESSIVE_FAILURE_DELAY_MS * failures);//progressive delay
             m_Signal.WaitOne(GRANULARITY_MS);
           }
           continue;

@@ -32,8 +32,9 @@ namespace Azos.IO.Sipc
     public const int PING_INTERVAL_MS = 2500;
     public const int LIMBO_TIMEOUT_MS = PING_INTERVAL_MS * 4;//if more than 4 ping interval passes, connection is in limbo
 
-    public const string CMD_PING = "ping";
-    public const string CMD_STOP = "stop";
+    public const string CMD_PING = "ping;";
+    public const string CMD_STOP = "stop;";
+    public const string CMD_DISCONNECT = "disconnect;";
 
 
     public static int GuardPort(this int port, string name)

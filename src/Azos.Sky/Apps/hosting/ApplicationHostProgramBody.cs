@@ -25,9 +25,13 @@ namespace Azos.Apps.Hosting
   {
     public const string CONFIG_BOOT_SECTION = "boot";
 
-    public static int ConsoleMain(BootArgs args)
+    #region Interactive console
+    /// <summary>
+    /// Called for interactive console process model which is NOT daemon and NOT governed
+    /// </summary>
+    public static int InteractiveConsoleMain(BootArgs args)
     {
-      var result = consoleMainBody(args);
+      var result = interactiveConsoleMainBody(args);
 
       if (System.Diagnostics.Debugger.IsAttached)
       {
@@ -38,7 +42,7 @@ namespace Azos.Apps.Hosting
       return result;
     }
 
-    private static int consoleMainBody(BootArgs args)
+    private static int interactiveConsoleMainBody(BootArgs args)
     {
       Console.CancelKeyPress += (_, e) => {
           var app = s_Application;//capture
@@ -54,7 +58,7 @@ namespace Azos.Apps.Hosting
         try
         {
           Console.WriteLine("Azos Sky Application Host Process");
-          Console.WriteLine("Rev 1.0 Nov 2020 / Radio-86RK");
+          Console.WriteLine("Rev 2.0 July 3 2021 / Radio-86RK");
           Console.WriteLine();
           Console.WriteLine("Booting server daemon...");
           Start(args);
@@ -120,30 +124,98 @@ namespace Azos.Apps.Hosting
         return -100;
       }
     }
+    #endregion
 
+    #region Governed console
+    /// <summary>
+    /// Called for governed console process model which is NOT daemon but governed by governor process at the specified port
+    /// </summary>
+    public static int GovernedConsoleMain(BootArgs args)
+    {
+      var result = governedConsoleMainBody(args);
+      return result;
+    }
+
+    private static int governedConsoleMainBody(BootArgs args)
+    {
+      Console.CancelKeyPress += (_, e) => {
+        var app = s_Application;//capture
+        if (app != null)
+        {
+          app.Stop();
+          e.Cancel = true;
+        }
+      };
+
+      try
+      {
+        try
+        {
+          Start(args);
+
+          //blocks until application is running
+//          s_Application.AsTask.Wait();
+
+        }
+        finally
+        {
+          Stop();
+        }
+
+        return 0;
+      }
+      catch (Exception error)
+      {
+        var wrap = new WrappedExceptionData(error, true);
+        var errorContent = "App Root exception, details: \n" + wrap.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
+        var crashFile = "{0:yyyyMMdd-HHmmssff}-{1}-{2}.crash.log".Args(
+                               DateTime.Now,
+                               System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                               s_AppId.Default("unset"));
+
+        try
+        {
+          System.IO.File.WriteAllText(crashFile, errorContent);
+          Console.WriteLine(errorContent);
+        }
+        catch{ }
+
+        return -100;
+      }
+    }
+    #endregion
+
+    #region Start/Stop/Daemon
     //note: this is a static class because it uses process-wide console hooks and
     //process return codes. There is no need to make it an instance class for any practical reason
     private static BootArgs s_Args;
     private static GovernorSipcClient s_Sipc;
     private static AzosApplication s_Application;
+    private static string s_AppId;
     private static Daemon s_Server;
 
-    //need to protect with crash dump into file
+    /// <summary>
+    /// Starts the application container, used by daemons directly
+    /// </summary>
     public static void Start(BootArgs args)
     {
       s_Args = args;
       if (args.IsGoverned)
       {
-        //todo: Establish SIPC
-        s_Sipc = new GovernorSipcClient(args.GovernorPort);
+        s_Sipc = new GovernorSipcClient(args.GovernorPort, () => s_Application);
+        s_Sipc.Start();
       }
 
       s_Application = new AzosApplication(args.ForApplication, null);
+      s_AppId = s_Application.AppId.ToString();
       var nBoot = s_Application.ConfigRoot[CONFIG_BOOT_SECTION];
       s_Server = FactoryUtils.MakeAndConfigureComponent<Daemon>(s_Application, nBoot, typeof(WaveServer));
       s_Server.Start();
     }
 
+    /// <summary>
+    /// Starts the application container, used by daemons directly
+    /// </summary>
     public static void Stop()
     {
       DisposableObject.DisposeAndNull(ref s_Server);
@@ -151,9 +223,9 @@ namespace Azos.Apps.Hosting
 
       if (s_Sipc != null)
       {
-      //todo: Disconnect SIPC
         DisposableObject.DisposeAndNull(ref s_Sipc);
       }
     }
+    #endregion
   }
 }
