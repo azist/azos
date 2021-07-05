@@ -75,15 +75,23 @@ namespace Azos.Apps.Hosting
           {
             s_Application.InjectInto(term);
 
-            //Impersonate the current call flow as SYSTEM
+            #region Perform SYSTEM Implicit Grant
+            //Impersonate the current call flow as local SYSTEM user.
+            //Warning: this code here is a very special case: a root server console.
+            //Never use the similar code in business applications as it bypasses all security
+            //by injecting the caller with SYSTEM-level privilege which results in implicit grant
+            //of all permission checks.
+            //Note: The session is injected with blank SysAuthToken() so this session is only granted locally
+            //and not capable of impersonating system on remote hosts
             ExecutionContext.__SetThreadLevelSessionContext(new BaseSession(Guid.NewGuid(), 123)
             {
               User = new User(BlankCredentials.Instance, new SysAuthToken(), UserStatus.System, "sys", "Implicit grant", Rights.None)
             });
+            #endregion
 
             while (s_Application.Active)
             {
-              Console.Write("{0}@{1}\n$ ".Args(s_Application.AppId, Azos.Platform.Computer.HostName));
+              Console.Write("{0}@{1}\n$ ".Args(s_Application.AppId, Platform.Computer.HostName));
               var cmd = Console.ReadLine();
               if (cmd.IsNullOrWhiteSpace()) continue;
               if (cmd.IsOneOf("quit", "exit", "stop")) break;

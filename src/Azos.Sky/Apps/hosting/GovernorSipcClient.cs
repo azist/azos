@@ -5,14 +5,16 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
 using System.Net.Sockets;
-using System.Text;
-
+using Azos.Conf;
 using Azos.IO.Sipc;
+using Azos.Log;
 
 namespace Azos.Apps.Hosting
 {
+  /// <summary>
+  /// Implements a simple IPC client for connection to host governor server
+  /// </summary>
   public sealed class GovernorSipcClient : SipcClient
   {
     public GovernorSipcClient(int serverPort, Func<IApplicationImplementation> appAccessor) : base(serverPort)
@@ -29,31 +31,54 @@ namespace Azos.Apps.Hosting
     {
       if (command.EqualsOrdIgnoreCase(Protocol.CMD_STOP))
       {
+        log(MessageType.InfoD, "Received stop from gov");
         App.Stop();
+      }
+
+      try
+      {
+        var cmd = command.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw);
+        perform(connection, cmd);
+      }
+      catch(Exception error)
+      {
+        log(MessageType.Error, "Unparsable cmd: {0}".Args(command.TakeFirstChars(48), ".."), error);
       }
     }
 
     protected override void DoHandleError(Exception error, bool isCommunication)
     {
-      var msg = new Log.Message
-      {
-        Type = Log.MessageType.CriticalAlert,
-        Topic = "todo",
-        From = nameof(GovernorSipcClient),
-        Text = "{0} error: ".Args(error.ToMessageWithType()),
-        Exception = error
-      };
-      App.Log.Write(msg);
+      log(MessageType.Critical, "{0} error: {1}".Args(isCommunication ? "Comm" : "Non-comm", error.ToMessageWithType()), error);
     }
 
     protected override void DoHandleFailure()
     {
+      log(MessageType.CatastrophicError, "Gov uplink failure");
       App.Stop();
     }
 
     protected override Connection MakeNewConnection(string name, TcpClient client)
     {
-      throw new NotImplementedException();
+      return new Connection(name, client);
+    }
+
+    private void log(MessageType type, string text, Exception error = null)
+    {
+      var msg = new Message
+      {
+        Type = type,
+        Topic = Sky.SysConsts.LOG_TOPIC_HOST_GOV,
+        From = nameof(GovernorSipcClient),
+        Text = text,
+        Exception = error
+      };
+
+      App.Log.Write(msg, urgent: true);
+    }
+
+    private void perform(Connection cnn, IConfigSectionNode cmd)
+    {
+      //perform commands as specified via CMD structured parameter
     }
   }
 }
