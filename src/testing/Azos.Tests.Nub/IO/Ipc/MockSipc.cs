@@ -19,13 +19,13 @@ namespace Azos.Tests.Nub.IO.Ipc
     {
     }
 
-    public List<(Connection con, string smd)> Received = new List<(Connection con, string smd)>();
+    public List<(Connection con, string cmd)> Received = new List<(Connection con, string cmd)>();
     public List<(Exception err, bool iscom)> Errors = new List<(Exception err, bool iscom)>();
 
 
     protected override void DoHandleError(Exception error, bool isCommunication)
     {
-      lock (Errors)
+      lock(Errors)
       {
         Errors.Add((error, isCommunication));
       }
@@ -57,13 +57,13 @@ namespace Azos.Tests.Nub.IO.Ipc
     }
 
     public bool WasFailure;
-    public List<(Connection con, string smd)> Received = new List<(Connection con, string smd)>();
+    public List<(Connection con, string cmd)> Received = new List<(Connection con, string cmd)>();
     public List<(Exception err, bool iscom)> Errors = new List<(Exception err, bool iscom)>();
 
 
     protected override void DoHandleError(Exception error, bool isCommunication)
     {
-      lock (Errors)
+      lock(Errors)
       {
         Errors.Add((error, isCommunication));
       }
@@ -71,7 +71,7 @@ namespace Azos.Tests.Nub.IO.Ipc
 
     protected override void DoHandleCommand(Connection connection, string command)
     {
-      lock (Received)
+      lock(Received)
       {
         Received.Add((connection, command));
       }
