@@ -214,7 +214,7 @@ namespace Azos.Apps.Hosting
       s_Args = args;
       if (args.IsGoverned)
       {
-        s_Sipc = new GovernorSipcClient(args.GovernorPort, () => s_Application);
+        s_Sipc = new GovernorSipcClient(args.GovPort, () => s_Application);
         s_Sipc.Start();
       }
 

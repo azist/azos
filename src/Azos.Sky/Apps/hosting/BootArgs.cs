@@ -9,6 +9,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+using Azos.Glue;
+
 namespace Azos.Apps.Hosting
 {
   /// <summary>
@@ -20,17 +22,20 @@ namespace Azos.Apps.Hosting
   /// $ host xyz.laconf
   ///
   /// #run app with governor port 49101
-  /// $ host governor 49101 xyz.laconf
-  /// $ host governor 49101 -config xyz.laconf
+  /// $ host gov://49101:app1/1 xyz.laconf
+  /// $ host gov://49101:app1/1 -config xyz.laconf
   ///
   /// # run host as daemon with governor at port 49101
-  /// $ host daemon governor 49101
+  /// $ host daemon gov://49101:app1/1
+  ///
+  /// # run host as daemon with governor at host `mix01` port 49101
+  /// $ host daemon gov://mix01#49101:app1/1
   /// </code>
   /// </example>
   public sealed class BootArgs
   {
     public const string DAEMON = "daemon";
-    public const string GOV = "governor";
+    public const string GOV_BINDING = "gov";
 
     public BootArgs(string[] args)
     {
@@ -41,7 +46,9 @@ namespace Azos.Apps.Hosting
     private string[] m_Original;
     private string[] m_ForApplication;
     private bool m_IsDaemon;
+    private string m_GovHost;
     private int m_GovPort;
+    private string m_GovApp;
 
     /// <summary>
     /// Original command line args as supplied in .ctor
@@ -61,16 +68,30 @@ namespace Azos.Apps.Hosting
 
 
     /// <summary>
-    /// True if the process has a governor at the specified port
+    /// True if the process has a governor at the specified node
     /// </summary>
     public bool IsGoverned => m_GovPort > 0;
 
     /// <summary>
-    /// If greater than zero, then the process is being launched under parent governor process
+    /// If processed launched with `gov://[{host}#]{port}:{app}` pragma, then the process is being launched under parent governor process
     /// and this process is expected to establish a SIPC (Simple IPC) communication with the governor at
-    /// this specified port on local loop TCP interface
+    /// this specified port on the specified host or local loop TCP interface
     /// </summary>
-    public int GovernorPort => m_GovPort;
+    public string GovHost => m_GovHost;
+
+    /// <summary>
+    /// If processed launched with `gov://[{host}#]{port}:{app}` pragma, then the process is being launched under parent governor process
+    /// and this process is expected to establish a SIPC (Simple IPC) communication with the governor at
+    /// this specified port on the specified host or local loop TCP interface
+    /// </summary>
+    public int GovPort  => m_GovPort;
+
+    /// <summary>
+    /// If processed launched with `gov://[{host}#]{port}:{app}` pragma, then the process is being launched under parent governor process
+    /// and this process is expected to establish a SIPC (Simple IPC) communication with the governor at
+    /// this specified port on the specified host or local loop TCP interface
+    /// </summary>
+    public string GovApp => m_GovApp;
 
 
     private string[] parse(string[] args)
@@ -82,7 +103,7 @@ namespace Azos.Apps.Hosting
 
       if (result.Count == 1 && Conf.Configuration.IsSupportedFormat(System.IO.Path.GetExtension(result[0])))
       {
-        result.Insert(0, "-{0}".Args(Azos.Apps.CommonApplicationLogic.CONFIG_SWITCH));
+        result.Insert(0, "-{0}".Args(CommonApplicationLogic.CONFIG_SWITCH));
       }
 
       return result.ToArray();
@@ -94,29 +115,64 @@ namespace Azos.Apps.Hosting
 
       if (args[0].EqualsOrdIgnoreCase(DAEMON))  //daemon
       {
-        if (args.Length > 2)  // daemon governor 1234
+        if (args.Length > 1)  // daemon gov://1234:app1
         {
-          if (args[1].EqualsOrdIgnoreCase(GOV) && int.TryParse(args[2], out var port))
+          if (tryParseGov(args[1]))
           {
             m_IsDaemon = true;
-            m_GovPort = port;
-            return args.Skip(3).ToList();
+            return args.Skip(2).ToList();
           }
         }
+
         m_IsDaemon = true;
         return args.Skip(1).ToList();
       }
 
-      if (args.Length > 1)
+      if (args.Length > 0)
       {
-        if (args[0].EqualsOrdIgnoreCase(GOV) && int.TryParse(args[1], out var port)) //daemon 1234
+        if (tryParseGov(args[0]))
         {
-          m_GovPort = port;
-          return args.Skip(2).ToList();
+          return args.Skip(1).ToList();
         }
       }
 
       return args.ToList();
     }
+
+    private bool tryParseGov(string uri)
+    {
+      var node = new Node(uri);
+      if (!node.Binding.EqualsOrdIgnoreCase(GOV_BINDING)) return false;
+
+      var host = node.Host;
+      if (host.IsNullOrWhiteSpace()) return false;
+
+      var app = node.Service;
+      if (app.IsNullOrWhiteSpace()) return false;
+
+      var port = 0;
+
+      var kvp = host.SplitKVP('#');
+      if (kvp.Key.IsNullOrWhiteSpace()) return false;
+
+      if (kvp.Value.IsNullOrWhiteSpace())
+      {
+        host = null;
+        if (!int.TryParse(kvp.Key, out port)) return false;
+      }
+      else
+      {
+        host = kvp.Key;
+        if (!int.TryParse(kvp.Value, out port)) return false;
+      }
+
+      m_GovHost = host;
+      m_GovPort = port;
+      m_GovApp = app;
+
+      return true;
+    }
+
+
   }
 }

@@ -23,7 +23,9 @@ namespace Azos.Tests.Unit.AppModel
 
       Aver.IsFalse(sut.IsDaemon);
       Aver.IsFalse(sut.IsGoverned);
-      Aver.AreEqual(0, sut.GovernorPort);
+      Aver.AreEqual(0, sut.GovPort);
+      Aver.AreEqual(null, sut.GovHost);
+      Aver.AreEqual(null, sut.GovApp);
       Aver.IsNotNull(sut.ForApplication);
       Aver.AreEqual(0, sut.ForApplication.Length);
     }
@@ -35,7 +37,9 @@ namespace Azos.Tests.Unit.AppModel
 
       Aver.IsFalse(sut.IsDaemon);
       Aver.IsFalse(sut.IsGoverned);
-      Aver.AreEqual(0, sut.GovernorPort);
+      Aver.AreEqual(0, sut.GovPort);
+      Aver.AreEqual(null, sut.GovHost);
+      Aver.AreEqual(null, sut.GovApp);
       Aver.IsNotNull(sut.ForApplication);
       Aver.AreEqual(2, sut.ForApplication.Length);
       Aver.AreEqual("-config", sut.ForApplication[0]);
@@ -49,7 +53,9 @@ namespace Azos.Tests.Unit.AppModel
 
       Aver.IsFalse(sut.IsDaemon);
       Aver.IsFalse(sut.IsGoverned);
-      Aver.AreEqual(0, sut.GovernorPort);
+      Aver.AreEqual(0, sut.GovPort);
+      Aver.AreEqual(null, sut.GovHost);
+      Aver.AreEqual(null, sut.GovApp);
       Aver.IsNotNull(sut.ForApplication);
       Aver.AreEqual(1, sut.ForApplication.Length);
       Aver.AreEqual("some-argument", sut.ForApplication[0]);
@@ -62,7 +68,9 @@ namespace Azos.Tests.Unit.AppModel
 
       Aver.IsFalse(sut.IsDaemon);
       Aver.IsFalse(sut.IsGoverned);
-      Aver.AreEqual(0, sut.GovernorPort);
+      Aver.AreEqual(0, sut.GovPort);
+      Aver.AreEqual(null, sut.GovHost);
+      Aver.AreEqual(null, sut.GovApp);
       Aver.IsNotNull(sut.ForApplication);
       Aver.AreEqual(2, sut.ForApplication.Length);
       Aver.AreEqual("a.laconf", sut.ForApplication[0]);
@@ -76,7 +84,9 @@ namespace Azos.Tests.Unit.AppModel
 
       Aver.IsTrue(sut.IsDaemon);
       Aver.IsFalse(sut.IsGoverned);
-      Aver.AreEqual(0, sut.GovernorPort);
+      Aver.AreEqual(0, sut.GovPort);
+      Aver.AreEqual(null, sut.GovHost);
+      Aver.AreEqual(null, sut.GovApp);
       Aver.IsNotNull(sut.ForApplication);
       Aver.AreEqual(2, sut.ForApplication.Length);
       Aver.AreEqual("-config", sut.ForApplication[0]);
@@ -86,11 +96,13 @@ namespace Azos.Tests.Unit.AppModel
     [Run]
     public void Test06()
     {
-      var sut = new BootArgs(new string[] { "daemon", "governor", "5678", "abc.laconf" });
+      var sut = new BootArgs(new string[] { "daemon", "gov://5678:app/1", "abc.laconf" });
 
       Aver.IsTrue(sut.IsDaemon);
       Aver.IsTrue(sut.IsGoverned);
-      Aver.AreEqual(5678, sut.GovernorPort);
+      Aver.AreEqual(5678, sut.GovPort);
+      Aver.AreEqual(null, sut.GovHost);
+      Aver.AreEqual("app/1", sut.GovApp);
       Aver.IsNotNull(sut.ForApplication);
       Aver.AreEqual(2, sut.ForApplication.Length);
       Aver.AreEqual("-config", sut.ForApplication[0]);
@@ -100,11 +112,13 @@ namespace Azos.Tests.Unit.AppModel
     [Run]
     public void Test07()
     {
-      var sut = new BootArgs(new string[] { "governor", "5678", "abc.laconf" });
+      var sut = new BootArgs(new string[] { "gov://5678:app/123", "abc.laconf" });
 
       Aver.IsFalse(sut.IsDaemon);
       Aver.IsTrue(sut.IsGoverned);
-      Aver.AreEqual(5678, sut.GovernorPort);
+      Aver.AreEqual(5678, sut.GovPort);
+      Aver.AreEqual(null, sut.GovHost);
+      Aver.AreEqual("app/123", sut.GovApp);
       Aver.IsNotNull(sut.ForApplication);
       Aver.AreEqual(2, sut.ForApplication.Length);
       Aver.AreEqual("-config", sut.ForApplication[0]);
@@ -114,14 +128,58 @@ namespace Azos.Tests.Unit.AppModel
     [Run]
     public void Test08()
     {
-      var sut = new BootArgs(new string[] { "daemon", "governor", "abc2.laconf" });
+      var sut = new BootArgs(new string[] { "gov://mix02.local#1678:app/123", "abc.laconf" });
+
+      Aver.IsFalse(sut.IsDaemon);
+      Aver.IsTrue(sut.IsGoverned);
+      Aver.AreEqual(1678, sut.GovPort);
+      Aver.AreEqual("mix02.local", sut.GovHost);
+      Aver.AreEqual("app/123", sut.GovApp);
+      Aver.IsNotNull(sut.ForApplication);
+      Aver.AreEqual(2, sut.ForApplication.Length);
+      Aver.AreEqual("-config", sut.ForApplication[0]);
+      Aver.AreEqual("abc.laconf", sut.ForApplication[1]);
+    }
+
+    [Run]
+    public void Test09()
+    {
+      var sut = new BootArgs(new string[] { "daemon", "gov://", "abc2.laconf" });
 
       Aver.IsTrue(sut.IsDaemon);
       Aver.IsFalse(sut.IsGoverned);
-      Aver.AreEqual(0, sut.GovernorPort);
+      Aver.AreEqual(0, sut.GovPort);
       Aver.IsNotNull(sut.ForApplication);
       Aver.AreEqual(2, sut.ForApplication.Length);
-      Aver.AreEqual("governor", sut.ForApplication[0]);
+      Aver.AreEqual("gov://", sut.ForApplication[0]);
+      Aver.AreEqual("abc2.laconf", sut.ForApplication[1]);
+    }
+
+    [Run]
+    public void Test10()
+    {
+      var sut = new BootArgs(new string[] { "daemon", "gov://123:", "abc2.laconf" });
+
+      Aver.IsTrue(sut.IsDaemon);
+      Aver.IsFalse(sut.IsGoverned);
+      Aver.AreEqual(0, sut.GovPort);
+      Aver.IsNotNull(sut.ForApplication);
+      Aver.AreEqual(2, sut.ForApplication.Length);
+      Aver.AreEqual("gov://123:", sut.ForApplication[0]);
+      Aver.AreEqual("abc2.laconf", sut.ForApplication[1]);
+    }
+
+    [Run]
+    public void Test11()
+    {
+      var sut = new BootArgs(new string[] { "daemon", "gov://#123:app", "abc2.laconf" });
+
+      Aver.IsTrue(sut.IsDaemon);
+      Aver.IsFalse(sut.IsGoverned);
+      Aver.AreEqual(0, sut.GovPort);
+      Aver.IsNotNull(sut.ForApplication);
+      Aver.AreEqual(2, sut.ForApplication.Length);
+      Aver.AreEqual("gov://#123:app", sut.ForApplication[0]);
       Aver.AreEqual("abc2.laconf", sut.ForApplication[1]);
     }
   }
