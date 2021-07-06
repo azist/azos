@@ -54,6 +54,18 @@ namespace Azos.Apps.Hosting
       set => m_ServerEndPort = SetOnInactiveDaemon(value);
     }
 
+    /// <summary>
+    /// Returns the assigned IPC port for active server or zero
+    /// </summary>
+    public int AssignedSipcServerPort
+    {
+      get
+      {
+        var srv = m_Server;
+        if (Running && srv != null) return srv.AssignedPort;
+        return 0;
+      }
+    }
 
 
     protected override void DoConfigure(IConfigSectionNode node)

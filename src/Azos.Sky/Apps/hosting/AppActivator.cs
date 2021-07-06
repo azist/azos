@@ -73,9 +73,11 @@ namespace Azos.Apps.Hosting
 
       WriteLogFromHere(MessageType.Trace, "Initiating app `{0}` start".Args(app.Name), related: rel);
 
+      var govDirective = "{0}://{1}:{2}".Args(BootArgs.GOV_BINDING, ComponentDirector.AssignedSipcServerPort, app.Name);
+
       var rootExeDir = app.StartSection.ValOf(CONFIG_START_EXE_PATH_ATTR);
       var exeFile = app.StartSection.ValOf(CONFIG_START_EXE_NAME_ATTR);
-      var exeArgs = app.StartSection.ValOf(CONFIG_START_EXE_ARGS_ATTR);
+      var exeArgs = "\"{0}\" {1}".Args(govDirective, app.StartSection.ValOf(CONFIG_START_EXE_ARGS_ATTR));
 
       var exeFullPath = System.IO.Path.Combine(rootExeDir, exeFile);
 
