@@ -16,9 +16,9 @@ namespace Azos.Apps.Hosting
   /// <summary>
   /// IPC connection for a subordinate process connecting into governor server
   /// </summary>
-  public sealed class ProcessServerConnection : Connection
+  public sealed class ServerAppConnection : Connection
   {
-    public ProcessServerConnection(App app, TcpClient client) : base(app.NonNull(nameof(app)).Name, client)
+    public ServerAppConnection(App app, TcpClient client) : base(app.NonNull(nameof(app)).Name, client)
     {
       m_App = app;
     }

@@ -39,14 +39,14 @@ namespace Azos.Apps.Hosting
 
     public IRegistry<App> Applications => m_Applications;
 
-    [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_GLUE)]
+    [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_APP)]
     public int ServerStartPort
     {
       get => m_ServerStartPort;
       set => m_ServerStartPort = SetOnInactiveDaemon(value);
     }
 
-    [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_GLUE)]
+    [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_APP)]
     public int ServerEndPort
     {
       get => m_ServerEndPort;
@@ -82,6 +82,7 @@ namespace Azos.Apps.Hosting
 
     protected override void DoWaitForCompleteStop()
     {
+      DisposeAndNull(ref m_Server);
       base.DoWaitForCompleteStop();
     }
   }

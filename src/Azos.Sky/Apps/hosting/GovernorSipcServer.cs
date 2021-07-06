@@ -43,11 +43,12 @@ namespace Azos.Apps.Hosting
     protected override Connection MakeNewConnection(string name, TcpClient client)
     {
       var app = m_Governor.Applications[name].NonNull("app `{0}` not found".Args(name));
-      return new ProcessServerConnection(app, client);
+      return new ServerAppConnection(app, client);
     }
 
     private void log(MessageType type, string from, string text, Exception error = null)
       =>  m_Governor.WriteLog(type, "{0}.{1}".Args(nameof(GovernorSipcServer), from), text, error);
+
 
     private void perform(Connection cnn, IConfigSectionNode cmd)
     {

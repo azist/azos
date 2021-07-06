@@ -64,6 +64,7 @@ namespace Azos
     public const string EXT_PARAM_CONTENT_LACONIC = "laconic://";
     public const string EXT_PARAM_CONTENT_JSON = "json://";
 
+    public const string EXT_PARAM_GROUP_APP = "app";
     public const string EXT_PARAM_GROUP_PILE = "pile";
     public const string EXT_PARAM_GROUP_GLUE = "glue";
     public const string EXT_PARAM_GROUP_LOCKING = "locking";
