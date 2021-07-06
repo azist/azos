@@ -22,6 +22,7 @@ namespace Azos.Apps.Hosting
   public class GovernorDaemon : DaemonWithInstrumentation<IApplicationComponent>
   {
     public const string CONFIG_ACTIVATOR_SECTION = "activator";
+    public const string CONFIG_APP_SECTION = "app";
 
     protected GovernorDaemon(IApplication app) : base(app)
     {
@@ -59,11 +60,21 @@ namespace Azos.Apps.Hosting
     {
       base.DoConfigure(node);
 
+      m_Applications.Clear();
+
       if (node == null) return;
 
       var nActivator = node[CONFIG_ACTIVATOR_SECTION];
       m_Activator = FactoryUtils.MakeDirectedComponent<IAppActivator>(this, nActivator, typeof(ProcessAppActivator), new []{ nActivator });
 
+      foreach(var napp in node.ChildrenNamed(CONFIG_APP_SECTION))
+      {
+        var app = FactoryUtils.MakeDirectedComponent<App>(this, napp, typeof(App), new []{ napp });
+        if (!m_Applications.Register(app))
+        {
+          throw new AppHostingException("Duplicate application id: `{0}`".Args(app.Name));
+        }
+      }
     }
 
     protected override void DoStart()
@@ -71,6 +82,9 @@ namespace Azos.Apps.Hosting
       base.DoStart();
       m_Server = new GovernorSipcServer(this, m_ServerStartPort, m_ServerEndPort);
       m_Server.Start();
+
+      if (m_Applications.Count == 0)
+        WriteLogFromHere(MessageType.Warning, "No applications registered");
 
       m_Applications.ForEach(app => m_Activator.StartApplication(app));
     }
