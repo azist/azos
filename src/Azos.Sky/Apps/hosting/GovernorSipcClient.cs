@@ -17,7 +17,7 @@ namespace Azos.Apps.Hosting
   /// </summary>
   public sealed class GovernorSipcClient : SipcClient
   {
-    public GovernorSipcClient(int serverPort, Func<IApplicationImplementation> appAccessor) : base(serverPort)
+    public GovernorSipcClient(int serverPort, string serverApplicationId, Func<IApplicationImplementation> appAccessor) : base(serverPort, serverApplicationId)
     {
       m_AppAccessor = appAccessor.NonNull(nameof(appAccessor));
     }

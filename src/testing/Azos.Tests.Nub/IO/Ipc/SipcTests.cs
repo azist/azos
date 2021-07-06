@@ -28,7 +28,7 @@ namespace Azos.Tests.Nub.IO.Ipc
         Aver.IsTrue(srv.Active);
         Aver.IsTrue(srv.AssignedPort > 0);
         Connection srvConnection = null;
-        using(var cli = new MockSipcClient(srv.AssignedPort))
+        using(var cli = new MockSipcClient(srv.AssignedPort, "myid-123"))
         {
           Aver.IsFalse(cli.Active);
           cli.Start();
@@ -45,6 +45,7 @@ namespace Azos.Tests.Nub.IO.Ipc
 
           Aver.IsNotNull(cli.Connection);
           Aver.AreEqual(srvConnection.Name, cli.Connection.Name);//are the same
+          Aver.AreEqual("myid-123", srvConnection.Name);
 
           Aver.IsTrue(cli.Connection.State == ConnectionState.OK);
           Aver.IsTrue(srvConnection.State == ConnectionState.OK);

@@ -202,8 +202,9 @@ namespace Azos.IO.Sipc
       string name;
       try
       {
-        //upon connection to server, client sends a name(GUID) which identifies the running instance
-        //client generates the guid on its startup only once per instance
+        //upon connection to server, client sends a name which identifies the running instance
+        //client generates the guid on its startup only once per instance or server supplies it via command line args
+        //when it runs client
         name = Protocol.Receive(client);
       }
       catch(Exception error)

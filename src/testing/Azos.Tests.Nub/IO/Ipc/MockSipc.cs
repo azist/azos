@@ -47,7 +47,7 @@ namespace Azos.Tests.Nub.IO.Ipc
 
   public class MockSipcClient : SipcClient
   {
-    public MockSipcClient(int serverPort) : base(serverPort)
+    public MockSipcClient(int serverPort, string id) : base(serverPort, id)
     {
     }
 

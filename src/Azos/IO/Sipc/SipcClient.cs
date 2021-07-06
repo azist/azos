@@ -17,12 +17,12 @@ namespace Azos.IO.Sipc
   /// </summary>
   public abstract class SipcClient : DisposableObject
   {
-    protected SipcClient(int serverPort)
+    protected SipcClient(int serverPort, string name)
     {
       if (serverPort <= 0 ) serverPort = Protocol.LISTENER_PORT_DEFAULT;
 
       m_ServerPort = Protocol.GuardPort(serverPort, nameof(serverPort));
-      m_Name = Guid.NewGuid().ToString();
+      m_Name = name.Default(Guid.NewGuid().ToString());
     }
 
     protected override void Destructor()
