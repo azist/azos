@@ -5,8 +5,9 @@
 </FILE_LICENSE>*/
 
 using System;
+using System.Linq;
 using System.Net.Sockets;
-
+using System.Threading.Tasks;
 using Azos.Apps;
 using Azos.Collections;
 using Azos.Conf;
@@ -26,10 +27,10 @@ namespace Azos.Apps.Hosting
 
     protected GovernorDaemon(IApplication app) : base(app)
     {
-      m_Applications = new Registry<App>();
+      m_Applications = new OrderedRegistry<App>();
     }
 
-    private Registry<App> m_Applications;
+    private OrderedRegistry<App> m_Applications;
     private IAppActivator m_Activator;
     private GovernorSipcServer m_Server;
     private int m_ServerStartPort;
@@ -89,6 +90,7 @@ namespace Azos.Apps.Hosting
       }
     }
 
+    private Task m_AsyncStartBody;
     protected override void DoStart()
     {
       base.DoStart();
@@ -98,18 +100,81 @@ namespace Azos.Apps.Hosting
       if (m_Applications.Count == 0)
         WriteLogFromHere(MessageType.Warning, "No applications registered");
 
-      m_Applications.ForEach(app => m_Activator.StartApplication(app));
+      //Asynchronously start
+      m_AsyncStartBody = Task.Factory.StartNew(() =>
+      {
+        try
+        {
+          startAll().GetAwaiter().GetResult();
+        }
+        catch(Exception error)
+        {
+          WriteLogFromHere(MessageType.CatastrophicError, "DoStart()..StartNew() leaked: "+error.ToMessageWithType(), error);
+        }
+      }
+      , TaskCreationOptions.LongRunning);
     }
+
+
     protected override void DoSignalStop()
     {
-      m_Applications.ForEach(app => m_Activator.StopApplication(app));
+      m_Applications.OrderedValues.Reverse().ForEach(app => m_Activator.StopApplication(app));
       base.DoSignalStop();
     }
 
     protected override void DoWaitForCompleteStop()
     {
+      if (m_AsyncStartBody != null)
+      {
+        var towait = m_AsyncStartBody;
+        m_AsyncStartBody = null;
+        towait.Wait();
+      }
+
+      try
+      {
+        stopAll().GetAwaiter().GetResult();
+      }
+      catch(Exception error)
+      {
+        WriteLogFromHere(MessageType.CatastrophicError, "stopAll() leaked: " + error.ToMessageWithType(), error);
+      }
+
       DisposeAndNull(ref m_Server);
       base.DoWaitForCompleteStop();
     }
+
+    private async Task startAll()
+    {
+      const int SLICE_MS = 100;
+      foreach(var app in m_Applications.OrderedValues)
+      {
+        for(var i=0; i < app.StartDelayMs; i+=SLICE_MS)
+        {
+          if (!Running) break;
+          await Task.Delay(SLICE_MS);
+        }
+        if (!Running) break;
+        m_Activator.StartApplication(app);
+      }
+    }
+
+    private async Task stopAll()
+    {
+      const int SLICE_MS = 100;
+      foreach (var app in m_Applications.OrderedValues.Reverse())
+      {
+        //even if not Running we still need to stop
+        m_Activator.StopApplication(app);
+
+        for (var i = 0; i < app.StopDelayMs; i += SLICE_MS)
+        {
+          if (!Running) break; //bypass delay if daemon is terminating
+          await Task.Delay(SLICE_MS);
+        }
+      }
+    }
+
+
   }
 }

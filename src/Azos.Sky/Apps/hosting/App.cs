@@ -26,6 +26,14 @@ namespace Azos.Apps.Hosting
     public const int STOP_TIMEOUT_SEC_MIN = 3;
     public const int STOP_TIMEOUT_SEC_MAX = 5 * 60;
 
+    public const int START_DELAY_MS_DEFAULT = 500;
+    public const int START_DELAY_MS_MIN = 100;
+    public const int START_DELAY_MS_MAX = 5 * 60 * 1000;
+
+    public const int STOP_DELAY_MS_DEFAULT = 100;
+    public const int STOP_DELAY_MS_MIN = 100;
+    public const int STOP_DELAY_MS_MAX = 5 * 60 * 1000;
+
     public App(GovernorDaemon gov, IConfigSectionNode cfg) : base(gov)
     {
       ConfigAttribute.Apply(this, cfg);
@@ -34,6 +42,8 @@ namespace Azos.Apps.Hosting
     [Config] private string m_Name;
     [Config] private int m_Order;
 
+    private int m_StartDelayMs = START_DELAY_MS_DEFAULT;
+    private int m_StopDelayMs  = STOP_DELAY_MS_DEFAULT;
     private int m_StopTimeoutSec = STOP_TIMEOUT_SEC_DEFAULT;
 
 
@@ -68,6 +78,29 @@ namespace Azos.Apps.Hosting
     /// </summary>
     [Config(Default = MAX_TIME_INLIMBO_SEC_DEFAULT), ExternalParameter(CoreConsts.EXT_PARAM_GROUP_APP)]
     private int MaxTimeInLimboSec { get; set; } = MAX_TIME_INLIMBO_SEC_DEFAULT;
+
+
+    /// <summary>
+    /// Introduces extra delay before the process start.
+    /// The delay may be necessary for some applications to have a chance to fully activate before the next one starts
+    /// </summary>
+    [Config(Default = START_DELAY_MS_DEFAULT), ExternalParameter(CoreConsts.EXT_PARAM_GROUP_APP)]
+    public int StartDelayMs
+    {
+      get => m_StartDelayMs;
+      set => value.KeepBetween(START_DELAY_MS_MIN, START_DELAY_MS_MIN);
+    }
+
+    /// <summary>
+    /// Introduces extra delay after the process stops.
+    /// The delay may be necessary for some applications to have a chance to fully react to this process stop
+    /// </summary>
+    [Config(Default = STOP_DELAY_MS_DEFAULT), ExternalParameter(CoreConsts.EXT_PARAM_GROUP_APP)]
+    public int StopDelayMs
+    {
+      get => m_StopDelayMs;
+      set => value.KeepBetween(STOP_DELAY_MS_MIN, STOP_DELAY_MS_MIN);
+    }
 
     /// <summary>
     /// For how long the app will be awaited for after sending STOP command before the process gets killed
