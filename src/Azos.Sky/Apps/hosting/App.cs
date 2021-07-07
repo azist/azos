@@ -19,8 +19,17 @@ namespace Azos.Apps.Hosting
   /// </summary>
   public class App : ApplicationComponent<GovernorDaemon>, INamed, IOrdered
   {
-    public const int MAX_TIME_TORN_SEC_DEFAULT = 60;
-    public const int MAX_TIME_INLIMBO_SEC_DEFAULT = 120;
+    public const int MAX_TIME_NEVER_CONNECTED_SEC_DEFAULT = 15;
+    public const int MAX_TIME_NEVER_CONNECTED_SEC_MIN = 2;
+    public const int MAX_TIME_NEVER_CONNECTED_SEC_MAX = 5 * 60;
+
+    public const int MAX_TIME_TORN_SEC_DEFAULT = 45;
+    public const int MAX_TIME_TORN_SEC_MIN = 10;
+    public const int MAX_TIME_TORN_SEC_MAX = 5 * 60;
+
+    public const int MAX_TIME_INLIMBO_SEC_DEFAULT = 45;
+    public const int MAX_TIME_INLIMBO_SEC_MIN = 10;
+    public const int MAX_TIME_INLIMBO_SEC_MAX = 5 * 60;
 
     public const int STOP_TIMEOUT_SEC_DEFAULT = 30;
     public const int STOP_TIMEOUT_SEC_MIN = 3;
@@ -34,6 +43,7 @@ namespace Azos.Apps.Hosting
     public const int STOP_DELAY_MS_MIN = 100;
     public const int STOP_DELAY_MS_MAX = 5 * 60 * 1000;
 
+
     public App(GovernorDaemon gov, IConfigSectionNode cfg) : base(gov)
     {
       ConfigAttribute.Apply(this, cfg);
@@ -46,6 +56,11 @@ namespace Azos.Apps.Hosting
     private int m_StopDelayMs  = STOP_DELAY_MS_DEFAULT;
     private int m_StopTimeoutSec = STOP_TIMEOUT_SEC_DEFAULT;
 
+    private int m_MaxTimeTornSec = MAX_TIME_TORN_SEC_DEFAULT;
+    private int m_MaxTimeInLimboSec = MAX_TIME_INLIMBO_SEC_DEFAULT;
+    private int m_MaxTimeNeverConnectedSec = MAX_TIME_NEVER_CONNECTED_SEC_DEFAULT;
+
+
     private DateTime? m_FailUtc;
     private string m_FailReason;
 
@@ -55,8 +70,22 @@ namespace Azos.Apps.Hosting
     public int Order => m_Order;
 
 
+    /// <summary>
+    /// True if this application permanently failed.
+    /// Once application fails, it can not be corrected.
+    /// The system will eventually terminate if there are
+    /// any failed apps which are not marked as "Optional"
+    /// </summary>
     public bool Failed => m_FailUtc.HasValue;
+
+    /// <summary>
+    /// Null or utc timestamp of permanent failure
+    /// </summary>
     public DateTime? FailUtc => m_FailUtc;
+
+    /// <summary>
+    /// Null or short description of permanent failure
+    /// </summary>
     public string FailReason => m_FailReason;
 
     /// <summary>
@@ -69,21 +98,48 @@ namespace Azos.Apps.Hosting
     /// Config section for activator to stop the process
     /// </summary>
     [Config(path: "stop")]
-    private IConfigSectionNode StopSection { get; set; }
+    public IConfigSectionNode StopSection { get; set; }
 
     /// <summary>
-    /// For how long the app connection may be in torn state, after the expiration the
+    /// If true then the system will not stop other applications if this one fails.
+    /// False by default, as none of apps are optional by default
+    /// </summary>
+    [Config(Default = false), ExternalParameter(CoreConsts.EXT_PARAM_GROUP_APP)]
+    public bool Optional{ get; set; }
+
+    /// <summary>
+    /// For how long the app connection may be in a TORN) state, after the expiration the
     /// governor will re-start the application process
     /// </summary>
-    [Config(Default = MAX_TIME_TORN_SEC_DEFAULT), ExternalParameter(CoreConsts.EXT_PARAM_GROUP_APP)]
-    private int MaxTimeTornSec { get; set; } = MAX_TIME_TORN_SEC_DEFAULT;
+    [Config(Default = MAX_TIME_INLIMBO_SEC_DEFAULT), ExternalParameter(CoreConsts.EXT_PARAM_GROUP_APP)]
+    public int MaxTimeTornSec
+    {
+      get => m_MaxTimeTornSec;
+      set => value.KeepBetween(MAX_TIME_TORN_SEC_MIN, MAX_TIME_TORN_SEC_MAX);
+    }
 
     /// <summary>
     /// For how long the app connection may be in limbo (without getting a ping) state, after the expiration the
     /// governor will re-start the application process
     /// </summary>
     [Config(Default = MAX_TIME_INLIMBO_SEC_DEFAULT), ExternalParameter(CoreConsts.EXT_PARAM_GROUP_APP)]
-    private int MaxTimeInLimboSec { get; set; } = MAX_TIME_INLIMBO_SEC_DEFAULT;
+    public int MaxTimeInLimboSec
+    {
+      get => m_MaxTimeInLimboSec;
+      set => value.KeepBetween(MAX_TIME_INLIMBO_SEC_MIN, MAX_TIME_INLIMBO_SEC_MAX);
+    }
+
+
+    /// <summary>
+    /// For how long the app connection may be in limbo (without getting a ping) state, after the expiration the
+    /// governor will re-start the application process
+    /// </summary>
+    [Config(Default = MAX_TIME_NEVER_CONNECTED_SEC_DEFAULT), ExternalParameter(CoreConsts.EXT_PARAM_GROUP_APP)]
+    public int MaxTimeNeverConnectedSec
+    {
+      get => m_MaxTimeNeverConnectedSec;
+      set => value.KeepBetween(MAX_TIME_NEVER_CONNECTED_SEC_MIN, MAX_TIME_NEVER_CONNECTED_SEC_MAX);
+    }
 
 
     /// <summary>
@@ -126,7 +182,15 @@ namespace Azos.Apps.Hosting
 
 
     internal ServerAppConnection Connection { get; set;}
+    internal DateTime LastStartAttemptUtc { get; set; }
 
+    /// <summary>
+    /// Marks this application as permanently failed, the governor will
+    /// not try to revive this application.
+    /// If the application is not marked as "Optional" then the governor will start termination.
+    /// Once application fails, it can not be corrected
+    /// </summary>
+    /// <param name="reason">Reason status message</param>
     public void Fail(string reason)
     {
       m_FailUtc = App.TimeSource.UTCNow;

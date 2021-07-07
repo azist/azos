@@ -43,7 +43,17 @@ namespace Azos.Apps.Hosting
     protected override Connection MakeNewConnection(string name, TcpClient client)
     {
       var app = m_Governor.Applications[name].NonNull("app `{0}` not found".Args(name));
-      return new ServerAppConnection(app, client);
+
+      if (app.Connection != null)
+      {
+        return app.Connection;
+      }
+      else
+      {
+        var result = new ServerAppConnection(app, client);
+        app.Connection = result;
+        return result;
+      }
     }
 
     private void log(MessageType type, string from, string text, Exception error = null)

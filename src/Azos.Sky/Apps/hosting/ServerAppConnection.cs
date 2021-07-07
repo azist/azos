@@ -24,7 +24,5 @@ namespace Azos.Apps.Hosting
     }
 
     private readonly App m_App;
-
-
   }
 }

@@ -76,13 +76,13 @@ namespace Azos.Apps.Hosting
       var exeFile = app.StartSection.ValOf(CONFIG_START_EXE_NAME_ATTR);
       var exeArgs = "\"{0}\" {1}".Args(govDirective, app.StartSection.ValOf(CONFIG_START_EXE_ARGS_ATTR));
 
-      var exeFullPath = System.IO.Path.Combine(rootExeDir, exeFile);
+      var exeFullPath = Path.Combine(rootExeDir, exeFile);
 
       WriteLogFromHere(MessageType.Trace, "Set directories".Args(app.Name), related: rel, pars: (new { exeFullPath, exeArgs }).ToJson());
 
       if (!File.Exists(exeFullPath))
       {
-        var reason = "App `{0}` process exe image `{1}` does not exist".Args(app.Name, exeFullPath);
+        var reason = "App failure: `{0}` process exe image `{1}` does not exist".Args(app.Name, exeFullPath);
         WriteLogFromHere(MessageType.CatastrophicError, text: reason, related: rel);
         app.Fail(reason);
         return false;
@@ -90,6 +90,7 @@ namespace Azos.Apps.Hosting
 
       var process = new Process();
       app.ActivationContext = new ProcessContext(process);//link context
+      app.LastStartAttemptUtc = App.TimeSource.UTCNow;
 
       process.StartInfo.FileName = exeFullPath;
       process.StartInfo.WorkingDirectory = rootExeDir;

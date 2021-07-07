@@ -157,21 +157,23 @@ namespace Azos.Apps
     {
       EnsureObjectNotDisposed();
       lock (m_StatusLock)
-          if (m_Status == DaemonStatus.Inactive)
-          {
-              m_Status = DaemonStatus.Starting;
-              try
-              {
-                Behavior.ApplyBehaviorAttributes(this);
-                DoStart();
-                m_Status = DaemonStatus.Active;
-              }
-              catch
-              {
-                m_Status = DaemonStatus.Inactive;
-                throw;
-              }
-          }
+      {
+        if (m_Status == DaemonStatus.Inactive)
+        {
+            m_Status = DaemonStatus.Starting;
+            try
+            {
+              Behavior.ApplyBehaviorAttributes(this);
+              DoStart();
+              m_Status = DaemonStatus.Active;
+            }
+            catch
+            {
+              m_Status = DaemonStatus.Inactive;
+              throw;
+            }
+        }
+      }
     }
 
     /// <summary>
@@ -180,11 +182,13 @@ namespace Azos.Apps
     public void SignalStop()
     {
       lock (m_StatusLock)
-          if (m_Status == DaemonStatus.Active)
-          {
-              m_Status = DaemonStatus.Stopping;
-              DoSignalStop();
-          }
+      {
+        if (m_Status == DaemonStatus.Active)
+        {
+          m_Status = DaemonStatus.Stopping;
+          DoSignalStop();
+        }
+      }
     }
 
     /// <summary>
@@ -194,12 +198,12 @@ namespace Azos.Apps
     {
       lock (m_StatusLock)
       {
-          if (m_Status == DaemonStatus.Inactive) return true;
+        if (m_Status == DaemonStatus.Inactive) return true;
 
-          if (m_Status == DaemonStatus.Stopping)
-              return DoCheckForCompleteStop();
-          else
-              return false;
+        if (m_Status == DaemonStatus.Stopping)
+            return DoCheckForCompleteStop();
+        else
+            return false;
       }
     }
 
