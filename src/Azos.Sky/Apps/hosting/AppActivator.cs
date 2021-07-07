@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics;
+using System.IO;
 using Azos.Apps;
 using Azos.Collections;
 using Azos.Conf;
@@ -19,10 +20,7 @@ namespace Azos.Apps.Hosting
   /// Marker interface for objects which keep activator-specific state (such as process, or container instance handle)
   /// per application
   /// </summary>
-  public interface IAppActivatorContext
-  {
-
-  }
+  public interface IAppActivatorContext { }
 
   public interface IAppActivator : IApplicationComponent
   {
@@ -50,11 +48,10 @@ namespace Azos.Apps.Hosting
     public const string CONFIG_START_EXE_NAME_ATTR = "exe-name";
     public const string CONFIG_START_EXE_ARGS_ATTR = "exe-args";
 
-
-    //https://developers.redhat.com/blog/2019/10/29/the-net-process-class-on-linux#processname
-    public sealed class Context : IAppActivatorContext
+    internal sealed class ProcessContext : IAppActivatorContext
     {
-      public Context(Process process) => Process = process;
+      //https://developers.redhat.com/blog/2019/10/29/the-net-process-class-on-linux#processname
+      public ProcessContext(Process process) => Process = process;
       public readonly Process Process;
     }
 
@@ -68,7 +65,7 @@ namespace Azos.Apps.Hosting
     public bool StartApplication(App app)
     {
       var rel = Guid.NewGuid();
-      var ctx = app.ActivationContext as Context;
+      var ctx = app.ActivationContext as ProcessContext;
       if (ctx != null) return false;//already running
 
       WriteLogFromHere(MessageType.Trace, "Initiating app `{0}` start".Args(app.Name), related: rel);
@@ -81,9 +78,19 @@ namespace Azos.Apps.Hosting
 
       var exeFullPath = System.IO.Path.Combine(rootExeDir, exeFile);
 
-      WriteLogFromHere(MessageType.Trace, "Set directories".Args(app.Name), related: rel, pars: (new {rootExeDir, exeFile, exeArgs }).ToJson());
+      WriteLogFromHere(MessageType.Trace, "Set directories".Args(app.Name), related: rel, pars: (new { exeFullPath, exeArgs }).ToJson());
+
+      if (!File.Exists(exeFullPath))
+      {
+        var reason = "App `{0}` process exe image `{1}` does not exist".Args(app.Name, exeFullPath);
+        WriteLogFromHere(MessageType.CatastrophicError, text: reason, related: rel);
+        app.Fail(reason);
+        return false;
+      }
 
       var process = new Process();
+      app.ActivationContext = new ProcessContext(process);//link context
+
       process.StartInfo.FileName = exeFullPath;
       process.StartInfo.WorkingDirectory = rootExeDir;
       process.StartInfo.Arguments = exeArgs;//todo: In .Net 5+ use ArgumentList instead which properly handles platform specific escapes
@@ -104,15 +111,13 @@ namespace Azos.Apps.Hosting
         WriteLogFromHere(MessageType.Critical, "process.Start() leaked: " + error.ToMessageWithType(), error, related: rel);
       }
 
-      //poll so it has not crashed
-      app.ActivationContext = new Context(process);//link context
       return true;
     }
 
     public bool StopApplication(App app)
     {
       var rel = Guid.NewGuid();
-      var ctx = app.ActivationContext as Context;
+      var ctx = app.ActivationContext as ProcessContext;
       if (ctx == null) return false;//already stopped
       var process = ctx.Process;
 

@@ -166,7 +166,6 @@ namespace Azos.Apps.Hosting
           {
             var stopped = s_Application.WaitForStopOrShutdown(5000);
             if (stopped) break;
-            //s_Sipc.Connection.Send("MAIN");
           }
         }
         finally

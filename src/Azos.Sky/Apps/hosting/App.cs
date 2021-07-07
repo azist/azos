@@ -46,12 +46,18 @@ namespace Azos.Apps.Hosting
     private int m_StopDelayMs  = STOP_DELAY_MS_DEFAULT;
     private int m_StopTimeoutSec = STOP_TIMEOUT_SEC_DEFAULT;
 
+    private DateTime? m_FailUtc;
+    private string m_FailReason;
 
     public override string ComponentLogTopic => Sky.SysConsts.LOG_TOPIC_HOST_GOV;
 
     public string Name => m_Name;
     public int Order => m_Order;
 
+
+    public bool Failed => m_FailUtc.HasValue;
+    public DateTime? FailUtc => m_FailUtc;
+    public string FailReason => m_FailReason;
 
     /// <summary>
     /// Config section for activator to start the process
@@ -120,6 +126,12 @@ namespace Azos.Apps.Hosting
 
 
     internal ServerAppConnection Connection { get; set;}
+
+    public void Fail(string reason)
+    {
+      m_FailUtc = App.TimeSource.UTCNow;
+      m_FailReason = reason.Default("<Unspecified>");
+    }
 
   }
 }

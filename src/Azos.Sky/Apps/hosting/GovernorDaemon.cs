@@ -8,11 +8,11 @@ using System;
 using System.Linq;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+
 using Azos.Apps;
 using Azos.Collections;
 using Azos.Conf;
 using Azos.Instrumentation;
-using Azos.IO.Sipc;
 using Azos.Log;
 
 namespace Azos.Apps.Hosting
@@ -85,7 +85,9 @@ namespace Azos.Apps.Hosting
         var app = FactoryUtils.MakeDirectedComponent<App>(this, napp, typeof(App), new []{ napp });
         if (!m_Applications.Register(app))
         {
-          throw new AppHostingException("Duplicate application id: `{0}`".Args(app.Name));
+          var etxt = "Config error: duplicate application id `{0}`".Args(app.Name);
+          WriteLogFromHere(MessageType.CatastrophicError, etxt);
+          throw new AppHostingException(etxt);
         }
       }
     }
@@ -109,7 +111,7 @@ namespace Azos.Apps.Hosting
         }
         catch(Exception error)
         {
-          WriteLogFromHere(MessageType.CatastrophicError, "DoStart()..StartNew() leaked: "+error.ToMessageWithType(), error);
+          WriteLogFromHere(MessageType.CatastrophicError, "DoStart()..startAll() leaked: "+error.ToMessageWithType(), error);
         }
       }
       , TaskCreationOptions.LongRunning);
@@ -118,7 +120,6 @@ namespace Azos.Apps.Hosting
 
     protected override void DoSignalStop()
     {
-      m_Applications.OrderedValues.Reverse().ForEach(app => m_Activator.StopApplication(app));
       base.DoSignalStop();
     }
 
@@ -154,8 +155,17 @@ namespace Azos.Apps.Hosting
           if (!Running) break;
           await Task.Delay(SLICE_MS);
         }
+
         if (!Running) break;
-        m_Activator.StartApplication(app);
+
+        try
+        {
+          m_Activator.StartApplication(app);
+        }
+        catch(Exception error)
+        {
+          WriteLogFromHere(MessageType.CatastrophicError, "Activator.StartApplication(`{0}`) leaked: {1}".Args(app.Name, error.ToMessageWithType()), error);
+        }
       }
     }
 
@@ -164,17 +174,23 @@ namespace Azos.Apps.Hosting
       const int SLICE_MS = 100;
       foreach (var app in m_Applications.OrderedValues.Reverse())
       {
-        //even if not Running we still need to stop
-        m_Activator.StopApplication(app);
-
-        for (var i = 0; i < app.StopDelayMs; i += SLICE_MS)
+        try
         {
-          if (!Running) break; //bypass delay if daemon is terminating
+          //even if not Running we still need to stop
+          m_Activator.StopApplication(app);
+        }
+        catch (Exception error)
+        {
+          WriteLogFromHere(MessageType.CatastrophicError, "Activator.StopApplication(`{0}`) leaked: {1}".Args(app.Name, error.ToMessageWithType()), error);
+        }
+
+        //bypass delay if daemon is terminating
+        for (var i = 0; Running && i < app.StopDelayMs; i += SLICE_MS)
+        {
           await Task.Delay(SLICE_MS);
         }
       }
-    }
-
+    }//stopAll
 
   }
 }
