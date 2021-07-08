@@ -158,6 +158,12 @@ namespace Azos.IO.Sipc
         client.SendTimeout = Protocol.SEND_TIMEOUT_MS;
 
         Protocol.Send(client, m_Name);//handshake
+        var ackn = Protocol.Receive(client);
+
+        if (ackn != "ok:{0}".Args(m_Name))
+        {
+          throw new AzosIOException("Connect attempt was unacknowledged by server");
+        }
 
         return client;
       }
@@ -184,7 +190,7 @@ namespace Azos.IO.Sipc
         var now = DateTime.UtcNow;
         var state = m_Connection.State;
 
-        if (state != ConnectionState.OK && state != ConnectionState.Limbo)
+        if (state != ConnectionState.OK)// && state != ConnectionState.Limbo)
         {
           if (now < nextReconnectAttempt)
           {
@@ -218,6 +224,7 @@ namespace Azos.IO.Sipc
         if (state == ConnectionState.OK && ((now - m_Connection.LastReceiveUtc).TotalMilliseconds > Protocol.LIMBO_TIMEOUT_MS))
         {
           m_Connection.PutInLimbo();
+          nextReconnectAttempt = DateTime.UtcNow.AddMilliseconds(Protocol.LIMBO_TIMEOUT_MS);
           continue;
         }
 

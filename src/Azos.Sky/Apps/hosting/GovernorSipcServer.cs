@@ -35,6 +35,12 @@ namespace Azos.Apps.Hosting
         return;
       }
 
+      if (command.EqualsOrdIgnoreCase(Protocol.CMD_DISCONNECT))
+      {
+        log(MessageType.Trace, nameof(DoHandleCommand), "Received client Disconnect");
+        return;
+      }
+
       try
       {
         var cmd = command.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw);

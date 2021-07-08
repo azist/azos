@@ -109,6 +109,8 @@ namespace Azos.Apps.Hosting
       m_Server = new GovernorSipcServer(this, m_ServerStartPort, m_ServerEndPort);
       m_Server.Start();
 
+      WriteLogFromHere(MessageType.Info, "{0} started on port: {1}".Args(nameof(GovernorSipcServer), m_Server.AssignedPort));
+
       m_Wait = new AutoResetEvent(false);
 
       m_Thread = new Thread(threadBody);

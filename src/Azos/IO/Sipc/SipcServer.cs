@@ -206,6 +206,7 @@ namespace Azos.IO.Sipc
         //client generates the guid on its startup only once per instance or server supplies it via command line args
         //when it runs client
         name = Protocol.Receive(client);
+        Protocol.Send(client, "ok:{0}".Args(name));//send acknowledgment right away
       }
       catch(Exception error)
       {
