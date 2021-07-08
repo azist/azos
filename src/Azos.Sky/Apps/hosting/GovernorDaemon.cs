@@ -110,12 +110,13 @@ namespace Azos.Apps.Hosting
       if (m_Applications.Count == 0)
         WriteLogFromHere(MessageType.Warning, "No applications registered");
 
-      //Asynchronously start happens in thread body
+      //App start happens Asynchronously in thread body
     }
 
 
     protected override void DoSignalStop()
     {
+      m_Wait.Set();
       base.DoSignalStop();
     }
 
@@ -136,8 +137,8 @@ namespace Azos.Apps.Hosting
 
     private void threadBody()
     {
-      const int SLICE_MS_LOW = 75;
-      const int SLICE_MS_HIGH = 125;
+      const int SLICE_MS_LOW = 150;
+      const int SLICE_MS_HIGH = 250;
 
       var rel = Guid.NewGuid();
 
