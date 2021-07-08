@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.19.11
-set HEADLINE=MySql refactoring and DataContext intro
+set VER=1.20.0
+set HEADLINE=New app hosting and activation protocol, governor daemon
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

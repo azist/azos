@@ -10,7 +10,20 @@ namespace ahgov
     static void Main(string[] args)
     {
       new Azos.Platform.Abstraction.NetCore.NetCore20Runtime();
-      Azos.Sky.Hosts.ahgov.ProgramBody.Main(args);
+      //   Azos.Sky.Hosts.ahgov.ProgramBody.Main(args);
+      refactoring_main(args);
     }
+
+    //07/07/2021
+    static void refactoring_main(string[] args)
+    {
+      var bargs = new Azos.Apps.Hosting.BootArgs(args);
+
+      if (bargs.IsGoverned)
+        Azos.Apps.Hosting.ApplicationHostProgramBody.GovernedConsoleMain(bargs);
+      else
+        Azos.Apps.Hosting.ApplicationHostProgramBody.InteractiveConsoleMain(bargs);
+    }
+
   }
 }

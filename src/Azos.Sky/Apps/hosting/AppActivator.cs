@@ -164,7 +164,7 @@ namespace Azos.Apps.Hosting
           try
           {
             process.Kill();
-            WriteLogFromHere(MessageType.WarningExpectation, "Killed");
+            WriteLogFromHere(MessageType.WarningExpectation, "Killed", related: rel);
           }
           catch(Exception error)
           {
