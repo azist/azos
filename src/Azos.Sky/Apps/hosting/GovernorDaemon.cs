@@ -281,17 +281,19 @@ namespace Azos.Apps.Hosting
         return;
       }
 
+      var elapsedSecSinceLastActivity = (now - cnn.LastActivityUtc).TotalSeconds;
+
       //torn?
-      if (cnn.State == IO.Sipc.ConnectionState.Torn && elapsedSecSinceStart > app.MaxTimeTornSec)
+      if (cnn.State == IO.Sipc.ConnectionState.Torn && elapsedSecSinceLastActivity > app.MaxTimeTornSec)
       {
-        restartOne(rel, app, "Torn for {0} sec > {1} sec".Args(elapsedSecSinceStart, app.MaxTimeTornSec));//restart application
+        restartOne(rel, app, "Torn for {0} sec > {1} sec".Args(elapsedSecSinceLastActivity, app.MaxTimeTornSec));//restart application
         return;
       }
 
       //in limbo?
-      if (cnn.State == IO.Sipc.ConnectionState.Limbo && elapsedSecSinceStart > app.MaxTimeInLimboSec)
+      if (cnn.State == IO.Sipc.ConnectionState.Limbo && elapsedSecSinceLastActivity > app.MaxTimeInLimboSec)
       {
-        restartOne(rel, app, "In limbo for {0} sec > {1} sec".Args(elapsedSecSinceStart, app.MaxTimeInLimboSec));//restart application
+        restartOne(rel, app, "In limbo for {0} sec > {1} sec".Args(elapsedSecSinceLastActivity, app.MaxTimeInLimboSec));//restart application
         return;
       }
 

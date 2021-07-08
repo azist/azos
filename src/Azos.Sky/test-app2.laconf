@@ -1,7 +1,7 @@
 ﻿app
 {
-  id="app1"
-  name="app1"
+  id="app2"
+  name="app2"
 
 
 
@@ -21,7 +21,7 @@
         environment-name="dev"
         instrumentation-enabled=true
 
-        prefix{ name="http://+:8080/" }
+        prefix{ name="http://+:8090/" }
 
         default-error-handler
         {

@@ -222,7 +222,7 @@ namespace Azos.IO.Sipc
     private void visitOneSafe(Connection conn, DateTime now)
     {
       var state = conn.State;
-      if (state == ConnectionState.OK && ((now - conn.LastReceive).TotalMilliseconds > Protocol.LIMBO_TIMEOUT_MS))
+      if (state == ConnectionState.OK && ((now - conn.LastReceiveUtc).TotalMilliseconds > Protocol.LIMBO_TIMEOUT_MS))
       {
         conn.PutInLimbo();
         return;
@@ -231,7 +231,7 @@ namespace Azos.IO.Sipc
       tryReadAndHandleSafe(conn);
 
       //ping
-      if ((now - conn.LastSend).TotalMilliseconds > Protocol.PING_INTERVAL_MS)
+      if ((now - conn.LastSendUtc).TotalMilliseconds > Protocol.PING_INTERVAL_MS)
       {
         conn.Send(Protocol.CMD_PING);
       }

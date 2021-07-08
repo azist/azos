@@ -215,7 +215,7 @@ namespace Azos.IO.Sipc
           continue;
         }
 
-        if (state == ConnectionState.OK && ((now - m_Connection.LastReceive).TotalMilliseconds > Protocol.LIMBO_TIMEOUT_MS))
+        if (state == ConnectionState.OK && ((now - m_Connection.LastReceiveUtc).TotalMilliseconds > Protocol.LIMBO_TIMEOUT_MS))
         {
           m_Connection.PutInLimbo();
           continue;
@@ -232,7 +232,7 @@ namespace Azos.IO.Sipc
         }
 
         //ping
-        if ((now - m_Connection.LastSend).TotalMilliseconds > Protocol.PING_INTERVAL_MS)
+        if ((now - m_Connection.LastSendUtc).TotalMilliseconds > Protocol.PING_INTERVAL_MS)
         {
           m_Connection.Send(Protocol.CMD_PING);
         }

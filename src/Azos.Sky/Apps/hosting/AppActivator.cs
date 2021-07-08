@@ -151,16 +151,16 @@ namespace Azos.Apps.Hosting
       WriteLogFromHere(MessageType.Trace, "Will wait for subordinate process to stop for {0} sec".Args(app.StopTimeoutSec), related: rel);
 
       var startUtc = App.TimeSource.UTCNow;
-      var exited = false;
-      while(ComponentDirector.Running)
+      while(true)
       {
-        exited = process.WaitForExit(250);
+        var exited = process.WaitForExit(250);
         if (exited) break;
 
         var utc = App.TimeSource.UTCNow;
         if ((utc - startUtc).TotalSeconds > app.StopTimeoutSec)
         {
           WriteLogFromHere(MessageType.WarningExpectation, "Subordinate process Stop timeout of {0} sec exceeded. Killing now".Args(app.StopTimeoutSec), related: rel);
+
           try
           {
             process.Kill();
@@ -170,6 +170,8 @@ namespace Azos.Apps.Hosting
           {
             WriteLogFromHere(MessageType.Critical, "Kill() leaked: " + error.ToMessageWithType(), error, related: rel);
           }
+
+          break;
         }
       }
 

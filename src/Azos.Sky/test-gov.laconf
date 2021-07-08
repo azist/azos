@@ -14,6 +14,15 @@
         exe-path="./" exe-name="ahgov.exe" exe-args="test-app1.laconf"
       }
     }
+
+    app
+    {
+      name=app2
+      start
+      {
+        exe-path="./" exe-name="ahgov.exe" exe-args="test-app2.laconf"
+      }
+    }
   }
 
   log

@@ -29,10 +29,17 @@ namespace Azos.Apps.Hosting
 
     protected override void DoHandleCommand(Connection connection, string command)
     {
+      if (command.EqualsOrdIgnoreCase(Protocol.CMD_PING))
+      {
+        log(MessageType.Trace, "Received server PING");
+        return;
+      }
+
       if (command.EqualsOrdIgnoreCase(Protocol.CMD_STOP))
       {
         log(MessageType.InfoD, "Received stop from gov");
         App.Stop();
+        return;
       }
 
       try

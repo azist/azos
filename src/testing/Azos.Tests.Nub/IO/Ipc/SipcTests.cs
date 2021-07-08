@@ -61,7 +61,7 @@ namespace Azos.Tests.Nub.IO.Ipc
 
         for(var i=0; i < 8; i++)
         {
-          "State: {0} Last r: {1} Last s: {2}".SeeArgs(srvConnection.State, srvConnection.LastReceive, srvConnection.LastSend);
+          "State: {0} Last r: {1} Last s: {2}".SeeArgs(srvConnection.State, srvConnection.LastReceiveUtc, srvConnection.LastSendUtc);
           Thread.Sleep(1000);//allow thread processing delay
         }
 

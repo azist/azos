@@ -23,11 +23,11 @@ namespace Azos.Apps.Hosting
     public const int MAX_TIME_NEVER_CONNECTED_SEC_MIN = 2;
     public const int MAX_TIME_NEVER_CONNECTED_SEC_MAX = 5 * 60;
 
-    public const int MAX_TIME_TORN_SEC_DEFAULT = 45;
-    public const int MAX_TIME_TORN_SEC_MIN = 10;
+    public const int MAX_TIME_TORN_SEC_DEFAULT = 12;
+    public const int MAX_TIME_TORN_SEC_MIN = 5;
     public const int MAX_TIME_TORN_SEC_MAX = 5 * 60;
 
-    public const int MAX_TIME_INLIMBO_SEC_DEFAULT = 45;
+    public const int MAX_TIME_INLIMBO_SEC_DEFAULT = 30;
     public const int MAX_TIME_INLIMBO_SEC_MIN = 10;
     public const int MAX_TIME_INLIMBO_SEC_MAX = 5 * 60;
 

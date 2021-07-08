@@ -77,8 +77,11 @@ namespace Azos.IO.Sipc
     public TcpClient Client      => m_Client;
     public ConnectionState State => m_State;
     public DateTime StartUtc     => m_StartUtc;
-    public DateTime LastReceive  => m_LastReceiveUtc;
-    public DateTime LastSend     => m_LastSendUtc;
+    public DateTime LastReceiveUtc  => m_LastReceiveUtc;
+    public DateTime LastSendUtc     => m_LastSendUtc;
+
+    public DateTime LastReceiveOrSendUtc => m_LastReceiveUtc > m_LastSendUtc ? m_LastReceiveUtc : m_LastSendUtc;
+    public DateTime LastActivityUtc => LastReceiveOrSendUtc > m_StartUtc ? LastReceiveOrSendUtc : m_StartUtc;
 
 
     internal void PutInLimbo()

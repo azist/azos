@@ -29,6 +29,12 @@ namespace Azos.Apps.Hosting
 
     protected override void DoHandleCommand(Connection connection, string command)
     {
+      if (command.EqualsOrdIgnoreCase(Protocol.CMD_PING))
+      {
+        log(MessageType.Trace, nameof(DoHandleCommand), "Received client PING");
+        return;
+      }
+
       try
       {
         var cmd = command.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw);
