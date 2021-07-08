@@ -281,7 +281,9 @@ namespace Azos.Apps.Hosting
         return;
       }
 
-      var elapsedSecSinceLastActivity = (now - cnn.LastActivityUtc).TotalSeconds;
+      var appLastActivity = app.LastStartAttemptUtc > cnn.LastActivityUtc ? app.LastStartAttemptUtc : cnn.LastActivityUtc;
+
+      var elapsedSecSinceLastActivity = (now - appLastActivity).TotalSeconds;
 
       //torn?
       if (cnn.State == IO.Sipc.ConnectionState.Torn && elapsedSecSinceLastActivity > app.MaxTimeTornSec)
