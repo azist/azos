@@ -85,6 +85,15 @@ namespace Azos.Apps.Hosting
       foreach(var napp in node.ChildrenNamed(CONFIG_APP_SECTION))
       {
         var app = FactoryUtils.MakeDirectedComponent<App>(this, napp, typeof(App), new []{ napp });
+
+        if (app.Name.IsNullOrWhiteSpace())
+        {
+          var etxt = "Config error: missing `$name` attribute on `{0}`".Args(napp.RootPath);
+          WriteLogFromHere(MessageType.CatastrophicError, etxt);
+          throw new AppHostingException(etxt);
+        }
+
+
         if (!m_Applications.Register(app))
         {
           var etxt = "Config error: duplicate application id `{0}`".Args(app.Name);

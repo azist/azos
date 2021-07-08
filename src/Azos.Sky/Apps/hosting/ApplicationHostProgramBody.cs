@@ -89,10 +89,25 @@ namespace Azos.Apps.Hosting
             });
             #endregion
 
+            var wasPrompt = false;
             while (s_Application.Active)
             {
-              Console.Write("{0}@{1}\n$ ".Args(s_Application.AppId, Platform.Computer.HostName));
+              if (!wasPrompt)
+              {
+                Console.Write("{0}@{1}\n$ ".Args(s_Application.AppId, Platform.Computer.HostName));
+                wasPrompt = true;
+              }
+
+              if (!Console.KeyAvailable)
+              {
+                if (s_Application.WaitForStopOrShutdown(50)) break;
+                continue;
+              }
+
               var cmd = Console.ReadLine();
+              wasPrompt = false;
+
+              if (!s_Application.Active) break;
               if (cmd.IsNullOrWhiteSpace()) continue;
               if (cmd.IsOneOf("quit", "exit", "stop")) break;
 

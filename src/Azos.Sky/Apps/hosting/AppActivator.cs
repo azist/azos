@@ -72,9 +72,18 @@ namespace Azos.Apps.Hosting
 
       var govDirective = "{0}://{1}:{2}".Args(BootArgs.GOV_BINDING, ComponentDirector.AssignedSipcServerPort, app.Name);
 
-      var rootExeDir = app.StartSection.ValOf(CONFIG_START_EXE_PATH_ATTR);
+      var rootExeDir = app.StartSection.ValOf(CONFIG_START_EXE_PATH_ATTR).Default("./");
       var exeFile = app.StartSection.ValOf(CONFIG_START_EXE_NAME_ATTR);
       var exeArgs = "\"{0}\" {1}".Args(govDirective, app.StartSection.ValOf(CONFIG_START_EXE_ARGS_ATTR));
+
+      if (exeFile.IsNullOrWhiteSpace())
+      {
+        var reason = "App failure: `{0}` process exe image attribute `${1}` is missing ".Args(app.Name, CONFIG_START_EXE_NAME_ATTR);
+        WriteLogFromHere(MessageType.CatastrophicError, text: reason, related: rel);
+        app.Fail(reason);
+        return false;
+      }
+
 
       var exeFullPath = Path.Combine(rootExeDir, exeFile);
 

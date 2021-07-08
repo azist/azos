@@ -1,0 +1,59 @@
+﻿app
+{
+  id="gov"
+  name="gov"
+
+
+
+  log
+  {
+    sink
+    {
+      type="Azos.Log.Sinks.ConsoleSink" colored=true
+    }
+  }
+
+
+  wave
+  {
+    server
+    {
+        environment-name="dev"
+        instrumentation-enabled=true
+
+        prefix{ name="http://+:8080/" }
+
+        default-error-handler
+        {
+            show-dump { match{name=all} }
+            log {  match{name=all} }
+        }
+
+        dispatcher
+        {
+
+            filter
+            {
+              name="Errors" order=0 type="Azos.Wave.Filters.ErrorFilter, Azos.Wave"
+              show-dump
+              {
+                match{name="localhost" order=1 is-local=true }
+              }
+            }
+            handler
+            {
+                name="Mvc Testing"
+                order=0
+                type="Azos.Wave.Handlers.MvcHandler, Azos.Wave"
+
+                type-location { name="local" assembly="TestBusinessLogic.dll" ns{ name="WaveTestSite.Controllers"} }
+                type-location { name="sky" assembly="Azos.Sky.dll" ns{ name="Azos.Apps.Terminal.Web*"} }
+
+                match{ path="{type}/{mvc-action}" var{query-name="*"} }
+            }
+
+        }//dispatcher
+    }//server
+  }//wave
+
+}
