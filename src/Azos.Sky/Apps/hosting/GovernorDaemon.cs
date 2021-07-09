@@ -24,10 +24,17 @@ namespace Azos.Apps.Hosting
   {
     public const string CONFIG_ACTIVATOR_SECTION = "activator";
     public const string CONFIG_APP_SECTION = "app";
+    public const string CONFIG_CHAIN_ATTR = "chain-boot-path";
 
     public GovernorDaemon(IApplication app) : base(app)
     {
       m_Applications = new OrderedRegistry<App>();
+    }
+
+    protected override void Destructor()
+    {
+      base.Destructor();
+      DisposeAndNull(ref m_Chain);
     }
 
     private OrderedRegistry<App> m_Applications;
@@ -37,6 +44,7 @@ namespace Azos.Apps.Hosting
     private int m_ServerEndPort;
     private Thread m_Thread;
     private AutoResetEvent m_Wait;
+    private Daemon m_Chain;
 
     public override bool InstrumentationEnabled { get; set; }
     public override string ComponentLogTopic => Sky.SysConsts.LOG_TOPIC_HOST_GOV;
@@ -76,13 +84,24 @@ namespace Azos.Apps.Hosting
       base.DoConfigure(node);
 
       m_Applications.Clear();
+      DisposeAndNull(ref m_Chain);
 
       if (node == null) return;
 
       var nActivator = node[CONFIG_ACTIVATOR_SECTION];
       m_Activator = FactoryUtils.MakeDirectedComponent<IAppActivator>(this, nActivator, typeof(ProcessAppActivator), new []{ nActivator });
 
-      foreach(var napp in node.ChildrenNamed(CONFIG_APP_SECTION))
+      var chainPath = node.ValOf(CONFIG_CHAIN_ATTR);
+      if (chainPath.IsNotNullOrWhiteSpace())
+      {
+        var nChain = node.NavigateSection(chainPath);
+        if (nChain.Exists)
+        {
+          m_Chain = FactoryUtils.MakeAndConfigureDirectedComponent<Daemon>(this, nChain, typeof(Azos.Wave.WaveServer));
+        }
+      }
+
+      foreach (var napp in node.ChildrenNamed(CONFIG_APP_SECTION))
       {
         var app = FactoryUtils.MakeDirectedComponent<App>(this, napp, typeof(App), new []{ napp });
 
@@ -106,9 +125,17 @@ namespace Azos.Apps.Hosting
     protected override void DoStart()
     {
       base.DoStart();
+
+      if (m_Chain != null)
+      {
+        WriteLogFromHere(MessageType.Trace, "Starting: {0}/{1}".Args(m_Chain.ServiceDescription, m_Chain.StatusDescription));
+        m_Chain.Start();
+        WriteLogFromHere(MessageType.Trace, "Started: {0}/{1}".Args(m_Chain.ServiceDescription, m_Chain.StatusDescription));
+      }
+
+      WriteLogFromHere(MessageType.Trace, "Starting: {0}".Args(nameof(GovernorSipcServer)));
       m_Server = new GovernorSipcServer(this, m_ServerStartPort, m_ServerEndPort);
       m_Server.Start();
-
       WriteLogFromHere(MessageType.Info, "{0} started on port: {1}".Args(nameof(GovernorSipcServer), m_Server.AssignedPort));
 
       m_Wait = new AutoResetEvent(false);
@@ -119,7 +146,9 @@ namespace Azos.Apps.Hosting
       m_Thread.Start();
 
       if (m_Applications.Count == 0)
+      {
         WriteLogFromHere(MessageType.Warning, "No applications registered");
+      }
 
       //App start happens Asynchronously in thread body
     }
@@ -127,6 +156,11 @@ namespace Azos.Apps.Hosting
 
     protected override void DoSignalStop()
     {
+      if (m_Chain != null)
+      {
+        m_Chain.SignalStop();
+      }
+
       m_Wait.Set();
       base.DoSignalStop();
     }
@@ -141,6 +175,11 @@ namespace Azos.Apps.Hosting
 
       DisposeAndNull(ref m_Wait);
       DisposeAndNull(ref m_Server);
+
+      if (m_Chain != null)
+      {
+        m_Chain.WaitForCompleteStop();
+      }
 
       base.DoWaitForCompleteStop();
     }
