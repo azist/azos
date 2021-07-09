@@ -7,6 +7,7 @@
 using System;
 using System.Net.Sockets;
 using Azos.Conf;
+using Azos.Data;
 using Azos.IO.Sipc;
 using Azos.Log;
 
@@ -17,11 +18,16 @@ namespace Azos.Apps.Hosting
   /// </summary>
   public sealed class GovernorSipcClient : SipcClient
   {
+    public const string ENV_VAR_SKY_HOST_GOVERNOR_LOG_LEVEL = "SKY_HOST_GOVERNOR_LOG_LEVEL";//#507
+
     public GovernorSipcClient(int serverPort, string serverApplicationId, Func<IApplicationImplementation> appAccessor) : base(serverPort, serverApplicationId)
     {
       m_AppAccessor = appAccessor.NonNull(nameof(appAccessor));
+      m_LogLevel = Environment.GetEnvironmentVariable(ENV_VAR_SKY_HOST_GOVERNOR_LOG_LEVEL).AsEnum(dflt: MessageType.Info);
     }
 
+
+    private MessageType m_LogLevel;
     private Func<IApplicationImplementation> m_AppAccessor;
 
     private IApplicationImplementation App => m_AppAccessor() ?? (IApplicationImplementation)NOPApplication.Instance;
@@ -71,6 +77,8 @@ namespace Azos.Apps.Hosting
 
     private void log(MessageType type, string text, Exception error = null)
     {
+      if (type < m_LogLevel) return; //#507
+
       var msg = new Message
       {
         Type = type,

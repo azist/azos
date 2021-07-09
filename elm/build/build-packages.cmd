@@ -1,6 +1,6 @@
 @echo on
 
-set VER=1.20.1
+set VER=1.20.2
 set HEADLINE=MongoDB verbosity fix, GovernoeDaemon chained boot
 call vs2017-build-release %VER%
 

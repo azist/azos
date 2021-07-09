@@ -17,7 +17,7 @@ namespace Azos.Apps.Hosting
   /// <summary>
   /// Represents an instance of managed application process
   /// </summary>
-  public class App : ApplicationComponent<GovernorDaemon>, INamed, IOrdered
+  public class App : ApplicationComponent<GovernorDaemon>, INamed, IOrdered, IComponentDescription
   {
     public const int MAX_TIME_NEVER_CONNECTED_SEC_DEFAULT = 15;
     public const int MAX_TIME_NEVER_CONNECTED_SEC_MIN = 2;
@@ -68,6 +68,28 @@ namespace Azos.Apps.Hosting
 
     public string Name => m_Name;
     public int Order => m_Order;
+
+    public string ServiceDescription => "App(`{0}`[{1}])".Args(Name, Order);
+    public string StatusDescription
+    {
+      get
+      {
+        var result = "Last Start: {0}".Args(LastStartAttemptUtc);
+        if (m_FailUtc.HasValue)
+        {
+          result += "!FAILED! on {0}: {1}".Args(m_FailUtc.Value, m_FailReason);
+        }
+        if (Connection != null)
+        {
+          result += "; [{0}]".Args(Connection.State);
+          result += "; Strt: {0}".Args(Connection.StartUtc);
+          result += "; Recv: {0}".Args(Connection.LastReceiveUtc);
+          result += "; Send: {0}".Args(Connection.LastSendUtc);
+        }
+        return result;
+      }
+    }
+
 
 
     /// <summary>
@@ -183,6 +205,7 @@ namespace Azos.Apps.Hosting
 
     internal ServerAppConnection Connection { get; set;}
     internal DateTime LastStartAttemptUtc { get; set; }
+
 
     /// <summary>
     /// Marks this application as permanently failed, the governor will

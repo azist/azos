@@ -17,7 +17,7 @@ namespace Azos.Apps.Hosting
   {
     public GovernorSipcServer(GovernorDaemon governor, int startPort, int endPort) : base(startPort, endPort)
     {
-      m_Governor = governor;
+      m_Governor = governor.NonNull(nameof(governor));
     }
 
     private readonly GovernorDaemon m_Governor;
