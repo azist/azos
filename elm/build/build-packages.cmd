@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.20.0
-set HEADLINE=New app hosting and activation protocol, governor daemon
+set VER=1.20.1
+set HEADLINE=MongoDB verbosity fix, GovernoeDaemon chained boot
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
