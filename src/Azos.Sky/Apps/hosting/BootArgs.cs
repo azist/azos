@@ -14,12 +14,18 @@ using Azos.Glue;
 namespace Azos.Apps.Hosting
 {
   /// <summary>
-  /// Assists app host in interpreting boot arguments
+  /// Assists app host in interpreting boot arguments.
+  /// If the app arguments contain only one string ending with config-support file extensions ('.xml','.json','.laconf')
+  /// then the parser rewrites it as `-config [file]` entry.
+  /// If rare cases when you need to pass config file as first app argument use explicit `-config app.config` specification.
   /// </summary>
   /// <example>
   /// <code>
-  /// #run console app XYZ
+  /// #run console app `XYZ`
   /// $ host xyz.laconf
+  ///
+  /// #run console app `XYZ` with `abc.laconf` argument
+  /// $ host abc.laconf -config xyz.laconf
   ///
   /// #run app with governor port 49101
   /// $ host gov://49101:app1/1 xyz.laconf
