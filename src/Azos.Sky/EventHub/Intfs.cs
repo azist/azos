@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Azos.Sky.Bus
+namespace Azos.Sky.EventHub
 {
   public struct QueueSpec
   {
