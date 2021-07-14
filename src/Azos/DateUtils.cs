@@ -82,6 +82,15 @@ namespace Azos
     }
 
     /// <summary>
+    /// Gets number of milliseconds since Unix epoch start (1970/1/1 0:0:0)
+    /// </summary>
+    public static ulong ToUnsignedMillisecondsSinceUnixEpochStart(this DateTime when)
+    {
+      var utcWhen = when.ToUniversalTime().IsTrue(v => v >= UNIX_EPOCH_START_DATE, "date past nix epoch");
+      return (ulong)(utcWhen - UNIX_EPOCH_START_DATE).TotalMilliseconds;
+    }
+
+    /// <summary>
     /// Gets number of microseconds since Unix epoch start (1970/1/1 0:0:0)
     /// </summary>
     public static long ToMicrosecondsSinceUnixEpochStart(this DateTime when)

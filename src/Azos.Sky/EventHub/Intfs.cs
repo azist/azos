@@ -10,27 +10,18 @@ using System.Threading.Tasks;
 
 namespace Azos.Sky.EventHub
 {
-  public struct QueueSpec
-  {
-    public readonly Atom Namespace;
-    public readonly Atom Queue;
-    public readonly ShardKey Partition;
-  }
-
-
-  public struct EventId
-  {
-    public readonly ulong CreateUtc;
-    public readonly int Counter;
-    public readonly byte NodeDiscriminator;
-
-    public DateTime CreateDateTimeUtc => CreateUtc.FromMillisecondsSinceUnixEpochStart();//todo: Use different epoch (e.g. 1/1/2021) to make timestamps smaller
-  }
 
   public struct Event
   {
     public readonly EventId Id;
     public readonly byte[] Payload;
+  }
+
+  public struct WriteResult
+  {
+    public readonly int Ok;
+    public readonly int Tried;
+    public readonly int Total;
   }
 
   /// <summary>
@@ -43,7 +34,7 @@ namespace Azos.Sky.EventHub
     /// <summary>
     /// Posts a message into queue
     /// </summary>
-    Task<double> PostAsync(QueueSpec queue, Event evt);
+    Task<WriteResult> PostAsync(Route route, Event evt);
   }
 
   /// <summary>
@@ -54,33 +45,16 @@ namespace Azos.Sky.EventHub
     /// <summary>
     /// Fetches the count of messages starting at the specified checkpoint
     /// </summary>
-    /// <param name="ns"></param>
-    /// <param name="queue"></param>
-    /// <param name="shard"></param>
-    /// <param name="checkpoint"></param>
-    /// <param name="count"></param>
-    /// <returns></returns>
-    Task<IEnumerable<Event>> FetchAsync(QueueSpec queue, ulong checkpoint, int count);
+    Task<IEnumerable<Event>> FetchAsync(Route route, ulong checkpoint, int count);
 
     /// <summary>
     /// Gets the checkpoint for the consumer
     /// </summary>
-    /// <param name="ns"></param>
-    /// <param name="queue"></param>
-    /// <param name="shard"></param>
-    /// <param name="idConsumer"></param>
-    /// <returns></returns>
-    Task<ulong> GetCheckpoint(QueueSpec queue, string idConsumer);
+    Task<ulong> GetCheckpoint(Route route, string idConsumer);
 
     /// <summary>
     /// Sets the checkpoint for the specified consumer
     /// </summary>
-    /// <param name="ns"></param>
-    /// <param name="queue"></param>
-    /// <param name="shard"></param>
-    /// <param name="idConsumer"></param>
-    /// <param name="checkpoint"></param>
-    /// <returns></returns>
-    Task<double> SetCheckpoint(QueueSpec queue, string idConsumer, ulong checkpoint);
+    Task<double> SetCheckpoint(Route route, string idConsumer, ulong checkpoint);
   }
 }

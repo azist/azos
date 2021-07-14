@@ -73,8 +73,19 @@ namespace Azos
     { DataType = Type.ByteArray; Buffer = new GDID(); ObjectValue = key; }
 
 
+    /// <summary>
+    /// Type of the data represented by this instance
+    /// </summary>
     public readonly Type DataType;
+
+    /// <summary>
+    /// Variant buffer - see the DataType to determine what blittable value is stored as GDID
+    /// </summary>
     public readonly GDID Buffer;
+
+    /// <summary>
+    /// Reference type value (such as string or byte[]) or null
+    /// </summary>
     public readonly object ObjectValue;
 
 
