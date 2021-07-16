@@ -17,13 +17,6 @@ namespace Azos.Sky.EventHub
     public readonly byte[] Payload;
   }
 
-  public struct WriteResult
-  {
-    public readonly int Ok;
-    public readonly int Tried;
-    public readonly int Total;
-  }
-
   /// <summary>
   /// Produces events into named queues
   /// </summary>
@@ -34,7 +27,7 @@ namespace Azos.Sky.EventHub
     /// <summary>
     /// Posts a message into queue
     /// </summary>
-    Task<WriteResult> PostAsync(Route route, Event evt);
+    Task<PostResult> PostAsync(Route route, Event evt);
   }
 
   /// <summary>
@@ -55,6 +48,6 @@ namespace Azos.Sky.EventHub
     /// <summary>
     /// Sets the checkpoint for the specified consumer
     /// </summary>
-    Task<double> SetCheckpoint(Route route, string idConsumer, ulong checkpoint);
+    Task<PostResult> SetCheckpoint(Route route, string idConsumer, ulong checkpoint);
   }
 }

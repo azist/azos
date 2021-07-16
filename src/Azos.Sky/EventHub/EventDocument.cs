@@ -5,8 +5,10 @@
 </FILE_LICENSE>*/
 
 using System;
-
+using System.Collections.Generic;
 using Azos.Data;
+using Azos.Serialization.Bix;
+using Azos.Serialization.JSON;
 
 namespace Azos.Sky.EventHub
 {
@@ -21,8 +23,22 @@ namespace Azos.Sky.EventHub
     public override bool AmorphousDataEnabled => true;
 
     /// <summary>
-    /// Specifies parameters how this event should be routed for processing
+    /// Specifies parameters how this event should be routed for processing: what namespace, queue and partition should be used
     /// </summary>
-    public abstract Route ProcessingRoute {  get; }
+    public abstract Route ProcessingRoute { get; }
+
+    /// <summary>
+    /// Adds type code using BIX, so the system will add Guids from <see cref="Azos.Serialization.Bix.BixAttribute"/>
+    /// which are used for both binary and json polymorphism
+    /// </summary>
+    protected override void AddJsonSerializerField(Schema.FieldDef def, JsonWritingOptions options, Dictionary<string, object> jsonMap, string name, object value)
+    {
+      if (def?.Order == 0)
+      {
+        BixJsonHandler.EmitJsonBixDiscriminator(this, jsonMap);
+      }
+
+      base.AddJsonSerializerField(def, options, jsonMap, name, value);
+    }
   }
 }

@@ -21,7 +21,7 @@ namespace Azos.Sky.EventHub
     /// <param name="producer">Producer to post event into</param>
     /// <param name="evtDoc">EventDocument-derivative instance</param>
     /// <returns>WriteResult - how many nodes tried/succeeded/failed</returns>
-    public static async Task<WriteResult> PostEventAsync(this IEventProducer producer, EventDocument evtDoc)
+    public static async Task<PostResult> PostEventAsync(this IEventProducer producer, EventDocument evtDoc)
     {
       var route = evtDoc.NonNull(nameof(evtDoc)).ProcessingRoute;
       var rawEvent = new Event();//todo create event

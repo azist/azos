@@ -5,8 +5,6 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Azos.Sky.EventHub
 {
@@ -15,6 +13,9 @@ namespace Azos.Sky.EventHub
   /// </summary>
   public struct Route : IEquatable<Route>
   {
+    /// <summary>
+    /// Initializes logical route for event delivery, a tuple of (Namespace, Queue, ShardKey)
+    /// </summary>
     public Route(Atom ns, Atom queue, ShardKey partition)
     {
       Namespace = ns.IsTrue( v => !v.IsZero && v.IsValid, "ns atom");
@@ -22,8 +23,13 @@ namespace Azos.Sky.EventHub
       Partition = partition;//partition may be unassigned
     }
 
+    /// <summary> Namespace - a logical catalog containing the named queue </summary>
     public readonly Atom Namespace;
+
+    /// <summary> Queue name within a namespace </summary>
     public readonly Atom Queue;
+
+    /// <summary> Optional partition key within aforementioned queue </summary>
     public readonly ShardKey Partition;
 
     /// <summary>
