@@ -5,7 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
-
+using Azos.Data;
 using Azos.Data.Idgen;
 
 namespace Azos.Sky.EventHub
@@ -16,34 +16,66 @@ namespace Azos.Sky.EventHub
   /// You generate event instances by calling <see cref="IEventProducer.MakeNew(byte[], EventHeader[])"/> which
   /// generates cluster-wide unique ids
   /// </summary>
-  public struct Event : IEquatable<Event>, IDistributedStableHashProvider
+  [Serializable]
+  public sealed class Event : IEquatable<Event>, IDistributedStableHashProvider
   {
+    internal Event(){ }//serializer
+
     /// <summary>
-    /// Initializes event. This is more of an infrastructure method and most business
-    /// applications should use <see cref="IEventProducer.MakeNew(byte[], EventHeader[])"/> instead
+    /// Initializes event. This is an infrastructure method and business applications
+    /// should use <see cref="IEventProducer.MakeNew(byte[], EventHeader[])"/> instead
     /// </summary>
-    public Event(EventId id, EventHeaders headers, byte[] payload)
+    public Event(GDID gdid, ulong createUtc, Atom origin, ushort node, ulong fileUtc, EventHeaders headers, byte[] payload)
     {
-      Id = id;
+      Gdid = gdid;
+      CreateUtc = createUtc;
+      OriginRegion = origin;
+      OriginNode = node;
       Headers = headers;
       Payload = payload;
     }
 
-    /// <summary>Cluster-Unique event id with timestamp</summary>
-    public readonly EventId Id;
+
+
+    /// <summary>
+    /// Immutable event id, primary key, monotonically increasing
+    /// </summary>
+    public GDID Gdid { get; private set; }
+
+    /// <summary>
+    /// When event was triggered
+    /// </summary>
+    public ulong CreateUtc { get; private set; }
+
+    /// <summary>
+    /// The id of cluster origin region where the event was first triggered, among other things
+    /// this value is used to prevent circular traffic - in multi-master situations so the
+    /// same event does not get replicated multiple times across regions (data centers)
+    /// </summary>
+    public Atom OriginRegion { get; private set; }
+
+    /// <summary>
+    /// The cluster node id within region
+    /// </summary>
+    public ushort OriginNode { get; private set; }
+
+    /// <summary>
+    /// When event was filed - written to disk/storage - this may change
+    /// between cluster regions. Checkpoints work of FileUtc - a queue is a stream sorted by FileUtc ascending
+    /// </summary>
+    public ulong FileUtc { get; private set; }
 
     /// <summary>Optional headers </summary>
-    public readonly EventHeaders Headers;
+    public EventHeaders Headers { get; private set; }
 
     /// <summary> Raw event payload </summary>
-    public readonly byte[] Payload;
+    public byte[] Payload { get; private set; }
 
-    public bool Assigned => Id.Assigned;
 
-    public bool Equals(Event other) => Id == other.Id;
+    public bool Equals(Event other) => other != null &&  this.Gdid == other.Gdid;
     public override bool Equals(object obj) => obj is Event other ? this.Equals(other) : false;
-    public override int GetHashCode() => Id.GetHashCode();
-    public ulong GetDistributedStableHash() => Id.GetDistributedStableHash();
+    public override int GetHashCode() => Gdid.GetHashCode();
+    public ulong GetDistributedStableHash() => Gdid.GetDistributedStableHash();
 
     public static bool operator ==(Event left, Event right) => left.Equals(right);
     public static bool operator !=(Event left, Event right) => !left.Equals(right);
