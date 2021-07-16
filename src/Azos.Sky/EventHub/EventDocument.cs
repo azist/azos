@@ -23,9 +23,21 @@ namespace Azos.Sky.EventHub
     public override bool AmorphousDataEnabled => true;
 
     /// <summary>
-    /// Specifies parameters how this event should be routed for processing: what namespace, queue and partition should be used
+    /// Specifies parameters how this event should be routed for processing: what namespace, queue and partition should be used.
+    /// The function is called in the specified target context which may be passed from caller.
+    /// This is an instance property because its value may depend on event state (other doc fields)
     /// </summary>
-    public abstract Route ProcessingRoute { get; }
+    public abstract Route GetEventRoute(string target);
+
+    /// <summary>
+    /// Returns headers which should be included in enqueued event.
+    /// The function is called in the specified target context which may be passed from caller.
+    /// This is an instance property because its value may depend on event state (other doc fields)
+    /// </summary>
+    public virtual EventHeader[] GetEventHeaders(string target)
+    {
+      return null;
+    }
 
     /// <summary>
     /// Adds type code using BIX, so the system will add Guids from <see cref="Azos.Serialization.Bix.BixAttribute"/>

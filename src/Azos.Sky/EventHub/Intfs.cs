@@ -10,28 +10,27 @@ using System.Threading.Tasks;
 
 namespace Azos.Sky.EventHub
 {
-
-  public struct Event
-  {
-    public readonly EventId Id;
-    public readonly byte[] Payload;
-  }
-
   /// <summary>
   /// Produces events into named queues
   /// </summary>
   public interface IEventProducer
   {
-    //EventBuilder Builder { get; }
+    /// <summary>
+    /// Creates an instance of Event initialized with payload and optional headers
+    /// </summary>
+    /// <param name="payload">Event payload</param>
+    /// <param name="headers">Optional event headers</param>
+    /// <returns>New instance of Event initialized with cluster-unique ID/precision time stamp</returns>
+    Event MakeNew(byte[] payload, params EventHeader[] headers);
 
     /// <summary>
-    /// Posts a message into queue
+    /// Posts event into the queue
     /// </summary>
-    Task<PostResult> PostAsync(Route route, Event evt);
+    Task<WriteResult> PostAsync(Route route, Event evt);
   }
 
   /// <summary>
-  ///
+  /// Consumes events from queue
   /// </summary>
   public interface IEventConsumer
   {
@@ -48,6 +47,6 @@ namespace Azos.Sky.EventHub
     /// <summary>
     /// Sets the checkpoint for the specified consumer
     /// </summary>
-    Task<PostResult> SetCheckpoint(Route route, string idConsumer, ulong checkpoint);
+    Task<WriteResult> SetCheckpoint(Route route, string idConsumer, ulong checkpoint);
   }
 }

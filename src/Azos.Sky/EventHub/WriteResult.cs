@@ -13,9 +13,9 @@ namespace Azos.Sky.EventHub
   /// <summary>
   /// Describes result of event post into queue
   /// </summary>
-  public struct PostResult
+  public struct WriteResult
   {
-    public PostResult(int ok, int tried, int total)
+    public WriteResult(int ok, int tried, int total)
     {
       Ok = ok;
       Tried = tried;
