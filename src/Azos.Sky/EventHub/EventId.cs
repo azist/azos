@@ -48,7 +48,7 @@ namespace Azos.Sky.EventHub
     public EventId(byte[] bytes, int startIdx = 0)
     {
       if (bytes == null || startIdx < 0 || (bytes.Length - startIdx) < sizeof(ulong) + sizeof(uint) + sizeof(ushort))
-        throw new AzosException(StringConsts.ARGUMENT_ERROR + "EventId.ctor(bytes==null<minsz)");
+        throw new EventHubException(StringConsts.ARGUMENT_ERROR + "EventId.ctor(bytes==null<minsz)");
 
       CreateUtc = bytes.ReadBEUInt64(ref startIdx);
       Counter = bytes.ReadBEUInt32(ref startIdx);
@@ -108,16 +108,16 @@ namespace Azos.Sky.EventHub
     public override string ToString() => AsString;
 
     /// <summary>
-    /// Tries to parse value returned by .AsString
+    /// Tries to parse value returned by <see cref="AsString"/>
     /// </summary>
     public static EventId Parse(string val)
     {
       if (TryParse(val, out var result)) return result;
-      throw new AzosException("Unparsbale EventId");
+      throw new EventHubException(StringConsts.ARGUMENT_ERROR+"{0}.Parse(`{1}...`)".Args(nameof(EventId), val.TakeFirstChars(16)));
     }
 
     /// <summary>
-    /// Tries to parse value returned by .AsString
+    /// Tries to parse value returned by <see cref="AsString"/>
     /// </summary>
     public static bool TryParse(string val, out EventId result)
     {
