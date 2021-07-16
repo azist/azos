@@ -11,8 +11,82 @@ using Azos.Standards;
 namespace Azos.Tests.Nub.Standards
 {
   [Runnable]
-  class DistanceTests
+  public class DistanceTests
   {
+
+    [Run]
+    public void Test1()
+    {
+      Aver.AreEqual("µm", Distance.GetUnitName(Distance.UnitType.Micron, true));
+      Aver.AreEqual("micron", Distance.GetUnitName(Distance.UnitType.Micron, false));
+    }
+
+    [Run]
+    public void Test2()
+    {
+      Aver.AreEqual(1m, Distance.MicronToUnit(1_000_000, Distance.UnitType.Meter));
+      Aver.AreEqual(100m, Distance.MicronToUnit(1_000_000, Distance.UnitType.Centimeter));
+      Aver.AreEqual(1000m, Distance.MicronToUnit(1_000_000, Distance.UnitType.Millimeter));
+      Aver.AreEqual(1000000m, Distance.MicronToUnit(1_000_000, Distance.UnitType.Micron));
+      Aver.AreEqual(39.370m, Distance.MicronToUnit(1_000_000, Distance.UnitType.Inch));
+      Aver.AreEqual(1.094m, Distance.MicronToUnit(1_000_000, Distance.UnitType.Yard));
+      Aver.AreEqual(3.281m, Distance.MicronToUnit(1_000_000, Distance.UnitType.Foot));
+    }
+
+    [Run]
+    public void Test3()
+    {
+      Aver.AreEqual(1_000_000L, Distance.UnitToMicron(1m,       Distance.UnitType.Meter));
+      Aver.AreEqual(1_000_000L, Distance.UnitToMicron(100m,     Distance.UnitType.Centimeter));
+      Aver.AreEqual(1_000_000L, Distance.UnitToMicron(1000m,    Distance.UnitType.Millimeter));
+      Aver.AreEqual(1_000_000L, Distance.UnitToMicron(1000000m, Distance.UnitType.Micron));
+      Aver.AreEqual(1_000_000L, Distance.UnitToMicron(39.3701m,  Distance.UnitType.Inch));
+      Aver.AreEqual(1_000_000L, Distance.UnitToMicron(1.0936133m,   Distance.UnitType.Yard));
+      Aver.AreEqual(1_000_000L, Distance.UnitToMicron(3.2808399m,   Distance.UnitType.Foot));
+    }
+
+    [Run]
+    public void Test4()
+    {
+      Aver.AreEqual(1_500_000m, (3 * new Distance(500_000, Distance.UnitType.µm)).Value);
+      Aver.AreEqual(1, (new Distance(500_000, Distance.UnitType.µm) * 2).ValueIn(Distance.UnitType.Meter));
+    }
+
+    [Run]
+    public void Test5()
+    {
+      Aver.AreEqual(0.25m, (new Distance(500_000, Distance.UnitType.µm) / 2).ValueIn(Distance.UnitType.Meter));
+      Aver.AreEqual(250m, (new Distance(500_000, Distance.UnitType.µm) / 2).ValueIn(Distance.UnitType.mm));
+    }
+
+    [Run]
+    public void Test6()
+    {
+      Aver.IsTrue( new Distance(10, Distance.UnitType.Meter) <= new Distance(11, Distance.UnitType.Meter));
+      Aver.IsTrue(new Distance(10, Distance.UnitType.Meter) <= new Distance(10, Distance.UnitType.Meter));
+      Aver.IsTrue( new Distance(10, Distance.UnitType.Meter) < new Distance(11, Distance.UnitType.Meter));
+      Aver.IsTrue(new Distance(11, Distance.UnitType.Meter) > new Distance(10, Distance.UnitType.Meter));
+      Aver.IsTrue(new Distance(10, Distance.UnitType.Meter) >= new Distance(10, Distance.UnitType.Meter));
+      Aver.IsTrue(new Distance(11, Distance.UnitType.Meter) >= new Distance(10, Distance.UnitType.Meter));
+
+      Aver.IsTrue(new Distance(10, Distance.UnitType.Meter) <= new Distance(1100, Distance.UnitType.cm));
+      Aver.IsTrue(new Distance(10, Distance.UnitType.Meter) <= new Distance(1000, Distance.UnitType.cm));
+      Aver.IsTrue(new Distance(10, Distance.UnitType.Meter) < new Distance(1100,  Distance.UnitType.cm));
+      Aver.IsTrue(new Distance(11, Distance.UnitType.Meter) > new Distance(1000,  Distance.UnitType.cm));
+      Aver.IsTrue(new Distance(10, Distance.UnitType.Meter) >= new Distance(1000, Distance.UnitType.cm));
+      Aver.IsTrue(new Distance(11, Distance.UnitType.Meter) >= new Distance(1000, Distance.UnitType.cm));
+    }
+
+    [Run]
+    public void Test7()
+    {
+      Aver.AreEqual(new Distance(500_000, Distance.UnitType.µm), new Distance(Distance.UnitType.µm, 500_000));
+      Aver.AreNotEqual(new Distance(500_000, Distance.UnitType.µm), new Distance(Distance.UnitType.m, 500_000));
+      Aver.IsTrue(new Distance(500_000, Distance.UnitType.µm).IsEquivalent(new Distance(Distance.UnitType.m, 500_000)));
+    }
+
+
+
     [Run]
     public void Convert()
     {
