@@ -66,6 +66,14 @@ namespace Azos
     Atom AppId { get;}
 
     /// <summary>
+    /// Provides a short value which uniquely identifies the logical cluster network node.
+    /// In most cases a node is the same as the host, however it is possible to launch multiple nodes - instances
+    /// of the same logical application type on the same host. NodeDiscriminator is used by some
+    /// services to differentiate these node instances.
+    /// </summary>
+    ushort NodeDiscriminator { get; }
+
+    /// <summary>
     /// Returns unique identifier of this running instance
     /// </summary>
     Guid InstanceId { get; }

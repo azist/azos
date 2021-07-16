@@ -35,6 +35,7 @@ namespace Azos.Apps
 
     public const string CONFIG_NAME_ATTR = "name";
     public const string CONFIG_ID_ATTR = "id";
+    public const string CONFIG_NODE_DISCRIMINATOR_ATTR = "node-discriminator";
     public const string CONFIG_COPYRIGHT_ATTR = "copyright";
     public const string CONFIG_DESCRIPTION_ATTR = "description";
     public const string CONFIG_UNIT_TEST_ATTR = "unit-test";
@@ -154,6 +155,7 @@ namespace Azos.Apps
     private Atom m_AppId;
     private Guid m_InstanceId = Guid.NewGuid();
     protected DateTime m_StartTime = DateTime.UtcNow;//Fix #494
+    private ushort m_NodeDiscriminator;
     private IO.Console.IConsolePort m_ConsolePort;
 
     private string m_Name;
@@ -240,6 +242,14 @@ namespace Azos.Apps
 
     /// <summary> Uniquely identifies this application type </summary>
     public Atom AppId => m_AppId;
+
+    /// <summary>
+    /// Provides a short value which uniquely identifies the logical cluster network node.
+    /// In most cases a node is the same as the host, however it is possible to launch multiple nodes - instances
+    /// of the same logical application type on the same host. NodeDiscriminator is used by some
+    /// services to differentiate these node instances.
+    /// </summary>
+    public ushort NodeDiscriminator => m_NodeDiscriminator;
 
     /// <summary>Returns unique identifier of this running instance</summary>
     public Guid InstanceId => m_InstanceId;

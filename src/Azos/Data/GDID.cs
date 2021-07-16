@@ -80,8 +80,8 @@ namespace Azos.Data
       if (bytes==null || startIdx <0 || (bytes.Length-startIdx)<sizeof(uint)+sizeof(ulong))
         throw new DataException(StringConsts.ARGUMENT_ERROR+"GDID.ctor(bytes==null<minsz)");
 
-      Era = bytes.ReadBEUInt32();
-      ID =  bytes.ReadBEUInt64(4);
+      Era = bytes.ReadBEUInt32(ref startIdx);
+      ID =  bytes.ReadBEUInt64(ref startIdx);
     }
 
     public unsafe GDID(byte* ptr)

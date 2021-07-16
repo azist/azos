@@ -87,7 +87,11 @@ namespace Azos.Apps
 
       var appid = m_ConfigRoot.AttrByName(CONFIG_ID_ATTR).Value;
       if (appid.IsNotNullOrWhiteSpace())
+      {
         m_AppId = Atom.Encode(appid);
+      }
+
+      m_NodeDiscriminator = m_ConfigRoot.AttrByName(CONFIG_NODE_DISCRIMINATOR_ATTR).ValueAsUShort(0);
 
       Debugging.DefaultDebugAction = Debugging.ReadDefaultDebugActionFromConfig();
       Debugging.TraceDisabled = Debugging.ReadTraceDisableFromConfig();

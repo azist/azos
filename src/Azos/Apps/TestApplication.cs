@@ -81,6 +81,8 @@ namespace Azos.Apps
 
     public virtual Atom AppId { get; set; }
 
+    public virtual ushort NodeDiscriminator { get; set; }
+
     public virtual Guid InstanceId { get { return m_InstanceID; } }
 
     public virtual bool AllowNesting { get { return false; } }

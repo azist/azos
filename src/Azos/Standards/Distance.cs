@@ -8,7 +8,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Globalization;
 
 using Azos.Data;
 using Azos.Serialization.JSON;
@@ -180,7 +179,6 @@ namespace Azos.Standards
           var sval = val.Substring(0, i+1).Trim();
           var sunit = i == val.Length-1 ? "" : val.Substring(i+1).Trim();
           if (sunit.IsNullOrWhiteSpace()) sunit = nameof(UnitType.Micron);
-//Console.WriteLine("{0} {1}", sval, sunit);
           if (!decimal.TryParse(sval, out var dval)) return false;
           if (!Enum.TryParse<UnitType>(sunit, out var unit))
           {
@@ -191,7 +189,6 @@ namespace Azos.Standards
           {
             return false;
           }
-//Console.WriteLine("{0} {1}", dval, unit);
           result = new Distance(dval, unit);
           return true;
         }
