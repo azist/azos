@@ -5,7 +5,6 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 
@@ -59,10 +58,18 @@ namespace Azos.Sky.EventHub
 
     public static readonly EventId ZERO = new EventId();
 
+    /// <summary> Event creation UTC timestamp expressed as *nix time, <see cref="CreateDateTimeUtc"/></summary>
     public readonly ulong   CreateUtc;
+
+    /// <summary> Node sequential counter </summary>
     public readonly uint    Counter;
+
+    /// <summary> Node unique cluster-wide discriminator </summary>
     public readonly ushort  NodeDiscriminator;
 
+    /// <summary>
+    /// Accesses <see cref="CreateUtc"/> as DateTime
+    /// </summary>
     public DateTime CreateDateTimeUtc => CreateUtc.FromMillisecondsSinceUnixEpochStart();
 
     /// <summary>
