@@ -85,6 +85,106 @@ namespace Azos.Tests.Nub.Standards
       Aver.IsTrue(new Distance(500_000, Distance.UnitType.µm).IsEquivalent(new Distance(Distance.UnitType.m, 500_000)));
     }
 
+    [Run]
+    public void Test8_1()
+    {
+      Aver.IsTrue(Distance.TryParse("12cm", out var result));
+      Aver.IsTrue(result.HasValue);
+      Aver.AreEqual(12m, result.Value.Value);
+      Aver.IsTrue(Distance.UnitType.Centimeter == result.Value.Unit);
+    }
+
+    [Run]
+    public void Test8_2()
+    {
+      Aver.IsTrue(Distance.TryParse("12 cm", out var result));
+      Aver.IsTrue(result.HasValue);
+      Aver.AreEqual(12m, result.Value.Value);
+      Aver.IsTrue(Distance.UnitType.Centimeter == result.Value.Unit);
+    }
+
+    [Run]
+    public void Test8_3()
+    {
+      Aver.IsTrue(Distance.TryParse("12 centimeter", out var result));
+      Aver.IsTrue(result.HasValue);
+      Aver.AreEqual(12m, result.Value.Value);
+      Aver.IsTrue(Distance.UnitType.Centimeter == result.Value.Unit);
+    }
+
+    [Run]
+    public void Test8_4()
+    {
+      Aver.IsTrue(Distance.TryParse("12centimeter", out var result));
+      Aver.IsTrue(result.HasValue);
+      Aver.AreEqual(12m, result.Value.Value);
+      Aver.IsTrue(Distance.UnitType.Centimeter == result.Value.Unit);
+    }
+
+    [Run]
+    public void Test8_5()
+    {
+      Aver.IsTrue(Distance.TryParse("12cm", out var result));
+      Aver.IsTrue(result.HasValue);
+      Aver.AreEqual(12m, result.Value.Value);
+      Aver.IsTrue(Distance.UnitType.Centimeter == result.Value.Unit);
+    }
+
+    [Run]
+    public void Test8_6()
+    {
+      Aver.IsTrue(Distance.TryParse("0.5cm", out var result));
+      Aver.IsTrue(result.HasValue);
+      Aver.AreEqual(0.5m, result.Value.Value);
+      Aver.IsTrue(Distance.UnitType.Centimeter == result.Value.Unit);
+    }
+
+    [Run]
+    public void Test8_7()
+    {
+      Aver.IsTrue(Distance.TryParse("0.5 Centimeter", out var result));
+      Aver.IsTrue(result.HasValue);
+      Aver.AreEqual(0.5m, result.Value.Value);
+      Aver.IsTrue(Distance.UnitType.Centimeter == result.Value.Unit);
+    }
+
+    [Run]
+    public void Test8_8()
+    {
+      Aver.IsTrue(Distance.TryParse("5.cm", out var result));
+      Aver.IsTrue(result.HasValue);
+      Aver.AreEqual(5m, result.Value.Value);
+      Aver.IsTrue(Distance.UnitType.Centimeter == result.Value.Unit);
+    }
+
+    [Run]
+    public void Test8_9()
+    {
+      Aver.IsTrue(Distance.TryParse("5.0cm", out var result));
+      Aver.IsTrue(result.HasValue);
+      Aver.AreEqual(5m, result.Value.Value);
+      Aver.IsTrue(Distance.UnitType.Centimeter == result.Value.Unit);
+    }
+
+    [Run]
+    public void Test8_10()
+    {
+      Aver.IsTrue(Distance.TryParse("5.0   cm      ", out var result));
+      Aver.IsTrue(result.HasValue);
+      Aver.AreEqual(5m, result.Value.Value);
+      Aver.IsTrue(Distance.UnitType.Centimeter == result.Value.Unit);
+    }
+
+    [Run]
+    public void Test8_11()
+    {
+      Aver.IsFalse(Distance.TryParse("5 .0   cm      ", out var result));
+      Aver.IsFalse(Distance.TryParse("5 .cm", out var result1));
+      Aver.IsFalse(Distance.TryParse("cm 5", out var result2));
+      Aver.IsFalse(Distance.TryParse("cm", out var result3));
+      Aver.IsFalse(Distance.TryParse("5", out var result4));
+    }
+
 
 
     [Run]
