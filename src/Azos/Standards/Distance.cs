@@ -162,7 +162,7 @@ namespace Azos.Standards
     public static Distance? Parse(string val)
     {
       if (TryParse(val, out var result)) return result;
-      throw new AzosException(StringConsts.ARGUMENT_ERROR + "Unparsable(`{0}`})".Args(val));
+      throw new AzosException(StringConsts.ARGUMENT_ERROR + "Unparsable(`{0}`)".Args(val));
     }
 
     public static bool TryParse(string val, out Distance? result)
@@ -177,10 +177,10 @@ namespace Azos.Standards
         var c = val[i];
         if ((c>='0' && c<='9')||(c=='.'))
         {
-          var sval = val.Substring(0, i+1);
-          var sunit = i == val.Length-1 ? "" : val.Substring(i+1);
+          var sval = val.Substring(0, i+1).Trim();
+          var sunit = i == val.Length-1 ? "" : val.Substring(i+1).Trim();
           if (sunit.IsNullOrWhiteSpace()) sunit = nameof(UnitType.Micron);
-
+//Console.WriteLine("{0} {1}", sval, sunit);
           if (!decimal.TryParse(sval, out var dval)) return false;
           if (!Enum.TryParse<UnitType>(sunit, out var unit))
           {
@@ -191,7 +191,7 @@ namespace Azos.Standards
           {
             return false;
           }
-
+//Console.WriteLine("{0} {1}", dval, unit);
           result = new Distance(dval, unit);
           return true;
         }
@@ -232,12 +232,8 @@ namespace Azos.Standards
           return (true, new Distance(map["v"].AsDecimal(handling: ConvertErrorHandling.Throw),
                                      map["u"].AsEnum(UnitType.Undefined, handling: ConvertErrorHandling.Throw)));
         }
-        catch
-        {
-          //passthrough false
-        }
+        catch {}
       }
-
       return (false, null);
     }
 

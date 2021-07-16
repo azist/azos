@@ -126,7 +126,7 @@ namespace Azos.Tests.Nub.Standards
       Aver.AreEqual(d3.ToString(), "70 m");
       d3 = d1 / 2;
       Aver.AreEqual(d3.ToString(), "17.5 m");
-      Aver.IsTrue(d1 == new Distance(35000, Distance.UnitType.Millimeter));
+      Aver.IsTrue(d1.IsEquivalent(new Distance(35000, Distance.UnitType.Millimeter)));
       Aver.IsTrue(d1 != d2);
       Aver.IsTrue(d1 >= d2);
       Aver.IsTrue(d1 > d2);
