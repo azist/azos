@@ -222,7 +222,7 @@ namespace Azos.Tests.Nub.Serialization
         Metal = MetalType.Platinum,
         PilePtr = new PilePointer(3, 7890),
         LatLng = new LatLng("-15.0, 12.0", "Burundi Sortirius"),
-        Distance = new Distance(12.5m, Distance.UnitType.M),
+        Distance = new Distance(12.5m, Distance.UnitType.Meter),
         Weight = new Weight(1427.5m, Weight.UnitType.Kg),
         Config = "root=1{a=1 b=2}".AsLaconicConfig(handling: ConvertErrorHandling.Throw).Configuration,
         ConfigNodeIntf = "root=2{a=3 b=4}".AsLaconicConfig(handling: ConvertErrorHandling.Throw),
@@ -443,7 +443,7 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void Test_WithVariousNullableStructsDoc_Distance()
     {
-      var d1 = new WithVariousNullableStructsDoc { Distance = new Distance(120m, Distance.UnitType.Yd) };
+      var d1 = new WithVariousNullableStructsDoc { Distance = new Distance(120m, Distance.UnitType.Yard) };
       var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
       json.See();
       var map = json.JsonToDataObject() as JsonDataMap;
