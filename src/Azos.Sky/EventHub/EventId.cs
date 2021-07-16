@@ -4,10 +4,13 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using Azos.Data.Idgen;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading;
+
+using Azos.Data.Idgen;
+using Azos.Serialization.JSON;
 
 
 namespace Azos.Sky.EventHub
@@ -15,7 +18,7 @@ namespace Azos.Sky.EventHub
   /// <summary>
   /// Uniquely identifies event in a node set (cluster)
   /// </summary>
-  public struct EventId : IEquatable<EventId>, IDistributedStableHashProvider//, IJsonReadable, IJsonWritable
+  public struct EventId : IEquatable<EventId>, IDistributedStableHashProvider, IJsonReadable, IJsonWritable
   {
     /// <summary>
     /// Generates new ID in the scope of this app cluster
@@ -54,6 +57,8 @@ namespace Azos.Sky.EventHub
 
     private static int s_Counter;
 
+    public static readonly EventId ZERO = new EventId();
+
     public readonly ulong   CreateUtc;
     public readonly uint    Counter;
     public readonly ushort  NodeDiscriminator;
@@ -64,6 +69,11 @@ namespace Azos.Sky.EventHub
     /// True if the structure represents an assigned value
     /// </summary>
     public bool Assigned => CreateUtc > 0;
+
+    /// <summary>
+    /// Returns parsable string representation
+    /// </summary>
+    public string AsString => Assigned ? $"{CreateUtc:x2}-{Counter:x2}-{NodeDiscriminator:x4}" : null;
 
     /// <summary>
     /// Returns EventId as byte[], e.g. to store in file or database field
@@ -95,8 +105,48 @@ namespace Azos.Sky.EventHub
       => obj is EventId other ? this.Equals(other) : false;
 
     public ulong GetDistributedStableHash() => CreateUtc ^ Counter;
-    public override string ToString() => $"{CreateUtc:x2}-{Counter:x2}-{NodeDiscriminator:x4}]";
+    public override string ToString() => AsString;
 
+    /// <summary>
+    /// Tries to parse value returned by .AsString
+    /// </summary>
+    public static EventId Parse(string val)
+    {
+      if (TryParse(val, out var result)) return result;
+      throw new AzosException("Unparsbale EventId");
+    }
+
+    /// <summary>
+    /// Tries to parse value returned by .AsString
+    /// </summary>
+    public static bool TryParse(string val, out EventId result)
+    {
+      result = ZERO;
+      if (val.IsNullOrWhiteSpace()) return true;
+
+      var p1 = val.SplitKVP('-');
+      if (p1.Value.IsNullOrWhiteSpace()) return false;
+      var p2 = p1.Value.SplitKVP('-');
+      if (p2.Value.IsNullOrWhiteSpace()) return false;
+
+      var s1 = p1.Key;
+      var s2 = p2.Key;
+      var s3 = p2.Value;
+
+      if (!ulong.TryParse(s1, out var createUtc)) return false;
+      if (!uint.TryParse(s2, out var counter)) return false;
+      if (!ushort.TryParse(s3, out var discriminator)) return false;
+
+      result = new EventId(createUtc, counter, discriminator);
+      return true;
+    }
+
+
+    public (bool match, IJsonReadable self) ReadAsJson(object data, bool fromUI, JsonReader.DocReadOptions? options)
+     => data is string str && TryParse(str, out var result) ? (true, result) : (false, this);
+
+    public void WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
+     => wri.Write(AsString);
 
     public static bool operator ==(EventId a, EventId b) => a.Equals(b);
     public static bool operator !=(EventId a, EventId b) => !a.Equals(b);
