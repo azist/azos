@@ -18,10 +18,11 @@ namespace Azos.Sky.EventHub
     /// <summary>
     /// Creates an instance of Event initialized with payload and optional headers
     /// </summary>
-    /// <param name="payload">Event payload</param>
-    /// <param name="headers">Optional event headers</param>
+    /// <param name="contentType">Event content type</param>
+    /// <param name="content">Event content. You can specify up to <see cref="Event.MAX_CONTENT_LENGTH"/></param>
+    /// <param name="headers">Optional event headers. You can specify up to <see cref="Event.MAX_HEADERS_LENGTH"/></param>
     /// <returns>New instance of Event initialized with cluster-unique ID/precision time stamp</returns>
-    Event MakeNew(byte[] payload, params EventHeader[] headers);
+    Event MakeNew(Atom contentType, byte[] content, string headers = null);
 
     /// <summary>
     /// Posts event into the queue

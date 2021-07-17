@@ -5,37 +5,40 @@
 </FILE_LICENSE>*/
 
 using System;
+using System.IO;
 using Azos.Data;
 using Azos.Data.Idgen;
+using Azos.Serialization.JSON;
 
 namespace Azos.Sky.EventHub
 {
   /// <summary>
-  /// Embodies data for event with raw byte[] payload.
-  /// Events are equated using their immutable ID, thus every event must have a unique id.
-  /// You generate event instances by calling <see cref="IEventProducer.MakeNew(byte[], EventHeader[])"/> which
-  /// generates cluster-wide unique ids
+  /// Embodies data for event with raw byte[] content payload.
+  /// Events are equated using their immutable ID, not reference.
+  /// Obtain new event instances by calling <see cref="IEventProducer.MakeNew(Atom, byte[], string)"/>
   /// </summary>
   [Serializable]
-  public sealed class Event : IEquatable<Event>, IDistributedStableHashProvider
+  public sealed class Event : IEquatable<Event>, IDistributedStableHashProvider, IJsonReadable, IJsonWritable
   {
+    public const int MAX_HEADERS_LENGTH = 8 * 1024;
+    public const int MAX_CONTENT_LENGTH = 4 * 1024 * 1024;
+
     internal Event(){ }//serializer
 
     /// <summary>
     /// Initializes event. This is an infrastructure method and business applications
-    /// should use <see cref="IEventProducer.MakeNew(byte[], EventHeader[])"/> instead
+    /// should use <see cref="IEventProducer.MakeNew(Atom, byte[], string)"/> instead
     /// </summary>
-    public Event(GDID gdid, ulong createUtc, Atom origin, ushort node, ulong fileUtc, EventHeaders headers, byte[] payload)
+    internal Event(GDID gdid, ulong createUtc, Atom origin, ulong checkpointUtc, string headers, Atom contentType, byte[] content)
     {
       Gdid = gdid;
       CreateUtc = createUtc;
-      OriginRegion = origin;
-      OriginNode = node;
+      Origin = origin;
+      CheckpointUtc = checkpointUtc;
       Headers = headers;
-      Payload = payload;
+      ContentType = contentType;
+      Content = content;
     }
-
-
 
     /// <summary>
     /// Immutable event id, primary key, monotonically increasing
@@ -48,28 +51,27 @@ namespace Azos.Sky.EventHub
     public ulong CreateUtc { get; private set; }
 
     /// <summary>
-    /// The id of cluster origin region where the event was first triggered, among other things
+    /// The id of cluster origin region/zone where the event was first triggered, among other things
     /// this value is used to prevent circular traffic - in multi-master situations so the
     /// same event does not get replicated multiple times across regions (data centers)
     /// </summary>
-    public Atom OriginRegion { get; private set; }
-
-    /// <summary>
-    /// The cluster node id within region
-    /// </summary>
-    public ushort OriginNode { get; private set; }
+    public Atom Origin { get; private set; }
 
     /// <summary>
     /// When event was filed - written to disk/storage - this may change
-    /// between cluster regions. Checkpoints work of FileUtc - a queue is a stream sorted by FileUtc ascending
+    /// between cluster regions. Checkpoints work of CheckpointUtc - a queue is a stream sorted by CheckpointUtc ascending.
+    /// Clients consume events in queues sequentially in the order of production in the same <see cref="Origin"/>
     /// </summary>
-    public ulong FileUtc { get; private set; }
+    public ulong CheckpointUtc { get; private set; }
 
     /// <summary>Optional headers </summary>
-    public EventHeaders Headers { get; private set; }
+    public string Headers { get; private set; }
 
-    /// <summary> Raw event payload </summary>
-    public byte[] Payload { get; private set; }
+    /// <summary> Content type </summary>
+    public Atom ContentType { get; private set; }
+
+    /// <summary> Raw event content </summary>
+    public byte[] Content { get; private set; }
 
 
     public bool Equals(Event other) => other != null &&  this.Gdid == other.Gdid;
@@ -79,5 +81,38 @@ namespace Azos.Sky.EventHub
 
     public static bool operator ==(Event left, Event right) => left.Equals(right);
     public static bool operator !=(Event left, Event right) => !left.Equals(right);
+
+
+    public (bool match, IJsonReadable self) ReadAsJson(object data, bool fromUI, JsonReader.DocReadOptions? options)
+    {
+      if (data is JsonDataMap map)
+      {
+        Gdid      = map["id"].AsGDID();
+        CreateUtc = map["crt"].AsULong();
+        Origin        = map["ori"].AsAtom();
+        CheckpointUtc = map["chk"].AsULong();
+        Headers       = map["hdr"].AsString();
+        ContentType   = map["ctp"].AsAtom();
+        Content       = map["c"].AsString().TryFromWebSafeBase64();
+        return (true, this);
+      }
+      return (false, this);
+    }
+
+    public void WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
+    {
+      JsonWriter.WriteMap(wri,
+        new JsonDataMap
+        {
+          {"id", Gdid},
+          {"crt", CreateUtc},
+          {"ori", Origin},
+          {"chk", CheckpointUtc},
+          {"hdr", Headers},
+          {"ctp", ContentType},
+          {"c", Content.ToWebSafeBase64()},
+        },
+        nestingLevel + 1, options);
+    }
   }
 }

@@ -19,6 +19,9 @@ namespace Azos.Sky.EventHub
   {
     private static readonly Encoding  JSON_ENCODING = new  UTF8Encoding(false);
 
+    public static readonly Atom CONTENT_TYPE_JSON_DOC = Atom.Encode("docjson");
+
+
     /// <summary>
     /// Post event document using processing Route obtained from EventDocument instance and
     /// serializing document using json. The content type header is not set by this method
@@ -34,7 +37,7 @@ namespace Azos.Sky.EventHub
 
       var rawJson = JsonWriter.WriteToBuffer(evtDoc, JsonWritingOptions.CompactRowsAsMap, JSON_ENCODING);
 
-      var rawEvent = producer.NonNull(nameof(producer)).MakeNew(rawJson, hdrs);
+      var rawEvent = producer.NonNull(nameof(producer)).MakeNew(CONTENT_TYPE_JSON_DOC, rawJson, hdrs);
 
       return await producer.PostAsync(route, rawEvent).ConfigureAwait(false);
     }

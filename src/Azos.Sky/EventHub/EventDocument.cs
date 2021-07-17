@@ -34,7 +34,7 @@ namespace Azos.Sky.EventHub
     /// The function is called in the specified target context which may be passed from caller.
     /// This is an instance property because its value may depend on event state (other doc fields)
     /// </summary>
-    public virtual EventHeader[] GetEventHeaders(string target)
+    public virtual string GetEventHeaders(string target)
     {
       return null;
     }
