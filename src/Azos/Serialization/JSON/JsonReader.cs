@@ -474,9 +474,15 @@ namespace Azos.Serialization.JSON
       }
 
       //byte[] direct assignment w/o copies
-      if (nntp == typeof(byte[]) && v is byte[] passed)
+      if (nntp == typeof(byte[]))
       {
-        return passed;
+        if (v is byte[] passed) return passed;
+        //20210717 - #514
+        if (v is string str && str.IsNotNullOrWhiteSpace())
+        {
+          var buff = str.TryFromWebSafeBase64();
+          if (buff != null) return buff;
+        }
       }
 
 

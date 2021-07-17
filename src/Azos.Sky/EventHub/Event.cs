@@ -5,10 +5,9 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.IO;
+
 using Azos.Data;
 using Azos.Data.Idgen;
-using Azos.Serialization.JSON;
 
 namespace Azos.Sky.EventHub
 {
@@ -18,7 +17,7 @@ namespace Azos.Sky.EventHub
   /// Obtain new event instances by calling <see cref="IEventProducer.MakeNew(Atom, byte[], string)"/>
   /// </summary>
   [Serializable]
-  public sealed class Event : IEquatable<Event>, IDistributedStableHashProvider, IJsonReadable, IJsonWritable
+  public sealed class Event : TypedDoc, IDistributedStableHashProvider
   {
     public const int MAX_HEADERS_LENGTH = 8 * 1024;
     public const int MAX_CONTENT_LENGTH = 4 * 1024 * 1024;
@@ -43,11 +42,13 @@ namespace Azos.Sky.EventHub
     /// <summary>
     /// Immutable event id, primary key, monotonically increasing
     /// </summary>
+    [Field(key: true, required: true, Description = "Immutable event id, primary key, monotonically increasing")]
     public GDID Gdid { get; private set; }
 
     /// <summary>
-    /// When event was triggered
+    /// Unix timestamp - when event was triggered
     /// </summary>
+    [Field(required: true,  Description = "Unix timestamp - when event was triggered")]
     public ulong CreateUtc { get; private set; }
 
     /// <summary>
@@ -55,6 +56,7 @@ namespace Azos.Sky.EventHub
     /// this value is used to prevent circular traffic - in multi-master situations so the
     /// same event does not get replicated multiple times across regions (data centers)
     /// </summary>
+    [Field(required: true, Description = "Id of cluster origin zone/region")]
     public Atom Origin { get; private set; }
 
     /// <summary>
@@ -62,57 +64,23 @@ namespace Azos.Sky.EventHub
     /// between cluster regions. Checkpoints work of CheckpointUtc - a queue is a stream sorted by CheckpointUtc ascending.
     /// Clients consume events in queues sequentially in the order of production in the same <see cref="Origin"/>
     /// </summary>
+    [Field(Description = "When event was filed - written to disk/storage - this may change between cluster regions")]
     public ulong CheckpointUtc { get; private set; }
 
-    /// <summary>Optional headers </summary>
+    /// <summary>Optional header content </summary>
+    [Field(maxLength: MAX_HEADERS_LENGTH, Description = "Optional header content")]
     public string Headers { get; private set; }
 
-    /// <summary> Content type </summary>
+    /// <summary>Content type e.g. json</summary>
+    [Field(Description = "Content type")]
     public Atom ContentType { get; private set; }
 
     /// <summary> Raw event content </summary>
+    [Field(maxLength: MAX_CONTENT_LENGTH, Description = "Raw event content")]
     public byte[] Content { get; private set; }
 
-
-    public bool Equals(Event other) => other != null &&  this.Gdid == other.Gdid;
-    public override bool Equals(object obj) => obj is Event other ? this.Equals(other) : false;
-    public override int GetHashCode() => Gdid.GetHashCode();
+    public override string ToString() => $"Event({Gdid})";
     public ulong GetDistributedStableHash() => Gdid.GetDistributedStableHash();
 
-    public static bool operator ==(Event left, Event right) => left.Equals(right);
-    public static bool operator !=(Event left, Event right) => !left.Equals(right);
-
-
-    public (bool match, IJsonReadable self) ReadAsJson(object data, bool fromUI, JsonReader.DocReadOptions? options)
-    {
-      if (data is JsonDataMap map)
-      {
-        Gdid      = map["id"].AsGDID();
-        CreateUtc = map["crt"].AsULong();
-        Origin        = map["ori"].AsAtom();
-        CheckpointUtc = map["chk"].AsULong();
-        Headers       = map["hdr"].AsString();
-        ContentType   = map["ctp"].AsAtom();
-        Content       = map["c"].AsString().TryFromWebSafeBase64();
-        return (true, this);
-      }
-      return (false, this);
-    }
-
-    public void WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
-    {
-      JsonWriter.WriteMap(wri,
-        new JsonDataMap
-        {
-          {"id", Gdid},
-          {"crt", CreateUtc},
-          {"ori", Origin},
-          {"chk", CheckpointUtc},
-          {"hdr", Headers},
-          {"ctp", ContentType},
-          {"c", Content.ToWebSafeBase64()},
-        },
-        nestingLevel + 1, options);
-    }
   }
 }

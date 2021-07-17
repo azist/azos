@@ -615,5 +615,94 @@ namespace Azos.Tests.Nub.Serialization
       Aver.AreEqual("Kulibin", d2.InnerList[3].Atom.Value.Value);
     }
 
+    public class WithByteArrays : TypedDoc
+    {
+      [Field]
+      public string Id { get; set; }
+
+      [Field]
+      public byte[] Array1 {  get; set; }
+
+      [Field]
+      public List<byte> List1 { get; set; }
+
+      [Field]
+      public List<byte[]> List2 { get; set; }
+    }
+
+    [Run]
+    public void Test_WithByteArrays_1()
+    {
+      var d1 = new WithByteArrays{ Id = "Abc", Array1 = new byte[]{1,2,3,4,5}};//written as array
+
+      var json = d1.ToJson();
+
+      json.See();
+
+      var d2 = JsonReader.ToDoc<WithByteArrays>(json);
+
+      Aver.AreEqual("Abc", d2.Id);
+      Aver.IsNotNull(d2.Array1);
+      Aver.AreEqual(5, d2.Array1.Length);
+    }
+
+    [Run]
+    public void Test_WithByteArrays_2()
+    {
+      var d1 = new WithByteArrays { Id = "Abc", Array1 = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 } };//written as BASE64
+
+      var json = d1.ToJson();
+
+      json.See();
+
+      var d2 = JsonReader.ToDoc<WithByteArrays>(json);
+
+      Aver.AreEqual("Abc", d2.Id);
+      Aver.IsNotNull(d2.Array1);
+
+      d2.Array1.See();
+
+      Aver.AreArraysEquivalent(d1.Array1, d2.Array1);
+    }
+
+    [Run]
+    public void Test_WithByteArrays_3()
+    {
+      var d1 = new WithByteArrays
+      {
+        Id = "Abc123",
+        Array1 = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 },
+        List1 = new List<byte>{10,11,12,13,14,1,5,1,6,1,7,18,1,9,20,21,21},
+        List2 = new List<byte[]>
+        {
+          null,
+          new byte[]{1,2,3},
+          new byte[]{1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0}
+        }
+      };//written as BASE64
+
+      var json = d1.ToJson();
+
+      json.See();
+
+      var d2 = JsonReader.ToDoc<WithByteArrays>(json);
+
+      Aver.AreEqual("Abc123", d2.Id);
+      Aver.IsNotNull(d2.Array1);
+      Aver.IsNotNull(d2.List1);
+      Aver.IsNotNull(d2.List2);
+      d2.See();
+
+      Aver.AreEqual(10, d2.Array1.Length);
+      Aver.AreEqual(17, d2.List1.Count);
+      Aver.AreEqual(3, d2.List2.Count);
+
+      Aver.AreArraysEquivalent(d1.Array1, d2.Array1);
+      Aver.IsNull(d2.List2[0]);
+      Aver.AreArraysEquivalent(d1.List2[1], d2.List2[1]);
+      Aver.AreArraysEquivalent(d1.List2[2], d2.List2[2]);
+    }
+
+
   }//class
 }//namespace

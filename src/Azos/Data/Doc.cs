@@ -41,7 +41,7 @@ namespace Azos.Data
 
   /// <summary>
   /// Base class for any data document. This class has two direct subtypes - DynamicDoc and TypedDoc.
-  /// Documents are NOT THREAD SAFE by definition
+  /// Documents are NOT THREAD SAFE by design
   /// </summary>
   [Serializable, CustomMetadata(typeof(DocCustomMetadataProvider))]
   public abstract partial class Doc : IDataDoc, IJsonWritable, IJsonReadable, Apps.Injection.IApplicationInjection
