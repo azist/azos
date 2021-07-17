@@ -702,7 +702,5 @@ namespace Azos.Tests.Nub.Serialization
       Aver.AreArraysEquivalent(d1.List2[1], d2.List2[1]);
       Aver.AreArraysEquivalent(d1.List2[2], d2.List2[2]);
     }
-
-
   }//class
 }//namespace
