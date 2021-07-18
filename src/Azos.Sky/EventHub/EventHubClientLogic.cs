@@ -13,6 +13,7 @@ using Azos.Apps;
 using Azos.Apps.Injection;
 using Azos.Client;
 using Azos.Conf;
+using Azos.Data;
 using Azos.Log;
 using Azos.Serialization.JSON;
 using Azos.Sky.Identification;
@@ -102,14 +103,35 @@ namespace Azos.Sky.EventHub
       return result;
     }
 
+    /// <summary>
+    /// Posts event across all servers per shard
+    /// </summary>
     public async Task<WriteResult> PostAsync(Route route, Event evt)
     {
       route.IsTrue(v => v.Assigned, "assigned Route");
       var ve = evt.NonNull(nameof(evt)).Validate();
       if (ve != null) throw ve;
 
-      //send
-      return new WriteResult();
+      var all = m_Server.GetEndpointsForCall(QueueServiceAddress, nameof(IEventProducer), route.Partition, network: route.Network);
+
+      //todo: In future we can program policy per queue: how many nodes to write into, for now we write into ALL nodes
+      var calls = all.Select( one => one.CallOne( (http, ct) => http.Client.PostAndGetJsonMapAsync("event", evt)));
+
+      var responses = await Task.WhenAll(calls.Select(async call => {
+        try
+        {
+          var got = await call.ConfigureAwait(false);
+          return got.UnwrapChangeResult();
+        }
+        catch (Exception error)
+        {
+          WriteLog(MessageType.Warning, nameof(PostAsync), "Post error: " + error.ToMessageWithType(), error);
+          return default(ChangeResult);
+        }
+      })).ConfigureAwait(false);
+
+
+      return new WriteResult(responses, all.Count());
     }
 
     public Task<IEnumerable<Event>> FetchAsync(Route route, ulong checkpoint, int count)

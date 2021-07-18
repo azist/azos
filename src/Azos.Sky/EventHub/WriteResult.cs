@@ -6,7 +6,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using Azos.Data;
 
 namespace Azos.Sky.EventHub
 {
@@ -15,21 +17,24 @@ namespace Azos.Sky.EventHub
   /// </summary>
   public struct WriteResult
   {
-    public WriteResult(int ok, int tried, int total)
+    public WriteResult(IEnumerable<ChangeResult> changes, int total)
     {
-      Ok = ok;
-      Tried = tried;
+      Changes = changes;
       Total = total;
     }
 
-    /// <summary> How many nodes out of Tried returned OK </summary>
-    public readonly int Ok;
-
-    /// <summary> How many nodes out of Total were tried </summary>
-    public readonly int Tried;
+    /// <summary> Changes returned by server </summary>
+    public readonly IEnumerable<ChangeResult> Changes;
 
     /// <summary> Total number of nodes in cluster </summary>
     public readonly int Total;
+
+    /// <summary> How many nodes out of Tried returned OK </summary>
+    public int Ok => Changes.Count( c => c.Change != ChangeResult.ChangeType.Undefined);
+
+    /// <summary> How many nodes out of Total were tried </summary>
+    public int Tried => Changes.Count();
+
 
     public double Success => Tried == 0 ? 0 : Ok / (double)Tried;
     public double Error => Tried == 0 ? 0 : (Tried - Ok) / (double)Tried;

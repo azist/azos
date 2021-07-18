@@ -16,20 +16,28 @@ namespace Azos.Sky.EventHub
     /// <summary>
     /// Initializes logical route for event delivery, a tuple of (Namespace, Queue, ShardKey)
     /// </summary>
-    public Route(Atom ns, Atom queue, ShardKey partition)
+    public Route(Atom net, Atom ns, Atom queue, ShardKey partition)
     {
+      Network = net.IsTrue(v => !v.IsZero && v.IsValid, "net atom");
       Namespace = ns.IsTrue( v => !v.IsZero && v.IsValid, "ns atom");
       Queue = queue.IsTrue(v => !v.IsZero && v.IsValid, "queue atom");
       Partition = partition;//partition may be unassigned
     }
 
-    /// <summary> Namespace - a logical catalog containing the named queue </summary>
+    /// <summary> Network - a logical name of network/bus which services namespaces/queues.  </summary>
+    /// <remarks>Analog of db server group</remarks>
+    public readonly Atom Network;
+
+    /// <summary> Namespace - a logical catalog containing the named queue within the network </summary>
+    /// <remarks>Analog of db instance name on a server</remarks>
     public readonly Atom Namespace;
 
-    /// <summary> Queue name within a namespace </summary>
+    /// <summary> Queue name within the namespace which is within the specified network </summary>
+    /// <remarks>Analog of db table/collection</remarks>
     public readonly Atom Queue;
 
     /// <summary> Optional partition key within aforementioned queue </summary>
+    /// <remarks> Optionally remaps server group for parallel processing</remarks>
     public readonly ShardKey Partition;
 
     /// <summary>
