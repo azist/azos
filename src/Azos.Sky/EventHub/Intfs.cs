@@ -4,9 +4,10 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+
+using Azos.Apps;
 
 namespace Azos.Sky.EventHub
 {
@@ -15,6 +16,11 @@ namespace Azos.Sky.EventHub
   /// </summary>
   public interface IEventProducer
   {
+    /// <summary>
+    /// This cluster region/zone id tag
+    /// </summary>
+    Atom Origin { get; }
+
     /// <summary>
     /// Creates an instance of Event initialized with payload and optional headers
     /// </summary>
@@ -31,10 +37,22 @@ namespace Azos.Sky.EventHub
   }
 
   /// <summary>
+  /// Implementation of IEventProducer
+  /// </summary>
+  public interface IEventProducerLogic : IEventProducer, IModuleImplementation
+  {
+  }
+
+  /// <summary>
   /// Consumes events from queue
   /// </summary>
   public interface IEventConsumer
   {
+    /// <summary>
+    /// This cluster region/zone id tag
+    /// </summary>
+    Atom Origin { get; }
+
     /// <summary>
     /// Fetches the count of messages starting at the specified checkpoint
     /// </summary>
@@ -49,5 +67,12 @@ namespace Azos.Sky.EventHub
     /// Sets the checkpoint for the specified consumer
     /// </summary>
     Task<WriteResult> SetCheckpoint(Route route, string idConsumer, ulong checkpoint);
+  }
+
+  /// <summary>
+  /// Implementation of IEventConsumer
+  /// </summary>
+  public interface IEventConsumerLogic : IEventConsumer, IModuleImplementation
+  {
   }
 }

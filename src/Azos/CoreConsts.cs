@@ -114,6 +114,7 @@ namespace Azos
       public const string PLATFROM_TOPIC = "Pltfrm";
       public const string DATA_TOPIC = "Data";
       public const string LOG_TOPIC = "Log";
+      public const string QUEUE_TOPIC = "Queue";
       public const string LOG_NET_TOPIC = "Net";
       public const string COLLECTIONS_TOPIC = "Coll";
       public const string INSTRUMENTATION_TIMEFRAME_TOPIC = "inst.timeframe";

@@ -38,6 +38,8 @@ namespace Azos.Sky
     public const string GDID_NAME_DYNAMIC_HOST = "DYNHOST";
 
     public const string GDID_NS_CHRONICLES = "SYS-Chronicles";
+    public const string GDID_NS_EVENTHUB = "SYS-EventHub";
+    public const string GDID_SEQ_EVENTHUB = "Event";
 
     public const string GDID_NS_WORKER = "SYS-SkyWORKER";
     public const string GDID_NAME_WORKER_TODO = "TODO";

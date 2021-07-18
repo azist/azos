@@ -25,31 +25,16 @@ namespace Azos.Sky.EventHub
     internal Event(){ }//serializer
 
     /// <summary>
-    /// Initializes event. This is an infrastructure method and business applications
-    /// should use <see cref="IEventProducer.MakeNew(Atom, byte[], string)"/> instead
-    /// </summary>
-    internal Event(GDID gdid, ulong createUtc, Atom origin, ulong checkpointUtc, string headers, Atom contentType, byte[] content)
-    {
-      Gdid = gdid;
-      CreateUtc = createUtc;
-      Origin = origin;
-      CheckpointUtc = checkpointUtc;
-      Headers = headers;
-      ContentType = contentType;
-      Content = content;
-    }
-
-    /// <summary>
     /// Immutable event id, primary key, monotonically increasing
     /// </summary>
     [Field(key: true, required: true, Description = "Immutable event id, primary key, monotonically increasing")]
-    public GDID Gdid { get; private set; }
+    public GDID Gdid { get; internal set; }
 
     /// <summary>
-    /// Unix timestamp - when event was triggered
+    /// Unix timestamp with ms resolution - when event was triggered at Origin
     /// </summary>
-    [Field(required: true,  Description = "Unix timestamp - when event was triggered")]
-    public ulong CreateUtc { get; private set; }
+    [Field(required: true,  Description = "Unix timestamp with ms resolution - when event was triggered at Origin")]
+    public ulong CreateUtc { get; internal set; }
 
     /// <summary>
     /// The id of cluster origin region/zone where the event was first triggered, among other things
@@ -57,7 +42,7 @@ namespace Azos.Sky.EventHub
     /// same event does not get replicated multiple times across regions (data centers)
     /// </summary>
     [Field(required: true, Description = "Id of cluster origin zone/region")]
-    public Atom Origin { get; private set; }
+    public Atom Origin { get; internal set; }
 
     /// <summary>
     /// When event was filed - written to disk/storage - this may change
@@ -65,19 +50,19 @@ namespace Azos.Sky.EventHub
     /// Clients consume events in queues sequentially in the order of production in the same <see cref="Origin"/>
     /// </summary>
     [Field(Description = "When event was filed - written to disk/storage - this may change between cluster regions")]
-    public ulong CheckpointUtc { get; private set; }
+    public ulong CheckpointUtc { get; internal set; }
 
     /// <summary>Optional header content </summary>
     [Field(maxLength: MAX_HEADERS_LENGTH, Description = "Optional header content")]
-    public string Headers { get; private set; }
+    public string Headers { get; internal set; }
 
     /// <summary>Content type e.g. json</summary>
     [Field(Description = "Content type")]
-    public Atom ContentType { get; private set; }
+    public Atom ContentType { get; internal set; }
 
     /// <summary> Raw event content </summary>
     [Field(maxLength: MAX_CONTENT_LENGTH, Description = "Raw event content")]
-    public byte[] Content { get; private set; }
+    public byte[] Content { get; internal set; }
 
     public override string ToString() => $"Event({Gdid})";
     public ulong GetDistributedStableHash() => Gdid.GetDistributedStableHash();
