@@ -71,7 +71,7 @@ namespace Azos.Sky.Log
 
       var count = m_ToSend.Count;
 
-      if (count > MAX_BUFFER_LENGTH) return;
+      if (count >= MAX_BUFFER_LENGTH) return;
 
       m_ToSend.Add(entry);
 
