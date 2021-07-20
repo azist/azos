@@ -9,7 +9,7 @@ using System;
 namespace Azos.Sky.EventHub
 {
   /// <summary>
-  /// Specifies a logical route for event delivery, a tuple of (Namespace, Queue, ShardKey)
+  /// Specifies a logical route for event delivery, a tuple of (Net, Namespace, Queue, ShardKey)
   /// </summary>
   public struct Route : IEquatable<Route>
   {

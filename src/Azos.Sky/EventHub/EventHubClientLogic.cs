@@ -28,7 +28,7 @@ namespace Azos.Sky.EventHub
   public sealed class EventHubClientLogic : ModuleBase, IEventProducerLogic, IEventConsumerLogic
   {
     public const string CONFIG_SERVICE_SECTION = "service";
-    public const int FETCH_BY_MAX = 255;
+    public const int FETCH_BY_MAX = 128;
     public const int FETCH_BY_DEFAULT = 8;
 
     public EventHubClientLogic(IApplication application) : base(application) { }
@@ -150,14 +150,14 @@ namespace Azos.Sky.EventHub
       var all = m_Server.GetEndpointsForCall(QueueServiceAddress,
                                              nameof(IEventProducer),
                                              route.Partition,
-                                             network: route.Network);
+                                             network: route.Network)
+                        .Where(ep => ep.Endpoint.IsAvailable);
+
       var allCount = all.Count();
 
-#warning  Who checks "ep.IsActive /online/offline"?????
       var takeLimit = mapDataLossMode(allCount, lossMode, nameof(PostAsync));
 
-
-      var calls = all.Select(
+      var calls = all.Take(takeLimit).Select(
         one => one.CallOne(
           (http, ct) => http.Client
                             .PostAndGetJsonMapAsync("event",
@@ -188,17 +188,61 @@ namespace Azos.Sky.EventHub
       return new WriteResult(responses, allCount);
     }
 
-    public Task<IEnumerable<Event>> FetchAsync(Route route, ulong checkpoint, int count, DataLossMode lossMode = DataLossMode.Default)
+    #warning see #515 - needs to be rewritten more optimaly
+    public async Task<IEnumerable<Event>> FetchAsync(Route route, ulong checkpoint, int count, DataLossMode lossMode = DataLossMode.Default)
     {
       route.IsTrue(v => v.Assigned, "assigned Route");
       if (count <= 0) count = FETCH_BY_DEFAULT;
       count = count.KeepBetween(1, FETCH_BY_MAX);
 
-      var all = m_Server.GetEndpointsForCall(QueueServiceAddress, nameof(IEventConsumer), route.Partition, network: route.Network);
+      var all = m_Server.GetEndpointsForCall(QueueServiceAddress,
+                                             nameof(IEventConsumer),
+                                             route.Partition,
+                                             network: route.Network)
+                        .Where(ep => ep.Endpoint.IsAvailable);
+
+      var allCount = all.Count();
+      var takeLimit = mapDataLossMode(allCount, lossMode, nameof(FetchAsync));
+      //var first = all.First();
 
       //Read from all in cohort
-      //var calls = all.Select(one => one.CallOne((http, ct) => http.Client.PostAndGetJsonMapAsync("event", evt)));
-      throw new NotImplementedException();
+      var calls = all.Take(takeLimit).Select(
+        one => one.CallOne(
+          (http, ct) => http.Client
+                            .PostAndGetJsonMapAsync("feed",
+                                                     new
+                                                     {
+                                                       ns = route.Namespace,
+                                                       queue = route.Queue,
+                                                       cpoint = checkpoint,
+                                                       count = count,
+                                                       //payload = one == first
+                                                     }
+                                                   )
+        )
+      );
+
+      var responses = await Task.WhenAll(calls.Select(async call => {
+        try
+        {
+          return await call.ConfigureAwait(false);
+        }
+        catch (Exception error)
+        {
+          WriteLog(MessageType.Warning, nameof(PostAsync), "Post error: " + error.ToMessageWithType(), error);
+          return null;
+        }
+      })).ConfigureAwait(false);
+
+
+      var result = responses.SelectMany(response => response.UnwrapPayloadArray()
+                                                            .OfType<JsonDataMap>()
+                                                            .Select(map => JsonReader.ToDoc<Event>(map)))
+                            .DistinctBy(e => e.Gdid)
+                            .OrderBy(e => e.CheckpointUtc)
+                            .ToArray();
+
+      return result;
     }
 
     public Task<ulong> GetCheckpoint(Route route, string idConsumer, DataLossMode lossMode = DataLossMode.Default)

@@ -61,7 +61,7 @@ namespace Azos.Sky.EventHub
     public Atom ContentType { get; internal set; }
 
     /// <summary> Raw event content </summary>
-    [Field(maxLength: MAX_CONTENT_LENGTH, Description = "Raw event content")]
+    [Field(required: true, maxLength: MAX_CONTENT_LENGTH, Description = "Raw event content")]
     public byte[] Content { get; internal set; }
 
     public override string ToString() => $"Event({Gdid})";
