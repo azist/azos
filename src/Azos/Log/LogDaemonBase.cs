@@ -390,7 +390,7 @@ namespace Azos.Log
 
             if (sink.GenerateFailoverMessages || failover.GenerateFailoverMessages)
             {
-              var emsg = new Message();
+              var emsg = new Message().InitDefaultFields(App);
               emsg.Type = MessageType.Error;
               emsg.From = sink.Name;
               emsg.Topic = CoreConsts.LOG_TOPIC;
