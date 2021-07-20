@@ -214,9 +214,9 @@ namespace Azos.Sky.EventHub
                                                      {
                                                        ns = route.Namespace,
                                                        queue = route.Queue,
-                                                       cpoint = checkpoint,
+                                                       checkpoint = checkpoint,
                                                        count = count,
-                                                       //payload = one == first
+                                                       //onlyid = one == first
                                                      }
                                                    )
         )

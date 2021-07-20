@@ -66,6 +66,5 @@ namespace Azos.Sky.EventHub
 
     public override string ToString() => $"Event({Gdid})";
     public ulong GetDistributedStableHash() => Gdid.GetDistributedStableHash();
-
   }
 }
