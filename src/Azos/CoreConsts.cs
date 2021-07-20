@@ -74,6 +74,7 @@ namespace Azos
     public const string EXT_PARAM_GROUP_INSTRUMENTATION = "instrumentation";
     public const string EXT_PARAM_GROUP_CACHE = "cache";
     public const string EXT_PARAM_GROUP_DATA = "data";
+    public const string EXT_PARAM_GROUP_QUEUE = "queue";
     public const string EXT_PARAM_GROUP_LOG = "log";
     public const string EXT_PARAM_GROUP_TIME = "time";
     public const string EXT_PARAM_GROUP_PAY = "pay";

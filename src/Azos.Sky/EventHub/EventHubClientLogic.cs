@@ -14,6 +14,7 @@ using Azos.Apps.Injection;
 using Azos.Client;
 using Azos.Conf;
 using Azos.Data;
+using Azos.Instrumentation;
 using Azos.Log;
 using Azos.Serialization.JSON;
 using Azos.Sky.Identification;
@@ -27,6 +28,8 @@ namespace Azos.Sky.EventHub
   public sealed class EventHubClientLogic : ModuleBase, IEventProducerLogic, IEventConsumerLogic
   {
     public const string CONFIG_SERVICE_SECTION = "service";
+    public const int FETCH_BY_MAX = 255;
+    public const int FETCH_BY_DEFAULT = 8;
 
     public EventHubClientLogic(IApplication application) : base(application) { }
     public EventHubClientLogic(IModule parent) : base(parent) { }
@@ -40,6 +43,7 @@ namespace Azos.Sky.EventHub
 
     [Inject] IGdidProviderModule m_Gdid;
 
+    private int m_FecthBy;
     private HttpService m_Server;
 
 
@@ -57,7 +61,19 @@ namespace Azos.Sky.EventHub
     /// Logical cluster region/zone id
     /// </summary>
     [Config]
-    public Atom Origin {  get; set; }
+    public Atom Origin { get; set; }
+
+    /// <summary>
+    /// Specifies how many events per queue are fetched if the caller did not specify the count
+    /// </summary>
+    [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_QUEUE)]
+    public int FetchBy
+    {
+      get => m_FecthBy;
+      set => m_FecthBy = value.KeepBetween(0, FETCH_BY_MAX);
+    }
+
+
 
     protected override void DoConfigure(IConfigSectionNode node)
     {
@@ -103,19 +119,57 @@ namespace Azos.Sky.EventHub
       return result;
     }
 
+    private static int mapDataLossMode(int totalCount, DataLossMode lossMode, string opName)
+    {
+      int need(int v)
+        => v <= totalCount ? v
+                           : throw new EventHubException("Operation `{0}` requires {1} nodes in cohort, but cluster only has {2} available".Args(opName, v, totalCount));
+
+      switch (lossMode)
+      {
+        case DataLossMode.High: return need(1);
+        case DataLossMode.Mid: return need(2);
+        case DataLossMode.Low: return need(3);
+        case DataLossMode.Minimum: return need(Math.Max(3, totalCount));
+        case DataLossMode.MinimumPossible: return need(Math.Max(1, totalCount));
+        default: return need(3);
+      }
+    }
+
     /// <summary>
     /// Posts event across all servers per shard
     /// </summary>
-    public async Task<WriteResult> PostAsync(Route route, Event evt)
+    public async Task<WriteResult> PostAsync(Route route, Event evt, DataLossMode lossMode = DataLossMode.Default)
     {
       route.IsTrue(v => v.Assigned, "assigned Route");
+
+      //Validate Event object before post
       var ve = evt.NonNull(nameof(evt)).Validate();
       if (ve != null) throw ve;
 
-      var all = m_Server.GetEndpointsForCall(QueueServiceAddress, nameof(IEventProducer), route.Partition, network: route.Network);
+      var all = m_Server.GetEndpointsForCall(QueueServiceAddress,
+                                             nameof(IEventProducer),
+                                             route.Partition,
+                                             network: route.Network);
+      var allCount = all.Count();
 
-      //todo: In future we can program policy per queue: how many nodes to write into, for now we write into ALL nodes
-      var calls = all.Select( one => one.CallOne( (http, ct) => http.Client.PostAndGetJsonMapAsync("event", evt)));
+#warning  Who checks "ep.IsActive /online/offline"?????
+      var takeLimit = mapDataLossMode(allCount, lossMode, nameof(PostAsync));
+
+
+      var calls = all.Select(
+        one => one.CallOne(
+          (http, ct) => http.Client
+                            .PostAndGetJsonMapAsync("event",
+                                                     new
+                                                     {
+                                                       ns = route.Namespace,
+                                                       queue = route.Queue,
+                                                       evt
+                                                     }
+                                                   )
+        )
+      );
 
       var responses = await Task.WhenAll(calls.Select(async call => {
         try
@@ -131,20 +185,28 @@ namespace Azos.Sky.EventHub
       })).ConfigureAwait(false);
 
 
-      return new WriteResult(responses, all.Count());
+      return new WriteResult(responses, allCount);
     }
 
-    public Task<IEnumerable<Event>> FetchAsync(Route route, ulong checkpoint, int count)
+    public Task<IEnumerable<Event>> FetchAsync(Route route, ulong checkpoint, int count, DataLossMode lossMode = DataLossMode.Default)
+    {
+      route.IsTrue(v => v.Assigned, "assigned Route");
+      if (count <= 0) count = FETCH_BY_DEFAULT;
+      count = count.KeepBetween(1, FETCH_BY_MAX);
+
+      var all = m_Server.GetEndpointsForCall(QueueServiceAddress, nameof(IEventConsumer), route.Partition, network: route.Network);
+
+      //Read from all in cohort
+      //var calls = all.Select(one => one.CallOne((http, ct) => http.Client.PostAndGetJsonMapAsync("event", evt)));
+      throw new NotImplementedException();
+    }
+
+    public Task<ulong> GetCheckpoint(Route route, string idConsumer, DataLossMode lossMode = DataLossMode.Default)
     {
       throw new NotImplementedException();
     }
 
-    public Task<ulong> GetCheckpoint(Route route, string idConsumer)
-    {
-      throw new NotImplementedException();
-    }
-
-    public Task<WriteResult> SetCheckpoint(Route route, string idConsumer, ulong checkpoint)
+    public Task<WriteResult> SetCheckpoint(Route route, string idConsumer, ulong checkpoint, DataLossMode lossMode = DataLossMode.Default)
     {
       throw new NotImplementedException();
     }

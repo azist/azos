@@ -33,7 +33,7 @@ namespace Azos.Sky.EventHub
     /// <summary>
     /// Posts event into the queue
     /// </summary>
-    Task<WriteResult> PostAsync(Route route, Event evt);
+    Task<WriteResult> PostAsync(Route route, Event evt, DataLossMode lossMode = DataLossMode.Default);
   }
 
   /// <summary>
@@ -56,17 +56,17 @@ namespace Azos.Sky.EventHub
     /// <summary>
     /// Fetches the count of messages starting at the specified checkpoint
     /// </summary>
-    Task<IEnumerable<Event>> FetchAsync(Route route, ulong checkpoint, int count);
+    Task<IEnumerable<Event>> FetchAsync(Route route, ulong checkpoint, int count, DataLossMode lossMode = DataLossMode.Default);
 
     /// <summary>
     /// Gets the checkpoint for the consumer
     /// </summary>
-    Task<ulong> GetCheckpoint(Route route, string idConsumer);
+    Task<ulong> GetCheckpoint(Route route, string idConsumer, DataLossMode lossMode = DataLossMode.Default);
 
     /// <summary>
     /// Sets the checkpoint for the specified consumer
     /// </summary>
-    Task<WriteResult> SetCheckpoint(Route route, string idConsumer, ulong checkpoint);
+    Task<WriteResult> SetCheckpoint(Route route, string idConsumer, ulong checkpoint, DataLossMode lossMode = DataLossMode.Default);
   }
 
   /// <summary>
