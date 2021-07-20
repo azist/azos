@@ -68,7 +68,14 @@ namespace Azos.Sky.EventHub.Server.Web
     [EventConsumerPermission]
     public async Task<object> Feed(Atom ns, Atom queue, ulong checkpoint, int count, bool onlyid)
     {
-      return "ok";
+      if (ns.IsZero || !ns.IsValid) throw HTTPStatusException.BadRequest_400("invalid ns");
+      if (queue.IsZero || !queue.IsValid) throw HTTPStatusException.BadRequest_400("invalid queue");
+
+      return null;
+
+      //var changeResult = await m_Server.WriteAsync(ns, queue, evt).ConfigureAwait(false);
+
+      //return new { OK = true, data = changeResult };
     }
   }
 

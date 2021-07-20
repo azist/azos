@@ -278,6 +278,7 @@ namespace Azos.Apps.Hosting
     {
       foreach(var app in m_Applications.OrderedValues)
       {
+        if (!Running) break;
         try
         {
           scanOne(rel, app);
@@ -350,6 +351,8 @@ namespace Azos.Apps.Hosting
               pars: new { app = app.Name, reason }.ToJson());
 
       m_Activator.StopApplication(app);
+
+      if (!Running) return;
 
       var startOk = m_Activator.StartApplication(app);
 

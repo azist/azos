@@ -145,7 +145,7 @@ namespace Azos.Apps.Hosting
       }
       catch(Exception error)
       {
-        WriteLogFromHere(MessageType.Error, "sipc.Send(STOP) leaked: " + error.ToMessageWithType(), error, related: rel);
+        WriteLogFromHere(MessageType.Error, "sipc.Send(STOP) for `{0}` leaked: {1}".Args(app.Name, error.ToMessageWithType()), error, related: rel);
       }
 
       WriteLogFromHere(MessageType.Trace, "Will wait for subordinate process to stop for {0} sec".Args(app.StopTimeoutSec), related: rel);
@@ -159,16 +159,16 @@ namespace Azos.Apps.Hosting
         var utc = App.TimeSource.UTCNow;
         if ((utc - startUtc).TotalSeconds > app.StopTimeoutSec)
         {
-          WriteLogFromHere(MessageType.WarningExpectation, "Subordinate process Stop timeout of {0} sec exceeded. Killing now".Args(app.StopTimeoutSec), related: rel);
+          WriteLogFromHere(MessageType.WarningExpectation, "Subordinate process `{0}` Stop timeout of {1} sec exceeded. Killing now".Args(app.Name, app.StopTimeoutSec), related: rel);
 
           try
           {
             process.Kill();
-            WriteLogFromHere(MessageType.WarningExpectation, "Killed", related: rel);
+            WriteLogFromHere(MessageType.WarningExpectation, "Killed(`{0}`)".Args(app.Name), related: rel);
           }
           catch(Exception error)
           {
-            WriteLogFromHere(MessageType.Critical, "Kill() leaked: " + error.ToMessageWithType(), error, related: rel);
+            WriteLogFromHere(MessageType.Critical, "Kill(`{0}`) leaked: {1}".Args(app.Name, error.ToMessageWithType()), error, related: rel);
           }
 
           break;
