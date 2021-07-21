@@ -35,6 +35,9 @@ namespace Azos.Sky.EventHub
     /// <summary> How many nodes out of Total were tried </summary>
     public int Tried => Changes.Count();
 
+    /// <summary> Throws when expectation is not met </summary>
+    public void EnsureSuccessOfAtLeast(double level)
+     => Success.IsTrue( v => v >= level, "Success >= {0:n4}".Args(level));
 
     public double Success => Tried == 0 ? 0 : Ok / (double)Tried;
     public double Error => Tried == 0 ? 0 : (Tried - Ok) / (double)Tried;

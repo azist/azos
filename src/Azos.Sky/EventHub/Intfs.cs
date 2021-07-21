@@ -33,7 +33,9 @@ namespace Azos.Sky.EventHub
     Event MakeNew(Atom contentType, byte[] content, string headers = null);
 
     /// <summary>
-    /// Posts event into the queue. Throws if the cluster can not satisfy the requested DataLossMode requirement in principle
+    /// Posts event into the queue. Throws if the cluster can not satisfy the requested DataLossMode requirement in principle.
+    /// The <see cref="Event.Gdid"/> is treated as IDEMPOTENCY key - an attempt to post and event with the same GDID
+    /// on the same node will have no effect
     /// </summary>
     /// <param name="route">Specifies what Namespace.Queue the event should be routed into <seealso cref="Route"/></param>
     /// <param name="partition">

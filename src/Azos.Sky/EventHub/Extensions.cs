@@ -23,29 +23,58 @@ namespace Azos.Sky.EventHub
 
     public static readonly Atom CONTENT_TYPE_JSON_DOC = Atom.Encode("docjson");
 
-
     /// <summary>
-    /// Post event document using processing Route obtained from EventDocument instance and
-    /// serializing document using json. The content type header is not set by this method
+    /// Creates a <see cref="Event"/> instance out of <see cref="EventDocument"/> instance
+    /// which can then be posted into IEventProducer. You can use this method to obtain raw event
+    /// once in order to possibly re-try posting if post fails. The system maintains idempotency of
+    /// Event posts, therefore a caller may hang to returned Event instance to retry failed posting
     /// </summary>
-    /// <param name="producer">Producer to post event into</param>
+    /// <param name="producer">Producer to eventually post event into</param>
     /// <param name="evtDoc">EventDocument-derivative instance</param>
-    /// <param name="lossMode">Data loss mode, if null then default used from doc declaration</param>
-    /// <returns>WriteResult - how many nodes tried/succeeded/failed</returns>
-    public static async Task<WriteResult> PostEventDocAsync(this IEventProducer producer, EventDocument evtDoc, DataLossMode? lossMode = null)
+    /// <param name="headers">Event headers or null</param>
+    /// <returns>
+    ///   A tuple of (EventAttribute attr, ShardKey partition, Event evt) suitable for
+    ///   making a call to<see cref="IEventProducer.PostAsync(Route, ShardKey, Event, DataLossMode)"/>
+    /// </returns>
+    public static (EventAttribute attr, ShardKey partition, Event evt) GetRawEventForDocument(this IEventProducer producer,
+                                                                 EventDocument evtDoc,
+                                                                 JsonDataMap headers = null)
     {
       var partition = evtDoc.NonNull(nameof(evtDoc)).GetEventPartition();
-      var hdrs = evtDoc.GetEventHeaders();
+      var eventHeaders = evtDoc.GetEventHeaders(headers);
 
+      var rawHeaders = eventHeaders != null ? JsonWriter.Write(eventHeaders, JsonWritingOptions.CompactRowsAsMap) : null;
       var rawJson = JsonWriter.WriteToBuffer(evtDoc, JsonWritingOptions.CompactRowsAsMap, JSON_ENCODING);
 
       var rawEvent = producer.NonNull(nameof(producer))
-                             .MakeNew(CONTENT_TYPE_JSON_DOC, rawJson, hdrs);
+                             .MakeNew(CONTENT_TYPE_JSON_DOC, rawJson, rawHeaders);
 
       var attr = EventAttribute.GetFor(evtDoc.GetType());
 
-      var result = await producer.PostAsync(attr.Route, partition, rawEvent, lossMode ?? attr.LossMode).ConfigureAwait(false);
+      return (attr, partition, rawEvent);
+    }
 
+    /// <summary>
+    /// Post event document using processing Route obtained from EventDocument instance and
+    /// serializing document using json. The content type header is not set by this method.
+    /// Note: When returned WriteResult does not satisfy caller requirements, this method does NOT
+    /// give caller a chance to re-post the SAME raw <see cref="Event"/> instance as the onus
+    /// of failure handling is on the caller.
+    /// You can use <see cref="GetRawEventForDocument(IEventProducer, EventDocument, JsonDataMap)"/>
+    /// if you want to re-post the SAME event instance
+    /// </summary>
+    /// <param name="producer">Producer to post event into</param>
+    /// <param name="evtDoc">EventDocument-derivative instance</param>
+    /// <param name="headers">Event headers or null</param>
+    /// <param name="lossMode">Data loss mode, if null then default used from doc declaration</param>
+    /// <returns>WriteResult - how many nodes tried/succeeded/failed</returns>
+    public static async Task<WriteResult> PostEventDocumentAsync(this IEventProducer producer,
+                                                                 EventDocument evtDoc,
+                                                                 JsonDataMap headers = null,
+                                                                 DataLossMode? lossMode = null)
+    {
+      var (attr, partition, rawEvent) = GetRawEventForDocument(producer, evtDoc, headers);
+      var result = await producer.PostAsync(attr.Route, partition, rawEvent, lossMode ?? attr.LossMode).ConfigureAwait(false);
       return result;
     }
 

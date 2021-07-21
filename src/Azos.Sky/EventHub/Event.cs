@@ -25,7 +25,9 @@ namespace Azos.Sky.EventHub
     internal Event(){ }//serializer
 
     /// <summary>
-    /// Immutable event id, primary key, monotonically increasing
+    /// Immutable event id, primary key, monotonically increasing.
+    /// Treated as IDEMPOTENCY key - an attempt to post and event with the same GDID into the same node more
+    /// than once will have no effect
     /// </summary>
     [Field(key: true, required: true, Description = "Immutable event id, primary key, monotonically increasing")]
     public GDID Gdid { get; internal set; }

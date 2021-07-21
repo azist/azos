@@ -32,12 +32,11 @@ namespace Azos.Sky.EventHub
 
     /// <summary>
     /// Returns headers which should be included in enqueued event.
-    /// This is an instance property because its value may depend on event state (other doc fields)
+    /// Return null if there are no headers to include.
+    /// The existing headers are passed-in or null if there are no existing headers
     /// </summary>
-    public virtual string GetEventHeaders()
-    {
-      return null;
-    }
+    public virtual JsonDataMap GetEventHeaders(JsonDataMap headers)
+     => headers;
 
     /// <summary>
     /// Adds type code using BIX, so the system will add Guids from <see cref="Azos.Serialization.Bix.BixAttribute"/>
