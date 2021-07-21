@@ -12,7 +12,9 @@ using Azos.Apps;
 namespace Azos.Sky.EventHub
 {
   /// <summary>
-  /// Produces events into named queues
+  /// Produces events into named queues.
+  /// An events gets written into multiple servers depending on the <see cref="DataLossMode"/> requirement.
+  /// The queues are optionally partitioned(sharded) for scalability.
   /// </summary>
   public interface IEventProducer
   {
@@ -31,9 +33,20 @@ namespace Azos.Sky.EventHub
     Event MakeNew(Atom contentType, byte[] content, string headers = null);
 
     /// <summary>
-    /// Posts event into the queue
+    /// Posts event into the queue. Throws if the cluster can not satisfy the requested DataLossMode requirement in principle
     /// </summary>
-    Task<WriteResult> PostAsync(Route route, Event evt, DataLossMode lossMode = DataLossMode.Default);
+    /// <param name="route">Specifies what Namespace.Queue the event should be routed into <seealso cref="Route"/></param>
+    /// <param name="partition">
+    ///  A partition(a shard) is cohort (a group) of distinct servers which handle failover.
+    ///  With the increase of <see cref="DataLossMode"/> requirement, the system tries to post message in more servers within partition
+    /// </param>
+    /// <param name="evt">Event to post</param>
+    /// <param name="lossMode">
+    ///   The acceptable data loss, the better the guarantees are the longer it takes to write event to more partitions.
+    ///   Analyze the returned WriteResult
+    /// </param>
+    /// <returns>The result of write operation</returns>
+    Task<WriteResult> PostAsync(Route route, ShardKey partition, Event evt, DataLossMode lossMode = DataLossMode.Default);
   }
 
   /// <summary>
@@ -54,19 +67,33 @@ namespace Azos.Sky.EventHub
     Atom Origin { get; }
 
     /// <summary>
-    /// Fetches the count of messages starting at the specified checkpoint
+    /// Specifies how many partitions (shards) the system has per Origin.
+    /// A partition is cohort (a group) of distinct servers which handle failover.
+    /// Consumers (event subscribers) may poll events from queue in every partition up to the specified count
+    /// of distinct partitions.
     /// </summary>
-    Task<IEnumerable<Event>> FetchAsync(Route route, ulong checkpoint, int count, DataLossMode lossMode = DataLossMode.Default);
+    int PartitionCount { get; }
+
+    /// <summary>
+    /// Fetches the count of events from the specified queue route starting at the specified checkpoint ordered by <see cref="Event.CheckpointUtc"/>
+    /// </summary>
+    /// <param name="route">Specifies what Network, Namespace, Queue to fetch events from</param>
+    /// <param name="partition">Partition number, from 0 to <see cref="PartitionCount"/></param>
+    /// <param name="checkpoint">A point in time as of which to fetch</param>
+    /// <param name="count">How many events to fetch</param>
+    /// <param name="lossMode">The amount of tolerable data loss</param>
+    /// <returns>Enumerable of events</returns>
+    Task<IEnumerable<Event>> FetchAsync(Route route, int partition, ulong checkpoint, int count, DataLossMode lossMode = DataLossMode.Default);
 
     /// <summary>
     /// Gets the checkpoint for the consumer
     /// </summary>
-    Task<ulong> GetCheckpoint(Route route, string idConsumer, DataLossMode lossMode = DataLossMode.Default);
+    Task<ulong> GetCheckpoint(Route route, int partition, string idConsumer, DataLossMode lossMode = DataLossMode.Default);
 
     /// <summary>
     /// Sets the checkpoint for the specified consumer
     /// </summary>
-    Task<WriteResult> SetCheckpoint(Route route, string idConsumer, ulong checkpoint, DataLossMode lossMode = DataLossMode.Default);
+    Task<WriteResult> SetCheckpoint(Route route, int partition, string idConsumer, ulong checkpoint, DataLossMode lossMode = DataLossMode.Default);
   }
 
   /// <summary>

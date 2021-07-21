@@ -15,6 +15,7 @@ namespace Azos.Sky.EventHub
   /// <summary>
   /// Abstract base declaration of event document
   /// </summary>
+  [BixJsonHandler(ThrowOnUnresolvedType = true)]
   public abstract class EventDocument : AmorphousTypedDoc
   {
     /// <summary>
@@ -23,18 +24,17 @@ namespace Azos.Sky.EventHub
     public override bool AmorphousDataEnabled => true;
 
     /// <summary>
-    /// Specifies parameters how this event should be routed for processing: what namespace, queue and partition should be used.
-    /// The function is called in the specified target context which may be passed from caller.
-    /// This is an instance property because its value may depend on event state (other doc fields)
+    /// Specifies ShardKey how this event should be routed for processing in terms of partitioning across shards.
+    /// A queue may contain more than one partition - be sharded in which case this function returns a
+    /// sharding key derived from this event document state
     /// </summary>
-    public abstract Route GetEventRoute(string target);
+    public abstract ShardKey GetEventPartition();
 
     /// <summary>
     /// Returns headers which should be included in enqueued event.
-    /// The function is called in the specified target context which may be passed from caller.
     /// This is an instance property because its value may depend on event state (other doc fields)
     /// </summary>
-    public virtual string GetEventHeaders(string target)
+    public virtual string GetEventHeaders()
     {
       return null;
     }

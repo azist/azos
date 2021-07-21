@@ -63,6 +63,19 @@ namespace Azos.Sky.EventHub
     [Config]
     public Atom Origin { get; set; }
 
+
+    /// <summary>
+    /// Shard count
+    /// </summary>
+    public int PartitionCount
+    {
+      get
+      {
+        return m_Server.GetEndpointsForAllShards(QueueServiceAddress, nameof(IEventConsumer)).Count();
+      }
+    }
+
+
     /// <summary>
     /// Specifies how many events per queue are fetched if the caller did not specify the count
     /// </summary>
@@ -72,7 +85,6 @@ namespace Azos.Sky.EventHub
       get => m_FecthBy;
       set => m_FecthBy = value.KeepBetween(0, FETCH_BY_MAX);
     }
-
 
 
     protected override void DoConfigure(IConfigSectionNode node)
@@ -139,7 +151,7 @@ namespace Azos.Sky.EventHub
     /// <summary>
     /// Posts event across all servers per shard
     /// </summary>
-    public async Task<WriteResult> PostAsync(Route route, Event evt, DataLossMode lossMode = DataLossMode.Default)
+    public async Task<WriteResult> PostAsync(Route route, ShardKey partition, Event evt, DataLossMode lossMode = DataLossMode.Default)
     {
       route.IsTrue(v => v.Assigned, "assigned Route");
 
@@ -149,8 +161,7 @@ namespace Azos.Sky.EventHub
 
       var all = m_Server.GetEndpointsForCall(QueueServiceAddress,
                                              nameof(IEventProducer),
-                                             route.Partition,
-                                             network: route.Network)
+                                             partition)
                         .Where(ep => ep.Endpoint.IsAvailable);
 
       var allCount = all.Count();
@@ -189,7 +200,7 @@ namespace Azos.Sky.EventHub
     }
 
     #warning see #515 - needs to be rewritten more optimaly
-    public async Task<IEnumerable<Event>> FetchAsync(Route route, ulong checkpoint, int count, DataLossMode lossMode = DataLossMode.Default)
+    public async Task<IEnumerable<Event>> FetchAsync(Route route, int partition,  ulong checkpoint, int count, DataLossMode lossMode = DataLossMode.Default)
     {
       route.IsTrue(v => v.Assigned, "assigned Route");
       if (count <= 0) count = FETCH_BY_DEFAULT;
@@ -197,8 +208,7 @@ namespace Azos.Sky.EventHub
 
       var all = m_Server.GetEndpointsForCall(QueueServiceAddress,
                                              nameof(IEventConsumer),
-                                             route.Partition,
-                                             network: route.Network)
+                                             new ShardKey((ulong)partition))
                         .Where(ep => ep.Endpoint.IsAvailable);
 
       var allCount = all.Count();
@@ -245,12 +255,12 @@ namespace Azos.Sky.EventHub
       return result;
     }
 
-    public Task<ulong> GetCheckpoint(Route route, string idConsumer, DataLossMode lossMode = DataLossMode.Default)
+    public Task<ulong> GetCheckpoint(Route route, int partition, string idConsumer, DataLossMode lossMode = DataLossMode.Default)
     {
       throw new NotImplementedException();
     }
 
-    public Task<WriteResult> SetCheckpoint(Route route, string idConsumer, ulong checkpoint, DataLossMode lossMode = DataLossMode.Default)
+    public Task<WriteResult> SetCheckpoint(Route route, int partition, string idConsumer, ulong checkpoint, DataLossMode lossMode = DataLossMode.Default)
     {
       throw new NotImplementedException();
     }
