@@ -19,7 +19,7 @@ namespace Azos.Sky.EventHub
   /// </summary>
   public static class Extensions
   {
-    private static readonly Encoding  JSON_ENCODING = new  UTF8Encoding(false);
+    private static readonly Encoding  EVENT_JSON_ENCODING = new  UTF8Encoding(false);
 
     public static readonly Atom CONTENT_TYPE_JSON_DOC = Atom.Encode("docjson");
 
@@ -44,7 +44,7 @@ namespace Azos.Sky.EventHub
       var eventHeaders = evtDoc.GetEventHeaders(headers);
 
       var rawHeaders = eventHeaders != null ? JsonWriter.Write(eventHeaders, JsonWritingOptions.CompactRowsAsMap) : null;
-      var rawJson = JsonWriter.WriteToBuffer(evtDoc, JsonWritingOptions.CompactRowsAsMap, JSON_ENCODING);
+      var rawJson = JsonWriter.WriteToBuffer(evtDoc, JsonWritingOptions.CompactRowsAsMap, EVENT_JSON_ENCODING);
 
       var rawEvent = producer.NonNull(nameof(producer))
                              .MakeNew(CONTENT_TYPE_JSON_DOC, rawJson, rawHeaders);
@@ -114,7 +114,7 @@ namespace Azos.Sky.EventHub
             if (e.ContentType == CONTENT_TYPE_JSON_DOC && e.Content != null)
             {
               ms.UnsafeBindBuffer(e.Content, 0, e.Content.Length);
-              var map = JsonReader.DeserializeDataObject(ms, JSON_ENCODING, true) as JsonDataMap;
+              var map = JsonReader.DeserializeDataObject(ms, EVENT_JSON_ENCODING, true) as JsonDataMap;
               doc = JsonReader.ToDoc<EventDocument>(map, fromUI: false);
             }
           }

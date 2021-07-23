@@ -42,11 +42,7 @@ namespace Azos.Sky.EventHub.Server.Web
     [EventProducerPermission]
     public async Task<object> PostEvent(Atom ns, Atom queue, Event evt)
     {
-      if (ns.IsZero || !ns.IsValid) throw HTTPStatusException.BadRequest_400("invalid ns");
-      if (queue.IsZero || !queue.IsValid) throw HTTPStatusException.BadRequest_400("invalid queue");
-
       var changeResult = await m_Server.WriteAsync(ns, queue, evt).ConfigureAwait(false);
-
       return new {OK = true, data = changeResult};
     }
 
@@ -68,15 +64,49 @@ namespace Azos.Sky.EventHub.Server.Web
     [EventConsumerPermission]
     public async Task<object> Feed(Atom ns, Atom queue, ulong checkpoint, int count, bool onlyid)
     {
-      if (ns.IsZero || !ns.IsValid) throw HTTPStatusException.BadRequest_400("invalid ns");
-      if (queue.IsZero || !queue.IsValid) throw HTTPStatusException.BadRequest_400("invalid queue");
+      var result = await m_Server.FetchAsync(ns, queue, checkpoint, count, onlyid).ConfigureAwait(false);
+      return new { OK = true, data = result };
+    }
 
-      return null;
 
-      //var changeResult = await m_Server.WriteAsync(ns, queue, evt).ConfigureAwait(false);
+    [ApiEndpointDoc(Title = "Get checkpoint",
+                    Uri = "checkpoint",
+                    Description = "Retrieves checkpoint from the specified namespace/queue",
+                    Methods = new[] { "GET = gets checkpoint value" },
+                    RequestHeaders = new[] { API_DOC_HDR_ACCEPT_JSON },
+                    ResponseHeaders = new[] { API_DOC_HDR_NO_CACHE },
+                    RequestBody = "JSON body or parameters: (Atom ns, Atom queue, string consumer)",
+                    RequestQueryParameters = new[] {"ns = Atom, namepsace",
+                                                    "queue = Atom, queue id",
+                                                    "consumer = string, consumer identifier"},
+                    ResponseContent = "JSON checkpoint result - {OK: true, data: ulong}`")]
+    [ActionOnGet(Name = "checkpoint"), AcceptsJson]
+    [EventConsumerPermission]
+    public async Task<object> GetCheckpoint(Atom ns, Atom queue, string consumer)
+    {
+      var result = await m_Server.GetCheckpointAsync(ns, queue, consumer).ConfigureAwait(false);
+      return new { OK = true, data = result };
+    }
 
-      //return new { OK = true, data = changeResult };
+
+    [ApiEndpointDoc(Title = "Post checkpoint",
+                    Uri = "checkpoint",
+                    Description = "Sets checkpoint for the specified namespace/queue/consumer",
+                    Methods = new[] { "POST = sets checkpoint value" },
+                    RequestHeaders = new[] { API_DOC_HDR_ACCEPT_JSON },
+                    ResponseHeaders = new[] { API_DOC_HDR_NO_CACHE },
+                    RequestBody = "JSON body or parameters: (Atom ns, Atom queue, string consumer, ulong checkpoint)",
+                    RequestQueryParameters = new[] {"ns = Atom, namepsace",
+                                                    "queue = Atom, queue id",
+                                                    "consumer = string, consumer identifier",
+                                                    "checkpoint = ulong, checkpoint value"},
+                    ResponseContent = "JSON checkpoint result - {OK: true}")]
+    [ActionOnPost(Name = "checkpoint"), AcceptsJson]
+    [EventConsumerPermission]
+    public async Task<object> PostCheckpoint(Atom ns, Atom queue, string consumer, ulong checkpoint)
+    {
+      await m_Server.SetCheckpointAsync(ns, queue, consumer, checkpoint).ConfigureAwait(false);
+      return new { OK = true };
     }
   }
-
 }
