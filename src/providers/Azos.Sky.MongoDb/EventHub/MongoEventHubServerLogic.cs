@@ -13,7 +13,11 @@ using Azos.Apps;
 using Azos.Apps.Injection;
 using Azos.Conf;
 using Azos.Data;
+using Azos.Data.Access.MongoDb.Connector;
+using Azos.Glue;
 using Azos.Log;
+using Azos.Platform;
+using Azos.Serialization.BSON;
 using Azos.Serialization.JSON;
 using Azos.Sky.Identification;
 using Azos.Wave;
@@ -25,8 +29,8 @@ namespace Azos.Sky.EventHub.Server
   /// </summary>
   public sealed class MongoEventHubServerLogic : ModuleBase, IEventHubServerLogic
   {
-    //public const string CONFIG_STORE_SECTION = "store";
     public const int CONSUMER_ID_MAX_LEN = 255;
+    public const string DB_PREFIX = "sky_evt_";
 
     public MongoEventHubServerLogic(IApplication application) : base(application) { }
     public MongoEventHubServerLogic(IModule parent) : base(parent) { }
@@ -37,8 +41,19 @@ namespace Azos.Sky.EventHub.Server
       base.Destructor();
     }
 
+    private Node m_ServerNode;
+    private MongoClient m_Client;
+    private FiniteSetLookup<Atom, Database> m_DbMap;
+
+
     public override bool IsHardcodedModule => false;
     public override string ComponentLogTopic => CoreConsts.QUEUE_TOPIC;
+
+    /// <summary>
+    /// Mongo server node connector, e.g. "applicance://" or "mongo://127.0.0.1:27017"
+    /// </summary>
+    [Config]
+    public string ServerNode { get; set; }
 
 
     #region Protected plumbing
@@ -51,6 +66,17 @@ namespace Azos.Sky.EventHub.Server
 
     protected override bool DoApplicationAfterInit()
     {
+      m_ServerNode = new Node(ServerNode.NonBlank(nameof(ServerNode)))
+                         .IsTrue( v => v.Binding.IsOneOf(MongoClient.MONGO_BINDING, MongoClient.APPLIANCE_BINDING), nameof(ServerNode));
+
+      m_Client = App.GetDefaultMongoClient();
+
+      m_DbMap = new FiniteSetLookup<Atom, Database>(ns => {
+        var server = m_Client[m_ServerNode];
+        var db = server[DB_PREFIX + ns];
+        return db;
+      });
+
       return base.DoApplicationAfterInit();
     }
 
@@ -63,11 +89,27 @@ namespace Azos.Sky.EventHub.Server
     #region IEventHubServerLogic
     public Task<ChangeResult> WriteAsync(Atom ns, Atom queue, Event evt)
     {
+      const int MONGO_KEY_VIOLATION = 11000;
+
       checkRoute(ns, queue);
       var ve = evt.NonNull(nameof(Event)).Validate();
       if (ve != null) throw ve;
 
-      throw new NotImplementedException();
+      var bson = new BSONDocument();
+      //todo populate form event
+      var collection = getQueueCollection(ns, queue);
+
+      var crud = collection.Insert(bson);
+
+      //todo Who is going to create an index on collection????
+
+      //need to detect key violation as it is a sign of idempotency retry which should be treated as success
+      var success = (crud.WriteErrors == null) ||
+                    (crud.WriteErrors.Length > 0  &&  crud.WriteErrors[0].Code == MONGO_KEY_VIOLATION);
+
+      var result = new ChangeResult(ChangeResult.ChangeType.Inserted, 1, null, null);
+
+      return Task.FromResult(result);
     }
 
     public Task<ChangeResult> FetchAsync(Atom ns, Atom queue, ulong checkpoint, int count, bool onlyid)
@@ -92,6 +134,17 @@ namespace Azos.Sky.EventHub.Server
     #endregion
 
     #region .pvt
+
+    private Database getNamespaceDatabase(Atom ns) => m_DbMap[ns];
+
+    private Collection getQueueCollection(Atom ns, Atom queue)
+    {
+      var db = getNamespaceDatabase(ns);
+      var collection = db[queue.Value];
+      return collection;
+    }
+
+
     private void checkRoute(Atom ns, Atom queue)
     {
       if (ns.IsZero || !ns.IsValid) throw HTTPStatusException.BadRequest_400("invalid ns");
