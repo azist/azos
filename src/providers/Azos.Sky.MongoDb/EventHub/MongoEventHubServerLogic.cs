@@ -10,16 +10,12 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using Azos.Apps;
-using Azos.Apps.Injection;
 using Azos.Conf;
 using Azos.Data;
 using Azos.Data.Access.MongoDb.Connector;
 using Azos.Glue;
-using Azos.Log;
 using Azos.Platform;
 using Azos.Serialization.BSON;
-using Azos.Serialization.JSON;
-using Azos.Sky.Identification;
 using Azos.Wave;
 
 namespace Azos.Sky.EventHub.Server
@@ -96,18 +92,17 @@ namespace Azos.Sky.EventHub.Server
       if (ve != null) throw ve;
 
       var bson = new BSONDocument();
-      //todo populate form event
-      var collection = getQueueCollection(ns, queue);
+      //todo populate from event
+      var collection = getQueueCollection(ns, queue);//ensures indexes
 
       var crud = collection.Insert(bson);
-
-      //todo Who is going to create an index on collection????
 
       //need to detect key violation as it is a sign of idempotency retry which should be treated as success
       var success = (crud.WriteErrors == null) ||
                     (crud.WriteErrors.Length > 0  &&  crud.WriteErrors[0].Code == MONGO_KEY_VIOLATION);
 
-      var result = new ChangeResult(ChangeResult.ChangeType.Inserted, 1, null, null);
+      var result = success ? new ChangeResult(ChangeResult.ChangeType.Inserted, 1, null, null)
+                           : new ChangeResult(ChangeResult.ChangeType.Undefined, 0, null, null);
 
       return Task.FromResult(result);
     }
@@ -140,7 +135,11 @@ namespace Azos.Sky.EventHub.Server
     private Collection getQueueCollection(Atom ns, Atom queue)
     {
       var db = getNamespaceDatabase(ns);
-      var collection = db[queue.Value];
+      var collection = db.GetOrRegister(queue.Value, out var wasAdded);
+      if (wasAdded)
+      {
+        //build index
+      }
       return collection;
     }
 
