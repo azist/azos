@@ -21,15 +21,15 @@ using Azos.Wave;
 namespace Azos.Sky.EventHub.Server
 {
   /// <summary>
-  /// Provides server implementation for IEventHubServerLogic
+  /// Provides server implementation for IEventHubServerLogic based on Mongo Db
   /// </summary>
-  public sealed class EventHubServerLogic : ModuleBase, IEventHubServerLogic
+  public sealed class MongoEventHubServerLogic : ModuleBase, IEventHubServerLogic
   {
     //public const string CONFIG_STORE_SECTION = "store";
     public const int CONSUMER_ID_MAX_LEN = 255;
 
-    public EventHubServerLogic(IApplication application) : base(application) { }
-    public EventHubServerLogic(IModule parent) : base(parent) { }
+    public MongoEventHubServerLogic(IApplication application) : base(application) { }
+    public MongoEventHubServerLogic(IModule parent) : base(parent) { }
 
     protected override void Destructor()
     {
