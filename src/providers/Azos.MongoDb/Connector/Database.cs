@@ -11,7 +11,7 @@ using Azos.Serialization.BSON;
 namespace Azos.Data.Access.MongoDb.Connector
 {
   /// <summary>
-  /// Represents an instance of MongoDB database
+  /// Represents an instance of Mongo Db database
   /// </summary>
   public sealed class Database : DisposableObject, INamed
   {
