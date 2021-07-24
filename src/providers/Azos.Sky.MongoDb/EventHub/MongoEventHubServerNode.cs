@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 using Azos.Apps;
@@ -14,6 +15,7 @@ using Azos.Data;
 using Azos.Data.Access.MongoDb.Connector;
 using Azos.Glue;
 using Azos.Platform;
+using Azos.Serialization.BSON;
 using Azos.Wave;
 
 namespace Azos.Sky.EventHub.Server
@@ -107,7 +109,20 @@ namespace Azos.Sky.EventHub.Server
     public Task<IEnumerable<Event>> FetchAsync(Atom ns, Atom queue, ulong checkpoint, int count, bool onlyid)
     {
       checkRoute(ns, queue);
-      throw new NotImplementedException();
+
+      var collection = getQueueCollection(ns, queue);
+
+      var qry = BsonConvert.GetFetchQuery(checkpoint);
+      var selector = BsonConvert.GetFetchSelector(onlyid);
+
+      IEnumerable<Event> result = null;
+
+      using(var cursor = collection.Find(qry, 0, 0xff, selector))
+      {
+        result = cursor.Select( doc => BsonConvert.FromBson(doc) ).ToArray();
+      }
+
+      return Task.FromResult(result);
     }
 
     public Task<ulong> GetCheckpointAsync(Atom ns, Atom queue, string consumer)

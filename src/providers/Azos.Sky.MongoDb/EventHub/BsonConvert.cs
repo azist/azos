@@ -64,5 +64,15 @@ namespace Azos.Sky.EventHub.Server
       return Event.__AsDeserialized(gdid, createUtc, origin, checkpointUtc, headers, contentType, content);
     }
 
+    private const string QRY = "{'$query': {'chk': {'$gt': '$$chk'}}, '$orderby': {'chk': 1}}";
+    private static readonly BSONDocument FULL_SELECTOR = null;//SELECT *
+    private static readonly BSONDocument ONLYID_SELECTOR = new BSONDocument("{_id: 1, u: 1, o: 1, chk: 1}", true);//SELECT _id, u, o, chk
+
+    public static BSONDocument GetFetchSelector(bool onlyid)
+     => onlyid ? ONLYID_SELECTOR : FULL_SELECTOR;
+
+    public static Query GetFetchQuery(ulong checkpoint)
+     => new Query(QRY, cacheTemplate: true, args: new TemplateArg(FLD_CHECKPOINTUTC, BSONElementType.Int64, (long) checkpoint));
+
   }
 }
