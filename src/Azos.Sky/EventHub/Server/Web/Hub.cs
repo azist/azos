@@ -28,7 +28,7 @@ namespace Azos.Sky.EventHub.Server.Web
   public class Hub : ApiProtocolController
   {
 
-    [Inject] IEventHubServerLogic m_Server;
+    [Inject] IEventHubServerNodeLogic m_Server;
 
     [ApiEndpointDoc(Title = "Event",
                     Uri = "event",

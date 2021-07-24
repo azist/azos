@@ -18,6 +18,7 @@ using Azos.Instrumentation;
 using Azos.Log;
 using Azos.Serialization.JSON;
 using Azos.Sky.Identification;
+using Azos.Sky.Security.Permissions.EventHub;
 using Azos.Web;
 
 namespace Azos.Sky.EventHub
@@ -159,6 +160,8 @@ namespace Azos.Sky.EventHub
       var ve = evt.NonNull(nameof(evt)).Validate();
       if (ve != null) throw ve;
 
+      EventProducerPermission.Instance.Check(App);
+
       var all = m_Server.GetEndpointsForCall(QueueServiceAddress,
                                              nameof(IEventProducer),
                                              partition)
@@ -205,6 +208,8 @@ namespace Azos.Sky.EventHub
       route.IsTrue(v => v.Assigned, "assigned Route");
       if (count <= 0) count = FETCH_BY_DEFAULT;
       count = count.KeepBetween(1, FETCH_BY_MAX);
+
+      EventConsumerPermission.Instance.Check(App);
 
       var all = m_Server.GetEndpointsForCall(QueueServiceAddress,
                                              nameof(IEventConsumer),

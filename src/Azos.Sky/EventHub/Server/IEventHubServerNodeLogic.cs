@@ -5,6 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using Azos.Apps;
@@ -15,11 +16,20 @@ namespace Azos.Sky.EventHub.Server
   /// <summary>
   /// Defines contract for event hub server node
   /// </summary>
-  public interface IEventHubServerLogic : IModule
+  public interface IEventHubServerNodeLogic : IModule
   {
+    /// <summary>Write event into nodes queue</summary>
     Task<ChangeResult> WriteAsync(Atom ns, Atom queue, Event evt);
-    Task<ChangeResult> FetchAsync(Atom ns, Atom queue, ulong checkpoint, int count, bool onlyid);
+
+    /// <summary> Fetches from nodes queue </summary>
+    Task<IEnumerable<Event>> FetchAsync(Atom ns, Atom queue, ulong checkpoint, int count, bool onlyid);
+
+    /// <summary> Gets checkpoint </summary>
     Task<ulong> GetCheckpointAsync(Atom ns, Atom queue, string consumer);
+
+    /// <summary>
+    /// Sets checkpoint for the specified caller
+    /// </summary>
     Task SetCheckpointAsync(Atom ns, Atom queue, string consumer, ulong checkpoint);
   }
 }

@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 using Azos.Apps;
@@ -15,21 +14,20 @@ using Azos.Data;
 using Azos.Data.Access.MongoDb.Connector;
 using Azos.Glue;
 using Azos.Platform;
-using Azos.Serialization.BSON;
 using Azos.Wave;
 
 namespace Azos.Sky.EventHub.Server
 {
   /// <summary>
-  /// Provides server implementation for IEventHubServerLogic based on Mongo Db
+  /// Provides server implementation for IEventHubServerNodeLogic based on Mongo Db
   /// </summary>
-  public sealed class MongoEventHubServerLogic : ModuleBase, IEventHubServerLogic
+  public sealed class MongoEventHubServerNode : ModuleBase, IEventHubServerNodeLogic
   {
     public const int CONSUMER_ID_MAX_LEN = 255;
     public const string DB_PREFIX = "sky_evt_";
 
-    public MongoEventHubServerLogic(IApplication application) : base(application) { }
-    public MongoEventHubServerLogic(IModule parent) : base(parent) { }
+    public MongoEventHubServerNode(IApplication application) : base(application) { }
+    public MongoEventHubServerNode(IModule parent) : base(parent) { }
 
     protected override void Destructor()
     {
@@ -91,8 +89,7 @@ namespace Azos.Sky.EventHub.Server
       var ve = evt.NonNull(nameof(Event)).Validate();
       if (ve != null) throw ve;
 
-      var bson = new BSONDocument();
-      //todo populate from event
+      var bson = BsonConvert.ToBson(evt);
       var collection = getQueueCollection(ns, queue);//ensures indexes
 
       var crud = collection.Insert(bson);
@@ -107,7 +104,7 @@ namespace Azos.Sky.EventHub.Server
       return Task.FromResult(result);
     }
 
-    public Task<ChangeResult> FetchAsync(Atom ns, Atom queue, ulong checkpoint, int count, bool onlyid)
+    public Task<IEnumerable<Event>> FetchAsync(Atom ns, Atom queue, ulong checkpoint, int count, bool onlyid)
     {
       checkRoute(ns, queue);
       throw new NotImplementedException();
@@ -138,6 +135,7 @@ namespace Azos.Sky.EventHub.Server
       var collection = db.GetOrRegister(queue.Value, out var wasAdded);
       if (wasAdded)
       {
+#warning Need to build index on checkpoint
         //build index
       }
       return collection;

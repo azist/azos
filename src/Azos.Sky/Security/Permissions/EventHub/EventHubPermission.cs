@@ -13,6 +13,8 @@ namespace Azos.Sky.Security.Permissions.EventHub
   /// </summary>
   public sealed class EventProducerPermission : TypedPermission
   {
+    public static readonly EventProducerPermission Instance = new EventProducerPermission();
+
     public EventProducerPermission() : base(AccessLevel.VIEW) { }
     public override string Description => StringConsts.PERMISSION_DESCRIPTION_EventProducer;
   }
@@ -22,6 +24,8 @@ namespace Azos.Sky.Security.Permissions.EventHub
   /// </summary>
   public sealed class EventConsumerPermission : TypedPermission
   {
+    public static readonly EventConsumerPermission Instance = new EventConsumerPermission();
+
     public EventConsumerPermission() : base(AccessLevel.VIEW) { }
     public override string Description => StringConsts.PERMISSION_DESCRIPTION_EventConsumer;
   }
