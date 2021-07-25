@@ -156,8 +156,11 @@ namespace Azos.Sky.EventHub.Server
       var collection = db.GetOrRegister(queue.Value, out var wasAdded);
       if (wasAdded)
       {
-#warning Need to build index on checkpoint
-        //build index
+        //Create index on CheckpointUtc
+        this.DontLeak(
+          () => db.RunCommand(BsonConvert.CreateIndex(queue.Value)),
+          errorLogType: Azos.Log.MessageType.CriticalAlert
+        );
       }
       return collection;
     }

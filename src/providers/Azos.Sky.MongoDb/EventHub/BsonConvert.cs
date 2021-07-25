@@ -72,5 +72,11 @@ namespace Azos.Sky.EventHub.Server
     public static Query GetFetchQuery(ulong checkpoint)
      => new Query(QRY, cacheTemplate: true, args: new TemplateArg(FLD_CHECKPOINTUTC, BSONElementType.Int64, (long) checkpoint));
 
+    public static BSONDocument CreateIndex(string cname)
+     => new BSONDocument(@"{
+          createIndexes: '##CNAME##',
+          indexes: [{key: {chk: 1}, name: 'idx_##CNAME##_chk', unique: false}]
+        }".Replace("##CNAME##", cname), false);
+
   }
 }
