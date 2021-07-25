@@ -29,7 +29,7 @@ namespace Azos.Sky.EventHub
   public sealed class EventHubClientLogic : ModuleBase, IEventProducerLogic, IEventConsumerLogic
   {
     public const string CONFIG_SERVICE_SECTION = "service";
-    public const int FETCH_BY_MAX = 128;
+    public const int FETCH_BY_MAX = 255;
     public const int FETCH_BY_DEFAULT = 8;
 
     public EventHubClientLogic(IApplication application) : base(application) { }
@@ -44,7 +44,7 @@ namespace Azos.Sky.EventHub
 
     [Inject] IGdidProviderModule m_Gdid;
 
-    private int m_FecthBy;
+    private int m_FecthBy = FETCH_BY_DEFAULT;
     private HttpService m_Server;
 
 
@@ -76,17 +76,15 @@ namespace Azos.Sky.EventHub
       }
     }
 
-
     /// <summary>
     /// Specifies how many events per queue are fetched if the caller did not specify the count
     /// </summary>
-    [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_QUEUE)]
+    [Config(Default = FETCH_BY_DEFAULT), ExternalParameter(CoreConsts.EXT_PARAM_GROUP_QUEUE)]
     public int FetchBy
     {
       get => m_FecthBy;
       set => m_FecthBy = value.KeepBetween(0, FETCH_BY_MAX);
     }
-
 
     protected override void DoConfigure(IConfigSectionNode node)
     {
@@ -162,6 +160,9 @@ namespace Azos.Sky.EventHub
 
       EventProducerPermission.Instance.Check(App);
 
+      //Capture the checkpoint time as of writing
+      evt.CheckpointUtc = App.TimeSource.UTCNow.ToUnsignedMillisecondsSinceUnixEpochStart();
+
       var all = m_Server.GetEndpointsForCall(QueueServiceAddress,
                                              nameof(IEventProducer),
                                              partition)
@@ -203,10 +204,10 @@ namespace Azos.Sky.EventHub
     }
 
     #warning see #515 - needs to be rewritten more optimaly
-    public async Task<IEnumerable<Event>> FetchAsync(Route route, int partition,  ulong checkpoint, int count, DataLossMode lossMode = DataLossMode.Default)
+    public async Task<IEnumerable<Event>> FetchAsync(Route route, int partition,  ulong checkpoint, int skip, int count, DataLossMode lossMode = DataLossMode.Default)
     {
       route.IsTrue(v => v.Assigned, "assigned Route");
-      if (count <= 0) count = FETCH_BY_DEFAULT;
+      if (count <= 0) count = FetchBy;
       count = count.KeepBetween(1, FETCH_BY_MAX);
 
       EventConsumerPermission.Instance.Check(App);
@@ -230,6 +231,7 @@ namespace Azos.Sky.EventHub
                                                        ns = route.Namespace,
                                                        queue = route.Queue,
                                                        checkpoint = checkpoint,
+                                                       skip,
                                                        count = count,
                                                        //onlyid = one == first
                                                      }

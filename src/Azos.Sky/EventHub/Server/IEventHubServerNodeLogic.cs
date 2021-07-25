@@ -22,7 +22,7 @@ namespace Azos.Sky.EventHub.Server
     Task<ChangeResult> WriteAsync(Atom ns, Atom queue, Event evt);
 
     /// <summary> Fetches from nodes queue </summary>
-    Task<IEnumerable<Event>> FetchAsync(Atom ns, Atom queue, ulong checkpoint, int count, bool onlyid);
+    Task<IEnumerable<Event>> FetchAsync(Atom ns, Atom queue, ulong checkpoint, int skip, int count, bool onlyid);
 
     /// <summary> Gets checkpoint </summary>
     Task<ulong> GetCheckpointAsync(Atom ns, Atom queue, string consumer);

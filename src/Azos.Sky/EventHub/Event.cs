@@ -23,7 +23,7 @@ namespace Azos.Sky.EventHub
     public const int MAX_CONTENT_LENGTH = 4 * 1024 * 1024;
 
     /// <summary>
-    /// Used by framework to diserialize instance.
+    /// Used by framework to deserialize instance.
     /// </summary>
     public static Event __AsDeserialized(GDID gdid, ulong createUtc, Atom origin, ulong checkpointUtc, string headers, Atom contentType, byte[] content)
      => new Event()

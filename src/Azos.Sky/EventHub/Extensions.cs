@@ -86,6 +86,7 @@ namespace Azos.Sky.EventHub
     /// <param name="route">Queue designator</param>
     /// <param name="partition">Logical partition to fetch from <see cref="IEventConsumer.PartitionCount"/></param>
     /// <param name="checkpoint">A point in time as of which to fetch</param>
+    /// <param name="skip">Number of events to skip in the beginning</param>
     /// <param name="count">Number of events to fetch</param>
     /// <param name="lossMode">Data loss tolerance</param>
     /// <returns>
@@ -96,11 +97,12 @@ namespace Azos.Sky.EventHub
                                                                                            Route route,
                                                                                            int partition,
                                                                                            ulong checkpoint,
+                                                                                           int skip,
                                                                                            int count,
                                                                                            DataLossMode lossMode = DataLossMode.Default)
     {
       var got = await consumer.NonNull(nameof(consumer))
-                              .FetchAsync(route, partition, checkpoint, count, lossMode);
+                              .FetchAsync(route, partition, checkpoint, skip, count, lossMode);
 
       using(var ms = new IO.BufferSegmentReadingStream())
       {

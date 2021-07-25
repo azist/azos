@@ -78,14 +78,16 @@ namespace Azos.Sky.EventHub
 
     /// <summary>
     /// Fetches the count of events from the specified queue route starting at the specified checkpoint ordered by <see cref="Event.CheckpointUtc"/>
+    /// optionally skipping a specified number of events at the beginning
     /// </summary>
     /// <param name="route">Specifies what Network, Namespace, Queue to fetch events from</param>
     /// <param name="partition">Partition number, from 0 to <see cref="PartitionCount"/></param>
     /// <param name="checkpoint">A point in time as of which to fetch</param>
+    /// <param name="skip">How many events to skip before starting fetching as of the specified checkpoint, use 0 for most cases</param>
     /// <param name="count">How many events to fetch</param>
     /// <param name="lossMode">The amount of tolerable data loss</param>
     /// <returns>Enumerable of events</returns>
-    Task<IEnumerable<Event>> FetchAsync(Route route, int partition, ulong checkpoint, int count, DataLossMode lossMode = DataLossMode.Default);
+    Task<IEnumerable<Event>> FetchAsync(Route route, int partition, ulong checkpoint, int skip, int count, DataLossMode lossMode = DataLossMode.Default);
 
     /// <summary>
     /// Gets the checkpoint for the consumer

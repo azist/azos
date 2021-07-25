@@ -5,8 +5,6 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using Azos.Data;
 using Azos.Data.Access.MongoDb.Connector;
 using Azos.Serialization.BSON;
@@ -52,14 +50,14 @@ namespace Azos.Sky.EventHub.Server
     {
       var gdid = bson[FLD_GDID] is BSONBinaryElement binGdid ? DataDocConverter.GDID_BSONtoCLR(binGdid) : GDID.ZERO;
 
-      var createUtc = bson[FLD_CREATEUTC] is BSONInt64Element cutc ? (ulong)cutc.Value : 0ul;
-      var origin = bson[FLD_ORIGIN] is BSONInt64Element orig ? new Atom((ulong)orig.Value) : Atom.ZERO;
+      var createUtc     = bson[FLD_CREATEUTC] is BSONInt64Element cutc       ? (ulong)cutc.Value : 0ul;
+      var origin        = bson[FLD_ORIGIN] is BSONInt64Element orig          ? new Atom((ulong)orig.Value) : Atom.ZERO;
       var checkpointUtc = bson[FLD_CHECKPOINTUTC] is BSONInt64Element chkutc ? (ulong)chkutc.Value : 0ul;
 
-      var headers = bson[FLD_HEADERS] is BSONStringElement hdrs ? hdrs.Value : null;
+      var headers     = bson[FLD_HEADERS] is BSONStringElement hdrs   ? hdrs.Value : null;
 
       var contentType = bson[FLD_CONTENTTYPE] is BSONInt64Element ctp ? new Atom((ulong)ctp.Value) : Atom.ZERO;
-      var content = bson[FLD_CONTENT] is BSONBinaryElement bin ? bin.Value.Data : null;
+      var content     = bson[FLD_CONTENT] is BSONBinaryElement bin    ? bin.Value.Data : null;
 
       return Event.__AsDeserialized(gdid, createUtc, origin, checkpointUtc, headers, contentType, content);
     }

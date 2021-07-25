@@ -91,6 +91,7 @@ namespace Azos.Sky.EventHub.Server
       var ve = evt.NonNull(nameof(Event)).Validate();
       if (ve != null) throw ve;
 
+      //Checkpoint is forced as the time of writing to disk at the client
       var bson = BsonConvert.ToBson(evt);
       var collection = getQueueCollection(ns, queue);//ensures indexes
 
@@ -106,7 +107,7 @@ namespace Azos.Sky.EventHub.Server
       return Task.FromResult(result);
     }
 
-    public Task<IEnumerable<Event>> FetchAsync(Atom ns, Atom queue, ulong checkpoint, int count, bool onlyid)
+    public Task<IEnumerable<Event>> FetchAsync(Atom ns, Atom queue, ulong checkpoint, int skip, int count, bool onlyid)
     {
       checkRoute(ns, queue);
 
@@ -117,9 +118,14 @@ namespace Azos.Sky.EventHub.Server
 
       IEnumerable<Event> result = null;
 
-      using(var cursor = collection.Find(qry, 0, 0xff, selector))
+      if (skip < 0) skip = 0;
+      count = count.KeepBetween(1, EventHubClientLogic.FETCH_BY_MAX);
+      var fetchBy = Math.Min(count, EventHubClientLogic.FETCH_BY_MAX);
+
+      using(var cursor = collection.Find(qry, skip, fetchBy, selector))
       {
-        result = cursor.Select( doc => BsonConvert.FromBson(doc) ).ToArray();
+        result = cursor.Take(count)
+                       .Select( doc => BsonConvert.FromBson(doc) ).ToArray();
       }
 
       return Task.FromResult(result);

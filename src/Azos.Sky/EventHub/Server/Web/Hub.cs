@@ -52,19 +52,20 @@ namespace Azos.Sky.EventHub.Server.Web
                     Methods = new[] { "POST = post request object for fetch execution", "GET = get specified events" },
                     RequestHeaders = new[] { API_DOC_HDR_ACCEPT_JSON },
                     ResponseHeaders = new[] { API_DOC_HDR_NO_CACHE },
-                    RequestBody = "JSON body or parameters: (Atom ns, Atom queue, ulong checkpoint, int count, bool onlyid)",
+                    RequestBody = "JSON body or parameters: (Atom ns, Atom queue, ulong checkpoint, int skip, int count, bool onlyid)",
                     RequestQueryParameters = new[] {"ns = Atom, namepsace",
                                                     "queue = Atom, queue id",
                                                     "checkpoint = ulong, point in time",
+                                                    "skip = int, how many events to skip",
                                                     "count = int, how many top return",
                                                     "onlyid = bool, when true returns only event ids, not payload"},
                     ResponseContent = "JSON filter result - enumerable of `{@Event}`",
                     TypeSchemas = new[] { typeof(Event) })]
     [Action(Name = "feed"), AcceptsJson]
     [EventConsumerPermission]
-    public async Task<object> Feed(Atom ns, Atom queue, ulong checkpoint, int count, bool onlyid)
+    public async Task<object> Feed(Atom ns, Atom queue, ulong checkpoint, int skip, int count, bool onlyid)
     {
-      var result = await m_Server.FetchAsync(ns, queue, checkpoint, count, onlyid).ConfigureAwait(false);
+      var result = await m_Server.FetchAsync(ns, queue, checkpoint, skip, count, onlyid).ConfigureAwait(false);
       return new { OK = true, data = result };
     }
 
