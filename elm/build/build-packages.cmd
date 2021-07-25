@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.20.4
-set HEADLINE=EventHub in progress
+set VER=1.20.5.1
+set HEADLINE=EventHub pre-release
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
