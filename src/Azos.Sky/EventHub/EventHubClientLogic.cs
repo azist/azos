@@ -53,10 +53,10 @@ namespace Azos.Sky.EventHub
 
 
     /// <summary>
-    /// Logical service address of queue
+    /// Logical service address for this event queue Origin
     /// </summary>
     [Config]
-    public string QueueServiceAddress { get; set; }
+    public string OriginServiceAddress { get; set; }
 
     /// <summary>
     /// Logical cluster region/zone id
@@ -72,7 +72,7 @@ namespace Azos.Sky.EventHub
     {
       get
       {
-        return m_Server.GetEndpointsForAllShards(QueueServiceAddress, nameof(IEventConsumer)).Count();
+        return m_Server.GetEndpointsForAllShards(OriginServiceAddress, nameof(IEventConsumer)).Count();
       }
     }
 
@@ -103,7 +103,7 @@ namespace Azos.Sky.EventHub
     {
       m_Server.NonNull("Not configured Server of config section `{0}`".Args(CONFIG_SERVICE_SECTION));
       Origin.IsTrue(v => !v.IsZero && v.IsValid, "Origin");
-      QueueServiceAddress.NonBlank(nameof(QueueServiceAddress));
+      OriginServiceAddress.NonBlank(nameof(OriginServiceAddress));
 
       return base.DoApplicationAfterInit();
     }
@@ -163,7 +163,7 @@ namespace Azos.Sky.EventHub
       //Capture the checkpoint time as of writing
       evt.CheckpointUtc = App.TimeSource.UTCNow.ToUnsignedMillisecondsSinceUnixEpochStart();
 
-      var all = m_Server.GetEndpointsForCall(QueueServiceAddress,
+      var all = m_Server.GetEndpointsForCall(OriginServiceAddress,
                                              nameof(IEventProducer),
                                              partition)
                         .Where(ep => ep.Endpoint.IsAvailable);
@@ -212,7 +212,7 @@ namespace Azos.Sky.EventHub
 
       EventConsumerPermission.Instance.Check(App);
 
-      var all = m_Server.GetEndpointsForCall(QueueServiceAddress,
+      var all = m_Server.GetEndpointsForCall(OriginServiceAddress,
                                              nameof(IEventConsumer),
                                              new ShardKey((ulong)partition))
                         .Where(ep => ep.Endpoint.IsAvailable);

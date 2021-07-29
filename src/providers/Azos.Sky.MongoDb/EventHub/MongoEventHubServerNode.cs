@@ -46,7 +46,7 @@ namespace Azos.Sky.EventHub.Server
     public override string ComponentLogTopic => CoreConsts.QUEUE_TOPIC;
 
     /// <summary>
-    /// Mongo server node connector, e.g. "applicance://" or "mongo://127.0.0.1:27017"
+    /// Mongo server node connector, e.g. "appliance://" or "mongo://127.0.0.1:27017"
     /// </summary>
     [Config]
     public string ServerNode { get; set; }
