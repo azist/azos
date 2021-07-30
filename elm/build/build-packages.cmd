@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.20.5.2
-set HEADLINE=Wave param binding change#520
+set VER=1.20.5.3
+set HEADLINE=Fix Wave param binding change#520
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
