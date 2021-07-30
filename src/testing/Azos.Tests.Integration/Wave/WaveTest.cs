@@ -271,28 +271,6 @@ namespace Azos.Tests.Integration.Wave
         }
 
         [Run]
-        public void Action_InboundJSONMapEcho()
-        {
-          var inboundJSONStr = "ID=777&Name=TestName";
-
-          using (var wc = CreateWebClient())
-          {
-            wc.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
-            string str = wc.UploadString(INTEGRATION_HTTP_ADDR + "InboundJSONMapEcho", inboundJSONStr);
-
-            Aver.IsTrue(wc.ResponseHeaders[HttpResponseHeader.ContentType].Contains(Azos.Web.ContentType.JSON));
-
-            var obj = JsonReader.DeserializeDynamic(str);
-
-            Aver.AreEqual(4, obj.Data.Count);
-            Aver.AreEqual("777", obj.Data["ID"]);
-            Aver.AreEqual("TestName", obj.Data["Name"]);
-            Aver.AreEqual(INTEGRATIONN_TESTER, obj.Data["type"]);
-            Aver.AreEqual("InboundJSONMapEcho", obj.Data["mvc-action"]);
-          }
-        }
-
-        [Run]
         public void Action_RowGet_JSONDataMap()
         {
           DateTime start = DateTime.Now;
