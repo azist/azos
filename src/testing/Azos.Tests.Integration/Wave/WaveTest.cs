@@ -675,7 +675,7 @@ namespace Azos.Tests.Integration.Wave
 
     #region Helpers
 
-    private bool Is400(WebException ex)
+        private bool Is400(WebException ex)
         {
           return ex.Message.IndexOf("(400)") >= 0;
         }
