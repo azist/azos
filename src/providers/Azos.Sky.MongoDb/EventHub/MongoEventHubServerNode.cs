@@ -15,7 +15,6 @@ using Azos.Data;
 using Azos.Data.Access.MongoDb.Connector;
 using Azos.Glue;
 using Azos.Platform;
-using Azos.Serialization.BSON;
 using Azos.Wave;
 
 namespace Azos.Sky.EventHub.Server
@@ -33,7 +32,6 @@ namespace Azos.Sky.EventHub.Server
 
     protected override void Destructor()
     {
-      //DisposeAndNull(ref m_*);
       base.Destructor();
     }
 
@@ -101,8 +99,8 @@ namespace Azos.Sky.EventHub.Server
       var success = (crud.WriteErrors == null) ||
                     (crud.WriteErrors.Length > 0  &&  crud.WriteErrors[0].Code == MONGO_KEY_VIOLATION);
 
-      var result = success ? new ChangeResult(ChangeResult.ChangeType.Inserted, 1, null, null)
-                           : new ChangeResult(ChangeResult.ChangeType.Undefined, 0, null, null);
+      var result = success ? new ChangeResult(ChangeResult.ChangeType.Inserted, 1, "Affected: " + crud.TotalDocumentsAffected, crud.WriteErrors?.Select(e => new {e.Code, e.Message}))
+                           : new ChangeResult(ChangeResult.ChangeType.Undefined, 0, "Error", crud.WriteErrors?.Select(e => new { e.Code, e.Message }));
 
       return Task.FromResult(result);
     }
