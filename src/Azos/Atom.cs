@@ -25,7 +25,8 @@ namespace Azos
   /// relieve the GC pressure in network/data processing apps.
   /// </para>
   /// The ranges of acceptable characters are: '0..9|a..z' upper or lower case, and '-','_' which
-  /// are the only allowed separators.
+  /// are the only allowed separators. Note, that other separators (such as '.','/','\' et.al.) are used in paths and other data structures
+  /// hence they can not be used in atom string for simplicity and uniformity of design.
   /// <para>
   /// WARNING: Atom type is designed to represent a finite distinct number of constant values (typically less than a few thousand), having
   /// most applications dealing with less than 100 atom values. Do not encode arbitrary strings as atoms as these
@@ -77,7 +78,7 @@ namespace Azos
 
     /// <summary>
     /// Encodes a string value into an Atom. The value must contain ASCII only 1 to 8 characters
-    /// conforming to [0..9|A..Z|a..z|_|-] pattern and may not have whitespace.
+    /// conforming to [0..9|A..Z|a..z|_|-] pattern and may not have whitespaces, slashes or dots.
     /// Null is encoded as Atom(0).
     /// <para>
     /// WARNING: There has to be a good reason to call this method in places other than constant declarations.
@@ -111,7 +112,7 @@ namespace Azos
 
     /// <summary>
     /// Tries to encode a string value into Atom. The value must contain ASCII only 1 to 8 characters
-    /// conforming to [0..9|A..Z|a..z|_|-] pattern and may not contain whitespace.
+    /// conforming to [0..9|A..Z|a..z|_|-] pattern and may not contain whitespaces, slashes or dots.
     /// Null is encoded as Atom(0).
     /// <para>
     /// WARNING: There has to be a good reason to call this method in places other than constant declarations.
@@ -153,7 +154,7 @@ namespace Azos
     /// <summary>
     /// Tries to encode a string value or numeric ID represented as string into Atom.
     /// The string value must contain ASCII only 1 to 8 characters conforming to [0..9|A..Z|a..z|_|-] pattern
-    /// and may not contain whitespace. The numeric ID should start with '#' prefix and may have optional  binary or hex prefixes, e.g. "#0x3234"
+    /// and may not contain whitespaces slashes or dots. The numeric ID should start with '#' prefix and may have optional  binary or hex prefixes, e.g. "#0x3234"
     /// Null is encoded as Atom(0).
     /// <para>
     /// WARNING: There has to be a good reason to call this method in places other than constant declarations.
