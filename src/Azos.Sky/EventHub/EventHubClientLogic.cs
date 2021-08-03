@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 using Azos.Apps;
@@ -246,7 +247,7 @@ namespace Azos.Sky.EventHub
         }
         catch (Exception error)
         {
-          WriteLog(MessageType.Warning, nameof(PostAsync), "Post error: " + error.ToMessageWithType(), error);
+          WriteLog(MessageType.Warning, nameof(FetchAsync), "Fetch error: " + error.ToMessageWithType(), error);
           return null;
         }
       })).ConfigureAwait(false);
@@ -262,12 +263,53 @@ namespace Azos.Sky.EventHub
       return result;
     }
 
-    public Task<ulong> GetCheckpoint(Route route, int partition, string idConsumer, DataLossMode lossMode = DataLossMode.Default)
+    public async Task<ulong> GetCheckpointAsync(Route route, int partition, string idConsumer, DataLossMode lossMode = DataLossMode.Default)
     {
-      throw new NotImplementedException();
+      route.IsTrue(v => v.Assigned, "assigned Route");
+      idConsumer.NonBlank(nameof(idConsumer));
+
+      EventConsumerPermission.Instance.Check(App);
+
+      var all = m_Server.GetEndpointsForCall(OriginServiceAddress,
+                                            nameof(IEventConsumer),
+                                            new ShardKey((ulong)partition))
+                        .Where(ep => ep.Endpoint.IsAvailable);
+
+      var allCount = all.Count();
+      var takeLimit = mapDataLossMode(allCount, lossMode, nameof(FetchAsync));
+
+      var uri = new UriQueryBuilder("checkpoint")
+               .Add("ns", route.Namespace)
+               .Add("queue", route.Queue)
+               .Add("consumer", idConsumer).ToString();
+
+      //Read from all in cohort
+      var calls = all.Take(takeLimit).Select(
+        one => one.CallOne(
+          (http, ct) => http.Client
+                            .CallAndGetJsonMapAsync(uri, HttpMethod.Get, null)
+        )
+      );
+
+      var responses = await Task.WhenAll(calls.Select(async call => {
+        try
+        {
+          var map = await call.ConfigureAwait(false);
+          return map.UnwrapPayloadObject().AsULong(handling: ConvertErrorHandling.Throw);
+        }
+        catch (Exception error)
+        {
+          WriteLog(MessageType.Warning, nameof(GetCheckpointAsync), "GetCheckpointAsync error: " + error.ToMessageWithType(), error);
+          return 0ul;
+        }
+      })).ConfigureAwait(false);
+
+
+      var result = responses.Max();//take the "latest"="maximum"
+      return result;
     }
 
-    public Task<WriteResult> SetCheckpoint(Route route, int partition, string idConsumer, ulong checkpoint, DataLossMode lossMode = DataLossMode.Default)
+    public Task<WriteResult> SetCheckpointAsync(Route route, int partition, string idConsumer, ulong checkpoint, DataLossMode lossMode = DataLossMode.Default)
     {
       throw new NotImplementedException();
     }

@@ -92,12 +92,12 @@ namespace Azos.Sky.EventHub
     /// <summary>
     /// Gets the checkpoint for the consumer
     /// </summary>
-    Task<ulong> GetCheckpoint(Route route, int partition, string idConsumer, DataLossMode lossMode = DataLossMode.Default);
+    Task<ulong> GetCheckpointAsync(Route route, int partition, string idConsumer, DataLossMode lossMode = DataLossMode.Default);
 
     /// <summary>
     /// Sets the checkpoint for the specified consumer
     /// </summary>
-    Task<WriteResult> SetCheckpoint(Route route, int partition, string idConsumer, ulong checkpoint, DataLossMode lossMode = DataLossMode.Default);
+    Task<WriteResult> SetCheckpointAsync(Route route, int partition, string idConsumer, ulong checkpoint, DataLossMode lossMode = DataLossMode.Default);
   }
 
   /// <summary>
