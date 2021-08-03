@@ -9,7 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-
+using System.Text;
 using Azos.Serialization.JSON;
 
 namespace Azos.Data
@@ -152,7 +152,37 @@ namespace Azos.Data
       return Era.ToString(INVARIANT) + ":" + SAUTHORITIES[Authority] + ":" + Counter.ToString(INVARIANT);
     }
 
-    public string ToHexString() => Era.ToString("X8") + ID.ToString("X16");
+
+    [ThreadStatic] private static StringBuilder ts_HexCache;
+
+    //20210803 #524 speed up with string builder and explicit conversion
+    /// <summary>
+    /// Returns a hexadecimal representation of GDID which is guaranteed to be parsable by Parse()/TryParse()
+    /// </summary>
+    public string ToHexString() // #524 => Era.ToString("X8") + ID.ToString("X16");
+    {
+      const int NIBBLE = 4; //size of 1 hex digit = 1/2 byte
+      const int HEX_SZ = 24;//Era(4)+ID(8)=12 bytes * 2 symbols per byte
+
+      var sb = ts_HexCache;
+      if (sb == null)
+      {
+        sb = new StringBuilder(HEX_SZ, HEX_SZ);
+        ts_HexCache = sb;
+      }
+      else
+      {
+        sb.Clear();
+      }
+
+      for(var i = 32 - NIBBLE; i >= 0; i -= NIBBLE)
+        sb.Append(hexDigit(Era >> i));
+
+      for (var i = 64 - NIBBLE; i >= 0; i -= NIBBLE)
+        sb.Append(hexDigit(ID >> i));
+
+      return sb.ToString();
+    }
 
     public override int GetHashCode() => (int)Era ^ (int)ID ^ (int)(ID >> 32);
 
@@ -239,6 +269,13 @@ namespace Azos.Data
       if (d>=0 && d<=5) return 10 + d;
 
       return -1;
+    }
+
+    private static char hexDigit(ulong i)
+    {
+      i &= 0xf;
+      if (i > 9) return (char)('a' + (i - 10));
+      return (char)('0' + i);
     }
 
     public static bool TryParse(string str, out GDID? gdid)
