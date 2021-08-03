@@ -309,9 +309,55 @@ namespace Azos.Sky.EventHub
       return result;
     }
 
-    public Task<WriteResult> SetCheckpointAsync(Route route, int partition, string idConsumer, ulong checkpoint, DataLossMode lossMode = DataLossMode.Default)
+    public async Task<WriteResult> SetCheckpointAsync(Route route, int partition, string idConsumer, ulong checkpoint, DataLossMode lossMode = DataLossMode.Default)
     {
-      throw new NotImplementedException();
+      route.IsTrue(v => v.Assigned, "assigned Route");
+
+      idConsumer.NonBlank(nameof(idConsumer));
+
+      EventProducerPermission.Instance.Check(App);
+
+      var all = m_Server.GetEndpointsForCall(OriginServiceAddress,
+                                            nameof(IEventProducer),
+                                            new ShardKey((ulong)partition))
+                       .Where(ep => ep.Endpoint.IsAvailable);
+
+      var allCount = all.Count();
+
+      var takeLimit = mapDataLossMode(allCount, lossMode, nameof(PostAsync));
+
+      var calls = all.Take(takeLimit).Select(
+        one => one.CallOne(
+          (http, ct) => http.Client
+                            .PostAndGetJsonMapAsync("checkpoint",
+                                                     new
+                                                     {
+                                                       ns = route.Namespace,
+                                                       queue = route.Queue,
+                                                       consumer = idConsumer,
+                                                       checkpoint = checkpoint
+                                                     }
+                                                   )
+        )
+      );
+
+      var responses = await Task.WhenAll(calls.Select(async call => {
+        try
+        {
+          var got = await call.ConfigureAwait(false);
+          got.ExpectOK();
+          return new ChangeResult(ChangeResult.ChangeType.Updated, 1, null, null);
+        }
+        catch (Exception error)
+        {
+          WriteLog(MessageType.Warning, nameof(SetCheckpointAsync), "SetCheckpointAsync error: " + error.ToMessageWithType(), error);
+          return new ChangeResult();//undefined
+        }
+      })).ConfigureAwait(false);
+
+
+      return new WriteResult(responses, allCount);
+
     }
   }
 }
