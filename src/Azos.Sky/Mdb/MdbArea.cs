@@ -43,7 +43,7 @@ namespace Azos.Sky.Mdb
         if (!dsnode.Exists)
           throw new MdbException(StringConsts.MDB_AREA_CONFIG_NO_DATASTORE_ERROR.Args(node.RootPath));
 
-        m_PhysicalDataStore = FactoryUtils.MakeAndConfigure<ICRUDDataStoreImplementation>(dsnode, args: new []{ this });
+        m_PhysicalDataStore = FactoryUtils.MakeAndConfigure<ICrudDataStoreImplementation>(dsnode, args: new []{ this });
       }
 
 
@@ -55,7 +55,7 @@ namespace Azos.Sky.Mdb
     #endregion
 
     #region Fields
-      private ICRUDDataStoreImplementation m_PhysicalDataStore;
+      private ICrudDataStoreImplementation m_PhysicalDataStore;
     #endregion
 
     #region Properties
@@ -66,7 +66,7 @@ namespace Azos.Sky.Mdb
       /// <summary>
       /// Physical data store that services the area
       /// </summary>
-      public ICRUDDataStoreImplementation PhysicalDataStore
+      public ICrudDataStoreImplementation PhysicalDataStore
       {
         get { return m_PhysicalDataStore;}
       }

@@ -120,7 +120,7 @@ namespace Azos.Security.Services
 
     protected override bool DoApplicationBeforeCleanup()
     {
-      if (m_ClientSecurity.ComponentDirector==this)
+      if (m_ClientSecurity != null  &&  m_ClientSecurity.ComponentDirector==this)
         DisposeAndNull(ref m_ClientSecurity);//if directed, then dispose it
       else
         m_ClientSecurity = null;//if not directed by this, then just lose reference to it

@@ -251,7 +251,11 @@ namespace Azos
     public readonly string Uri;
     public readonly Dictionary<string, object> Data = new Dictionary<string, object>();
 
-    public void Add(string key, object value) => Data.Add(key, value);
+    public UriQueryBuilder Add(string key, object value)
+    {
+      Data.Add(key, value);
+      return this;
+    }
 
     public IEnumerator<KeyValuePair<string, object>> GetEnumerator() => Data.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => Data.GetEnumerator();

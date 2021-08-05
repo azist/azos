@@ -148,6 +148,7 @@ namespace Azos.Data.AST
     /// </summary>
     protected virtual bool HandlePrimitiveValue(ValueExpression expr)
     {
+      if (expr==null || expr.Value==null) return true;
       var tv = expr.Value.GetType();
       return DEFAULT_PRIMITIVE_TYPES.Contains(tv);
     }

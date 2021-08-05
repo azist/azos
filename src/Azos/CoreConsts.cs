@@ -64,6 +64,7 @@ namespace Azos
     public const string EXT_PARAM_CONTENT_LACONIC = "laconic://";
     public const string EXT_PARAM_CONTENT_JSON = "json://";
 
+    public const string EXT_PARAM_GROUP_APP = "app";
     public const string EXT_PARAM_GROUP_PILE = "pile";
     public const string EXT_PARAM_GROUP_GLUE = "glue";
     public const string EXT_PARAM_GROUP_LOCKING = "locking";
@@ -73,6 +74,7 @@ namespace Azos
     public const string EXT_PARAM_GROUP_INSTRUMENTATION = "instrumentation";
     public const string EXT_PARAM_GROUP_CACHE = "cache";
     public const string EXT_PARAM_GROUP_DATA = "data";
+    public const string EXT_PARAM_GROUP_QUEUE = "queue";
     public const string EXT_PARAM_GROUP_LOG = "log";
     public const string EXT_PARAM_GROUP_TIME = "time";
     public const string EXT_PARAM_GROUP_PAY = "pay";
@@ -113,6 +115,7 @@ namespace Azos
       public const string PLATFROM_TOPIC = "Pltfrm";
       public const string DATA_TOPIC = "Data";
       public const string LOG_TOPIC = "Log";
+      public const string QUEUE_TOPIC = "Queue";
       public const string LOG_NET_TOPIC = "Net";
       public const string COLLECTIONS_TOPIC = "Coll";
       public const string INSTRUMENTATION_TIMEFRAME_TOPIC = "inst.timeframe";

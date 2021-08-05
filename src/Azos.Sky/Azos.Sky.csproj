@@ -42,6 +42,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="test-app2.laconf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="test-app1.laconf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="test-gov.laconf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="agdida.laconf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

@@ -36,10 +36,13 @@ namespace Azos.Tests.Unit.Wave.Controllers
     public object EchoParamsWithDefaults(string a, int b=127, bool c=true) => new { a, b, c };
 
     [Action]
-    public object EchoMixMap(string a, int b, bool c, JsonDataMap got) => new { a, b, c , got};
+    public object EchoMixMap(string a, int b, bool c) => new { a, b, c, got = WorkContext.MatchedVars };
 
     [Action]
     public object EchoModelA(ModelA got) => got;
+
+    [Action] //AZ #520
+    public object EchoMixModelA(string id, string another, ModelA model) => new { id, another, model };
 
     [Action]
     public object EchoBuffer(byte[] buffer) => new BinaryContent(buffer);

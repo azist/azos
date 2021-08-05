@@ -15,7 +15,7 @@ namespace Azos.Data.Access.MsSql
     /// <summary>
     /// Represents MsSql CRUD transaction
     /// </summary>
-    public sealed class MsSqlCRUDTransaction : CRUDTransaction
+    public sealed class MsSqlCRUDTransaction : CrudTransaction
     {
       #region .ctor/.dctor
       internal MsSqlCRUDTransaction(MsSqlCRUDDataStoreBase store, SqlConnection cnn, IsolationLevel iso, TransactionDisposeBehavior disposeBehavior) : base (store, disposeBehavior)

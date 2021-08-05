@@ -631,6 +631,17 @@ namespace Azos
     }
 
     /// <summary>
+    /// Reads a ushort encoded as big endian from buffer at the specified index
+    /// </summary>
+    public static ushort ReadBEUShort(this byte[] buf, ref int idx)
+    {
+      return (ushort)(
+                   (((int)buf[idx++] << 8) & 0xff00) +
+                   (((int)buf[idx++]) & 0xff)
+                  );
+    }
+
+    /// <summary>
     /// Reads a short encoded as little endian from buffer at the specified index
     /// </summary>
     public static short ReadLEShort(this byte[] buf, ref int idx)
@@ -983,6 +994,15 @@ namespace Azos
     /// Writes a short encoded as big endian to buffer at the specified index
     /// </summary>
     public static void WriteBEShort(this byte[] buf, int idx, short value)
+    {
+      buf[idx + 0] = (byte)(value >> 8);
+      buf[idx + 1] = (byte)(value);
+    }
+
+    /// <summary>
+    /// Writes a ushort encoded as big endian to buffer at the specified index
+    /// </summary>
+    public static void WriteBEUShort(this byte[] buf, int idx, ushort value)
     {
       buf[idx + 0] = (byte)(value >> 8);
       buf[idx + 1] = (byte)(value);

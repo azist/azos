@@ -11,7 +11,7 @@ namespace Azos.Data.Access.Oracle
     /// <summary>
     /// Provides query execution environment in Oracle context
     /// </summary>
-    public struct OracleCRUDQueryExecutionContext : ICRUDQueryExecutionContext
+    public struct OracleCRUDQueryExecutionContext : ICrudQueryExecutionContext
     {
        public readonly OracleDataStoreBase  DataStore;
        public readonly OracleConnection  Connection;
@@ -34,7 +34,7 @@ namespace Azos.Data.Access.Oracle
        }
 
        /// <summary>
-       /// Based on store settings, converts query parameters into MySQL-acceptable values, i.e. GDID -> BYTe[].
+       /// Based on store settings, converts query parameters into MySQL-acceptable values, i.e. GDID -> BYTE[].
        /// This function is not idempotent
        /// </summary>
        public void ConvertParameters(OracleParameterCollection pars)

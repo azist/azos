@@ -210,7 +210,7 @@ namespace Azos.Sky.Mdb
       /// Returns CRUDOperations facade connected to the appropriate database server within this named area and partition
       ///  which services the shard computed from sharding id
       /// </summary>
-      public CRUDOperations ShardedOperationsFor(object idSharding)
+      public CRUDOperations ShardedOperationsFor(ShardKey idSharding)
       {
         var shard = GetShardForID(idSharding);
         return new CRUDOperations(shard);
@@ -219,9 +219,9 @@ namespace Azos.Sky.Mdb
       /// <summary>
       /// Finds appropriate shard for ID. See MDB.ShardingUtils
       /// </summary>
-      public Shard GetShardForID(object idSharding)
+      public Shard GetShardForID(ShardKey idSharding)
       {
-        ulong subid = new ShardKey(idSharding).GetDistributedStableHash();
+        ulong subid = idSharding.GetDistributedStableHash();
 
         return Shards[ subid % (ulong)Shards.Length ];
       }

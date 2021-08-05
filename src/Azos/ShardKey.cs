@@ -19,7 +19,7 @@ namespace Azos
   /// The following data types are supported:
   ///  `Gdid`, `Atom`, `EntityId`, `Ulong`, `Uint`, `DateTime`(UTC), `Guid`, `String`, `ByteArray`, and any custom entities
   ///  implementing <see cref="IDistributedStableHashProvider"/> interface.
-  ///  Warning: The returned hash is NOT intended to be used by cryptography, as the computed result
+  ///  Warning: The returned hash is NOT intended to be used for cryptographic purposes, as the computed result
   ///  is not guaranteed to produce cryptographically-safe hash value
   /// </summary>
   /// <remarks>
@@ -60,8 +60,8 @@ namespace Azos
     public ShardKey(DateTime key)
     { DataType = Type.DateTime; Buffer = new GDID(0, (ulong)key.IsTrue( v => v.Kind == DateTimeKind.Utc, "UTC timestamp").ToMillisecondsSinceUnixEpochStart()); ObjectValue = null; }
 
-    public ShardKey(object key)
-    { DataType = Type.IDistributedStableHashProvider; Buffer = new GDID(); ObjectValue = (key==null) ? null : key.CastTo<IDistributedStableHashProvider>(); }
+    public ShardKey(IDistributedStableHashProvider key)
+    { DataType = Type.IDistributedStableHashProvider; Buffer = new GDID(); ObjectValue = key; }
 
     public ShardKey(Guid guid)
     { DataType = Type.Guid; Buffer = new GDID(); ObjectValue = guid.ToNetworkByteOrder(); }
@@ -73,9 +73,26 @@ namespace Azos
     { DataType = Type.ByteArray; Buffer = new GDID(); ObjectValue = key; }
 
 
+    /// <summary>
+    /// Type of the data represented by this instance
+    /// </summary>
     public readonly Type DataType;
+
+    /// <summary>
+    /// Variant buffer - see the DataType to determine what blittable value is stored as GDID
+    /// </summary>
     public readonly GDID Buffer;
+
+    /// <summary>
+    /// Reference type value (such as string or byte[]) or null
+    /// </summary>
     public readonly object ObjectValue;
+
+
+    /// <summary>
+    /// True if structure is initialized/was assigned
+    /// </summary>
+    public bool Assigned => DataType != Type.Uninitialized;
 
     /// <summary>
     /// Alias to .GetDistributedStableHash()
@@ -88,7 +105,7 @@ namespace Azos
     public ulong ValueUlong       => OfType(Type.Ulong).Buffer.ID;
     public uint ValueUint         => (uint)OfType(Type.Uint).Buffer.ID;
     public DateTime ValueDateTime => OfType(Type.DateTime).Buffer.ID.FromMillisecondsSinceUnixEpochStart();
-    public object ValueIDistributedStableHashProvider => OfType(Type.IDistributedStableHashProvider).ObjectValue;
+    public IDistributedStableHashProvider ValueIDistributedStableHashProvider => OfType(Type.IDistributedStableHashProvider).ObjectValue as IDistributedStableHashProvider;
     public Guid ValueGuid         => (OfType(Type.Guid).ObjectValue as byte[]).GuidFromNetworkByteOrder();
     public string ValueString     => OfType(Type.String).ObjectValue as string;
     public byte[] ValueByteArray  => OfType(Type.ByteArray).ObjectValue as byte[];

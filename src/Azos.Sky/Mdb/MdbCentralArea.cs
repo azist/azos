@@ -43,7 +43,7 @@ namespace Azos.Sky.Mdb
     /// Returns CRUDOperations facade connected to the appropriate database server within the CENTRAL area's partition
     ///  which services the shard computed from sharding id
     /// </summary>
-    public CRUDOperations ShardedOperationsFor(object idSharding)
+    public CRUDOperations ShardedOperationsFor(ShardKey idSharding)
     {
       return m_CentralPartition.ShardedOperationsFor(idSharding);
     }

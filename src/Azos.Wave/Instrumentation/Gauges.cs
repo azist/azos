@@ -8,7 +8,6 @@ using System;
 
 using Azos.Instrumentation;
 using Azos.Serialization.Arow;
-using Azos.Serialization.BSON;
 
 namespace Azos.Wave.Instrumentation
 {
@@ -28,6 +27,15 @@ namespace Azos.Wave.Instrumentation
   public abstract class WaveDoubleGauge : DoubleGauge, IWebInstrument
   {
     protected WaveDoubleGauge(string src, double value) : base(src, value) { }
+  }
+
+  /// <summary>
+  /// Provides base for Wave events
+  /// </summary>
+  [Serializable]
+  public abstract class WaveEvent : Event, IWebInstrument
+  {
+    protected WaveEvent(string src) : base(src) { }
   }
 
   /// <summary>

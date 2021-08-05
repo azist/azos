@@ -30,7 +30,7 @@ namespace Azos.Sky.Identification
     string ScopePrefix { get; }
 
     /// <summary>
-    /// Returns ScopePrefix that gets appended  before the scope name. In most cases this property is null
+    /// Returns SequencePrefix that gets appended  before the sequence name. In most cases this property is null
     /// </summary>
     string SequencePrefix { get; }
   }

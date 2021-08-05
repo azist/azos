@@ -307,6 +307,13 @@ namespace Azos.Serialization.JSON
                                 return;
                             }
 
+                            //20210717 - #514
+                            if (data is byte[] buff && buff.Length > 8)
+                            {
+                                EncodeString(wri, buff.ToWebSafeBase64(), opt);
+                                return;
+                            }
+
                             if (data is bool)//the check is here for speed
                             {
                                 wri.Write( ((bool)data) ? "true" : "false");//do NOT LOCALIZE!

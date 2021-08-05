@@ -6,139 +6,218 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
-using System.Globalization;
 
 using Azos.Data;
 using Azos.Serialization.JSON;
+using System.Linq;
 
 namespace Azos.Standards
 {
-#warning Needs revision, why is .Value needed?
   /// <summary>
   /// Represents length distance with unit type.
-  /// All operations are done with precision of 1 micrometer (10^(-3) mm)
+  /// Used for part/product/item measurement in manufacturing, eCommerce etc.
+  /// The structure stores data with 1 micron (1e-6 of a meter) resolution
   /// </summary>
   public struct Distance : IEquatable<Distance>, IComparable<Distance>, IJsonWritable, IJsonReadable
   {
-    public enum UnitType{ Unspecified = 0, Cm , In, Ft, Mm, M, Yd }
+    /// <summary>
+    /// Supported distance unit types:
+    /// </summary>
+    public enum UnitType
+    {
+      Undefined = 0,
+      Micrometer = 1,  µm = Micrometer, mcr = Micrometer, Micron = Micrometer,
+      Millimeter = 2,  mm = Millimeter,
+      Centimeter = 3,  cm = Centimeter,
+      Meter = 4,       m   = Meter,
 
-    public const decimal MM_IN_CM = 10.0m;
-    public const decimal MM_IN_IN = 25.4m;
-    public const decimal MM_IN_FT = 304.8m;
-    public const decimal MM_IN_M = 1000.0m;
-    public const decimal MM_IN_YD = 914.4m;
+      Inch  = 5, @in = Inch,
+      Foot  = 6, ft  = Foot,
+      Yard  = 7, yd  = Yard
+    }
+
+    public static string GetUnitName(UnitType unit, bool useShort = true)
+     => UNIT_NAMES.TryGetValue(unit, out var names) ? useShort ? names.s : names.l : nameof(UnitType.Undefined);
+
+    private static readonly Dictionary<UnitType, (string s, string l)> UNIT_NAMES =  new Dictionary<UnitType, (string, string)>
+    {
+      {UnitType.Micron,     ("µm", "micron")},
+      {UnitType.Millimeter, ("mm", "millimeter")},
+      {UnitType.Centimeter, ("cm", "centimeter")},
+      {UnitType.Meter,      ("m",  "meter")},
+      {UnitType.Inch,       ("in", "inch")},
+      {UnitType.Foot,       ("ft", "foot")},
+      {UnitType.Yard,       ("yd", "yard")},
+    };
+
+
+
     public const int VALUE_PRECISION = 3;
 
+    public const decimal MICRON_IN_MILLIMETER =     1_000;
+    public const decimal MICRON_IN_CENTIMETER =    10_000;
+    public const decimal MICRON_IN_METER      = 1_000_000;
 
-    public readonly decimal ValueInMm;
-    public readonly decimal Value;
-    public readonly UnitType Unit;
+    public const decimal MICRON_IN_INCH =  25_400;
+    public const decimal MICRON_IN_FOOT = 304_800;
+    public const decimal MICRON_IN_YARD = 914_400;
 
-    public string UnitName => Enum.GetName(typeof(UnitType), Unit).ToLower();
+    /// <summary>
+    /// Converts a value expressed in the specified distance units into normalized micron long value
+    /// </summary>
+    public static long UnitToMicron(decimal value, UnitType unit)
+    {
+      switch (unit)
+      {
+        case UnitType.Micron:     return (long)value;
+        case UnitType.Millimeter: return (long)(value * MICRON_IN_MILLIMETER);
+        case UnitType.Centimeter: return (long)(value * MICRON_IN_CENTIMETER);
+        case UnitType.Meter:      return (long)(value * MICRON_IN_METER);
+        case UnitType.Inch:       return (long)(value * MICRON_IN_INCH);
+        case UnitType.Foot:       return (long)(value * MICRON_IN_FOOT);
+        case UnitType.Yard:       return (long)(value * MICRON_IN_YARD);
+        default: throw new AzosException(StringConsts.STANDARDS_DISTANCE_UNIT_TYPE_ERROR.Args(unit));
+      }
+    }
 
+    /// <summary>
+    /// Converts a normalized value expressed in long microns into decimal value expressed in the specified distance units
+    /// </summary>
+    public static decimal MicronToUnit(long value, UnitType unit)
+    {
+      switch (unit)
+      {
+        case UnitType.Micron: return value;
+        case UnitType.Millimeter: return Math.Round(value / MICRON_IN_MILLIMETER, VALUE_PRECISION);
+        case UnitType.Centimeter: return Math.Round(value / MICRON_IN_CENTIMETER, VALUE_PRECISION);
+        case UnitType.Meter:      return Math.Round(value / MICRON_IN_METER, VALUE_PRECISION);
+        case UnitType.Inch:       return Math.Round(value / MICRON_IN_INCH, VALUE_PRECISION);
+        case UnitType.Foot:       return Math.Round(value / MICRON_IN_FOOT, VALUE_PRECISION);
+        case UnitType.Yard:       return Math.Round(value / MICRON_IN_YARD, VALUE_PRECISION);
+        default: throw new AzosException(StringConsts.STANDARDS_DISTANCE_UNIT_TYPE_ERROR.Args(unit));
+      }
+    }
+
+
+
+    /// <summary>
+    /// Creates an instance from the serialized value expressed in microns (e.g. stored in db as long)
+    /// </summary>
+    public Distance(UnitType unit, long micronValue)
+    {
+      Unit = unit;
+      ValueInMicrons = micronValue;
+      Value = MicronToUnit(micronValue, unit);
+    }
+
+    /// <summary>
+    /// Creates an instance in the specified units of distance
+    /// </summary>
     public Distance(decimal value, UnitType unit)
     {
       Unit = unit;
       Value = value;
-      switch (Unit)
-      {
-        case UnitType.Cm: ValueInMm = Math.Round(value * MM_IN_CM, VALUE_PRECISION); break;
-        case UnitType.In: ValueInMm = Math.Round(value * MM_IN_IN, VALUE_PRECISION); break;
-        case UnitType.Ft: ValueInMm = Math.Round(value * MM_IN_FT, VALUE_PRECISION); break;
-        case UnitType.Mm: ValueInMm = Math.Round(value, VALUE_PRECISION); break;
-        case UnitType.M: ValueInMm = Math.Round(value * MM_IN_M, VALUE_PRECISION); break;
-        case UnitType.Yd: ValueInMm = Math.Round(value * MM_IN_YD, VALUE_PRECISION); break;
-        default: throw new AzosException(StringConsts.STANDARDS_DISTANCE_UNIT_TYPE_ERROR.Args(Unit));
-      }
+      ValueInMicrons = UnitToMicron(value, unit);
     }
 
-    public decimal ValueIn(UnitType toUnit)
+    /// <summary>
+    /// Normalized distance value expressed in whole microns
+    /// </summary>
+    public readonly long ValueInMicrons;
+
+    /// <summary>
+    /// Calculated value expressed in factional units of distance
+    /// </summary>
+    public readonly decimal Value;
+
+    /// <summary>
+    /// Units of distance measurement
+    /// </summary>
+    public readonly UnitType Unit;
+
+    /// <summary>
+    /// Provides unit name a s short string
+    /// </summary>
+    public string ShortUnitName => GetUnitName(Unit, true);
+
+    /// <summary>
+    /// Provides unit name as long string
+    /// </summary>
+    public string LongUnitName => GetUnitName(Unit, false);
+
+    /// <summary>
+    /// Returns the value in different unit
+    /// </summary>
+    public decimal ValueIn(UnitType toUnit) => MicronToUnit(ValueInMicrons, toUnit);
+
+    /// <summary>
+    /// Converts this instance to different unit type
+    /// </summary>
+    public Distance Convert(UnitType toUnit) => Unit == toUnit ? this : new Distance(toUnit, ValueInMicrons);
+
+
+    public static Distance? Parse(string val)
     {
-      switch (toUnit)
-      {
-        case UnitType.Mm: return ValueInMm;
-        case UnitType.Cm: return ValueInMm / MM_IN_CM;
-        case UnitType.In: return ValueInMm / MM_IN_IN;
-        case UnitType.Ft: return ValueInMm / MM_IN_FT;
-        case UnitType.M:  return ValueInMm / MM_IN_M;
-        case UnitType.Yd: return ValueInMm / MM_IN_YD;
-        default: throw new AzosException(StringConsts.STANDARDS_DISTANCE_UNIT_TYPE_ERROR.Args(toUnit));
-      }
-    }
-
-    public Distance Convert(UnitType toUnit)
-    {
-      if (Unit == toUnit) return this;
-      return new Distance(ValueIn(toUnit), toUnit);
-    }
-
-    public static Distance Parse(string val)
-    {
-      if (val == null || val.Length < 2)
-        throw new AzosException(StringConsts.ARGUMENT_ERROR + typeof(Distance).FullName + ".Parse({0})".Args(val));
-
-      var nfi = new NumberFormatInfo { NumberDecimalSeparator = "." };
-      string valueString;
-      string unitString;
-      getPair(val, out valueString, out unitString);
-
-      if (valueString == null || unitString == null)
-        throw new AzosException(StringConsts.ARGUMENT_ERROR + typeof(Distance).FullName + ".Parse({0})".Args(val));
-
-      return new Distance(decimal.Parse(valueString, nfi), (UnitType)Enum.Parse(typeof(UnitType), unitString));
+      if (TryParse(val, out var result)) return result;
+      throw new AzosException(StringConsts.ARGUMENT_ERROR + "Unparsable(`{0}`)".Args(val));
     }
 
     public static bool TryParse(string val, out Distance? result)
     {
-      var nfi = new NumberFormatInfo { NumberDecimalSeparator = "." };
-      string valueString;
-      string unitString;
-      decimal value;
-      UnitType unit;
-
-      getPair(val, out valueString, out unitString);
-      if (decimal.TryParse(valueString, NumberStyles.Number, nfi, out value) && Enum.TryParse<UnitType>(unitString, out unit))
-      {
-        result = new Distance(value, unit);
-        return true;
-      }
       result = null;
+      if (val.IsNullOrWhiteSpace()) return true;
+
+      //  20.3m  20.3 meter
+      var i = -1;
+      for(i = val.Length-1; i>0; i--)
+      {
+        var c = val[i];
+        if ((c>='0' && c<='9')||(c=='.'))
+        {
+          var sval = val.Substring(0, i+1).Trim();
+          var sunit = i == val.Length-1 ? "" : val.Substring(i+1).Trim();
+          if (sunit.IsNullOrWhiteSpace()) sunit = nameof(UnitType.Micron);
+          if (!decimal.TryParse(sval, out var dval)) return false;
+          if (!Enum.TryParse<UnitType>(sunit, out var unit))
+          {
+            unit = UNIT_NAMES.FirstOrDefault(kvp => kvp.Value.s.EqualsOrdIgnoreCase(sunit) || kvp.Value.l.EqualsOrdIgnoreCase(sunit)).Key;
+          }
+
+          if (unit == UnitType.Undefined)
+          {
+            return false;
+          }
+          result = new Distance(dval, unit);
+          return true;
+        }
+      }
       return false;
     }
 
-    public override bool Equals(Object obj)
-    {
-      if (obj == null || GetType() != obj.GetType())
-        return false;
+    /// <summary>
+    /// Returns true if two values represent the equivalent physical distance albeit in different units
+    /// </summary>
+    public bool IsEquivalent(Distance other) => this.ValueInMicrons == other.ValueInMicrons;
 
-      Distance d = (Distance)obj;
-      return (ValueInMm == d.ValueInMm);
-    }
+    /// <summary>
+    /// Returns true if both values represent the same distance in the same units
+    /// </summary>
+    public bool Equals(Distance other) => this.Unit == other.Unit && this.ValueInMicrons == other.ValueInMicrons;
 
-    public override int GetHashCode()
-    {
-      return ValueInMm.GetHashCode();
-    }
+    public override bool Equals(Object obj) => obj is Distance other ? this.Equals(other) : false;
 
-    public override string ToString()
-    {
-      return "{0} {1}".Args(Value.ToString("#,#.###"), UnitName);
-    }
+    public override int GetHashCode() => ValueInMicrons.GetHashCode();
 
-    public bool Equals(Distance other)
-    {
-      return (ValueInMm == other.ValueInMm);
-    }
+    public override string ToString() => "{0} {1}".Args(Value, ShortUnitName);
 
-    public int CompareTo(Distance other)
-    {
-      return ValueInMm.CompareTo(other.ValueInMm);
-    }
+    public int CompareTo(Distance other) => ValueInMicrons.CompareTo(other.ValueInMicrons);
 
     void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options)
     {
-      JsonWriter.WriteMap(wri, nestingLevel, options, new DictionaryEntry("unit", UnitName), new DictionaryEntry("value", Value));
+      //todo: this may need to be sensitive per API pragma: e.g. return canonical distance vs units
+      JsonWriter.WriteMap(wri, nestingLevel, options, new DictionaryEntry("u", Unit), new DictionaryEntry("v", Value));
     }
 
     (bool match, IJsonReadable self) IJsonReadable.ReadAsJson(object data, bool fromUI, JsonReader.DocReadOptions? options)
@@ -147,94 +226,29 @@ namespace Azos.Standards
       {
         try
         {
-          return (true, new Distance(map["value"].AsDecimal(handling: ConvertErrorHandling.Throw),
-                                     map["unit"].AsEnum(UnitType.Unspecified, handling: ConvertErrorHandling.Throw)));
+          return (true, new Distance(map["v"].AsDecimal(handling: ConvertErrorHandling.Throw),
+                                     map["u"].AsEnum(UnitType.Undefined, handling: ConvertErrorHandling.Throw)));
         }
-        catch
-        {
-          //passthrough false
-        }
+        catch {}
       }
-
       return (false, null);
     }
 
+    public static Distance operator +(Distance a, Distance b) => new Distance(a.Unit, a.ValueInMicrons + b.ValueInMicrons);
+    public static Distance operator -(Distance a, Distance b) => new Distance(a.Unit, a.ValueInMicrons - b.ValueInMicrons);
+    public static Distance operator *(Distance a, Distance b) => new Distance(a.Unit, a.ValueInMicrons * b.ValueInMicrons);
+    public static Distance operator /(Distance a, Distance b) => new Distance(a.Unit, a.ValueInMicrons / b.ValueInMicrons);
+    public static Distance operator %(Distance a, Distance b) => new Distance(a.Unit, a.ValueInMicrons % b.ValueInMicrons);
 
-    public static Distance operator +(Distance obj1, Distance obj2)
-    {
-      decimal v = obj1.ValueInMm + obj2.ValueInMm;
-      return new Distance(v, UnitType.Mm).Convert(obj1.Unit);
-    }
+    public static Distance operator *(Distance a, double b) => new Distance(a.Unit, (long)(a.ValueInMicrons * b));
+    public static Distance operator *(double a, Distance b) => new Distance(b.Unit, (long)(a * b.ValueInMicrons));
+    public static Distance operator /(Distance a, double b) => new Distance(a.Unit, (long)(a.ValueInMicrons / b));
 
-    public static Distance operator -(Distance obj1, Distance obj2)
-    {
-      decimal v = obj1.ValueInMm - obj2.ValueInMm;
-      return new Distance(v, UnitType.Mm).Convert(obj1.Unit);
-    }
-
-    public static Distance operator *(Distance obj1, decimal obj2)
-    {
-      decimal v = obj1.ValueInMm * obj2;
-      return new Distance(v, UnitType.Mm).Convert(obj1.Unit);
-    }
-
-    public static Distance operator /(Distance obj1, decimal obj2)
-    {
-      decimal v = obj1.ValueInMm / obj2;
-      return new Distance(v, UnitType.Mm).Convert(obj1.Unit);
-    }
-
-    public static bool operator ==(Distance obj1, Distance obj2)
-    {
-      return obj1.ValueInMm == obj2.ValueInMm;
-    }
-
-    public static bool operator !=(Distance obj1, Distance obj2)
-    {
-      return obj1.ValueInMm != obj2.ValueInMm;
-    }
-
-    public static bool operator >=(Distance obj1, Distance obj2)
-    {
-      return obj1.ValueInMm >= obj2.ValueInMm;
-    }
-
-    public static bool operator <=(Distance obj1, Distance obj2)
-    {
-      return obj1.ValueInMm <= obj2.ValueInMm;
-    }
-
-    public static bool operator >(Distance obj1, Distance obj2)
-    {
-      return obj1.ValueInMm > obj2.ValueInMm;
-    }
-
-    public static bool operator <(Distance obj1, Distance obj2)
-    {
-      return obj1.ValueInMm < obj2.ValueInMm;
-    }
-
-
-    private static void getPair(string val, out string valueString, out string unitString)
-    {
-      valueString = null;
-      unitString = null;
-      const string VALUE_ENDS = "0123456789 ";
-      string normString = val.Trim().ToUpper();
-
-      foreach (string unitName in Enum.GetNames(typeof(UnitType)))
-      {
-        int idx = normString.IndexOf(unitName.ToUpper()); // we search case-insensitive
-        if (idx == normString.Length - unitName.Length    // search unit name at the end of string
-            && VALUE_ENDS.IndexOf(normString[idx - 1]) >= 0) // left part (value) should ends with VALUE_ENDS char
-        {
-          valueString = normString.Substring(0, idx).Trim();
-          unitString = unitName;
-          return;
-        }
-      }
-    }
-
+    public static bool operator ==(Distance a, Distance b) => a.Equals(b);
+    public static bool operator !=(Distance a, Distance b) => !a.Equals(b);
+    public static bool operator >=(Distance a, Distance b) => a.ValueInMicrons >= b.ValueInMicrons;
+    public static bool operator <=(Distance a, Distance b) => a.ValueInMicrons <= b.ValueInMicrons;
+    public static bool operator >(Distance a, Distance b) => a.ValueInMicrons > b.ValueInMicrons;
+    public static bool operator <(Distance a, Distance b) => a.ValueInMicrons < b.ValueInMicrons;
   }
-
 }

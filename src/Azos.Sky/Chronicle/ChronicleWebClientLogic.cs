@@ -83,7 +83,7 @@ namespace Azos.Sky.Chronicle
       var response = await m_Server.Call(LogServiceAddress,
                                           nameof(ILogChronicle),
                                           new ShardKey(DateTime.UtcNow),
-                                          (http, ct) => http.Client.PostAndGetJsonMapAsync("batch", data)).ConfigureAwait(false);
+                                          (http, ct) => http.Client.PostAndGetJsonMapAsync("batch", new {batch = data})).ConfigureAwait(false);
       response.UnwrapChangeResult();
     }
 
@@ -97,7 +97,7 @@ namespace Azos.Sky.Chronicle
       filter.CrossShard = false; //stop recursion, each shard should return just its own data
       var shards = m_Server.GetEndpointsForAllShards(LogServiceAddress, nameof(ILogChronicle));
 
-      var calls = shards.Select(shard => shard.Call((http, ct) => http.Client.PostAndGetJsonMapAsync("filter", filter)));
+      var calls = shards.Select(shard => shard.Call((http, ct) => http.Client.PostAndGetJsonMapAsync("filter", new {filter = filter})));
 
       var responses = await Task.WhenAll(calls.Select( async call => {
         try
@@ -125,7 +125,7 @@ namespace Azos.Sky.Chronicle
       var response = await m_Server.Call(LogServiceAddress,
                                           nameof(ILogChronicle),
                                           new ShardKey(0u),
-                                          (http, ct) => http.Client.PostAndGetJsonMapAsync("filter", filter)).ConfigureAwait(false);
+                                          (http, ct) => http.Client.PostAndGetJsonMapAsync("filter", new {filter = filter})).ConfigureAwait(false);
 
       var result = response.UnwrapPayloadArray()
               .OfType<JsonDataMap>()
@@ -139,7 +139,7 @@ namespace Azos.Sky.Chronicle
       var response = await m_Server.Call(InstrumentationServiceAddress,
                                          nameof(IInstrumentationChronicle),
                                          new ShardKey(DateTime.UtcNow),
-                                         (http, ct) => http.Client.PostAndGetJsonMapAsync("batch", data)).ConfigureAwait(false);
+                                         (http, ct) => http.Client.PostAndGetJsonMapAsync("batch", new {batch = data})).ConfigureAwait(false);
       response.UnwrapChangeResult();
     }
 
@@ -148,7 +148,7 @@ namespace Azos.Sky.Chronicle
       var response = await m_Server.Call(InstrumentationServiceAddress,
                                            nameof(IInstrumentationChronicle),
                                            new ShardKey(0u),
-                                           (http, ct) => http.Client.PostAndGetJsonMapAsync("filter", filter)).ConfigureAwait(false);
+                                           (http, ct) => http.Client.PostAndGetJsonMapAsync("filter", new {filter = filter})).ConfigureAwait(false);
 
       var result = response.UnwrapPayloadArray()
                            .OfType<JsonDataMap>();

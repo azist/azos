@@ -82,7 +82,7 @@ namespace Azos.Sky.Workers
 
     protected override int DoEnqueue<TTodo>(IEnumerable<TTodo> todos, HostSet hs, string svcName)
     {
-      var hostPair = hs.AssignHost(todos.First().SysShardingKey);
+      var hostPair = hs.AssignHost(new ShardKey(todos.First().SysShardingKey));
       return App.GetServiceClientHub().CallWithRetry<Contracts.ITodoQueueClient, int>
       (
         (client) => client.Enqueue(todos.Select(t => new TodoFrame(t)).ToArray()),
@@ -93,7 +93,7 @@ namespace Azos.Sky.Workers
 
     protected override Task<int> Async_DoEnqueue<TTodo>(IEnumerable<TTodo> todos, HostSet hs, string svcName)
     {
-      var hostPair = hs.AssignHost(todos.First().SysShardingKey);
+      var hostPair = hs.AssignHost(new ShardKey(todos.First().SysShardingKey));
       return App.GetServiceClientHub().CallWithRetryAsync<Contracts.ITodoQueueClient, int>
       (
         (client) => client.Async_Enqueue(todos.Select(t => new TodoFrame(t)).ToArray()).AsTaskReturning<int>(),

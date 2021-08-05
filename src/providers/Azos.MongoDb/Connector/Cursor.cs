@@ -127,7 +127,6 @@ namespace Azos.Data.Access.MongoDb.Connector
     #endregion
 
     #region .pvt
-
     private void fetchNextChunk()
     {
         EnsureObjectNotDisposed();
@@ -143,9 +142,6 @@ namespace Azos.Data.Access.MongoDb.Connector
           connection.Release();
         }
     }
-
     #endregion
-
-
   }
 }

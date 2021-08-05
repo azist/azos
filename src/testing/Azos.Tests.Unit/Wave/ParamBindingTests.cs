@@ -27,6 +27,40 @@ namespace Azos.Tests.Unit.Wave
     }
 
     [Run]
+    public async Task EchoMap_POST()
+    {
+      var jsonToSend = new
+      {
+        got = new
+        {
+          a = 123,
+          b = -10,
+          c = true
+        }
+      }.ToJson(JsonWritingOptions.CompactRowsAsMap);
+
+      var content = new StringContent(
+         jsonToSend,
+         System.Text.Encoding.UTF8,
+         ContentType.JSON);
+
+      var response = await Client.PostAsync("echomap", content);
+      Aver.IsTrue(HttpStatusCode.OK == response.StatusCode);
+
+      Aver.AreEqual(ContentType.JSON, response.Content.Headers.ContentType.MediaType);
+
+      var got = (await response.Content.ReadAsStringAsync()).JsonToDataObject() as JsonDataMap;
+      Aver.IsNotNull(got);
+
+      Aver.IsNotNull(got);
+      Aver.AreEqual(123, got["a"].AsInt());
+      Aver.AreEqual(-10, got["b"].AsInt());
+      Aver.AreEqual(true, got["c"].AsBool());
+
+    }
+
+
+    [Run]
     public async Task EchoParams_GET()
     {
       var response = await Client.GetAsync("echoparams?a=hello&b=2&c=true");
@@ -112,32 +146,15 @@ namespace Azos.Tests.Unit.Wave
     }
 
     [Run]
-    public async Task EchoModelA_GET()
-    {
-      var response = await Client.GetAsync("echomodela?id=xz1234&name=Alexz%20Tester&dob=August%2015%201980");
-      Aver.IsTrue(HttpStatusCode.OK == response.StatusCode);
-      var got = (await response.Content.ReadAsStringAsync()).JsonToDataObject() as JsonDataMap;
-      Aver.IsNotNull(got);
-
-      var data = JsonReader.ToDoc<Controllers.ModelA>(got);
-
-      Aver.IsNotNull(data);
-      Aver.AreEqual("xz1234", data.ID);
-      Aver.AreEqual("Alexz Tester", data.Name);
-      Aver.IsNotNull(data.DOB);
-      Aver.AreEqual(1980, data.DOB.Value.Year);
-      Aver.AreEqual(8,    data.DOB.Value.Month);
-      Aver.AreEqual(15,   data.DOB.Value.Day);
-    }
-
-    [Run]
     public async Task EchoModelA_POST()
     {
-      var jsonToSend = new Controllers.ModelA
-      {
-        ID = "xz1234",
-        Name = "Alexz Tester",
-        DOB = new DateTime(1980, 8, 15)
+      var jsonToSend = new {
+       got = new Controllers.ModelA
+        {
+          ID = "xz1234",
+          Name = "Alexz Tester",
+          DOB = new DateTime(1980, 8, 15)
+        }
       }.ToJson(JsonWritingOptions.CompactRowsAsMap);
 
       var content = new StringContent(
@@ -163,6 +180,49 @@ namespace Azos.Tests.Unit.Wave
       Aver.AreEqual(8, data.DOB.Value.Month);
       Aver.AreEqual(15, data.DOB.Value.Day);
     }
+
+
+    [Run]
+    public async Task EchoMixModelA_POST()
+    {
+      var jsonToSend = new {
+        id ="980",
+        another = "barsuk-egor",
+        model = new Controllers.ModelA
+        {
+          ID = "model-xz1234",
+          Name = "model-Alexz Tester",
+          DOB = new DateTime(1980, 8, 15)
+        }
+      }.ToJson(JsonWritingOptions.CompactRowsAsMap);
+
+      var content = new StringContent(
+         jsonToSend,
+         System.Text.Encoding.UTF8,
+         ContentType.JSON);
+
+      var response = await Client.PostAsync("echomixmodela", content);
+      Aver.IsTrue(HttpStatusCode.OK == response.StatusCode);
+
+      Aver.AreEqual(ContentType.JSON, response.Content.Headers.ContentType.MediaType);
+
+      var got = (await response.Content.ReadAsStringAsync()).JsonToDataObject() as JsonDataMap;
+      Aver.IsNotNull(got);
+
+      Aver.AreEqual("980", got["id"].AsString());
+      Aver.AreEqual("barsuk-egor", got["another"].AsString());
+
+      var modelDoc = JsonReader.ToDoc<Controllers.ModelA>(got["model"] as JsonDataMap);
+
+      Aver.IsNotNull(modelDoc);
+      Aver.AreEqual("model-xz1234", modelDoc.ID);
+      Aver.AreEqual("model-Alexz Tester", modelDoc.Name);
+      Aver.IsNotNull(modelDoc.DOB);
+      Aver.AreEqual(1980, modelDoc.DOB.Value.Year);
+      Aver.AreEqual(8, modelDoc.DOB.Value.Month);
+      Aver.AreEqual(15, modelDoc.DOB.Value.Day);
+    }
+
 
 
     [Run]

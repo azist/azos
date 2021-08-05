@@ -62,6 +62,7 @@ namespace Azos
     /// </summary>
     MetadataDetailLevel DetailLevel {  get; }
 
+
     /// <summary>
     /// Default target name used for extraction of targeted metadata such as database backend target name used in data documents/ schemas
     /// </summary>
@@ -95,7 +96,7 @@ namespace Azos
     /// This mechanism is used to get proper target names in call context, for example
     /// you may need to get a different metadata depending on a call context such as Session.DataContextName etc.
     /// </summary>
-    string GetSchemaDataTargetName(Schema schema, IDataDoc instance);
+    (string name, bool useFieldNames) GetSchemaDataTargetName(Schema schema, IDataDoc instance);
 
     /// <summary>
     /// Adds a type with an optional instance to be described, this is typically used to register Permissions and Doc schemas

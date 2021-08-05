@@ -27,6 +27,12 @@ namespace Azos.Data.Access
     /// Tests connectivity/operation and throws an exception if connection could not be established
     /// </summary>
     void TestConnection();
+
+    /// <summary>
+    /// Provides default timeout imposed on execution of commands/calls. Expressed in milliseconds.
+    /// A value less or equal to zero indicates no timeout
+    /// </summary>
+    int DefaultTimeoutMs { get; }
   }
 
 
@@ -39,5 +45,11 @@ namespace Azos.Data.Access
     /// Defines log level for data stores
     /// </summary>
     StoreLogLevel DataLogLevel { get; set; }
+
+    /// <summary>
+    /// Provides default timeout imposed on execution of commands/calls. Expressed in milliseconds.
+    /// A value less or equal to zero indicates no timeout
+    /// </summary>
+    new int DefaultTimeoutMs { get; set; }
   }
 }

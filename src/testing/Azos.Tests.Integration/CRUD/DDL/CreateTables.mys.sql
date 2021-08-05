@@ -1,6 +1,6 @@
-﻿create schema `NFXTest`;
+﻿create schema `AzosTest`;
 
-use `NFXTest`;
+use `AzosTest`;
 
 
 create table TBL_DOCTOR

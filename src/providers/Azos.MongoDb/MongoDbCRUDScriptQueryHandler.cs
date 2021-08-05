@@ -24,7 +24,7 @@ namespace Azos.Data.Access.MongoDb
         }
 
 
-        public override Schema GetSchema(ICRUDQueryExecutionContext context, Query query)
+        public override Schema GetSchema(ICrudQueryExecutionContext context, Query query)
         {
           var ctx = (MongoDbCRUDQueryExecutionContext)context;
 
@@ -38,7 +38,7 @@ namespace Azos.Data.Access.MongoDb
         }
 
 
-        public override RowsetBase Execute(ICRUDQueryExecutionContext context, Query query, bool oneRow = false)
+        public override RowsetBase Execute(ICrudQueryExecutionContext context, Query query, bool oneRow = false)
         {
           var ctx = (MongoDbCRUDQueryExecutionContext)context;
 
@@ -83,7 +83,7 @@ namespace Azos.Data.Access.MongoDb
           return result;
         }
 
-        public override Cursor OpenCursor(ICRUDQueryExecutionContext context, Query query)
+        public override Cursor OpenCursor(ICrudQueryExecutionContext context, Query query)
         {
           var ctx = (MongoDbCRUDQueryExecutionContext)context;
 
@@ -125,7 +125,7 @@ namespace Azos.Data.Access.MongoDb
             }
 
 
-        public override int ExecuteWithoutFetch(ICRUDQueryExecutionContext context, Query query)
+        public override int ExecuteWithoutFetch(ICrudQueryExecutionContext context, Query query)
         {
             var ctx = (MongoDbCRUDQueryExecutionContext)context;
 

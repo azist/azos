@@ -140,7 +140,12 @@ namespace Azos.Data.Access.MongoDb.Connector
           return m_Servers.GetOrRegister(effectiveNode.Name, (nodes) => new ServerNode(this, nodes.n, nodes.a), (n: effectiveNode, a: node));
         }
 
-        return m_Servers.GetOrRegister(node.Name, (n) => new ServerNode(this, n, new Glue.Node()), node);
+        if (node.Binding.EqualsOrdIgnoreCase(MONGO_BINDING))
+        {
+          return m_Servers.GetOrRegister(node.Name, (n) => new ServerNode(this, n, new Glue.Node()), node);
+        }
+
+        throw new MongoDbConnectorException(StringConsts.BAD_BINDING_ERROR.Args(node.Binding.TakeFirstChars(32), MONGO_BINDING, APPLIANCE_BINDING));
       }
     }
 

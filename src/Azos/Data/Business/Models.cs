@@ -36,26 +36,33 @@ namespace Azos.Data.Business
   /// </summary>
   public interface IBusinessFilterModel : IBusinessFormModel
   {
+    /// <summary>
+    /// Paging offset of the first document/row returned. This property is ignored for filters yielding non-lists
+    /// </summary>
     int PagingStartIndex { get; set; }
+
+    /// <summary>
+    /// How many docs/rows should be returned. This property is ignored for filters yielding non-lists
+    /// </summary>
     int PagingCount { get; set; }
   }
 
   /// <summary>
   /// Represents a model for data screen filters, such as the ones used in lists/grids and reports.
-  /// The filter typically gets posted to the "list" resource endpoint and returns a result of the filter
+  /// The filter typically gets posted to the "list" resource endpoint and returns a result of the filtering operation
   /// </summary>
   public abstract class FilterModel<TSaveResult> : FormModel<TSaveResult>, IBusinessFilterModel
   {
     /// <summary>
-    /// Paging offset of the first row returned. This property is ignored for filters yielding non-lists
+    /// Paging offset of the first document/row returned. This property is ignored for filters yielding non-lists
     /// </summary>
-    [Field(description: "Starting index of the first data page. This is a relative measure, as a 'page' represents X records/rows/items")]
+    [Field(description: "Paging offset of the first document/row returned. This property is ignored for filters yielding non-lists")]
     public int PagingStartIndex { get; set; }
 
     /// <summary>
-    /// How many records should be returned. This property is ignored for filters yielding non-lists
+    /// How many docs/rows should be returned. This property is ignored for filters yielding non-lists
     /// </summary>
-    [Field(description: "Count of pages to return. This is a relative measure, as a 'page' represents X records/rows/items")]
+    [Field(description: "How many doc/rows should be returned. This property is ignored for filters yielding non-lists")]
     public int PagingCount { get; set; }
   }
 

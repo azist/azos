@@ -42,7 +42,9 @@ namespace Azos.Sky.Mdb
     private StoreLogLevel m_DataLogLevel;
     private string m_TargetName;
 
+    private int m_DefaultTimeoutMs;
 
+    //todo: refactor into GDid module?
     private GdidGenerator m_GdidGenerator;
 
     private MDBCentralArea m_CentralArea;
@@ -55,6 +57,17 @@ namespace Azos.Sky.Mdb
     #region Properties
 
     public override string ComponentLogTopic => SysConsts.LOG_TOPIC_MDB;
+
+    /// <summary>
+    /// Provides default timeout imposed on execution of commands/calls. Expressed in milliseconds.
+    /// A value less or equal to zero indicates no timeout
+    /// </summary>
+    [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_DATA)]
+    public int DefaultTimeoutMs
+    {
+      get => m_DefaultTimeoutMs;
+      set => m_DefaultTimeoutMs = value.KeepBetween(0, (15 * 60) * 1000);
+    }
 
     [Config]
     public string SchemaName
@@ -174,7 +187,7 @@ namespace Azos.Sky.Mdb
     /// Returns CRUDOperations facade connected to the appropriate shard within the central area as
     /// determined by the shardingID
     /// </summary>
-    public CRUDOperations CentralOperationsFor(object shardingID)
+    public CRUDOperations CentralOperationsFor(ShardKey shardingID)
     {
       CheckDaemonActive();
       return m_CentralArea.ShardedOperationsFor(shardingID);

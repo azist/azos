@@ -5,8 +5,6 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 using Azos.Apps;
@@ -39,7 +37,7 @@ namespace Azos.Sky.Identification
     public override string ComponentLogTopic => CoreConsts.TOPIC_ID_GEN;
 
     private HttpService m_Server;
-    private int m_Shard;
+    private uint m_Shard;
 
     /// <summary>
     /// Logical authority service address
@@ -60,7 +58,15 @@ namespace Azos.Sky.Identification
 
     public async Task<GdidBlock> AllocateBlockAsync(string scopeName, string sequenceName, int blockSize, ulong? vicinity = 1152921504606846975)
     {
-      var args = new { scopeName, sequenceName, blockSize, vicinity };
+      //WARNING: do NOT delete bind-by prop names
+      //if C# param names change the bind-by names are used by remote controller
+      //and should remain intact
+      var args = new {
+                       scopeName = scopeName,
+                       sequenceName = sequenceName,
+                       blockSize = blockSize,
+                       vicinity = vicinity
+                     };
 
       var got = await m_Server.Call(AuthorityAddress.NonBlank(nameof(AuthorityAddress)),
                                     nameof(IGdidAuthority),

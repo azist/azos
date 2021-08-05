@@ -10,16 +10,16 @@ namespace Azos.Tests.Integration.CRUD.Queries
   /// <summary>
   /// An example of custom handler which executes the query command
   /// </summary>
-  public class CustomTestCommandHandler : CRUDQueryHandler
+  public class CustomTestCommandHandler : CrudQueryHandler
   {
-    public CustomTestCommandHandler(ICRUDDataStore store, string name) : base(store, name)
+    public CustomTestCommandHandler(ICrudDataStore store, string name) : base(store, name)
     {
     }
 
-    public override RowsetBase Execute(ICRUDQueryExecutionContext context, Query query, bool oneRow = false)
+    public override RowsetBase Execute(ICrudQueryExecutionContext context, Query query, bool oneRow = false)
      => ExecuteAsync(context, query, oneRow).GetAwaiter().GetResult();
 
-    public async override Task<RowsetBase> ExecuteAsync(ICRUDQueryExecutionContext context, Query query, bool oneRow = false)
+    public async override Task<RowsetBase> ExecuteAsync(ICrudQueryExecutionContext context, Query query, bool oneRow = false)
     {
       await Task.Delay(100);
       var result = new Rowset(Schema.GetForTypedDoc<Patient>());
@@ -31,25 +31,25 @@ namespace Azos.Tests.Integration.CRUD.Queries
       return result;
     }
 
-    public override int ExecuteWithoutFetch(ICRUDQueryExecutionContext context, Query query)
+    public override int ExecuteWithoutFetch(ICrudQueryExecutionContext context, Query query)
      => throw new NotImplementedException();
 
-    public override Task<int> ExecuteWithoutFetchAsync(ICRUDQueryExecutionContext context, Query query)
+    public override Task<int> ExecuteWithoutFetchAsync(ICrudQueryExecutionContext context, Query query)
      => throw new NotImplementedException();
 
-    public override Schema GetSchema(ICRUDQueryExecutionContext context, Query query)
+    public override Schema GetSchema(ICrudQueryExecutionContext context, Query query)
      => GetSchemaAsync(context, query).GetAwaiter().GetResult();
 
-    public async override Task<Schema> GetSchemaAsync(ICRUDQueryExecutionContext context, Query query)
+    public async override Task<Schema> GetSchemaAsync(ICrudQueryExecutionContext context, Query query)
     {
       await Task.Delay(100);
       return Schema.GetForTypedDoc<Patient>();
     }
 
-    public override Cursor OpenCursor(ICRUDQueryExecutionContext context, Query query)
+    public override Cursor OpenCursor(ICrudQueryExecutionContext context, Query query)
      => throw new NotImplementedException();
 
-    public override Task<Cursor> OpenCursorAsync(ICRUDQueryExecutionContext context, Query query)
+    public override Task<Cursor> OpenCursorAsync(ICrudQueryExecutionContext context, Query query)
      => throw new NotImplementedException();
   }
 }

@@ -19,6 +19,7 @@ using Azos.Instrumentation;
 using Azos.Log;
 using Azos.Security;
 using Azos.Time;
+using System.Threading;
 
 namespace Azos.Apps
 {
@@ -34,6 +35,7 @@ namespace Azos.Apps
 
     public const string CONFIG_NAME_ATTR = "name";
     public const string CONFIG_ID_ATTR = "id";
+    public const string CONFIG_NODE_DISCRIMINATOR_ATTR = "node-discriminator";
     public const string CONFIG_COPYRIGHT_ATTR = "copyright";
     public const string CONFIG_DESCRIPTION_ATTR = "description";
     public const string CONFIG_UNIT_TEST_ATTR = "unit-test";
@@ -126,7 +128,7 @@ namespace Azos.Apps
 
     protected override void Destructor()
     {
-      m_ShutdownStarted = true;
+      SetShutdownStarted();
 
       DisposeAndNull(ref m_Realm);
       DisposeAndNull(ref m_Singletons);
@@ -143,6 +145,7 @@ namespace Azos.Apps
       DisposeAndNull(ref m_NOPLog);
 
       base.Destructor();
+      DisposeAndNull(ref m_ShutdownEvent);
     }
 
     #endregion
@@ -151,13 +154,15 @@ namespace Azos.Apps
 
     private Atom m_AppId;
     private Guid m_InstanceId = Guid.NewGuid();
-    protected DateTime m_StartTime;
+    protected DateTime m_StartTime = DateTime.UtcNow;//Fix #494
+    private ushort m_NodeDiscriminator;
     private IO.Console.IConsolePort m_ConsolePort;
 
     private string m_Name;
     private bool m_AllowNesting;
 
-    protected volatile bool m_ShutdownStarted;
+    private ManualResetEventSlim m_ShutdownEvent = new ManualResetEventSlim(false, spinCount: 2);
+    private volatile bool m_ShutdownStarted;
     private volatile bool m_Stopping;
 
     protected IApplicationRealmImplementation m_Realm;
@@ -238,6 +243,14 @@ namespace Azos.Apps
     /// <summary> Uniquely identifies this application type </summary>
     public Atom AppId => m_AppId;
 
+    /// <summary>
+    /// Provides a short value which uniquely identifies the logical cluster network node.
+    /// In most cases a node is the same as the host, however it is possible to launch multiple nodes - instances
+    /// of the same logical application type on the same host. NodeDiscriminator is used by some
+    /// services to differentiate these node instances.
+    /// </summary>
+    public ushort NodeDiscriminator => m_NodeDiscriminator;
+
     /// <summary>Returns unique identifier of this running instance</summary>
     public Guid InstanceId => m_InstanceId;
 
@@ -272,7 +285,11 @@ namespace Azos.Apps
     /// <summary>
     /// Initiates the stop of the application by setting its Stopping to true and Active to false so dependent services may start to terminate
     /// </summary>
-    public void Stop() => m_Stopping = true;
+    public void Stop()
+    {
+      m_Stopping = true;
+      NotifyPendingStopOrShutdown();
+    }
 
     public IConfigSectionNode ConfigRoot => m_ConfigRoot;
     public IConfigSectionNode CommandArgs => m_CommandArgs;
@@ -455,6 +472,26 @@ namespace Azos.Apps
       return DefaultAppVarResolver.ResolveNamedVar(this, name, out value);
     }
 
+    /// <summary>
+    /// Completes the call returning true as soon as application stop or shutdown starts.
+    /// The stop/shutdown is initiated by a different call flow/thread via a call to `Stop()`
+    /// or deterministic application finalization via a call to `Dispose()`.
+    /// False is returned if application has not yet started shutdown during the
+    /// specified millisecond interval. Indefinite intervals are not allowed
+    /// </summary>
+    /// <param name="waitIntervalMs">
+    /// Millisecond interval to wait for shutdown or stop. You may not pass values less than 1 ms as
+    /// indefinite intervals are NOT supported
+    /// </param>
+    public bool WaitForStopOrShutdown(int waitIntervalMs)
+    {
+      var wait = m_ShutdownEvent;
+      if (wait == null) return true;
+
+      waitIntervalMs.IsTrue(v => v > 0, "{0} > 0".Args(nameof(waitIntervalMs)));
+      var result = wait.Wait(waitIntervalMs);
+      return result;
+    }
     #endregion
 
     #region Protected
@@ -574,6 +611,28 @@ namespace Azos.Apps
       lock (m_ConfigSettings)
         foreach (var s in m_ConfigSettings) s.ConfigChanged(this, node);
     }
+
+    /// <summary>
+    /// Sets shutdown event wait handle
+    /// </summary>
+    protected void NotifyPendingStopOrShutdown()
+    {
+      var wait = m_ShutdownEvent;
+      if (wait != null)
+      {
+        if (!wait.IsSet) wait.Set();
+      }
+    }
+
+    /// <summary>
+    /// Triggers ShutdownStarted and notifies shutdown event handle
+    /// </summary>
+    protected void SetShutdownStarted()
+    {
+      m_ShutdownStarted = true;
+      NotifyPendingStopOrShutdown();
+    }
+
 
     #endregion
 

@@ -11,7 +11,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 
 using Azos.Data;
 using Azos.Data.Access;
@@ -91,7 +91,7 @@ CREATE TABLE `tbl_employee` (
       {
         ds.Insert(row);
 
-        var qry = new Query<Patient>("CRUD.Patient.List") { new Query.Param("LN", "Ivanov") };
+        var qry = new Query<Patient>("CRUD.Queries.Patient.List") { new Query.Param("LN", "Ivanov") };
         var result = ds.LoadEnumerable(qry).ToArray();
         Aver.AreEqual(1, result.Length);
 
@@ -112,14 +112,14 @@ CREATE TABLE `tbl_employee` (
         ds.Insert(row);
 
         // update amount to 110.99M
-        var qry = new Query("CRUD.Patient.UpdateAmount")
+        var qry = new Query("CRUD.Queries.Patient.UpdateAmount")
         {
           new Query.Param("pAmount", 110.99M),
           new Query.Param("pSSN", row.SSN)
         };
         ds.ExecuteWithoutFetch(qry);
 
-        var loadQry = new Query<Patient>("CRUD.Patient.List") { new Query.Param("LN", "Ivanov") };
+        var loadQry = new Query<Patient>("CRUD.Queries.Patient.List") { new Query.Param("LN", "Ivanov") };
         var result = ds.LoadDoc(loadQry);
 
         Aver.IsTrue(result is Patient);
@@ -153,7 +153,7 @@ CREATE TABLE `tbl_employee` (
       {
         ds.Insert(row1);
 
-        var loadQry = new Query<Doctor>("CRUD.Doctor.List") { new Query.Param("pSSN", "%") };
+        var loadQry = new Query<Doctor>("CRUD.Queries.Doctor.List") { new Query.Param("pSSN", "%") };
         var result1 = ds.LoadOneRowset(loadQry).ToList();
 
         Aver.AreEqual(1, result1.Count);
@@ -212,15 +212,59 @@ CREATE TABLE `tbl_employee` (
       using (var ds = makeDataStore())
       {
         var patients = new List<Patient>();
-        for(var i = 0; i < 10000; i++)
+        for(var i = 1; i < 2_000; i++)
         {
           var row = makePatient("Ivanov" + i);
+          row.COUNTER = i;
           patients.Add(row);
           ds.Insert(row);
         }
 
-        var qry = new Query<Patient>("CRUD.Patient.List") { new Query.Param("LN", "Ivanov%") };
+        var qry = new Query<Patient>("CRUD.Queries.Patient.List") { new Query.Param("LN", "Ivanov%") };
         var result = ds.LoadEnumerable(qry).OrderBy(p => p.COUNTER);
+        Aver.IsTrue(patients.Select(p => p.Last_Name).SequenceEqual(result.Select(r => r.Last_Name)));
+      }
+    }
+
+    [Run]
+    public async Task ManyRowsInsertAndReadASYNC()
+    {
+      using (var ds = makeDataStore())
+      {
+        var patients = new List<Patient>();
+        for (var i = 1; i < 2_000; i++)
+        {
+          var row = makePatient("Ivanov" + i);
+          row.COUNTER = i;
+          patients.Add(row);
+          await ds.InsertAsync(row);
+        }
+
+        var qry = new Query<Patient>("CRUD.Queries.Patient.List") { new Query.Param("LN", "Ivanov%") };
+        var result = (await ds.LoadEnumerableAsync(qry)).OrderBy(p => p.COUNTER);
+        Aver.IsTrue(patients.Select(p => p.Last_Name).SequenceEqual(result.Select(r => r.Last_Name)));
+      }
+    }
+
+    [Run]
+    public async Task ManyRowsInsertAndReadASYNC2()
+    {
+      using (var ds = makeDataStore())
+      {
+        var patients = new List<Patient>();
+        var pending = new List<Task>();
+        for (var i = 1; i < 2_000; i++)
+        {
+          var row = makePatient("Ivanov" + i);
+          row.COUNTER = i;
+          patients.Add(row);
+          pending.Add(ds.InsertAsync(row));//note: No await here
+        }
+
+        await Task.WhenAll(pending);
+
+        var qry = new Query<Patient>("CRUD.Queries.Patient.List") { new Query.Param("LN", "Ivanov%") };
+        var result = (await ds.LoadEnumerableAsync(qry)).OrderBy(p => p.COUNTER);
         Aver.IsTrue(patients.Select(p => p.Last_Name).SequenceEqual(result.Select(r => r.Last_Name)));
       }
     }
@@ -260,6 +304,7 @@ CREATE TABLE `tbl_employee` (
     {
       var doctor = new Doctor
       {
+        COUNTER = 1234,
         First_Name = "Nikolai",
         Last_Name = "Petrovich",
         DOB = new DateTime(1970, 3, 8),
@@ -287,10 +332,12 @@ CREATE TABLE `tbl_employee` (
 
         Aver.AreEqual(2, result.Length);
         Aver.AreEqual(doc.COUNTER, result[0].C_DOCTOR);
+        Aver.AreEqual(1234, result[0].C_DOCTOR);
         Aver.AreEqual(doctor.NPI, result[0].Doctor_ID);
         Aver.AreEqual(doctor.Phone, result[0].Doctor_Phone);
         Aver.IsNull(result[0].Marker);
-        Aver.AreEqual(0, result[1].C_DOCTOR);
+
+        Aver.AreEqual(null, result[1].C_DOCTOR);
         Aver.IsNull(result[1].Doctor_ID);
         Aver.IsNull(result[1].Doctor_Phone);
       }
@@ -334,7 +381,7 @@ CREATE TABLE `tbl_employee` (
         ds.Insert(patient1);
         ds.Insert(patient2);
 
-        var qry = new Query<Patient>("CRUD.Patient.List") { new Query.Param("LN", "Tokugava") };
+        var qry = new Query<Patient>("CRUD.Queries.Patient.List") { new Query.Param("LN", "Tokugava") };
 
         using (var cursor = ds.OpenCursor(qry))
         {
@@ -361,17 +408,17 @@ CREATE TABLE `tbl_employee` (
         using (var ds = makeDataStore())
         {
           ds.Insert(row);
-          Thread.Sleep(Ambient.Random.NextScaledRandomInteger(1000, 3000));
+          Thread.Sleep(Ambient.Random.NextScaledRandomInteger(10, 500));
 
-          var qry = new Query("CRUD.Patient.UpdateAmount")
+          var qry = new Query("CRUD.Queries.Patient.UpdateAmount")
           {
             new Query.Param("pAmount", 100M + i),
             new Query.Param("pSSN", row.SSN)
           };
           ds.ExecuteWithoutFetch(qry);
-          Thread.Sleep(Ambient.Random.NextScaledRandomInteger(1000, 3000));
+          Thread.Sleep(Ambient.Random.NextScaledRandomInteger(10, 500));
 
-          var listQry = new Query<Patient>("CRUD.Patient.List") { new Query.Param("LN", "Ivanov" + i.ToString())};
+          var listQry = new Query<Patient>("CRUD.Queries.Patient.List") { new Query.Param("LN", "Ivanov" + i.ToString())};
           var result = ds.LoadDoc(listQry);
 
           Aver.AreEqual(row.Last_Name, result.Last_Name);
@@ -384,7 +431,7 @@ CREATE TABLE `tbl_employee` (
     [Run]
     public void ParallelDatastores2()
     {
-      Parallel.For(0, 100, new ParallelOptions { MaxDegreeOfParallelism=36}, (i) =>
+      Parallel.For(0, 500, new ParallelOptions { MaxDegreeOfParallelism=36}, (i) =>
       {
         var row = makePatient("Ivanov" + i.ToString());
         row.SSN = (10000 + i).ToString();
@@ -392,14 +439,14 @@ CREATE TABLE `tbl_employee` (
         {
           ds.Insert(row);
 
-          var qry = new Query("CRUD.Patient.UpdateAmount")
+          var qry = new Query("CRUD.Queries.Patient.UpdateAmount")
           {
             new Query.Param("pAmount", 100M + i),
             new Query.Param("pSSN", row.SSN)
           };
           ds.ExecuteWithoutFetch(qry);
 
-          var listQry = new Query<Patient>("CRUD.Patient.List") { new Query.Param("LN", "Ivanov" + i.ToString())};
+          var listQry = new Query<Patient>("CRUD.Queries.Patient.List") { new Query.Param("LN", "Ivanov" + i.ToString())};
           var result = ds.LoadDoc(listQry);
 
           Aver.AreEqual(row.Last_Name, result.Last_Name);
@@ -407,6 +454,41 @@ CREATE TABLE `tbl_employee` (
           Aver.AreEqual(100M + i, result.Amount);
         }
       });
+    }
+
+    [Run]
+    public async Task ParallelDatastores3ASYNC()
+    {
+      var pending = new List<Task>();
+
+      for(var i=0; i<500; i++)
+        pending.Add(body(i));
+
+      await Task.WhenAll(pending);
+
+      async Task body(int i)
+      {
+        var row = makePatient("Ivanov" + i.ToString());
+        row.SSN = (10000 + i).ToString();
+        using (var ds = makeDataStore())
+        {
+          await ds.InsertAsync(row);
+
+          var qry = new Query("CRUD.Queries.Patient.UpdateAmount")
+          {
+            new Query.Param("pAmount", 100M + i),
+            new Query.Param("pSSN", row.SSN)
+          };
+          await ds.ExecuteWithoutFetchAsync(qry);
+
+          var listQry = new Query<Patient>("CRUD.Queries.Patient.List") { new Query.Param("LN", "Ivanov" + i.ToString()) };
+          var result = await ds.LoadDocAsync(listQry);
+
+          Aver.AreEqual(row.Last_Name, result.Last_Name);
+          Aver.AreEqual(row.SSN, result.SSN);
+          Aver.AreEqual(100M + i, result.Amount);
+        }
+      };
     }
 
     [Run]
@@ -660,9 +742,6 @@ CREATE TABLE `tbl_employee` (
         var affected = ds.Insert(row);
         Aver.AreEqual(1, affected, "Insert"); // notice: insert new row - affected=1
 
-        affected = ds.Update(row);
-        Aver.AreEqual(0, affected, "UpdateSame"); // updating that has not changed - affected=0
-
         row.Name = "Pupkin";
         affected = ds.Update(row);
         Aver.AreEqual(1, affected, "UpdateDifferent"); // affected=1 because we changed Name and updated
@@ -677,9 +756,6 @@ CREATE TABLE `tbl_employee` (
       {
         var affected = ds.Upsert(row);
         Aver.AreEqual(1, affected, "InitUpsert"); // note: upserted noneexistent row - 1 inserted
-
-        affected = ds.Upsert(row);
-        Aver.AreEqual(0, affected, "UpsertSame"); // nothing affected as row has not changed
 
         row.Name = "Pupkin";
         affected = ds.Upsert(row);
@@ -741,9 +817,9 @@ CREATE TABLE `tbl_employee` (
 
     #region .pvt
 
-    private MySqlDataStore makeDataStore()
+    private MySqlCanonicalDataStore makeDataStore()
     {
-      var datastore = new MySqlDataStore(NOPApplication.Instance, m_ConnectionString);
+      var datastore = new MySqlCanonicalDataStore(NOPApplication.Instance, m_ConnectionString);
       datastore.QueryResolver.ScriptAssembly = "Azos.Tests.Integration";
       return datastore;
     }

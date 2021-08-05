@@ -622,13 +622,21 @@ namespace Azos.Data
 
           if (decimal.TryParse(sval, out decimal dcval)) return dcval != 0;
         }
-        else if (val is TriStateBool) { return ((TriStateBool)val) == TriStateBool.True; }
-        else if (val is char) { var c = (char)val; if (c == 'T' || c == 't' || c == 'Y' || c == 'y' || c == '1') return true; }
-        else if (val is int) { if ((int)val != 0) return true; }
-        else if (val is double) { if ((double)val != 0) return true; }
-        else if (val is decimal) { if ((decimal)val != 0) return true; }
-        else if (val is TimeSpan) { if (((TimeSpan)val).Ticks != 0) return true; }
-        else if (val is DateTime) { if (((DateTime)val).Ticks != 0) return true; }
+        else if (val is TriStateBool tsval)  return tsval == TriStateBool.True;
+        else if (val is char c)              return c == 'T' || c == 't' || c == 'Y' || c == 'y' || c == '1';
+        else if (val is sbyte sbval)         return sbval != 0;
+        else if (val is int ival)            return ival != 0;
+        else if (val is short sval)          return sval != 0;
+        else if (val is long lval)           return lval != 0L;
+        else if (val is byte bval)           return bval != 0;
+        else if (val is uint uival)          return uival != 0u;
+        else if (val is ushort usval)        return usval != 0;
+        else if (val is ulong ulval)         return ulval != 0ul;
+        else if (val is float fval)          return fval != 0f;
+        else if (val is double dval)         return dval != 0d;
+        else if (val is decimal dcval)       return dcval != 0m;
+        else if (val is TimeSpan tspval)     return tspval.Ticks != 0;
+        else if (val is DateTime dtval)      return dtval.Ticks != 0;
 
         return Convert.ToBoolean(val, INVARIANT);
       }

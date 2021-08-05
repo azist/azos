@@ -29,44 +29,44 @@ namespace Azos.Data.Access.MongoDb
             public DataDocConverter Converter { get { return Store.Converter; } }
 
 
-            public override Schema GetSchema(ICRUDQueryExecutionContext context, Query query)
+            public override Schema GetSchema(ICrudQueryExecutionContext context, Query query)
             {
               throw new NotImplementedException();
             }
 
-            public override Task<Schema> GetSchemaAsync(ICRUDQueryExecutionContext context, Query query)
+            public override Task<Schema> GetSchemaAsync(ICrudQueryExecutionContext context, Query query)
             {
               return TaskUtils.AsCompletedTask( () => this.GetSchema(context, query));
             }
 
 
-            public override RowsetBase Execute(ICRUDQueryExecutionContext context, Query query, bool oneRow = false)
+            public override RowsetBase Execute(ICrudQueryExecutionContext context, Query query, bool oneRow = false)
             {
               throw new NotImplementedException();
             }
 
-            public override Task<RowsetBase> ExecuteAsync(ICRUDQueryExecutionContext context, Query query, bool oneRow = false)
+            public override Task<RowsetBase> ExecuteAsync(ICrudQueryExecutionContext context, Query query, bool oneRow = false)
             {
               return TaskUtils.AsCompletedTask( () => this.Execute(context, query, oneRow));
             }
 
 
-            public override Cursor OpenCursor(ICRUDQueryExecutionContext context, Query query)
+            public override Cursor OpenCursor(ICrudQueryExecutionContext context, Query query)
             {
               throw new NotImplementedException();
             }
 
-            public override Task<Cursor> OpenCursorAsync(ICRUDQueryExecutionContext context, Query query)
+            public override Task<Cursor> OpenCursorAsync(ICrudQueryExecutionContext context, Query query)
             {
               return TaskUtils.AsCompletedTask( () => this.OpenCursor(context, query) );
             }
 
-            public override int ExecuteWithoutFetch(ICRUDQueryExecutionContext context, Query query)
+            public override int ExecuteWithoutFetch(ICrudQueryExecutionContext context, Query query)
             {
               throw new NotImplementedException();
             }
 
-            public override Task<int> ExecuteWithoutFetchAsync(ICRUDQueryExecutionContext context, Query query)
+            public override Task<int> ExecuteWithoutFetchAsync(ICrudQueryExecutionContext context, Query query)
             {
               return TaskUtils.AsCompletedTask( () => this.ExecuteWithoutFetch(context, query));
             }

@@ -28,7 +28,7 @@ namespace Azos
     /// .Dispose() invocation from code. Finalizers should never run, and you can track possible memory leaks using
     /// <see cref="Apps.ExecutionContext.__MemoryLeakTracker"/> event
     /// </remarks>
-    bool DisposedByFinalizer {  get; }
+    bool DisposedByFinalizer { get; }
   }
 
 

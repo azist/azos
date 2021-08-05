@@ -80,7 +80,7 @@ namespace Azos.Sky.Mdb
     public CRUDOperations PartitionedOperationsFor(GDID idBriefcase)
     {
       var partition = FindPartitionForBriefcase(idBriefcase);
-      return partition.ShardedOperationsFor(idBriefcase);
+      return partition.ShardedOperationsFor(new ShardKey(idBriefcase));
     }
 
 

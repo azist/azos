@@ -24,7 +24,7 @@ namespace Azos.Data.Access.MsSql
       #endregion
 
       #region ICRUDQueryHandler
-          public override Schema GetSchema(ICRUDQueryExecutionContext context, Query query)
+          public override Schema GetSchema(ICrudQueryExecutionContext context, Query query)
           {
               var ctx = (MsSqlCRUDQueryExecutionContext)context;
               var target = ctx.DataStore.TargetName;
@@ -63,13 +63,13 @@ namespace Azos.Data.Access.MsSql
           }
 
 
-          public override Task<Schema> GetSchemaAsync(ICRUDQueryExecutionContext context, Query query)
+          public override Task<Schema> GetSchemaAsync(ICrudQueryExecutionContext context, Query query)
           {
             return TaskUtils.AsCompletedTask( () => this.GetSchema(context, query));
           }
 
 
-          public override RowsetBase Execute(ICRUDQueryExecutionContext context, Query query, bool oneDoc = false)
+          public override RowsetBase Execute(ICrudQueryExecutionContext context, Query query, bool oneDoc = false)
           {
               var ctx = (MsSqlCRUDQueryExecutionContext)context;
               var target = ctx.DataStore.TargetName;
@@ -99,13 +99,13 @@ namespace Azos.Data.Access.MsSql
               }//using command
           }
 
-          public override Task<RowsetBase> ExecuteAsync(ICRUDQueryExecutionContext context, Query query, bool oneDoc = false)
+          public override Task<RowsetBase> ExecuteAsync(ICrudQueryExecutionContext context, Query query, bool oneDoc = false)
           {
             return TaskUtils.AsCompletedTask( () => this.Execute(context, query, oneDoc));
           }
 
 
-          public override Cursor OpenCursor(ICRUDQueryExecutionContext context, Query query)
+          public override Cursor OpenCursor(ICrudQueryExecutionContext context, Query query)
           {
             var ctx = (MsSqlCRUDQueryExecutionContext)context;
             var target = ctx.DataStore.TargetName;
@@ -159,13 +159,13 @@ namespace Azos.Data.Access.MsSql
                         }
                     }
 
-          public override Task<Cursor> OpenCursorAsync(ICRUDQueryExecutionContext context, Query query)
+          public override Task<Cursor> OpenCursorAsync(ICrudQueryExecutionContext context, Query query)
           {
             return TaskUtils.AsCompletedTask( () => this.OpenCursor(context, query));
           }
 
 
-          public override int ExecuteWithoutFetch(ICRUDQueryExecutionContext context, Query query)
+          public override int ExecuteWithoutFetch(ICrudQueryExecutionContext context, Query query)
           {
               var ctx = (MsSqlCRUDQueryExecutionContext)context;
 
@@ -192,7 +192,7 @@ namespace Azos.Data.Access.MsSql
               }//using command
           }
 
-          public override Task<int> ExecuteWithoutFetchAsync(ICRUDQueryExecutionContext context, Query query)
+          public override Task<int> ExecuteWithoutFetchAsync(ICrudQueryExecutionContext context, Query query)
           {
               return TaskUtils.AsCompletedTask( () => this.ExecuteWithoutFetch(context, query));
           }
