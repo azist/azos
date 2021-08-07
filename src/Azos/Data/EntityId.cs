@@ -28,6 +28,9 @@ namespace Azos.Data
     public const char   SCHEMA_DIV = '.';
     public const string SYS_PREFIX = "::";
 
+    /// <summary> Empty/Unassigned instance </summary>
+    public static readonly EntityId EMPTY = new EntityId();
+
     /// <summary>
     /// Initializes an instance
     /// </summary>

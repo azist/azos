@@ -168,6 +168,9 @@ namespace Azos.Scripting
       public Atom      GetAtom(string attr)          => this[attr].Value.AsAtom(Atom.ZERO, handling: ConvertErrorHandling.Throw);
       public Atom?     GetNullableAtom(string attr)  => this[attr].Value.AsNullableAtom(null, handling: ConvertErrorHandling.Throw);
 
+      public EntityId  GetEntityId(string attr) => this[attr].Value.AsEntityId(EntityId.EMPTY, handling: ConvertErrorHandling.Throw);
+      public EntityId? GetNullableEntityId(string attr) => this[attr].Value.AsNullableEntityId(null, handling: ConvertErrorHandling.Throw);
+
       public GDID      GetGdid(string attr)          => this[attr].Value.AsGDID(GDID.ZERO, handling: ConvertErrorHandling.Throw);
       public GDID?     GetNullableGdid(string attr)  => this[attr].Value.AsNullableGDID(null, handling: ConvertErrorHandling.Throw);
 
