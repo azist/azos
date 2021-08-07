@@ -272,5 +272,74 @@ namespace Azos.Tests.Unit.Wave
       Aver.IsTrue(toSend.MemBufferEquals(got));
     }
 
+
+
+
+
+    [Run]
+    public async Task EchoVariousParams_GET()
+    {
+      var uri = new UriQueryBuilder("echovariousparams")
+      .Add("gd", new GDID(1, 3, 1234))
+      .Add("gu", new Guid("4937EE58-A81F-402A-B019-3D5EA6BC12D6"))
+      .Add("a", Atom.Encode("abc123"))
+      .Add("e", EntityId.Parse("type.sch@sys::address").AsString)
+      .Add("dt", new DateTime(1980, 08, 15, 12, 00, 00, DateTimeKind.Utc).ToString("o"))
+      .Add("m", -123.4567m)
+      .Add("d", -5e3)
+      .Add("b", true)
+      .Add("li", -8_000_000_000L)
+      .Add("s", "my string!");
+
+      uri.ToString().See();
+
+      var response = await Client.GetAsync(uri.ToString());
+      Aver.IsTrue(HttpStatusCode.OK == response.StatusCode);
+      var got = (await response.Content.ReadAsStringAsync()).JsonToDataObject() as JsonDataMap;
+      invariant(got);
+
+    }
+
+    private void invariant(JsonDataMap got)
+    {
+      Aver.IsNotNull(got);
+      Aver.AreEqual(new GDID(1, 3, 1234), got["gd"].AsGDID());
+      Aver.AreEqual(new Guid("4937EE58-A81F-402A-B019-3D5EA6BC12D6"), got["gu"].AsGUID(Guid.Empty));
+      Aver.AreEqual(Atom.Encode("abc123"), got["a"].AsAtom());
+      Aver.AreEqual(EntityId.Parse("type.sch@sys::address"), got["e"].AsEntityId());
+
+      Aver.AreEqual(new DateTime(1980, 08, 15, 12, 00, 00, DateTimeKind.Utc), got["dt"].AsDateTime(System.Globalization.DateTimeStyles.AdjustToUniversal));
+      Aver.AreEqual(-123.4567m, got["m"].AsDecimal());
+      Aver.AreEqual(-5e3d, got["d"].AsDouble());
+      Aver.AreEqual(true, got["b"].AsBool());
+      Aver.AreEqual(-8_000_000_000L, got["li"].AsLong());
+      Aver.AreEqual("my string!", got["s"].AsString());
+    }
+
+    [Run]
+    public async Task EchoVariousParams_POST()
+    {
+      var obj = new
+      {
+        gd = new GDID(1, 3, 1234),
+        gu = new Guid("4937EE58-A81F-402A-B019-3D5EA6BC12D6"),
+        a  = Atom.Encode("abc123"),
+        e = EntityId.Parse("type.sch@sys::address"),
+        dt = new DateTime(1980, 08, 15, 12, 00, 00, DateTimeKind.Utc),
+        m = -123.4567m,
+        d = -5e3,
+        b =  true,
+        li = -8_000_000_000L,
+        s = "my string!"
+      };
+      var got = await Client.PostAndGetJsonMapAsync("echovariousparams", obj);
+      invariant(got);
+    }
+
+
+
+
+
+
   }
 }
