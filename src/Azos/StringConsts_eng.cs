@@ -762,6 +762,9 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string CRUD_FIELDDEF_TARGET_DERIVATION_ERROR =
       "Fieldset `{0}` contains bad `deriveFromTargetName` references to targets that are either not found in any [Field] attribute instance on that field, contain reference cycles, or missing the [Field] declarations without derivation dependencies. The field dependency graph could not be resolved";
 
+
+    public const string CRUD_FIELDDEF_SET_GETONLY_ERROR = "Can not set get-only field `{0}`";
+
     public const string CRUD_FIELDDEF_ATTR_MISSING_ERROR = "CRUD FieldDef must be constructed using at least one [Field] attribute. Name: '{0}'";
 
     public const string CRUD_FIELD_VALUE_REQUIRED_ERROR = "Field value is required";

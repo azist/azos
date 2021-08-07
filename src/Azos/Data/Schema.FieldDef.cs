@@ -52,6 +52,7 @@ namespace Azos.Data
       internal FieldDef(string name, int order, Type type, IEnumerable<FieldAttribute> attrs, PropertyInfo memberInfo = null)
        => ctor(name, order, type, attrs, memberInfo);
 
+      //common constructor body
       private void ctor(string name, int order, Type type, IEnumerable<FieldAttribute> attrs, PropertyInfo memberInfo = null)
       {
         if (name.IsNullOrWhiteSpace() || type == null || attrs == null)
@@ -60,6 +61,7 @@ namespace Azos.Data
         m_Name = name;
         m_Order = order;
         m_Type = type;
+        m_GetOnly = memberInfo != null && !memberInfo.CanWrite;
         m_Attrs = new List<FieldAttribute>(attrs);
         m_TargetAttrsCache = new FiniteSetLookup<string, FieldAttribute>(findFieldAttributeFor, StringComparer.InvariantCultureIgnoreCase);
 
@@ -76,11 +78,14 @@ namespace Azos.Data
 
         m_Attrs.ForEach(a => a.Seal());
 
-        //Set and compiler setter
+        //Set and compile setter
         if (memberInfo != null)
         {
           m_MemberInfo = memberInfo;
-          m_MemberSet = makeSetterLambda(memberInfo);
+          if (!m_GetOnly)//if it has a setter
+          {
+            m_MemberSet = makeSetterLambda(memberInfo);
+          }
         }
 
         if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
@@ -120,6 +125,7 @@ namespace Azos.Data
         m_Attrs = info.GetValue("attrs", typeof(List<FieldAttribute>)) as List<FieldAttribute>;
         m_AnyTargetKey = info.GetBoolean("atk");
         m_TargetAttrsCache = new FiniteSetLookup<string, FieldAttribute>(findFieldAttributeFor, StringComparer.InvariantCultureIgnoreCase);
+        m_GetOnly = info.GetBoolean("gof");
 
         var mtp = info.GetString("mtp");
         if (mtp != null)
@@ -143,6 +149,7 @@ namespace Azos.Data
         info.AddValue("nnt", m_NonNullableType.AssemblyQualifiedName);
         info.AddValue("attrs", m_Attrs);
         info.AddValue("atk", m_AnyTargetKey);
+        info.AddValue("gof", m_GetOnly);
 
         if (m_MemberInfo == null)
         {
@@ -160,6 +167,7 @@ namespace Azos.Data
       internal int m_Order;
       private Type m_Type;
       private Type m_NonNullableType;
+      private bool m_GetOnly;
       private List<FieldAttribute> m_Attrs;
       private PropertyInfo m_MemberInfo;
       private Action<TypedDoc, object> m_MemberSet;
@@ -180,6 +188,14 @@ namespace Azos.Data
       /// For reference types returns the same type as Type property
       /// </summary>
       public Type NonNullableType => m_NonNullableType;
+
+
+      /// <summary>
+      /// This field can only be read and can not be written into.
+      /// GetOnly fields are serialized to public formats (such as JSON / BIX), but not deserialized,
+      /// and attempt to set a GetOnly field results in exception
+      /// </summary>
+      public bool GetOnly => m_GetOnly;
 
       /// <summary>
       /// Returns field attributes
@@ -226,10 +242,14 @@ namespace Azos.Data
       }
 
       /// <summary>
-      /// Sets direct property value using pre-compiled code. This method is much faster than reflection (8-10x times).
-      /// The implementation does not do any null checking for speed
+      /// Sets direct property value using pre-compiled code.
+      /// This method is much faster than reflection (8-10x times).
       /// </summary>
-      public void SetPropertyValue(TypedDoc doc, object value) => m_MemberSet(doc, value);
+      public void SetPropertyValue(TypedDoc doc, object value)
+      {
+        if (m_MemberSet == null) throw new DataException(StringConsts.CRUD_FIELDDEF_SET_GETONLY_ERROR.Args(Name));
+        m_MemberSet(doc, value);
+      }
 
       /// <summary>
       /// For fields with ValueList returns value's description per specified schema
@@ -316,6 +336,7 @@ namespace Azos.Data
             m_Name.EqualsOrdIgnoreCase(other.m_Name) &&
             m_Order == other.m_Order &&
             m_Type == other.m_Type &&
+            m_GetOnly == other.m_GetOnly &&
             m_Attrs.SequenceEqual(other.m_Attrs);
       }
 
@@ -340,7 +361,8 @@ namespace Azos.Data
             {"Name",  m_Name},
             {"Order", m_Order},
             {"Type",  tp},
-            {"Nullable", typeIsNullable}
+            {"Nullable", typeIsNullable},
+            {"GetOnly", m_GetOnly}
           };
 
         //20190322 DKh inner schema
