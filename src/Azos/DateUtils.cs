@@ -126,6 +126,51 @@ namespace Azos
       return new DateTime(now.Ticks - now.Ticks % tickResolution, now.Kind);
     }
 
+    /// <summary>
+    /// Aligns DateTime on an adjacent minuteBoudary as of midnight.
+    /// The time component is adjusted accordingly, e.g. if you align on 60 min boundary
+    /// you align the timestamp on hourly basis relative to midnight.
+    /// Note: alignment resets as of midnight, so pass the boundary which is divisible equally within a day,
+    /// e.g. 15 min, 6 hrs, 2 hrs, are all good, however if you align by 5 hrs (as an example), you are not going to get
+    /// equal number of divisions in 2a 4 hr period.
+    /// </summary>
+    /// <param name="now">DateTime to change</param>
+    /// <param name="minuteBoundary">Alignment boundary, must be greater than zero, e.g. 60 = one hour</param>
+    /// <returns>
+    /// DateTime shifted forward by the remainder of the division of elapsed minute component
+    /// with alignment boundary. The Kind is preserved (e.g. UTC)
+    /// </returns>
+    public static DateTime AlignDailyMinutes(this DateTime now, int minuteBoundary)
+    {
+      minuteBoundary.IsTrue(v => v > 0);
+
+      var result = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, 0, now.Kind);
+      var dayMinutes = (int)(now - now.Date).TotalMinutes;
+      result = result.AddMinutes(dayMinutes % minuteBoundary);
+      return result;
+    }
+
+    /// <summary>
+    /// Aligns DateTime on an adjacent minuteBoudary as of 1900 Jan 1st midnights (aka the Epoch).
+    /// The time component is adjusted accordingly, e.g. if you align on 60 min boundary
+    /// you align the timestamp on hourly basis relative to midnight.
+    /// </summary>
+    /// <param name="now">DateTime to change</param>
+    /// <param name="minuteBoundary">Alignment boundary, must be greater than zero, e.g. 60 = one hour</param>
+    /// <returns>
+    /// DateTime shifted forward by the remainder of the division of elapsed minute component
+    /// with alignment boundary. The Kind is preserved (e.g. UTC)
+    /// </returns>
+    public static DateTime AlignEpochMinutes(this DateTime now, int minuteBoundary)
+    {
+      minuteBoundary.IsTrue(v => v > 0);
+
+      var result = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, 0, now.Kind);
+      var epoch = new DateTime(1900, 1, 1, 0, 0, 0, now.Kind);
+      var epochMinutes = (int)(now - epoch).TotalMinutes;
+      result = result.AddMinutes(epochMinutes % minuteBoundary);
+      return result;
+    }
 
     /// <summary>
     /// Returns an approximate string representation of the point in time relative to this one,
