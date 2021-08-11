@@ -911,6 +911,100 @@ f
       Aver.AreEqual(c, b);
     }
 
+    [Run]
+    public void AlignDailyMinutesTests_007()
+    {
+      var a = new DateTime(1980, 1, 1, 2, 02, 00, DateTimeKind.Utc);
+      var b = a.AlignDailyMinutes(120);//two hours
+      var c = new DateTime(1980, 1, 1, 4, 0, 00, DateTimeKind.Utc);
+      Aver.AreEqual(c, b);
+
+      a = b.AddMinutes(2);
+      b = a.AlignDailyMinutes(120);//two hours
+      c = new DateTime(1980, 1, 1, 6, 0, 00, DateTimeKind.Utc);
+      Aver.AreEqual(c, b);
+    }
+
+    [Run]
+    public void AlignDailyMinutesTests_008()
+    {
+      var a = new DateTime(1980, 1, 1, 2, 02, 00, DateTimeKind.Utc);
+      var b = a.AlignDailyMinutes(300);//5 hours
+      var c = new DateTime(1980, 1, 1, 5, 0, 00, DateTimeKind.Utc);
+      Aver.AreEqual(c, b);
+
+      a = new DateTime(1980, 1, 1, 18, 02, 00, DateTimeKind.Utc);
+      b = a.AlignDailyMinutes(300);//5 h
+      c = new DateTime(1980, 1, 1, 20, 0, 00, DateTimeKind.Utc);
+      Aver.AreEqual(c, b);
+
+      a = b.AddMinutes(2);
+      b = a.AlignDailyMinutes(300);//5 h
+      c = new DateTime(1980, 1, 2, 1, 0, 00, DateTimeKind.Utc);
+      Aver.AreEqual(c, b);
+    }
+
+    [Run]
+    public void AlignDailyMinutesTests_009()
+    {
+      var a = new DateTime(1980, 1, 1, 2, 02, 00, DateTimeKind.Utc);
+      var b = a.AlignDailyMinutes(60 * 25);
+      var c = new DateTime(1980, 1, 2, 1, 0, 00, DateTimeKind.Utc);
+      Aver.AreEqual(c, b);
+
+      a = b.AddMinutes(1);
+      b = a.AlignDailyMinutes(60 * 25);
+      c = new DateTime(1980, 1, 3, 1, 0, 00, DateTimeKind.Utc);
+      Aver.AreEqual(c, b);
+
+      a = new DateTime(1980, 1, 1, 18, 37, 12, DateTimeKind.Utc);
+      b = a.AlignDailyMinutes(60 * 25);
+      c = new DateTime(1980, 1, 2, 1, 0, 00, DateTimeKind.Utc);
+      Aver.AreEqual(c, b);
+
+      a = new DateTime(1980, 1, 1, 23, 59, 59, DateTimeKind.Utc);
+      b = a.AlignDailyMinutes(60 * 25);
+      c = new DateTime(1980, 1, 2, 1, 0, 00, DateTimeKind.Utc);
+      Aver.AreEqual(c, b);
+
+      a = new DateTime(1980, 1, 2, 0, 1, 0, DateTimeKind.Utc);
+      b = a.AlignDailyMinutes(60 * 25);
+      c = new DateTime(1980, 1, 3, 1, 0, 00, DateTimeKind.Utc);
+      Aver.AreEqual(c, b);
+    }
+
+
+    [Run]
+    public void AlignDailyMinutesTests_010()
+    {
+      var hs = new HashSet<DateTime>();
+      for(var s = 0; s < 86400; s ++)
+      {
+        var d =new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(s);
+
+        var got = d.AlignDailyMinutes(10);
+        hs.Add(got);
+      }
+
+      hs.See();
+      Aver.AreEqual(1 + (24 * 6), hs.Count);
+    }
+
+    [Run]
+    public void AlignDailyMinutesTests_011()
+    {
+      var hs = new HashSet<DateTime>();
+      for (var s = 0; s < 86400; s++)
+      {
+        var d = new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(s);
+
+        var got = d.AlignDailyMinutes(60);
+        hs.Add(got);
+      }
+
+      hs.See();
+      Aver.AreEqual(1 + (24 * 1), hs.Count);
+    }
 
   }
 }
