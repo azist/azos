@@ -145,8 +145,12 @@ namespace Azos
       minuteBoundary.IsTrue(v => v > 0);
 
       var result = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, 0, now.Kind);
-      var dayMinutes = (int)(now - now.Date).TotalMinutes;
-      result = result.AddMinutes(dayMinutes % minuteBoundary);
+      var dayMinutes = result.TimeOfDay.TotalMinutes;
+      var rem = dayMinutes % minuteBoundary;
+      if (rem > 0)
+      {
+        result = result.AddMinutes(minuteBoundary - rem);
+      }
       return result;
     }
 
@@ -167,8 +171,12 @@ namespace Azos
 
       var result = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, 0, now.Kind);
       var epoch = new DateTime(1900, 1, 1, 0, 0, 0, now.Kind);
-      var epochMinutes = (int)(now - epoch).TotalMinutes;
-      result = result.AddMinutes(epochMinutes % minuteBoundary);
+      var epochMinutes = (int)(result - epoch).TotalMinutes;
+      var rem = epochMinutes % minuteBoundary;
+      if (rem > 0)
+      {
+        result = result.AddMinutes(minuteBoundary - rem);
+      }
       return result;
     }
 

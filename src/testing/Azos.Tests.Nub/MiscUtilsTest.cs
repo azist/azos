@@ -835,5 +835,82 @@ f
       Aver.IsTrue("a_b".IsValidXMLName());
     }
 
+    [Run]
+    public void AlignDailyMinutesTests_001()
+    {
+      var a = new DateTime(1980, 1, 1, 13, 45, 18, DateTimeKind.Local);
+      var b = a.AlignDailyMinutes(15);
+      var c = new DateTime(1980, 1, 1, 13, 45, 00, DateTimeKind.Local);
+      Aver.AreEqual(c, b);
+
+      b = a.AlignDailyMinutes(30);
+      c = new DateTime(1980, 1, 1, 14, 00, 00, DateTimeKind.Local);
+      Aver.AreEqual(c, b);
+    }
+
+    [Run]
+    public void AlignDailyMinutesTests_002()
+    {
+      var a = new DateTime(1980, 1, 1, 13, 46, 18, DateTimeKind.Local);
+      var b = a.AlignDailyMinutes(15);
+      var c = new DateTime(1980, 1, 1, 14, 00, 00, DateTimeKind.Local);
+      Aver.AreEqual(c, b);
+    }
+
+    [Run]
+    public void AlignDailyMinutesTests_003()
+    {
+      var a = new DateTime(1980, 1, 1, 13, 59, 18, DateTimeKind.Local);
+      var b = a.AlignDailyMinutes(15);
+      var c = new DateTime(1980, 1, 1, 14, 00, 00, DateTimeKind.Local);
+      Aver.AreEqual(c, b);
+    }
+
+    [Run]
+    public void AlignDailyMinutesTests_004()
+    {
+      var a = new DateTime(1980, 1, 1, 14, 01, 18, DateTimeKind.Local);
+      var b = a.AlignDailyMinutes(15);
+      var c = new DateTime(1980, 1, 1, 14, 15, 00, DateTimeKind.Local);
+      Aver.AreEqual(c, b);
+    }
+
+    [Run]
+    public void AlignDailyMinutesTests_005()
+    {
+      var a = new DateTime(1980, 1, 1, 14, 14, 59, DateTimeKind.Local);
+      var b = a.AlignDailyMinutes(15);
+      var c = new DateTime(1980, 1, 1, 14, 15, 00, DateTimeKind.Local);
+      Aver.AreEqual(c, b);
+    }
+
+    [Run]
+    public void AlignDailyMinutesTests_005_utc()
+    {
+      var a = new DateTime(1980, 1, 1, 14, 14, 59, DateTimeKind.Utc);
+      var b = a.AlignDailyMinutes(15);
+      var c = new DateTime(1980, 1, 1, 14, 15, 00, DateTimeKind.Utc);
+      Aver.AreEqual(c, b);
+    }
+
+    [Run]
+    public void AlignDailyMinutesTests_006()
+    {
+      var a = new DateTime(1980, 1, 1, 14, 15, 59, DateTimeKind.Local);
+      var b = a.AlignDailyMinutes(15);
+      var c = new DateTime(1980, 1, 1, 14, 15, 00, DateTimeKind.Local);
+      Aver.AreEqual(c, b);
+    }
+
+    [Run]
+    public void AlignDailyMinutesTests_006_utc()
+    {
+      var a = new DateTime(1980, 1, 1, 14, 15, 59, DateTimeKind.Utc);
+      var b = a.AlignDailyMinutes(15);
+      var c = new DateTime(1980, 1, 1, 14, 15, 00, DateTimeKind.Utc);
+      Aver.AreEqual(c, b);
+    }
+
+
   }
 }
