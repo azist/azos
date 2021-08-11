@@ -132,7 +132,7 @@ namespace Azos
     /// you align the timestamp on hourly basis relative to midnight.
     /// Note: alignment resets as of midnight, so pass the boundary which is divisible equally within a day,
     /// e.g. 15 min, 6 hrs, 2 hrs, are all good, however if you align by 5 hrs (as an example), you are not going to get
-    /// equal number of divisions in 2a 4 hr period.
+    /// equal number of divisions in a 24 hr period.
     /// </summary>
     /// <param name="now">DateTime to change</param>
     /// <param name="minuteBoundary">Alignment boundary, must be greater than zero, e.g. 60 = one hour</param>
