@@ -23,7 +23,7 @@ namespace Azos.Data.Access.MySql
   /// for general-purposes cases due to inconsistent/unpredictable use of data types in a non-uniform schema designs.
   /// Contrast this class with <seealso cref="MySqlCanonicalDataStore"/>
   /// </summary>
-  public abstract class MySqlCrudDataStoreBase : MySqlDataStoreBase, ICrudDataStoreImplementation, ICrudDataContext
+  public abstract class MySqlCrudDataStoreBase : MySqlDataStoreBase, ICrudDataStoreImplementation
   {
     #region CONSTS
     public const string SCRIPT_FILE_SUFFIX = ".mys.sql";

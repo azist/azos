@@ -19,27 +19,9 @@ namespace Azos.Data.Access
   public interface IDataContextHub : IDataStore
   {
     /// <summary> Registry of data contexts </summary>
-    IRegistry<IDataContext> Contexts { get; }
+    IRegistry<IDataStore> Contexts { get; }
   }
 
 
   public interface IDataContextHubImplementation : IDataContextHub, IDataStoreImplementation { }
-
-  /// <summary>
-  /// A general purpose data context is a named higher-order IDataStore-based concept
-  /// </summary>
-  public interface IDataContext : IDataStore, INamed
-  {
-  }
-
-  public interface IDataContextImplementation : IDataContext, IDataStoreImplementation { }
-
-  /// <summary>
-  /// Data context capable of processing Crud operations such as sending queries
-  /// </summary>
-  public interface ICrudDataContext : IDataContext, ICrudDataStore
-  {
-  }
-
-  public interface ICrudDataContextImplementation : ICrudDataContext, IDataContextImplementation { }
 }

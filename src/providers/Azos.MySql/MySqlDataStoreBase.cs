@@ -21,7 +21,7 @@ namespace Azos.Data.Access.MySql
   /// <summary>
   /// Implements MySql store base functionality
   /// </summary>
-  public abstract class MySqlDataStoreBase : ApplicationComponent, IDataStoreImplementation, IExternallyCallable, IDataContext
+  public abstract class MySqlDataStoreBase : ApplicationComponent, IDataStoreImplementation, IExternallyCallable
   {
     #region CONSTS
     public const string STR_FOR_TRUE = "T";

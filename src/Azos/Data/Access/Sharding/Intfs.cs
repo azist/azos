@@ -4,10 +4,8 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using Azos.Conf;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Azos.Data.Access.Sharding
 {
@@ -29,7 +27,7 @@ namespace Azos.Data.Access.Sharding
     CrudOperations GetOperationsFor(ShardKey key);
   }
 
-  public interface IShardedCrudDataStoreImplementation : IShardedCrudDataStore
+  public interface IShardedCrudDataStoreImplementation : IShardedCrudDataStore, IDataStoreImplementation
   {
     /// <summary>
     /// Physical store which services the shard set

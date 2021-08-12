@@ -19,7 +19,7 @@ namespace Azos.Data.Access.Sharding
   /// <summary>
   /// Implements IDataContext(IDataStore) with sharding
   /// </summary>
-  public class ShardedDataContext : DaemonWithInstrumentation<IApplicationComponent>, IShardedCrudDataStoreImplementation, IDataContextImplementation
+  public class ShardedDataContext : DaemonWithInstrumentation<IApplicationComponent>, IShardedCrudDataStoreImplementation
   {
     public const string CONFIG_STORE_SECTION = "store";
 

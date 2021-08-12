@@ -34,10 +34,10 @@ namespace Azos.Data.Access
     }
 
     private bool m_InstrumentationEnabled;
-    private Registry<IDataContextImplementation> m_Contexts = new Registry<IDataContextImplementation>();
+    private Registry<IDataStoreImplementation> m_Contexts = new Registry<IDataStoreImplementation>();
 
 
-    public IRegistry<IDataContext> Contexts => m_Contexts.NonNull(NOT_CONFIGURED_ERROR);
+    public IRegistry<IDataStore> Contexts => m_Contexts.NonNull(NOT_CONFIGURED_ERROR);
 
     [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_LOG, CoreConsts.EXT_PARAM_GROUP_DATA)]
     public StoreLogLevel DataLogLevel { get; set; }
@@ -69,10 +69,10 @@ namespace Azos.Data.Access
 
       cleanup();
 
-      m_Contexts = new Registry<IDataContextImplementation>();
+      m_Contexts = new Registry<IDataStoreImplementation>();
       foreach (var ndb in node.ChildrenNamed(CONFIG_CONTEXT_SECTION))
       {
-        var context = FactoryUtils.MakeAndConfigureDirectedComponent<IDataContextImplementation>(
+        var context = FactoryUtils.MakeAndConfigureDirectedComponent<IDataStoreImplementation>(
                                         this,
                                         ndb);
 
