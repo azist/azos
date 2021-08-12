@@ -26,15 +26,10 @@ namespace Azos.Data.Access
   public interface IDataContextHubImplementation : IDataContextHub, IDataStoreImplementation { }
 
   /// <summary>
-  /// A general purpose data context is a higher-order IDataStore-based concept
-  /// with `Name` and `VerticalId` properties
+  /// A general purpose data context is a named higher-order IDataStore-based concept
   /// </summary>
   public interface IDataContext : IDataStore, INamed
   {
-    /// <summary>
-    /// Identifies Vertical which this context represents or Atom.Zero
-    /// </summary>
-    Atom VerticalId { get; }
   }
 
   public interface IDataContextImplementation : IDataContext, IDataStoreImplementation { }
