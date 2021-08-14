@@ -5,10 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-
 using Azos.Apps;
 using Azos.Collections;
 using Azos.Conf;
@@ -19,12 +16,13 @@ namespace Azos.Data.Access.Sharding
   /// <summary>
   /// Implements IDataContext(IDataStore) with sharding
   /// </summary>
-  public class ShardedDataContext : DaemonWithInstrumentation<IApplicationComponent>, IShardedCrudDataStoreImplementation
+  public class ShardedCrudDataStore : DaemonWithInstrumentation<IApplicationComponent>, IShardedCrudDataStoreImplementation
   {
     public const string CONFIG_STORE_SECTION = "store";
+    public const string CONFIG_SHARDSET_SECTION = "shard-set";
 
-    public ShardedDataContext(IApplication app) : base(app) {  }
-    public ShardedDataContext(IApplicationComponent director) : base(director) { }
+    public ShardedCrudDataStore(IApplication app) : base(app) {  }
+    public ShardedCrudDataStore(IApplicationComponent director) : base(director) { }
 
     protected override void Destructor()
     {
@@ -34,6 +32,7 @@ namespace Azos.Data.Access.Sharding
 
     private bool m_InstrumentationEnabled;
     private ICrudDataStoreImplementation m_PhysicalStore;
+    private OrderedRegistry<ShardSet> m_ShardSets = new OrderedRegistry<ShardSet>();
 
     /// <summary>
     /// Underlying physical data store servicing requests
@@ -44,8 +43,13 @@ namespace Azos.Data.Access.Sharding
     [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_LOG, CoreConsts.EXT_PARAM_GROUP_DATA)]
     public StoreLogLevel DataLogLevel { get; set; }
 
-    public string TargetName => "*";
-    public int DefaultTimeoutMs { get => 0; set {} }
+    public string TargetName => PhysicalStore.TargetName;
+
+    public int DefaultTimeoutMs
+    {
+      get => (m_PhysicalStore?.DefaultTimeoutMs) ?? 0;
+      set { }
+    }
 
     public override string ComponentLogTopic => CoreConsts.DATA_TOPIC;
 
@@ -60,21 +64,33 @@ namespace Azos.Data.Access.Sharding
       set { m_InstrumentationEnabled = value; }
     }
 
-    public ShardSet CurrentShardSet => throw new NotImplementedException();
+    public ShardSet CurrentShardSet => m_ShardSets[0];
 
     public IOrderedRegistry<ShardSet> ShardSets => throw new NotImplementedException();
 
-    public void TestConnection()
-    {
 
+    public virtual void TestConnection() { }
+
+    CrudOperationCallContext IShardedCrudDataStoreImplementation.MakeCallContext(IShard shard) => DoMakeCallContext(shard);
+    IShard IShardedCrudDataStoreImplementation.MakeShard(ShardSet set, IConfigSectionNode conf) => DoMakeShard(set, conf);
+    IShard IShardedCrudDataStoreImplementation.GetShardFor(ShardSet set, ShardKey key) => DoGetShardFor(set, key);
+
+
+    protected virtual CrudOperationCallContext DoMakeCallContext(IShard shard)
+    {
+      return new CrudOperationCallContext()
+      {
+        ConnectString = shard.RouteConnectString,
+        DatabaseName = shard.RouteDatabaseName
+      };
     }
 
-    public CrudOperations GetOperationsFor(ShardKey key)
+    protected virtual IShard DoMakeShard(ShardSet set, IConfigSectionNode conf)
     {
       throw new NotImplementedException();
     }
 
-    CrudOperationCallContext IShardedCrudDataStoreImplementation.MakeCallContext(IShard shard)
+    protected virtual IShard DoGetShardFor(ShardSet set, ShardKey key)
     {
       throw new NotImplementedException();
     }
@@ -83,20 +99,25 @@ namespace Azos.Data.Access.Sharding
     protected override void DoConfigure(IConfigSectionNode node)
     {
       base.DoConfigure(node);
-      if (node == null) return;
-
       cleanup();
 
-      //m_Contexts = new Registry<IDataContextImplementation>();
-      //foreach (var ndb in node.ChildrenNamed(CONFIG_CONTEXT_SECTION))
-      //{
-      //  var context = FactoryUtils.MakeAndConfigureDirectedComponent<IDataContextImplementation>(
-      //                                  this,
-      //                                  ndb);
+      if (node==null || !node.Exists) return;
 
-      //  if (!m_Contexts.Register(context))
-      //    throw new DataAccessException($"{nameof(DefaultDataContextHub)} config contains duplicate named section: ./context[name='{context.Name}']");
-      //}
+      var nstore = node[CONFIG_STORE_SECTION];
+      m_PhysicalStore = FactoryUtils.MakeAndConfigureDirectedComponent<ICrudDataStoreImplementation>(this, nstore);
+
+      foreach (var nset in node.ChildrenNamed(CONFIG_SHARDSET_SECTION))
+      {
+        var set = FactoryUtils.MakeDirectedComponent<ShardSet>(this, nset, typeof(ShardSet), new[]{nset});
+
+        if (!m_ShardSets.Register(set))
+          throw new DataAccessException(StringConsts.DATA_SHARDING_DUPLICATE_SECTION_CONFIG_ERROR.Args(CONFIG_SHARDSET_SECTION, set.Name));
+      }
+
+      if (m_ShardSets.Count != m_ShardSets.DistinctBy(s => s.Order).Count())
+      {
+        throw new DataAccessException(StringConsts.DATA_SHARDING_DUPLICATE_SHARDSET_ORDER_CONFIG_ERROR);
+      }
     }
 
 
@@ -132,6 +153,9 @@ namespace Azos.Data.Access.Sharding
     private void cleanup()
     {
       this.DontLeak(() =>  DisposeAndNull(ref m_PhysicalStore));
+
+      m_ShardSets.ForEach(s => this.DontLeak(() => DisposeAndNull(ref m_PhysicalStore)));
+      m_ShardSets.Clear();
     }
 
 

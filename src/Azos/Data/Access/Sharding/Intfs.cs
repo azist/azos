@@ -4,10 +4,8 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
-using System.Collections.Generic;
-
 using Azos.Collections;
+using Azos.Conf;
 
 namespace Azos.Data.Access.Sharding
 {
@@ -43,25 +41,24 @@ namespace Azos.Data.Access.Sharding
     /// specified shard instance
     /// </summary>
     CrudOperationCallContext MakeCallContext(IShard shard);
+
+    IShard MakeShard(ShardSet set, IConfigSectionNode conf);
+
+    /// <summary>
+    /// Determines what shard should the provided key be routed to
+    /// </summary>
+    IShard GetShardFor(ShardSet set, ShardKey key);
   }
 
   /// <summary>
   /// Represents a shard (a partition) of the data in shard set
   /// </summary>
-  public interface IShard
+  public interface IShard : INamed
   {
     /// <summary>
     /// Shard set which this shard is a part of
     /// </summary>
     ShardSet Set { get; }
-
-    /// <summary>
-    /// The immutable unique ID assigned to a shard node within a shard set.
-    /// The ID determines the consistent shard traffic routing, so be careful not to change
-    /// the id once assigned. It is recommended to use all 8 bytes of the ID for better probability
-    /// distribution
-    /// </summary>
-    ulong ShardId { get; }
 
     /// <summary>
     /// Shard weight controls relative weighting of this shard in a set.

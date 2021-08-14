@@ -841,30 +841,30 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
 
     public const string DISTRIBUTED_DATA_GDID_PARSE_ERROR = "String value '{0}' can not be parsed as GDID";
 
-    public const string DISTRIBUTED_DATA_PARCEL_INVALID_OPERATION_ERROR = "Error performing '{0}' operation on parcel '{1}' because parcel is in '{2}' state";
-
-    public const string DISTRIBUTED_DATA_PARCEL_MERGE_NOT_IMPLEMENTED_ERROR = "Error performing Merge() operation on parcel '{0}' because DoMerge() is not implemented. Either 'parcel.MetadataAttribute.SupportsMerge' was not checked before making this call, or forgot to implement DoMerge()";
-
-    public const string DISTRIBUTED_DATA_PARCEL_SEAL_VALIDATION_ERROR = "Error sealing parcel '{0}' due to validation errors: ";
-
-    public const string DISTRIBUTED_DATA_PARCEL_UNWRAP_FORMAT_ERROR = "Parcel '{0}' can not unwrap the payload as its format '{1}' is not handled";
-    public const string DISTRIBUTED_DATA_PARCEL_UNWRAP_DESER_ERROR = "Parcel '{0}' could not unwrap the payload due to deserialization exception: {1}";
-
-
-    public const string DISTRIBUTED_DATA_PARCEL_MISSING_ATTRIBUTE_ERROR = "Parcel '{0}' does not specify the required [DataParcel(...)] attribute in its declaration";
-
     public const string ELINK_CHAR_COMBINATION_ERROR = "ELink '{0}' could not be read as it contains an invalid combination '{1}'";
     public const string ELINK_CHAR_LENGTH_LIMIT_ERROR = "ELink '{0}...' could not be encoded/decoded as it exceeds maximum permissible length";
     public const string ELINK_SEGMENT_LENGTH_ERROR = "ELink '{0}' could not be read as it contains an invalid segment data length";
     public const string ELINK_CHAR_LENGTH_ERROR = "ELink '{0}' could not be read as it contains an invalid character data length";
     public const string ELINK_CSUM_MISMATCH_ERROR = "ELink '{0}' could not be read as its checksum does not match";
 
+    public const string DATA_SHARDING_AT_LEAST_ONE_CLAUSE = "At least one shard configured";
+
+    public const string DATA_SHARDING_DUPLICATE_SECTION_CONFIG_ERROR =
+      "Data store configuration contains duplicate named section: ./{0}[name='{1}']." +
+      "Warning: setting wrong shard set ordering would lead to data " +
+      "loss as the system will not be able to properly route request to destination shards";
+
+    public const string DATA_SHARDING_DUPLICATE_SHARDSET_ORDER_CONFIG_ERROR =
+      "Data store configuration declares shard sets of duplicate order. Each shard set must have a unique order in the setup. " +
+      "The shard set with the lowest order is the current. Warning: setting wrong shard set ordering would lead to data " +
+      "loss as the system will not be able to properly route request to destination shards";
+
+
     public const string CACHE_VALUE_FACTORY_ERROR = "Cache value factory func threw error from {0}. Exception: {1}";
     public const string CACHE_RECORD_ITEM_DISPOSE_ERROR = "Cache value threw error while trying to be disposed from {0}. Exception: {1}";
 
     public const string CACHE_TABLE_CTOR_SIZES_WARNING =
                       "Cache.Table.ctor(bucketCount==recPerPage), two parameters may not be equal because they will cause hash clustering. The 'recPerPage' has been increased by the system";
-
 
     public const string STANDARDS_DISTANCE_UNIT_TYPE_ERROR = "Unsupported distance unit type: {0}";
     public const string STANDARDS_WEIGHT_UNIT_TYPE_ERROR = "Unsupported weight unit type: {0}";
