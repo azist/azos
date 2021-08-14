@@ -60,8 +60,9 @@ namespace Azos.Data.Access.Sharding
       set { m_InstrumentationEnabled = value; }
     }
 
-    public IEnumerable<IShard> CurrentSet => throw new NotImplementedException();
+    public ShardSet CurrentShardSet => throw new NotImplementedException();
 
+    public IOrderedRegistry<ShardSet> ShardSets => throw new NotImplementedException();
 
     public void TestConnection()
     {

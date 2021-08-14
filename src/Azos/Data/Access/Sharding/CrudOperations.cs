@@ -27,7 +27,7 @@ namespace Azos.Data.Access.Sharding
     /// </summary>
     public readonly IShard Shard;
 
-    internal IShardedCrudDataStoreImplementation Store => (IShardedCrudDataStoreImplementation)Shard.Store;
+    internal IShardedCrudDataStoreImplementation Store => (IShardedCrudDataStoreImplementation)Shard.Set.ComponentDirector;
 
     public bool SupportsTrueAsynchrony => Store.PhysicalStore.SupportsTrueAsynchrony;
     public bool SupportsTransactions => Store.PhysicalStore.SupportsTransactions;
@@ -178,6 +178,5 @@ namespace Azos.Data.Access.Sharding
       using (Store.MakeCallContext(Shard))
         return await Store.PhysicalStore.BeginTransactionAsync(iso, behavior).ConfigureAwait(false);
     }
-
   }
 }

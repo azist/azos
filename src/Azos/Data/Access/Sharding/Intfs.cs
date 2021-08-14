@@ -7,6 +7,8 @@
 using System;
 using System.Collections.Generic;
 
+using Azos.Collections;
+
 namespace Azos.Data.Access.Sharding
 {
   /// <summary>
@@ -16,15 +18,16 @@ namespace Azos.Data.Access.Sharding
   public interface IShardedCrudDataStore : IDataStore
   {
     /// <summary>
-    /// Gets all shards in the current set
+    /// Current <see cref="ShardSet"/> is the first instance from the list
     /// </summary>
-    IEnumerable<IShard> CurrentSet {  get; }
+    ShardSet CurrentShardSet {  get; }
 
     /// <summary>
-    /// Gets <see cref="CrudOperations"/> for the shard routed to
-    /// using the specified <see cref="ShardKey"/>
+    /// Ordered registry of <see cref="ShardSet"/> instances, the first one being the current,
+    /// subsequent ones go back in time history. Older shard set generations may be needed to re-balance the sharded
+    /// dataset, whilst in 99% of cases the system routes data requests to the current shardset
     /// </summary>
-    CrudOperations GetOperationsFor(ShardKey key);
+    IOrderedRegistry<ShardSet> ShardSets { get; }
   }
 
   public interface IShardedCrudDataStoreImplementation : IShardedCrudDataStore, IDataStoreImplementation
@@ -48,12 +51,12 @@ namespace Azos.Data.Access.Sharding
   public interface IShard
   {
     /// <summary>
-    /// Data store which this shard is a part of
+    /// Shard set which this shard is a part of
     /// </summary>
-    IShardedCrudDataStoreImplementation Store { get; }
+    ShardSet Set { get; }
 
     /// <summary>
-    /// The immutable unique ID assigned to a shard node within a set.
+    /// The immutable unique ID assigned to a shard node within a shard set.
     /// The ID determines the consistent shard traffic routing, so be careful not to change
     /// the id once assigned. It is recommended to use all 8 bytes of the ID for better probability
     /// distribution
