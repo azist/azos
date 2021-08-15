@@ -50,6 +50,6 @@ A briefcase is identified by a "aggregate root" key, such as "CustomerId"
  value. Shard router (e.g. such as [ShardedCrudDataStore](ShardedCrudDataStore.cs)) uses some form of consistent mapping
  algorithm (e.g. Rendezvous Hashing) to map `ShardKey` into `IShard`. `IShard` provides actual data store connect string.
 
-Shards are part of a [ShardSet](Shardset.cs). Data store supports multiple instances of `ShardSet` which are called 
+Shards are part of a [ShardSet](ShardSet.cs). Data store supports multiple instances of `ShardSet` which are called 
 "generations". This is sometimes needed if you change data portioning in future and need to keep track of
 prior shard sets to locate the data which has not yet been re-partitioned.
