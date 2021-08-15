@@ -70,7 +70,7 @@ namespace Azos.Data.Access.Sharding
 
     public ShardSet CurrentShardSet => m_ShardSets[0];
 
-    public IOrderedRegistry<ShardSet> ShardSets => throw new NotImplementedException();
+    public IOrderedRegistry<ShardSet> ShardSets => m_ShardSets;
 
 
     public virtual void TestConnection() { }
@@ -123,7 +123,9 @@ namespace Azos.Data.Access.Sharding
 
     protected override void DoStart()
     {
-      m_PhysicalStore.NonNull(nameof(m_PhysicalStore));
+      m_PhysicalStore.NonNull($"configured {nameof(m_PhysicalStore)}");
+      m_ShardSets.IsTrue(s => s.Count > 0, StringConsts.DATA_SHARDING_AT_LEAST_ONE_CLAUSE);
+
       if (m_PhysicalStore is Daemon d) d.Start();
       base.DoStart();
     }

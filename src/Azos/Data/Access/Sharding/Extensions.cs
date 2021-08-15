@@ -16,6 +16,19 @@ namespace Azos.Data.Access.Sharding
   public static class Extensions
   {
     /// <summary>
+    /// Shortcut which gets <see cref="CrudOperations"/> for the routed shard for the specified
+    /// <see cref="ShardKey"/> from the current shard set
+    /// </summary>
+    /// <param name="store">Store instance</param>
+    /// <param name="key">
+    /// Key based on which shard routing is performed. The system maps (routes) the request
+    /// based on this key to a most appropriate shard of a shard set
+    /// </param>
+    /// <returns>CrudOperations for the mapped shard</returns>
+    public static CrudOperations GetOperationsFor(this IShardedCrudDataStore store, ShardKey key)
+     => store.NonNull(nameof(store)).CurrentShardSet.GetShardFor(key).Operations;
+
+    /// <summary>
     /// Provides O(n) linear weighted rendezvous routing algorithm
     /// </summary>
     /// <param name="shards">Shard set out of which one shard is selected</param>
