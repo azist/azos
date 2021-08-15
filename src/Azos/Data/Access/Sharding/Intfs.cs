@@ -60,6 +60,12 @@ namespace Azos.Data.Access.Sharding
     /// </summary>
     ShardSet Set { get; }
 
+
+    /// <summary>
+    /// Name hashed with stable function with avalanche effect
+    /// </summary>
+    ulong NameHash {  get; }
+
     /// <summary>
     /// Shard weight controls relative weighting of this shard in a set.
     /// Value of 1 represents the normal (default) weight multiplier.

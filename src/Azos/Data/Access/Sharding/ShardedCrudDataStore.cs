@@ -93,10 +93,7 @@ namespace Azos.Data.Access.Sharding
      => new Shard(set, conf);
 
     protected virtual IShard DoGetShardFor(ShardSet set, ShardKey key)
-    {
-      //todo Implement weighted Rendezvous hashing
-      throw new NotImplementedException();
-    }
+     => set.RendezvouzRoute(key);
 
 
     protected override void DoConfigure(IConfigSectionNode node)

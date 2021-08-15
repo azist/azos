@@ -34,13 +34,14 @@ namespace Azos.Data.Access.Sharding
 
     private readonly ShardSet m_Set;
     private readonly string m_Name;
-    protected internal readonly ulong m_NameHash;
+    private readonly ulong m_NameHash;
     private double m_Weight = 1.0d;
     private string m_ConnectString;
     private string m_DatabaseName;
 
     public ShardSet Set => m_Set;
     public string Name => m_Name;
+    public ulong NameHash => m_NameHash;
     public double ShardWeight => m_Weight;
     public string RouteConnectString => m_ConnectString;
     public string RouteDatabaseName => m_DatabaseName;
