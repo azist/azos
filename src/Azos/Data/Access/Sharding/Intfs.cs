@@ -78,7 +78,7 @@ namespace Azos.Data.Access.Sharding
     /// <summary>
     /// Used to override store's default database name - used by some stores, others take db name from the connect string
     /// </summary>
-    string RouteDatabaseName { get; set; }
+    string RouteDatabaseName { get; }
 
     /// <summary>
     /// Operations for this shard

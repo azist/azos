@@ -6,6 +6,7 @@
 
 using System;
 using System.Linq;
+
 using Azos.Apps;
 using Azos.Collections;
 using Azos.Conf;
@@ -14,8 +15,11 @@ using Azos.Instrumentation;
 namespace Azos.Data.Access.Sharding
 {
   /// <summary>
-  /// Implements IDataContext(IDataStore) with sharding
+  /// Implements IDataContext(IDataStore) with sharding. The default implementation uses weighted rendezvous hashing technique
   /// </summary>
+  /// <remarks>
+  /// See https://en.wikipedia.org/wiki/Rendezvous_hashing
+  /// </remarks>
   public class ShardedCrudDataStore : DaemonWithInstrumentation<IApplicationComponent>, IShardedCrudDataStoreImplementation
   {
     public const string CONFIG_STORE_SECTION = "store";
@@ -86,12 +90,11 @@ namespace Azos.Data.Access.Sharding
     }
 
     protected virtual IShard DoMakeShard(ShardSet set, IConfigSectionNode conf)
-    {
-      throw new NotImplementedException();
-    }
+     => new Shard(set, conf);
 
     protected virtual IShard DoGetShardFor(ShardSet set, ShardKey key)
     {
+      //todo Implement weighted Rendezvous hashing
       throw new NotImplementedException();
     }
 

@@ -8,6 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+
 using Azos.Apps;
 using Azos.Collections;
 using Azos.Conf;
@@ -18,8 +19,10 @@ namespace Azos.Data.Access.Sharding
   /// A ShardSet is a set of <see cref="IShard"/> instances.
   /// Each ShardSet has a unique name and position in <see cref="IShardedCrudDataStore.ShardSets"/> registry.
   /// The <see cref="Order"/> defines the historical ordering of sets in a store, the smallest order (the first item in collection)
-  /// being the current set, the subsequent orders represent the shard set generations/versions in history.
-  /// Older shard sets may be needed to re-balance the sharded data
+  /// being the current set, the subsequent orders represent the shard set generations/versions going back in history.
+  /// Historical(older) shard sets are needed to re-balance the sharded data. It is also possible that
+  /// your implementation would never need to re-balance any data and use a single shard set definition.
+  /// The actual shard routing is delegated to a concrete <see cref="IShardedCrudDataStoreImplementation"/>
   /// </summary>
   public sealed class ShardSet : ApplicationComponent<IShardedCrudDataStoreImplementation>, INamed, IOrdered, IEnumerable<IShard>
   {
@@ -60,7 +63,7 @@ namespace Azos.Data.Access.Sharding
     /// Gets <see cref="IShard"/> for the shard of this set routed to
     /// using the specified <see cref="ShardKey"/>
     /// </summary>
-    public IShard GetOperationsFor(ShardKey key) => ComponentDirector.GetShardFor(this, key);
+    public IShard GetShardFor(ShardKey key) => ComponentDirector.GetShardFor(this, key);
 
     public IEnumerator<IShard> GetEnumerator() => m_Shards.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => m_Shards.GetEnumerator();
