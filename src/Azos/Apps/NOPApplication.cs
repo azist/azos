@@ -113,6 +113,8 @@ namespace Azos.Apps
 
     public Atom AppId => Atom.ZERO;
 
+    public Atom CloudOrigin => Atom.ZERO;
+
     public ushort NodeDiscriminator => 0;
 
     public Guid InstanceId => m_InstanceID;
