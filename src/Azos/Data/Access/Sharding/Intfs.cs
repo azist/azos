@@ -10,8 +10,8 @@ using Azos.Conf;
 namespace Azos.Data.Access.Sharding
 {
   /// <summary>
-  /// Represents data store which has a concept of data partitioning between shards.
-  /// The shards are routed-into by <see cref="ShardKey"/>
+  /// Represents data stores which support data partitioning using shards
+  /// Requests are routed to shards using <see cref="ShardKey"/>
   /// </summary>
   public interface IShardedCrudDataStore : IDataStore
   {
@@ -28,6 +28,9 @@ namespace Azos.Data.Access.Sharding
     IOrderedRegistry<ShardSet> ShardSets { get; }
   }
 
+  /// <summary>
+  /// Implementation of IShardedCrudDataStore
+  /// </summary>
   public interface IShardedCrudDataStoreImplementation : IShardedCrudDataStore, IDataStoreImplementation
   {
     /// <summary>
@@ -42,6 +45,9 @@ namespace Azos.Data.Access.Sharding
     /// </summary>
     CrudOperationCallContext MakeCallContext(IShard shard);
 
+    /// <summary>
+    /// Internal factory method which makes IShard of appropriate type
+    /// </summary>
     IShard MakeShard(ShardSet set, IConfigSectionNode conf);
 
     /// <summary>
@@ -87,7 +93,8 @@ namespace Azos.Data.Access.Sharding
     string RouteDatabaseName { get; }
 
     /// <summary>
-    /// Operations for this shard
+    /// Operations for this shard. When you call methods of this instance the calls are
+    /// made in the data context of this shard as routed-to by <see cref="RouteConnectString"/> and <see cref="RouteDatabaseName"/>
     /// </summary>
     CrudOperations Operations {  get; }
   }

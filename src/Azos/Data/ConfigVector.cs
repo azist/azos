@@ -29,7 +29,7 @@ namespace Azos.Data
     private IConfigSectionNode m_Node;
 
     /// <summary>
-    /// Json configuration content which gets stored in
+    /// Json configuration content which gets stored by this field
     /// </summary>
     public string Content
     {
@@ -42,6 +42,10 @@ namespace Azos.Data
       }
     }
 
+    /// <summary>
+    /// Returns parsed content. If textual content is null then returns null.
+    /// Throws <see cref="ConfigException"/>  If textual content is un-parsable
+    /// </summary>
     public IConfigSectionNode Node
     {
       get

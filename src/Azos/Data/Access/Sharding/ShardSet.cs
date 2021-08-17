@@ -16,7 +16,7 @@ using Azos.Conf;
 namespace Azos.Data.Access.Sharding
 {
   /// <summary>
-  /// A ShardSet is a set of <see cref="IShard"/> instances.
+  /// A ShardSet maintains a set of <see cref="IShard"/> instances.
   /// Each ShardSet has a unique name and position in <see cref="IShardedCrudDataStore.ShardSets"/> registry.
   /// The <see cref="Order"/> defines the historical ordering of sets in a store, the smallest order (the first item in collection)
   /// being the current set, the subsequent orders represent the shard set generations/versions going back in history.
