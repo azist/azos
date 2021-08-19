@@ -115,12 +115,12 @@ namespace Azos.Data
 
       validationState = this.Validate(validationState);
 
-      validationState = DoAfterValidateOnSave(validationState);
+      validationState = await DoAfterValidateOnSaveAsync(validationState).ConfigureAwait(false);
 
       if (validationState.HasErrors)
         return new SaveResult<TSaveResult>(validationState.Error);
 
-      DoBeforeSave();
+      await DoBeforeSave().ConfigureAwait(false);
 
       return await DoSaveAsync();
     }
@@ -142,7 +142,7 @@ namespace Azos.Data
     /// by returning a clean ValidState instance
     /// </summary>
     /// <param name="state">Validation state instance which you can disregard by returning a new ValidState without an error</param>
-    protected virtual ValidState DoAfterValidateOnSave(ValidState state) => state;
+    protected virtual Task<ValidState> DoAfterValidateOnSaveAsync(ValidState state) => Task.FromResult(state);
 
     /// <summary>
     /// Override to perform post-successful-validate pre-save step on Save().
@@ -150,7 +150,7 @@ namespace Azos.Data
     /// in the absence of validation errors so the ID does NOT get generated and wasted when there is/are validation errors.
     /// This method is NOT called if validation finds errors in prior steps of Save() flow
     /// </summary>
-    protected virtual void DoBeforeSave() { }
+    protected virtual Task DoBeforeSave() => Task.CompletedTask;
 
     /// <summary>
     /// Override to save model into data store. Return "predictable" exception (such as key violation) as a value instead of throwing.
