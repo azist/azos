@@ -6,6 +6,7 @@
 using System;
 using System.Runtime.Serialization;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace Azos
 {
@@ -97,6 +98,35 @@ namespace Azos
     /// If action is unassigned, nothing is done
     /// </summary>
     /// <remarks>
+    /// You can use another version of this function with action argument in order not to create unneeded closures
+    /// </remarks>
+    public static async Task ProtectAsync(Func<Task> action,
+                              [CallerFilePath]   string callFile = null,
+                              [CallerLineNumber] int callLine = 0,
+                              [CallerMemberName] string callMember = null)
+    {
+      if (action == null) return;
+
+      try
+      {
+        await action().ConfigureAwait(false);
+      }
+      catch (Exception error)
+      {
+        var callSite = GuardUtils.callSiteOf(callFile, callLine, callMember);
+        throw new CallGuardException(callSite,
+                                     nameof(action),
+                                     StringConsts.GUARDED_ACTION_SCOPE_ERROR
+                                                 .Args(callSite ?? CoreConsts.UNKNOWN, error.ToMessageWithType()),
+                                     error);
+      }
+    }
+
+    /// <summary>
+    /// Surrounds an action by protected scope: any exception thrown by this action gets wrapped in a CallGuardException.
+    /// If action is unassigned, nothing is done
+    /// </summary>
+    /// <remarks>
     /// Use this function with action argument not to create unneeded closures
     /// </remarks>
     public static void Protect<TArg>(TArg arg, Action<TArg> action,
@@ -109,6 +139,35 @@ namespace Azos
       try
       {
         action(arg);
+      }
+      catch (Exception error)
+      {
+        var callSite = GuardUtils.callSiteOf(callFile, callLine, callMember);
+        throw new CallGuardException(callSite,
+                                     nameof(action),
+                                     StringConsts.GUARDED_ACTION_SCOPE_ERROR
+                                                 .Args(callSite ?? CoreConsts.UNKNOWN, error.ToMessageWithType()),
+                                     error);
+      }
+    }
+
+    /// <summary>
+    /// Surrounds an action by protected scope: any exception thrown by this action gets wrapped in a CallGuardException.
+    /// If action is unassigned, nothing is done
+    /// </summary>
+    /// <remarks>
+    /// Use this function with action argument not to create unneeded closures
+    /// </remarks>
+    public static async Task ProtectAsync<TArg>(TArg arg, Func<TArg, Task> action,
+                              [CallerFilePath]   string callFile = null,
+                              [CallerLineNumber] int callLine = 0,
+                              [CallerMemberName] string callMember = null)
+    {
+      if (action == null) return;
+
+      try
+      {
+        await action(arg).ConfigureAwait(false);
       }
       catch (Exception error)
       {
@@ -436,6 +495,29 @@ namespace Azos
                                                   maxLen));
       }
       return str;
+    }
+
+
+    /// <summary>
+    /// Ensures that the required value is present as defined by <see cref="Data.IRequiredCheck"/>
+    /// implementation on the instance
+    /// </summary>
+    public static T HasRequiredValue<T>(this T obj,
+                               string name = null,
+                               string targetName = null,
+                               [CallerFilePath]   string callFile = null,
+                               [CallerLineNumber] int callLine = 0,
+                               [CallerMemberName] string callMember = null) where T : Data.IRequiredCheck
+    {
+      if (obj == null || !obj.CheckRequired(targetName))
+      {
+        var callSite = callSiteOf(callFile, callLine, callMember);
+        throw new CallGuardException(callSite,
+                                 name,
+                                 StringConsts.GUARDED_CLAUSE_NO_REQUIRED_VALUE_ERROR
+                                             .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN));
+      }
+      return obj;
     }
 
 
