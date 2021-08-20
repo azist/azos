@@ -122,7 +122,8 @@ namespace Azos.Data
 
       await DoBeforeSave().ConfigureAwait(false);
 
-      return await DoSaveAsync();
+      var result = await DoSaveAsync().ConfigureAwait(false);
+      return result;
     }
 
     public sealed async override Task<SaveResult<object>> SaveReturningObjectAsync()
