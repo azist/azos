@@ -92,7 +92,7 @@ namespace Azos.Data.Access.MySql
 
         using (reader)
         {
-          return await DoPopulateRowsetAsync(context, reader, target, query, Source, oneDoc);
+          return await DoPopulateRowsetAsync(context, reader, target, query, Source, oneDoc).ConfigureAwait(false);
         }
       }//using command
     }

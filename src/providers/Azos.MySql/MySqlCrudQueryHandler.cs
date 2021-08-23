@@ -214,13 +214,13 @@ namespace Azos.Data.Access.MySql
     public sealed async override Task<RowsetBase> ExecuteAsync(MySqlCrudQueryExecutionContext context, Query query, bool oneRow = false)
     {
       var qParams = CastParameters(query);
-      return await DoExecuteParameterizedQueryAsync(context, query, qParams);
+      return await DoExecuteParameterizedQueryAsync(context, query, qParams).ConfigureAwait(false);
     }
 
     public sealed async override Task<int> ExecuteWithoutFetchAsync(MySqlCrudQueryExecutionContext context, Query query)
     {
       var qParams = CastParameters(query);
-      return await DoExecuteWithoutFetchParameterizedQueryAsync(context, query, qParams);
+      return await DoExecuteWithoutFetchParameterizedQueryAsync(context, query, qParams).ConfigureAwait(false);
     }
 
 
@@ -241,7 +241,7 @@ namespace Azos.Data.Access.MySql
 
         try
         {
-          var affected = await cmd.ExecuteNonQueryAsync();
+          var affected = await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
           GeneratorUtils.LogCommand(ctx.DataStore, "DoExecuteWithoutFetchQuery-ok", cmd, null);
           return affected;
         }
@@ -271,7 +271,7 @@ namespace Azos.Data.Access.MySql
         MySqlDataReader reader = null;
         try
         {
-          reader = await cmd.ExecuteReaderAsync();
+          reader = await cmd.ExecuteReaderAsync().ConfigureAwait(false);
           GeneratorUtils.LogCommand(ctx.DataStore, "DoExecuteFilteredQuery-ok", cmd, null);
         }
         catch (Exception error)
@@ -282,7 +282,7 @@ namespace Azos.Data.Access.MySql
 
         using (reader)
         {
-          return await DoPopulateRowsetAsync(ctx, reader, ctx.DataStore.TargetName, query, null, false);
+          return await DoPopulateRowsetAsync(ctx, reader, ctx.DataStore.TargetName, query, null, false).ConfigureAwait(false);
         }
       }//using command
     }
