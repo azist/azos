@@ -26,9 +26,8 @@ namespace Azos.Data
       public const string JSON_MODE_PROPERTY = "__FormMode";
       public const string JSON_CSRF_PROPERTY = CoreConsts.CSRF_TOKEN_NAME;
       public const string JSON_ROUNDTRIP_PROPERTY = "__Roundtrip";
-      public const string JSON_TYPE_PROPERTY = "__FormType";
 
-      protected Form() {}
+      protected Form(){ }
 
       /// <summary>
       /// Gets/sets form mode - unspecified|insert|edit. This field may be queried by validate and save, i.e. Validate may perform extra cross checks on Insert - i.e. check whether
@@ -46,7 +45,7 @@ namespace Azos.Data
       /// <summary>
       /// True if RoundtripBag is allocated
       /// </summary>
-      public bool HasRoundtripBag{ get{ return m_RoundtripBag!=null;}}
+      public bool HasRoundtripBag => m_RoundtripBag != null;
 
       /// <summary>
       /// Returns lazily-allocated RoundtripBag.
@@ -56,8 +55,7 @@ namespace Azos.Data
       {
         get
         {
-          if (m_RoundtripBag==null)
-            m_RoundtripBag = new JsonDataMap();
+          if (m_RoundtripBag == null) m_RoundtripBag = new JsonDataMap();
 
           return m_RoundtripBag;
         }
@@ -66,7 +64,7 @@ namespace Azos.Data
       /// <summary>
       /// False by default for forms, safer for web. For example, no injection of unexpected fields can be done via web form post
       /// </summary>
-      public override bool AmorphousDataEnabled { get{return false;}}
+      public override bool AmorphousDataEnabled => false;
 
       /// <summary>
       /// If non null or empty parses JSON content and sets the RoundtripBag
