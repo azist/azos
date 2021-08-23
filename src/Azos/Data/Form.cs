@@ -120,7 +120,7 @@ namespace Azos.Data
       if (validationState.HasErrors)
         return new SaveResult<TSaveResult>(validationState.Error);
 
-      await DoBeforeSave().ConfigureAwait(false);
+      await DoBeforeSaveAsync().ConfigureAwait(false);
 
       var result = await DoSaveAsync().ConfigureAwait(false);
       return result;
@@ -151,7 +151,7 @@ namespace Azos.Data
     /// in the absence of validation errors so the ID does NOT get generated and wasted when there is/are validation errors.
     /// This method is NOT called if validation finds errors in prior steps of Save() flow
     /// </summary>
-    protected virtual Task DoBeforeSave() => Task.CompletedTask;
+    protected virtual Task DoBeforeSaveAsync() => Task.CompletedTask;
 
     /// <summary>
     /// Override to save model into data store. Return "predictable" exception (such as key violation) as a value instead of throwing.
