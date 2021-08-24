@@ -99,7 +99,7 @@ namespace Azos.Data.Access.MySql
     /// Populates MySqlCommand with parameters from CRUD Query object
     /// Note: this code was purposely made provider specific because other providers may treat some nuances differently
     /// </summary>
-    protected void PopulateParameters(MySqlCommand cmd, Query query)
+    protected virtual void PopulateParameters(MySqlCommand cmd, Query query)
     {
         foreach(var par in query.Where(p => p.HasValue))
         cmd.Parameters.AddWithValue(par.Name, par.Value);
@@ -189,11 +189,16 @@ namespace Azos.Data.Access.MySql
     public MySqlCrudQueryHandler(MySqlCrudDataStoreBase store, string name) : base(store, name) { }
 
     /// <summary>
-    /// Casts first query parameter to TQueryParameters
+    /// Casts query parameter to TQueryParameters
+    /// Override to perform custom typecast
     /// </summary>
-    protected TQueryParameters CastParameters(Query query)
+    protected virtual TQueryParameters CastParameters(Query query)
     {
       query.NonNull(nameof(query));
+
+      if (typeof(TQueryParameters) == typeof(AbsentValue)) return (TQueryParameters)(object)AbsentValue.Instance;
+      if (typeof(TQueryParameters) == typeof(Query)) return (TQueryParameters)(object)query;
+
       if (query.Count < 1)
         throw new MySqlDataAccessException("Query '{0}' requires at least one parameter of type '{1}' but was supplied none".Args(
                                              GetType().Name,
