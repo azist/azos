@@ -89,7 +89,11 @@ namespace Azos.Scripting
     /// </summary>
     public struct Assumptions
     {
-      internal Assumptions(AssumptionsType tp, IConfigSectionNode data)
+      /// <summary>
+      /// Typically you would not call this .ctor directly unless you are temporarily mocking assumptions.
+      /// Call <see cref="AssumptionsForCaller(string)"/> or <see cref="AssumptionsForCallerStory(string, string)"/> instead
+      /// </summary>
+      public Assumptions(AssumptionsType tp, IConfigSectionNode data)
       {
         Type = tp;
         Data = data.NonEmpty(nameof(data));
