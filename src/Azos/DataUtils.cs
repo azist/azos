@@ -150,5 +150,40 @@ namespace Azos
     /// </summary>
     public static Task<SaveResult<TSaveResult>> SaveAsync<TSaveResult>(this Form<TSaveResult> form, IApplication app)
       => app.NonNull(nameof(app)).InjectInto(form.NonNull(nameof(form))).SaveAsync();
+
+    /// <summary>
+    /// Gets query parameter value by name and casts it to the specified type.
+    /// The value must be populated (may not be null)
+    /// </summary>
+    public static T GetParameterValueAs<T>(this Query qry, string pName)
+    {
+      var what = $"Query `{qry.NonNull(nameof(qry)).Name}`[`{pName}`]";
+      return qry[pName.NonBlank(nameof(pName))].NonNull(what).Value.CastTo<T>(what);
+    }
+
+    /// <summary>
+    /// Gets query parameter value by name and casts it to the specified type.
+    /// If the parameter value is null, DBNull or AbsentValue then returns `defaultValue`,
+    /// otherwise casts existing value throwing if it is not type-castable to the requested type
+    /// </summary>
+    public static T GetParameterValueOrDefaultAs<T>(this Query qry, string pName, T defaultValue)
+    {
+      var what = $"Query `{qry.NonNull(nameof(qry)).Name}`[`{pName}`]";
+      var pv = qry[pName.NonBlank(nameof(pName))].NonNull(what).Value;
+      if (pv == null || pv is DBNull || pv is AbsentValue) return defaultValue;
+      return pv.CastTo<T>(what);
+    }
+
+    /// <summary>
+    /// Gets query parameter value by name and casts it to the specified type.
+    /// If such named parameter does not exists or its value is null, DBNull or AbsentValue then returns `defaultValue`,
+    /// otherwise casts existing value throwing if it is not type-castable to the requested type
+    /// </summary>
+    public static T GetOptionalParameterValueOrDefaultAs<T>(this Query qry, string pName, T defaultValue)
+    {
+      var p = qry.NonNull(nameof(Query))[pName.NonBlank(nameof(pName))];
+      if (p == null || p.Value == null || p.Value is DBNull || p.Value is AbsentValue) return defaultValue;
+      return p.Value.CastTo<T>($"Query `{qry.Name}`[`{pName}`]");
+    }
   }
 }
