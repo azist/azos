@@ -124,7 +124,7 @@ namespace Azos.Data
     public static EntityId Parse(string val)
     {
       if (TryParse(val, out var result)) return result;
-      throw new DataException("Supplied value is not parable as EntityId: `{0}`".Args(val.TakeFirstChars(48)));
+      throw new DataException("Supplied value is not parsable as EntityId: `{0}`".Args(val.TakeFirstChars(48)));
     }
 
     public static bool TryParse(string val, out EntityId result)
