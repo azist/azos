@@ -57,11 +57,21 @@ namespace Azos.Data.Access.MySql
       return val.AsNullableBool(dflt, handling);
     }
 
-    public static DateTime? AsDateTimeField(this MySqlDataReader reader, string fld, DateTime? dflt = null, ConvertErrorHandling handling = ConvertErrorHandling.ReturnDefault)
+    public static DateTime? AsDateTimeField(this MySqlDataReader reader,
+                                           string fld,
+                                           DateTime? dflt = null,
+                                           ConvertErrorHandling handling = ConvertErrorHandling.ReturnDefault,
+                                           System.Globalization.DateTimeStyles? styles = null)
     {
       var val = reader[fld];
       if (val is DBNull) return null;
-      return val.AsNullableDateTime(dflt, handling);
+
+      if (!styles.HasValue)
+      {
+        styles = System.Globalization.DateTimeStyles.AssumeUniversal | System.Globalization.DateTimeStyles.AdjustToUniversal;
+      }
+
+      return val.AsNullableDateTime(dflt, handling, styles.Value);
     }
 
     public static int? AsIntField(this MySqlDataReader reader, string fld, int? dflt = null, ConvertErrorHandling handling = ConvertErrorHandling.ReturnDefault)

@@ -178,19 +178,19 @@ namespace Azos.Data.Access.MySql
     /// <summary>
     /// When true commits boolean values as StringForTrue/StringForFalse instead of bool values. True by default
     /// </summary>
-    [Config(Default=true)] public bool StringBool{ get { return m_StringBool; } set {m_StringBool = value;}}
+    [Config(Default=true)] public virtual bool StringBool{ get { return m_StringBool; } set {m_StringBool = value;}}
 
-    [Config(Default=STR_FOR_TRUE)] public string StringForTrue{ get { return m_StringForTrue; } set {m_StringForTrue = value;}}
+    [Config(Default=STR_FOR_TRUE)] public virtual string StringForTrue{ get { return m_StringForTrue; } set {m_StringForTrue = value;}}
 
-    [Config(Default=STR_FOR_FALSE)] public string StringForFalse{ get { return m_StringForFalse; } set {m_StringForFalse = value;}}
+    [Config(Default=STR_FOR_FALSE)] public virtual string StringForFalse{ get { return m_StringForFalse; } set {m_StringForFalse = value;}}
 
 
     /// <summary>
     /// When true (default) writes gdid as byte[](era+id), false - uses ulong ID only
     /// </summary>
-    [Config(Default=true)] public bool FullGDIDS{ get { return m_FullGDIDS; } set {m_FullGDIDS = value;}}
+    [Config(Default=true)] public virtual bool FullGDIDS{ get { return m_FullGDIDS; } set {m_FullGDIDS = value;}}
 
-    [Config(Default=DateTimeKind.Utc)] public DateTimeKind DateTimeKind { get { return m_DateTimeKind; } set { m_DateTimeKind = value; } }
+    [Config(Default=DateTimeKind.Utc)] public virtual DateTimeKind DateTimeKind { get { return m_DateTimeKind; } set { m_DateTimeKind = value; } }
     #endregion
 
     #region Public
