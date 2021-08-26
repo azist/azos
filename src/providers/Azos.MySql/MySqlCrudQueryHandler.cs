@@ -192,7 +192,7 @@ namespace Azos.Data.Access.MySql
     /// Casts query parameter to TQueryParameters
     /// Override to perform custom typecast
     /// </summary>
-    protected virtual TQueryParameters CastParameters(Query query)
+    protected virtual TQueryParameters CastParameters(MySqlCrudQueryExecutionContext context, Query query)
     {
       query.NonNull(nameof(query));
 
@@ -218,13 +218,13 @@ namespace Azos.Data.Access.MySql
 
     public sealed async override Task<RowsetBase> ExecuteAsync(MySqlCrudQueryExecutionContext context, Query query, bool oneRow = false)
     {
-      var qParams = CastParameters(query);
+      var qParams = CastParameters(context, query);
       return await DoExecuteParameterizedQueryAsync(context, query, qParams).ConfigureAwait(false);
     }
 
     public sealed async override Task<int> ExecuteWithoutFetchAsync(MySqlCrudQueryExecutionContext context, Query query)
     {
-      var qParams = CastParameters(query);
+      var qParams = CastParameters(context, query);
       return await DoExecuteWithoutFetchParameterizedQueryAsync(context, query, qParams).ConfigureAwait(false);
     }
 
