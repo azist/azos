@@ -822,7 +822,7 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
 
     public const string CRUD_ROW_UPGRADE_KEY_MUTATION_ERROR = "Upgraded row key has changed";
 
-    public const string CRUD_ROWSET_OPERATION_ROW_IS_NULL_OR_SCHEMA_MISMATCH_ERROR = "CRUD rowset was supplied either a null row or a row with a different schema";
+    public const string CRUD_ROWSET_OPERATION_ROW_IS_NULL_OR_SCHEMA_MISMATCH_ERROR = "CRUD rowset was supplied either a null row or a row with a different/incompatible schema";
 
     public const string CRUD_TRANSACTION_IS_NOT_OPEN_ERROR = "CRUD transaction is not open for requested operation '{0}'. Current transaction status: '{0}'";
 

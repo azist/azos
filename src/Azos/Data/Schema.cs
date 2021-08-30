@@ -41,7 +41,7 @@ namespace Azos.Data
       var bt = type.BaseType;//null for Object
 
       if (bt != null)
-        return GetFieldMembers(type.BaseType).Concat(local);
+        return GetFieldMembers(type.BaseType).Concat(local);//order:  BASE, local, ...
       else
         return local;
     }
@@ -346,6 +346,22 @@ namespace Azos.Data
     #endregion
 
     #region Public
+
+    /// <summary>
+    /// Returns true only when both schemas are the same references
+    /// OR both schemas are for TypedDocs and this type is assignable from other schema's type.
+    /// Example: a rowset of type TBase may be added document rows for Type TBase AND its descendants
+    /// </summary>
+    public bool IsCompatibleBaseFor(Schema other)
+    {
+      if (other == null) return false;
+      //for dynamic documents the schemas MUST be the same
+      if (this.TypedDocType == null || other.TypedDocType == null) return this == other;
+
+      //if both schemas are for typed document then they must be assignment compatible
+      return TypedDocType.IsAssignableFrom(other.TypedDocType);
+    }
+
 
     /// <summary>
     /// Finds fielddef by name or throws if name is not found
