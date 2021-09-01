@@ -44,16 +44,16 @@ namespace Azos.Data.Access.Sharding
         return await Store.PhysicalStore.DeleteAsync(doc, key).ConfigureAwait(false);
     }
 
-    public int ExecuteWithoutFetch(params Query[] queries)
+    public Doc Execute(Query query)
     {
       using (Store.MakeCallContext(Shard))
-        return Store.PhysicalStore.ExecuteWithoutFetch(queries);
+        return Store.PhysicalStore.Execute(query);
     }
 
-    public async Task<int> ExecuteWithoutFetchAsync(params Query[] queries)
+    public async Task<Doc> ExecuteAsync(Query query)
     {
       using (Store.MakeCallContext(Shard))
-        return await Store.PhysicalStore.ExecuteWithoutFetchAsync(queries).ConfigureAwait(false);
+        return await Store.PhysicalStore.ExecuteAsync(query).ConfigureAwait(false);
     }
 
     public Schema GetSchema(Query query)

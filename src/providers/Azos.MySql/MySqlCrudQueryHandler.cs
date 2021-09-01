@@ -25,6 +25,13 @@ namespace Azos.Data.Access.MySql
     #endregion
 
     #region Helpers
+
+    /// <summary>
+    /// Override to map procedure execution result to Doc
+    /// </summary>
+    protected virtual Doc MapProcedureResult(object result)
+     => new RowsAffectedDoc(result is int ir ? ir : 0) { ProviderResult = result };
+
     /// <summary>
     /// Reads data from reader into rowset. the reader is NOT disposed
     /// </summary>
@@ -222,17 +229,17 @@ namespace Azos.Data.Access.MySql
       return await DoExecuteParameterizedQueryAsync(context, query, qParams).ConfigureAwait(false);
     }
 
-    public sealed async override Task<int> ExecuteWithoutFetchAsync(MySqlCrudQueryExecutionContext context, Query query)
+    public sealed async override Task<Doc> ExecuteProcedureAsync(MySqlCrudQueryExecutionContext context, Query query)
     {
       var qParams = CastParameters(context, query);
-      return await DoExecuteWithoutFetchParameterizedQueryAsync(context, query, qParams).ConfigureAwait(false);
+      return await DoExecuteProcedureParameterizedQueryAsync(context, query, qParams).ConfigureAwait(false);
     }
 
 
     /// <summary>
     /// Provides default implementation by invoking DoBuildCommandAndParameters and then executing a command.
     /// </summary>
-    protected async virtual Task<int> DoExecuteWithoutFetchParameterizedQueryAsync(MySqlCrudQueryExecutionContext ctx, Query query, TQueryParameters queryParameters)
+    protected async virtual Task<Doc> DoExecuteProcedureParameterizedQueryAsync(MySqlCrudQueryExecutionContext ctx, Query query, TQueryParameters queryParameters)
     {
       using (var cmd = ctx.Connection.CreateCommand())
       {
@@ -247,12 +254,12 @@ namespace Azos.Data.Access.MySql
         try
         {
           var affected = await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
-          GeneratorUtils.LogCommand(ctx.DataStore, "DoExecuteWithoutFetchQuery-ok", cmd, null);
-          return affected;
+          GeneratorUtils.LogCommand(ctx.DataStore, "DoExecuteProcedureQuery-ok", cmd, null);
+          return MapProcedureResult(affected);
         }
         catch (Exception error)
         {
-          GeneratorUtils.LogCommand(ctx.DataStore, "DoExecuteWithoutFetchQuery-error", cmd, error);
+          GeneratorUtils.LogCommand(ctx.DataStore, "DoExecuteProcedureQuery-error", cmd, error);
           throw;
         }
       }//using command

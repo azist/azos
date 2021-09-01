@@ -69,11 +69,11 @@ namespace Azos.Data.Access.MySql
     protected override async Task<Cursor> DoOpenCursorAsync(Query query)
       => await Store.DoOpenCursorAsync(m_Connection, m_Transaction, query).ConfigureAwait(false);
 
-    protected override int DoExecuteWithoutFetch(params Query[] queries)
-      => Store.DoExecuteWithoutFetchAsync(m_Connection, m_Transaction, queries).GetAwaiter().GetResult();
+    protected override Doc DoExecute(Query query)
+      => Store.DoExecuteAsync(m_Connection, m_Transaction, query).GetAwaiter().GetResult();
 
-    protected override async Task<int> DoExecuteWithoutFetchAsync(params Query[] queries)
-      => await Store.DoExecuteWithoutFetchAsync(m_Connection, m_Transaction, queries).ConfigureAwait(false);
+    protected override async Task<Doc> DoExecuteAsync(Query query)
+      => await Store.DoExecuteAsync(m_Connection, m_Transaction, query).ConfigureAwait(false);
 
     protected override int DoSave(params RowsetBase[] rowsets)
       => Store.DoSaveAsync(m_Connection, m_Transaction, rowsets).GetAwaiter().GetResult();

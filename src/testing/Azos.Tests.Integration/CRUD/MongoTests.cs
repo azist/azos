@@ -652,8 +652,8 @@ Console.WriteLine("C");
                 new Query.Param("data", data)
             };
 
-            var affected = m_Store.ExecuteWithoutFetch(query);
-            Aver.AreEqual(1, affected);
+            var affected = m_Store.Execute(query);
+            Aver.AreEqual(1, affected.CastTo<RowsAffectedDoc>().RowsAffected);
 
             var c = m_Mongo.DefaultLocalServer["nfxtest"]["MyPerzon"];
             var entries = c.FindAndFetchAll(new Azos.Data.Access.MongoDb.Connector.Query());
@@ -696,7 +696,7 @@ Console.WriteLine("C");
                 new Query.Param("id3", id3),
                 new Query.Param("data", data)
             };
-            m_Store.ExecuteWithoutFetch(query);
+            m_Store.Execute(query);
 
             query = new Query<MyPerzon>("CRUD.UpdatePerzons")
             {
@@ -704,8 +704,8 @@ Console.WriteLine("C");
                 new Query.Param("id2", id2),
                 new Query.Param("id3", id3),
             };
-            var affected = m_Store.ExecuteWithoutFetch(query);
-            Aver.AreEqual(1, affected);
+            var affected = m_Store.Execute(query);
+            Aver.AreEqual(1, affected.CastTo<RowsAffectedDoc>().RowsAffected);
 
             query = new Query<MyPerzon>("CRUD.LoadPerzon") { new Query.Param("id", id1) };
             var person1 = m_Store.LoadDoc(query);
@@ -750,8 +750,11 @@ Console.WriteLine("C");
                 new Query.Param("id3", id3)
             };
 
-            var affected = m_Store.ExecuteWithoutFetch(query1, query2);
-            Aver.AreEqual(2, affected);
+            var affected = m_Store.Execute(query1);
+            Aver.AreEqual(1, affected.CastTo<RowsAffectedDoc>().RowsAffected);
+
+            affected = m_Store.Execute(query2);
+            Aver.AreEqual(1, affected.CastTo<RowsAffectedDoc>().RowsAffected);
 
             var query = new Query<MyPerzon>("CRUD.LoadPerzon") { new Query.Param("id", id1) };
             var person1 = m_Store.LoadDoc(query);

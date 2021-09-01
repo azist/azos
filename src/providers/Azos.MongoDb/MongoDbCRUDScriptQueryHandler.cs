@@ -125,13 +125,15 @@ namespace Azos.Data.Access.MongoDb
             }
 
 
-        public override int ExecuteWithoutFetch(ICrudQueryExecutionContext context, Query query)
+        public override Doc ExecuteProcedure(ICrudQueryExecutionContext context, Query query)
         {
             var ctx = (MongoDbCRUDQueryExecutionContext)context;
 
             var qry = MakeQuery(query, Source);
 
-            return ctx.Database.RunCommand( qry ) != null ? 1 : 0;
+            var affected = ctx.Database.RunCommand(qry) != null ? 1 : 0;
+
+            return new RowsAffectedDoc(affected);
         }
     }
 }

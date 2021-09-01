@@ -117,7 +117,7 @@ CREATE TABLE `tbl_employee` (
           new Query.Param("pAmount", 110.99M),
           new Query.Param("pSSN", row.SSN)
         };
-        ds.ExecuteWithoutFetch(qry);
+        ds.Execute(qry);
 
         var loadQry = new Query<Patient>("CRUD.Queries.Patient.List") { new Query.Param("LN", "Ivanov") };
         var result = ds.LoadDoc(loadQry);
@@ -415,7 +415,7 @@ CREATE TABLE `tbl_employee` (
             new Query.Param("pAmount", 100M + i),
             new Query.Param("pSSN", row.SSN)
           };
-          ds.ExecuteWithoutFetch(qry);
+          ds.Execute(qry);
           Thread.Sleep(Ambient.Random.NextScaledRandomInteger(10, 500));
 
           var listQry = new Query<Patient>("CRUD.Queries.Patient.List") { new Query.Param("LN", "Ivanov" + i.ToString())};
@@ -444,7 +444,7 @@ CREATE TABLE `tbl_employee` (
             new Query.Param("pAmount", 100M + i),
             new Query.Param("pSSN", row.SSN)
           };
-          ds.ExecuteWithoutFetch(qry);
+          ds.Execute(qry);
 
           var listQry = new Query<Patient>("CRUD.Queries.Patient.List") { new Query.Param("LN", "Ivanov" + i.ToString())};
           var result = ds.LoadDoc(listQry);
@@ -479,7 +479,7 @@ CREATE TABLE `tbl_employee` (
             new Query.Param("pAmount", 100M + i),
             new Query.Param("pSSN", row.SSN)
           };
-          await ds.ExecuteWithoutFetchAsync(qry);
+          await ds.ExecuteAsync(qry);
 
           var listQry = new Query<Patient>("CRUD.Queries.Patient.List") { new Query.Param("LN", "Ivanov" + i.ToString()) };
           var result = await ds.LoadDocAsync(listQry);
@@ -517,7 +517,7 @@ CREATE TABLE `tbl_employee` (
 
         var deleteQry = new Query<Employee>("CRUD.Queries.Employee.DeleteBySalaryMax")
                         { new Query.Param("pSalary", 200.50M) };
-        ds.ExecuteWithoutFetch(deleteQry);
+        ds.Execute(deleteQry);
 
         var rest = list.Where(e => e.Salary < 200.50M);
         employees = ds.LoadEnumerable(fetchQry);
@@ -803,15 +803,15 @@ CREATE TABLE `tbl_employee` (
         {
           new Query.Param("pGDID", new GDID(0, 0, 2))
         };
-        affected = ds.ExecuteWithoutFetch(qry);
-        Aver.AreEqual(0, affected, "UpdateUnknown");
+        var result = ds.Execute(qry);
+        Aver.AreEqual(0, result.CastTo<RowsAffectedDoc>().RowsAffected, "UpdateUnknown");
 
         qry = new Query("CRUD.Queries.Employee.UpdateByGDID")
         {
           new Query.Param("pGDID", new GDID(0, 0, 1))
         };
-        affected = ds.ExecuteWithoutFetch(qry);
-        Aver.AreEqual(1, affected, "UpdateExisting");
+        result = ds.Execute(qry);
+        Aver.AreEqual(1, result.CastTo<RowsAffectedDoc>().RowsAffected, "UpdateExisting");
       }
     }
 
