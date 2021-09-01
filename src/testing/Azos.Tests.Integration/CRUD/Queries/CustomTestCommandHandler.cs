@@ -31,10 +31,10 @@ namespace Azos.Tests.Integration.CRUD.Queries
       return result;
     }
 
-    public override int ExecuteWithoutFetch(ICrudQueryExecutionContext context, Query query)
+    public override Doc ExecuteProcedure(ICrudQueryExecutionContext context, Query query)
      => throw new NotImplementedException();
 
-    public override Task<int> ExecuteWithoutFetchAsync(ICrudQueryExecutionContext context, Query query)
+    public override Task<Doc> ExecuteProcedureAsync(ICrudQueryExecutionContext context, Query query)
      => throw new NotImplementedException();
 
     public override Schema GetSchema(ICrudQueryExecutionContext context, Query query)
