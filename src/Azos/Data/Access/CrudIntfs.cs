@@ -176,4 +176,18 @@ namespace Azos.Data.Access
   {
   }
 
+  /// <summary>
+  /// Data document which is used to return rows affected from Execute()
+  /// </summary>
+  public class RowsAffectedDoc : TypedDoc
+  {
+    public RowsAffectedDoc(long affected) => RowsAffected = affected;
+
+    [Field(Description = "Rows affected as reported by provider")]
+    public long RowsAffected {  get; set; }
+
+    [Field(Description = "Provider result object as returned by provider")]
+    public object ProviderResult {  get; set;}
+  }
+
 }
