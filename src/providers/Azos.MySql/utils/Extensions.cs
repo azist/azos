@@ -57,6 +57,9 @@ namespace Azos.Data.Access.MySql
       return val.AsNullableBool(dflt, handling);
     }
 
+    /// <summary>
+    /// If styles not specified, defaults to UTC
+    /// </summary>
     public static DateTime? AsDateTimeField(this MySqlDataReader reader,
                                            string fld,
                                            DateTime? dflt = null,
@@ -68,7 +71,7 @@ namespace Azos.Data.Access.MySql
 
       if (!styles.HasValue)
       {
-        styles = System.Globalization.DateTimeStyles.AssumeUniversal | System.Globalization.DateTimeStyles.AdjustToUniversal;
+        styles = CoreConsts.UTC_TIMESTAMP_STYLES;
       }
 
       return val.AsNullableDateTime(dflt, handling, styles.Value);
