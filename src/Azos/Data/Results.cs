@@ -18,15 +18,32 @@ namespace Azos.Data
   public struct ChangeResult : IJsonWritable, IJsonReadable
   {
     /// <summary>
-    /// Change types: Inserted/Updated/Upserted/Deleted
+    /// Change types: Undefined/Inserted/Updated/Upserted/Deleted/Other.
+    /// Undefined is treated as non-success (OK: false)
     /// </summary>
     public enum ChangeType
     {
+      /// <summary> Change type is undefined - the structure does not represent a valid change, OK: false </summary>
       Undefined = 0,
+
+      /// <summary> A new item was inserted/added, e.g. a row into database </summary>
       Inserted,
+
+      /// <summary> An existing item was updated/patched </summary>
       Updated,
+
+      /// <summary> Either a new item was inserted or existing item was updated </summary>
       Upserted,
-      Deleted
+
+      /// <summary> An item was deleted </summary>
+      Deleted,
+
+      /// <summary>
+      /// A complex change happened, a system may have inserted/updated/deleted items in different parts of the system.
+      /// This value is different from others in that it does not specify how data has changed, it just indicates that
+      /// request was processed, OK: true
+      /// </summary>
+      Processed
     }
 
     /// <summary>
@@ -58,6 +75,9 @@ namespace Azos.Data
       Data          = map["data"];
     }
 
+    /// <summary> True if change is not `Undefined` </summary>
+    public bool IsOk => Change != ChangeType.Undefined;
+
     /// <summary> Specifies the change type Insert/Update/Delete etc.. </summary>
     public readonly ChangeType Change;
 
@@ -79,7 +99,7 @@ namespace Azos.Data
     void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options)
     {
       JsonWriter.WriteMap(wri, nestingLevel, options,
-                    new DictionaryEntry("OK", true),
+                    new DictionaryEntry("OK", IsOk),
                     new DictionaryEntry("change", Change),
                     new DictionaryEntry("affected", AffectedCount),
                     new DictionaryEntry("message", Message),
