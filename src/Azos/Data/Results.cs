@@ -15,7 +15,7 @@ namespace Azos.Data
   /// <summary>
   /// Describes data change operation result: {ChangeType, AffectedCount, Message, Data}
   /// </summary>
-  public struct ChangeResult : IJsonWritable, IJsonReadable
+  public struct ChangeResult : IJsonWritable, IJsonReadable, IHttpStatusProvider
   {
     /// <summary>
     /// Change types: Undefined/Inserted/Updated/Upserted/Deleted/Other.
@@ -53,12 +53,26 @@ namespace Azos.Data
     /// <param name="affectedCount">Affected entity count</param>
     /// <param name="msg">Optional message from the serving party</param>
     /// <param name="data">Returns optional extra data which is returned from the data change operation</param>
-    public ChangeResult(ChangeType change, long affectedCount, string msg, object data)
+    /// <param name="statusCode">Status code mappable to http response, zero by default</param>
+    public ChangeResult(ChangeType change, long affectedCount, string msg, object data, int statusCode = 0)
     {
       Change = change;
+      StatusCode = statusCode;
       AffectedCount = affectedCount;
       Message = msg;
       Data = data;
+    }
+
+    /// <summary>
+    /// Describes data change operation non-successful result such as 404 not found/Undefined change
+    /// </summary>
+    public ChangeResult(string msg, int statusCode = 0)
+    {
+      Change = ChangeType.Undefined;
+      StatusCode = statusCode;
+      AffectedCount = 0;
+      Message = msg;
+      Data = null;
     }
 
     /// <summary>
@@ -70,6 +84,7 @@ namespace Azos.Data
     {
       map.NonNull(nameof(map));
       Change        = map["change"].AsEnum(ChangeType.Undefined);
+      StatusCode    = map["status"].AsInt(0);
       AffectedCount = map["affected"].AsLong();
       Message       = map["message"].AsString();
       Data          = map["data"];
@@ -78,8 +93,19 @@ namespace Azos.Data
     /// <summary> True if change is not `Undefined` </summary>
     public bool IsOk => Change != ChangeType.Undefined;
 
+    /// <summary>
+    /// Is StatusCode is set then returns it, otherwise returns 200 for non-undefined changes, or 404 for undefined change types
+    /// </summary>
+    public int HttpStatusCode =>  StatusCode != 0 ? StatusCode : IsOk ? 200 : 404;
+
+    /// <summary> Http status description </summary>
+    public string HttpStatusDescription => Message;
+
     /// <summary> Specifies the change type Insert/Update/Delete etc.. </summary>
     public readonly ChangeType Change;
+
+    /// <summary> Operation Status code, which is returned for HTTP callers </summary>
+    public readonly int StatusCode;
 
     /// <summary> How many entities/rows/docs was/were affected by the change </summary>
     public readonly long AffectedCount;
@@ -101,6 +127,7 @@ namespace Azos.Data
       JsonWriter.WriteMap(wri, nestingLevel, options,
                     new DictionaryEntry("OK", IsOk),
                     new DictionaryEntry("change", Change),
+                    new DictionaryEntry("status", StatusCode),
                     new DictionaryEntry("affected", AffectedCount),
                     new DictionaryEntry("message", Message),
                     new DictionaryEntry("data", Data)
