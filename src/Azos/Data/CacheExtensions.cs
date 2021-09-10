@@ -188,7 +188,7 @@ namespace Azos.Data
 
       if (result != null) return result;
 
-      result = await fFetch.NonNull(nameof(fFetch))(key);//<-- only fFetch is IO-bound hence asynchronous
+      result = await fFetch.NonNull(nameof(fFetch))(key).ConfigureAwait(false);//<-- only fFetch is IO-bound hence asynchronous
 
       if (result == null && !caching.CacheAbsentData) return null;
 
@@ -256,7 +256,7 @@ namespace Azos.Data
       else
         tbl.Remove(key);
 
-      return await fDelete.NonNull(nameof(fDelete))(key);
+      return await fDelete.NonNull(nameof(fDelete))(key).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -333,7 +333,7 @@ namespace Azos.Data
 
       if (caching == null) caching = CacheParams.DefaultCache;
 
-      var result = await fSave.NonNull(nameof(fSave))(key, data);
+      var result = await fSave.NonNull(nameof(fSave))(key, data).ConfigureAwait(false);
 
       var wAge = caching.WriteCacheMaxAgeSec;
       if (wAge >= 0)

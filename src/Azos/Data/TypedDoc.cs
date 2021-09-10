@@ -64,9 +64,7 @@ namespace Azos.Data
 
     public override void SetFieldValue(Schema.FieldDef fdef, object value)
     {
-      // var pinf = fdef.MemberInfo;
       value = ConvertFieldValueToDef(fdef, value);
-      // pinf.SetValue(this, value, null);
       fdef.SetPropertyValue(this, value);
     }
 

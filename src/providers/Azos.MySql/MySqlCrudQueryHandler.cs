@@ -25,6 +25,13 @@ namespace Azos.Data.Access.MySql
     #endregion
 
     #region Helpers
+
+    /// <summary>
+    /// Override to map procedure execution result to Doc
+    /// </summary>
+    protected virtual Doc MapProcedureResult(object result)
+     => new RowsAffectedDoc(result is int ir ? ir : 0) { ProviderResult = result };
+
     /// <summary>
     /// Reads data from reader into rowset. the reader is NOT disposed
     /// </summary>
@@ -99,7 +106,7 @@ namespace Azos.Data.Access.MySql
     /// Populates MySqlCommand with parameters from CRUD Query object
     /// Note: this code was purposely made provider specific because other providers may treat some nuances differently
     /// </summary>
-    protected void PopulateParameters(MySqlCommand cmd, Query query)
+    protected virtual void PopulateParameters(MySqlCommand cmd, Query query)
     {
         foreach(var par in query.Where(p => p.HasValue))
         cmd.Parameters.AddWithValue(par.Name, par.Value);
@@ -189,11 +196,16 @@ namespace Azos.Data.Access.MySql
     public MySqlCrudQueryHandler(MySqlCrudDataStoreBase store, string name) : base(store, name) { }
 
     /// <summary>
-    /// Casts first query parameter to TQueryParameters
+    /// Casts query parameter to TQueryParameters
+    /// Override to perform custom typecast
     /// </summary>
-    protected TQueryParameters CastParameters(Query query)
+    protected virtual TQueryParameters CastParameters(MySqlCrudQueryExecutionContext context, Query query)
     {
       query.NonNull(nameof(query));
+
+      if (typeof(TQueryParameters) == typeof(AbsentValue)) return (TQueryParameters)(object)AbsentValue.Instance;
+      if (typeof(TQueryParameters) == typeof(Query)) return (TQueryParameters)(object)query;
+
       if (query.Count < 1)
         throw new MySqlDataAccessException("Query '{0}' requires at least one parameter of type '{1}' but was supplied none".Args(
                                              GetType().Name,
@@ -213,21 +225,21 @@ namespace Azos.Data.Access.MySql
 
     public sealed async override Task<RowsetBase> ExecuteAsync(MySqlCrudQueryExecutionContext context, Query query, bool oneRow = false)
     {
-      var qParams = CastParameters(query);
-      return await DoExecuteParameterizedQueryAsync(context, query, qParams);
+      var qParams = CastParameters(context, query);
+      return await DoExecuteParameterizedQueryAsync(context, query, qParams).ConfigureAwait(false);
     }
 
-    public sealed async override Task<int> ExecuteWithoutFetchAsync(MySqlCrudQueryExecutionContext context, Query query)
+    public sealed async override Task<Doc> ExecuteProcedureAsync(MySqlCrudQueryExecutionContext context, Query query)
     {
-      var qParams = CastParameters(query);
-      return await DoExecuteWithoutFetchParameterizedQueryAsync(context, query, qParams);
+      var qParams = CastParameters(context, query);
+      return await DoExecuteProcedureParameterizedQueryAsync(context, query, qParams).ConfigureAwait(false);
     }
 
 
     /// <summary>
     /// Provides default implementation by invoking DoBuildCommandAndParameters and then executing a command.
     /// </summary>
-    protected async virtual Task<int> DoExecuteWithoutFetchParameterizedQueryAsync(MySqlCrudQueryExecutionContext ctx, Query query, TQueryParameters queryParameters)
+    protected async virtual Task<Doc> DoExecuteProcedureParameterizedQueryAsync(MySqlCrudQueryExecutionContext ctx, Query query, TQueryParameters queryParameters)
     {
       using (var cmd = ctx.Connection.CreateCommand())
       {
@@ -241,13 +253,13 @@ namespace Azos.Data.Access.MySql
 
         try
         {
-          var affected = await cmd.ExecuteNonQueryAsync();
-          GeneratorUtils.LogCommand(ctx.DataStore, "DoExecuteWithoutFetchQuery-ok", cmd, null);
-          return affected;
+          var affected = await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
+          GeneratorUtils.LogCommand(ctx.DataStore, "DoExecuteProcedureQuery-ok", cmd, null);
+          return MapProcedureResult(affected);
         }
         catch (Exception error)
         {
-          GeneratorUtils.LogCommand(ctx.DataStore, "DoExecuteWithoutFetchQuery-error", cmd, error);
+          GeneratorUtils.LogCommand(ctx.DataStore, "DoExecuteProcedureQuery-error", cmd, error);
           throw;
         }
       }//using command
@@ -271,7 +283,7 @@ namespace Azos.Data.Access.MySql
         MySqlDataReader reader = null;
         try
         {
-          reader = await cmd.ExecuteReaderAsync();
+          reader = await cmd.ExecuteReaderAsync().ConfigureAwait(false);
           GeneratorUtils.LogCommand(ctx.DataStore, "DoExecuteFilteredQuery-ok", cmd, null);
         }
         catch (Exception error)
@@ -282,7 +294,7 @@ namespace Azos.Data.Access.MySql
 
         using (reader)
         {
-          return await DoPopulateRowsetAsync(ctx, reader, ctx.DataStore.TargetName, query, null, false);
+          return await DoPopulateRowsetAsync(ctx, reader, ctx.DataStore.TargetName, query, null, false).ConfigureAwait(false);
         }
       }//using command
     }

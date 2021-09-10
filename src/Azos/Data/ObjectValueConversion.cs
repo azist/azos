@@ -1042,5 +1042,49 @@ namespace Azos.Data
       }
     }
 
+
+    public static EntityId AsEntityId(this object val)
+    {
+      if (val == null) return new EntityId();
+
+      if (val is EntityId existing) return existing;
+
+      if (val is string str)
+      {
+        str = str.Trim();
+        return EntityId.Parse(str);
+      }
+
+      return EntityId.Parse(Convert.ToString(val, INVARIANT));
+    }
+
+    public static EntityId AsEntityId(this object val, EntityId dflt, ConvertErrorHandling handling = ConvertErrorHandling.ReturnDefault)
+    {
+      try
+      {
+        if (val == null) return dflt;
+        return val.AsEntityId();
+      }
+      catch
+      {
+        if (handling != ConvertErrorHandling.ReturnDefault) throw;
+        return dflt;
+      }
+    }
+
+    public static EntityId? AsNullableEntityId(this object val, EntityId? dflt = null, ConvertErrorHandling handling = ConvertErrorHandling.ReturnDefault)
+    {
+      try
+      {
+        if (val == null) return null;
+        return val.AsEntityId();
+      }
+      catch
+      {
+        if (handling != ConvertErrorHandling.ReturnDefault) throw;
+        return dflt;
+      }
+    }
+
   }
 }

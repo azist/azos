@@ -7,6 +7,7 @@
 using System;
 
 using Azos.Apps;
+using Azos.Collections;
 using Azos.Conf;
 using Azos.Instrumentation;
 
@@ -15,7 +16,7 @@ namespace Azos.Data.Access
   /// <summary>
   /// Represents a store that can save and retrieve data
   /// </summary>
-  public interface IDataStore : IApplicationComponent
+  public interface IDataStore : IApplicationComponent, INamed
   {
     /// <summary>
     /// Returns the name of the underlying store technology, example: "ORACLE", "MongoDB" etc.

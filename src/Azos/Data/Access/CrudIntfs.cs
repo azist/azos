@@ -53,8 +53,21 @@ namespace Azos.Data.Access
     int Save(params RowsetBase[] rowsets);
     Task<int> SaveAsync(params RowsetBase[] rowsets);
 
-    int ExecuteWithoutFetch(params Query[] queries);
-    Task<int> ExecuteWithoutFetchAsync(params Query[] queries);
+    /// <summary>
+    /// Executes a query possibly returning a document which describes a result, such as affected entity count.
+    /// The difference between this and LoasOneDoc methods, is that LoadOneDoc fetches data from the store,
+    /// whereas as Execute is more generic and can be used for execution of any query similar to a stored-procedure.
+    /// If you need to return a collection, then return a doc with collection field(s). This call may return null
+    /// </summary>
+    Doc Execute(Query query);
+
+    /// <summary>
+    /// Executes a query possibly returning a document which describes a result, such as affected entity count.
+    /// The difference between this and LoasOneDoc methods, is that LoadOneDoc fetches data from the store,
+    /// whereas as Execute is more generic and can be used for execution of any query similar to a stored-procedure.
+    /// If you need to return a collection, then return a doc with collection field(s). This call may return null
+    /// </summary>
+    Task<Doc> ExecuteAsync(Query query);
 
     int Insert(Doc row, FieldFilterFunc filter = null);
     Task<int> InsertAsync(Doc row, FieldFilterFunc filter = null);
@@ -161,6 +174,20 @@ namespace Azos.Data.Access
   /// </summary>
   public interface ICrudQueryExecutionContext
   {
+  }
+
+  /// <summary>
+  /// Data document which is used to return rows affected from Execute()
+  /// </summary>
+  public class RowsAffectedDoc : TypedDoc
+  {
+    public RowsAffectedDoc(long affected) => RowsAffected = affected;
+
+    [Field(Description = "Rows affected as reported by provider")]
+    public long RowsAffected {  get; set; }
+
+    [Field(Description = "Provider result object as returned by provider")]
+    public object ProviderResult {  get; set;}
   }
 
 }

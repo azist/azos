@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 
 using Azos.Apps;
@@ -89,7 +90,11 @@ namespace Azos.Scripting
     /// </summary>
     public struct Assumptions
     {
-      internal Assumptions(AssumptionsType tp, IConfigSectionNode data)
+      /// <summary>
+      /// Typically you would not call this .ctor directly unless you are temporarily mocking assumptions.
+      /// Call <see cref="AssumptionsForCaller(string)"/> or <see cref="AssumptionsForCallerStory(string, string)"/> instead
+      /// </summary>
+      public Assumptions(AssumptionsType tp, IConfigSectionNode data)
       {
         Type = tp;
         Data = data.NonEmpty(nameof(data));
@@ -147,10 +152,10 @@ namespace Azos.Scripting
       public uint?    GetNullableUInt(string attr)    => this[attr].Value.AsNullableUInt(handling: ConvertErrorHandling.Throw);
       public ulong?   GetNullableULong(string attr)   => this[attr].Value.AsNullableULong(handling: ConvertErrorHandling.Throw);
 
-      public byte[]    GetByteArray(string attr)        => this[attr].Value.AsByteArray(null).NonNull(attr);
+      public byte[]    GetByteArray(string attr)      => this[attr].Value.AsByteArray(null).NonNull(attr);
 
-      public DateTime  GetDateTime(string attr)         => this[attr].Value.AsDateTime(new DateTime(), handling: ConvertErrorHandling.Throw);
-      public DateTime? GetNullableDateTime(string attr) => this[attr].Value.AsNullableDateTime(null, handling: ConvertErrorHandling.Throw);
+      public DateTime  GetDateTime(string attr, DateTimeStyles styles = CoreConsts.UTC_TIMESTAMP_STYLES)         => this[attr].Value.AsDateTime(new DateTime(), handling: ConvertErrorHandling.Throw, styles: styles);
+      public DateTime? GetNullableDateTime(string attr, DateTimeStyles styles = CoreConsts.UTC_TIMESTAMP_STYLES) => this[attr].Value.AsNullableDateTime(null, handling: ConvertErrorHandling.Throw, styles: styles);
 
       public bool      GetBool(string attr)          => this[attr].Value.AsBool(handling: ConvertErrorHandling.Throw);
       public bool?     GetNullableBool(string attr)  => this[attr].Value.AsNullableBool(handling: ConvertErrorHandling.Throw);
@@ -167,6 +172,9 @@ namespace Azos.Scripting
 
       public Atom      GetAtom(string attr)          => this[attr].Value.AsAtom(Atom.ZERO, handling: ConvertErrorHandling.Throw);
       public Atom?     GetNullableAtom(string attr)  => this[attr].Value.AsNullableAtom(null, handling: ConvertErrorHandling.Throw);
+
+      public EntityId  GetEntityId(string attr) => this[attr].Value.AsEntityId(EntityId.EMPTY, handling: ConvertErrorHandling.Throw);
+      public EntityId? GetNullableEntityId(string attr) => this[attr].Value.AsNullableEntityId(null, handling: ConvertErrorHandling.Throw);
 
       public GDID      GetGdid(string attr)          => this[attr].Value.AsGDID(GDID.ZERO, handling: ConvertErrorHandling.Throw);
       public GDID?     GetNullableGdid(string attr)  => this[attr].Value.AsNullableGDID(null, handling: ConvertErrorHandling.Throw);

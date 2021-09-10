@@ -323,6 +323,8 @@ namespace Azos.Serialization.JSON
           continue;
         }
 
+        if (def.GetOnly) continue;//do not try to read get-only fields
+
         if (fromUI && def.NonUI) continue;//skip NonUI fields
 
         //weed out NULLS here

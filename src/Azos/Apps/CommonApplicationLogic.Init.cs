@@ -91,6 +91,7 @@ namespace Azos.Apps
         m_AppId = Atom.Encode(appid);
       }
 
+      m_CloudOrigin = m_ConfigRoot.AttrByName(CONFIG_CLOUD_ORIGIN_ATTR).ValueAsAtom(Atom.ZERO);
       m_NodeDiscriminator = m_ConfigRoot.AttrByName(CONFIG_NODE_DISCRIMINATOR_ATTR).ValueAsUShort(0);
 
       Debugging.DefaultDebugAction = Debugging.ReadDefaultDebugActionFromConfig();

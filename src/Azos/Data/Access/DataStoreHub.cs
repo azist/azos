@@ -5,9 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 using Azos.Apps;
 using Azos.Collections;
@@ -17,15 +15,13 @@ using Azos.Instrumentation;
 namespace Azos.Data.Access
 {
   /// <summary>
-  /// Implements IDataContextHubImplementation
+  /// Provides base implementation of IDataStoreHubImplementation
   /// </summary>
-  public sealed class DefaultDataContextHub : DaemonWithInstrumentation<IApplicationComponent>, IDataContextHubImplementation
+  public class DataStoreHub : DaemonWithInstrumentation<IApplicationComponent>, IDataStoreHubImplementation
   {
-    public const string CONFIG_CONTEXT_SECTION = "context";
+    public const string CONFIG_STORE_SECTION = "store";
 
-    public const string NOT_CONFIGURED_ERROR = "The class was not configured. Call .Config(section)";
-
-    public DefaultDataContextHub(IApplication app) : base(app) {  }
+    public DataStoreHub(IApplication app) : base(app) {  }
 
     protected override void Destructor()
     {
@@ -34,10 +30,10 @@ namespace Azos.Data.Access
     }
 
     private bool m_InstrumentationEnabled;
-    private Registry<IDataContextImplementation> m_Contexts = new Registry<IDataContextImplementation>();
+    private Registry<IDataStoreImplementation> m_Stores = new Registry<IDataStoreImplementation>();
 
 
-    public IRegistry<IDataContext> Contexts => m_Contexts.NonNull(NOT_CONFIGURED_ERROR);
+    public IRegistry<IDataStore> DataStores => m_Stores;
 
     [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_LOG, CoreConsts.EXT_PARAM_GROUP_DATA)]
     public StoreLogLevel DataLogLevel { get; set; }
@@ -69,47 +65,46 @@ namespace Azos.Data.Access
 
       cleanup();
 
-      m_Contexts = new Registry<IDataContextImplementation>();
-      foreach (var ndb in node.ChildrenNamed(CONFIG_CONTEXT_SECTION))
+      foreach (var ndb in node.ChildrenNamed(CONFIG_STORE_SECTION))
       {
-        var context = FactoryUtils.MakeAndConfigureDirectedComponent<IDataContextImplementation>(
+        var store = FactoryUtils.MakeAndConfigureDirectedComponent<IDataStoreImplementation>(
                                         this,
                                         ndb);
 
-        if (!m_Contexts.Register(context))
-          throw new DataAccessException($"{nameof(DefaultDataContextHub)} config contains duplicate named section: ./context[name='{context.Name}']");
+        if (!m_Stores.Register(store))
+          throw new DataAccessException($"{nameof(DataStoreHub)} config duplicate named section: ./context[name='{store.Name}']");
       }
     }
 
     protected override void DoStart()
     {
       base.DoStart();
-      m_Contexts.OfType<Daemon>().ForEach(c => this.DontLeak(() => c.Start()));
+      m_Stores.OfType<Daemon>().ForEach(c => this.DontLeak(() => c.Start()));
     }
 
     protected override void DoSignalStop()
     {
       base.DoSignalStop();
-      m_Contexts.OfType<Daemon>().ForEach(c => this.DontLeak(() => c.SignalStop()));
+      m_Stores.OfType<Daemon>().ForEach(c => this.DontLeak(() => c.SignalStop()));
     }
 
     protected override void DoWaitForCompleteStop()
     {
       base.DoWaitForCompleteStop();
-      m_Contexts.OfType<Daemon>().ForEach(c => this.DontLeak(() => c.WaitForCompleteStop()));
+      m_Stores.OfType<Daemon>().ForEach(c => this.DontLeak(() => c.WaitForCompleteStop()));
     }
 
     protected override void DoAcceptManagerVisit(object manager, DateTime managerNow)
     {
       base.DoAcceptManagerVisit(manager, managerNow);
-      m_Contexts.OfType<Daemon>().ForEach(d => this.DontLeak(() => d.AcceptManagerVisit(this, managerNow)));
+      m_Stores.OfType<Daemon>().ForEach(d => this.DontLeak(() => d.AcceptManagerVisit(this, managerNow)));
     }
 
     private void cleanup()
     {
-      var all = m_Contexts.ToArray();
-      m_Contexts.Clear();
-      all.ForEach(c => this.DontLeak(() => c.Dispose()));
+      var all = m_Stores.ToArray();
+      m_Stores.Clear();
+      all.ForEach(s => this.DontLeak(() => s.Dispose()));
     }
   }
 }

@@ -124,6 +124,7 @@ namespace Azos.IAM.Client
     [Config]
     public string AuthHeader { get; internal set; }
 
+    public bool IsServerImplementation => false;
 
     protected override void DoConfigure(IConfigSectionNode node)
     {

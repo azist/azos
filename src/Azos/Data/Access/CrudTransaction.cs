@@ -121,16 +121,16 @@ namespace Azos.Data.Access
       return DoLoadAsync(false, queries);
     }
 
-    public int ExecuteWithoutFetch(params Query[] queries)
+    public Doc Execute(Query query)
     {
-      CheckOpenStatus("ExecuteWithoutFetch");
-      return DoExecuteWithoutFetch(queries);
+      CheckOpenStatus("Execute");
+      return DoExecute(query);
     }
 
-    public Task<int> ExecuteWithoutFetchAsync(params Query[] queries)
+    public Task<Doc> ExecuteAsync(Query query)
     {
-      CheckOpenStatus("ExecuteWithoutFetch");
-      return DoExecuteWithoutFetchAsync(queries);
+      CheckOpenStatus("ExecuteAsync");
+      return DoExecuteAsync(query);
     }
 
     public RowsetBase LoadOneRowset(Query query)
@@ -266,8 +266,8 @@ namespace Azos.Data.Access
     protected abstract Cursor DoOpenCursor(Query query);
     protected abstract Task<Cursor> DoOpenCursorAsync(Query query);
 
-    protected abstract int DoExecuteWithoutFetch(params Query[] queries);
-    protected abstract Task<int> DoExecuteWithoutFetchAsync(params Query[] queries);
+    protected abstract Doc DoExecute(Query query);
+    protected abstract Task<Doc> DoExecuteAsync(Query query);
 
     protected abstract int DoSave(params RowsetBase[] tables);
     protected abstract Task<int> DoSaveAsync(params RowsetBase[] tables);

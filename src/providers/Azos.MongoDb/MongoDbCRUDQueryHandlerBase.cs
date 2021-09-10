@@ -61,14 +61,14 @@ namespace Azos.Data.Access.MongoDb
               return TaskUtils.AsCompletedTask( () => this.OpenCursor(context, query) );
             }
 
-            public override int ExecuteWithoutFetch(ICrudQueryExecutionContext context, Query query)
+            public override Doc ExecuteProcedure(ICrudQueryExecutionContext context, Query query)
             {
               throw new NotImplementedException();
             }
 
-            public override Task<int> ExecuteWithoutFetchAsync(ICrudQueryExecutionContext context, Query query)
+            public override Task<Doc> ExecuteProcedureAsync(ICrudQueryExecutionContext context, Query query)
             {
-              return TaskUtils.AsCompletedTask( () => this.ExecuteWithoutFetch(context, query));
+              return TaskUtils.AsCompletedTask( () => this.ExecuteProcedure(context, query));
             }
         #endregion
 

@@ -47,5 +47,9 @@ namespace Azos.Tests.Unit.Wave.Controllers
     [Action]
     public object EchoBuffer(byte[] buffer) => new BinaryContent(buffer);
 
+
+    [Action]
+    public object EchoVariousParams(GDID gd, Guid gu, Atom a, EntityId e, DateTime dt, decimal m, double d, bool b, long li, string s)
+      => new { gd, gu, a, e, dt, m, d, b, li, s};
   }
 }

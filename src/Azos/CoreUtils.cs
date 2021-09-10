@@ -13,6 +13,7 @@ using System.Diagnostics;
 using Azos.Apps;
 using System.Runtime.CompilerServices;
 using Azos.Serialization.JSON;
+using System.Threading.Tasks;
 
 namespace Azos
 {
@@ -304,6 +305,32 @@ namespace Azos
     /// Returns true if there was no error on action success, or false if error leaked from action and was logged by component.
     /// The actual logging depends on the component log level
     /// </summary>
+    public static async Task<bool> DontLeakAsync(this IApplicationComponent cmp, Func<Task> action, string errorText = null, [CallerMemberName]string errorFrom = null, Log.MessageType errorLogType = Log.MessageType.Error)
+    {
+      var ac = (cmp.NonNull(nameof(cmp)) as ApplicationComponent).NonNull("Internal error: not a AC");
+      action.NonNull(nameof(action));
+      try
+      {
+        await action().ConfigureAwait(false);
+        return true;
+      }
+      catch (Exception error)
+      {
+        if (errorText.IsNullOrWhiteSpace()) errorText = "Error leaked: ";
+        errorText += error.ToMessageWithType();
+
+        ac.WriteLog(errorLogType, errorFrom, errorText, error);
+      }
+
+      return false;
+    }
+
+
+    /// <summary>
+    /// Encloses an action in try catch and logs the error if it leaked from action. This method never leaks.
+    /// Returns true if there was no error on action success, or false if error leaked from action and was logged by component.
+    /// The actual logging depends on the component log level
+    /// </summary>
     public static TResult DontLeak<TResult>(this IApplicationComponent cmp, Func<TResult> func, string errorText = null, [CallerMemberName]string errorFrom = null, Log.MessageType errorLogType = Log.MessageType.Error)
     {
       var ac = (cmp.NonNull(nameof(cmp)) as ApplicationComponent).NonNull("Internal error: not a AC");
@@ -311,6 +338,31 @@ namespace Azos
       try
       {
         return func();
+      }
+      catch (Exception error)
+      {
+        if (errorText.IsNullOrWhiteSpace()) errorText = "Error leaked: ";
+        errorText += error.ToMessageWithType();
+
+        ac.WriteLog(errorLogType, errorFrom, errorText, error);
+      }
+
+      return default(TResult);
+    }
+
+
+    /// <summary>
+    /// Encloses an action in try catch and logs the error if it leaked from action. This method never leaks.
+    /// Returns true if there was no error on action success, or false if error leaked from action and was logged by component.
+    /// The actual logging depends on the component log level
+    /// </summary>
+    public static async Task<TResult> DontLeakAsync<TResult>(this IApplicationComponent cmp, Func<Task<TResult>> func, string errorText = null, [CallerMemberName]string errorFrom = null, Log.MessageType errorLogType = Log.MessageType.Error)
+    {
+      var ac = (cmp.NonNull(nameof(cmp)) as ApplicationComponent).NonNull("Internal error: not a AC");
+      func.NonNull(nameof(func));
+      try
+      {
+        return await func().ConfigureAwait(false);
       }
       catch (Exception error)
       {

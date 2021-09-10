@@ -53,7 +53,6 @@ namespace Azos
     /// </summary>
     int ExpectedComponentShutdownDurationMs { get; }
 
-
     /// <summary>
     /// Returns the ConsolePort used by this application, or null if this application does not have any specific console ports assigned
     /// </summary>
@@ -64,6 +63,13 @@ namespace Azos
     /// Used in cluster/distributed systems for telemetry warehousing among other things
     /// </summary>
     Atom AppId { get;}
+
+    /// <summary>
+    /// Provides an efficient global unique identifier of the cloud partition of a distributed system in which this application instance executes.
+    /// Origins typically represents data centers or regions, for example, on AWS CloudOrigins are typically mapped to AWS regions which
+    /// asynchronously replicate data
+    /// </summary>
+    Atom CloudOrigin { get; }
 
     /// <summary>
     /// Provides a short value which uniquely identifies the logical cluster network node.

@@ -92,7 +92,7 @@ namespace Azos.Data.Access.MySql
 
         using (reader)
         {
-          return await DoPopulateRowsetAsync(context, reader, target, query, Source, oneDoc);
+          return await DoPopulateRowsetAsync(context, reader, target, query, Source, oneDoc).ConfigureAwait(false);
         }
       }//using command
     }
@@ -156,7 +156,7 @@ namespace Azos.Data.Access.MySql
     }
 
 
-    public override async Task<int> ExecuteWithoutFetchAsync(MySqlCrudQueryExecutionContext context, Query query)
+    public override async Task<Doc> ExecuteProcedureAsync(MySqlCrudQueryExecutionContext context, Query query)
     {
       using (var cmd = context.Connection.CreateCommand())
       {
@@ -171,7 +171,7 @@ namespace Azos.Data.Access.MySql
         {
           var affected = await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
           GeneratorUtils.LogCommand(context.DataStore, "queryhandler-ok", cmd, null);
-          return affected;
+          return MapProcedureResult(affected);
         }
         catch(Exception error)
         {

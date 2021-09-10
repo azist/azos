@@ -77,12 +77,12 @@ namespace Azos.Data.Access
     public abstract Task<Schema> GetSchemaAsync(ICrudQueryExecutionContext context, Query query);
 
     /// <summary>
-    /// Executes query. The implementation may be called by multiple threads and must be safe
+    /// Executes query which fetches rowset, such as SELECT statement. The implementation may be called by multiple threads and must be safe
     /// </summary>
     public abstract RowsetBase Execute(ICrudQueryExecutionContext context, Query query, bool oneRow = false);
 
     /// <summary>
-    /// Executes query. The implementation may be called by multiple threads and must be safe
+    /// xecutes query which fetches rowset, such as SELECT statement. The implementation may be called by multiple threads and must be safe
     /// </summary>
     public abstract Task<RowsetBase> ExecuteAsync(ICrudQueryExecutionContext context, Query query, bool oneRow = false);
 
@@ -97,16 +97,18 @@ namespace Azos.Data.Access
     public abstract Task<Cursor> OpenCursorAsync(ICrudQueryExecutionContext context, Query query);
 
     /// <summary>
-    /// Executes query that does not return results. The implementation may be called by multiple threads and must be safe.
-    /// Returns rows affected
+    /// Executes query that is implemented like a stored procedure and does not necessarily return a uniform rowset.
+    /// These queries are typically used for modifying data. Returns operation result as a document,
+    /// The implementation may be called by multiple threads and must be safe.
     /// </summary>
-    public abstract int ExecuteWithoutFetch(ICrudQueryExecutionContext context, Query query);
+    public abstract Doc ExecuteProcedure(ICrudQueryExecutionContext context, Query query);
 
     /// <summary>
-    /// Executes query that does not return results. The implementation may be called by multiple threads and must be safe.
-    /// Returns rows affected
+    /// Executes query that is implemented like a stored procedure and does not necessarily return a uniform rowset.
+    /// These queries are typically used for modifying data. Returns operation result as a document,
+    /// The implementation may be called by multiple threads and must be safe.
     /// </summary>
-    public abstract Task<int> ExecuteWithoutFetchAsync(ICrudQueryExecutionContext context, Query query);
+    public abstract Task<Doc> ExecuteProcedureAsync(ICrudQueryExecutionContext context, Query query);
   }
 
   /// <summary>
@@ -214,14 +216,14 @@ namespace Azos.Data.Access
 
 
 
-    public override int ExecuteWithoutFetch(ICrudQueryExecutionContext context, Query query)
-      => Profile(() => ExecuteWithoutFetchAsync(context, query).GetAwaiter().GetResult());
+    public override Doc ExecuteProcedure(ICrudQueryExecutionContext context, Query query)
+      => Profile(() => ExecuteProcedureAsync(context, query).GetAwaiter().GetResult());
 
-    public sealed override async Task<int> ExecuteWithoutFetchAsync(ICrudQueryExecutionContext context, Query query)
-      => await ProfileAsync(() => ExecuteWithoutFetchAsync((TStoreContext)context, query));
+    public sealed override async Task<Doc> ExecuteProcedureAsync(ICrudQueryExecutionContext context, Query query)
+      => await ProfileAsync(() => ExecuteProcedureAsync((TStoreContext)context, query));
 
-    public virtual Task<int> ExecuteWithoutFetchAsync(TStoreContext context, Query query)
-      => throw new NotImplementedException($"{this.GetType().FullName}.{nameof(ExecuteWithoutFetchAsync)}");
+    public virtual Task<Doc> ExecuteProcedureAsync(TStoreContext context, Query query)
+      => throw new NotImplementedException($"{this.GetType().FullName}.{nameof(ExecuteProcedureAsync)}");
 
 
 

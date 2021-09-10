@@ -200,7 +200,7 @@ namespace Azos.Data.Access.MySql
       m_Select.Append(quote(dbExpression));
 
       if (alias.IsNotNullOrWhiteSpace())
-        m_Select.Append($" AS \"{alias}\"");
+        m_Select.Append($" AS `{alias}`");
 
       return this;
     }

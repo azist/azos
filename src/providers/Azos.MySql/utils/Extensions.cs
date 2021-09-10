@@ -5,8 +5,6 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 using MySqlConnector;
 
@@ -17,60 +15,101 @@ namespace Azos.Data.Access.MySql
   /// </summary>
   public static class Extensions
   {
-    public static string AsStringField(this MySqlDataReader reader, string fld)
+    public static string AsStringField(this MySqlDataReader reader, string fld, string dflt = null, ConvertErrorHandling handling = ConvertErrorHandling.ReturnDefault)
     {
       var val = reader[fld];
       if (val is DBNull) return null;
-      return val.AsString();
+      return val.AsString(dflt, handling);
     }
 
-    public static bool? AsBoolField(this MySqlDataReader reader, string fld)
+    public static GDID AsGdidField(this MySqlDataReader reader, string fld, GDID? dflt = null, ConvertErrorHandling handling = ConvertErrorHandling.ReturnDefault)
     {
       var val = reader[fld];
-      if (val is DBNull) return null;
-      return val.AsNullableBool();
+      if (val is DBNull) return dflt ?? GDID.ZERO;
+      return val.AsGDID(dflt ?? GDID.ZERO, handling);
     }
 
-    public static DateTime? AsDateTimeField(this MySqlDataReader reader, string fld)
+    public static GDID? AsNullableGdidField(this MySqlDataReader reader, string fld, GDID? dflt = null, ConvertErrorHandling handling = ConvertErrorHandling.ReturnDefault)
     {
       var val = reader[fld];
       if (val is DBNull) return null;
-      return val.AsNullableDateTime();
+      return val.AsNullableGDID(dflt, handling);
     }
 
-    public static int? AsIntField(this MySqlDataReader reader, string fld)
+    public static Atom? AsAtomField(this MySqlDataReader reader, string fld, Atom? dflt = null, ConvertErrorHandling handling = ConvertErrorHandling.ReturnDefault)
     {
       var val = reader[fld];
       if (val is DBNull) return null;
-      return val.AsNullableInt();
+      return val.AsNullableAtom(dflt, handling);
     }
 
-    public static long? AsLongField(this MySqlDataReader reader, string fld)
+    public static EntityId? AsEntityIdField(this MySqlDataReader reader, string fld, EntityId? dflt = null, ConvertErrorHandling handling = ConvertErrorHandling.ReturnDefault)
     {
       var val = reader[fld];
       if (val is DBNull) return null;
-      return val.AsNullableLong();
+      return val.AsNullableEntityId(dflt, handling);
     }
 
-    public static float? AsFloatField(this MySqlDataReader reader, string fld)
+    public static bool? AsBoolField(this MySqlDataReader reader, string fld, bool? dflt = null, ConvertErrorHandling handling = ConvertErrorHandling.ReturnDefault)
     {
       var val = reader[fld];
       if (val is DBNull) return null;
-      return val.AsNullableFloat();
+      return val.AsNullableBool(dflt, handling);
     }
 
-    public static double? AsDoubleField(this MySqlDataReader reader, string fld)
+    /// <summary>
+    /// If styles not specified, defaults to UTC
+    /// </summary>
+    public static DateTime? AsDateTimeField(this MySqlDataReader reader,
+                                           string fld,
+                                           DateTime? dflt = null,
+                                           ConvertErrorHandling handling = ConvertErrorHandling.ReturnDefault,
+                                           System.Globalization.DateTimeStyles? styles = null)
     {
       var val = reader[fld];
       if (val is DBNull) return null;
-      return val.AsNullableDouble();
+
+      if (!styles.HasValue)
+      {
+        styles = CoreConsts.UTC_TIMESTAMP_STYLES;
+      }
+
+      return val.AsNullableDateTime(dflt, handling, styles.Value);
     }
 
-    public static decimal? AsDecimalField(this MySqlDataReader reader, string fld)
+    public static int? AsIntField(this MySqlDataReader reader, string fld, int? dflt = null, ConvertErrorHandling handling = ConvertErrorHandling.ReturnDefault)
     {
       var val = reader[fld];
       if (val is DBNull) return null;
-      return val.AsNullableDecimal();
+      return val.AsNullableInt(dflt, handling);
+    }
+
+    public static long? AsLongField(this MySqlDataReader reader, string fld, long? dflt = null, ConvertErrorHandling handling = ConvertErrorHandling.ReturnDefault)
+    {
+      var val = reader[fld];
+      if (val is DBNull) return null;
+      return val.AsNullableLong(dflt, handling);
+    }
+
+    public static float? AsFloatField(this MySqlDataReader reader, string fld, float? dflt = null, ConvertErrorHandling handling = ConvertErrorHandling.ReturnDefault)
+    {
+      var val = reader[fld];
+      if (val is DBNull) return null;
+      return val.AsNullableFloat(dflt, handling);
+    }
+
+    public static double? AsDoubleField(this MySqlDataReader reader, string fld, double? dflt = null, ConvertErrorHandling handling = ConvertErrorHandling.ReturnDefault)
+    {
+      var val = reader[fld];
+      if (val is DBNull) return null;
+      return val.AsNullableDouble(dflt, handling);
+    }
+
+    public static decimal? AsDecimalField(this MySqlDataReader reader, string fld, decimal? dflt = null, ConvertErrorHandling handling = ConvertErrorHandling.ReturnDefault)
+    {
+      var val = reader[fld];
+      if (val is DBNull) return null;
+      return val.AsNullableDecimal(dflt, handling);
     }
 
     public static MySqlCommand AddParam(this MySqlCommand cmd, string paramKey, object paramValue, bool isRequired = false)

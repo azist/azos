@@ -113,6 +113,7 @@ namespace Azos.Data
       data.AddAttributeNode("name", fname);
       data.AddAttributeNode("type", context.AddTypeToDescribe(def.Type));
       data.AddAttributeNode("order", def.Order);
+      data.AddAttributeNode("get-only", def.GetOnly);
 
       if (fatr.Description.IsNotNullOrWhiteSpace()) data.AddAttributeNode("description", fatr.Description);
       data.AddAttributeNode("key", fatr.Key);

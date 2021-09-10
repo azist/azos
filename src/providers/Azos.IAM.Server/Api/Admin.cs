@@ -42,10 +42,11 @@ namespace Azos.IAM.Server.Api
 
     protected override MethodInfo FindMatchingAction(WorkContext work, string action, out object[] args)
     {
+#warning Refactor/remove
       if (action.IsOneOf("filter", "change"))
       {
         var body = work.RequestBodyAsJSONDataMap;
-        var t = body[Form.JSON_TYPE_PROPERTY].AsString();
+        var t = body["__FormType"].AsString();
         if (t.IsNotNullOrWhiteSpace())
         {
           var tp = Assembly.GetExecutingAssembly().GetType("Azos.IAM.Protocol.{0}".Args(t), false, true);

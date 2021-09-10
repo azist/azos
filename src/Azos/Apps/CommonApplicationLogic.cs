@@ -35,6 +35,7 @@ namespace Azos.Apps
 
     public const string CONFIG_NAME_ATTR = "name";
     public const string CONFIG_ID_ATTR = "id";
+    public const string CONFIG_CLOUD_ORIGIN_ATTR = "cloud-origin";
     public const string CONFIG_NODE_DISCRIMINATOR_ATTR = "node-discriminator";
     public const string CONFIG_COPYRIGHT_ATTR = "copyright";
     public const string CONFIG_DESCRIPTION_ATTR = "description";
@@ -155,6 +156,7 @@ namespace Azos.Apps
     private Atom m_AppId;
     private Guid m_InstanceId = Guid.NewGuid();
     protected DateTime m_StartTime = DateTime.UtcNow;//Fix #494
+    private Atom m_CloudOrigin;
     private ushort m_NodeDiscriminator;
     private IO.Console.IConsolePort m_ConsolePort;
 
@@ -242,6 +244,14 @@ namespace Azos.Apps
 
     /// <summary> Uniquely identifies this application type </summary>
     public Atom AppId => m_AppId;
+
+
+    /// <summary>
+    /// Provides an efficient global unique identifier of the cloud partition of a distributed system in which this application instance executes.
+    /// Origins typically represents data centers or regions, for example, on AWS CloudOrigins are typically mapped to AWS regions which
+    /// asynchronously replicate data
+    /// </summary>
+    public Atom CloudOrigin => m_CloudOrigin;
 
     /// <summary>
     /// Provides a short value which uniquely identifies the logical cluster network node.

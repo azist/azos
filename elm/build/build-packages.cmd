@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.20.5.6
-set HEADLINE=#525,#526
+set VER=1.30.0
+set HEADLINE=#553 CRUD Execute doc, QueryHandler.ExecuteProcedure
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

@@ -165,7 +165,7 @@ namespace Azos.Data.Access.MsSql
           }
 
 
-          public override int ExecuteWithoutFetch(ICrudQueryExecutionContext context, Query query)
+          public override Doc ExecuteProcedure(ICrudQueryExecutionContext context, Query query)
           {
               var ctx = (MsSqlCRUDQueryExecutionContext)context;
 
@@ -182,7 +182,7 @@ namespace Azos.Data.Access.MsSql
                   {
                       var affected = cmd.ExecuteNonQuery();
                       GeneratorUtils.LogCommand(ctx.DataStore, "queryhandler-ok", cmd, null);
-                      return affected;
+                      return new RowsAffectedDoc(affected);
                   }
                   catch(Exception error)
                   {
@@ -192,9 +192,9 @@ namespace Azos.Data.Access.MsSql
               }//using command
           }
 
-          public override Task<int> ExecuteWithoutFetchAsync(ICrudQueryExecutionContext context, Query query)
+          public override Task<Doc> ExecuteProcedureAsync(ICrudQueryExecutionContext context, Query query)
           {
-              return TaskUtils.AsCompletedTask( () => this.ExecuteWithoutFetch(context, query));
+              return TaskUtils.AsCompletedTask( () => this.ExecuteProcedure(context, query));
           }
 
       #endregion
