@@ -66,13 +66,16 @@ namespace Azos.Data
     /// <summary>
     /// Describes data change operation non-successful result such as 404 not found/Undefined change
     /// </summary>
-    public ChangeResult(string msg, int statusCode = 0)
+    /// <param name="msg">Optional message from the serving party</param>
+    /// <param name="statusCode">Status code mappable to http response, zero by default which maps to HTTP 404</param>
+    /// <param name="data">Returns optional extra data which is returned from the data change operation</param>
+    public ChangeResult(string msg, int statusCode = 0, object data = null)
     {
       Change = ChangeType.Undefined;
       StatusCode = statusCode;
       AffectedCount = 0;
       Message = msg;
-      Data = null;
+      Data = data;
     }
 
     /// <summary>
@@ -84,7 +87,7 @@ namespace Azos.Data
     {
       map.NonNull(nameof(map));
       Change        = map["change"].AsEnum(ChangeType.Undefined);
-      StatusCode    = map["status"].AsInt(0);
+      StatusCode    = map["status"].AsInt();
       AffectedCount = map["affected"].AsLong();
       Message       = map["message"].AsString();
       Data          = map["data"];
