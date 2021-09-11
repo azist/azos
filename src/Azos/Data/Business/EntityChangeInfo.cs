@@ -11,11 +11,11 @@ using Azos.Serialization.Bix;
 namespace Azos.Data.Business
 {
   /// <summary>
-  /// Describes entity data change in the backend.
+  /// Describes entity data change in the backend store system.
   /// This type is usually returned from query handlers and is returned via <see cref="ChangeResult.Data"/> field
   /// </summary>
   [Bix("a1c2194e-816b-4d2b-9b7f-46de7854a442")]
-  [Schema(Description = "Tuple: (G_Version, Utc, Origin, Actor, State)")]
+  [Schema(Description = "Describes entity data change in the backend store system (EntityId, VersionInfo)")]
   public class EntityChangeInfo : FragmentModel
   {
     [Field(required: true, Description = "An id of the changed entity; " +
