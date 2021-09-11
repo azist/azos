@@ -46,4 +46,10 @@
     <Folder Include="_build\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="Conf\Metabiz\IMetabizLogic.cs">
+      <SubType>Component</SubType>
+    </Compile>
+  </ItemGroup>
+
 </Project>
