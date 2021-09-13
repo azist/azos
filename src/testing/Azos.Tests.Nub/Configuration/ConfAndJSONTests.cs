@@ -4,7 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
 using System.Linq;
 
 using Azos.Data;
@@ -81,11 +80,11 @@ namespace Azos.Tests.Nub.Configuration
     [Run]
     public void JSONtoLaconicToJSON()//20170414
     {
-       var config = "{r:{}}".AsJSONConfig();
-       Console.WriteLine(config.ToLaconicString());
-       var json = config.ToJSONString();
-       Console.WriteLine(json);
-       Aver.AreEqual("{\"r\":{}}", json);
+      var config = "{r:{}}".AsJSONConfig();
+      config.ToLaconicString().See();
+      var json = config.ToJSONString();
+      json.See();
+      Aver.AreEqual("{\"r\":{}}", json);
     }
   }
 }

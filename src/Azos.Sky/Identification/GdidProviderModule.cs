@@ -19,11 +19,24 @@ namespace Azos.Sky.Identification
   /// </summary>
   public interface IGdidProviderModule : IModule
   {
+    /// <summary>
+    /// Returns provider that generates GDIDs
+    /// </summary>
     IGdidProvider Provider { get; }
+
+    /// <summary>
+    /// Returns ScopePrefix that gets appended  before the scope name. In most cases this property is null
+    /// </summary>
+    string ScopePrefix { get; }
+
+    /// <summary>
+    /// Returns SequencePrefix that gets appended  before the sequence name. In most cases this property is null
+    /// </summary>
+    string SequencePrefix { get; }
   }
 
   /// <summary>
-  /// Provides default implementation for GdidGeneratorHost
+  /// Provides default implementation for GdidProviderModule which uses GdidGenerator with remote accessor or LocalGdidGenerator
   /// </summary>
   public sealed class GdidProviderModule : ModuleBase, IGdidProviderModule
   {
@@ -42,6 +55,9 @@ namespace Azos.Sky.Identification
 
     public IGdidProvider Provider => m_Generator;
 
+    [Config] public string ScopePrefix{ get; private set;}
+    [Config] public string SequencePrefix { get; private set; }
+
     protected override void DoConfigure(IConfigSectionNode node)
     {
       node.NonEmpty(nameof(GdidProviderModule)+".conf");
@@ -53,7 +69,7 @@ namespace Azos.Sky.Identification
       if (!isLocal && naccessor.Exists)
       {
         var accessor = FactoryUtils.MakeAndConfigureDirectedComponent<IGdidAuthorityAccessor>(this, naccessor);
-        m_Generator = new GdidGenerator(this, nameof(GdidProviderModule), accessor);
+        m_Generator = new GdidGenerator(this, nameof(GdidProviderModule), ScopePrefix, SequencePrefix, accessor);
       }
       else
       {

@@ -5,7 +5,6 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
 
 using Azos.Apps;
@@ -13,7 +12,6 @@ using Azos.Data;
 using Azos.Scripting;
 using Azos.Security;
 using Azos.Security.Tokens;
-using Azos.Serialization.JSON;
 
 namespace Azos.Tests.Nub.Security
 {
@@ -142,9 +140,7 @@ app
       Aver.IsTrue( ve is FieldValidationException );
       "Expected and got: {0}".See(ve.ToMessageWithType());
       Aver.IsTrue(ve.Message.Contains("Type Mismatch"));
-
     }
-
 
   }
 }

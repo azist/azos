@@ -9,135 +9,127 @@ using Azos.Scripting;
 
 namespace Azos.Tests.Nub.BaseCollections
 {
-    [Runnable]
-    public class EventedDictionaryTests
+  [Runnable]
+  public class EventedDictionaryTests
+  {
+    [Run]
+    public void Dict_Readonly()
     {
+      var dict = new EventedDictionary<int, string, string>("CONTEXT", false);
 
-        [Run]
-        public void Dict_Readonly()
-        {
-          var dict = new EventedDictionary<int, string, string>("CONTEXT", false);
+      var ro = false;
 
-          var ro = false;
+      dict.GetReadOnlyEvent = (l) => ro;
 
-          dict.GetReadOnlyEvent = (l) => ro;
+      dict.Add(1, "a");
+      dict.Add(2, "b");
+      dict.Add(3, "c");
 
-          dict.Add(1,"a");
-          dict.Add(2,"b");
-          dict.Add(3,"c");
+      Aver.AreEqual(3, dict.Count);
+      ro = true;
 
-          Aver.AreEqual(3, dict.Count);
-          ro = true;
+      Aver.Throws<AzosException>(() => dict.Add(4, "d"));
+    }
 
-          Aver.Throws<AzosException>(() =>  dict.Add(4, "d"));
-        }
+    [Run]
+    public void Dict_Add()
+    {
+      var dict = new EventedDictionary<int, string, string>("CONTEXT", false);
 
-        [Run]
-        public void Dict_Add()
-        {
-          var dict = new EventedDictionary<int, string, string>("CONTEXT", false);
+      var first = true;
+      dict.GetReadOnlyEvent = (_) => false;
 
-          var first = true;
-          dict.GetReadOnlyEvent = (_) => false;
+      dict.ChangeEvent = (d, ct, p, k, v) =>
+                        {
+                          Aver.AreObjectsEqual(EventedDictionary<int, string, string>.ChangeType.Add, ct);
+                          Aver.IsTrue((first ? EventPhase.Before : EventPhase.After) == p);
+                          Aver.AreEqual(1, k);
+                          Aver.AreEqual("a", v);
+                          first = false;
+                        };
 
-          dict.ChangeEvent = (d, ct, p, k, v) =>
-                            {
-                              Aver.AreObjectsEqual( EventedDictionary<int, string, string>.ChangeType.Add, ct);
-                              Aver.IsTrue( (first ? EventPhase.Before : EventPhase.After) == p);
-                              Aver.AreEqual( 1, k);
-                              Aver.AreEqual( "a", v);
-                              first = false;
-                            };
+      dict.Add(1, "a");
+    }
 
-          dict.Add(1, "a");
+    [Run]
+    public void Dict_Remove()
+    {
+      var dict = new EventedDictionary<int, string, string>("CONTEXT", false);
 
-        }
+      var first = true;
+      dict.GetReadOnlyEvent = (_) => false;
 
-        [Run]
-        public void Dict_Remove()
-        {
-          var dict = new EventedDictionary<int,string, string>("CONTEXT", false);
+      dict.Add(1, "a");
+      dict.Add(2, "b");
+      dict.Add(3, "c");
 
-          var first = true;
-          dict.GetReadOnlyEvent = (_) => false;
+      Aver.AreEqual(3, dict.Count);
 
-          dict.Add(1, "a");
-          dict.Add(2, "b");
-          dict.Add(3, "c");
+      dict.ChangeEvent = (d, ct, p, k, v) =>
+                        {
+                          Aver.AreObjectsEqual(EventedDictionary<int, string, string>.ChangeType.Remove, ct);
+                          Aver.IsTrue((first ? EventPhase.Before : EventPhase.After) == p);
+                          Aver.AreEqual(2, k);
+                          first = false;
+                        };
 
-          Aver.AreEqual(3, dict.Count);
+      dict.Remove(2);
+      Aver.AreEqual(2, dict.Count);
+    }
 
-          dict.ChangeEvent = (d, ct, p, k, v) =>
-                            {
-                              Aver.AreObjectsEqual( EventedDictionary<int, string, string>.ChangeType.Remove, ct);
-                              Aver.IsTrue( (first ? EventPhase.Before : EventPhase.After) == p);
-                              Aver.AreEqual( 2, k);
-                              first = false;
-                            };
+    [Run]
+    public void Dict_Set()
+    {
+      var dict = new EventedDictionary<int, string, string>("CONTEXT", false);
 
-          dict.Remove(2);
-          Aver.AreEqual(2, dict.Count);
+      var first = true;
+      dict.GetReadOnlyEvent = (_) => false;
 
-        }
+      dict.Add(1, "a");
+      dict.Add(2, "b");
+      dict.Add(3, "c");
 
-        [Run]
-        public void Dict_Set()
-        {
-          var dict = new EventedDictionary<int, string, string>("CONTEXT", false);
+      Aver.AreEqual(3, dict.Count);
 
-          var first = true;
-          dict.GetReadOnlyEvent = (_) => false;
+      dict.ChangeEvent = (d, ct, p, k, v) =>
+                        {
+                          Aver.AreObjectsEqual(EventedDictionary<int, string, string>.ChangeType.Set, ct);
+                          Aver.IsTrue((first ? EventPhase.Before : EventPhase.After) == p);
+                          Aver.AreEqual(1, k);
+                          Aver.AreEqual("z", v);
+                          first = false;
+                        };
 
-          dict.Add(1, "a");
-          dict.Add(2, "b");
-          dict.Add(3, "c");
+      dict[1] = "z";
+      Aver.AreEqual("z", dict[1]);
+    }
 
-          Aver.AreEqual(3, dict.Count);
+    [Run]
+    public void Dict_Clear()
+    {
+      var dict = new EventedDictionary<int, string, string>("CONTEXT", false);
 
-          dict.ChangeEvent = (d, ct, p, k, v) =>
-                            {
-                              Aver.AreObjectsEqual( EventedDictionary<int, string, string>.ChangeType.Set, ct);
-                              Aver.IsTrue( (first ? EventPhase.Before : EventPhase.After) == p);
-                              Aver.AreEqual( 1, k);
-                              Aver.AreEqual( "z", v);
-                              first = false;
-                            };
+      var first = true;
+      dict.GetReadOnlyEvent = (_) => false;
 
-          dict[1] = "z";
-          Aver.AreEqual("z", dict[1]);
+      dict.Add(1, "a");
+      dict.Add(2, "b");
+      dict.Add(3, "c");
 
-        }
+      Aver.AreEqual(3, dict.Count);
 
+      dict.ChangeEvent = (d, ct, p, k, v) =>
+                        {
+                          Aver.AreObjectsEqual(EventedDictionary<int, string, string>.ChangeType.Clear, ct);
+                          Aver.IsTrue((first ? EventPhase.Before : EventPhase.After) == p);
+                          Aver.AreEqual(0, k);
+                          Aver.AreEqual(null, v);
+                          first = false;
+                        };
 
-        [Run]
-        public void Dict_Clear()
-        {
-          var dict = new EventedDictionary<int, string, string>("CONTEXT", false);
-
-          var first = true;
-          dict.GetReadOnlyEvent = (_) => false;
-
-          dict.Add(1, "a");
-          dict.Add(2, "b");
-          dict.Add(3, "c");
-
-          Aver.AreEqual(3, dict.Count);
-
-          dict.ChangeEvent = (d, ct, p, k, v) =>
-                            {
-                              Aver.AreObjectsEqual( EventedDictionary<int, string, string>.ChangeType.Clear, ct);
-                              Aver.IsTrue( (first ? EventPhase.Before : EventPhase.After) == p);
-                              Aver.AreEqual( 0, k);
-                              Aver.AreEqual( null, v);
-                              first = false;
-                            };
-
-          dict.Clear();
-          Aver.AreEqual( 0, dict.Count);
-
-        }
-
-
+      dict.Clear();
+      Aver.AreEqual(0, dict.Count);
+    }
 
   }
 }

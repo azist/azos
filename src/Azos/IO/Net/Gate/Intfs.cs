@@ -15,8 +15,9 @@ namespace Azos.IO.Net.Gate
   public enum GateAction {Deny=0, Allow}
 
   /// <summary>
-  /// Stipulates general contract for nrtwork gates - entities similar to firewall.
-  /// Network gates allow/deny in/out traffic based on a set of rules
+  /// Stipulates general contract for network gates - entities similar to firewall.
+  /// Unlike network firewalls, gates allow/deny in/out traffic based on a set of rules
+  /// fed of the application state
   /// </summary>
   public interface INetGate : IApplicationComponent
   {

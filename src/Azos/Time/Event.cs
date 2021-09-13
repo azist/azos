@@ -51,7 +51,7 @@ namespace Azos.Time
   /// Represents an entity that can handle events.
   /// This type is used to implement event handlers that get injected via config
   /// </summary>
-  public interface IEventHandler
+  public interface IEventHandler : IApplicationComponent, IConfigurable
   {
     void EventHandlerBody(Event sender);
     void EventStatusChange(Event sender, EventStatus priorStatus);
@@ -125,18 +125,17 @@ namespace Azos.Time
 
       protected override void Destructor()
       {
-        if (!this.Disposed)
-          lock(m_Lock)
-          {
-            ((IEventTimerImplementation)m_Timer).__InternalUnRegisterEvent(this);
+        lock(m_Lock)
+        {
+          ((IEventTimerImplementation)m_Timer).__InternalUnRegisterEvent(this);
 
-            m_Context = null;
-            Body = null;
-            StatusChange = null;
-            DefinitionChange = null;
+          m_Context = null;
+          Body = null;
+          StatusChange = null;
+          DefinitionChange = null;
 
-            base.Destructor();
-          }
+          base.Destructor();
+        }
       }
 
     #endregion
@@ -417,6 +416,9 @@ namespace Azos.Time
       {
         if (Disposed) return;
 
+        if (EventHandler?.ComponentDirector == this)
+          DisposeIfDisposableAndNull(ref EventHandler);
+
         if (config==null) return;
         ConfigAttribute.Apply(this, config);
 
@@ -426,46 +428,48 @@ namespace Azos.Time
 
         var ehnode = config[CONFIG_HANDLER_SECTION];
         if (ehnode.Exists)
-          EventHandler = FactoryUtils.MakeUsingCtor<IEventHandler>(ehnode);
+        {
+          EventHandler = FactoryUtils.MakeAndConfigureDirectedComponent<IEventHandler>(this, ehnode);
+        }
       }
 
-            /// <summary>
-            /// Converts universal time to local time as of TimeLocation property
-            /// </summary>
-            public DateTime UniversalTimeToLocalizedTime(DateTime utc)
-            {
-                if (utc.Kind!=DateTimeKind.Utc)
-                 throw new TimeException(StringConsts.ARGUMENT_ERROR+GetType().Name+".UniversalTimeToLocalizedTime(utc.Kind!=UTC)");
+      /// <summary>
+      /// Converts universal time to local time as of TimeLocation property
+      /// </summary>
+      public DateTime UniversalTimeToLocalizedTime(DateTime utc)
+      {
+          if (utc.Kind!=DateTimeKind.Utc)
+            throw new TimeException(StringConsts.ARGUMENT_ERROR+GetType().Name+".UniversalTimeToLocalizedTime(utc.Kind!=UTC)");
 
-                var loc = TimeLocation;
-                if (!loc.UseParentSetting)
-                {
-                   return DateTime.SpecifyKind(utc + TimeLocation.UTCOffset, DateTimeKind.Local);
-                }
-                else
-                {
-                   return App.UniversalTimeToLocalizedTime(utc);
-                }
-            }
+          var loc = TimeLocation;
+          if (!loc.UseParentSetting)
+          {
+              return DateTime.SpecifyKind(utc + TimeLocation.UTCOffset, DateTimeKind.Local);
+          }
+          else
+          {
+              return App.UniversalTimeToLocalizedTime(utc);
+          }
+      }
 
-            /// <summary>
-            /// Converts localized time to UTC time as of TimeLocation property
-            /// </summary>
-            public DateTime LocalizedTimeToUniversalTime(DateTime local)
-            {
-                if (local.Kind!=DateTimeKind.Local)
-                 throw new TimeException(StringConsts.ARGUMENT_ERROR+GetType().Name+".LocalizedTimeToUniversalTime(utc.Kind!=Local)");
+      /// <summary>
+      /// Converts localized time to UTC time as of TimeLocation property
+      /// </summary>
+      public DateTime LocalizedTimeToUniversalTime(DateTime local)
+      {
+          if (local.Kind!=DateTimeKind.Local)
+            throw new TimeException(StringConsts.ARGUMENT_ERROR+GetType().Name+".LocalizedTimeToUniversalTime(utc.Kind!=Local)");
 
-                var loc = TimeLocation;
-                if (!loc.UseParentSetting)
-                {
-                   return DateTime.SpecifyKind(local - TimeLocation.UTCOffset, DateTimeKind.Utc);
-                }
-                else
-                {
-                   return App.LocalizedTimeToUniversalTime(local);
-                }
-            }
+          var loc = TimeLocation;
+          if (!loc.UseParentSetting)
+          {
+              return DateTime.SpecifyKind(local - TimeLocation.UTCOffset, DateTimeKind.Utc);
+          }
+          else
+          {
+              return App.LocalizedTimeToUniversalTime(local);
+          }
+      }
 
       /// <summary>
       /// Returns named parameters that can be used to control this component

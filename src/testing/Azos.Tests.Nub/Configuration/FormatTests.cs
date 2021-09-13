@@ -4,9 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-
-using System;
-
 using Azos.Conf;
 using Azos.Data;
 using Azos.Scripting;
@@ -72,13 +69,13 @@ namespace Azos.Tests.Nub.Configuration
       ensureInvariant(cfg);
 
       var serializedLaconic = cfg.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.Compact);
-      Console.WriteLine("SERIALIZED COMPACT LACONIC: \n" + serializedLaconic);
+      $"SERIALIZED COMPACT LACONIC: \n{serializedLaconic}".See();
 
       var cfg2 = serializedLaconic.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw);
       ensureInvariant(cfg2);
 
       serializedLaconic = cfg.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint);
-      Console.WriteLine("SERIALIZED PRETTY LACONIC: \n" + serializedLaconic);
+      $"SERIALIZED PRETTY LACONIC: \n{serializedLaconic}".See();
 
       var cfg3 = serializedLaconic.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw);
       ensureInvariant(cfg3);
@@ -91,7 +88,7 @@ namespace Azos.Tests.Nub.Configuration
       ensureInvariant(cfg);
 
       var serializedXML = cfg.ToXmlString();
-      Console.WriteLine("SERIALIZED XML: \n" + serializedXML);
+      $"SERIALIZED XML: \n{serializedXML}".See();
 
       var cfg2 = serializedXML.AsXMLConfig(handling: Data.ConvertErrorHandling.Throw);
       ensureInvariant(cfg2);
@@ -104,13 +101,13 @@ namespace Azos.Tests.Nub.Configuration
       ensureInvariant(cfg);
 
       var serializedJSON = cfg.ToJSONString();
-      Console.WriteLine("SERIALIZED JSON: \n" + serializedJSON);
+      $"SERIALIZED JSON: \n{serializedJSON}".See();
 
       var cfg2 = serializedJSON.AsJSONConfig(handling: Data.ConvertErrorHandling.Throw);
       ensureInvariant(cfg2);
 
       serializedJSON = cfg.ToJSONString(Azos.Serialization.JSON.JsonWritingOptions.PrettyPrintASCII);
-      Console.WriteLine("SERIALIZED PRETTY JSON: \n" + serializedJSON);
+      $"SERIALIZED PRETTY JSON: \n{serializedJSON}".See();
 
       var cfg3 = serializedJSON.AsJSONConfig(handling: Data.ConvertErrorHandling.Throw);
       ensureInvariant(cfg3);
@@ -130,12 +127,12 @@ namespace Azos.Tests.Nub.Configuration
 //".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
 
       var json = c1.ToJSONString();
-Console.WriteLine(c1.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.Compact));
-Console.WriteLine(json);
+      c1.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.Compact).See();
+      json.See();
 
       var c2 = json.AsJSONConfig();
 
-      Aver.IsTrue( ConfigNodeEqualityComparer.Instance.Equals(c1, c2) );
+      Aver.IsTrue(ConfigNodeEqualityComparer.Instance.Equals(c1, c2));
     }
 
 

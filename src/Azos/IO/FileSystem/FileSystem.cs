@@ -155,6 +155,28 @@ namespace Azos.IO.FileSystem
             return result;
           }
 
+          /// <summary>
+          /// Returns the very root for the specified path, e.g. for windows it is a drive letter etc..
+          /// </summary>
+          public abstract string GetPathRoot(string fullPath);
+
+          /// <summary>
+          /// Returns a file name from full path or null if the specified path does not have a file path.
+          /// Keep in mind that a file system does not necessarily have to support hierarchical directory structure
+          /// </summary>
+          /// <param name="fullPath">Full path</param>
+          /// <returns>File name or null</returns>
+          public abstract string ExtractFileName(string fullPath);
+
+          /// <summary>
+          /// Returns an array of path segments - directory names on the path. The last name may be directory of a file name.
+          /// The specifics depend on particular file system support
+          /// </summary>
+          /// <param name="fullPath">Full path string like '/a/b/c'</param>
+          /// <returns>And array of segments</returns>
+          public abstract string[] SplitPathSegments(string fullPath);
+
+
           public override string ToString()
           {
             return "{0} '{1}'".Args(GetType().Name, Name);

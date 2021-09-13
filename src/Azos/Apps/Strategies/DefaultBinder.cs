@@ -26,9 +26,7 @@ namespace Azos.Apps.Strategies
 
     public override string ComponentLogTopic => CoreConsts.APPLICATION_TOPIC;
 
-#pragma warning disable 0649
     [Config] private string m_Assemblies;
-#pragma warning restore 0649
 
     private Dictionary<Type, BindingHandler> m_Cache;
 

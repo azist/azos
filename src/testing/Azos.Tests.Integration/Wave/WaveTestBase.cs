@@ -45,6 +45,10 @@ namespace Azos.Tests.Integration.Wave
 
     void IRunnableHook.Prologue(Runner runner, FID id)
     {
+
+Aver.Fail("====================================== As of 20210730 This test suite is no longer supported and needs to be completely re-written in Sky ==================================================== ");
+
+
       try
       {
         ProcessStartInfo start;
@@ -80,6 +84,8 @@ namespace Azos.Tests.Integration.Wave
 
     bool IRunnableHook.Epilogue(Runner runner, FID id, Exception error)
     {
+Aver.Fail(" As of 20210730 This test suite is no longer supported and needs to be completely re-written in Sky ==================================================== ");
+
       m_ServerProcess.StandardInput.WriteLine(string.Empty);
       return false;
     }

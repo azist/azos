@@ -16,8 +16,8 @@ namespace Azos.Serialization.JSON
   [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
   public abstract class JsonHandlerAttribute : Attribute
   {
-    private static ConstrainedSetLookup<MemberInfo, JsonHandlerAttribute> s_Cache =
-      new ConstrainedSetLookup<MemberInfo, JsonHandlerAttribute>( site => site.GetCustomAttribute<JsonHandlerAttribute>(true) );
+    private static FiniteSetLookup<MemberInfo, JsonHandlerAttribute> s_Cache =
+      new FiniteSetLookup<MemberInfo, JsonHandlerAttribute>( site => site.GetCustomAttribute<JsonHandlerAttribute>(true) );
 
     /// <summary>
     /// Tries to find an attribute decorating the target site
@@ -77,7 +77,7 @@ namespace Azos.Serialization.JSON
     /// Override to perform a typecast operation on read
     /// </summary>
     /// <param name="v">A value to cast, e.g. int, string or JsonDataMap or JsonDataArray</param>
-    /// <param name="toType">Requested CLR type to cast into. The result must be assignment compatible with this type</param>
+    /// <param name="toType">Requested CLR type to cast into. The result must be assignment-compatible with this type</param>
     /// <param name="fromUI">True when datagram comes from user interface</param>
     /// <param name="options">Controls field name matching</param>
     /// <returns>TypeCastResult which provides value and/or type</returns>

@@ -21,8 +21,7 @@ namespace Azos.Conf
   {
     #region CONSTS
 
-      public const string SECTION_VALUE_ATTR = "-section-value";
-
+    public const string SECTION_VALUE_ATTR = "-section-value";
 
     #endregion
 
@@ -65,7 +64,6 @@ namespace Azos.Conf
       return result;
     }
 
-
     #endregion
 
 
@@ -80,112 +78,112 @@ namespace Azos.Conf
     /// Saves configuration into a JSON file
     /// </summary>
     public override void SaveAs(string filename)
-      {
-        SaveAs(filename, null, null);
+    {
+      SaveAs(filename, null, null);
 
-        base.SaveAs(filename);
-      }
+      base.SaveAs(filename);
+    }
 
-      /// <summary>
-      /// Saves configuration into a JSON file
-      /// </summary>
-      public void SaveAs(string filename, JsonWritingOptions options = null, Encoding encoding = null)
-      {
-        var data = ToConfigurationJSONDataMap();
-        if (options==null) options = JsonWritingOptions.PrettyPrint;
-        JsonWriter.WriteToFile(data, filename, options, encoding);
+    /// <summary>
+    /// Saves configuration into a JSON file
+    /// </summary>
+    public void SaveAs(string filename, JsonWritingOptions options = null, Encoding encoding = null)
+    {
+      var data = ToConfigurationJSONDataMap();
+      if (options == null) options = JsonWritingOptions.PrettyPrint;
+      JsonWriter.WriteToFile(data, filename, options, encoding);
 
-        base.SaveAs(filename);
-      }
+      base.SaveAs(filename);
+    }
 
-      /// <summary>
-      /// Saves JSON configuration to string
-      /// </summary>
-      public string SaveToString(JsonWritingOptions options = null)
-      {
-        var data = ToConfigurationJSONDataMap();
-        return JsonWriter.Write(data, options);
-      }
+    /// <summary>
+    /// Saves JSON configuration to string
+    /// </summary>
+    public string SaveToString(JsonWritingOptions options = null)
+    {
+      var data = ToConfigurationJSONDataMap();
+      return JsonWriter.Write(data, options);
+    }
 
+    /// <inheritdoc/>
+    public override void Refresh()
+    {
+      readFromFile();
+    }
 
-      public override void Refresh()
-      {
-        readFromFile();
-      }
+    /// <inheritdoc/>
+    public override void Save()
+    {
+      SaveAs(m_FileName);
+    }
 
-
-      public override void Save()
-      {
-        SaveAs(m_FileName);
-      }
-
-      public override string ToString()
-      {
-        return SaveToString();
-      }
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+      return SaveToString();
+    }
 
     #endregion
 
     #region Private Utils
 
-        private void readFromFile()
+    private void readFromFile()
+    {
+      var data = JsonReader.DeserializeDataObjectFromFile(m_FileName, caseSensitiveMaps: false) as JsonDataMap;
+      read(data);
+    }
+
+    private void readFromString(string content)
+    {
+      var data = JsonReader.DeserializeDataObject(content, caseSensitiveMaps: false) as JsonDataMap;
+      read(data);
+    }
+
+    private void read(JsonDataMap data)
+    {
+      if (data == null || data.Count == 0 || data.Count > 1)
+        throw new ConfigException(StringConsts.CONFIG_JSON_MAP_ERROR);
+
+      var root = data.First();
+      var sect = root.Value as JsonDataMap;
+      if (sect == null)
+        throw new ConfigException(StringConsts.CONFIG_JSON_MAP_ERROR);
+
+      m_Root = buildSection(root.Key, sect, null);
+      m_Root.ResetModified();
+    }
+
+    private ConfigSectionNode buildSection(string name, JsonDataMap sectData, ConfigSectionNode parent)
+    {
+      var value = sectData[SECTION_VALUE_ATTR].AsString();
+      ConfigSectionNode result = parent == null ? new ConfigSectionNode(this, null, name, value)
+                                              : parent.AddChildNode(name, value);
+
+      foreach (var kvp in sectData)
+      {
+        if (kvp.Value is JsonDataMap)
+          buildSection(kvp.Key, (JsonDataMap)kvp.Value, result);
+        else if (kvp.Value is JsonDataArray)
         {
-          var data = JsonReader.DeserializeDataObjectFromFile(m_FileName, caseSensitiveMaps: false) as JsonDataMap;
-          read(data);
-        }
-
-        private void readFromString(string content)
-        {
-          var data = JsonReader.DeserializeDataObject(content, caseSensitiveMaps: false) as JsonDataMap;
-          read(data);
-        }
-
-        private void read(JsonDataMap data)
-        {
-          if (data==null || data.Count==0 || data.Count>1)
-            throw new ConfigException(StringConsts.CONFIG_JSON_MAP_ERROR);
-
-          var root = data.First();
-          var sect = root.Value as JsonDataMap;
-          if (sect==null)
-            throw new ConfigException(StringConsts.CONFIG_JSON_MAP_ERROR);
-
-          m_Root = buildSection(root.Key, sect, null);
-          m_Root.ResetModified();
-        }
-
-
-        private ConfigSectionNode buildSection(string name, JsonDataMap sectData, ConfigSectionNode parent)
-        {
-          var value = sectData[SECTION_VALUE_ATTR].AsString();
-          ConfigSectionNode result = parent==null ? new ConfigSectionNode(this, null, name, value)
-                                                  : parent.AddChildNode(name, value);
-
-          foreach(var kvp in sectData)
+          var lst = (JsonDataArray)kvp.Value;
+          foreach (var lnode in lst)
           {
-            if (kvp.Value is JsonDataMap)
-              buildSection(kvp.Key, (JsonDataMap)kvp.Value, result);
-            else if (kvp.Value is JsonDataArray)
-            {
-              var lst = (JsonDataArray)kvp.Value;
-              foreach(var lnode in lst)
-              {
-                if (lnode is JsonDataMap lmap) buildSection(kvp.Key, lmap, result);
-                else
-                if (lnode is JsonDataArray larray) throw new ConfigException(StringConsts.CONFIG_JSON_STRUCTURE_ERROR, new ConfigException("Bad structure: " + sectData.ToJson()));
-                else
-                  result.AddAttributeNode(kvp.Key, "{0}".Args(lnode));
-              }
-            }
+            if (lnode is JsonDataMap lmap) buildSection(kvp.Key, lmap, result);
             else
-            {
-               if (!kvp.Key.EqualsIgnoreCase(SECTION_VALUE_ATTR))
-                 result.AddAttributeNode(kvp.Key, kvp.Value);
-            }
+            if (lnode is JsonDataArray larray) throw new ConfigException(StringConsts.CONFIG_JSON_STRUCTURE_ERROR, new ConfigException("Bad structure: " + sectData.ToJson()));
+            else
+              result.AddAttributeNode(kvp.Key, "{0}".Args(lnode));
           }
-
-          return result;
         }
+        else
+        {
+          if (!kvp.Key.EqualsIgnoreCase(SECTION_VALUE_ATTR))
+            result.AddAttributeNode(kvp.Key, kvp.Value);
+        }
+      }
+
+      return result;
+    }
 
     #endregion
   }

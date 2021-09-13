@@ -129,7 +129,7 @@ namespace Azos.Serialization.JSON
 
 
         /// <summary>
-        /// Writes a string in JSON format (a la "JSON encode string") - using quotes and escaping charecters that need it
+        /// Writes a string in JSON format (a la "JSON encode string") - using quotes and escaping characters that need it
         /// </summary>
         /// <param name="wri">TextWriter instance to append data into</param>
         /// <param name="data">Original string to encode as JSON</param>
@@ -150,29 +150,38 @@ namespace Azos.Serialization.JSON
             for (int i = 0; i < data.Length; i++)
             {
                 char c = data[i];
-                if (c>127 && opt.ASCIITarget)
+                if (c > 0x7f && opt.ASCIITarget)
                 {
-                    wri.Write("\\u");
-                    wri.Write(((int)c).ToString("x4"));
-                    continue;
+                  wri.Write("\\u");
+                  wri.Write(((int)c).ToString("x4"));
+                  continue;
                 }
 
                 switch (c)
                 {
-                    case '\\':  { wri.Write(@"\\"); break; }
-                    case '/':   { wri.Write(@"\/"); break; }
-                    case (char)CharCodes.Char0:     { wri.Write(@"\u0000"); break; }
-                    case (char)CharCodes.AlertBell: { wri.Write(@"\u"); ((int)c).ToString("x4"); break; }
-                    case (char)CharCodes.Backspace: { wri.Write(@"\b"); break; }
-                    case (char)CharCodes.Formfeed:  { wri.Write(@"\f"); break; }
-                    case (char)CharCodes.LF:        { wri.Write(@"\n"); break; }
-                    case (char)CharCodes.CR:        { wri.Write(@"\r"); break; }
-                    case (char)CharCodes.Tab:       { wri.Write(@"\t"); break; }
-                    case (char)CharCodes.VerticalQuote: { wri.Write(@"\u"); ((int)c).ToString("x4"); break; }
+                  case '\\':  { wri.Write(@"\\"); break; }
+                  case '/':   { wri.Write(@"\/"); break; }
+                  case (char)CharCodes.Char0:     { wri.Write(@"\u0000"); break; }
+                  case (char)CharCodes.AlertBell: { wri.Write(@"\u"); ((int)c).ToString("x4"); break; }
+                  case (char)CharCodes.Backspace: { wri.Write(@"\b"); break; }
+                  case (char)CharCodes.Formfeed:  { wri.Write(@"\f"); break; }
+                  case (char)CharCodes.LF:        { wri.Write(@"\n"); break; }
+                  case (char)CharCodes.CR:        { wri.Write(@"\r"); break; }
+                  case (char)CharCodes.Tab:       { wri.Write(@"\t"); break; }
 
-                    case '"':  { wri.Write(@"\"""); break; }
+                  case '"':  { wri.Write(@"\"""); break; }
 
-                    default: { wri.Write(c); break;}
+                  default:
+                  {
+                    if (c < 0x20)
+                    {
+                      wri.Write("\\u");
+                      wri.Write(((int)c).ToString("x4"));
+                      break;
+                    }
+                    wri.Write(c);
+                    break;
+                  }
                 }
 
             }//for
@@ -295,6 +304,13 @@ namespace Azos.Serialization.JSON
                             if (data is string)
                             {
                                 EncodeString(wri, (string)data, opt);
+                                return;
+                            }
+
+                            //20210717 - #514
+                            if (data is byte[] buff && buff.Length > 8)
+                            {
+                                EncodeString(wri, buff.ToWebSafeBase64(), opt);
                                 return;
                             }
 

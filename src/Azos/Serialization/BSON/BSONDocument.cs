@@ -287,7 +287,7 @@ namespace Azos.Serialization.BSON
       }
 
       /// <summary>
-      /// Serializes this dosument into a TextWriter - this method is used by JSON serializer(JSONWriter)
+      /// Serializes this document into a TextWriter - this method is used by JSON serializer(JSONWriter)
       /// </summary>
       public void WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
       {

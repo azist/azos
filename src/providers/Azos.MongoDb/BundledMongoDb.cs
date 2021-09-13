@@ -9,14 +9,18 @@ using System.Diagnostics;
 
 using Azos.Apps;
 using Azos.Conf;
-using Azos.Instrumentation;
+using System.Linq;
 
 using Azos.Data.Access.MongoDb.Connector;
+using Azos.Instrumentation;
+using Azos.Serialization.JSON;
 
 namespace Azos.Data.Access.MongoDb
 {
   /// <summary>
-  /// Provides interface to run local `mongod` instance bundled with the application.
+  /// Provides interface to local `mongod` instance bundled with the application.
+  /// This is an "appliance-mode" deployment where database is not treated as a separate entity
+  /// but as a part of application.
   /// This class is helpful for tasks such as organizing local key-ring buffers and other data storages
   /// in the environments where deployment and configuration of a separate MongoDb instance may not be feasible
   /// </summary>
@@ -128,6 +132,26 @@ namespace Azos.Data.Access.MongoDb
     }
 
     /// <summary>
+    /// Returns a primary ip if multiple are specified.
+    /// The primary is the first entry in ip bind list delimited with comma.
+    /// If none define then returns MONGO_BIND_IP_DFLT (localhost).
+    /// See https://docs.mongodb.com/manual/reference/program/mongod/
+    /// </summary>
+    public string MongoPrimaryBindIp
+    {
+      get
+      {
+        var ips = Mongo_bind_ip;
+        if (ips.IsNullOrWhiteSpace()) return MONGO_BIND_IP_DFLT;
+
+        if (ips.IndexOf(',')<0) return ips;
+
+        var segs = ips.Split(',');
+        return segs.FirstOrDefault(ip => ip.IsNotNullOrWhiteSpace()).Default(MONGO_BIND_IP_DFLT);
+      }
+    }
+
+    /// <summary>
     /// When set suppresses output form database commands, repl activity etc.
     /// See: https://docs.mongodb.com/manual/reference/program/mongod/
     /// </summary>
@@ -173,6 +197,18 @@ namespace Azos.Data.Access.MongoDb
     }
 
     /// <summary>
+    /// Specifies minimum log level for Mongo logging into app log.
+    /// Null disables logging. Default `Warning`
+    /// </summary>
+    [Config(Default = Log.MessageType.Warning), ExternalParameter(CoreConsts.EXT_PARAM_GROUP_DATA)]
+    public Log.MessageType? MongoLogMinLevel { get; set; } = Log.MessageType.Warning; //Re: #495
+
+    /// <summary>
+    /// Server node which this instance listens on
+    /// </summary>
+    public Glue.Node ServerNode => new Glue.Node("{0}://{1}:{2}".Args(MongoClient.MONGO_BINDING, MongoPrimaryBindIp, m_Mongo_port));
+
+    /// <summary>
     /// Returns MongoDb connect string for the bundled instance. The daemon must be running or exception is thrown
     /// </summary>
     public string GetDatabaseConnectString(string dbName)
@@ -192,7 +228,7 @@ namespace Azos.Data.Access.MongoDb
 
     protected string GetDatabaseConnectStringUnsafe(string dbName)
     {
-      return "mongo{{server='mongo://{0}:{1}' db='{2}'}}".Args(m_Mongo_bind_ip ?? "localhost", m_Mongo_port, dbName.NonBlank(nameof(dbName)));
+      return "mongo{{server='{0}' db='{1}'}}".Args(ServerNode.ConnectString, dbName.NonBlank(nameof(dbName)));
     }
 
     protected Database GetDatabaseUnsafe(string dbName)
@@ -219,7 +255,12 @@ namespace Azos.Data.Access.MongoDb
         args += " --bind_ip \"{0}\"".Args(m_Mongo_bind_ip);
 
       if (m_Mongo_dbpath.IsNotNullOrWhiteSpace())
+      {
+        //20201205 DKh #378
+        IOUtils.EnsureAccessibleDirectory(m_Mongo_dbpath);
+
         args += " --dbpath \"{0}\"".Args(m_Mongo_dbpath);
+      }
 
       if (m_Mongo_quiet) args += " --quiet";
 
@@ -234,8 +275,39 @@ namespace Azos.Data.Access.MongoDb
       var logrel = Guid.NewGuid();
       p.OutputDataReceived += (sender, e) =>
       {
+        var ll = this.MongoLogMinLevel;
+        if (!ll.HasValue) return;//logging disabled
+
         if (e.Data != null && e.Data.IsNotNullOrWhiteSpace())
-          WriteLog(Log.MessageType.TraceB, PROCESS_CMD, "  > "+e.Data, related: logrel);
+        {
+          //https://docs.mongodb.com/manual/reference/log-messages/#json-log-output-format
+          //With MongoDB 4.4, all log output is now in JSON format. This includes log output sent to the file, syslog, and
+          //stdout(standard out) log destinations, as well as the output of the getLog command.
+          try
+          {
+            //Re: #495
+            var map = e.Data.JsonToDataObject() as JsonDataMap;
+            var t = Log.MessageType.TraceD;
+
+            var ts = map["s"].AsString();
+            if (ts.EqualsOrdIgnoreCase("F")) t = Log.MessageType.CatastrophicError;
+            else if (ts.EqualsOrdIgnoreCase("E")) t = Log.MessageType.Error;
+            else if (ts.EqualsOrdIgnoreCase("W")) t = Log.MessageType.Warning;
+
+            if (t >= ll.Value)
+            {
+              WriteLog(t, PROCESS_CMD, map["msg"].AsString(), pars: e.Data, related: logrel);
+            }
+          }
+          catch //older versions of mongo
+          {
+            if (ll.Value <= Log.MessageType.TraceD)
+            {
+              WriteLog(Log.MessageType.TraceD, PROCESS_CMD, e.Data, related: logrel);
+            }
+          }
+
+        }
       };
 
       p.Start();//<===========

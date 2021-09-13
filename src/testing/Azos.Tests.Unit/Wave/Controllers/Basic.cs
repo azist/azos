@@ -22,7 +22,9 @@ namespace Azos.Tests.Unit.Wave.Controllers
     public async Task ActionTaskPlainTextWrite()
     {
       WorkContext.Response.ContentType = ContentType.TEXT;
+      await Task.Delay(250);
       WorkContext.Response.Write("0123456789");
+      await Task.Delay(250);
     }
 
     [Action]

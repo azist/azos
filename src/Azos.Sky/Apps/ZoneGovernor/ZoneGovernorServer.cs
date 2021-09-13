@@ -22,9 +22,7 @@ namespace Azos.Apps.ZoneGovernor
                                            IZoneHostReplicator,
                                            ILocker
   {
-#pragma warning disable 649
     [Inject] IApplication m_App;
-#pragma warning restore 649
 
     public ZoneGovernorService Service => m_App.NonNull(nameof(m_App))
                                               .Singletons

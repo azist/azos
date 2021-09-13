@@ -241,7 +241,7 @@ namespace Azos.Sky.WebManager.Controllers
       cmpMap["instrumentable"] = instrumentable != null;
       cmpMap["instrumentationEnabled"] = instrumentable != null ? instrumentable.InstrumentationEnabled : false;
       cmpMap["SID"] = cmp.ComponentSID;
-      cmpMap["startTime"] = Apps.Terminal.Cmdlets.App.DetailedComponentDateTime( cmp.ComponentStartTime );
+      cmpMap["startTime"] = Azos.Apps.Terminal.Cmdlets.App.DetailedComponentDateTime( cmp.ComponentStartTime );
       cmpMap["tp"] = cmp.GetType().FullName;
       if (cmp.ComponentCommonName.IsNotNullOrWhiteSpace()) cmpMap["commonName"] = cmp.ComponentCommonName;
       if (cmp is INamed) cmpMap["name"] = ((INamed)cmp).Name;

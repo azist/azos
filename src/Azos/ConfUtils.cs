@@ -5,7 +5,7 @@
 </FILE_LICENSE>*/
 using System;
 using System.Collections.Generic;
-
+using System.Linq;
 using Azos.Conf;
 using Azos.Serialization.JSON;
 
@@ -41,6 +41,15 @@ namespace Azos
                  .TakeFirstChars(len, ellipsis);
     }
 
+    /// <summary>
+    /// Returns all child nodes of the specified node having the specified name
+    /// </summary>
+    public static IEnumerable<IConfigSectionNode> ChildrenNamed(this IConfigSectionNode node, string childName)
+    {
+      childName.NonBlank(nameof(childName));
+      if (node == null) return Enumerable.Empty<IConfigSectionNode>();
+      return node.Children.Where(c => c.IsSameName(childName));
+    }
 
     /// <summary>
     /// Converts dictionary into configuration where every original node gets represented as a sub-section of config's root

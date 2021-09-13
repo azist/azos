@@ -3,6 +3,7 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
+
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +19,7 @@ namespace Azos.Collections
       T Next { get; }
     }
 
+
     /// <summary>
     /// Defines an enumerable with look-ahead capability
     /// </summary>
@@ -25,6 +27,7 @@ namespace Azos.Collections
     {
       ILookAheadEnumerator<T> GetLookAheadEnumerator();
     }
+
 
     /// <summary>
     /// Implements a look-ahead enumerator wrapped around a regular enumerator

@@ -22,9 +22,7 @@ namespace Azos.Sky.Workers.Server.Queue
   /// </summary>
   public sealed class TodoQueueServer : ITodoQueue
   {
-#pragma warning disable 649
     [Inject] IApplication m_App;
-#pragma warning restore 649
 
     public int Enqueue(TodoFrame[] todos)
       => m_App.NonNull(nameof(m_App))

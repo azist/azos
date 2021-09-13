@@ -31,20 +31,20 @@ namespace Azos.Tests.Nub
       var encoded = a.ToWebSafeBase64();
       var b = encoded.FromWebSafeBase64();
 
-      //Console.WriteLine( a.ToDumpString(DumpFormat.Hex ));
-      //Console.WriteLine(b.ToDumpString(DumpFormat.Hex));
-      //Console.WriteLine(encoded);
+      //a.ToDumpString(DumpFormat.Hex).See();
+      //b.ToDumpString(DumpFormat.Hex).See();
+      //encoded.See();
 
       //We use two equality comparisons to protect against possible bug in one
       //as To/FromBase64WebSafeString() is a very important method used in security throughout
       Aver.AreArraysEquivalent(a, b);
-      Aver.IsTrue( a.MemBufferEquals(b));
+      Aver.IsTrue(a.MemBufferEquals(b));
     }
 
     [Run]
     public void Base64FullCycle_Loop()
     {
-      for(var cnt=1; cnt<1024; cnt++)
+      for (var cnt = 1; cnt < 1024; cnt++)
       {
         var a = Platform.RandomGenerator.Instance.NextRandomBytes(cnt);
         Base64FullCycle(a);
@@ -78,11 +78,11 @@ namespace Azos.Tests.Nub
       got.See();
     }
 
-//// - BenchmarkFastGuidEncoding
-////ToByteArray()    does  69,902,950 ops/sec
-////FastEncodeGuid() does 161,775,859 ops/sec
+    //// - BenchmarkFastGuidEncoding
+    ////ToByteArray()    does  69,902,950 ops/sec
+    ////FastEncodeGuid() does 161,775,859 ops/sec
 
-    [Run("!guidbench","")]
+    [Run("!guidbench", "")]
     public void BenchmarkFastGuidEncoding()
     {
       const int CNT = 25_000_000;
@@ -90,7 +90,7 @@ namespace Azos.Tests.Nub
       var buf = new byte[32];
 
       var t = Azos.Time.Timeter.StartNew();
-      for(var i=0; i<CNT; i++)
+      for (var i = 0; i < CNT; i++)
       {
         v.ToByteArray();
       }
@@ -101,16 +101,14 @@ namespace Azos.Tests.Nub
       for (var i = 0; i < CNT; i++)
       {
         buf.FastEncodeGuid(0, v);
-      //  IOUtils.CastGuidToLongs(v);
+        //  IOUtils.CastGuidToLongs(v);
       }
       t.Stop();
       var e2 = t.ElapsedSec;
 
-      "\nToByteArray() does {0:n0} ops/sec".SeeArgs(CNT/e1);
+      "\nToByteArray() does {0:n0} ops/sec".SeeArgs(CNT / e1);
       "\nFastEncodeGuid() does {0:n0} ops/sec".SeeArgs(CNT / e2);
-
     }
-
 
   }
 }

@@ -6,6 +6,7 @@
 
 using System;
 using System.Runtime.Serialization;
+using Azos.Serialization.JSON;
 
 namespace Azos.CodeAnalysis
 {
@@ -21,26 +22,40 @@ namespace Azos.CodeAnalysis
     protected CodeAnalysisException(SerializationInfo info, StreamingContext context) : base(info, context) { }
   }
 
+
   /// <summary>
-  /// Thrown by code processors such as lexers, parsers ,  symantic analyzers, compilers etc...
+  /// Thrown by code processors such as lexers, parsers ,  semantic analyzers, compilers etc...
   /// </summary>
   [Serializable]
-  public class CodeProcessorException : CodeAnalysisException, IWrappedExceptionDataSource
+  public class CodeProcessorException : CodeAnalysisException, IExternalStatusProvider
   {
     public CodeProcessorException(ICodeProcessor codeProcessor) { CodeProcessor = codeProcessor; }
     public CodeProcessorException(ICodeProcessor codeProcessor, string message) : base(message) { CodeProcessor = codeProcessor; }
     public CodeProcessorException(ICodeProcessor codeProcessor, string message, Exception inner) : base(message, inner) { CodeProcessor = codeProcessor; }
 
+    protected CodeProcessorException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+
     [NonSerialized]
     public readonly ICodeProcessor CodeProcessor;
 
-    public string GetWrappedData()
+    public virtual JsonDataMap ProvideExternalStatus(bool includeDump)
     {
-      return "{0}({1}{2}){3}".Args(CodeProcessor.GetType().Name, CodeProcessor.Language,
-        CodeProcessor.Context != null ? ", context=" + CodeProcessor.Context.GetType().Name : string.Empty,
-        CodeProcessor.Messages != null ? ": " + CodeProcessor.Messages.ToString() : string.Empty);
+      var map = this.DefaultBuildErrorStatusProviderMap(includeDump, "code.analysis");
+      if (CodeProcessor == null) return map;
+
+      if (CodeProcessor.Language != null) map["code.lang"] = CodeProcessor.Language.ToString();
+      if (CodeProcessor.Messages != null) map["code.msgs"] = CodeProcessor.Messages.ToString();
+
+      if (includeDump)
+      {
+        map["code.processor"] = CodeProcessor.GetType().DisplayNameWithExpandedGenericArgs();
+        if (CodeProcessor.Context != null) map["code.ctx"] = CodeProcessor.Context.GetType().Name;
+      }
+
+      return map;
     }
   }
+
 
   [Serializable]
   public class StringEscapeErrorException : CodeAnalysisException
@@ -63,5 +78,6 @@ namespace Azos.CodeAnalysis
       info.AddValue(ERRORED_ESCAPE_FLD_NAME, ErroredEscape);
       base.GetObjectData(info, context);
     }
+
   }
 }

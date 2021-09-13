@@ -6,7 +6,6 @@
 
 using System;
 
-
 using Azos.Scripting;
 using Azos.Conf;
 
@@ -190,12 +189,14 @@ namespace Azos.Tests.Nub.ScriptingAndTesting
         Aver.AreEqual( 23.78f,  log.AttrByName("k").ValueAsFloat() );
       }
 
+
       public class Person : IConfigurable
       {
         [Config] public string Name { get; set;}
         [Config] public int Age { get; set;}
         public void Configure(IConfigSectionNode node) => ConfigAttribute.Apply(this, node);
       }
+
 
       [Run("case1", "a{ expectName='aaa' expectAge=-125 person{ name='aaa' age=-125}}")]
       [Run("case2", "expectName='kozel' expectAge=125 person{ name='kozel' age=125}")]
@@ -214,7 +215,6 @@ namespace Azos.Tests.Nub.ScriptingAndTesting
         Aver.AreEqual(149, cliArg2);
       }
 
-
       [Run]
       public void Arrays_1D_arrays()
       {
@@ -227,14 +227,14 @@ namespace Azos.Tests.Nub.ScriptingAndTesting
         Aver.AreArraysEquivalent(a1, a2);
       }
 
-                      [Run]
-                      [Aver.Throws(typeof(AvermentException))]
-                      public void Arrays_1D_arrays_throws()
-                      {
-                        Array a1 = new int[]{1, 2, 3, 4, 5};
-                        Array a2 = new int[]{1, -2, 3, 4, 5};
-                        Aver.AreArraysEquivalent(a1, a2);
-                      }
+      [Run]
+      [Aver.Throws(typeof(AvermentException))]
+      public void Arrays_1D_arrays_throws()
+      {
+        Array a1 = new int[]{1, 2, 3, 4, 5};
+        Array a2 = new int[]{1, -2, 3, 4, 5};
+        Aver.AreArraysEquivalent(a1, a2);
+      }
 
       [Run]
       public void Arrays_1D_T()
@@ -248,32 +248,32 @@ namespace Azos.Tests.Nub.ScriptingAndTesting
         Aver.AreArraysEquivalent(a1, a2);
       }
 
-                      [Run]
-                      [Aver.Throws(typeof(AvermentException), "index 2")]
-                      public void Arrays_1D_T_throws_1()
-                      {
-                        var a1 = new int[]{1, 2, 3, 4, 5};
-                        var a2 = new int[]{1, 2, -3, 4, 5};
-                        Aver.AreArraysEquivalent(a1, a2);
-                      }
+      [Run]
+      [Aver.Throws(typeof(AvermentException), "index 2")]
+      public void Arrays_1D_T_throws_1()
+      {
+        var a1 = new int[]{1, 2, 3, 4, 5};
+        var a2 = new int[]{1, 2, -3, 4, 5};
+        Aver.AreArraysEquivalent(a1, a2);
+      }
 
-                      [Run]
-                      [Aver.Throws(typeof(AvermentException), "index 1")]
-                      public void Arrays_1D_T_throws_2()
-                      {
-                        var a1 = new int[]{1, 2, 3, 4, 5};
-                        var a2 = new int[]{1, 0, -3, 4, 5};
-                        Aver.AreArraysEquivalent(a1, a2);
-                      }
+      [Run]
+      [Aver.Throws(typeof(AvermentException), "index 1")]
+      public void Arrays_1D_T_throws_2()
+      {
+        var a1 = new int[]{1, 2, 3, 4, 5};
+        var a2 = new int[]{1, 0, -3, 4, 5};
+        Aver.AreArraysEquivalent(a1, a2);
+      }
 
-                      [Run]
-                      [Aver.Throws(typeof(AvermentException), "index -1")]
-                      public void Arrays_1D_T_throws_3()
-                      {
-                        var a1 = new int[]{1, 2, 3, 4, 5};
-                        var a2 = new int[]{1, 2, -3, 4, 5, 7, 8, 9, 0, 1};
-                        Aver.AreArraysEquivalent(a1, a2);
-                      }
+      [Run]
+      [Aver.Throws(typeof(AvermentException), "index -1")]
+      public void Arrays_1D_T_throws_3()
+      {
+        var a1 = new int[]{1, 2, 3, 4, 5};
+        var a2 = new int[]{1, 2, -3, 4, 5, 7, 8, 9, 0, 1};
+        Aver.AreArraysEquivalent(a1, a2);
+      }
 
       [Run]
       public void Arrays_1D_Nullable_T()
@@ -287,32 +287,32 @@ namespace Azos.Tests.Nub.ScriptingAndTesting
         Aver.AreArraysEquivalent(a1, a2);
       }
 
-                      [Run]
-                      [Aver.Throws(typeof(AvermentException), "index 3")]
-                      public void Arrays_1D_Nullable_T_throws_1()
-                      {
-                        var a1 = new int?[]{1, 2, null, 4, null};
-                        var a2 = new int?[]{1, 2, null, null, null};
-                        Aver.AreArraysEquivalent(a1, a2);
-                      }
+      [Run]
+      [Aver.Throws(typeof(AvermentException), "index 3")]
+      public void Arrays_1D_Nullable_T_throws_1()
+      {
+        var a1 = new int?[]{1, 2, null, 4, null};
+        var a2 = new int?[]{1, 2, null, null, null};
+        Aver.AreArraysEquivalent(a1, a2);
+      }
 
-                      [Run]
-                      [Aver.Throws(typeof(AvermentException), "index 0")]
-                      public void Arrays_1D_Nullable_T_throws_2()
-                      {
-                        var a1 = new int?[]{1, 2, null, 4, null};
-                        var a2 = new int?[]{-1, 2, null, 4, null};
-                        Aver.AreArraysEquivalent(a1, a2);
-                      }
+      [Run]
+      [Aver.Throws(typeof(AvermentException), "index 0")]
+      public void Arrays_1D_Nullable_T_throws_2()
+      {
+        var a1 = new int?[]{1, 2, null, 4, null};
+        var a2 = new int?[]{-1, 2, null, 4, null};
+        Aver.AreArraysEquivalent(a1, a2);
+      }
 
-                      [Run]
-                      [Aver.Throws(typeof(AvermentException), "index -1")]
-                      public void Arrays_1D_Nullable_T_throws_3()
-                      {
-                        var a1 = new int?[]{1, 2, null, 4, null};
-                        var a2 = new int?[]{1, 2, null, 4, null, null, 1, 2};
-                        Aver.AreArraysEquivalent(a1, a2);
-                      }
+      [Run]
+      [Aver.Throws(typeof(AvermentException), "index -1")]
+      public void Arrays_1D_Nullable_T_throws_3()
+      {
+        var a1 = new int?[]{1, 2, null, 4, null};
+        var a2 = new int?[]{1, 2, null, 4, null, null, 1, 2};
+        Aver.AreArraysEquivalent(a1, a2);
+      }
 
       [Run]
       public void Arrays_1D_Objects()
@@ -326,32 +326,32 @@ namespace Azos.Tests.Nub.ScriptingAndTesting
         Aver.AreArrayObjectsEquivalent(a1, a2);
       }
 
-                      [Run]
-                      [Aver.Throws(typeof(AvermentException), "index 0")]
-                      public void Arrays_1D_Objects_throws1()
-                      {
-                        var a1 = new string[]{"a", "b", null};
-                        var a2 = new string[]{"z", "b", null};
-                        Aver.AreArrayObjectsEquivalent(a1, a2);
-                      }
+      [Run]
+      [Aver.Throws(typeof(AvermentException), "index 0")]
+      public void Arrays_1D_Objects_throws1()
+      {
+        var a1 = new string[]{"a", "b", null};
+        var a2 = new string[]{"z", "b", null};
+        Aver.AreArrayObjectsEquivalent(a1, a2);
+      }
 
-                      [Run]
-                      [Aver.Throws(typeof(AvermentException), "index 0")]
-                      public void Arrays_1D_Objects_throws2()
-                      {
-                        var a1 = new string[]{"a", "b", null};
-                        var a2 = new string[]{null, "b", null};
-                        Aver.AreArrayObjectsEquivalent(a1, a2);
-                      }
+      [Run]
+      [Aver.Throws(typeof(AvermentException), "index 0")]
+      public void Arrays_1D_Objects_throws2()
+      {
+        var a1 = new string[]{"a", "b", null};
+        var a2 = new string[]{null, "b", null};
+        Aver.AreArrayObjectsEquivalent(a1, a2);
+      }
 
-                      [Run]
-                      [Aver.Throws(typeof(AvermentException), "index -1")]
-                      public void Arrays_1D_Objects_throws3()
-                      {
-                        var a1 = new string[]{"a", "b", null};
-                        var a2 = new string[]{"a", "b", null, null, null};
-                        Aver.AreArrayObjectsEquivalent(a1, a2);
-                      }
+      [Run]
+      [Aver.Throws(typeof(AvermentException), "index -1")]
+      public void Arrays_1D_Objects_throws3()
+      {
+        var a1 = new string[]{"a", "b", null};
+        var a2 = new string[]{"a", "b", null, null, null};
+        Aver.AreArrayObjectsEquivalent(a1, a2);
+      }
 
       [Run]
       public void Arrays_2D()
@@ -365,23 +365,23 @@ namespace Azos.Tests.Nub.ScriptingAndTesting
         Aver.AreArraysEquivalent(a1, a2);
       }
 
-                      [Run]
-                      [Aver.Throws(typeof(AvermentException))]
-                      public void Arrays_2D_throws_1()
-                      {
-                        var a1 = new int[,]{ {1,2,0,4, 5}, {-1,-2,-3,-4, -5} };
-                        var a2 = new int[,]{ {1,2,3,4, 5}, {-1,-2,-3,-4, -5} };
-                        Aver.AreArraysEquivalent(a1, a2);
-                      }
+      [Run]
+      [Aver.Throws(typeof(AvermentException))]
+      public void Arrays_2D_throws_1()
+      {
+        var a1 = new int[,]{ {1,2,0,4, 5}, {-1,-2,-3,-4, -5} };
+        var a2 = new int[,]{ {1,2,3,4, 5}, {-1,-2,-3,-4, -5} };
+        Aver.AreArraysEquivalent(a1, a2);
+      }
 
-                      [Run]
-                      [Aver.Throws(typeof(AvermentException))]
-                      public void Arrays_2D_throws_2()
-                      {
-                        var a1 = new int[,]{ {1,2,3,4, 5, 4}, {-1,-2,-3,-4, -5, -7} };
-                        var a2 = new int[,]{ {1,2,3,4, 5}, {-1,-2,-3,-4, -5} };
-                        Aver.AreArraysEquivalent(a1, a2);
-                      }
+      [Run]
+      [Aver.Throws(typeof(AvermentException))]
+      public void Arrays_2D_throws_2()
+      {
+        var a1 = new int[,]{ {1,2,3,4, 5, 4}, {-1,-2,-3,-4, -5, -7} };
+        var a2 = new int[,]{ {1,2,3,4, 5}, {-1,-2,-3,-4, -5} };
+        Aver.AreArraysEquivalent(a1, a2);
+      }
 
       [Run]
       public void Arrays_3D()
@@ -395,23 +395,23 @@ namespace Azos.Tests.Nub.ScriptingAndTesting
         Aver.AreArraysEquivalent(a1, a2);
       }
 
-                      [Run]
-                      [Aver.Throws(typeof(AvermentException))]
-                      public void Arrays_3D_throws_1()
-                      {
-                        var a1 = new int[,,]{ {{1,2,3,4, 5}, {-1,-2,-3,-4, -5}, {-10,-20,-30,-40, -50} }};
-                        var a2 = new int[,,]{ {{1,2,3,4, 5}, {-1,-2,-3,234, -5}, {-10,-20,-30,-40, -50} }};
-                        Aver.AreArraysEquivalent(a1, a2);
-                      }
+      [Run]
+      [Aver.Throws(typeof(AvermentException))]
+      public void Arrays_3D_throws_1()
+      {
+        var a1 = new int[,,]{ {{1,2,3,4, 5}, {-1,-2,-3,-4, -5}, {-10,-20,-30,-40, -50} }};
+        var a2 = new int[,,]{ {{1,2,3,4, 5}, {-1,-2,-3,234, -5}, {-10,-20,-30,-40, -50} }};
+        Aver.AreArraysEquivalent(a1, a2);
+      }
 
-                      [Run]
-                      [Aver.Throws(typeof(AvermentException))]
-                      public void Arrays_3D_throws_2()
-                      {
-                        var a1 = new int[,,]{{ {1,2}, {-1,-2}, {-10,-20} }};
-                        var a2 = new int[,,]{ {{1,2,3,4, 5}, {-1,-2,-3,234, -5}, {-10,-20,-30,-40, -50} }};
-                        Aver.AreArraysEquivalent(a1, a2);
-                      }
+      [Run]
+      [Aver.Throws(typeof(AvermentException))]
+      public void Arrays_3D_throws_2()
+      {
+        var a1 = new int[,,]{{ {1,2}, {-1,-2}, {-10,-20} }};
+        var a2 = new int[,,]{ {{1,2,3,4, 5}, {-1,-2,-3,234, -5}, {-10,-20,-30,-40, -50} }};
+        Aver.AreArraysEquivalent(a1, a2);
+      }
 
   }
 }

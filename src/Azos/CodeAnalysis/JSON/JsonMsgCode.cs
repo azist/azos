@@ -4,39 +4,31 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
 namespace Azos.CodeAnalysis.JSON
 {
-    /// <summary>
-    /// Message codes for JSON code processors
-    /// </summary>
-    public enum JsonMsgCode
-    {
-        INFOS = 0,
+  /// <summary>
+  /// Message codes for JSON code processors
+  /// </summary>
+  public enum JsonMsgCode
+  {
+    INFOS = 0,
 
-        WARNING = 100,
+    WARNING = 100,
 
-
-        ERRORS = 1000,
-            eUnterminatedString,
-            ePrematureEOF,
-            eUnterminatedComment,
-            eInvalidStringEscape,
-            eValueTooBig,
-            eInvalidIdentifier,
-            eSyntaxError,
-            eUnterminatedArray,
-            eUnterminatedObject,
-            eObjectKeyExpected,
-            eColonOperatorExpected,
-            eNumericLiteralExpectedAfterSignOperator,
-            eDuplicateObjectKey,
-            eGraphDepthLimit
-
-
-    }
+    ERRORS = 1000,
+      eUnterminatedString,
+      ePrematureEOF,
+      eUnterminatedComment,
+      eInvalidStringEscape,
+      eValueTooBig,
+      eInvalidIdentifier,
+      eSyntaxError,
+      eUnterminatedArray,
+      eUnterminatedObject,
+      eObjectKeyExpected,
+      eColonOperatorExpected,
+      eNumericLiteralExpectedAfterSignOperator,
+      eDuplicateObjectKey,
+      eGraphDepthLimit
+  }
 }

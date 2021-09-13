@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
+using System.Text.RegularExpressions;
 using Azos.Conf;
 using Azos.Serialization.JSON;
 using Azos.Text;
@@ -87,7 +87,7 @@ namespace Azos.Wave.Mvc
     [Action(Name = "all"), HttpGet]
     public object All()
     {
-      if (WorkContext.RequestedJson) return new JsonResult(Data, JsonWritingOptions.PrettyPrintRowsAsMap);
+      if (WorkContext.RequestedJson) return new JsonResult(new {OK=true, data = Data}, JsonWritingOptions.PrettyPrintRowsAsMap);
       return Data.ToLaconicString(CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint);
     }
 
@@ -162,7 +162,7 @@ namespace Azos.Wave.Mvc
             return d;
           });
 
-      if (WorkContext.RequestedJson) return new JsonResult(data, JsonWritingOptions.PrettyPrintRowsAsMap);
+      if (WorkContext.RequestedJson) return new JsonResult(new { OK = true, data }, JsonWritingOptions.PrettyPrintRowsAsMap);
 
       return TocView(data);
     }
@@ -189,24 +189,63 @@ namespace Azos.Wave.Mvc
       const string TSKU = "type-skus";
       if (id.IsNullOrWhiteSpace()) throw HTTPStatusException.BadRequest_400("No id");
 
-      IConfigSectionNode[] data = Data[TSCH][id].ConcatArray();
-      if (!data[0].Exists)
+      IConfigSectionNode data = Data[TSCH][id];
+      if (!data.Exists)
       {
         data = Data[TSKU].Attributes
                          .Where(c => c.IsSameName(id) && c.Value.IsNotNullOrWhiteSpace())
                          .Select(c => Data[TSCH][c.Value])
-                         .ToArray();
+                         .FirstOrDefault();
       }
 
-      if (data.Length==0) return new Http404NotFound();
+      if (data==null || !data.Exists) return new Http404NotFound();
 
-      if (WorkContext.RequestedJson) return data;
+      if (WorkContext.RequestedJson) return new {OK = true, data};
 
       return SchemaView(data);
     }
 
-    protected virtual object SchemaView(IEnumerable<IConfigSectionNode> data)
-     => new Templatization.StockContent.ApiDoc_Schema(data);
+    //map<int,string>
+    //array<int>
+    //array<@8343495-839>
+    //array<array<@78343495-839>>
+    //ref:3433-343
+    protected string MapType(string t)
+    {
+      if (t.IsNullOrWhiteSpace()) return t;
+
+      var i = t.IndexOf('(');
+      if (i>=0)
+      {
+        var j = t.LastIndexOf(')');
+        if (j>i)
+        {
+          var iraw = t.Substring(i + 1, j - i - 1);
+          var inner = string.Join(", ", iraw.Split(',')
+                                          .Where(s => s.IsNotNullOrWhiteSpace())
+                                          .Select(s => MapType(s)));
+
+          t = t.Substring(0, i) + "&lt;" + inner + "&gt;" + t.Substring(j+1);
+        }
+      }
+
+      //try to parse type id
+      if (t.StartsWith("@"))
+      {
+        //generate A tag with href to schema id looked-up by type id
+        const string TSCH = "type-schemas";
+        var tref = Data[TSCH][t];
+        if (tref.Exists)
+        {
+          return $"<a href = \"schema?id={t}\">{tref.ValOf("sku")}</a>";
+        }
+      }
+
+      return t; //  a href="schema?id=?[href]"> ?[d]</a>
+    }
+
+    protected virtual object SchemaView(IConfigSectionNode data)
+      => new Templatization.StockContent.ApiDoc_Schema(data, MapType);
 
 
     [ApiEndpointDoc(
@@ -221,9 +260,14 @@ namespace Azos.Wave.Mvc
     [Action(Name = "scope"), HttpGet]
     public object Scope(string id)
     {
-      var data = Data.Children.FirstOrDefault(c => c.IsSameName("scope") && c.ValOf("run-id").EqualsOrdIgnoreCase(id));
+      var data = Data.Children.FirstOrDefault(c =>
+          c.IsSameName("scope") &&
+          (
+            c.ValOf("run-id").EqualsOrdIgnoreCase(id) ||
+            c.ValOf("sku").EqualsOrdIgnoreCase(id) //20201018 DKh
+          ));
       if (data==null) return new Http404NotFound();
-      if (WorkContext.RequestedJson) return data;
+      if (WorkContext.RequestedJson) return new { OK = true, data };
 
       var scopeContent = data.ValOf("doc-content");
       var excision = MarkdownUtils.ExciseSection(scopeContent, "## Endpoints");

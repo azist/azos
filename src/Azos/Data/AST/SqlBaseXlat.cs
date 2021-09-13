@@ -22,9 +22,7 @@ namespace Azos.Data.AST
     protected SqlBaseXlat(string name = null) : base(name) { }
     protected SqlBaseXlat(IConfigSectionNode conf): base(conf) { }
 
-#pragma warning disable 0649
     [Config] private bool m_IsCaseSensitive;
-#pragma warning restore 0649
 
     public override bool IsCaseSensitive => m_IsCaseSensitive;
 
@@ -74,9 +72,7 @@ namespace Azos.Data.AST
         yield return "%";
       }
     }
-
   }
-
 
 
   /// <summary>
@@ -90,7 +86,6 @@ namespace Azos.Data.AST
 
     protected StringBuilder m_Sql = new StringBuilder(512);
     private List<IDataParameter> m_Parameters = new List<IDataParameter>(16);
-
 
     /// <summary>
     /// Returns built SQL
@@ -153,10 +148,10 @@ namespace Azos.Data.AST
     /// </summary>
     protected virtual bool HandlePrimitiveValue(ValueExpression expr)
     {
+      if (expr==null || expr.Value==null) return true;
       var tv = expr.Value.GetType();
       return DEFAULT_PRIMITIVE_TYPES.Contains(tv);
     }
-
 
     public override object Visit(ValueExpression value)
     {
@@ -217,7 +212,6 @@ namespace Azos.Data.AST
     {
       id.NonNull(nameof(id)).Identifier.NonBlank(nameof(id.Identifier));
 
-
       //check that id is accepted
       var f = Translator.IdentifierFilter;
       if (f!=null && !f(id)) throw new ASTException(StringConsts.AST_BAD_IDENTIFIER_ERROR.Args(id.Identifier));
@@ -236,7 +230,6 @@ namespace Azos.Data.AST
       unary.NonNull(nameof(unary));
 
       m_Sql.Append("(");
-
 
       if (!unary.Operator.NonBlank(nameof(unary.Operator)).IsOneOf(Translator.UnaryOperators))
         throw new ASTException(StringConsts.AST_UNSUPPORTED_UNARY_OPERATOR_ERROR.Args(unary.Operator));
@@ -259,7 +252,6 @@ namespace Azos.Data.AST
       binary.LeftOperand.Accept(this);
 
       m_Sql.Append(" ");
-
 
       var isNull = binary.RightOperand == null || binary.RightOperand is ValueExpression ve && ve.Value == null;
 

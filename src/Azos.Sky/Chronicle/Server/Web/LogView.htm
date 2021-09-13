@@ -1,0 +1,897 @@
+﻿<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>Log Chronicle [:APP:] on `[:HOST:]`/`[:ENV:]` </title>
+  <meta name="description" content="Sky Log Chronicles">
+  <meta name="author" content="Azos">
+
+  <script>
+    const ABOUT_SESSION = "[:USER:]@[:APP:] on `[:HOST:]`/`[:ENV:]`";
+
+    /*
+    const TEZT_RESPONSE = {
+      "data": [
+        {
+          "Gdid": "0:10:0",
+          "Guid": "dc06d988-ae74-44c8-856e-a952de63bcc8",
+          "RelatedTo": "5a7643e8-7d26-478a-a5fe-1fa132068721",
+          "App": "rtpb",
+          "Channel": "oplog",
+          "Type": "TraceA",
+          "Source": 0,
+          "UTCTimeStamp": "2020-08-14T16:28:09.571Z",
+          "Host": "/us/east/cle/BIZMIX-WU001",
+          "From": "TeztLogic.Check",
+          "Topic": "blogic",
+          "Text": "Got Rtpb request",
+          "Parameters": "{a: 1, b:2, c: true}"
+        }
+      ],
+      "OK": true
+    };
+    */
+
+  </script>
+
+  <style>
+    htmtl, body {
+        background: #f4f4f4;
+        font-family: Tahoma, Arial, sans-serif;
+        font-size: 12px;
+        color: #444;
+        padding: 0px;
+        margin: 0px;
+        min-width: 480px
+    }
+
+    h1 {  font-size: 1.6em; }
+    h2 {  font-size: 1.4em; }
+    h3 {  font-size: 1.3em; }
+    h4 {  font-size: 1.2em; }
+    h5 {  font-size: 1.1em; }
+
+    pre{
+        padding: 10px;
+        border: 1px solid #dcc;
+        background: #fff;
+        box-shadow: 0px 0px 4px #ccc;
+        color: #444;
+        border-radius: 6px;
+        margin: 8px;
+        overflow: auto;
+    }
+
+    header{
+        background: linear-gradient(90deg, #e4e4e4 10%, #c8c8c0);
+        border-bottom: 1px solid #c4c4c4;
+        position: fixed;
+        padding: 12px;
+        height: 28px;
+        box-shadow: 0px 0px 8px #888;
+        top: 0px;
+        width: 100%;
+        z-index: 1;
+        transition: 0.2s;
+    }
+
+    svg{ filter: grayscale(0.75);}
+
+    .filter{
+       height: auto;
+       opacity: 0.80;
+       box-shadow: 0px 10px 60px #a0a0a0;
+       border: none;
+       background: #2a2a2a;
+    }
+
+    .logo{
+        width: 68px;
+        height: 68px;
+        margin: -10px -2px -10px 0px;
+    }
+
+    .header-title {
+        font-size: 30px;
+        color: #686868;
+        position: relative;
+        top: -22px;
+        display: inline;
+        margin-left: 8px;
+        white-space: nowrap;
+    }
+
+    .filter .header-title{
+      color: #9aa087;
+    }
+
+    .menu{
+      position: absolute;
+      z-index: 1000;
+      right: 34px;
+      top: 10px;
+      border: none;
+      border-radius: 4px;
+      padding: 5px;
+      color: #606060;
+      font-size: 18px;
+      background-color: rgba(255,255,255, 0.5);
+      outline: none;
+    }
+
+    .menu:hover{
+      background-color: rgba(255,255,255, 0.75);
+      color: #404040;
+    }
+
+    @media only screen and (max-width: 480px)  {
+     html, body{
+       font-size: 9px;
+       transition: 0.35s;
+     }
+
+     .logo {
+       display: none;
+     }
+     .header-title{
+       position: static;
+     }
+    }
+
+    footer{
+        text-align: center;
+        color: #999;
+        margin-top: 20px;
+        margin-bottom: 10px;
+    }
+
+    section#body{
+        padding: 22px;
+        margin-top: 48px;
+    }
+
+    section#body.over{
+        filter: blur(6px);
+        transition: 0.4s;
+    }
+
+    @media only screen and (max-width: 480px){
+     section#body {
+        padding: 8px;
+        margin-top: 68px;
+     }
+    }
+
+    a{
+        color: #4080e0;
+        text-decoration: none;
+    }
+
+
+    .clearfix{
+      clear: both;
+    }
+
+    table{
+      border-collapse: collapse;
+      white-space: nowrap;
+    }
+
+    th{ padding: 2px;}
+
+    td{
+      padding: 4px;
+      border-right: 1px dotted #ddd;
+    }
+
+    tr{
+
+    }
+
+    tr:hover{
+      box-shadow: -0px -0px 10px inset #00a0ff;
+    }
+
+    tr:nth-child(even) { background-color: #e8e8e8; }
+
+
+    thead{
+     background: #e0e0e0;
+     color: #676767;
+     padding: 2px;
+     border-bottom: 1px solid #d8d8d8;
+    }
+
+
+    .col-gdid {
+      color: #1060d0;
+      font-size: 0.75em;
+      text-align: center;
+      font-weight: bold;
+      background-color: rgba(100,150,250,0.05);
+    }
+
+    .col-guid {
+     color: #5070b8;
+     background-color: rgba(100,150,250,0.05);
+    }
+
+    .col-rel {
+     color: #9050a0;
+     background-color: rgba(100,150,250,0.05);
+    }
+
+    .col-type {
+     color: #a0a0a0;
+     font-size: 0.75em;
+     text-align: center;
+     background-color: rgba(150,150,150,0.05);
+    }
+
+    .col-utc {
+     color: #707070;
+     font-style: italic;
+     background-color: rgba(250,250,50,0.05);
+    }
+
+    .col-error{
+     color: #f05030;
+     font-weight: bold;
+     background-color: rgba(250,150,700,0.08);
+    }
+
+    .msg-type-warning{
+      background-color: #f4f4a0 !important;
+    }
+
+    .msg-type-error{
+      background-color: #f4c0c0 !important;
+    }
+
+    .msg-type-emergency{
+      background-color: #303030 !important;
+      color: #fea000 !important;
+    }
+
+    .msg-type-catastrophicerror{
+      background-color: #303030 !important;
+      color: #fe5000 !important;
+    }
+
+    .snippet{
+      font-family: 'Lucida Console, monospace';
+      font-size: 8px;
+      max-width: 30em;
+      max-height: 4.25em;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .text{
+      white-space: normal;
+      max-width: 30em;
+      max-height: 4.25em;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .text-pre{
+      white-space: pre;
+      max-width: 30em;
+      max-height: 4.25em;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .wide{
+      max-width: 75em;
+    }
+
+    label{
+      color: #9e9e9e;
+    }
+
+    input, textarea, select{
+      display: block;
+      margin: 4px;
+      margin-bottom: 6px;
+      outline: none;
+      padding: 4px;
+      border: 1px solid #808080;
+      border-radius: 4px;
+      background-color: #707070;
+      width: 90%;
+      font-size: inherit;
+      resize: none;
+      color: #ffffff;
+    }
+
+    input::placeholder, textarea::placeholder {
+     color: #959581;
+     opacity: 1;
+    }
+
+    input[type="checkbox"]{
+     display: inline;
+     width: auto;
+     margin: 10px 10px 12px 1px;
+     vertical-align: middle;
+    }
+
+    .form-block{
+      width: 270px;
+      float: left;
+    }
+
+    .apply{
+      border: none;
+      border-radius: 4px;
+      padding: 5px;
+      color: #f0f0f0;
+      font-size: 1.5em;
+      background-color: rgba(10,150,255, 0.8);
+      outline: none;
+    }
+
+    .apply:hover{
+      background-color: rgba(225,245,255, 0.9);
+      color: #404040;
+    }
+
+    .save{
+      border: none;
+      border-radius: 4px;
+      padding: 5px;
+      color: #f0f0f0;
+      font-size: 1.5em;
+      background-color: rgba(110,210,210, 0.8);
+      outline: none;
+    }
+
+    .save:hover{
+      background-color: rgba(225,245,255, 0.9);
+      color: #404040;
+    }
+
+    .modal-curtain {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      padding-top: 8vh;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.45);
+    }
+
+    .modal-body {
+      display: none;
+      background-color: #fefefe;
+      margin: auto;
+      width: 85%;
+      box-shadow: 2px 8px 12px rgba(0,0,0,0.45);
+    }
+
+    .modal-close {
+      float: right;
+      font-size: 2em;
+      font-weight: bold;
+      color: #848484;
+      cursor: pointer;
+      margin-top: 1px;
+      margin-right: 8px;
+    }
+
+    .modal-close:hover, .modal-close:focus {
+      color: #252525;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .modal-title{
+      font-size: 1.5em;
+      font-weight: bold;
+      color: #636363;
+      background: #d2d2d2;
+      padding: 8px;
+    }
+
+    .modal-content{
+      padding: 8px;
+    }
+
+    .modal-footer{
+      padding: 8px;
+      background: #f0f0f0;
+      color: #a0a0a0;
+    }
+
+    .modal-text{
+      white-space: normal;
+      max-height: 75vh;
+      overflow-y: auto;
+      padding: 4px;
+    }
+
+    .modal-text-pre{
+      font-family: 'Lucida Console';
+      white-space: pre;
+      max-height: 75vh;
+      overflow: auto;
+      padding: 4px;
+    }
+
+    .modal-params{
+      font-family: 'Lucida Console';
+      font-size: 1.2em;
+      white-space: pre;
+      max-height: 75vh;
+      overflow: auto;
+      color: #e0e0e0;
+      background: #404040;
+      padding: 8px;
+      margin: -8px;
+    }
+
+    .code-key { color: #949494; }
+    .code-string { color: #20d4ff; }
+    .code-number { color: #70f010; }
+    .code-boolean { color: #f0d090; }
+    .code-null { color: #f48080; }
+</style>
+
+</head>
+
+<body>
+  <header id="hdrMain">
+    <svg class="logo" viewBox="0 0 640 640" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.41421;"><g id="Lepestki"><path d="M11.15,327.457c89.474,-45.308 207.314,-68.871 334.797,-60.494c109.793,7.213 209.794,37.005 288.85,81.363c-87.242,145.289 -205.417,232.199 -330.635,223.972c-119.564,-7.856 -222.905,-100.962 -293.012,-244.841Z" style="fill:url(#_Linear1);" /><path d="M8.378,319.69c67.264,-77.888 168.404,-146.97 289.589,-190.282c104.367,-37.304 207.5,-49.737 296.26,-40.261c-30.448,169.751 -109.882,297.739 -228.915,340.282c-113.657,40.623 -241.889,-4.348 -356.934,-109.739Z" style="fill:#f30;fill-opacity:0.603922;" /><path d="M8.489,319.645c89.475,-45.308 207.315,-68.872 334.797,-60.495c109.793,7.213 209.794,37.005 288.85,81.363c-87.242,145.289 -205.417,232.2 -330.635,223.972c-119.564,-7.856 -222.905,-100.962 -293.012,-244.84Z" style="fill:#9dff00;fill-opacity:0.94902;" /><path d="M8.434,319.601c78.898,-64.074 189.719,-113.125 316.088,-133.047c108.829,-17.153 212.399,-10.056 298.254,15.923c-57.59,161.432 -156.622,272.552 -280.744,292.119c-118.518,18.682 -237.464,-49.646 -333.598,-174.995Z" style="fill:#fbff00;fill-opacity:0.545098;" /></g><g id="AZOS" opacity="0.620645"><path d="M215.641,458.087l-19.233,0l-7.666,-50.288l-43.344,0l-7.665,50.288l-18.676,0l0,-0.578l38.884,-226.151l19.094,0l38.606,226.729Zm-29.407,-68.062l-19.094,-122.541l-19.233,122.541l38.327,0Z" style="fill:#141414;fill-opacity:0.8;fill-rule:nonzero;" /><path d="M304.56,458.087l-71.358,0l0,-8.815l49.476,-114.593l-44.32,0l0,-17.196l66.202,0l0,8.959l-49.616,114.448l49.616,0l0,17.197Z" style="fill:#141414;fill-opacity:0.8;fill-rule:nonzero;" /><path d="M408.809,441.757c0,10.887 -5.25,16.33 -15.749,16.33l-46.55,0c-10.406,0 -15.609,-5.443 -15.609,-16.33l0,-107.945c0,-10.886 5.203,-16.329 15.609,-16.329l46.55,0c10.499,0 15.749,5.443 15.749,16.329l0,107.945Zm-18.536,-0.578l0,-106.789l-40.836,0l0,106.789l40.836,0Z" style="fill:#141414;fill-opacity:0.8;fill-rule:nonzero;" /><path d="M512.083,441.757c0,10.887 -5.25,16.33 -15.749,16.33l-42.508,0c-10.499,0 -15.749,-5.443 -15.749,-16.33l0,-31.935l18.257,0l0,31.646l37.491,0l0,-28.034l-48.501,-41.184c-4.646,-3.853 -6.968,-8.862 -6.968,-15.028l0,-23.41c0,-10.886 5.249,-16.329 15.749,-16.329l41.95,0c10.499,0 15.749,5.443 15.749,16.329l0,28.034l-17.979,0l0,-27.745l-37.491,0l0,24.566l48.92,41.184c4.552,3.757 6.829,8.863 6.829,15.318l0,26.588Z" style="fill:#141414;fill-opacity:0.8;fill-rule:nonzero;" /></g><defs><linearGradient id="_Linear1" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(-49.8243,-191.824,191.824,-49.8243,423.982,532.151)"><stop offset="0" style="stop-color:#000;stop-opacity:0.643137" /><stop offset="1" style="stop-color:#90918d;stop-opacity:0.643137" /></linearGradient></defs></svg>
+    <div class="header-title">Log Chronicle ([:ENV:] / [:HOST:])</div>
+    <button class="menu"  id="btnMenu" onclick="toggleFilter(!filterIsOpen)">
+      &#8634; filter
+    </button>
+
+    <form id="frmFilter" style="display: none" autocomplete="off" onsubmit="return false">
+     <div class="form-block">
+       <label for="fldGdid">Gdid</label>       <input type=text id="fldGdid" placeholder="0:0:0">
+       <label for="fldId">Id</label>           <input type=text id="fldId" placeholder="guid:00000000-0000-0000-0000-000000000000" value="[:FILTER-ID:]">
+       <label for="fldRelId">RelId</label>     <input type=text id="fldRelId" placeholder="guid:00000000-0000-0000-0000-000000000000" value="[:FILTER-REL:]">
+       <label for="fldChannel">Channel</label> <input type=text id="fldChannel" placeholder="A(8)">
+       <label for="fldApplication">Application</label> <input type=text id="fldApplication" placeholder="A(8)">
+     </div>
+
+     <div class="form-block">
+       <label for="fldStartUtc">Start Utc</label>   <input type=text id="fldStartUtc" placeholder="ISO8601: YYYY-MM-DDThh:mm:ss.fffZ">
+       <label for="fldEndUtc">End Utc</label>     <input type=text id="fldEndUtc" placeholder="ISO8601: YYYY-MM-DDThh:mm:ss.fffZ">
+
+       <label for="fldMinType">Min Type</label>
+       <select id="fldMinType">
+         <option value="">-- unset --</option>
+         <option value="Debug">Debug</option>
+         <option value="DebugA">DebugA</option>
+         <option value="DebugB">DebugB</option>
+         <option value="DebugC">DebugC</option>
+         <option value="DebugD">DebugD</option>
+         <option value="DebugSQL">DebugSQL</option>
+         <option value="DebugZ">DebugZ</option>
+         <option value="Trace">Trace</option>
+         <option value="TraceA">TraceA</option>
+         <option value="TraceB">TraceB</option>
+         <option value="TraceC">TraceC</option>
+         <option value="TraceD">TraceD</option>
+         <option value="TraceErrors">TraceErrors</option>
+         <option value="TraceSQL">TraceSQL</option>
+         <option value="TraceZ">TraceZ</option>
+         <option value="Info">Info</option>
+         <option value="InfoA">InfoA</option>
+         <option value="InfoB">InfoB</option>
+         <option value="InfoC">InfoC</option>
+         <option value="InfoD">InfoD</option>
+         <option value="InfoZ">InfoZ</option>
+         <option value="SecurityAudit">SecurityAudit</option>
+         <option value="Notice">Notice</option>
+         <option value="Warning">Warning</option>
+         <option value="Error">Error</option>
+         <option value="Critical">Critical</option>
+         <option value="CriticalAlert">CriticalAlert</option>
+         <option value="Emergency">Emergency</option>
+         <option value="CatastrophicError">CatastrophicError</option>
+       </select>
+
+       <label for="fldMaxType">Max Type</label>
+       <select id="fldMaxType">
+         <option value="">-- unset --</option>
+         <option value="Debug">Debug</option>
+         <option value="DebugA">DebugA</option>
+         <option value="DebugB">DebugB</option>
+         <option value="DebugC">DebugC</option>
+         <option value="DebugD">DebugD</option>
+         <option value="DebugSQL">DebugSQL</option>
+         <option value="DebugZ">DebugZ</option>
+         <option value="Trace">Trace</option>
+         <option value="TraceA">TraceA</option>
+         <option value="TraceB">TraceB</option>
+         <option value="TraceC">TraceC</option>
+         <option value="TraceD">TraceD</option>
+         <option value="TraceErrors">TraceErrors</option>
+         <option value="TraceSQL">TraceSQL</option>
+         <option value="TraceZ">TraceZ</option>
+         <option value="Info">Info</option>
+         <option value="InfoA">InfoA</option>
+         <option value="InfoB">InfoB</option>
+         <option value="InfoC">InfoC</option>
+         <option value="InfoD">InfoD</option>
+         <option value="InfoZ">InfoZ</option>
+         <option value="SecurityAudit">SecurityAudit</option>
+         <option value="Notice">Notice</option>
+         <option value="Warning">Warning</option>
+         <option value="Error">Error</option>
+         <option value="Critical">Critical</option>
+         <option value="CriticalAlert">CriticalAlert</option>
+         <option value="Emergency">Emergency</option>
+         <option value="CatastrophicError">CatastrophicError</option>
+       </select>
+
+       <label for="fldCount">Results Count</label>
+       <select id="fldCount">
+         <option value="25">25</option>
+         <option value="50">50</option>
+         <option value="75">75</option>
+         <option value="100">100</option>
+         <option value="150">150</option>
+         <option value="200">200</option>
+         <option value="300">300</option>
+         <option value="500">500</option>
+         <option value="750">750</option>
+       </select>
+     </div>
+     <div class="form-block">
+       <label for="fldAdvancedFilter">Advanced</label> <textarea id="fldAdvancedFilter" rows=7 placeholder="json expression"></textarea>
+
+       <label for="chkFullGuids">Full Guids</label> <input type="checkbox" id="chkFullGuids" checked onclick="buildGrid(serverResponse.data)">
+       <label for="chkChannel">Channel</label> <input type="checkbox"  id="chkChannel" checked onclick="buildGrid(serverResponse.data)">
+       <br>
+       <label for="chkAdims">Archive dims</label> <input type="checkbox"  id="chkAdims" onclick="buildGrid(serverResponse.data)">
+       <label for="chkShards">Shards</label> <input type="checkbox"  id="chkShards" checked>
+       <select id="cboSave">
+         <option value="" disabled selected>..Select saved filter..</option>
+       </select>
+       <button class="apply" onclick="apply()">&#8623; apply</button>
+       <button class="save" onclick="save()">&#8667; save</button>
+     </div>
+
+
+    </form>
+  </header>
+
+ <section id="body">
+  <table id="grid">
+    <thead id="gridHead">    </thead>
+    <tbody id="gridBody">    </tbody>
+  </table>
+ </section>
+ <footer>
+   Sky Log Chronicles Browser&copy;2008-2020 Azos Sky<br>
+   [:USER:]@[:APP:] on `[:HOST:]`/`[:ENV:]`
+ </footer>
+
+ <section id="modal-curtain" class="modal-curtain">
+
+  <div id="modal-body" class="modal-body">
+    <span class="modal-close" onclick="hideModal()">&times;</span>
+    <div id="modal-title" class="modal-title">Modal Title</div>
+    <div id="modal-content" class="modal-content">Modal Content</div>
+    <div id="modal-footer" class="modal-footer">footer</div>
+  </div>
+
+ </section>
+
+
+  <script>
+    let filterIsOpen = false;
+    let serverResponse = {ok: true, data: []};
+
+    const HTML_TAGS = {'&': '&amp;', '<': '&lt;', '>': '&gt;' };
+    function rtg(tag) { return HTML_TAGS[tag] || tag; }
+    function html(str) { return str === undefined || str == null || !(str.replace) ? "" : str.replace(/[&<>]/g, rtg); }
+
+
+
+    function toggleFilter(open) {
+      const hdrMain = document.getElementById("hdrMain");
+      const sectBody = document.getElementById("body");
+      const frmFilter = document.getElementById("frmFilter");
+      const btnMenu = document.getElementById("btnMenu");
+
+      filterIsOpen = open;
+
+      if (open) {
+        hdrMain.classList.add("filter");
+        sectBody.classList.add("over");
+        frmFilter.style.display = "block";
+        btnMenu.innerHTML = "cancel";
+      } else {
+        hdrMain.classList.remove("filter");
+        sectBody.classList.remove("over");
+        frmFilter.style.display = "none";
+        btnMenu.innerHTML = "&#8634; filter";
+      }
+    }
+
+    function buildFilter() {
+      const result = {};
+
+      function fld(name) {
+        const elm = document.getElementById("fld" + name);
+        if (!elm) return;
+        const val = elm.value;
+        if (!val) return;
+        result[name] = val;
+      }
+
+      ["Gdid", "Id", "RelId", "Channel", "Application", "MinType", "MaxType", "AdvancedFilter"].forEach(f => fld(f));
+
+      const sd = document.getElementById("fldStartUtc").value;
+      const ed = document.getElementById("fldEndUtc").value;
+      if (sd || ed) {
+        let range = {};
+        if (sd) range["start"] = sd;
+        if (ed) range["end"] = ed;
+        result["TimeRange"] = range;
+      }
+
+      result["PagingCount"] = document.getElementById("fldCount").value | 0;
+      result["CrossShard"] = document.getElementById("chkShards").checked;
+      return result;
+    }
+
+    async function apply() {
+     //// buildGrid(TEZT_RESPONSE.data); return;
+      const callBody = { filter: buildFilter() };
+      //alert(JSON.stringify(filter));
+
+      try {
+        let uri = "filter";
+        const response = await fetch(uri, {
+          method: 'POST',
+          cache: 'no-cache',
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' , 'Accept': 'application/json'},
+          body: JSON.stringify(callBody)
+        });
+
+        if (!response.ok) throw ` --> !OK Status [${response.status}] / '${response.statusText}'`
+
+        const got = await response.json();
+
+        if (got.OK && got.data) {
+          serverResponse = got;
+          buildGrid(got.data);
+          toggleFilter(false);
+        } else {
+          throw JSON.stringify(got.data, null, 2);
+        }
+      }
+      catch (e) {
+        //alert("ERROR: " + e);
+        showModal("Error fetching data", e, null);
+      }
+
+    }
+
+    function save() {
+      showModal("Save filter", "In progress...", "");
+    }
+
+
+    function buildGrid(data) {
+      const gridHead = document.getElementById("gridHead");
+      const gridBody = document.getElementById("gridBody");
+      const fullGuids = document.getElementById("chkFullGuids").checked;
+      const channel = document.getElementById("chkChannel").checked;
+
+      gridHead.innerHTML = `
+      <tr>
+        <th>Gdid</th>
+        <th>Guid</th>
+        <th>Rel</th>
+        <th>Type</th>
+        <th>Utc</th>`+
+        (channel ?
+          `<th>App</th>
+          <th>Host</th>
+          <th>Chn</th>
+          <th>Topic</th>` : ``
+        )+
+        `<th>From (src)</th>
+        <th>Text</th>
+        <th>Params</th>
+        <th>Error</th>
+      </tr>
+      `;
+      gridBody.innerHTML = "";
+
+
+      let body = "";
+      gridBody.logMessages = [];
+      for (const msg of data) {
+        gridBody.logMessages.push(msg);
+        body += buildOneMsg(gridBody.logMessages.length - 1, msg, fullGuids, channel);
+      }
+
+      gridBody.innerHTML = body;
+    }
+
+    function guid(v, full) {
+      if (!v) return "";
+      if (full || !v.length || !v.substr || v.length < 12) return v;
+      return ".." + v.substr(v.length - 12)
+    }
+
+    function buildOneMsg(i, msg, fullGuids, channel) {
+      return `<tr class="msg-type-${html(msg.Type).toLowerCase()}" ondblclick="showMsgJson(${i})">
+          <td class="col-gdid">${html(msg.Gdid)}</td>
+          <td class="col-guid">${html(guid(msg.Guid, fullGuids))}</td>
+          <td class="col-rel">${html(guid(msg.RelatedTo, fullGuids))}</td>
+          <td class="col-type">${html(msg.Type)}</td>
+          <td class="col-utc">${html(msg.UTCTimeStamp)}</td>`+
+          (
+          channel ?
+              `<td>${html(msg.App)}</td>
+              <td>${html(msg.Host)}</td>
+              <td>${html(msg.Channel)}</td>
+              <td>${html(msg.Topic)}</td>` : ` `
+          ) +
+         `<td>${html(msg.From)} #${html((msg.Source | 0).toString())}</td>
+          <td> <div class="text${msg.Text && msg.Text.indexOf && msg.Text.indexOf('\n') < 0 ? "" : "-pre"}${channel ? "" : " wide"}" onclick="showText(${i})">${html(msg.Text)}</div></td>
+          <td> <div class="snippet" onclick="showParams(${i})">${html(snippet(msg.Parameters))}</div></td>
+          <td class="col-error"> <div onclick="showError(${i})">${html(rootError(msg.ExceptionData))}</div ></td >
+        </tr>`;
+    }
+
+
+    function snippet(params) {
+      if (!params || !params.length) return "";
+      if (params.length > 96) {
+        return params.substr(0, 95) + "....";
+      }
+      return params;
+    }
+
+    function rootError(err) {
+      let result = "";
+      while (err) {
+        result = err.TypeName;
+        err = err.InnerException;
+      }
+      return result;
+    }
+
+    function hiJson(json) {
+      if (!json) return "";
+      json = html(json);
+      return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+        let cls = 'number';
+        if (/^"/.test(match)) {
+          if (/:$/.test(match)) {
+              cls = 'key';
+          } else {
+              cls = 'string';
+          }
+        } else if (/true|false/.test(match)) {
+          cls = 'boolean';
+        } else if (/null/.test(match)) {
+          cls = 'null';
+        }
+        return `<span class="code-${cls}">${match}</span>`;
+      });
+    }
+
+    function showMsgJson(i) {
+      toggleFilter(false);
+      const msg = document.getElementById("gridBody").logMessages[i];
+
+      let value = JSON.stringify(msg, null, 2);
+      value = hiJson(value);
+
+      content = `<div class="modal-params"}">${value}</div>`;
+
+      showModal("Message json", content, msg.Guid);
+    }
+
+    function showText(i) {
+      toggleFilter(false);
+
+      const msg = document.getElementById("gridBody").logMessages[i];
+      const value = msg.Text;
+      if (!value) return;
+
+      let content = `<div class="modal-text${msg.Text && msg.Text.indexOf && msg.Text.indexOf('\n') < 0 ? "" : "-pre"}">${html(value)}</div>`;
+
+
+      showModal("Text", content, msg.Guid);
+    }
+
+    function showParams(i) {
+      toggleFilter(false);
+
+      const msg = document.getElementById("gridBody").logMessages[i];
+      let value = msg.Parameters;
+      if (!value) return;
+
+      let content = "";
+
+      //try json
+      try {
+        const obj = JSON.parse(value);
+        value = JSON.stringify(obj, null, 2);//pretty print
+        value = hiJson(value);
+        content = `<div class="modal-params"}">${value}</div>`;
+      } catch {
+        content = `<div class="modal-params"}">${html(value)}</div>`;
+      }
+
+      showModal("Parameters", content, msg.Guid);
+    }
+
+    function showError(i) {
+      toggleFilter(false);
+
+      const msg = document.getElementById("gridBody").logMessages[i];
+      let value = msg.ExceptionData;
+      if (!value) return;
+
+      value = JSON.stringify(value, null, 2);//pretty print
+      value = hiJson(value);
+      content = `<div class="modal-params"}">${value}</div>`;
+
+      showModal("Error data", content, msg.Guid);
+    }
+
+    const elmCurtain = document.getElementById("modal-curtain");
+    const elmBody = document.getElementById("modal-body");
+    const elmTitle = document.getElementById("modal-title");
+    const elmContent = document.getElementById("modal-content");
+    const elmFooter = document.getElementById("modal-footer");
+
+    function showModal(title, content, footer) {
+      elmTitle.innerText = title;
+      elmContent.innerHTML = content;
+      elmFooter.innerHTML = footer;
+
+      elmCurtain.style.display = "block";
+      elmBody.style.display = "block";
+      document.body.style.overflow = "hidden";
+
+      if (!filterIsOpen) document.getElementById("body").classList.add("over");
+    }
+
+    function hideModal() {
+      elmTitle.innerText = "";
+      elmContent.innerHTML = "";
+      elmFooter.innerHTML = "";
+
+      elmCurtain.style.display = "none";
+      elmBody.style.display = "none";
+
+      document.body.style.overflow = "auto";
+      if (!filterIsOpen) document.getElementById("body").classList.remove("over");
+    }
+
+    document.onkeydown = function (e) {
+      if (e.keyCode == 27) hideModal();//ESC
+      /*if (e.keyCode == 13 && e.ctrlKey) send();//enter
+      else if (e.keyCode == 38 && e.ctrlKey) history(-1);//up
+      else if (e.keyCode == 40 && e.ctrlKey) history(1);//down
+      else return;
+      e.preventDefault();*/
+    };
+
+    apply();
+  </script>
+</body>
+
+</html>

@@ -20,7 +20,6 @@ namespace Azos.Data
   public abstract class TargetedAttribute : Attribute
   {
     public const string ANY_TARGET = "*";
-
     protected TargetedAttribute(string targetName)
     {
       m_TargetName = targetName.IsNullOrWhiteSpace() ? ANY_TARGET : targetName;
@@ -36,6 +35,10 @@ namespace Azos.Data
 
     private bool m_Sealed;
     private bool m_PropAssignmentTracking;
+
+    //20210609 DKh Bug Fix #220: Slim Serialization in .Core
+    //Hashset is only needed at attribute chain derivation and is not needed for serialization
+    [NonSerialized]//<---fix
     private HashSet<string> m_AssignedPropNames;
 
     /// <summary>
@@ -81,7 +84,6 @@ namespace Azos.Data
       return value;
     }
 
-
     private string m_TargetName;
     /// <summary>
     /// Returns the name of target, i.e. the name of database engine i.e. "ORACLE11g" or "MySQL"
@@ -105,7 +107,6 @@ namespace Azos.Data
       get => m_Description;
       set => m_Description = AssignState(value);
     }
-
 
     protected string m_MetadataContent;
 
@@ -139,7 +140,6 @@ namespace Azos.Data
         return m_Metadata;
       }
     }
-
 
     public override int GetHashCode() => TargetName.GetHashCodeSenseCase();
 

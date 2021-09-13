@@ -12,6 +12,9 @@ namespace Azos.Data.Access.MongoDb
     public const string ARGUMENT_ERROR =
             "Argument error: ";
 
+    public const string BAD_BINDING_ERROR =
+        "Bad binding specification: `{0}`. The binding should either be `{1}` or `{2}` ";
+
     public const string OP_NOT_SUPPORTED_ERROR =
         "Operation '{0}' is not supported by the {1}";
 
@@ -116,6 +119,10 @@ namespace Azos.Data.Access.MongoDb
     public const string AST_BAD_IDENTIFIER_ERROR = "Bad AST identifier: '{0}'";
 
     public const string AST_BAD_SYNTAX_ERROR = "Bad AST syntax ({0}) near: ... {1} ...";
+
+    public const string MONGO_CLIENT_CALL_FAILED = "Call to {0} on `{1}` eventually failed; {2} endpoints tried; See .InnerException";
+
+    public const string MONGO_CLIENT_CALL_ASSIGMENT_ERROR = "MongoDbService .Call() can not be made due to invalid endpoint assignments: {0}";
 
   }
 }

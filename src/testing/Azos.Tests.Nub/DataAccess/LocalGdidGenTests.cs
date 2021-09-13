@@ -4,10 +4,10 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
 using Azos.Apps;
 using Azos.Data;
 using Azos.Data.Idgen;
@@ -25,11 +25,11 @@ namespace Azos.Tests.Nub.DataAccess
       //sut.Era = 39;
       //sut.Authority = 7;
 
-      var set =new HashSet<GDID>();
+      var set = new HashSet<GDID>();
 
       const int CNT = 100;
 
-      for(var i=0; i<CNT; i++)
+      for (var i = 0; i < CNT; i++)
       {
         var got = sut.GenerateOneGdid("a", "a");
         "{0}  -  {1}".SeeArgs(got, got.ToHexString());
@@ -94,7 +94,7 @@ namespace Azos.Tests.Nub.DataAccess
         "Start: {0}  count: {1}".SeeArgs(got.StartInclusive, got.Count);
         Aver.AreEqual(16, got.Count);
         Aver.IsTrue(set.Add(got.StartInclusive)); //adding first and last
-        Aver.IsTrue(set.Add(got.StartInclusive+(ulong)(got.Count-1)));
+        Aver.IsTrue(set.Add(got.StartInclusive + (ulong)(got.Count - 1)));
       }
 
       Aver.AreEqual(CNT * 2, set.Count);
@@ -113,7 +113,7 @@ namespace Azos.Tests.Nub.DataAccess
       {
         var got = sut.TryGenerateManyConsecutiveSequenceIds("a", "a", 1024);
 
-        if (i % 25_000 ==0)
+        if (i % 25_000 == 0)
         {
           var buf = new byte[8];
           buf.WriteBEUInt64(got.StartInclusive);
@@ -160,13 +160,12 @@ namespace Azos.Tests.Nub.DataAccess
       Aver.AreNotEqual(got, got4);
       got3.See();
 
-
       Aver.AreEqual(2, sut.SequenceScopeNames.Count());
       Aver.IsTrue(sut.SequenceScopeNames.Contains("a"));
       Aver.IsTrue(sut.SequenceScopeNames.Contains("baba"));
 
       Aver.AreEqual(2, sut.GetSequenceInfos("a").Count());
-      Aver.IsTrue(sut.GetSequenceInfos("a").Any(si=> si.Name == "a"));
+      Aver.IsTrue(sut.GetSequenceInfos("a").Any(si => si.Name == "a"));
       Aver.IsTrue(sut.GetSequenceInfos("a").Any(si => si.Name == "b"));
 
       Aver.AreEqual(1, sut.GetSequenceInfos("baba").Count());
@@ -198,7 +197,7 @@ namespace Azos.Tests.Nub.DataAccess
         Aver.IsTrue(set.Add(got));
       }
 
-      Aver.AreEqual(CNT*2, set.Count);
+      Aver.AreEqual(CNT * 2, set.Count);
     }
 
     [Run]
@@ -210,17 +209,18 @@ namespace Azos.Tests.Nub.DataAccess
 
       const int CNT = 1_250_000;
 
-      Parallel.For(0, CNT, new ParallelOptions(), ()=> new HashSet<GDID>(), (i, _, ls) =>
-      {
-        var got = sut.GenerateOneGdid("a", "a");
-        Aver.IsTrue(ls.Add(got));
-        return ls;
-      }, ls => {
-        lock(set)
-        {
-          ls.ForEach(e => Aver.IsTrue(set.Add(e)));
-        }
-      });
+      Parallel.For(0, CNT, new ParallelOptions(), () => new HashSet<GDID>(), (i, _, ls) =>
+       {
+         var got = sut.GenerateOneGdid("a", "a");
+         Aver.IsTrue(ls.Add(got));
+         return ls;
+       }, ls =>
+       {
+         lock (set)
+         {
+           ls.ForEach(e => Aver.IsTrue(set.Add(e)));
+         }
+       });
 
       Aver.AreEqual(CNT, set.Count);
 
@@ -231,7 +231,8 @@ namespace Azos.Tests.Nub.DataAccess
         var got = sut.GenerateOneGdid("a", "a");
         Aver.IsTrue(ls.Add(got));
         return ls;
-      }, ls => {
+      }, ls =>
+      {
         lock (set)
         {
           ls.ForEach(e => Aver.IsTrue(set.Add(e)));
@@ -240,5 +241,6 @@ namespace Azos.Tests.Nub.DataAccess
 
       Aver.AreEqual(CNT * 2, set.Count);
     }
+
   }
 }

@@ -20,16 +20,10 @@ namespace Azos.Apps.Volatile
     }
 
     public override IEnumerable<ObjectStoreEntry> LoadAll()
-    {
-      return Enumerable.Empty<ObjectStoreEntry>();
-    }
+      => Enumerable.Empty<ObjectStoreEntry>();
 
-    public override void Write(ObjectStoreEntry entry)
-    {
-    }
+    public override void Write(ObjectStoreEntry entry) { }
 
-    public override void Delete(ObjectStoreEntry entry)
-    {
-    }
+    public override void Delete(ObjectStoreEntry entry) { }
   }
 }

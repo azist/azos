@@ -3,12 +3,11 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
-using System;
+
 using System.Collections.Generic;
 
 namespace Azos.Data
 {
-
   /// <summary>
   /// Provides filter predicate for CRUD operations. Return true to include the specified field
   /// </summary>
@@ -26,7 +25,7 @@ namespace Azos.Data
   /// You can also implement this on classes, so even if an object instance of implementing class is not null, that object may not represent
   /// a required value per given target(system/use-case).
   /// </summary>
-  public interface IRequired
+  public interface IRequiredCheck
   {
     /// <summary>
     /// Checks required state for the supplied target. Returns true if an instance state has the required value
@@ -35,11 +34,47 @@ namespace Azos.Data
     /// The target scope under which  the state check is done.
     /// Most implementations do not depend on targets and just ignore the value</param>
     /// <returns>
-    /// True if this instance state represents a required value.
-    /// False when this instance does not have required data for the specified target, for example a struct is in default state
+    /// True if this instance state contains the required value.
+    /// False when this instance does not have required data for the specified target, for example a struct is in a default state
     /// and is effectively not logically assigned
     /// </returns>
     bool CheckRequired(string targetName);
+  }
+
+
+  /// <summary>
+  /// Implemented by entities that check their state/value length expressed in logical units (e.g. characters), possibly conditionally
+  /// depending on a targetName
+  /// </summary>
+  public interface ILengthCheck
+  {
+    /// <summary>
+    /// Checks instance adherence to logical length limits for the supplied target.
+    /// Returns true if an instance state represents the logically minimum length
+    /// </summary>
+    /// <param name="targetName">The target scope under which  the state check is done.
+    /// Most implementations do not depend on targets and just ignore the value</param>
+    /// <param name="minLength">
+    /// The minimum required length. This method is not called with values less than one
+    /// </param>
+    /// <returns>
+    /// True if this instance state contains a value of at least the minimum required length
+    /// </returns>
+    bool CheckMinLength(string targetName, int minLength);
+
+    /// <summary>
+    /// Checks instance adherence to logical length limits for the supplied target.
+    /// Returns true if an instance state does not exceed the logically maximum length
+    /// </summary>
+    /// <param name="targetName">The target scope under which  the state check is done.
+    /// Most implementations do not depend on targets and just ignore the value</param>
+    /// <param name="maxLength">
+    /// The maximum allowed length. This method is not called with values less than one
+    /// </param>
+    /// <returns>
+    /// True if this instance state contains a value of at most the maximum allowed length
+    /// </returns>
+    bool CheckMaxLength(string targetName, int maxLength);
   }
 
 
@@ -68,6 +103,7 @@ namespace Azos.Data
     /// </remarks>
     ValidState Validate(ValidState state, string scope = null);
   }
+
 
   /// <summary>
   /// Denotes an entity, which is typically a row-derivative, that has extra data fields that are not
@@ -113,8 +149,9 @@ namespace Azos.Data
     void AfterLoad(string targetName);
   }
 
+
   /// <summary>
-  /// Supplies caching params
+  /// Supplies caching parameters
   /// </summary>
   public interface ICacheParams
   {
@@ -142,6 +179,7 @@ namespace Azos.Data
     /// </summary>
     bool CacheAbsentData { get; }
   }
+
 
   /// <summary>
   /// Denotes entities that have schemas, such as rowsets and data Docs

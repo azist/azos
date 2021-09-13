@@ -4,13 +4,8 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-
-using System;
-using System.Collections.Generic;
-
 using Azos.Data;
 using Azos.Scripting;
-using Azos.Serialization.JSON;
 
 namespace Azos.Tests.Nub
 {
@@ -72,7 +67,6 @@ namespace Azos.Tests.Nub
       Aver.AreEqual("3", got.newc);
       Aver.AreEqual(null, got.de);
     }
-
 
   }
 }

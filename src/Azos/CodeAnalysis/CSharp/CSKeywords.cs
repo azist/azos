@@ -3,10 +3,8 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
-using System;
+
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Azos.CodeAnalysis.CSharp
 {
@@ -34,8 +32,6 @@ namespace Azos.CodeAnalysis.CSharp
       s_KeywordList["ushort"] = CSTokenType.tUShort;
       s_KeywordList["uint"] = CSTokenType.tUInt;
       s_KeywordList["ulong"] = CSTokenType.tULong;
-
-
 
       s_KeywordList[";"] = CSTokenType.tTerminator;
       s_KeywordList["."] = CSTokenType.tDot;
@@ -164,9 +160,7 @@ namespace Azos.CodeAnalysis.CSharp
     /// </summary>
     public static CSTokenType Resolve(string str)
     {
-      CSTokenType tt;
-
-      s_KeywordList.TryGetValue(str, out tt);
+      s_KeywordList.TryGetValue(str, out CSTokenType tt);
 
       return (tt != CSTokenType.tUnknown) ? tt : CSTokenType.tIdentifier;
     }

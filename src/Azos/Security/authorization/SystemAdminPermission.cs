@@ -16,6 +16,8 @@ namespace Azos.Security
   {
     public SystemAdministratorPermission(int level) : base(level) { }
 
+    public override string Description => nameof(SystemAdministratorPermission);
+
     protected override bool DoCheckAccessLevel(IApplication app, ISession session, AccessLevel access)
       => session.User.Status >= UserStatus.Administrator &&
          base.DoCheckAccessLevel(app, session, access);

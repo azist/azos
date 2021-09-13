@@ -9,6 +9,7 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 
 using Azos.Log;
 using Azos.Web;
@@ -112,6 +113,10 @@ namespace Azos.Wave
       private GeoEntity m_GeoEntity;
 
       private bool m_IsAuthenticated;
+
+      private string m_CallFlowDirectorName;
+      private volatile ConcurrentDictionary<string, object> m_CallFlowValues;
+
     #endregion
 
     #region Properties
@@ -120,7 +125,41 @@ namespace Azos.Wave
       /// <summary>
       /// Uniquely identifies the request
       /// </summary>
-      public Guid ID{ get{ return m_ID;} }
+      public Guid ID => m_ID;
+
+      string Apps.ICallFlow.DirectorName => m_CallFlowDirectorName;
+
+      void Apps.ICallFlow.SetDirectorName(string name) => m_CallFlowDirectorName = name;
+
+      string Apps.ICallFlow.CallerAddress => EffectiveCallerIPEndPoint.ToString();
+      string Apps.ICallFlow.CallerAgent   => Request.UserAgent.TakeFirstChars(96, "..");
+      string Apps.ICallFlow.CallerPort    => Request.HttpMethod + "  " + Request.Url.ToString().TakeFirstChars(96, "..");
+
+      object Apps.ICallFlow.this[string key]
+      {
+        get
+        {
+          key.NonNull(nameof(key));
+          if (m_CallFlowValues != null && m_CallFlowValues.TryGetValue(key, out var existing)) return existing;
+          return null;
+        }
+        set
+        {
+          key.NonNull(nameof(key));
+          if (m_CallFlowValues == null)
+          {
+            lock(m_ItemsLock)
+            {
+              if (m_CallFlowValues == null)
+                m_CallFlowValues = new ConcurrentDictionary<string, object>(StringComparer.Ordinal);
+            }
+          }
+          m_CallFlowValues[key] = value;
+        }
+      }
+
+      IEnumerable<KeyValuePair<string, object>> Apps.ICallFlow.Items
+        => m_CallFlowValues==null ? Enumerable.Empty<KeyValuePair<string, object>>() : m_CallFlowValues;
 
       /// <summary>
       /// Returns the application that this context is under
@@ -566,23 +605,34 @@ namespace Azos.Wave
         {
           throw HTTPStatusException.NotAcceptable_406("Missing content-type");
         }
-        //Multi-part
-        if (ctp.IndexOf(ContentType.FORM_MULTIPART_ENCODED)>=0)
-        {
-          var boundary = Multipart.ParseContentType(ctp);
-          var mp = Multipart.ReadFromStream(Request.InputStream, ref boundary, Request.ContentEncoding);
-          result =  mp.ToJSONDataMap();
-        }
-        else //Form URL encoded
-        if (ctp.IndexOf(ContentType.FORM_URL_ENCODED)>=0)
-          result = JsonDataMap.FromURLEncodedStream(new Azos.IO.NonClosingStreamWrap(Request.InputStream),
-                                                  Request.ContentEncoding);
-        else//JSON
-        if (ctp.IndexOf(ContentType.JSON)>=0)
-          result = JsonReader.DeserializeDataObject(new Azos.IO.NonClosingStreamWrap(Request.InputStream),
-                                                  Request.ContentEncoding) as JsonDataMap;
 
-        return result;
+        try
+        {
+          //Multi-part
+          if (ctp.IndexOf(ContentType.FORM_MULTIPART_ENCODED)>=0)
+          {
+            var boundary = Multipart.ParseContentType(ctp);
+            var mp = Multipart.ReadFromStream(Request.InputStream, ref boundary, Request.ContentEncoding);
+            result =  mp.ToJSONDataMap();
+          }
+          else //Form URL encoded
+          if (ctp.IndexOf(ContentType.FORM_URL_ENCODED)>=0)
+            result = JsonDataMap.FromURLEncodedStream(new Azos.IO.NonClosingStreamWrap(Request.InputStream),
+                                                    Request.ContentEncoding);
+          else//JSON
+          if (ctp.IndexOf(ContentType.JSON)>=0)
+            result = JsonReader.DeserializeDataObject(new Azos.IO.NonClosingStreamWrap(Request.InputStream),
+                                                    Request.ContentEncoding) as JsonDataMap;
+
+          return result;
+        }
+        catch(Exception error)
+        {
+          throw new HTTPStatusException(WebConsts.STATUS_400,
+                                        WebConsts.STATUS_400_DESCRIPTION + " body",
+                                        error.ToMessageWithType(),
+                                        error);
+        }
       }
 
     #endregion

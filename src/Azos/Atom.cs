@@ -1,7 +1,14 @@
-﻿using System;
+﻿/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
+using Azos.Data;
 using Azos.Serialization.JSON;
 
 namespace Azos
@@ -18,7 +25,8 @@ namespace Azos
   /// relieve the GC pressure in network/data processing apps.
   /// </para>
   /// The ranges of acceptable characters are: '0..9|a..z' upper or lower case, and '-','_' which
-  /// are the only allowed separators.
+  /// are the only allowed separators. Note, that other separators (such as '.','/','\' et.al.) are used in paths and other data structures
+  /// hence they can not be used in atom string for simplicity and uniformity of design.
   /// <para>
   /// WARNING: Atom type is designed to represent a finite distinct number of constant values (typically less than a few thousand), having
   /// most applications dealing with less than 100 atom values. Do not encode arbitrary strings as atoms as these
@@ -44,7 +52,13 @@ namespace Azos
   /// </para>
   /// </remarks>
   [Serializable]
-  public struct Atom : IEquatable<Atom>, Data.Idgen.IDistributedStableHashProvider, IJsonWritable, IJsonReadable
+  public struct Atom : IEquatable<Atom>,
+                       Data.Idgen.IDistributedStableHashProvider,
+                       IJsonWritable,
+                       IJsonReadable,
+                       IRequiredCheck,
+                       IValidatable,
+                       ILengthCheck
   {
 
     /// <summary>
@@ -63,9 +77,14 @@ namespace Azos
             (c == '_' || c=='-');
 
     /// <summary>
-    /// Encodes the string value into an Atom. The value must contain ASCII only 1 to 8 characters
-    /// conforming to [0..9|A..Z|a..z|_|-] pattern and may not have whitespace.
+    /// Encodes a string value into an Atom. The value must contain ASCII only 1 to 8 characters
+    /// conforming to [0..9|A..Z|a..z|_|-] pattern and may not have whitespaces, slashes or dots.
     /// Null is encoded as Atom(0).
+    /// <para>
+    /// WARNING: There has to be a good reason to call this method in places other than constant declarations.
+    /// The whole point of using atoms is to rely on pre-encoded constant values. Please evaluate carefully what your code does
+    /// as dynamic atom encoding en mass does not make any sense
+    /// </para>
     /// <para>
     /// WARNING: Atom type is designed to represent a finite distinct number of constant values (typically less than a few thousand), having
     /// most applications dealing with less than 100 atom values. Do not encode arbitrary strings as atoms as these
@@ -92,9 +111,14 @@ namespace Azos
     }
 
     /// <summary>
-    /// Tries to encodes a string value into Atom. The value must contain ASCII only 1 to 8 characters
-    /// conforming to [0..9|A..Z|a..z|_|-] pattern and may not be whitespace.
+    /// Tries to encode a string value into Atom. The value must contain ASCII only 1 to 8 characters
+    /// conforming to [0..9|A..Z|a..z|_|-] pattern and may not contain whitespaces, slashes or dots.
     /// Null is encoded as Atom(0).
+    /// <para>
+    /// WARNING: There has to be a good reason to call this method in places other than constant declarations.
+    /// The whole point of using atoms is to rely on pre-encoded constant values. Please evaluate carefully what your code does
+    /// as dynamic atom encoding en mass does not make any sense
+    /// </para>
     /// <para>
     /// WARNING: Atom type is designed to represent a finite distinct number of constant values (typically less than a few thousand), having
     /// most applications dealing with less than 100 atom values. Do not encode arbitrary strings as atoms as these
@@ -130,8 +154,13 @@ namespace Azos
     /// <summary>
     /// Tries to encode a string value or numeric ID represented as string into Atom.
     /// The string value must contain ASCII only 1 to 8 characters conforming to [0..9|A..Z|a..z|_|-] pattern
-    /// and may not be whitespace. The numeric ID should start with '#' prefix and may have optional  binary or hex prefixes, e.g. "#0x3234"
+    /// and may not contain whitespaces slashes or dots. The numeric ID should start with '#' prefix and may have optional  binary or hex prefixes, e.g. "#0x3234"
     /// Null is encoded as Atom(0).
+    /// <para>
+    /// WARNING: There has to be a good reason to call this method in places other than constant declarations.
+    /// The whole point of using atoms is to rely on pre-encoded constant values. Please evaluate carefully what your code does
+    /// as dynamic atom encoding en mass does not make any sense
+    /// </para>
     /// <para>
     /// WARNING: Atom type is designed to represent a finite distinct number of constant values (typically less than a few thousand), having
     /// most applications dealing with less than 100 atom values. Do not encode arbitrary strings as atoms as these
@@ -176,6 +205,24 @@ namespace Azos
     /// </summary>
     public bool IsZero => ID == 0;
 
+
+    /// <summary>
+    /// Returns the character length of Atom
+    /// </summary>
+    public int Length
+    {
+      get
+      {
+        if (IsZero) return 0;
+        var m = 0xFF00_0000__0000_0000UL;
+        for(var i=8; m > 0; i--)
+        {
+          if (0 != (ID & m)) return i;
+          m = m >> 8;
+        }
+        return 0;
+      }
+    }
 
     /// <summary>
     /// Returns true when the value is either zero or a string of valid Atom characters
@@ -292,5 +339,18 @@ namespace Azos
 
       return (false, null);
     }
+
+    public bool CheckRequired(string targetName) => !IsZero;
+
+    public ValidState Validate(ValidState state, string scope = null)
+    {
+      if (!IsValid)
+        state = new ValidState(state, new FieldValidationException(nameof(Atom), scope.Default("<atom>"), "Invalid value"));
+
+      return state;
+    }
+
+    public bool CheckMinLength(string targetName, int minLength) => Length >= minLength;
+    public bool CheckMaxLength(string targetName, int maxLength) => Length <= maxLength;
   }
 }

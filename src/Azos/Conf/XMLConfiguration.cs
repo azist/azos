@@ -5,8 +5,6 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Xml;
 using System.IO;
@@ -21,34 +19,30 @@ namespace Azos.Conf
   {
     #region .ctor / static
 
-        /// <summary>
-        /// Creates an instance of a new configuration not bound to any XML file
-        /// </summary>
-        public XMLConfiguration() : base()
-        {
+    /// <summary>
+    /// Creates an instance of a new configuration not bound to any XML file
+    /// </summary>
+    public XMLConfiguration() : base() { }
 
-        }
+    /// <summary>
+    /// Creates an instance of the new configuration and reads contents from an XML file
+    /// </summary>
+    public XMLConfiguration(string filename) : base(filename)
+    {
+      readFromFile();
+    }
 
-        /// <summary>
-        /// Creates an instance of the new configuration and reads contents from an XML file
-        /// </summary>
-        public XMLConfiguration(string filename) : base(filename)
-        {
-          readFromFile();
-        }
+    /// <summary>
+    /// Creates an instance of configuration initialized from XML content passed as string
+    /// </summary>
+    public static XMLConfiguration CreateFromXML(string content, bool strictNames = true)
+    {
+      var result = new XMLConfiguration();
+      result.StrictNames = strictNames;
+      result.readFromString(content);
 
-        /// <summary>
-        /// Creates an instance of configuration initialized from XML content passed as string
-        /// </summary>
-        public static XMLConfiguration CreateFromXML(string content, bool strictNames=true)
-        {
-          var result = new XMLConfiguration();
-          result.StrictNames = strictNames;
-          result.readFromString(content);
-
-          return result;
-        }
-
+      return result;
+    }
 
     #endregion
 
@@ -60,211 +54,201 @@ namespace Azos.Conf
 
     #region Public
 
-              /// <summary>
-              /// Saves configuration into a file
-              /// </summary>
-              public override void SaveAs(string filename)
-              {
-                SaveAs(filename, null);
+    /// <summary>
+    /// Saves configuration into a file
+    /// </summary>
+    public override void SaveAs(string filename)
+    {
+      SaveAs(filename, null);
 
-                base.SaveAs(filename);
-              }
+      base.SaveAs(filename);
+    }
 
-              /// <summary>
-              /// Saves configuration to a file with optional link to XSL file
-              /// </summary>
-              public void SaveAs(string filename, string xsl)
-              {
-                if (string.IsNullOrEmpty(filename))
-                  throw new ConfigException(StringConsts.CONFIGURATION_FILE_UNKNOWN_ERROR);
+    /// <summary>
+    /// Saves configuration to a file with optional link to XSL file
+    /// </summary>
+    public void SaveAs(string filename, string xsl)
+    {
+      if (string.IsNullOrEmpty(filename))
+        throw new ConfigException(StringConsts.CONFIGURATION_FILE_UNKNOWN_ERROR);
 
-                var doc = buildXmlDoc(xsl);
-                doc.Save(filename);
-              }
+      var doc = buildXmlDoc(xsl);
+      doc.Save(filename);
+    }
 
+    /// <summary>
+    /// Saves XML configuration with optional link to XSL file, into string and returns it
+    /// </summary>
+    public string SaveToString(string xsl = null)
+    {
+      var doc = buildXmlDoc(xsl);
+      using (var writer = new StringWriter())
+      {
+        doc.Save(writer);
+        return writer.ToString();
+      }
+    }
 
-              /// <summary>
-              /// Saves XML configuration with optional link to XSL file, into string and returns it
-              /// </summary>
-              public string SaveToString(string xsl = null)
-              {
-                var doc = buildXmlDoc(xsl);
-                using(var writer = new StringWriter())
-                {
-                  doc.Save(writer);
-                  return writer.ToString();
-                }
-              }
+    /// <summary>
+    /// Saves XML configuration into stream
+    /// </summary>
+    public XmlDocument SaveToXmlDoc(string xsl = null, string encoding = null)
+    {
+      return buildXmlDoc(xsl, encoding);
+    }
 
+    /// <inheritdoc/>
+    public override void Refresh() => readFromFile();
 
-              /// <summary>
-              /// Saves XML configuration into stream
-              /// </summary>
-              public XmlDocument SaveToXmlDoc(string xsl = null, string encoding = null)
-              {
-                return buildXmlDoc(xsl, encoding);
-              }
+    /// <inheritdoc/>
+    public override void Save()
+    {
+      SaveAs(m_FileName);
+    }
 
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+      XmlDocument doc = new XmlDocument();
 
-            public override void Refresh()
-            {
-              readFromFile();
-            }
+      buildDocNode(doc, null, m_Root);
 
-
-            public override void Save()
-            {
-              SaveAs(m_FileName);
-            }
-
-            public override string ToString()
-            {
-                XmlDocument doc = new XmlDocument();
-
-                buildDocNode(doc, null, m_Root);
-
-                return doc.OuterXml;
-            }
-
-
+      return doc.OuterXml;
+    }
 
     #endregion
+
 
     #region Protected
 
-         //for XML we only allow printable chars and 0..9 and - or _ .
-          protected override string AdjustNodeName(string name)
-          {
-              var result = new StringBuilder(32);//average id size is 16-20 chars
+    //for XML we only allow printable chars and 0..9 and - or _ .
+    protected override string AdjustNodeName(string name)
+    {
+      var result = new StringBuilder(32);//average id size is 16-20 chars
 
-              foreach(var c in name)
-               if (char.IsLetterOrDigit(c) || c=='_' || c=='.')
-                result.Append(c);
-               else
-                result.Append('-');
+      foreach (var c in name)
+        if (char.IsLetterOrDigit(c) || c == '_' || c == '.')
+          result.Append(c);
+        else
+          result.Append('-');
 
-              return result.ToString();
-          }
+      return result.ToString();
+    }
 
     #endregion
 
+
     #region Private Utils
 
-        private void readFromFile()
-        {
-          XmlDocument doc = new XmlDocument();
+    private void readFromFile()
+    {
+      XmlDocument doc = new XmlDocument();
 
-          doc.Load(m_FileName);
+      doc.Load(m_FileName);
 
-          read(doc);
-        }
+      read(doc);
+    }
 
-        private void readFromString(string content)
-        {
-          XmlDocument doc = new XmlDocument();
+    private void readFromString(string content)
+    {
+      XmlDocument doc = new XmlDocument();
 
-          doc.LoadXml(content);
+      doc.LoadXml(content);
 
-          read(doc);
-        }
+      read(doc);
+    }
 
-        private void read(XmlDocument doc)
-        {
-          m_Root = buildNode(doc.DocumentElement, null);
-          if (m_Root!=null)
-            m_Root.ResetModified();
-          else
-            m_Root = m_EmptySectionNode;
-        }
+    private void read(XmlDocument doc)
+    {
+      m_Root = buildNode(doc.DocumentElement, null);
+      if (m_Root != null)
+        m_Root.ResetModified();
+      else
+        m_Root = m_EmptySectionNode;
+    }
 
+    private ConfigSectionNode buildNode(XmlNode xnode, ConfigSectionNode parent)
+    {
+      ConfigSectionNode result;
 
-        private ConfigSectionNode buildNode(XmlNode xnode, ConfigSectionNode parent)
-        {
-          ConfigSectionNode result;
+      if (xnode.NodeType == XmlNodeType.Text && parent != null)
+      {
+        parent.Value = xnode.Value;
+        return null;
+      }
 
-          if (xnode.NodeType == XmlNodeType.Text && parent != null)
-          {
-            parent.Value = xnode.Value;
-            return null;
-          }
+      if (parent != null)
+        result = parent.AddChildNode(xnode.Name, string.Empty);
+      else
+        result = new ConfigSectionNode(this, null, xnode.Name, string.Empty);
 
-          if (parent != null)
-            result = parent.AddChildNode(xnode.Name, string.Empty);
-          else
-            result = new ConfigSectionNode(this, null, xnode.Name, string.Empty);
-
-          if (xnode.Attributes != null)
-            foreach (XmlAttribute xattr in xnode.Attributes)
-              result.AddAttributeNode(xattr.Name, xattr.Value);
-
-
-          foreach (XmlNode xn in xnode)
-           if (xn.NodeType != XmlNodeType.Comment)
-             buildNode(xn, result);
-
-          return result;
-        }
+      if (xnode.Attributes != null)
+        foreach (XmlAttribute xattr in xnode.Attributes)
+          result.AddAttributeNode(xattr.Name, xattr.Value);
 
 
-        private  XmlDocument buildXmlDoc(string xsl, string encoding = null)
-        {
-          return BuildXmlDocFromRoot(m_Root, xsl, encoding);
-        }
+      foreach (XmlNode xn in xnode)
+        if (xn.NodeType != XmlNodeType.Comment)
+          buildNode(xn, result);
 
-        internal static XmlDocument BuildXmlDocFromRoot(ConfigSectionNode root, string xsl, string encoding = null)
-        {
-          var doc = new XmlDocument();
+      return result;
+    }
 
-          //insert XSL link
-          if (!string.IsNullOrEmpty(xsl))
-          {
-            var decl = doc.CreateXmlDeclaration("1.0", encoding, null);
-            doc.AppendChild(decl);
-            var link = doc.CreateProcessingInstruction(
-                               "xml-stylesheet",
-                               "type=\"text/xsl\" href=\"" + xsl + "\"");
-            doc.AppendChild(link);
-          }
+    private XmlDocument buildXmlDoc(string xsl, string encoding = null)
+    {
+      return BuildXmlDocFromRoot(m_Root, xsl, encoding);
+    }
 
-          if (encoding.IsNotNullOrWhiteSpace())
-          {
-            var decl = doc.CreateXmlDeclaration("1.0", encoding, null);
-            doc.AppendChild(decl);
-          }
+    internal static XmlDocument BuildXmlDocFromRoot(ConfigSectionNode root, string xsl, string encoding = null)
+    {
+      var doc = new XmlDocument();
 
-          buildDocNode(doc, null, root);
+      //insert XSL link
+      if (!string.IsNullOrEmpty(xsl))
+      {
+        var decl = doc.CreateXmlDeclaration("1.0", encoding, null);
+        doc.AppendChild(decl);
+        var link = doc.CreateProcessingInstruction(
+                           "xml-stylesheet",
+                           "type=\"text/xsl\" href=\"" + xsl + "\"");
+        doc.AppendChild(link);
+      }
 
-          return doc;
-        }
+      if (encoding.IsNotNullOrWhiteSpace())
+      {
+        var decl = doc.CreateXmlDeclaration("1.0", encoding, null);
+        doc.AppendChild(decl);
+      }
 
+      buildDocNode(doc, null, root);
 
+      return doc;
+    }
 
-        private static void buildDocNode(XmlDocument doc, XmlNode xnode, ConfigSectionNode node)
-        {
-          XmlNode xnew = doc.CreateElement(node.Name);
+    private static void buildDocNode(XmlDocument doc, XmlNode xnode, ConfigSectionNode node)
+    {
+      XmlNode xnew = doc.CreateElement(node.Name);
 
-          if (xnode != null)
-            xnode.AppendChild(xnew);
-          else
-            doc.AppendChild(xnew);
+      if (xnode != null)
+        xnode.AppendChild(xnew);
+      else
+        doc.AppendChild(xnew);
 
-          foreach (ConfigAttrNode anode in node.Attributes)
-          {
-            XmlNode xattr = doc.CreateNode(XmlNodeType.Attribute, anode.Name, string.Empty);
-            xattr.Value = anode.Value;
-            xnew.Attributes.SetNamedItem(xattr);
-          }
+      foreach (ConfigAttrNode anode in node.Attributes)
+      {
+        XmlNode xattr = doc.CreateNode(XmlNodeType.Attribute, anode.Name, string.Empty);
+        xattr.Value = anode.Value;
+        xnew.Attributes.SetNamedItem(xattr);
+      }
 
+      if (node.HasChildren)
+      {
+        foreach (ConfigSectionNode cnode in node.Children)
+          buildDocNode(doc, xnew, cnode);
+      }
 
-          if (node.HasChildren)
-          {
-            foreach (ConfigSectionNode cnode in node.Children)
-              buildDocNode(doc, xnew, cnode);
-          }
-
-          xnew.AppendChild(doc.CreateTextNode(node.Value));
-        }
-
+      xnew.AppendChild(doc.CreateTextNode(node.Value));
+    }
 
     #endregion
   }

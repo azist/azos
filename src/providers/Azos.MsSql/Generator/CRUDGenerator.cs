@@ -23,7 +23,7 @@ namespace Azos.Data.Access.MsSql
       {
         try
         {
-            return await crudInsert(store, cnn, trans, doc, filter);
+            return await crudInsert(store, cnn, trans, doc, filter).ConfigureAwait(false);
         }
         catch(Exception error)
         {
@@ -39,7 +39,7 @@ namespace Azos.Data.Access.MsSql
       {
         try
         {
-            return await crudUpdate(store, cnn, trans, doc, key, filter);
+            return await crudUpdate(store, cnn, trans, doc, key, filter).ConfigureAwait(false);
         }
         catch(Exception error)
         {
@@ -57,7 +57,7 @@ namespace Azos.Data.Access.MsSql
       {
         try
         {
-            return await crudUpsert(store, cnn, trans, doc, filter);
+            return await crudUpsert(store, cnn, trans, doc, filter).ConfigureAwait(false);
         }
         catch(Exception error)
         {
@@ -73,7 +73,7 @@ namespace Azos.Data.Access.MsSql
       {
         try
         {
-            return await crudDelete(store, cnn, trans, doc, key);
+            return await crudDelete(store, cnn, trans, doc, key).ConfigureAwait(false);
         }
         catch(Exception error)
         {
@@ -181,7 +181,7 @@ namespace Azos.Data.Access.MsSql
       //  ConvertParameters(store, cmd.Parameters);
         try
         {
-            var affected = await cmd.ExecuteNonQueryAsync();
+            var affected = await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
             GeneratorUtils.LogCommand(store, "insert-ok", cmd, null);
             return affected;
         }
@@ -281,7 +281,7 @@ namespace Azos.Data.Access.MsSql
 
         try
         {
-            var affected = await cmd.ExecuteNonQueryAsync();
+            var affected = await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
             GeneratorUtils.LogCommand(store, "update-ok", cmd, null);
             return affected;
         }
@@ -372,7 +372,7 @@ namespace Azos.Data.Access.MsSql
 
         try
         {
-            var affected = await cmd.ExecuteNonQueryAsync();
+            var affected = await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
             GeneratorUtils.LogCommand(store, "upsert-ok", cmd, null);
             return affected;
         }
@@ -414,7 +414,7 @@ namespace Azos.Data.Access.MsSql
 
         try
         {
-            var affected = await cmd.ExecuteNonQueryAsync();
+            var affected = await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
             GeneratorUtils.LogCommand(store, "delete-ok", cmd, null);
             return affected;
         }

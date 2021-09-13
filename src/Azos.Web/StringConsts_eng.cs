@@ -14,9 +14,6 @@ namespace Azos.Web
     public const string FS_SVN_PARAMS_SERVER_URL_ERROR =
           "SVN connection parameters need to specify non-blank ServerURL";
 
-    public const string FS_S3_PARAMS_SERVER_URL_ERROR =
-          "S3 connection parameters need to specify non-blank Bucket and Region";
-
     public const string GEO_LOOKUP_SVC_RESOLUTION_ERROR =
           "GEO lookup service does not support '{0}' resolution";
 

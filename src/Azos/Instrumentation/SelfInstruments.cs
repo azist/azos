@@ -6,19 +6,16 @@
 
 using System;
 
-using Azos.Apps;
-using Azos.Instrumentation;
 using Azos.Serialization.Arow;
-using Azos.Serialization.BSON;
 
 namespace Azos.Instrumentation.Self
 {
-
   [Serializable]
   public abstract class SelfInstrumentationLongGauge : LongGauge, IInstrumentationInstrument
   {
     protected SelfInstrumentationLongGauge(long value) : base(null, value) { }
   }
+
 
   [Serializable]
   [Arow("0A2258D7-D918-434C-83A3-A229B4368450")]
@@ -37,6 +34,7 @@ namespace Azos.Instrumentation.Self
     protected override Datum MakeAggregateInstance() { return new RecordCount(0); }
   }
 
+
   [Serializable]
   [Arow("C66CC4FD-6D35-41F2-A207-9CFACCC26B50")]
   public class RecordLoad : SelfInstrumentationLongGauge, IMemoryInstrument
@@ -54,6 +52,7 @@ namespace Azos.Instrumentation.Self
 
     protected override Datum MakeAggregateInstance() { return new RecordLoad(0); }
   }
+
 
   [Serializable]
   [Arow("E354C50D-BCE5-4310-B085-2A45EC23839C")]

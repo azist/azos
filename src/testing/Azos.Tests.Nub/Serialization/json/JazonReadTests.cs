@@ -1,6 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
 
 using Azos.Scripting;
 using Azos.Serialization.JSON;
@@ -124,7 +126,6 @@ namespace Azos.Tests.Nub.Serialization
       Aver.IsNotNull(got);
       Aver.AreObjectsEqual(0, got.Count);
     }
-
 
     [Run]
     public void Integers()
@@ -250,7 +251,6 @@ namespace Azos.Tests.Nub.Serialization
       Aver.AreObjectsEqual(2, map["b"]);
       Aver.AreObjectsEqual("/* */3", map["c"]);
     }
-
 
     [Run]
     public void EmptyStrings_1()

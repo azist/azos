@@ -151,9 +151,8 @@ namespace Azos.Security
         throw new SecurityException(StringConsts.ARGUMENT_ERROR + "DefaultPasswordManager.Verify(!password.IsSealed)");
 
       needRehash = false;
-      if (!Running)
-        return false;
 
+      if (!Running) return false;
       return DoVerify(password, hash, out needRehash);
     }
 
@@ -162,8 +161,7 @@ namespace Azos.Security
       if (a == null || b == null) return false;
       if (a.AlgoName != b.AlgoName) return false;
 
-      CheckDaemonInactive();
-
+      if (!Running) return false;
       return DoAreEquivalent(a, b);
     }
 
@@ -173,6 +171,7 @@ namespace Azos.Security
         throw new SecurityException(StringConsts.ARGUMENT_ERROR + "DefaultPasswordManager.CalculateStrenghtScore(password==null)");
       if (!password.IsSealed)
         throw new SecurityException(StringConsts.ARGUMENT_ERROR + "DefaultPasswordManager.CalculateStrenghtScore(!password.IsSealed)");
+
       CheckDaemonActive();
       return DoCalculateStrenghtScore(family, password);
     }
@@ -180,13 +179,14 @@ namespace Azos.Security
     public int CalculateStrenghtPercent(PasswordFamily family, SecureBuffer password, int maxScore = 0)
     {
       if (maxScore <= 0) maxScore = TOP_SCORE_NORMAL;
-      var score = DoCalculateStrenghtScore(family, password);
+      var score = CalculateStrenghtScore(family, password);
       var result = (int)(100d * (score / (double)maxScore));
       return result > 100 ? 100 : result;
     }
 
     public IEnumerable<PasswordRepresentation> GeneratePassword(PasswordFamily family, PasswordRepresentationType type, PasswordStrengthLevel level = PasswordStrengthLevel.Default)
     {
+      CheckDaemonActive();
       return DoGeneratePassword(family, type, level == PasswordStrengthLevel.Default ? DefaultStrengthLevel : level);
     }
 

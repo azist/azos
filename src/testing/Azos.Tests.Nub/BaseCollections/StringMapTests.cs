@@ -9,7 +9,6 @@ using Azos.Scripting;
 
 namespace Azos.Tests.Nub.BaseCollections
 {
-
   [Runnable]
   public class StringMapTests
   {
@@ -59,11 +58,10 @@ namespace Azos.Tests.Nub.BaseCollections
       Aver.AreEqual(2, m.Count);
       Aver.AreEqual("Albert", m["a"]);
       Aver.AreEqual("Benedict", m["b"]);
-      Aver.IsNull(  m["c"] );
-      Aver.IsTrue( m.ContainsKey("a"));
-      Aver.IsFalse( m.ContainsKey("c"));
+      Aver.IsNull(m["c"]);
+      Aver.IsTrue(m.ContainsKey("a"));
+      Aver.IsFalse(m.ContainsKey("c"));
     }
-
 
   }
 }

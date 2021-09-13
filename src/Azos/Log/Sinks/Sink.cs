@@ -390,12 +390,11 @@ namespace Azos.Log.Sinks
       if (!Running) return;
 
       //When there was failure and it was not long enough
-      if (m_LastErrorTimestamp.HasValue)
-      if ((LocalizedTime - m_LastErrorTimestamp.Value).TotalMilliseconds < m_RestartProcessingAfterMs)
+      var lets = m_LastErrorTimestamp;
+      if (lets.HasValue && (LocalizedTime - lets.Value).TotalMilliseconds < m_RestartProcessingAfterMs)
       {
-        //this is after than throwing exception
         var error = new AzosException(string.Format(StringConsts.LOGSVC_SINK_IS_OFFLINE_ERROR, Name));
-        SetError(error, msg);
+        SetError(error, msg, keepExistingErrorTimestamp: true);
         return;
       }
 
@@ -503,13 +502,14 @@ namespace Azos.Log.Sinks
     /// <summary>
     /// Notifies log service of exception that surfaced during processing of a particular message
     /// </summary>
-    protected void SetError(Exception error, Message msg)
+    protected void SetError(Exception error, Message msg, bool keepExistingErrorTimestamp = false)
     {
       if (error != null)
       {
         ComponentDirector.LogDaemon.FailoverDestination(this, error, msg);
         m_LastError = error;
-        m_LastErrorTimestamp = LocalizedTime;
+        var lt = LocalizedTime;
+        m_LastErrorTimestamp = keepExistingErrorTimestamp ? m_LastErrorTimestamp ?? lt : lt;
       }
       else
       {

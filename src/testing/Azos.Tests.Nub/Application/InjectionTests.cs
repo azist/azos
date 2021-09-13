@@ -4,8 +4,7 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-
-using System;
+using System.IO;
 using System.Collections.Generic;
 
 using Azos.Apps;
@@ -18,7 +17,6 @@ using Azos.Glue;
 using Azos.Time;
 using Azos.Instrumentation;
 using Azos.Serialization.Slim;
-using System.IO;
 
 namespace Azos.Tests.Nub.Application
 {
@@ -105,7 +103,6 @@ namespace Azos.Tests.Nub.Application
       }
     }
 
-
     [Run]
     public void Test_InjectionTarget_AppInjection_True()
     {
@@ -136,6 +133,7 @@ namespace Azos.Tests.Nub.Application
 
     interface IMyModule : IModule { }
 
+
     public class MyModule : ModuleBase, IMyModule
     {
       public MyModule(IApplication app) : base(app) { }
@@ -143,9 +141,10 @@ namespace Azos.Tests.Nub.Application
       public override bool IsHardcodedModule => false;
       public override string ComponentLogTopic => "testing";
     }
+
+
     public class InjectionTarget_Root
     {
-#pragma warning disable 649
       [Inject] IApplication m_App;//<--- private field
       [Inject] public IApplication m_App2;
       [Inject] protected IApplication m_App3;
@@ -156,7 +155,6 @@ namespace Azos.Tests.Nub.Application
       [Inject] IGlue m_Glue;
       [Inject] IInstrumentation m_Instrumentation;
       [Inject] ITimeSource m_TimeSource;
-#pragma warning restore 649
 
       public string Data;//<-- this gotta be serializable
 
@@ -188,13 +186,13 @@ namespace Azos.Tests.Nub.Application
       }
     }
 
+
     public class InjectionTarget_Modules : InjectionTarget_Root
     {
-#pragma warning disable 649
       [Inject] IMyModule m_MyModule1;
       [Inject(Name="Module2")] IMyModule m_MyModule2;
       [InjectModule(Name = "Module3")] IMyModule m_MyModule3;
-#pragma warning restore 649
+
       public override void AssertInjectionCorrectness(IApplication app)
       {
         base.AssertInjectionCorrectness(app);
@@ -204,12 +202,12 @@ namespace Azos.Tests.Nub.Application
       }
     }
 
+
     public class InjectionTarget_Singleton : InjectionTarget_Modules
     {
-#pragma warning disable 649
       [InjectSingleton] Dictionary<string, string> m_MySingleton1;
       [InjectSingleton(Type =typeof(Dictionary<string, string>))] IDictionary<string, string> m_MySingleton2;
-#pragma warning restore 649
+
       public void AssertInjectionCorrectness(IApplication app, Dictionary<string, string> dict)
       {
         base.AssertInjectionCorrectness(app);
@@ -217,6 +215,7 @@ namespace Azos.Tests.Nub.Application
         Aver.AreSameRef(dict, m_MySingleton2);
       }
     }
+
 
     public class InjectionTarget_AppInjection_True : InjectionTarget_Root, IApplicationInjection
     {

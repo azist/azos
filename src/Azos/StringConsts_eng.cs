@@ -84,8 +84,8 @@ namespace Azos
         "Error while applying attribute [{0}] on class '{1}' instance field '{2}': {3}";
 
         public const string DI_UNSATISIFED_INJECTION_ERROR =
-@"Dependency injection on class '{0}' instance field '{1}' could not be satisfied using: [{2}].
-The injected value has to be present in app chassis having its type assignment compatible with the target field or 'Type' constraint;
+@"Dependency injection on class '{0}' instance field '{1}' is not marked as `optional` and could not be satisfied using: [{2}].
+The injected value has to be present in app chassis having its type assignment-compatible with the target field or 'Type' constraint;
 and the name of module or INamed entity must match if the 'Name' constraint was specified in the attribute";
 
         public const string SHARDING_OBJECT_ID_ERROR =
@@ -235,6 +235,15 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string SECURITY_AUTHROIZATION_ERROR =
         "Authorization to '{0}' failed from '{1}'";
 
+    public const string SECURITY_IDP_UPSTREAM_CALL_ERROR =
+         "IDP upstream server call failure: {0}";
+
+    public const string SECURITY_IDP_PROTOCOL_ERROR =
+         "IDP upstream server protocol error: {0}";
+
+    public const string SECURITY_IDP_RESPONSE_DECIPHER_ERROR =
+    "IDP upstream server response payload could not be deciphered. Are the crypto message protection keys configured correctly?";
+
     public const string SECURITY_REPRESENT_CREDENTIALS_FORGOTTEN =
         "Credentials can not be represented as they are forgotten";
 
@@ -323,7 +332,7 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string CONFIG_VARS_EVAL_ERROR =
         "Configuration variable '{0}' evaluation error: {1}";
 
-    public const string CONFIG_INCLUDE_PRAGMA_DEPTH_ERROR = "Include pragma recursive depths exceeded: {0}";
+    public const string CONFIG_INCLUDE_PRAGMA_DEPTH_ERROR = "Include pragma recursive depth exceeded: {0}";
 
     public const string CONFIG_BEHAVIOR_APPLY_ERROR =
         "Error while applying behavior to {0}. Error: {1}";
@@ -432,17 +441,26 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string GUARDED_ACTION_SCOPE_ERROR =
         "Guarded action {0} threw: {1}";
 
+    public const string GUARDED_CLAUSE_NOT_FOUND_ERROR =
+        "Guarded method '{0}' item '{1}' is not found";
+
     public const string GUARDED_CLAUSE_MAY_NOT_BE_NULL_ERROR =
         "Guarded method '{0}' clause '{1}' may not be null";
 
+    public const string GUARDED_CLAUSE_NO_REQUIRED_VALUE_ERROR =
+        "Guarded method '{0}' clause '{1}' is missing required value";
+
+    public const string GUARDED_CLAUSE_MAY_NOT_BE_DISPOSED_ERROR =
+        "Guarded method '{0}' clause '{1}' is already disposed";
+
     public const string GUARDED_CLAUSE_OFTYPE_ERROR =
-         "Guarded method '{0}' type clause '{1}' may not be null and must be of '{2}' type or its descendants";
+        "Guarded method '{0}' type clause '{1}' may not be null and must be of '{2}' type or its descendants";
 
     public const string GUARDED_CLAUSE_VALUEOFTYPE_ERROR =
-         "Guarded method '{0}' clause value '{1}' may not be null and must be of '{2}' type or its descendants";
+        "Guarded method '{0}' clause value '{1}' may not be null and must be of '{2}' type or its descendants";
 
     public const string GUARDED_CLAUSE_TYPECAST_ERROR =
-         "Guarded method '{0}' clause '{1}' may not be type cast to '{2}'";
+        "Guarded method '{0}' clause '{1}' may not be type cast to '{2}'";
 
     public const string GUARDED_CONFIG_NODE_CLAUSE_MAY_NOT_BE_EMPTY_ERROR =
         "Guarded method '{0}' config node clause '{1}' may not be null or empty";
@@ -695,9 +713,26 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string AST_BAD_IDENTIFIER_ERROR = "Bad identifier: '{0}'";
 
 
+    public const string ARCHIVE_VOLUME_HEADER_READ_ERROR = "The archive volume `{0}` header could not be mounted: {1}";
+    public const string ARCHIVE_PAGE_STATE_ERROR = "The archive page @0x{0:X4} offset must be in `{1}` state";
+    public const string ARCHIVE_ENCRYPTION_SCHEME_NOT_SUPPORTED_ERROR = "Archive encryption scheme `{0}` is not supported. Check algorithm configuration in app secman";
+    public const string ARCHIVE_COMPRESSION_SCHEME_NOT_SUPPORTED_ERROR = "Archive compression scheme `{0}` is not supported. This implementation supports: {1}";
+    public const string ARCHIVE_PREMATURE_EOF_ERROR = "Premature stream EOF while filling Page";
+    public const string ARCHIVE_PAGE_DECIPHER_INTEGRITY_ERROR = "Page decipher data failed integrity check. The data was either tampered or the encryption scheme is different from the one used during the creation of this archive";
+    public const string ARCHIVE_PAGE_DECIPHER_ERROR = "Page data decipher error: {0}";
+    public const string ARCHIVE_PAGE_BUFFER_MAX_LENGTH_ERROR = "Page data max buffer length of {0} bytes exceeded";
+    public const string ARCHIVE_PAGE_DECOMPRESSION_ERROR = "Page data decompression error: {0}";
+    public const string ARCHIVE_PAGE_EXACT_ID_ERROR = "Archive page could not be found by the exact pageId specified: @{0:x8}";
+
+
+    public const string ARCHIVE_APPENDER_CONTENT_TYPE_ERROR =
+      "Volume '{0}' content type `{1}` is not supported by {2}. Either use a different appender or create a volume of different content type";
+
+    public const string ARCHIVE_READER_CONTENT_TYPE_ERROR =
+      "Volume '{0}' content type `{1}` is not supported by {2}. Either use a different reader or create a volume of different content type";
+
     public const string CA_PROCESSOR_EXCEPTION_ERROR =
         "{0} processor {1} error: {2}";
-
 
     public const string SCHEMA_INCLUDE_FILE_DOSNT_EXIST_ERROR =
         "Relational schema include file does not exist: ";
@@ -729,6 +764,9 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
 
     public const string CRUD_FIELDDEF_TARGET_DERIVATION_ERROR =
       "Fieldset `{0}` contains bad `deriveFromTargetName` references to targets that are either not found in any [Field] attribute instance on that field, contain reference cycles, or missing the [Field] declarations without derivation dependencies. The field dependency graph could not be resolved";
+
+
+    public const string CRUD_FIELDDEF_SET_GETONLY_ERROR = "Can not set get-only field `{0}`";
 
     public const string CRUD_FIELDDEF_ATTR_MISSING_ERROR = "CRUD FieldDef must be constructed using at least one [Field] attribute. Name: '{0}'";
 
@@ -784,7 +822,7 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
 
     public const string CRUD_ROW_UPGRADE_KEY_MUTATION_ERROR = "Upgraded row key has changed";
 
-    public const string CRUD_ROWSET_OPERATION_ROW_IS_NULL_OR_SCHEMA_MISMATCH_ERROR = "CRUD rowset was supplied either a null row or a row with a different schema";
+    public const string CRUD_ROWSET_OPERATION_ROW_IS_NULL_OR_SCHEMA_MISMATCH_ERROR = "CRUD rowset was supplied either a null row or a row with a different/incompatible schema";
 
     public const string CRUD_TRANSACTION_IS_NOT_OPEN_ERROR = "CRUD transaction is not open for requested operation '{0}'. Current transaction status: '{0}'";
 
@@ -806,30 +844,30 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
 
     public const string DISTRIBUTED_DATA_GDID_PARSE_ERROR = "String value '{0}' can not be parsed as GDID";
 
-    public const string DISTRIBUTED_DATA_PARCEL_INVALID_OPERATION_ERROR = "Error performing '{0}' operation on parcel '{1}' because parcel is in '{2}' state";
-
-    public const string DISTRIBUTED_DATA_PARCEL_MERGE_NOT_IMPLEMENTED_ERROR = "Error performing Merge() operation on parcel '{0}' because DoMerge() is not implemented. Either 'parcel.MetadataAttribute.SupportsMerge' was not checked before making this call, or forgot to implement DoMerge()";
-
-    public const string DISTRIBUTED_DATA_PARCEL_SEAL_VALIDATION_ERROR = "Error sealing parcel '{0}' due to validation errors: ";
-
-    public const string DISTRIBUTED_DATA_PARCEL_UNWRAP_FORMAT_ERROR = "Parcel '{0}' can not unwrap the payload as its format '{1}' is not handled";
-    public const string DISTRIBUTED_DATA_PARCEL_UNWRAP_DESER_ERROR = "Parcel '{0}' could not unwrap the payload due to deserialization exception: {1}";
-
-
-    public const string DISTRIBUTED_DATA_PARCEL_MISSING_ATTRIBUTE_ERROR = "Parcel '{0}' does not specify the required [DataParcel(...)] attribute in its declaration";
-
     public const string ELINK_CHAR_COMBINATION_ERROR = "ELink '{0}' could not be read as it contains an invalid combination '{1}'";
     public const string ELINK_CHAR_LENGTH_LIMIT_ERROR = "ELink '{0}...' could not be encoded/decoded as it exceeds maximum permissible length";
     public const string ELINK_SEGMENT_LENGTH_ERROR = "ELink '{0}' could not be read as it contains an invalid segment data length";
     public const string ELINK_CHAR_LENGTH_ERROR = "ELink '{0}' could not be read as it contains an invalid character data length";
     public const string ELINK_CSUM_MISMATCH_ERROR = "ELink '{0}' could not be read as its checksum does not match";
 
+    public const string DATA_SHARDING_AT_LEAST_ONE_CLAUSE = "At least one shard configured";
+
+    public const string DATA_SHARDING_DUPLICATE_SECTION_CONFIG_ERROR =
+      "Data store configuration contains duplicate named section: ./{0}[name='{1}']." +
+      "Warning: setting wrong shard set ordering would lead to data " +
+      "loss as the system will not be able to properly route request to destination shards";
+
+    public const string DATA_SHARDING_DUPLICATE_SHARDSET_ORDER_CONFIG_ERROR =
+      "Data store configuration declares shard sets of duplicate order. Each shard set must have a unique order in the setup. " +
+      "The shard set with the lowest order is the current. Warning: setting wrong shard set ordering would lead to data " +
+      "loss as the system will not be able to properly route request to destination shards";
+
+
     public const string CACHE_VALUE_FACTORY_ERROR = "Cache value factory func threw error from {0}. Exception: {1}";
     public const string CACHE_RECORD_ITEM_DISPOSE_ERROR = "Cache value threw error while trying to be disposed from {0}. Exception: {1}";
 
     public const string CACHE_TABLE_CTOR_SIZES_WARNING =
                       "Cache.Table.ctor(bucketCount==recPerPage), two parameters may not be equal because they will cause hash clustering. The 'recPerPage' has been increased by the system";
-
 
     public const string STANDARDS_DISTANCE_UNIT_TYPE_ERROR = "Unsupported distance unit type: {0}";
     public const string STANDARDS_WEIGHT_UNIT_TYPE_ERROR = "Unsupported weight unit type: {0}";
@@ -852,6 +890,8 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
 
 
     public const string FS_DUPLICATE_NAME_ERROR = "Can not have file system instance of type '{0}' with the name '{1}' as this name is already registered. ";
+
+    public const string FS_DIRECTORY_DOES_NOT_EXIST_ERROR = "File system directory `{0}` does not exist";
 
     public const string FS_SESSION_BAD_PARAMS_ERROR =
       "Can not create an instance of file system session '{0}'. Make sure that suitable derivative of FileSystemSessionConnectParams is passed for the particular file system";
@@ -1029,9 +1069,10 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
 
     public const string HTTP_CLIENT_CALL_FAILED = "Call to {0} on `{1}` eventually failed; {2} endpoints tried; See .InnerException";
 
+    public const string HTTP_CLIENT_CALL_ASSIGMENT_ERROR = "HttpService .Call() can not be made due to invalid endpoint assignments: {0}";
 
     public const string WEB_CALL_RETURN_JSONMAP_ERROR = "The received content is not representable as JsonDataMap: '{0}..'";
-    public const string WEB_CALL_UNSUCCESSFUL_ERROR = "Web call to `..{0}` was unsuccessful: HTTP {1} - {2}";
+    public const string WEB_CALL_UNSUCCESSFUL_ERROR = "Web call to `...{0}` was unsuccessful: HTTP {1} - {2}";
 
 
     public const string AROW_SATELLITE_ASSEMBLY_NAME_ERROR = "Could not find serialization satellite for assembly `{0}` as the name pattern does not match. The source assembly file name must end with `*.dll` by convention";
@@ -1083,6 +1124,9 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string BIX_MEMBER_TYPE_NOT_SUPPORTED_ERROR = "Bix members of type '{0}' are not supported";
     public const string BIX_GENERATOR_PATH_DOESNOT_EXIST_ERROR = "Bix code generator: path '{0}' does not exist";
 
+    public const string BIX_JSON_HANDLER_UNRESOLVED_TYPE_ID_ERROR =
+      "Bix type id `{0}` could not be resolved by BixJsonHandler. Did you register type resolver assemblies?";
+
     public const string BIX_MAX_SERIALIZATION_DEPTH_ERROR = "Bix max serialization depth of {0} was exceeded. Bix only supports DAGs and does not support cyclical references.";
     public const string BIX_MAX_ARRAY_LEN_ERROR = "Array max length of {0} exceeded by Bix deserialization";
     public const string BIX_DESER_CORRUPT_ERROR = "Bix deserialization is corrupt";
@@ -1105,6 +1149,16 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
 
     public const string STRAT_BINDING_MATCH_ERROR =
       "Strategy binding error: contract `{0}` failed to match context `{1}`. Revise assembly bindings and strategy traits/pattern matching decorations";
+
+    public const string DATA_HEAP_AREA_BINDING_ERROR =
+      "The area binding of `{0}` does not correspond to the area `{1}` being configured. \n" +
+      "Same area object declarations must not mix other area objects in their namespaces. \n" +
+      "Carefully revise declarations - if you incorrectly change mapping for exiting heap area/spaces the system may experience data loss";
+
+    public const string DATA_HEAP_SPACE_BINDING_ERROR =
+      "Area `{0}` space `{1}` is already used by `{2}` however `{3}` tries to bind to the same space as well. \n" +
+      "There can only be one object type bound to a unique space id within an area. \n" +
+      "Carefully revise declarations - if you incorrectly change mapping for exiting heap area/spaces the system may experience data loss";
 
   }
 }

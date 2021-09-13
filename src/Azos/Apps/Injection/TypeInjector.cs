@@ -3,6 +3,7 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
+
 using System;
 using System.Reflection;
 using System.Collections.Generic;
@@ -19,7 +20,7 @@ namespace Azos.Apps.Injection
   /// Framework-internal type which performs dependency injection on the specified type.
   /// Business app developers - do not use.
   /// Advanced: you can derive from this type in case of custom dependency injection implementation
-  /// (e.g. use precompiled lambdas instead of reflection)
+  /// (e.g. use pre-compiled lambdas instead of reflection)
   /// </summary>
   public class TypeInjector
   {
@@ -45,7 +46,7 @@ namespace Azos.Apps.Injection
       {
         var entry = m_Attrs[i];
         var injected = entry.attr.Apply(target, entry.fi, appInjector);
-        if (!injected)
+        if (!injected && !entry.attr.Optional)
           throw new DependencyInjectionException(StringConsts.DI_UNSATISIFED_INJECTION_ERROR.Args(
                       target.GetType().DisplayNameWithExpandedGenericArgs(),
                       entry.fi.ToDescription(),
@@ -84,7 +85,6 @@ namespace Azos.Apps.Injection
       if (lst==null) return (null, null);
       return (lst.ToArray(), DefaultApply);
     }
-
 
 
   }

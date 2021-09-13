@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 using Azos.Collections;
 using Azos.Conf;
@@ -46,7 +45,6 @@ namespace Azos.Data.AST
     /// Returns a stream of supported binary operators
     /// </summary>
     public abstract IEnumerable<string> BinaryOperators { get; }
-
 
     /// <summary>
     /// Name for this translator instance

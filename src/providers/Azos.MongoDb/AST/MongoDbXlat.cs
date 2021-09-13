@@ -28,9 +28,7 @@ namespace Azos.Data.AST
     public MongoDbXlat(string name = null) : base(name) { }
     public MongoDbXlat(IConfigSectionNode conf) : base(conf) { }
 
-#pragma warning disable 0649
     [Config] private bool m_IsCaseSensitive;
-#pragma warning restore 0649
 
     public override bool IsCaseSensitive => m_IsCaseSensitive;
 

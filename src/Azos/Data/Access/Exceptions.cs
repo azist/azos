@@ -3,13 +3,14 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
-using Azos.Serialization.JSON;
+
 using System;
 using System.Runtime.Serialization;
 
+using Azos.Serialization.JSON;
+
 namespace Azos.Data.Access
 {
-
   /// <summary>
   /// Specifies the sub-type of key violation
   /// </summary>
@@ -25,8 +26,11 @@ namespace Azos.Data.Access
     public const string KEY_VIOLATION_FLD_NAME = "DAE-KV";
 
     public DataAccessException() { }
+
     public DataAccessException(string message) : base(message) { }
+
     public DataAccessException(string message, Exception inner) : base(message, inner) { }
+
     public DataAccessException(string message, KeyViolationKind kvKind, string keyViolation)
       : base(message)
     {

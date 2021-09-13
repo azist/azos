@@ -139,7 +139,6 @@ namespace Azos.Data
       return result;
     }
 
-
     /// <summary>
     /// Asynchronously fetches an item through cache - if the item exists and satisfies the `ICacheParams` (and optional `fFilter` functor) then it is
     /// immediately (synchronously) returned to the caller. Otherwise, calls the `fFetch` async functor to perform the actual fetch of a value by key,
@@ -189,7 +188,7 @@ namespace Azos.Data
 
       if (result != null) return result;
 
-      result = await fFetch.NonNull(nameof(fFetch))(key);//<-- only fFetch is IO-bound hence asynchronous
+      result = await fFetch.NonNull(nameof(fFetch))(key).ConfigureAwait(false);//<-- only fFetch is IO-bound hence asynchronous
 
       if (result == null && !caching.CacheAbsentData) return null;
 
@@ -205,7 +204,6 @@ namespace Azos.Data
 
       return result;
     }
-
 
     /// <summary>
     /// Deletes an item from cache and underlying store by calling the supplied functor
@@ -258,7 +256,7 @@ namespace Azos.Data
       else
         tbl.Remove(key);
 
-      return await fDelete.NonNull(nameof(fDelete))(key);
+      return await fDelete.NonNull(nameof(fDelete))(key).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -273,7 +271,7 @@ namespace Azos.Data
     /// <param name="tblCache">The name of a cache table</param>
     /// <param name="caching">Caching options, or null for default</param>
     /// <param name="fSave">Synchronous functor that performs backend save</param>
-    /// <param name="extraPut">Optional functor (cache, TData, PilePointer, ICacheParams) which can be used to add the piled value to other cache tables (indexes) </param>
+    /// <param name="extraPut">Optional functor (cache, TKey, TData,ICacheParams) which can be used to add the piled value to other cache tables (indexes) </param>
     /// <returns>A result of the call to `fSave` functor</returns>
     public static TSaveResult SaveThrough<TKey, TData, TSaveResult>(this ICache cache,
                                                                      TKey key,
@@ -335,7 +333,7 @@ namespace Azos.Data
 
       if (caching == null) caching = CacheParams.DefaultCache;
 
-      var result = await fSave.NonNull(nameof(fSave))(key, data);
+      var result = await fSave.NonNull(nameof(fSave))(key, data).ConfigureAwait(false);
 
       var wAge = caching.WriteCacheMaxAgeSec;
       if (wAge >= 0)

@@ -17,7 +17,7 @@ namespace Azos.Time
   /// <summary>
   /// Represents a range of dates denoted by start/end date/times
   /// </summary>
-  public struct DateRange : IEquatable<DateRange>, IJsonWritable, IJsonReadable, IFormattable, IRequired
+  public struct DateRange : IEquatable<DateRange>, IJsonWritable, IJsonReadable, IFormattable, IRequiredCheck, IValidatable
   {
     /// <summary>
     /// Create a range, at least one component is required. If both are specified both need to be in the same timezone and
@@ -25,15 +25,6 @@ namespace Azos.Time
     /// </summary>
     public DateRange(DateTime? start, DateTime? end)
     {
-      if (!start.HasValue && ! end.HasValue)
-        throw new TimeException(StringConsts.ARGUMENT_ERROR + nameof(DateRange)+".ctor(start.null & end.null)");
-
-      if (start.HasValue && end.HasValue && start.Value.Kind != end.Value.Kind)
-        throw new TimeException(StringConsts.ARGUMENT_ERROR + nameof(DateRange) + ".ctor(start.Kind != end.Kind)");
-
-      if (end<start)
-        throw new TimeException(StringConsts.ARGUMENT_ERROR + nameof(DateRange) + ".ctor(end < start)");
-
       Start = start;
       End = end;
     }
@@ -153,6 +144,25 @@ namespace Azos.Time
       }
 
       return (false, null);
+    }
+
+    public ValidState Validate(ValidState state, string scope = null)
+    {
+      if (!Start.HasValue && !End.HasValue)
+        state = new ValidState(state, new FieldValidationException(nameof(DateRange), scope.Default($"<{nameof(DateRange)}>"), "Both Start/End unassigned"));
+
+      if (state.ShouldStop) return state;
+
+
+      if (Start.HasValue && End.HasValue && Start.Value.Kind != End.Value.Kind)
+        state = new ValidState(state, new FieldValidationException(nameof(DateRange), scope.Default($"<{nameof(DateRange)}>"), "Different Start/End date kinds"));
+
+      if (state.ShouldStop) return state;
+
+      if (End < Start)
+        state = new ValidState(state, new FieldValidationException(nameof(DateRange), scope.Default($"<{nameof(DateRange)}>"), "End < Start"));
+
+      return state;
     }
   }
 

@@ -11,7 +11,6 @@ using Azos.Collections;
 
 namespace Azos.Data.Access.Subscriptions
 {
-
   /// <summary>
   /// Thrown by provider to indicate that such a subscribtion can not be established in principle,
   /// i.e. you may have passed a zero size of populus group, the server may respond with this error
@@ -23,6 +22,7 @@ namespace Azos.Data.Access.Subscriptions
     public InvalidSubscriptionRequestException(string message, Exception inner) : base(message, inner) {}
     protected InvalidSubscriptionRequestException(SerializationInfo info, StreamingContext context) : base(info, context) {}
   }
+
 
   /// <summary>
   /// Represents a subscription to the CRUD Data.
@@ -47,9 +47,8 @@ namespace Azos.Data.Access.Subscriptions
       Correlate = correlate;
 
       var reg = m_Store.Subscriptions as Registry<Subscription>;
-      Subscription existing;
-      if (!reg.RegisterOrReplace(this, out existing))
-       existing.Dispose();
+      if (!reg.RegisterOrReplace(this, out Subscription existing))
+        existing.Dispose();
 
       ((Registry<Subscription>)mailbox.Subscriptions).Register(this);
     }
@@ -72,25 +71,25 @@ namespace Azos.Data.Access.Subscriptions
     private Query   m_Query;
     private Mailbox m_Mailbox;
 
-    public ICRUDSubscriptionStore Store{ get{ return m_Store;}}
-    public string    Name     { get { return m_Name; } }
-    public bool      IsLoaded { get { return m_IsLoaded; } }
-    public Query     Query    { get { return m_Query; } }
-    public Mailbox   Mailbox  { get { return m_Mailbox; } }
+    public ICRUDSubscriptionStore Store => m_Store;
 
+    public string Name => m_Name;
+
+    public bool IsLoaded => m_IsLoaded;
+
+    public Query Query => m_Query;
+
+    public Mailbox Mailbox => m_Mailbox;
 
     /// <summary>
     /// If this property is not null then this subscription is !IsValid
     /// </summary>
-    public InvalidSubscriptionRequestException InvalidSubscriptionException
-    {
-      get{ return m_InvalidSubscriptionException;}
-    }
+    public InvalidSubscriptionRequestException InvalidSubscriptionException => m_InvalidSubscriptionException;
 
     /// <summary>
     /// Returns false when this subscription experienced InvalidSubscriptionException
     /// </summary>
-    public bool IsValid{ get{ return m_InvalidSubscriptionException==null;}}
+    public bool IsValid => m_InvalidSubscriptionException == null;
 
     /// <summary>
     /// Allows to attach arbtrary bject for correlation

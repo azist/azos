@@ -631,6 +631,17 @@ namespace Azos
     }
 
     /// <summary>
+    /// Reads a ushort encoded as big endian from buffer at the specified index
+    /// </summary>
+    public static ushort ReadBEUShort(this byte[] buf, ref int idx)
+    {
+      return (ushort)(
+                   (((int)buf[idx++] << 8) & 0xff00) +
+                   (((int)buf[idx++]) & 0xff)
+                  );
+    }
+
+    /// <summary>
     /// Reads a short encoded as little endian from buffer at the specified index
     /// </summary>
     public static short ReadLEShort(this byte[] buf, ref int idx)
@@ -989,6 +1000,15 @@ namespace Azos
     }
 
     /// <summary>
+    /// Writes a ushort encoded as big endian to buffer at the specified index
+    /// </summary>
+    public static void WriteBEUShort(this byte[] buf, int idx, ushort value)
+    {
+      buf[idx + 0] = (byte)(value >> 8);
+      buf[idx + 1] = (byte)(value);
+    }
+
+    /// <summary>
     /// Writes a short encoded as little endian to buffer at the specified index
     /// </summary>
     public static void WriteLEShort(this byte[] buf, int idx, short value)
@@ -1164,11 +1184,15 @@ namespace Azos
     /// <summary>
     /// Returns true if both buffers contain the same number of the same bytes.
     /// The implementation uses quad-word comparison as much as possible for speed.
-    /// Requires UNSAFE switch
+    /// Requires UNSAFE switch. True if both buffers are null
     /// </summary>
     public static unsafe bool MemBufferEquals(this byte[] buf1, byte[] buf2)
     {
-      if (buf1 == null || buf2 == null) return false;
+      var n1 = buf1 == null;
+      var n2 = buf2 == null;
+
+      if (n1 && n2) return true;
+      if (n1 || n2) return false;
 
       var len = buf1.Length;
       if (len != buf2.Length) return false;
@@ -1283,6 +1307,8 @@ namespace Azos
     /// </summary>
     public static Guid GuidFromNetworkByteOrder(this byte[] buf, int offset = 0)
     {
+      if (buf==null) return Guid.Empty;
+
       var a = ReadBEInt32(buf, ref offset);
       var b = ReadBEShort(buf, ref offset);
       var c = ReadBEShort(buf, ref offset);
@@ -1446,6 +1472,58 @@ namespace Azos
       if (size <     750_000_000_000) return "{1:n1} {0}".Args(longPfx ? "giga bytes" : "gb",size / 1_073_741_824f);
       if (size < 750_000_000_000_000) return "{1:n1} {0}".Args(longPfx ? "tera bytes" : "tb", size / 1_099_511_627_776f);
       return "{1:n1} {0}".Args(longPfx ? "peta bytes" : "pb", size / 1_125_899_906_842_624f);
+    }
+
+
+    /// <summary>
+    /// Creates a hex editor like hex / char dump of a byte[] value
+    /// printing verbatim binary char values
+    /// </summary>
+    public static string ToHexDump(this byte[] buf)
+    {
+      if (buf == null) return null;
+      var result = new StringBuilder();
+      var txt = new StringBuilder();
+
+      var i = 0;
+      for (; i < buf.Length; i++)
+      {
+        var c = (char)buf[i];
+        if (i % 16 == 0)
+        {
+          if (txt.Length > 0)
+          {
+            result.Append("   ");
+            result.Append(txt.ToString());
+            txt.Clear();
+          }
+          if (i > 0) result.AppendLine();
+          result.Append(i.ToString("X8"));
+          result.Append(": ");
+        }
+        else if (i % 8 == 0)
+        {
+          result.Append("| ");
+        }
+
+        result.Append(((int)c).ToString("X2"));
+        result.Append(' ');
+        txt.Append((c != ' ' && c < '!') ? '·' : c);
+      }
+
+      for (var j = 0; i++ % 16 != 0; j++)
+      {
+        if (j == 8) result.Append("  ");
+        result.Append("   ");
+      }
+
+      if (txt.Length > 0)
+      {
+        result.Append("   ");
+        result.Append(txt.ToString());
+      }
+
+      return result.ToString();
     }
 
   }

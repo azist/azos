@@ -6,10 +6,7 @@
 
 using System;
 using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 using Azos.Apps;
@@ -23,8 +20,8 @@ namespace Azos.Tests.Nub.Security
   [Runnable]
   public class CryptoMsgAlgoTests : IRunnableHook
   {
-      private static string conf =
-      @"
+    private static string conf =
+    @"
 app
 {
   security
@@ -36,7 +33,10 @@ app
         name='aes-dflt'  default=true
         type='Azos.Security.HMACAESCryptoMessageAlgorithm, Azos'
         hmac{key='0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3'}
+        hmac{key='8,7,6,5,4,3,2,1,3,9,0,1,2,3,4,5,6,7,8,3,2,1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,7,2,3,4,5,6,7,8,9,8,1,2,1'}
         aes{key='0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1'}
+        aes{key='2,3,1,3,4,3,6,7,8,9,1,1,2,3,4,5,6,7,8,9,1,2,2,2,4,4,6,7,8,9,2,0'}
+        aes{key='7,0,1,3,4,3,6,7,8,3,1,3,2,3,4,5,6,7,8,9,1,2,2,2,4,4,6,7,3,9,2,2'}
       }
 
       algorithm
@@ -67,11 +67,10 @@ app
       return false;
     }
 
-
     [Run]
     public void Cipher_HMACAES_Basic()
     {
-      var msg = new { a = 1, b = 2, c = true, d = false, s = "Snake Hassan", ts = new DateTime(1980, 1,1) };
+      var msg = new { a = 1, b = 2, c = true, d = false, s = "Snake Hassan", ts = new DateTime(1980, 1, 1) };
 
       var pvt = m_App.SecurityManager.PublicProtectAsString(msg);
       var got = m_App.SecurityManager.PublicUnprotectMap(pvt);
@@ -119,12 +118,13 @@ app
     [Run]
     public void Cipher_HMACAES_Padding()
     {
-      for(var i=1; i<3*1024; i++)
+      for (var i = 1; i < 3 * 1024; i++)
       {
-        var msg = new {v = new String('a', i)};
+        var msg = new { v = new String('a', i), c = i };
         var pvt = m_App.SecurityManager.PublicProtectAsString(msg);
         var got = m_App.SecurityManager.PublicUnprotectMap(pvt);
         Aver.AreEqual(msg.v, got["v"].AsString());
+        Aver.AreEqual(i, got["c"].AsInt());
       }
     }
 
@@ -136,7 +136,7 @@ app
       var msg = new { a = 1, b = 2, c = true, d = false, s = "hdfiasdifuhasudihfuiashfouihaisuhfiouash", ts = DateTime.Now };
 
       var sw = Stopwatch.StartNew();
-      for(var i=0; i<cnt; i++)
+      for (var i = 0; i < cnt; i++)
       {
         var pvt = m_App.SecurityManager.PublicProtectAsString(msg);
         var got = m_App.SecurityManager.PublicUnprotectMap(pvt);
@@ -145,7 +145,7 @@ app
         Aver.AreEqual(1, got["a"].AsInt());
         Aver.AreEqual(2, got["b"].AsInt());
       }
-      Console.WriteLine("Did {0:n} in {1:n} ms at {2:n}/sec".Args(cnt, sw.ElapsedMilliseconds, cnt / (sw.ElapsedMilliseconds /1000d)));
+      "Did {0:n} in {1:n} ms at {2:n}/sec".SeeArgs(cnt, sw.ElapsedMilliseconds, cnt / (sw.ElapsedMilliseconds / 1000d));
     }
 
     [Run("cnt=100")]
@@ -156,23 +156,22 @@ app
       var msg = new { a = 1, b = 2, c = true, d = false, s = "hdfiasdifuhasudihfuiashfouihaisuhfiouash", ts = DateTime.Now };
 
       var sw = Stopwatch.StartNew();
-      Parallel.For(0,cnt, i =>
-      {
-        var pvt = m_App.SecurityManager.PublicProtectAsString(msg);
-        var got = m_App.SecurityManager.PublicUnprotectMap(pvt);
-        Aver.IsNotNull(got);
-        Aver.AreEqual(6, got.Count);
-        Aver.AreEqual(1, got["a"].AsInt());
-        Aver.AreEqual(2, got["b"].AsInt());
-      });
-      Console.WriteLine("Did {0:n} in {1:n} ms at {2:n}/sec".Args(cnt, sw.ElapsedMilliseconds, cnt / (sw.ElapsedMilliseconds / 1000d)));
+      Parallel.For(0, cnt, i =>
+       {
+         var pvt = m_App.SecurityManager.PublicProtectAsString(msg);
+         var got = m_App.SecurityManager.PublicUnprotectMap(pvt);
+         Aver.IsNotNull(got);
+         Aver.AreEqual(6, got.Count);
+         Aver.AreEqual(1, got["a"].AsInt());
+         Aver.AreEqual(2, got["b"].AsInt());
+       });
+      "Did {0:n} in {1:n} ms at {2:n}/sec".SeeArgs(cnt, sw.ElapsedMilliseconds, cnt / (sw.ElapsedMilliseconds / 1000d));
     }
-
 
     [Run]
     public void JWTHS256_Basic()
     {
-      var claims = new JsonDataMap{ {"aud", "pub"}, {"sub", "dima"}, { "admin", "false" } };
+      var claims = new JsonDataMap { { "aud", "pub" }, { "sub", "dima" }, { "admin", "false" } };
 
       var jwt = m_App.SecurityManager.PublicProtectJWTPayload(claims);
 
@@ -188,7 +187,6 @@ app
       Aver.AreEqual(claims["sub"].AsString(), got["sub"].AsString());
       Aver.AreEqual(claims["admin"].AsString(), got["admin"].AsString());
     }
-
 
     [Run]
     public void JWTHS256_Tamper()
@@ -209,7 +207,7 @@ app
       Aver.AreEqual(claims["sub"].AsString(), got["sub"].AsString());
 
       var was = jwt[3];
-      jwt[3] = was!=(byte)'A' ? (byte)'A' : (byte)'B';
+      jwt[3] = was != (byte)'A' ? (byte)'A' : (byte)'B';
 
       Encoding.UTF8.GetString(jwt).See("Tampered JWT:");
       got = m_App.SecurityManager.GetDefaultPublicJWT().UnprotectJWTPayload(new ArraySegment<byte>(jwt));
@@ -257,7 +255,6 @@ app
       Aver.AreEqual(claims["aud"].AsString(), got["aud"].AsString());
       Aver.AreEqual(claims["sub"].AsString(), got["sub"].AsString());
     }
-
 
   }
 }

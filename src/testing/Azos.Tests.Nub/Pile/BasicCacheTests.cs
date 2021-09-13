@@ -1,6 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
+
 using System.Threading.Tasks;
 
 using Azos.Apps;
@@ -61,7 +64,6 @@ namespace Azos.Tests.Nub.Pile
       }
     }
 
-
     [Run("cnt = 100")]
     [Run("cnt = 10000")]
     [Run("cnt = 150000")]
@@ -115,7 +117,6 @@ namespace Azos.Tests.Nub.Pile
         Aver.AreEqual(0, tbl.Count);
       }
     }
-
 
     [Run("cnt = 100")]
     [Run("cnt = 10000")]
@@ -184,5 +185,6 @@ namespace Azos.Tests.Nub.Pile
         Aver.AreEqual(0, tbl.Count);
       }
     }
+
   }
 }

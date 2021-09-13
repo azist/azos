@@ -3,6 +3,7 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,7 @@ using System.Linq;
 using Azos.Apps.Injection;
 using Azos.Conf;
 using Azos.Instrumentation;
+using Azos.Log;
 
 namespace Azos.Apps
 {
@@ -37,7 +39,6 @@ namespace Azos.Apps
     /// </summary>
     protected ModuleBase(IModule parent) : base(parent) { }
 
-
     protected override void Destructor()
     {
       cleanupChildren(true);
@@ -57,27 +58,24 @@ namespace Azos.Apps
                        });
     }
 
-#pragma warning disable 649
     [Config] private string m_Name;
     [Config] private int m_Order;
-#pragma warning restore 649
 
     protected Collections.OrderedRegistry<ModuleBase> m_Children = new Collections.OrderedRegistry<ModuleBase>();
 
     public override string ComponentCommonName => this.Name;
 
-    public IModule ParentModule { get{ return ComponentDirector as IModule;} }
+    public IModule ParentModule => ComponentDirector as IModule;
 
-    public Collections.IOrderedRegistry<IModule> ChildModules { get{ return m_Children;} }
+    public Collections.IOrderedRegistry<IModule> ChildModules => m_Children;
 
     public virtual string Name  => m_Name.IsNotNullOrWhiteSpace() ? m_Name : GetType().FullName;
 
-    public int Order { get{ return m_Order;} }
+    public int Order => m_Order;
 
     public virtual bool InstrumentationEnabled { get; set; }
 
     public abstract bool IsHardcodedModule{ get; }
-
 
     public virtual TModule Get<TModule>(Func<TModule, bool> filter = null) where TModule : class, IModule
     {
@@ -127,9 +125,23 @@ namespace Azos.Apps
 
     void IModuleImplementation.ApplicationBeforeCleanup()
     {
-      var handled = DoApplicationBeforeCleanup();
+      var msTimeout = this.ExpectedShutdownDurationMs;
+      if (msTimeout < 1) msTimeout = App.ExpectedComponentShutdownDurationMs;
+      if (msTimeout < 1) msTimeout = CommonApplicationLogic.DFLT_EXPECTED_COMPONENT_SHUTDOWN_DURATION_MS;
+
+      var handled =  TimedCall.Run( ct =>  DoApplicationBeforeCleanup(),
+                                    msTimeout,
+                                    () => WriteLog(MessageType.WarningExpectation,
+                                                   nameof(IModuleImplementation.ApplicationBeforeCleanup),
+                                                   "Module '{0}' finalization is taking longer than expected {1:n} ms".Args(Name, msTimeout))
+                                  );
       if (!handled)
-        m_Children.OrderedValues.Reverse().ForEach( c => ((IModuleImplementation)c).ApplicationBeforeCleanup());
+      {
+        m_Children.OrderedValues
+                  .Reverse()
+                  .Cast<IModuleImplementation>()//explicitly def interface
+                  .ForEach( c => c.ApplicationBeforeCleanup() );
+      }
     }
 
     void IConfigurable.Configure(IConfigSectionNode node)
@@ -140,29 +152,19 @@ namespace Azos.Apps
     }
 
     IEnumerable<KeyValuePair<string, Type>> IExternallyParameterized.ExternalParameters
-    {
-      get { return DoGetExternalParameters(); }
-    }
+      => DoGetExternalParameters();
 
     bool IExternallyParameterized.ExternalGetParameter(string name, out object value, params string[] groups)
-    {
-      return DoExternalGetParameter(name, out value, groups);
-    }
+      => DoExternalGetParameter(name, out value, groups);
 
     IEnumerable<KeyValuePair<string, Type>> IExternallyParameterized.ExternalParametersForGroups(params string[] groups)
-    {
-      return DoGetExternalParametersForGroups(groups);
-    }
+      => DoGetExternalParametersForGroups(groups);
 
     bool IExternallyParameterized.ExternalSetParameter(string name, object value, params string[] groups)
-    {
-      return DoExternalSetParameter(name, value, groups);
-    }
+      => DoExternalSetParameter(name, value, groups);
 
     public override string ToString()
-    {
-      return "Module {0}(@{1}, '{2}', [{3}])".Args(GetType().DisplayNameWithExpandedGenericArgs(), ComponentSID, Name, Order);
-    }
+      => "Module {0}(@{1}, '{2}', [{3}])".Args(GetType().DisplayNameWithExpandedGenericArgs(), ComponentSID, Name, Order);
 
     /// <summary> Override to configure the instance </summary>
     protected virtual void DoConfigure(IConfigSectionNode node) { }
@@ -194,27 +196,16 @@ namespace Azos.Apps
     }
 
     protected virtual IEnumerable<KeyValuePair<string, Type>> DoGetExternalParameters()
-    {
-      return ExternalParameterAttribute.GetParameters(this);
-    }
-
+      => ExternalParameterAttribute.GetParameters(this);
 
     protected virtual bool DoExternalGetParameter(string name, out object value, params string[] groups)
-    {
-      return ExternalParameterAttribute.GetParameter(App, this, name, out value, groups);
-    }
+      => ExternalParameterAttribute.GetParameter(App, this, name, out value, groups);
 
     protected virtual bool DoExternalSetParameter(string name, object value, params string[] groups)
-    {
-      return ExternalParameterAttribute.SetParameter(App, this, name, value, groups);
-    }
+      => ExternalParameterAttribute.SetParameter(App, this, name, value, groups);
 
     protected virtual IEnumerable<KeyValuePair<string, Type>> DoGetExternalParametersForGroups(params string[] groups)
-    {
-      return ExternalParameterAttribute.GetParameters(this, groups);
-    }
-
-
+      => ExternalParameterAttribute.GetParameters(this, groups);
 
     /// <summary>
     /// Override to perform custom DI, the default implementation injects content into all child modules.
@@ -234,10 +225,7 @@ namespace Azos.Apps
     /// initial data loads (e.g. initial cache fetch etc..) after everything has loaded in the application container.
     /// The implementation is expected to handle internal exceptions gracefully (i.e. use log etc.)
     /// </summary>
-    protected virtual bool DoApplicationAfterInit()
-    {
-      return false;
-    }
+    protected virtual bool DoApplicationAfterInit()=> false;
 
     /// <summary>
     /// Override to perform this module-specific actions before app container shutdown.
@@ -246,10 +234,7 @@ namespace Azos.Apps
     /// everything is about to be shutdown in the application container.
     /// The implementation is expected to handle internal exceptions gracefully (i.e. use log etc.)
     /// </summary>
-    protected virtual bool DoApplicationBeforeCleanup()
-    {
-      return false;
-    }
+    protected virtual bool DoApplicationBeforeCleanup() => false;
 
   }
 }

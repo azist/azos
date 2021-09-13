@@ -10,7 +10,6 @@ using Azos.Conf;
 
 namespace Azos.Apps
 {
-
   /// <summary>
   /// Stipulates service control phase statuses like: Active/Inactive etc...
   /// </summary>
@@ -19,7 +18,7 @@ namespace Azos.Apps
   /// <summary>
   /// Defines abstraction for an entity that is controlled by Start/Stop commands and has a status
   /// </summary>
-  public interface IDaemonView : IApplicationComponent, Collections.INamed
+  public interface IDaemonView : IApplicationComponent, Collections.INamed, IComponentDescription
   {
     /// <summary>
     /// Current service status

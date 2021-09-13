@@ -5,9 +5,6 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Azos.CodeAnalysis.CSharp
 {
@@ -16,18 +13,15 @@ namespace Azos.CodeAnalysis.CSharp
   /// </summary>
   public static class CSNumbers
   {
-        //Documentation:
-        //http://msdn.microsoft.com/en-us/library/aa664674(VS.71).aspx
-        public const string S_UINT = "U";
-        public const string S_LONG = "L";
-        public const string S_ULONG1 = "UL";
-        public const string S_ULONG2 = "LU";
-        public const string S_FLOAT = "F";
-        public const string S_DOUBLE = "D";
-        public const string S_DECIMAL = "M";
-
-
-
+    //Documentation:
+    //http://msdn.microsoft.com/en-us/library/aa664674(VS.71).aspx
+    public const string S_UINT = "U";
+    public const string S_LONG = "L";
+    public const string S_ULONG1 = "UL";
+    public const string S_ULONG2 = "LU";
+    public const string S_FLOAT = "F";
+    public const string S_DOUBLE = "D";
+    public const string S_DECIMAL = "M";
 
     /// <summary>
     /// Tries to convert string to number, returns null if conversion could not be made.
@@ -38,7 +32,6 @@ namespace Azos.CodeAnalysis.CSharp
       ulong inum = 0;
       double fnum = 0.0;
       decimal dnum = 0.0M;
-
 
       if (strToInt(str, out inum))
       {
@@ -58,7 +51,6 @@ namespace Azos.CodeAnalysis.CSharp
 
         return fnum;
       }
-
 
       type = CSTokenType.tUnknown;
 
@@ -91,7 +83,7 @@ namespace Azos.CodeAnalysis.CSharp
         str = str.Replace(S_FLOAT, string.Empty);
         type = CSTokenType.tFloatLiteral;
       }
-       else if (str.EndsWith(S_DOUBLE))
+      else if (str.EndsWith(S_DOUBLE))
       {
         str = str.Replace(S_DOUBLE, string.Empty);
         type = CSTokenType.tDoubleLiteral;
@@ -103,8 +95,6 @@ namespace Azos.CodeAnalysis.CSharp
       }
       else
         return null;
-
-
 
       if ((type != CSTokenType.tDecimalLiteral) &&
           (type != CSTokenType.tFloatLiteral) &&
@@ -135,17 +125,14 @@ namespace Azos.CodeAnalysis.CSharp
         return dnum;
       }
 
-
       return null;
     }//Convert
-
 
     /// <summary>
     ///  Converts number string into int respectibg prefixes
     /// </summary>
     private static bool strToInt(string str, out ulong num)
     {
-
       if (UInt64.TryParse(str, out num))
         return true;
 
@@ -187,8 +174,6 @@ namespace Azos.CodeAnalysis.CSharp
       else
         return false;
     }
-
-
 
   }
 }

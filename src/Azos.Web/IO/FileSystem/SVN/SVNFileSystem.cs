@@ -50,7 +50,7 @@ namespace Azos.IO.FileSystem.SVN
 
     #region Public
 
-    public override string ComponentCommonName { get { return "fssvn"; }}
+      public override string ComponentCommonName { get { return "fssvn"; }}
 
       public override IFileSystemCapabilities GeneralCapabilities
       {
@@ -79,6 +79,28 @@ namespace Azos.IO.FileSystem.SVN
     #endregion
 
     #region Protected
+
+      public override string GetPathRoot(string fullPath)
+      {
+        return "/";
+      }
+
+      public override string[] SplitPathSegments(string fullPath)
+      {
+        if (fullPath.IsNullOrWhiteSpace()) return new string[0];
+
+        var idx = fullPath.IndexOf('/');
+        if (idx >= 0) fullPath = (idx + 1 == fullPath.Length) ? string.Empty : fullPath.Substring(idx + 1);
+
+        var segs = fullPath.Split('/')
+                           .Where(s => s.IsNotNullOrWhiteSpace());
+
+        return segs.ToArray();
+      }
+
+      public override string ExtractFileName(string fullPath)
+       => System.IO.Path.GetFileName(fullPath);
+
 
       protected internal override IEnumerable<string> DoGetSubDirectoryNames(FileSystemDirectory directory, bool recursive)
       {

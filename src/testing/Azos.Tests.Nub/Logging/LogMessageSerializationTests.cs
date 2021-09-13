@@ -4,17 +4,12 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-
 using System;
-using System.Linq;
-using System.Threading;
 using System.IO;
 using System.Diagnostics;
 using System.Reflection;
 
-
 using Azos.Log;
-using Azos.Serialization.BSON;
 using Azos.Serialization.Arow;
 using Azos.Serialization.JSON;
 using Azos.Scripting;
@@ -25,7 +20,6 @@ namespace Azos.Tests.Nub.Logging
   [Runnable]
   public class LogMessageSerializationTests : IRunHook
   {
-
     public bool Prologue(Runner runner, FID id, MethodInfo method, RunAttribute attr, ref object[] args)
     {
       ArowSerializer.RegisterTypeSerializationCores(Assembly.GetCallingAssembly());
@@ -34,7 +28,6 @@ namespace Azos.Tests.Nub.Logging
 
     public bool Epilogue(Runner runner, FID id, MethodInfo method, RunAttribute attr, Exception error)
      => false;
-
 
     [Run]
     public void Test_Arow()
@@ -54,9 +47,9 @@ namespace Azos.Tests.Nub.Logging
         var got = new Message();
         ArowSerializer.Deserialize(got, reader);
 
-        Console.WriteLine(got.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap));
+        got.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap).See();
 
-        Aver.AreEqual(msg.Gdid , got.Gdid);
+        Aver.AreEqual(msg.Gdid, got.Gdid);
         Aver.AreEqual(msg.Guid, got.Guid);
         Aver.AreEqual(msg.RelatedTo, got.RelatedTo);
         Aver.AreEqual(msg.Text, got.Text);
@@ -75,7 +68,6 @@ namespace Azos.Tests.Nub.Logging
       }
     }
 
-
     [Run("cnt=500000 error=false")]
     [Run("cnt=10000 error=true")]
     public void Benchmark_Arow(int cnt, bool error)
@@ -83,21 +75,20 @@ namespace Azos.Tests.Nub.Logging
       var msg = error ? withError() : withoutError();
       var writer = SlimFormat.Instance.MakeWritingStreamer();
 
-      using(var ms = new MemoryStream())
+      using (var ms = new MemoryStream())
       {
         writer.BindStream(ms);
 
         var sw = Stopwatch.StartNew();
-        for(var i=0; i<cnt; i++)
+        for (var i = 0; i < cnt; i++)
         {
           ArowSerializer.Serialize(msg, writer);
         }
 
         sw.Stop();
-        Console.WriteLine("Wrote {0:n2} AROW bytes for {1:n0} in {2:n0}ms at {3:n0} ops/sec".Args(ms.Position, cnt, sw.ElapsedMilliseconds, cnt / (sw.ElapsedMilliseconds / 1000d)));
+        "Wrote {0:n2} AROW bytes for {1:n0} in {2:n0}ms at {3:n0} ops/sec".SeeArgs(ms.Position, cnt, sw.ElapsedMilliseconds, cnt / (sw.ElapsedMilliseconds / 1000d));
       }
     }
-
 
     private Message withoutError()
      => new Message
@@ -118,7 +109,7 @@ namespace Azos.Tests.Nub.Logging
 
     private Message withError()
     {
-       var result = withoutError();
+      var result = withoutError();
 
       try
       {
@@ -138,9 +129,9 @@ namespace Azos.Tests.Nub.Logging
       {
         b();
       }
-      catch(Exception e)
+      catch (Exception e)
       {
-        throw new AzosException("Was thrown: "+e.ToMessageWithType(), e);
+        throw new AzosException("Was thrown: " + e.ToMessageWithType(), e);
       }
     }
 
@@ -155,7 +146,6 @@ namespace Azos.Tests.Nub.Logging
         throw new AzosException("Was thrown: " + e.ToMessageWithType(), e);
       }
     }
-
     private void c()
     {
       try
@@ -167,5 +157,6 @@ namespace Azos.Tests.Nub.Logging
         throw new AzosException("Was thrown: " + e.ToMessageWithType(), e);
       }
     }
+
   }
 }

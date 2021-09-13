@@ -362,7 +362,7 @@ namespace Azos.Pile
 
         protected override void DoConfigure(IConfigSectionNode node)
         {
-          if (node==null || !node.Exists)
+                if (node==null || !node.Exists)
                 {
                     node = App.ConfigRoot[Data.Access.Cache.CacheStore.CONFIG_CACHE_SECTION]
                               .Children

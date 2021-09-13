@@ -82,6 +82,15 @@ namespace Azos
     }
 
     /// <summary>
+    /// Gets number of milliseconds since Unix epoch start (1970/1/1 0:0:0)
+    /// </summary>
+    public static ulong ToUnsignedMillisecondsSinceUnixEpochStart(this DateTime when)
+    {
+      var utcWhen = when.ToUniversalTime().IsTrue(v => v >= UNIX_EPOCH_START_DATE, "date past nix epoch");
+      return (ulong)(utcWhen - UNIX_EPOCH_START_DATE).TotalMilliseconds;
+    }
+
+    /// <summary>
     /// Gets number of microseconds since Unix epoch start (1970/1/1 0:0:0)
     /// </summary>
     public static long ToMicrosecondsSinceUnixEpochStart(this DateTime when)
@@ -117,6 +126,33 @@ namespace Azos
       return new DateTime(now.Ticks - now.Ticks % tickResolution, now.Kind);
     }
 
+    /// <summary>
+    /// Aligns DateTime on an adjacent minuteBoudary as of midnight.
+    /// The time component is adjusted accordingly, e.g. if you align on 60 min boundary
+    /// you align the timestamp on hourly basis relative to midnight.
+    /// Note: alignment resets as of midnight, so pass the boundary which is divisible equally within a day,
+    /// e.g. 15 min, 6 hrs, 2 hrs, are all good, however if you align by 5 hrs (as an example), you are not going to get
+    /// equal number of divisions in a 24 hr period.
+    /// </summary>
+    /// <param name="now">DateTime to change</param>
+    /// <param name="minuteBoundary">Alignment boundary, must be greater than zero, e.g. 60 = one hour</param>
+    /// <returns>
+    /// DateTime shifted forward by the remainder of the division of elapsed minute component
+    /// with alignment boundary. The Kind is preserved (e.g. UTC)
+    /// </returns>
+    public static DateTime AlignDailyMinutes(this DateTime now, int minuteBoundary)
+    {
+      minuteBoundary.IsTrue(v => v > 0);
+
+      var result = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, 0, now.Kind);
+      var dayMinutes = result.TimeOfDay.TotalMinutes;
+      var rem = dayMinutes % minuteBoundary;
+      if (rem > 0)
+      {
+        result = result.AddMinutes(minuteBoundary - rem);
+      }
+      return result;
+    }
 
     /// <summary>
     /// Returns an approximate string representation of the point in time relative to this one,

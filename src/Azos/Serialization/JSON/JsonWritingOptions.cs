@@ -72,6 +72,16 @@ namespace Azos.Serialization.JSON
           m_RowsAsMap = true
         };
 
+        private static JsonWritingOptions s_PrettyPrintRowsAsMapASCII = new JsonWritingOptions(isSystem: true)
+        {
+          m_IndentWidth = 2,
+          m_ObjectLineBreak = true,
+          m_MemberLineBreak = true,
+          m_SpaceSymbols = true,
+          m_ASCIITarget = true,
+          m_RowsAsMap = true
+        };
+
 
         /// <summary>
         /// Writes JSON without line breaks between members and no indenting. Suitable for data transmission
@@ -104,6 +114,12 @@ namespace Azos.Serialization.JSON
         /// Writes JSON suitable for printing/screen display writing rows as maps(key:values) instead of arrays
         /// </summary>
         public static JsonWritingOptions PrettyPrintRowsAsMap => s_PrettyPrintRowsAsMap;
+
+        /// <summary>
+        /// Writes JSON suitable for printing/screen display writing rows as maps(key:values) instead of arrays.
+        /// Character codes 127 are escaped so they are suitable for ASCII transmission
+        /// </summary>
+        public static JsonWritingOptions PrettyPrintRowsAsMapASCII => s_PrettyPrintRowsAsMapASCII;
 
         public JsonWritingOptions(){ }
         internal JsonWritingOptions(bool isSystem) { m_IsSystem = isSystem; }

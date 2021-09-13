@@ -6,6 +6,7 @@
 using System;
 using System.Runtime.Serialization;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace Azos
 {
@@ -97,6 +98,35 @@ namespace Azos
     /// If action is unassigned, nothing is done
     /// </summary>
     /// <remarks>
+    /// You can use another version of this function with action argument in order not to create unneeded closures
+    /// </remarks>
+    public static async Task ProtectAsync(Func<Task> action,
+                              [CallerFilePath]   string callFile = null,
+                              [CallerLineNumber] int callLine = 0,
+                              [CallerMemberName] string callMember = null)
+    {
+      if (action == null) return;
+
+      try
+      {
+        await action().ConfigureAwait(false);
+      }
+      catch (Exception error)
+      {
+        var callSite = GuardUtils.callSiteOf(callFile, callLine, callMember);
+        throw new CallGuardException(callSite,
+                                     nameof(action),
+                                     StringConsts.GUARDED_ACTION_SCOPE_ERROR
+                                                 .Args(callSite ?? CoreConsts.UNKNOWN, error.ToMessageWithType()),
+                                     error);
+      }
+    }
+
+    /// <summary>
+    /// Surrounds an action by protected scope: any exception thrown by this action gets wrapped in a CallGuardException.
+    /// If action is unassigned, nothing is done
+    /// </summary>
+    /// <remarks>
     /// Use this function with action argument not to create unneeded closures
     /// </remarks>
     public static void Protect<TArg>(TArg arg, Action<TArg> action,
@@ -120,6 +150,35 @@ namespace Azos
                                      error);
       }
     }
+
+    /// <summary>
+    /// Surrounds an action by protected scope: any exception thrown by this action gets wrapped in a CallGuardException.
+    /// If action is unassigned, nothing is done
+    /// </summary>
+    /// <remarks>
+    /// Use this function with action argument not to create unneeded closures
+    /// </remarks>
+    public static async Task ProtectAsync<TArg>(TArg arg, Func<TArg, Task> action,
+                              [CallerFilePath]   string callFile = null,
+                              [CallerLineNumber] int callLine = 0,
+                              [CallerMemberName] string callMember = null)
+    {
+      if (action == null) return;
+
+      try
+      {
+        await action(arg).ConfigureAwait(false);
+      }
+      catch (Exception error)
+      {
+        var callSite = GuardUtils.callSiteOf(callFile, callLine, callMember);
+        throw new CallGuardException(callSite,
+                                     nameof(action),
+                                     StringConsts.GUARDED_ACTION_SCOPE_ERROR
+                                                 .Args(callSite ?? CoreConsts.UNKNOWN, error.ToMessageWithType()),
+                                     error);
+      }
+    }
   }
 
 
@@ -130,6 +189,23 @@ namespace Azos
   {
     internal static string callSiteOf(string file, int line, string member)
     => "{2}@{0}:{1}".Args(file.IsNotNullOrWhiteSpace() ? System.IO.Path.GetFileName(file) : CoreConsts.UNKNOWN, line, member);
+
+
+    /// <summary>
+    /// Create a CallGuard exception instance for a not found clause. You may throw it on your own (e.g. in a ternary conditional expression)
+    /// </summary>
+    public static CallGuardException IsNotFound(this string name,
+                               [CallerFilePath]   string callFile = null,
+                               [CallerLineNumber] int callLine = 0,
+                               [CallerMemberName] string callMember = null)
+    {
+      var callSite = callSiteOf(callFile, callLine, callMember);
+      return new CallGuardException(callSite,
+                                    name,
+                                    StringConsts.GUARDED_CLAUSE_NOT_FOUND_ERROR
+                                                .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN));
+    }
+
 
     /// <summary>
     /// Ensures that a value is not null
@@ -170,6 +246,33 @@ namespace Azos
                                              .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN));
       }
       return value;
+    }
+
+
+    /// <summary>
+    /// Ensures that a value is not null and that it has not been already disposed if it is a DisposableObject-derivative.
+    /// This method is useful to conditionally check various interfaces which do not have `IDisposable` lineage, however
+    /// their implementors may derive from `DisposableObject`
+    /// </summary>
+    public static T NonDisposed<T>(this T obj,
+                               string name = null,
+                               [CallerFilePath]   string callFile = null,
+                               [CallerLineNumber] int callLine = 0,
+                               [CallerMemberName] string callMember = null) where T : class
+    {
+      if (obj != null)
+      {
+        var dsp = obj as DisposableObject;
+        if (dsp == null) return obj;//not a DisposableObject derivative
+        if (!dsp.Disposed) return obj;//still active
+      }
+
+      var callSite = callSiteOf(callFile, callLine, callMember);
+      throw new CallGuardException(callSite,
+                                name,
+                                (obj == null ? StringConsts.GUARDED_CLAUSE_MAY_NOT_BE_NULL_ERROR
+                                             : StringConsts.GUARDED_CLAUSE_MAY_NOT_BE_DISPOSED_ERROR)
+                                  .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN));
     }
 
     /// <summary>
@@ -259,7 +362,7 @@ namespace Azos
     /// Ensures that the value is not null and can be type-casted to TResult, then performs type cast
     /// throwing CallGuardException otherwise
     /// </summary>
-    public static TResult ValueAsType<TResult>(this object value,
+    public static TResult CastTo<TResult>(this object value,
                                string name = null,
                                [CallerFilePath]   string callFile = null,
                                [CallerLineNumber] int callLine = 0,
@@ -396,6 +499,29 @@ namespace Azos
 
 
     /// <summary>
+    /// Ensures that the required value is present as defined by <see cref="Data.IRequiredCheck"/>
+    /// implementation on the instance
+    /// </summary>
+    public static T HasRequiredValue<T>(this T obj,
+                               string name = null,
+                               string targetName = null,
+                               [CallerFilePath]   string callFile = null,
+                               [CallerLineNumber] int callLine = 0,
+                               [CallerMemberName] string callMember = null) where T : Data.IRequiredCheck
+    {
+      if (obj == null || !obj.CheckRequired(targetName))
+      {
+        var callSite = callSiteOf(callFile, callLine, callMember);
+        throw new CallGuardException(callSite,
+                                 name,
+                                 StringConsts.GUARDED_CLAUSE_NO_REQUIRED_VALUE_ERROR
+                                             .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN));
+      }
+      return obj;
+    }
+
+
+    /// <summary>
     /// Ensures that the condition is true
     /// </summary>
     public static T IsTrue<T>(this T value,
@@ -414,6 +540,25 @@ namespace Azos
                                              .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN));
       }
       return value;
+    }
+
+    /// <summary>
+    /// Ensures that the condition is true
+    /// </summary>
+    public static void IsTrue(this bool condition,
+                               string name = null,
+                               [CallerFilePath]   string callFile = null,
+                               [CallerLineNumber] int callLine = 0,
+                               [CallerMemberName] string callMember = null)
+    {
+      if (!condition)
+      {
+        var callSite = callSiteOf(callFile, callLine, callMember);
+        throw new CallGuardException(callSite,
+                                 name,
+                                 StringConsts.GUARDED_CLAUSE_CONDITION_ERROR
+                                             .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN));
+      }
     }
 
 

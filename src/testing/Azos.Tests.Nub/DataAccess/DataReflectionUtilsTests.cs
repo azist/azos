@@ -16,7 +16,7 @@ namespace Azos.Tests.Nub.DataAccess
     public void Target_ANY()
     {
       var sut = DataReflectionUtils.GetFieldDescriptorsFor(typeof(Doc1), null);
-     // sut.See();
+      // sut.See();
       Aver.AreEqual(5, sut.Count);
 
       Aver.AreEqual("Field1", sut["Field1"].TargetFieldName);
@@ -59,7 +59,6 @@ namespace Azos.Tests.Nub.DataAccess
       Aver.AreEqual("field-five", sut[4].TargetFieldName);
     }
 
-
     [Run]
     public void Target_A()
     {
@@ -97,7 +96,6 @@ namespace Azos.Tests.Nub.DataAccess
 
       Aver.AreEqual("f2", sut[0].TargetFieldName);
     }
-
 
     [Run]
     public void Target_B()
@@ -162,7 +160,7 @@ namespace Azos.Tests.Nub.DataAccess
     public class Doc1 : TypedDoc
     {
       [Field(metadata: "ord=1")]
-      public string Field1{ get; set;}
+      public string Field1 { get; set; }
 
       [Field(metadata: "ord=2")]
       [Field("system-a", BackendName = "f2", MetadataContent = "ord=1")]
@@ -176,11 +174,12 @@ namespace Azos.Tests.Nub.DataAccess
       //Even though this field does not have ANY_TARGET, it gets added automatically
       [Field("system-c", BackendName = "f-four", MetadataContent = "ord=1")]
       [Field("system-b", BackendName = "f-4", MetadataContent = "ord=-20")]
-      public string Field4{  get; set;}
+      public string Field4 { get; set; }
 
       [Field(backendName: "field-five", metadata: "ord=98000")]
       [Field("system-c", BackendName = "five", MetadataContent = "ord=-100")]
       public string Field5 { get; set; }
     }
+
   }
 }

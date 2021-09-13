@@ -10,8 +10,6 @@ using System;
 
 namespace Azos.Tests.Nub.Configuration
 {
-#pragma warning disable 649
-
   [Runnable]
   public class ConfigAttributesTests
   {
@@ -46,9 +44,9 @@ root
 
     public class EntityA : IConfigurable
     {
-      [Config]private int m_A;//a private field
+      [Config] private int m_A;//a private field
       public int A => m_A;
-      [Config]public bool B{ get; set;}//a prop
+      [Config] public bool B { get; set; }//a prop
 
       public void Configure(IConfigSectionNode node) => ConfigAttribute.Apply(this, node);
     }
@@ -67,17 +65,17 @@ root
 
     public class EntityC
     {
-      [Config]private   string  m_Private;
-      [Config]protected string  m_Protected;
-      [Config]public    string  m_Public;
+      [Config] private string m_Private;
+      [Config] protected string m_Protected;
+      [Config] public string m_Public;
 
       public string Private => m_Private;
       public string Protected => m_Protected;
       public string Public => m_Public;
 
-      [Config]private   string PrivateProp { get; set; }
-      [Config]protected string ProtectedProp { get; set; }
-      [Config]public    string PublicProp { get; set; }
+      [Config] private string PrivateProp { get; set; }
+      [Config] protected string ProtectedProp { get; set; }
+      [Config] public string PublicProp { get; set; }
 
       public string GetPrivateProp() => PrivateProp;
       public string GetProtectedProp() => ProtectedProp;
@@ -136,5 +134,4 @@ root
     }
 
   }
-#pragma warning restore 649
 }

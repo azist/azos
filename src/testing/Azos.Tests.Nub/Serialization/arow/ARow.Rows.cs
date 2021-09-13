@@ -59,7 +59,6 @@ namespace Azos.Tests.Nub.Serialization
 
     [Field(backendName: "bro", isArow: true)]public SimplePersonRow[] Brothers{get; set;}
     [Field(backendName: "sis", isArow: true)]public SimplePersonRow[] Sisters{get; set;}
-
     [Field(backendName: "adv", isArow: true)]public List<SimplePersonRow> Advisers{get; set;}
   }
 
@@ -76,7 +75,6 @@ namespace Azos.Tests.Nub.Serialization
     [Field(backendName: "char2",   isArow: true)]public      char?    Char2{get; set;}
     [Field(backendName: "char3",   isArow: true)]public      char[]   Char3{get; set;}
     [Field(backendName: "char4",   isArow: true)]public List<char>    Char4{get; set;}
-
     [Field(backendName: "str1",   isArow: true)]public      string     String1{get; set;}
    // [Field(backendName: "str2",   isArow: true)]public      string?    String2{get; set;}
     [Field(backendName: "str3",   isArow: true)]public      string[]   String3{get; set;}
@@ -96,7 +94,6 @@ namespace Azos.Tests.Nub.Serialization
     [Field(backendName: "dcml2",   isArow: true)]public      decimal?    Decimal2{get; set;}
     [Field(backendName: "dcml3",   isArow: true)]public      decimal[]   Decimal3{get; set;}
     [Field(backendName: "dcml4",   isArow: true)]public List<decimal>    Decimal4{get; set;}
-
 
     [Field(backendName: "amt1",   isArow: true)]public      Amount     Amount1{get; set;}
     [Field(backendName: "amt2",   isArow: true)]public      Amount?    Amount2{get; set;}
@@ -133,7 +130,6 @@ namespace Azos.Tests.Nub.Serialization
     [Field(backendName: "uint3",   isArow: true)]public uint[]     UInt3{get; set;}
     [Field(backendName: "uint4",   isArow: true)]public List<uint> UInt4{get; set;}
 
-
     [Field(backendName: "long1",   isArow: true)]public      long     Long1{get; set;}
     [Field(backendName: "long2",   isArow: true)]public      long?    Long2{get; set;}
     [Field(backendName: "long3",   isArow: true)]public      long[]   Long3{get; set;}
@@ -143,7 +139,6 @@ namespace Azos.Tests.Nub.Serialization
     [Field(backendName: "ulong2",   isArow: true)]public      ulong?    ULong2{get; set;}
     [Field(backendName: "ulong3",   isArow: true)]public      ulong[]   ULong3{get; set;}
     [Field(backendName: "ulong4",   isArow: true)]public List<ulong>    ULong4{get; set;}
-
 
     [Field(backendName: "date1",   isArow: true)]public      DateTime     DateTime1{get; set;}
     [Field(backendName: "date2",   isArow: true)]public      DateTime?    DateTime2{get; set;}
@@ -182,7 +177,6 @@ namespace Azos.Tests.Nub.Serialization
 
     [Field(backendName: "rarr",   isArow: true)]public    AllArowTypesRow[]       RowArray{get; set;}
     [Field(backendName: "rlst",   isArow: true)]public    List<AllArowTypesRow>   RowList{get; set;}
-
 
     public bool AllFieldsEqual(AllArowTypesRow other)
     {
@@ -231,7 +225,6 @@ namespace Azos.Tests.Nub.Serialization
     }
 
   }
-
 
 
   [Arow("B44FADC1-CB11-44B7-9AA0-C90BA9643783")]

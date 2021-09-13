@@ -44,13 +44,9 @@ namespace Azos._arow_generated
         AW.Write(streamer, 111477511058547, doc.StackTrace);
       else AW.WriteNull(streamer, 111477511058547);
       // 'appname' = 28549237879894113
-      if (doc.ApplicationName != null)
-        AW.Write(streamer, 28549237879894113, doc.ApplicationName);
+      if (doc.AppName != null)
+        AW.Write(streamer, 28549237879894113, doc.AppName);
       else AW.WriteNull(streamer, 28549237879894113);
-      // 'wdata' = 418564367479
-      if (doc.WrappedData != null)
-        AW.Write(streamer, 418564367479, doc.WrappedData);
-      else AW.WriteNull(streamer, 418564367479);
       // 'inner' = 491328007785
       if (doc.InnerException != null)
         Writer.WriteRow(streamer, 491328007785, doc.InnerException);
@@ -102,20 +98,7 @@ namespace Azos._arow_generated
               else break;
               continue;
             }
-          case 28549237879894113:
-            { // 'appname'
-              if (dt == DataType.Null) doc.ApplicationName = null;
-              else if (dt == DataType.String) doc.ApplicationName = Reader.ReadString(streamer);
-              else break;
-              continue;
-            }
-          case 418564367479:
-            { // 'wdata'
-              if (dt == DataType.Null) doc.WrappedData = null;
-              else if (dt == DataType.String) doc.WrappedData = Reader.ReadString(streamer);
-              else break;
-              continue;
-            }
+
           case 491328007785:
             { // 'inner'
               if (dt == DataType.Null) { doc.InnerException = null; continue; }

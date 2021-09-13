@@ -11,8 +11,7 @@ using Azos.Conf;
 
 namespace Azos.Apps.Terminal.Cmdlets
 {
-
-  public class Help : Cmdlet
+  public sealed class Help : Cmdlet
   {
     public const string CONFIG_CMD_ATTR = "cmd";
 

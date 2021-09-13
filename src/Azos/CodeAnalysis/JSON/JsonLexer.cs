@@ -6,63 +6,50 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 using Azos.CodeAnalysis.Source;
 
 namespace Azos.CodeAnalysis.JSON
 {
-    /// <summary>
-    /// Performs lexical analysis on source supplied in JSON syntax.
-    /// This class supports lazy analysis that happens gradually as result tokens are consumed through IEnumerable interface.
-    /// NOTE: Although called JSON, this is really a JSON superset implementation that includes extra features:
-    ///  comments, directives, verbatim strings(start with $), ' or " string escapes, unquoted object key names
-    /// </summary>
-    public sealed class JsonLexer : Lexer<JsonToken>
+  /// <summary>
+  /// Performs lexical analysis on source supplied in JSON syntax.
+  /// This class supports lazy analysis that happens gradually as result tokens are consumed through IEnumerable interface.
+  /// NOTE: Although called JSON, this is really a JSON superset implementation that includes extra features:
+  ///  comments, directives, verbatim strings(start with $), ' or " string escapes, unquoted object key names
+  /// </summary>
+  public sealed class JsonLexer : Lexer<JsonToken>
+  {
+    public JsonLexer(ISourceText source, MessageList messages = null, bool throwErrors = false) :
+        base(source, messages, throwErrors)
     {
-        public JsonLexer(ISourceText source, MessageList messages = null, bool throwErrors = false) :
-            base( source, messages, throwErrors)
-        {
-             m_FSM = new FSM(this);
-        }
+      m_FSM = new FSM(this);
+    }
 
-        public JsonLexer(IAnalysisContext context, SourceCodeRef srcRef, ISourceText source, MessageList messages = null, bool throwErrors = false) :
-            base(context, srcRef, source, messages, throwErrors)
-        {
-             m_FSM = new FSM(this);
-        }
+    public JsonLexer(IAnalysisContext context, SourceCodeRef srcRef, ISourceText source, MessageList messages = null, bool throwErrors = false) :
+        base(context, srcRef, source, messages, throwErrors)
+    {
+      m_FSM = new FSM(this);
+    }
 
-        public override Language Language
-        {
-            get { return JsonLanguage.Instance;}
-        }
+    public override Language Language => JsonLanguage.Instance;
 
-        public override string MessageCodeToString(int code)
-        {
-            return ((JsonMsgCode)code).ToString();
-        }
+    public override string MessageCodeToString(int code) => ((JsonMsgCode)code).ToString();
 
+    private FSM m_FSM;
+    private IEnumerator<bool> m_Work;
 
+    protected override bool DoLexingChunk()
+    {
+      if (m_AllAnalyzed) return true;
 
-        private FSM m_FSM;
-        private IEnumerator<bool> m_Work;
+      if (m_Work == null)
+      {
+        m_Work = m_FSM.Run().GetEnumerator();
+      }
 
-        protected override bool DoLexingChunk()
-        {
-            if (m_AllAnalyzed) return true;
-
-            if (m_Work==null)
-            {
-              m_Work = m_FSM.Run().GetEnumerator();
-            }
-
-            return !m_Work.MoveNext();
-        }
-
-
-
-
+      return !m_Work.MoveNext();
+    }
 
 
     private class FSM
@@ -99,8 +86,6 @@ namespace Azos.CodeAnalysis.JSON
 
       StringBuilder buffer = new StringBuilder();
 
-
-
       private void moveNext()
       {
         posChar++;
@@ -113,7 +98,6 @@ namespace Azos.CodeAnalysis.JSON
       {
         return new SourcePosition(posLine, posCol, posChar);
       }
-
 
       //this is done on purpose do NOT use Char.isSymbol in .NET
       //we can control what WE consider symbols
@@ -134,13 +118,10 @@ namespace Azos.CodeAnalysis.JSON
         tagEndPos = srcPos();
       }
 
-
-
       public IEnumerable<bool> Run()
       {
         const int YIELD_BATCH = 5;
         var prevTokenCount = 0;
-
 
         tokens.Add(new JsonToken(
                                 lexer,
@@ -191,42 +172,41 @@ namespace Azos.CodeAnalysis.JSON
 
           #endregion
 
-
           if (isString)
           {
             #region Inside String
 
             if (isVerbatim || (chr != '\\') || (nchr != '\\'))//take care of 'c:\\dir\\';
             {
-                  //turn off strings
-                  if (
-                       ((isVerbatim) && (chr == stringEnding) && (nchr == stringEnding)) ||
-                       ((!isVerbatim) && (chr == '\\') && (nchr == stringEnding))
-                      )
-                  {
-                    //Verbatim: eat one extra:   $"string ""test"" syntax" == string "test" syntax
-                    //Regular: eat "\" escape:    "string \"test\" syntax" == string "test" syntax
-                    moveNext();
-
-                    if (source.EOF)
-                    {
-                      lexer.EmitMessage(MessageType.Error, (int)JsonMsgCode.eUnterminatedString, srcPos());
-                      yield break;//stop further processing, as string did not terminate but EOF reached
-                    }
-                  }
-                  else if (chr == stringEnding)
-                  {
-                    flush();
-                    isString = false;
-                    continue; // eat terminating string char
-                  }
-
-              }
-              else//take care of 'c:\\dir\\'
+              //turn off strings
+              if (
+                   ((isVerbatim) && (chr == stringEnding) && (nchr == stringEnding)) ||
+                   ((!isVerbatim) && (chr == '\\') && (nchr == stringEnding))
+                  )
               {
-                bufferAdd(chr); //preserve  \
+                //Verbatim: eat one extra:   $"string ""test"" syntax" == string "test" syntax
+                //Regular: eat "\" escape:    "string \"test\" syntax" == string "test" syntax
                 moveNext();
+
+                if (source.EOF)
+                {
+                  lexer.EmitMessage(MessageType.Error, (int)JsonMsgCode.eUnterminatedString, srcPos());
+                  yield break;//stop further processing, as string did not terminate but EOF reached
+                }
               }
+              else if (chr == stringEnding)
+              {
+                flush();
+                isString = false;
+                continue; // eat terminating string char
+              }
+
+            }
+            else//take care of 'c:\\dir\\'
+            {
+              bufferAdd(chr); //preserve  \
+              moveNext();
+            }
             #endregion
           }//in string
           else
@@ -313,12 +293,12 @@ namespace Azos.CodeAnalysis.JSON
                     (chr == ':') ||
                     ((chr == '.') && (!JsonIdentifiers.ValidateDigit(nchr)))
                    )
-                 {
-                   flush();
-                   bufferAdd(chr);
-                   flush();
-                   continue;
-                 }
+                {
+                  flush();
+                  bufferAdd(chr);
+                  flush();
+                  continue;
+                }
 
                 //Scientific numbers like:   2e+30, 45E-10
                 if (buffer.Length > 0 &&
@@ -338,7 +318,7 @@ namespace Azos.CodeAnalysis.JSON
 
 
                 //for operators like -- /= += etc...
-                if ( (buffer.Length > 0) && (isSymbol(chr) != isSymbol(buffer[0])) )
+                if ((buffer.Length > 0) && (isSymbol(chr) != isSymbol(buffer[0])))
                 {
                   flush();
                 }
@@ -369,44 +349,40 @@ namespace Azos.CodeAnalysis.JSON
           freshLine = false;
 
           //yield the batch of new tokens
-          if (tokens.Count>prevTokenCount+YIELD_BATCH)
+          if (tokens.Count > prevTokenCount + YIELD_BATCH)
           {
-                prevTokenCount = tokens.Count;
-                yield return true;
+            prevTokenCount = tokens.Count;
+            yield return true;
           }
 
         }//while
         //=======================================================================================================================
         #endregion
 
-
         flush(); //flush any remains
 
         #region Post-walk check
-            if (tokens.Count < 2)
-               lexer.EmitMessage(MessageType.Error, (int)JsonMsgCode.ePrematureEOF, srcPos());
+        if (tokens.Count < 2)
+          lexer.EmitMessage(MessageType.Error, (int)JsonMsgCode.ePrematureEOF, srcPos());
 
 
-            if (isCommentBlock)
-               lexer.EmitMessage(MessageType.Error, (int)JsonMsgCode.eUnterminatedComment, srcPos());
+        if (isCommentBlock)
+          lexer.EmitMessage(MessageType.Error, (int)JsonMsgCode.eUnterminatedComment, srcPos());
 
 
-            if (isString)
-               lexer.EmitMessage(MessageType.Error, (int)JsonMsgCode.eUnterminatedString, srcPos());
-
+        if (isString)
+          lexer.EmitMessage(MessageType.Error, (int)JsonMsgCode.eUnterminatedString, srcPos());
 
         #endregion
 
-            tokens.Add(new JsonToken(lexer,
-                                   JsonTokenType.tEOF,
-                                   new SourcePosition(posLine, posCol, posChar),
-                                   new SourcePosition(posLine, posCol, posChar),
-                                   String.Empty));
+        tokens.Add(new JsonToken(lexer,
+                               JsonTokenType.tEOF,
+                               new SourcePosition(posLine, posCol, posChar),
+                               new SourcePosition(posLine, posCol, posChar),
+                               String.Empty));
         yield return true;
         yield break;
       }//Run
-
-
 
       private void flush()
       {
@@ -471,8 +447,8 @@ namespace Azos.CodeAnalysis.JSON
             {
               if (text.StartsWith("$"))
               {
-                 text = text.Remove(0, 1); //take care of verbatim names like: $class, $method, $var etc..
-                 tagStartPos = new SourcePosition(tagStartPos.LineNumber, tagStartPos.ColNumber+1, tagStartPos.CharNumber+1);
+                text = text.Remove(0, 1); //take care of verbatim names like: $class, $method, $var etc..
+                tagStartPos = new SourcePosition(tagStartPos.LineNumber, tagStartPos.ColNumber + 1, tagStartPos.CharNumber + 1);
               }
 
               if (!JsonIdentifiers.Validate(text))
@@ -485,22 +461,12 @@ namespace Azos.CodeAnalysis.JSON
         }//not comment
 
 
-        if (type==JsonTokenType.tStringLiteral) value = text;
+        if (type == JsonTokenType.tStringLiteral) value = text;
 
         tokens.Add(new JsonToken(lexer, type, tagStartPos, tagEndPos, text, value));
       }
 
-
     }//FSM
 
-
-
-
-
-
-
-
-
-
-    }//JSON Lexer
+  }//JSON Lexer
 }

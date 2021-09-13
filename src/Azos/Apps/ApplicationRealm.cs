@@ -3,9 +3,8 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
+
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Azos.Apps
 {
@@ -94,7 +93,6 @@ namespace Azos.Apps
     /// </summary>
     DateTime StatusUTC { get; }
 
-
     /// <summary>
     /// What is the next status anticipated / if any
     /// </summary>
@@ -123,6 +121,7 @@ namespace Azos.Apps
     /// </summary>
     Collections.IRegistry<IApplicationRealmArea> Areas{ get;}
   }
+
 
   /// <summary>
   /// Denotes implementation of IApplicationRealm
@@ -154,6 +153,7 @@ namespace Azos.Apps
     public override string ComponentLogTopic => CoreConsts.APPLICATION_TOPIC;
 
   }
+
 
   /// <summary>
   /// provides default implementation for IApplicationRealmArea
@@ -194,6 +194,5 @@ namespace Azos.Apps
     public AreaStatus NextStatus   => m_NextStatus;
     public DateTime? NextStatusUTC => m_NextStatusUTC;
   }
-
 
 }

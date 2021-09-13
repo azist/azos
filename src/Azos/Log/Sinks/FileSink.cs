@@ -18,19 +18,19 @@ namespace Azos.Log.Sinks
   {
     private  const string DEFAULT_FILENAME = "{0:yyyyMMdd}.log";
 
-    protected FileSink(ISinkOwner owner) : base(owner)
-    {
-    }
-
-    protected FileSink(ISinkOwner owner, string name, int order) : base(owner, name, order)
-    {
-    }
+    protected FileSink(ISinkOwner owner) : base(owner){ }
+    protected FileSink(ISinkOwner owner, string name, int order) : base(owner, name, order){ }
 
     protected string        m_Path;
     protected string        m_FileName;
 
-    protected FileStream    m_Stream;
+    /// <summary> Primary target stream used for writing into main file </summary>
+    protected Stream        m_Stream;
+    protected string        m_StreamFileName;
     private bool            m_Recreate;
+
+
+    public override int ExpectedShutdownDurationMs => 1250;//to flush buffers etc.
 
     /// <summary>
     /// The name of the file without path may use {0} for date: {0:yyyyMMdd}-$($name).csv.log
@@ -38,13 +38,13 @@ namespace Azos.Log.Sinks
     [Config]
     public virtual string FileName
     {
-        get { return m_FileName; }
-        set
-        {
-          if (m_FileName==value) return;
-          m_FileName = value;
-          m_Recreate = true;
-        }
+      get { return m_FileName; }
+      set
+      {
+        if (m_FileName==value) return;
+        m_FileName = value;
+        m_Recreate = true;
+      }
     }
 
     /// <summary>
@@ -53,41 +53,43 @@ namespace Azos.Log.Sinks
     [Config]
     public virtual string Path
     {
-        get { return m_Path; }
-        set
-        {
-          if (m_Path==value) return;
-          m_Path = value;
-          m_Recreate = true;
-        }
+      get { return m_Path; }
+      set
+      {
+        if (m_Path==value) return;
+        m_Path = value;
+        m_Recreate = true;
+      }
     }
 
 
     protected override void DoStart()
     {
-        base.DoStart();
-        ensureStream();
+      base.DoStart();
+      ensureStream();
     }
 
     protected override void DoWaitForCompleteStop()
     {
-        closeStream();
-        base.DoWaitForCompleteStop();
+      closeStream();
+      base.DoWaitForCompleteStop();
     }
 
 
     private DateTime m_PrevDate;
     protected internal override void DoPulse()
     {
+      const int SCAN_FREQ_SEC = 10;
+
       base.DoPulse();
 
       if (m_Stream==null) return;
 
       var utcNow = DateTime.UtcNow;
-      if ((utcNow - m_PrevDate).TotalSeconds < 10) return;
+      if ((utcNow - m_PrevDate).TotalSeconds < SCAN_FREQ_SEC) return;
       m_PrevDate = utcNow;
 
-      if (m_Stream.Name != GetDestinationFileName())
+      if (m_StreamFileName != GetDestinationFileName().fullPath)
       {
         m_Recreate = true;
         ensureStream();
@@ -122,10 +124,11 @@ namespace Azos.Log.Sinks
     protected virtual string DefaultFileName => DEFAULT_FILENAME;
 
 
-    protected virtual string GetDestinationFileName()
+    protected virtual (string dirPath, string fn, string fullPath) GetDestinationFileName()
     {
       var path = m_Path;
       if (path.IsNotNullOrWhiteSpace())
+      {
         try
         {
           path = path.Args( LocalizedTime );
@@ -134,6 +137,7 @@ namespace Azos.Log.Sinks
         {
           throw new LogException(StringConsts.LOGSVC_FILE_SINK_PATH_ERROR.Args(Name, path, error.ToMessageWithType()), error);
         }
+      }
 
       var fn = m_FileName;
 
@@ -152,28 +156,55 @@ namespace Azos.Log.Sinks
         throw new LogException(StringConsts.LOGSVC_FILE_SINK_FILENAME_ERROR.Args(Name, fn, error.ToMessageWithType()), error);
       }
 
-      if (path.IsNotNullOrWhiteSpace() && !Directory.Exists(path))
-          IOUtils.EnsureAccessibleDirectory(path);
+      var result = path.IsNullOrWhiteSpace() ? fn : CombinePaths(path, fn);
+      return (path, fn, result);
+    }
 
-      var result = path.IsNullOrWhiteSpace() ? fn : System.IO.Path.Combine(path, fn);
-      return result;
+    /// <summary>
+    /// Override to check and possibly pre-create the requested path.
+    /// The default implementation uses Directory class for local file access
+    /// </summary>
+    protected virtual void CheckPath(string path)
+    {
+      if (path.IsNotNullOrWhiteSpace() && !Directory.Exists(path))
+        IOUtils.EnsureAccessibleDirectory(path);
+    }
+
+    /// <summary>
+    /// Override to combine paths, the default implementation uses Path.Combine
+    /// </summary>
+    protected virtual string CombinePaths(string p1, string p2)
+    {
+      return System.IO.Path.Combine(p1, p2);
     }
 
     private void ensureStream()
     {
-      if (m_Stream!=null && !m_Recreate) return;
+      if (m_Stream != null && !m_Recreate) return;
+
       closeStream();
       m_Recreate = false;
-      var fn     = GetDestinationFileName();
+      var (dirPath, fn, fullPath) = GetDestinationFileName();
 
-      m_Stream = new FileStream(fn, FileMode.Append, FileAccess.Write, FileShare.Read);
+      CheckPath(dirPath);
+
+      m_Stream = MakeStream(fullPath);
+      m_StreamFileName = fullPath;
       DoOpenStream();
+    }
+
+    /// <summary>
+    /// Factory method: override to create specific stream type. The default implementation creates a local FileStream instance
+    /// </summary>
+    protected virtual Stream MakeStream(string fileName)
+    {
+      return new FileStream(fileName, FileMode.Append, FileAccess.Write, FileShare.Read);
     }
 
     private void closeStream()
     {
       DoCloseStream();
-      DisposableObject.DisposeAndNull(ref m_Stream);
+      DisposeAndNull(ref m_Stream);
     }
   }
 }

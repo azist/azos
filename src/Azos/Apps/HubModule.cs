@@ -3,6 +3,7 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
+
 using System.Linq;
 using System.Collections.Generic;
 
@@ -16,7 +17,9 @@ namespace Azos.Apps
   public sealed class HubModule : ModuleBase
   {
     public HubModule(IApplication application) : base(application){ }
+
     public HubModule(IModule parent) : base(parent){ }
+
     public override bool IsHardcodedModule => false;
 
     public override string ComponentLogTopic => CoreConsts.APPLICATION_TOPIC;

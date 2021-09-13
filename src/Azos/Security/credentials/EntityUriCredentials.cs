@@ -9,7 +9,12 @@ using System;
 namespace Azos.Security
 {
   /// <summary>
-  /// Represents credentials which point to an entity by its Uri
+  /// Represents credentials which point to an entity by its Uri.
+  /// The credentials are used for two major use cases:
+  /// (a) Pseudo-authenticating OAuth/OpenIDC subjects by their ID only.
+  /// (b) Authenticating real users with some secret attached to URI (e.g. an invitation link).
+  /// Warning: These credentials should not be used for human user authentication in their simple form without a secret code
+  /// (if users are pointed to their stable ID without any secret).
   /// </summary>
   [Serializable]
   public sealed class EntityUriCredentials : Credentials

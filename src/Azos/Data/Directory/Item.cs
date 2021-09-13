@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 
 using Azos.Collections;
@@ -13,7 +14,7 @@ using Azos.Serialization.JSON;
 
 namespace Azos.Data.Directory
 {
-  public enum ItemStatus{ Created = 0, Updated, Deleted }
+  public enum ItemStatus{ Created = 0, Updated = 1, Deleted = 100 }
 
   /// <summary>
   /// Represents an item stored in a directory
@@ -22,6 +23,35 @@ namespace Azos.Data.Directory
   public sealed class Item : IJsonWritable, IJsonReadable
   {
     /// <summary>
+    /// Provides a dictionary of string:object values, having values one of the types: null|string|int|long|short|sbyte|DateTime
+    /// </summary>
+    public sealed class AttrMap : AdhocMapDecorator
+    {
+      public const int MAX_KEY_LEN = 64;
+      public const int MAX_VAL_LEN = 0xff;
+
+      internal AttrMap() : base(new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)){ }
+
+      //Key can be anything non-blank
+      protected override string CheckKey(string key) => key.NonBlankMax(MAX_KEY_LEN);
+
+      protected override object CheckValue(object value)
+      {
+        Aver.IsTrue(
+          value == null ||
+          (value is string s && s.NonBlankMax(MAX_VAL_LEN)!=null) ||
+          value is int ||
+          value is long ||
+          value is short ||
+          value is sbyte ||
+          value is DateTime,
+          "Value of type `{0}` is not supported by Item index props which must be one of: `null|string|int|long|short|sbyte|DateTime`".Args(value.GetType().DisplayNameWithExpandedGenericArgs())
+        );
+        return value;
+      }
+    }
+
+    /// <summary>
     /// .ctor for ser speedup
     /// </summary>
     internal Item(){ }
@@ -29,38 +59,45 @@ namespace Azos.Data.Directory
     /// <summary>
     /// Creates a new Item instance. You must provide a new unique Id
     /// </summary>
-    public Item(ItemId id)
+    public Item(EntityId id)
     {
       m_Id = id;
     }
 
     /// <summary>
     /// Updates the version information of the item before saving a change.
-    /// This is called internally by the save framework
+    /// This is called internally by the save framework or while loading data from an external store (such as a database)
     /// </summary>
-    internal void SetVersion(DateTime utcNow, ItemStatus status)
+    internal void SetVersion(GDID gdid, DateTime utcNow, ItemStatus status)
     {
+      m_Gdid = gdid;
       m_VersionUtc = m_LastUseUtc = utcNow;
       m_VersionStatus = status;
     }
 
     #region Fields
-      private ItemId m_Id;
-      private DateTime m_VersionUtc;
-      private ItemStatus m_VersionStatus;
-      private DateTime? m_AbsoluteExpirationUtc;
-      private DateTime m_LastUseUtc;
-      private string m_Data;
-      private StringMap m_Index = new StringMap(false);
-    #endregion
 
+    private GDID m_Gdid;
+    private EntityId m_Id;
+    private DateTime m_VersionUtc;
+    private ItemStatus m_VersionStatus;
+    private DateTime? m_AbsoluteExpirationUtc;
+    private DateTime m_LastUseUtc;
+    private string m_Data;
+
+    #endregion
 
     #region Props
 
     /// <summary>
+    /// Returns system-assigned internal global distributed id of the item used for data sync etc.
+    /// </summary>
+    public GDID Gdid => m_Gdid;
+
+    /// <summary>
     /// A unique ID of the Item
     /// </summary>
-    public ItemId Id => m_Id;
+    public EntityId Id => m_Id;
 
     /// <summary>
     /// Returns true to indicate that this instance has been assigned aversion,
@@ -74,9 +111,8 @@ namespace Azos.Data.Directory
     /// <summary>The status of this item: Created/Updated/Deleted </summary>
     public ItemStatus VersionStatus => m_VersionStatus;
 
-
     /// <summary>
-    /// Optional future point in time when item expires (disappears). Expressed as UTC timestamp
+    /// Optional future point in time when item expires (disappears). Expressed as a UTC timestamp
     /// </summary>
     public DateTime? AbsoluteExpirationUtc
     {
@@ -90,16 +126,15 @@ namespace Azos.Data.Directory
       }
     }
 
-
     /// <summary>
     /// The UTC timestamp of the last use, such as Create/Update/Get(touch=true) or Touch(id). This is used for optional SlidingExpirationMinutes
     /// </summary>
     public DateTime LastUseUtc => m_LastUseUtc;
 
     /// <summary>
-    /// If greater than zero, sets the sliding expiration life span. Works together with LastUseUtc
+    /// If greater than zero, sets the sliding expiration life span expressed in seconds. Works together with LastUseUtc
     /// </summary>
-    public int SlidingExpirationMinutes { get; set; }
+    public long SlidingExpirationSec { get; set; }
 
     /// <summary>
     /// Item's data
@@ -111,9 +146,16 @@ namespace Azos.Data.Directory
     }
 
     /// <summary>
-    /// Item index entries, a list of name=value pairs which will be indexed
+    /// Item index entries, an optional map of name=value pairs which will be indexed.
+    /// You can use the following types of values: int numerics, DateTime or string. Null signifies no indexing
     /// </summary>
-    public StringMap Index => m_Index;
+    public AttrMap Index {get; set;}
+
+    /// <summary>
+    /// An optional map of ad-hoc name=value pairs which will not be indexed (contrast with Index).
+    /// You can use the following types of values: int numerics, DateTime or string. Null signifies no extra data attributes
+    /// </summary>
+    public AttrMap Props { get; set; }
 
     #endregion
 
@@ -121,14 +163,16 @@ namespace Azos.Data.Directory
     void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options)
     {
       JsonWriter.WriteMap(wri, nestingLevel, options,
-          new DictionaryEntry("id", this.Id),
+          new DictionaryEntry("_id", this.Gdid),
           new DictionaryEntry("_v", this.VersionUtc),
           new DictionaryEntry("_s", this.VersionStatus),
+          new DictionaryEntry("id", this.Id),
           new DictionaryEntry("ax", this.AbsoluteExpirationUtc),
           new DictionaryEntry("lu", this.LastUseUtc),
-          new DictionaryEntry("sx", this.SlidingExpirationMinutes),
+          new DictionaryEntry("sx", this.SlidingExpirationSec),
           new DictionaryEntry("dat", this.Data),
-          new DictionaryEntry("idx", Index)
+          new DictionaryEntry("idx", Index),
+          new DictionaryEntry("pro", Props)
        );
     }
 
@@ -137,18 +181,29 @@ namespace Azos.Data.Directory
       if (data == null) return (true, null);
       if (data is JsonDataMap map)
       {
-        var (m, id) = ((IJsonReadable)Id).ReadAsJson(map["id"], fromUI, options);
-        if (!m) return (false, null);
+        if (!EntityId.TryParse(map["id"].AsString(), out m_Id)) return (false, null);
 
-        this.m_Id = (ItemId)id;
-
+        m_Gdid = map["_id"].AsGDID(GDID.ZERO);
         m_VersionUtc = map["_v"].AsDateTime(styles: System.Globalization.DateTimeStyles.AdjustToUniversal);
         m_VersionStatus = map["_s"].AsEnum(ItemStatus.Created);
         AbsoluteExpirationUtc = map["ax"].AsNullableDateTime(styles: System.Globalization.DateTimeStyles.AdjustToUniversal);
         m_LastUseUtc = map["lu"].AsDateTime(styles: System.Globalization.DateTimeStyles.AdjustToUniversal);
-        SlidingExpirationMinutes = map["sx"].AsInt();
-        Data = map["dat"].AsString();
-        (Index as IJsonReadable).ReadAsJson(map["idx"], fromUI, options);
+        SlidingExpirationSec = map["sx"].AsLong();
+        m_Data = map["dat"].AsString();
+
+        var sub = map["idx"];
+        if (sub!=null)
+        {
+          Index = new AttrMap();
+          Index.ReadAsJson(sub, fromUI, options);
+        }
+
+        sub = map["pro"];
+        if (sub != null)
+        {
+          Props = new AttrMap();
+          Props.ReadAsJson(sub, fromUI, options);
+        }
 
         return (true, this);
       }

@@ -37,6 +37,10 @@ namespace Azos.Sky
     public const string GDID_NS_DYNAMIC_HOST = "SYS-SkyDynamicHost";
     public const string GDID_NAME_DYNAMIC_HOST = "DYNHOST";
 
+    public const string GDID_NS_CHRONICLES = "SYS-Chronicles";
+    public const string GDID_NS_EVENTHUB = "SYS-EventHub";
+    public const string GDID_SEQ_EVENTHUB = "Event";
+
     public const string GDID_NS_WORKER = "SYS-SkyWORKER";
     public const string GDID_NAME_WORKER_TODO = "TODO";
     public const string GDID_NAME_WORKER_PROCESS = "PROCESS";
@@ -53,6 +57,7 @@ namespace Azos.Sky
 
     public const string EXT_PARAM_GROUP_METABASE = "metabase";
     public const string EXT_PARAM_GROUP_WORKER = "worker";
+    public const string EXT_PARAM_GROUP_IDGEN = "idgen";
 
     public const string LOG_TOPIC_METABASE = "mtbs";
     public const string LOG_TOPIC_APP_MANAGEMENT = "AppMgmt";

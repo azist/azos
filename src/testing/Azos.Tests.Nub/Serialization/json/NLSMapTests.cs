@@ -4,13 +4,8 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
-using System.Diagnostics;
-
 using Azos.Scripting;
-
 using Azos.Serialization.JSON;
-using Azos.Collections;
 
 namespace Azos.Tests.Nub.Serialization
 {
@@ -20,11 +15,11 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void NLSMap_Basic1_String()
     {
-      var content="{eng: {n: 'Cucumber',d: 'It is green'}}";
+      var content = "{eng: {n: 'Cucumber',d: 'It is green'}}";
 
       var nls = new NLSMap(content);
 
-      Aver.IsTrue (nls["eng"].IsAssigned);
+      Aver.IsTrue(nls["eng"].IsAssigned);
       Aver.IsFalse(nls["rus"].IsAssigned);
 
       Aver.AreEqual("Cucumber", nls["eng"].Name);
@@ -43,11 +38,11 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void NLSMap_Basic1_Config()
     {
-      var content="nls{ eng{n='Cucumber' d='It is green'}}".AsLaconicConfig();
+      var content = "nls{ eng{n='Cucumber' d='It is green'}}".AsLaconicConfig();
 
       var nls = new NLSMap(content);
 
-      Aver.IsTrue (nls["eng"].IsAssigned);
+      Aver.IsTrue(nls["eng"].IsAssigned);
       Aver.IsFalse(nls["rus"].IsAssigned);
 
       Aver.AreEqual("Cucumber", nls["eng"].Name);
@@ -57,16 +52,15 @@ namespace Azos.Tests.Nub.Serialization
       Aver.AreEqual(null, nls["rus"].Description);
     }
 
-
     [Run]
     public void NLSMap_Basic2()
     {
-      var content="{eng: {n: 'Cucumber',d: 'It is green'}, deu: {n: 'Gurke', d: 'Es ist grün'}}";
+      var content = "{eng: {n: 'Cucumber',d: 'It is green'}, deu: {n: 'Gurke', d: 'Es ist grün'}}";
 
       var nls = new NLSMap(content);
 
-      Aver.IsTrue (nls["eng"].IsAssigned);
-      Aver.IsTrue (nls["deu"].IsAssigned);
+      Aver.IsTrue(nls["eng"].IsAssigned);
+      Aver.IsTrue(nls["deu"].IsAssigned);
       Aver.IsFalse(nls["rus"].IsAssigned);
 
       Aver.AreEqual("Cucumber", nls["eng"].Name);
@@ -76,7 +70,7 @@ namespace Azos.Tests.Nub.Serialization
       Aver.AreEqual("Es ist grün", nls["deu"].Description);
 
       Aver.AreEqual("Cucumber", nls[CoreConsts.ISOA_LANG_ENGLISH].Name);
-      Aver.AreEqual("Gurke",    nls[CoreConsts.ISOA_LANG_GERMAN].Name);
+      Aver.AreEqual("Gurke", nls[CoreConsts.ISOA_LANG_GERMAN].Name);
 
       Aver.AreEqual("It is green", nls[CoreConsts.ISOA_LANG_ENGLISH].Description);
       Aver.AreEqual("Es ist grün", nls[CoreConsts.ISOA_LANG_GERMAN].Description);
@@ -85,10 +79,10 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void NLSMap_OverrideBy()
     {
-      var content1="{eng: {n: 'Cucumber',d: 'It is green'}, deu: {n: 'Gurke', d: 'Es ist grün'}}";
+      var content1 = "{eng: {n: 'Cucumber',d: 'It is green'}, deu: {n: 'Gurke', d: 'Es ist grün'}}";
       var nls1 = new NLSMap(content1);
 
-      var content2="{eng: {n: 'Cacamber',d: 'It is brown'}, rus: {n: 'Ogurez', d: 'On zeleniy'}}";
+      var content2 = "{eng: {n: 'Cacamber',d: 'It is brown'}, rus: {n: 'Ogurez', d: 'On zeleniy'}}";
       var nls2 = new NLSMap(content2);
 
       var nls = nls1.OverrideBy(nls2);
@@ -104,7 +98,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var nls1 = new NLSMap();
 
-      var content2="{eng: {n: 'Cacamber',d: 'It is brown'}, rus: {n: 'Ogurez', d: 'On zeleniy'}}";
+      var content2 = "{eng: {n: 'Cacamber',d: 'It is brown'}, rus: {n: 'Ogurez', d: 'On zeleniy'}}";
       var nls2 = new NLSMap(content2);
 
       var nls = nls1.OverrideBy(nls2);
@@ -118,7 +112,7 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void NLSMap_OverrideByEmpty2()
     {
-        var content1="{eng: {n: 'Cucumber',d: 'It is green'}, deu: {n: 'Gurke', d: 'Es ist grün'}}";
+      var content1 = "{eng: {n: 'Cucumber',d: 'It is green'}, deu: {n: 'Gurke', d: 'Es ist grün'}}";
       var nls1 = new NLSMap(content1);
 
       var nls2 = new NLSMap();
@@ -131,16 +125,15 @@ namespace Azos.Tests.Nub.Serialization
       Aver.AreEqual(null, nls["rus"].Name);
     }
 
-
     [Run]
     public void NLSMap_SerializeAll()
     {
-      var content="{eng: {n: 'Cucumber',d: 'It is green'}, deu: {n: 'Gurke', d: 'Es ist grün'}}";
+      var content = "{eng: {n: 'Cucumber',d: 'It is green'}, deu: {n: 'Gurke', d: 'Es ist grün'}}";
 
       var nls = new NLSMap(content);
 
       var json = nls.ToJson();
-      Console.WriteLine(json);
+      json.See();
 
       dynamic read = json.JsonToDynamic();
       Aver.IsNotNull(read);
@@ -152,14 +145,13 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void NLSMap_SerializeOnlyOneExisting()
     {
-      var content="{eng: {n: 'Cucumber',d: 'It is green'}, deu: {n: 'Gurke', d: 'Es ist grün'}}";
+      var content = "{eng: {n: 'Cucumber',d: 'It is green'}, deu: {n: 'Gurke', d: 'Es ist grün'}}";
 
       var nls = new NLSMap(content);
 
-
-      var options = new JsonWritingOptions{ NLSMapLanguageISO = CoreConsts.ISOA_LANG_GERMAN, Purpose = JsonSerializationPurpose.UIFeed};
+      var options = new JsonWritingOptions { NLSMapLanguageISO = CoreConsts.ISOA_LANG_GERMAN, Purpose = JsonSerializationPurpose.UIFeed };
       var json = nls.ToJson(options);
-      Console.WriteLine(json);
+      json.See();
 
       dynamic read = json.JsonToDynamic();
       Aver.IsNotNull(read);
@@ -171,14 +163,13 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void NLSMap_SerializeOnlyOneNoneExisting()
     {
-      var content="{eng: {n: 'Cucumber',d: 'It is green'}, deu: {n: 'Gurke', d: 'Es ist grün'}}";
+      var content = "{eng: {n: 'Cucumber',d: 'It is green'}, deu: {n: 'Gurke', d: 'Es ist grün'}}";
 
       var nls = new NLSMap(content);
 
-
-      var options = new JsonWritingOptions{ NLSMapLanguageISO = CoreConsts.ISOA_LANG_RUSSIAN, Purpose = JsonSerializationPurpose.UIFeed};
+      var options = new JsonWritingOptions { NLSMapLanguageISO = CoreConsts.ISOA_LANG_RUSSIAN, Purpose = JsonSerializationPurpose.UIFeed };
       var json = nls.ToJson(options);
-      Console.WriteLine(json);
+      json.See();
 
       dynamic read = json.JsonToDynamic();
       Aver.IsNotNull(read);
@@ -187,17 +178,15 @@ namespace Azos.Tests.Nub.Serialization
       Aver.AreEqual("It is green", read.d);
     }
 
-
     [Run]
     public void NLSMap_JSONSerializationRoundtrip()
     {
-      var content="{eng: {n: 'Cucumber',d: 'It is green'}, deu: {n: 'Gurke', d: 'Es ist grün'}}";
+      var content = "{eng: {n: 'Cucumber',d: 'It is green'}, deu: {n: 'Gurke', d: 'Es ist grün'}}";
 
       var nls = new NLSMap(content);
 
-
       var json = nls.ToJson();
-      Console.WriteLine(json);
+      json.See();
 
       var nls2 = new NLSMap(json);
 
@@ -207,11 +196,10 @@ namespace Azos.Tests.Nub.Serialization
       Aver.AreEqual(null, nls["rus"].Name);
     }
 
-
     [Run]
     public void NLSMap_Get_Name()
     {
-      var content="{eng: {n: 'Cucumber',d: 'It is green'}, deu: {n: 'Gurke', d: 'Es ist grün'}}";
+      var content = "{eng: {n: 'Cucumber',d: 'It is green'}, deu: {n: 'Gurke', d: 'Es ist grün'}}";
 
       var nls = new NLSMap(content);
 
@@ -231,7 +219,7 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void NLSMap_Get_Descr()
     {
-      var content="{eng: {n: 'Cucumber',d: 'It is green'}, deu: {n: 'Gurke', d: 'Es ist grün'}}";
+      var content = "{eng: {n: 'Cucumber',d: 'It is green'}, deu: {n: 'Gurke', d: 'Es ist grün'}}";
 
       var nls = new NLSMap(content);
 
@@ -251,7 +239,7 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void NLSMap_Get_NameOrDescr()
     {
-      var content="{eng: {n: 'Cucumber',d: 'It is green'}, deu: {n: 'Gurke', d: 'Es ist grün'}, rus: { d: 'On Zeleniy'}}";
+      var content = "{eng: {n: 'Cucumber',d: 'It is green'}, deu: {n: 'Gurke', d: 'Es ist grün'}, rus: { d: 'On Zeleniy'}}";
 
       var nls = new NLSMap(content);
 
@@ -274,7 +262,7 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void NLSMap_Get_DescrOrName()
     {
-      var content="{eng: {n: 'Cucumber',d: 'It is green'}, deu: {n: 'Gurke', d: 'Es ist grün'}, rus: { d: 'On Zeleniy'}}";
+      var content = "{eng: {n: 'Cucumber',d: 'It is green'}, deu: {n: 'Gurke', d: 'Es ist grün'}, rus: { d: 'On Zeleniy'}}";
 
       var nls = new NLSMap(content);
 
@@ -294,11 +282,10 @@ namespace Azos.Tests.Nub.Serialization
       Aver.IsNull(dorn);
     }
 
-
     [Run]
     public void NLSMap_Get_NameAndDescr()
     {
-      var content="{eng: {n: 'Cucumber',d: 'It is green'}, deu: {n: 'Gurke', d: 'Es ist grün'}, rus: { d: 'On Zeleniy'}}";
+      var content = "{eng: {n: 'Cucumber',d: 'It is green'}, deu: {n: 'Gurke', d: 'Es ist grün'}, rus: { d: 'On Zeleniy'}}";
 
       var nls = new NLSMap(content);
 
@@ -311,7 +298,7 @@ namespace Azos.Tests.Nub.Serialization
       nand = nls.Get(NLSMap.GetParts.NameAndDescription, "XXX");
       Aver.AreEqual("Cucumber - It is green", nand);
 
-        nand = nls.Get(NLSMap.GetParts.NameAndDescription, "YYY", concat: "::");
+      nand = nls.Get(NLSMap.GetParts.NameAndDescription, "YYY", concat: "::");
       Aver.AreEqual("Cucumber::It is green", nand);
 
       nand = nls.Get(NLSMap.GetParts.NameAndDescription, "rus");
@@ -324,7 +311,7 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void NLSMap_Get_DescrAndName()
     {
-      var content="{eng: {n: 'Cucumber',d: 'It is green'}, deu: {n: 'Gurke', d: 'Es ist grün'}, rus: { d: 'On Zeleniy'}}";
+      var content = "{eng: {n: 'Cucumber',d: 'It is green'}, deu: {n: 'Gurke', d: 'Es ist grün'}, rus: { d: 'On Zeleniy'}}";
 
       var nls = new NLSMap(content);
 
@@ -337,7 +324,7 @@ namespace Azos.Tests.Nub.Serialization
       dan = nls.Get(NLSMap.GetParts.DescriptionAndName, "XXX");
       Aver.AreEqual("It is green - Cucumber", dan);
 
-        dan = nls.Get(NLSMap.GetParts.DescriptionAndName, "YYY", concat: "::");
+      dan = nls.Get(NLSMap.GetParts.DescriptionAndName, "YYY", concat: "::");
       Aver.AreEqual("It is green::Cucumber", dan);
 
       dan = nls.Get(NLSMap.GetParts.DescriptionAndName, "rus");
@@ -423,7 +410,6 @@ namespace Azos.Tests.Nub.Serialization
       Aver.IsFalse(nls2.Equals(nls));
       Aver.AreNotEqual(nls.GetHashCode(), nls2.GetHashCode());
     }
-
 
   }
 }

@@ -4,7 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
 using System.Linq;
 
 using Azos.Conf;
@@ -13,11 +12,11 @@ using Azos.Scripting;
 
 namespace Azos.Tests.Nub.Configuration
 {
-    [Runnable]
-    public class IncludesTests
-    {
+  [Runnable]
+  public class IncludesTests
+  {
 
-static string xml1 = @"
+    static string xml1 = @"
  <root>
 
     <section-a>
@@ -52,7 +51,7 @@ static string xml1 = @"
 ";
 
 
-static string xml2 = @"
+    static string xml2 = @"
  <root
    meduza='Greece'
  >
@@ -66,88 +65,88 @@ static string xml2 = @"
  </root>
 ";
 
-        [Run]
-        public void Include1()
-        {
-          var conf1 = Azos.Conf.XMLConfiguration.CreateFromXML(xml1);
-          var conf2 = Azos.Conf.XMLConfiguration.CreateFromXML(xml2);
+    [Run]
+    public void Include1()
+    {
+      var conf1 = Azos.Conf.XMLConfiguration.CreateFromXML(xml1);
+      var conf2 = Azos.Conf.XMLConfiguration.CreateFromXML(xml2);
 
-          conf1.Include(conf1.Root["section-a"], conf2.Root);
-
-
-          Aver.IsFalse(conf1.Root["section-a"].Exists);
-          Aver.IsTrue(conf1.Root.AttrByName("meduza").Exists);
-          Aver.IsTrue(conf1.Root["a"].Exists);
-          Aver.IsTrue(conf1.Root["b"].Exists);
-          Aver.IsTrue(conf1.Root["c"].Exists);
+      conf1.Include(conf1.Root["section-a"], conf2.Root);
 
 
-
-          Aver.AreEqual("Greece", conf1.Root.AttrByName("meduza").Value);
-          Aver.AreEqual(true, conf1.Root["c"].AttrByName("yes").ValueAsBool());
-        }
-
-        [Run]
-        public void Include2_SequencingAtStart()
-        {
-          var conf1 = Azos.Conf.XMLConfiguration.CreateFromXML(xml1);
-          var conf2 = Azos.Conf.XMLConfiguration.CreateFromXML(xml2);
-
-          conf1.Include(conf1.Root["section-a"], conf2.Root);
-
-          var lst = conf1.Root.Children.ToList();
-
-          Aver.AreEqual(8, lst.Count);
-
-          Aver.AreEqual("a", lst[0].Name);
-          Aver.AreEqual("b", lst[1].Name);
-          Aver.AreEqual("c", lst[2].Name);
-          Aver.AreEqual("section-b", lst[3].Name);
-          Aver.AreEqual("section-c", lst[4].Name);
-          Aver.AreEqual("section-d", lst[5].Name);
-          Aver.AreEqual("section-e", lst[6].Name);
-          Aver.AreEqual("section-f", lst[7].Name);
-
-
-        }
-
-        [Run]
-        public void Include2_SequencingAtEnd()
-        {
-          var conf1 = Azos.Conf.XMLConfiguration.CreateFromXML(xml1);
-          var conf2 = Azos.Conf.XMLConfiguration.CreateFromXML(xml2);
-
-          conf1.Include(conf1.Root["section-f"], conf2.Root);
-
-          var lst = conf1.Root.Children.ToList();
-
-          Aver.AreEqual(8, lst.Count);
-
-          Aver.AreEqual("section-a", lst[0].Name);
-          Aver.AreEqual("section-b", lst[1].Name);
-          Aver.AreEqual("section-c", lst[2].Name);
-          Aver.AreEqual("section-d", lst[3].Name);
-          Aver.AreEqual("section-e", lst[4].Name);
-          Aver.AreEqual("a", lst[5].Name);
-          Aver.AreEqual("b", lst[6].Name);
-          Aver.AreEqual("c", lst[7].Name);
-        }
+      Aver.IsFalse(conf1.Root["section-a"].Exists);
+      Aver.IsTrue(conf1.Root.AttrByName("meduza").Exists);
+      Aver.IsTrue(conf1.Root["a"].Exists);
+      Aver.IsTrue(conf1.Root["b"].Exists);
+      Aver.IsTrue(conf1.Root["c"].Exists);
 
 
 
-        public class TeztConfigNodeProvider : IConfigNodeProvider
-        {
+      Aver.AreEqual("Greece", conf1.Root.AttrByName("meduza").Value);
+      Aver.AreEqual(true, conf1.Root["c"].AttrByName("yes").ValueAsBool());
+    }
 
-          public ConfigSectionNode ProvideConfigNode(object context = null)
-          {
-            return @"zhaba{ _override='all' age=129 people{  a=Alex{}  b=Boris{} }  }".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
-          }
+    [Run]
+    public void Include2_SequencingAtStart()
+    {
+      var conf1 = Azos.Conf.XMLConfiguration.CreateFromXML(xml1);
+      var conf2 = Azos.Conf.XMLConfiguration.CreateFromXML(xml2);
 
-          public void Configure(IConfigSectionNode node)
-          {
-            Console.WriteLine("Configuring");
-          }
-        }
+      conf1.Include(conf1.Root["section-a"], conf2.Root);
+
+      var lst = conf1.Root.Children.ToList();
+
+      Aver.AreEqual(8, lst.Count);
+
+      Aver.AreEqual("a", lst[0].Name);
+      Aver.AreEqual("b", lst[1].Name);
+      Aver.AreEqual("c", lst[2].Name);
+      Aver.AreEqual("section-b", lst[3].Name);
+      Aver.AreEqual("section-c", lst[4].Name);
+      Aver.AreEqual("section-d", lst[5].Name);
+      Aver.AreEqual("section-e", lst[6].Name);
+      Aver.AreEqual("section-f", lst[7].Name);
+
+
+    }
+
+    [Run]
+    public void Include2_SequencingAtEnd()
+    {
+      var conf1 = Azos.Conf.XMLConfiguration.CreateFromXML(xml1);
+      var conf2 = Azos.Conf.XMLConfiguration.CreateFromXML(xml2);
+
+      conf1.Include(conf1.Root["section-f"], conf2.Root);
+
+      var lst = conf1.Root.Children.ToList();
+
+      Aver.AreEqual(8, lst.Count);
+
+      Aver.AreEqual("section-a", lst[0].Name);
+      Aver.AreEqual("section-b", lst[1].Name);
+      Aver.AreEqual("section-c", lst[2].Name);
+      Aver.AreEqual("section-d", lst[3].Name);
+      Aver.AreEqual("section-e", lst[4].Name);
+      Aver.AreEqual("a", lst[5].Name);
+      Aver.AreEqual("b", lst[6].Name);
+      Aver.AreEqual("c", lst[7].Name);
+    }
+
+
+
+    public class TeztConfigNodeProvider : IConfigNodeProvider
+    {
+
+      public ConfigSectionNode ProvideConfigNode(object context = null)
+      {
+        return @"zhaba{ _override='all' age=129 people{  a=Alex{}  b=Boris{} }  }".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
+      }
+
+      public void Configure(IConfigSectionNode node)
+      {
+        "Configuring".See();
+      }
+    }
 
     private string INCLUDE_CONF = @"
 myapp
@@ -170,7 +169,7 @@ myapp
     [Run]
     public void Include_Provider_ProcessIncludePragmas()
     {
-      var conf =INCLUDE_CONF.AsLaconicConfig(handling: ConvertErrorHandling.Throw);
+      var conf = INCLUDE_CONF.AsLaconicConfig(handling: ConvertErrorHandling.Throw);
       conf.ProcessIncludePragmas(true);
       checkIncludeInvariants(conf);
     }
@@ -185,7 +184,7 @@ myapp
 
     private void checkIncludeInvariants(ConfigSectionNode conf)
     {
-      Console.WriteLine(conf.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint));
+      conf.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint).See();
 
       Aver.AreEqual(3, conf.ChildCount);
 

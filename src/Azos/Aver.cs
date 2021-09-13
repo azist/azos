@@ -13,15 +13,15 @@ using Azos.Scripting;
 namespace Azos
 {
   /// <summary>
-  /// Provides averments for test and general constraints. You may call trigger exceptions by calling  Aver.Fail(msg) manually
+  /// Provides averments for test and general constraints. You may trigger exceptions by calling  `Aver.Fail(msg)` manually
   /// </summary>
   public static class Aver
   {
     /// <summary>
-    /// Aver that method throws an exception of type
+    /// Aver that method throws an exception of the specified type
     /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
-    public sealed class ThrowsAttribute : Scripting.RunHookAttribute
+    public sealed class ThrowsAttribute : RunHookAttribute
     {
       public enum MatchType{Contains = 0, Exact}
 
@@ -45,7 +45,7 @@ namespace Azos
         var attr = method.GetCustomAttribute<ThrowsAttribute>(false);
         if (attr==null) return false;
 
-        //Throws is specified, error must not be null
+        //Throws is specified, so error must not be null
         if (error==null)
           throw new AvermentException(StringConsts.AVER_THROWS_NOT_THROWN_ERROR.Args(
                                         method.Name,
@@ -462,7 +462,7 @@ namespace Azos
 
 
     /// <summary>
-    /// Tests arrays for equivalance using element-by-element equality test based on object.Equals()
+    /// Tests arrays for equivalence using element-by-element equality test based on object.Equals()
     /// </summary>
     public static bool AreArrayObjectsEquivalentTest<T>(T[] expect, T[] got, out int differenceIdx) where T : class
     {
@@ -495,7 +495,7 @@ namespace Azos
     }
 
     /// <summary>
-    /// Tests arrays for equivalance using element-by-element equality test based on object.Equals()
+    /// Tests arrays for equivalence using element-by-element equality test based on object.Equals()
     /// </summary>
     public static void AreArrayObjectsEquivalent<T>(T[] expect, T[] got, string from = null) where T : class
     {
@@ -516,24 +516,24 @@ namespace Azos
 
     private static string argToStr(object arg)
     {
-        const int MAX_LEN = 96;
+      const int MAX_LEN = 96;
 
-        if (arg==null) return CoreConsts.NULL_STRING;
+      if (arg==null) return CoreConsts.NULL_STRING;
 
-        if (arg is string sarg)
-          return "(string)\"{0}\" of {1} chars".Args(sarg.TakeFirstChars(MAX_LEN, "..."), sarg.Length);
+      if (arg is string sarg)
+        return "(string)\"{0}\" of {1} chars".Args(sarg.TakeFirstChars(MAX_LEN, "..."), sarg.Length);
 
-        if (arg is byte[] barg)
-          return "(byte[])\"{0}\" of {1} bytes".Args(barg.ToDumpString(DumpFormat.Hex, maxLen: MAX_LEN), barg.Length);
+      if (arg is byte[] barg)
+        return "(byte[])\"{0}\" of {1} bytes".Args(barg.ToDumpString(DumpFormat.Hex, maxLen: MAX_LEN), barg.Length);
 
 
-        var tp = arg.GetType();
+      var tp = arg.GetType();
 
-        if (tp.IsEnum) return "{0}.{1}".Args(tp.Name, arg);
-        if (tp.IsPrimitive) return "({0}){1}".Args(tp.Name, arg);
-        if (arg is Type) return "({0}){1}".Args(tp.Name, ((Type)arg).FullNameWithExpandedGenericArgs());
+      if (tp.IsEnum) return "{0}.{1}".Args(tp.Name, arg);
+      if (tp.IsPrimitive) return "({0}){1}".Args(tp.Name, arg);
+      if (arg is Type) return "({0}){1}".Args(tp.Name, ((Type)arg).FullNameWithExpandedGenericArgs());
 
-        return "({0})`{1}`".Args(arg.GetType().FullNameWithExpandedGenericArgs(false), arg == null ? "<null>" : arg.ToString().TakeFirstChars(64));
+      return "({0})`{1}`".Args(arg.GetType().FullNameWithExpandedGenericArgs(false), arg == null ? "<null>" : arg.ToString().TakeFirstChars(64));
     }
     #endregion
 

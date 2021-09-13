@@ -4,16 +4,10 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
 using System.Collections.Generic;
-using System.Text;
 
-using Azos.Apps;
-using Azos.Apps.Injection;
-using Azos.Conf;
 using Azos.Data;
 using Azos.Scripting;
-using Azos.Serialization.JSON;
 
 namespace Azos.Tests.Nub.DataAccess
 {
@@ -23,18 +17,17 @@ namespace Azos.Tests.Nub.DataAccess
     [Run]
     public void Any()
     {
-      var sut= new LengthDoc{ };
+      var sut = new LengthDoc { };
       Aver.IsNull(sut.Validate());
-      sut.AnyString =" joijwoijedojiweoijdiwejlfgjl;djgl;kjdlk;gjldkjflgkjldkjfglkdfjlgjklfd ";
-      Aver.IsNull(sut.Validate());
-
-      sut.AnyStringList = new List<string>{"a","b","c","d","e", "a", "b", "c", "d", "e"};
+      sut.AnyString = " joijwoijedojiweoijdiwejlfgjl;djgl;kjdlk;gjldkjflgkjldkjfglkdfjlgjklfd ";
       Aver.IsNull(sut.Validate());
 
-      sut.AnyStringArray = new [] { "a", "b", "c", "d", "e", "a", "b", "c", "d", "e" };
+      sut.AnyStringList = new List<string> { "a", "b", "c", "d", "e", "a", "b", "c", "d", "e" };
+      Aver.IsNull(sut.Validate());
+
+      sut.AnyStringArray = new[] { "a", "b", "c", "d", "e", "a", "b", "c", "d", "e" };
       Aver.IsNull(sut.Validate());
     }
-
 
     [Run]
     public void Min_01()
@@ -51,7 +44,7 @@ namespace Azos.Tests.Nub.DataAccess
     [Run]
     public void Min_02()
     {
-      var sut = new LengthDoc { MinStringList = new List<string>{"a", "2","3","4","5","6"} };
+      var sut = new LengthDoc { MinStringList = new List<string> { "a", "2", "3", "4", "5", "6" } };
       Aver.IsNull(sut.Validate());
 
       sut.MinStringList = new List<string> { "a" };
@@ -64,16 +57,15 @@ namespace Azos.Tests.Nub.DataAccess
     [Run]
     public void Min_03()
     {
-      var sut = new LengthDoc { MinStringArray = new [] { "a" , "2", "3", "4", "5", "6","7","8" } };
+      var sut = new LengthDoc { MinStringArray = new[] { "a", "2", "3", "4", "5", "6", "7", "8" } };
       Aver.IsNull(sut.Validate());
 
-      sut.MinStringArray = new [] { "a" };
+      sut.MinStringArray = new[] { "a" };
       var ve = sut.Validate() as FieldValidationException;
       Aver.AreEqual(nameof(LengthDoc.MinStringArray), ve.FieldName);
       ve.ClientMessage.See();
       Aver.IsTrue(ve.ClientMessage.Contains("shorter than min length of 7"));
     }
-
 
     [Run]
     public void Max_01()
@@ -107,14 +99,12 @@ namespace Azos.Tests.Nub.DataAccess
       var sut = new LengthDoc { MaxStringArray = new[] { "a", "d", "dferfr" } };
       Aver.IsNull(sut.Validate());
 
-      sut.MaxStringArray = new [] { "a", "d", "dferfr", "aa" };
+      sut.MaxStringArray = new[] { "a", "d", "dferfr", "aa" };
       var ve = sut.Validate() as FieldValidationException;
       Aver.AreEqual(nameof(LengthDoc.MaxStringArray), ve.FieldName);
       ve.ClientMessage.See();
       Aver.IsTrue(ve.ClientMessage.Contains("exceeds max length of 3"));
     }
-
-
 
     [Run]
     public void MinMax_01()
@@ -137,9 +127,9 @@ namespace Azos.Tests.Nub.DataAccess
     [Run]
     public void MinMax_02()
     {
-      var sut = new LengthDoc { MinMaxStringList = new List<string>{"are", "aaa", "ddddd"} };
+      var sut = new LengthDoc { MinMaxStringList = new List<string> { "are", "aaa", "ddddd" } };
       Aver.IsNull(sut.Validate());
-      sut.MinMaxStringList = new List<string> { "1", "2", "3","4","5","6","7","8" };
+      sut.MinMaxStringList = new List<string> { "1", "2", "3", "4", "5", "6", "7", "8" };
 
       var ve = sut.Validate() as FieldValidationException;
       Aver.AreEqual(nameof(LengthDoc.MinMaxStringList), ve.FieldName);
@@ -156,15 +146,15 @@ namespace Azos.Tests.Nub.DataAccess
     [Run]
     public void MinMax_03()
     {
-      var sut = new LengthDoc { MinMaxStringArray = new []{ "are", "aaa", "ddddd" } };
+      var sut = new LengthDoc { MinMaxStringArray = new[] { "are", "aaa", "ddddd" } };
       Aver.IsNull(sut.Validate());
-      sut.MinMaxStringArray = new [] { "1", "2", "3", "4", "5", "6", "7", "8" };
+      sut.MinMaxStringArray = new[] { "1", "2", "3", "4", "5", "6", "7", "8" };
       var ve = sut.Validate() as FieldValidationException;
       Aver.AreEqual(nameof(LengthDoc.MinMaxStringArray), ve.FieldName);
       ve.ClientMessage.See();
       Aver.IsTrue(ve.ClientMessage.Contains("exceeds max length of 7"));
 
-      sut.MinMaxStringArray = new []{ "1" };
+      sut.MinMaxStringArray = new[] { "1" };
       ve = sut.Validate() as FieldValidationException;
       Aver.AreEqual(nameof(LengthDoc.MinMaxStringArray), ve.FieldName);
       ve.ClientMessage.See();
@@ -172,11 +162,10 @@ namespace Azos.Tests.Nub.DataAccess
     }
 
 
-
     public class LengthDoc : TypedDoc
     {
       [Field]
-      public string AnyString{ get; set; }
+      public string AnyString { get; set; }
 
       [Field]
       public List<string> AnyStringList { get; set; }
@@ -210,7 +199,6 @@ namespace Azos.Tests.Nub.DataAccess
 
       [Field(minLength: 3, maxLength: 7)]
       public string[] MinMaxStringArray { get; set; }
-
     }
 
   }

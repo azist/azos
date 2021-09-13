@@ -4,14 +4,12 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 using Azos.Apps.Injection;
 using Azos.Apps.Volatile;
-
 using Azos.Log;
 using Azos.Instrumentation;
 using Azos.Conf;
@@ -20,14 +18,14 @@ using Azos.Glue;
 using Azos.Security;
 using Azos.Time;
 
-namespace Azos.Apps { partial class CommonApplicationLogic {
-
-
+namespace Azos.Apps
+{
+  partial class CommonApplicationLogic
+  {
     protected virtual void InitApplication()
     {
       if (ForceInvariantCulture)//used in all server applications
         Platform.Abstraction.PlatformAbstractionLayer.SetProcessInvariantCulture();
-
 
       var exceptions = new List<Exception>();
 
@@ -36,49 +34,50 @@ namespace Azos.Apps { partial class CommonApplicationLogic {
       string name = CoreConsts.UNKNOWN;
       bool breakOnError = true;
       foreach (var starter in starters)
-          try
-          {
-              breakOnError = starter.ApplicationStartBreakOnException;
-              name = starter.Name ?? starter.GetType().FullName;
-              starter.ApplicationStartBeforeInit(this);
-          }
-          catch (Exception error)
-          {
-              error = new AzosException(StringConsts.APP_STARTER_BEFORE_ERROR.Args(name, error.ToMessageWithType()), error);
-              if (breakOnError) throw error;
-              exceptions.Add(error);
-              //log not available at this point
-          }
-
+      {
+        try
+        {
+          breakOnError = starter.ApplicationStartBreakOnException;
+          name = starter.Name ?? starter.GetType().FullName;
+          starter.ApplicationStartBeforeInit(this);
+        }
+        catch (Exception error)
+        {
+          error = new AzosException(StringConsts.APP_STARTER_BEFORE_ERROR.Args(name, error.ToMessageWithType()), error);
+          if (breakOnError) throw error;
+          exceptions.Add(error);
+          //log not available at this point
+        }
+      }
 
       ExecutionContext.__BindApplication(this);
       DoInitApplication(); //<----------------------------------------------
       DoModuleAfterInitApplication();
 
-
       name = CoreConsts.UNKNOWN;
       breakOnError = true;
-      foreach(var starter in starters)
-      try
+      foreach (var starter in starters)
       {
-        breakOnError = starter.ApplicationStartBreakOnException;
-        name = starter.Name ?? starter.GetType().FullName;
-        starter.ApplicationStartAfterInit(this);
-      }
-      catch(Exception error)
-      {
-        error = new AzosException(StringConsts.APP_STARTER_AFTER_ERROR.Args(name, error.ToMessageWithType()), error);
-        WriteLog(MessageType.CatastrophicError, "InitApplication().After", error.ToMessageWithType(), error);
-        if (breakOnError) throw error;
+        try
+        {
+          breakOnError = starter.ApplicationStartBreakOnException;
+          name = starter.Name ?? starter.GetType().FullName;
+          starter.ApplicationStartAfterInit(this);
+        }
+        catch (Exception error)
+        {
+          error = new AzosException(StringConsts.APP_STARTER_AFTER_ERROR.Args(name, error.ToMessageWithType()), error);
+          WriteLog(MessageType.CatastrophicError, "InitApplication().After", error.ToMessageWithType(), error);
+          if (breakOnError) throw error;
+        }
       }
 
-      if (exceptions.Count>0)
-          foreach(var exception in exceptions)
-              WriteLog(MessageType.CatastrophicError, "InitApplication().Before", exception.ToMessageWithType());
+      if (exceptions.Count > 0)
+        foreach (var exception in exceptions)
+          WriteLog(MessageType.CatastrophicError, "InitApplication().Before", exception.ToMessageWithType());
     }
 
     const string INIT_FROM = "app.ini";
-
 
     protected virtual void DoInitApplication()
     {
@@ -88,10 +87,15 @@ namespace Azos.Apps { partial class CommonApplicationLogic {
 
       var appid = m_ConfigRoot.AttrByName(CONFIG_ID_ATTR).Value;
       if (appid.IsNotNullOrWhiteSpace())
-        m_AppId =  Atom.Encode(appid);
+      {
+        m_AppId = Atom.Encode(appid);
+      }
+
+      m_CloudOrigin = m_ConfigRoot.AttrByName(CONFIG_CLOUD_ORIGIN_ATTR).ValueAsAtom(Atom.ZERO);
+      m_NodeDiscriminator = m_ConfigRoot.AttrByName(CONFIG_NODE_DISCRIMINATOR_ATTR).ValueAsUShort(0);
 
       Debugging.DefaultDebugAction = Debugging.ReadDefaultDebugActionFromConfig();
-      Debugging.TraceDisabled      = Debugging.ReadTraceDisableFromConfig();
+      Debugging.TraceDisabled = Debugging.ReadTraceDisableFromConfig();
 
       //20200616 DKh
       Serialization.Bix.Bixer.RegisterFromConfiguration(m_ConfigRoot[Serialization.Bix.Bixer.CONFIG_AZOS_SERIALIZATION_BIX_SECTION]);
@@ -110,8 +114,6 @@ namespace Azos.Apps { partial class CommonApplicationLogic {
       InitGlue();            //9.  glue
       InitDependencyInjector();//10.  custom dep injector last
 
-
-
       //After all inits apply the behavior top the root
       try
       {
@@ -128,9 +130,9 @@ namespace Azos.Apps { partial class CommonApplicationLogic {
 
     protected virtual void DoModuleAfterInitApplication()
     {
-      const string FROM = INIT_FROM+".mod";
+      const string FROM = INIT_FROM + ".mod";
 
-      if (m_Module!=null)
+      if (m_Module != null)
       {
         WriteLog(MessageType.Trace, FROM, "Call module root DI and .ApplicationAfterInit()");
         try
@@ -147,7 +149,7 @@ namespace Azos.Apps { partial class CommonApplicationLogic {
         {
           m_Module.ApplicationAfterInit();
         }
-        catch(Exception error)
+        catch (Exception error)
         {
           var msg = "Error in call module root .ApplicationAfterInit()" + error.ToMessageWithType();
           WriteLog(MessageType.CatastrophicError, FROM, msg, error);
@@ -159,13 +161,12 @@ namespace Azos.Apps { partial class CommonApplicationLogic {
 
       var related = WriteLog(MessageType.Trace, FROM, "Component dump:");
 
-      foreach(var cmp in ApplicationComponent.AllComponents(this))
+      foreach (var cmp in ApplicationComponent.AllComponents(this))
         WriteLog(MessageType.Info,
                  FROM,
                  "  -> Component: {0}  '{1}'  '{2}' ".Args(cmp.ComponentSID, cmp.GetType().FullName, cmp.ComponentCommonName),
                  related: related);
     }
-
 
     //Must be called first to boot log before all other components
     protected virtual void InitLog()
@@ -247,7 +248,6 @@ namespace Azos.Apps { partial class CommonApplicationLogic {
       }
     }
 
-
     protected virtual void InitEventTimer()
     {
       var node = m_ConfigRoot[CONFIG_EVENT_TIMER_SECTION];
@@ -315,7 +315,6 @@ namespace Azos.Apps { partial class CommonApplicationLogic {
         throw new AzosException(msg, error);
       }
     }
-
 
     protected virtual void InitDataStore()
     {

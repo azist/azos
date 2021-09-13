@@ -23,6 +23,7 @@ namespace Azos.Apps
   public class CompositeDaemon : Daemon
   {
     #region Inner
+
     /// <summary>
     /// Child daemon entry as managed by CompositeDaemon class
     /// </summary>
@@ -43,16 +44,20 @@ namespace Azos.Apps
       public override string ToString() =>
         "{0}Service({1})[{2}]".Args(AbortStart ? "Abortable" : "", Name, Order);
     }
+
     #endregion
 
     #region CONSTS
+
     public const string CONFIG_DAEMON_COMPOSITE_SECTION = "daemon-composite";
     public const string CONFIG_DAEMON_SECTION = "daemon";
     public const string CONFIG_ABORT_START_ATTR = "abort-start";
     public const string CONFIG_IGNORE_THIS_DAEMON_ATTR = "ignore-this-daemon";
+
     #endregion
 
     #region .ctor
+
     public CompositeDaemon(IApplication application) : base(application) { }
     public CompositeDaemon(IApplicationComponent director) : base(director) { }
 
@@ -69,10 +74,13 @@ namespace Azos.Apps
           WriteLog(MessageType.Error, "Destructor('{0}')".Args(csvc), error.ToMessageWithType(), error);
         }
     }
+
     #endregion
 
     #region Fields
+
     private OrderedRegistry<ChildDaemon> m_Services = new OrderedRegistry<ChildDaemon>();
+
     #endregion
 
     #region Properties
@@ -80,7 +88,7 @@ namespace Azos.Apps
     /// <summary>
     /// Returns service registry where services can be looked-up by name
     /// </summary>
-    public IOrderedRegistry<ChildDaemon> ChildServices { get { return m_Services; } }
+    public IOrderedRegistry<ChildDaemon> ChildServices => m_Services;
 
     #endregion
 
@@ -92,7 +100,7 @@ namespace Azos.Apps
     /// </summary>
     public bool RegisterService(Daemon service, int order, bool abortStart)
     {
-      this.CheckDaemonInactive();
+      CheckDaemonInactive();
       var csvc = new ChildDaemon(service, order, abortStart);
       return m_Services.Register(csvc);
     }
@@ -103,13 +111,12 @@ namespace Azos.Apps
     /// </summary>
     public bool UnregisterService(Daemon service)
     {
-      this.CheckDaemonInactive();
+      CheckDaemonInactive();
       var csvc = new ChildDaemon(service, 0, false);
       return m_Services.Unregister(csvc);
     }
 
     #endregion
-
 
     #region Protected
 
@@ -223,7 +230,6 @@ namespace Azos.Apps
     }
 
     #endregion
-
   }
 
 

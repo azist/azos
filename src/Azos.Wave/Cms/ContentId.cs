@@ -15,7 +15,7 @@ namespace Azos.Wave.Cms
   /// a block represents a concrete piece of content on a page/document/interface
   /// </summary>
   [Serializable]
-  public struct ContentId : IEquatable<ContentId>, IRequired
+  public struct ContentId : IEquatable<ContentId>, IRequiredCheck
   {
     /// <summary>
     /// Imposes a limit on the content id segment identifier

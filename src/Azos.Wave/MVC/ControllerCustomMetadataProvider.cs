@@ -33,6 +33,12 @@ namespace Azos.Wave.Mvc
     private ConfigSectionNode describe(Type tController, object instance, ApiDocGenerator.ControllerContext apictx, ConfigSectionNode dataRoot, NodeOverrideRules overrideRules)
     {
       var cdata = dataRoot.AddChildNode("scope");
+
+      //20201018 DKh
+      var ns = MetadataTypeSkuNamespaceMappingAttribute.GetTypeSku(tController);
+      cdata.AddAttributeNode(CustomMetadataAttribute.CONFIG_SKU_ATTR, ns.Default(tController.Name));
+      //20201018 DKh
+
       var cattr = apictx.ApiDocAttr;
       var docContent = tController.GetText(cattr.DocFile ?? "{0}.md".Args(tController.Name));
       var ctlTitle = MarkdownUtils.GetTitle(docContent);

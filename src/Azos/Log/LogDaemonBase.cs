@@ -186,6 +186,13 @@ namespace Azos.Log
       get{ return false; }
     }
 
+    /// <summary>
+    /// Sum of all sink shutdown durations
+    /// </summary>
+    public override int ExpectedShutdownDurationMs
+      => 1000 + //to terminate thread etc.
+         Sinks.Sum(s => s.ExpectedShutdownDurationMs.AtMinimum(100));//sum of all sinks
+
     #endregion
 
     #region Public
@@ -200,24 +207,31 @@ namespace Azos.Log
     /// Writes log message into log
     /// </summary>
     /// <param name="msg">Message to write</param>
-    /// <param name="urgent">Indicates that the logging service implementation must
-    /// make an effort to write the message to its destinations urgently</param>
+    /// <param name="urgent">
+    /// Indicates that the logging service implementation must
+    /// make an effort to write the message to its destination sinks urgently
+    /// </param>
     public void Write(Message msg, bool urgent)
     {
-        if (Status != DaemonStatus.Active) return;
+      if (msg==null) return;
 
+      if (Status != DaemonStatus.Active) return;
 
-        if (msg==null) return;
+      msg.InitDefaultFields(App);
 
-        if (msg.Type>=MessageType.Emergency) m_LastCatastrophy = msg;
-        else
-        if (msg.Type>=MessageType.Error) m_LastError = msg;
-        else
-        if (msg.Type>=MessageType.Warning) m_LastWarning = msg;
+      if (msg.Type >= MessageType.Emergency) m_LastCatastrophy = msg;
+      else
+      if (msg.Type >= MessageType.Error) m_LastError = msg;
+      else
+      if (msg.Type >= MessageType.Warning) m_LastWarning = msg;
 
-        if (m_InstrumentationEnabled) m_InstrBuffer.Send( msg);
+      if (m_InstrumentationEnabled)
+      {
+        lock(m_InstrBuffer)
+          m_InstrBuffer.Send(msg);
+      }
 
-        DoWrite(msg, urgent);
+      DoWrite(msg, urgent);
     }
 
     /// <summary>
@@ -225,7 +239,10 @@ namespace Azos.Log
     /// </summary>
     public IEnumerable<Message> GetInstrumentationBuffer(bool asc)
     {
-      return asc ? m_InstrBuffer.BufferedTimeAscending : m_InstrBuffer.BufferedTimeDescending;
+      var buff = m_InstrBuffer;
+      if (buff == null) return Enumerable.Empty<Message>();
+
+      return asc ? buff.BufferedTimeAscending : buff.BufferedTimeDescending;
     }
 
     #endregion
@@ -265,6 +282,7 @@ namespace Azos.Log
         throw new LogException(StringConsts.LOGSVC_NOSINKS_ERROR.Args(Name));
 
       foreach (var sink in m_Sinks.OrderedValues)
+      {
         try
         {
           sink.Start();
@@ -275,6 +293,9 @@ namespace Azos.Log
                 StringConsts.LOGDAEMON_SINK_START_ERROR.Args(Name, sink.Name, sink.TestOnStart, error.Message),
                 error);
         }
+      }
+
+      m_InstrBuffer.Start();
     }
 
     protected override void DoSignalStop()
@@ -290,16 +311,34 @@ namespace Azos.Log
       base.DoWaitForCompleteStop();
       // at this point the thread has stopped and we can now stop the sinks
 
+      var iamPrimary = object.ReferenceEquals(App.Log, this);
+
       foreach (var sink in m_Sinks.OrderedValues.Reverse())
       {
-          try
+        try
+        {
+          if (iamPrimary)
           {
             sink.WaitForCompleteStop();
-          } catch
-          {
-#warning REVISE - must not eat exceptions - use Conout?
-          }  // Can't do much here in case of an error
+            continue;
+          }
+
+          var msTimeout = sink.ExpectedShutdownDurationMs;
+          if (msTimeout < 1) msTimeout = App.ExpectedComponentShutdownDurationMs;
+          if (msTimeout < 1) msTimeout = CommonApplicationLogic.DFLT_EXPECTED_COMPONENT_SHUTDOWN_DURATION_MS;
+          TimedCall.Run( _ => sink.WaitForCompleteStop(),
+                          msTimeout,
+                          () => WriteLog(MessageType.WarningExpectation,
+                                        "{0}.{1}".Args(nameof(DoWaitForCompleteStop), sink.Name),
+                                        "Awaiting sink '{0}' is taking longer than expected {1:n} ms".Args(sink.Name, msTimeout)));
+        }
+        catch
+        {
+#warning REVISE - must not eat exceptions - use Conout? use new .core ETW
+        }  // Can't do much here in case of an error
       }
+
+      m_InstrBuffer.WaitForCompleteStop();
     }
 
     protected void Pulse()
@@ -329,11 +368,11 @@ namespace Azos.Log
           return;
         }
 
-        if (msg==null) return; //i.e. OnPulse()
-
         var failoverName = sink.Failover;
+
         if (string.IsNullOrEmpty(failoverName))
             failoverName = this.DefaultFailover;
+
         if (string.IsNullOrEmpty(failoverName))  return;//nowhere to failover
 
         var failover = m_Sinks[failoverName];
@@ -344,23 +383,27 @@ namespace Azos.Log
 
         try
         {
-          failover.SendRegularAndFailures(msg);
+            if (msg != null) //null on error from OnPulse()
+            {
+              failover.SendRegularAndFailures(msg);
+            }
 
             if (sink.GenerateFailoverMessages || failover.GenerateFailoverMessages)
             {
-              var emsg = new Message();
+              var emsg = new Message().InitDefaultFields(App);
               emsg.Type = MessageType.Error;
               emsg.From = sink.Name;
               emsg.Topic = CoreConsts.LOG_TOPIC;
               emsg.Text = string.Format(
                       StringConsts.LOGSVC_FAILOVER_MSG_TEXT,
-                      msg.Guid,
+                      (msg?.Guid.ToString()).Default("--none--"),
                       sink.Name,
                       failover.Name,
                       sink.AverageProcessingTimeMs);
-              emsg.RelatedTo = msg.Guid;
-              emsg.Exception = error;
 
+              if (msg!=null) emsg.RelatedTo = msg.Guid;
+
+              emsg.Exception = error;
 
               failover.SendRegularAndFailures(emsg);
             }

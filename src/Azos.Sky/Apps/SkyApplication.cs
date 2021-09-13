@@ -114,7 +114,7 @@ namespace Azos.Apps
 
     protected override void Destructor()
     {
-      m_ShutdownStarted = true;
+      SetShutdownStarted();
       CleanupApplication();
       base.Destructor();
       DisposeAndNull(ref m_BootLoader);

@@ -1,7 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
+
+using System;
 using System.Globalization;
-using System.Text;
 
 using Azos.Data;
 using Azos.Scripting;
@@ -72,7 +76,6 @@ namespace Azos.Tests.Nub.Serialization.json
       Aver.AreEqual(59, got.Minute);
       Aver.AreEqual(53, got.Second);
     }
-
 
     [Run]
     public void Doc_DefaultUTC_fromUTC_1()

@@ -8,7 +8,6 @@ using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 
 using Azos.Conf;
 using Azos.Platform;
@@ -36,6 +35,7 @@ namespace Azos.Data
     /// The attribute gets included in FieldDef's metadata property
     /// </summary>
     public const string META_FIELD_ORDER_ALT = "order";
+
 
     /// <summary>
     /// Field Descriptor provides pre-calculated targeted data about a field in a Data document
@@ -74,6 +74,7 @@ namespace Azos.Data
       /// </summary>
       public bool Assigned => TargetFieldName.IsNotNullOrWhiteSpace();
     }
+
 
     /// <summary>
     /// Facilitates access to field descriptors set for the specified document type and target name
@@ -139,9 +140,9 @@ namespace Azos.Data
     }
 
 
-    private static ConstrainedSetLookup<Type, ConstrainedSetLookup<string, FieldDescriptors>> s_Cache =
-        new ConstrainedSetLookup<Type, ConstrainedSetLookup<string, FieldDescriptors>>( t =>
-          new ConstrainedSetLookup<string, FieldDescriptors>( targetName => {
+    private static FiniteSetLookup<Type, FiniteSetLookup<string, FieldDescriptors>> s_Cache =
+        new FiniteSetLookup<Type, FiniteSetLookup<string, FieldDescriptors>>( t =>
+          new FiniteSetLookup<string, FieldDescriptors>( targetName => {
 
             var schema = Schema.GetForTypedDoc(t);
             var fields = schema
@@ -166,10 +167,9 @@ namespace Azos.Data
       return s_Cache[docType][targetName];
     }
 
-
-    private static ConstrainedSetLookup<Type, ConstrainedSetLookup<string, FieldDescriptors>> s_ExactCache =
-        new ConstrainedSetLookup<Type, ConstrainedSetLookup<string, FieldDescriptors>>(t =>
-         new ConstrainedSetLookup<string, FieldDescriptors>(targetName => {
+    private static FiniteSetLookup<Type, FiniteSetLookup<string, FieldDescriptors>> s_ExactCache =
+        new FiniteSetLookup<Type, FiniteSetLookup<string, FieldDescriptors>>(t =>
+         new FiniteSetLookup<string, FieldDescriptors>(targetName => {
 
            var schema = Schema.GetForTypedDoc(t);
            var fields = schema

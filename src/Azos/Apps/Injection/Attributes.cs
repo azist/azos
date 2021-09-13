@@ -3,6 +3,7 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
+
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -31,10 +32,24 @@ namespace Azos.Apps.Injection
     public Type Type { get; set; }
 
 
+    /// <summary>
+    /// When set to true (default is false), ignores system's inability to inject the dependency.
+    /// This is useful in some cases like feature-detection which can optionally rely
+    /// on a dependency then test whether certain feature was injected.
+    /// The best practice is to not use optional dependencies but for cases when a class provides
+    /// an extra service when hosting container has that extra dependency and breaking-out the logic
+    /// in multiple classes would have been impractical
+    /// </summary>
+    /// A typical example is the re-use of the same data Forms (data docs)
+    /// on both client and server tiers of the system - a client may not have all of the extra validation services
+    /// deployed, hence the form can detect the extra dependency and use it accordingly in its Validate() method
+    /// <remarks>
+    /// </remarks>
+    public bool Optional {  get; set; }
+
+
     public override string ToString()
-    {
-      return "{0}(Type: {1}, Name: {2})".Args(GetType().Name, Type?.Name ?? CoreConsts.NULL_STRING, Name ?? CoreConsts.NULL_STRING);
-    }
+      => "{0}(Type: {1}, Name: {2})".Args(GetType().Name, Type?.Name ?? CoreConsts.NULL_STRING, Name ?? CoreConsts.NULL_STRING);
 
 
     /// <summary>
@@ -151,9 +166,7 @@ namespace Azos.Apps.Injection
   public class InjectModuleAttribute : InjectAttribute
   {
     protected override bool DoApply(object target, FieldInfo fInfo, IApplicationDependencyInjector injector)
-    {
-      return TryInjectModule(target, fInfo, injector);
-    }
+      => TryInjectModule(target, fInfo, injector);
   }
 
   /// <summary>
@@ -163,9 +176,7 @@ namespace Azos.Apps.Injection
   public class InjectSingletonAttribute : InjectAttribute
   {
     protected override bool DoApply(object target, FieldInfo fInfo, IApplicationDependencyInjector injector)
-    {
-      return TryInjectAppRootObjects(target, fInfo, injector);
-    }
+      => TryInjectAppRootObjects(target, fInfo, injector);
 
     protected override IEnumerable<object> GetApplicationRoots(IApplicationDependencyInjector injector)
     {

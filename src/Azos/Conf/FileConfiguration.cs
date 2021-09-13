@@ -19,64 +19,68 @@ namespace Azos.Conf
   {
     #region .ctor
 
-        /// <summary>
-        /// Creates an instance of a new configuration not bound to any file
-        /// </summary>
-        protected FileConfiguration()
-          : base()
-        {
+    /// <summary>
+    /// Creates an instance of a new configuration not bound to any file
+    /// </summary>
+    protected FileConfiguration()
+      : base()
+    {
 
-        }
+    }
 
-        /// <summary>
-        /// Creates an instance of configuration and reads contents from the file
-        /// </summary>
-        protected FileConfiguration(string filename)
-          : base()
-        {
-          m_FileName = filename;
-        }
+    /// <summary>
+    /// Creates an instance of configuration and reads contents from the file
+    /// </summary>
+    protected FileConfiguration(string filename)
+      : base()
+    {
+      m_FileName = filename;
+    }
 
     #endregion
 
     #region Private Fields
-        protected string m_FileName;
 
-        private bool m_IsReadOnly;
+    protected string m_FileName;
+
+    private bool m_IsReadOnly;
+
     #endregion
 
     #region Properties
-        public string FileName
-        {
-          get { return m_FileName; }
-        }
 
-        /// <summary>
-        /// Indicates whether configuration is readonly or may be modified and saved
-        /// </summary>
-        public override bool IsReadOnly
-        {
-          get { return m_IsReadOnly; }
-        }
+    /// <summary>
+    /// Gets the underlying file name for this configuration
+    /// </summary>
+    public string FileName => m_FileName;
+
+    /// <summary>
+    /// Indicates whether configuration is readonly or may be modified and saved
+    /// </summary>
+    public override bool IsReadOnly => m_IsReadOnly;
+
     #endregion
 
     #region Public
 
-        /// <summary>
-        /// Saves configuration into specified file
-        /// </summary>
-        public virtual void SaveAs(string filename)
-        {
-          m_FileName = filename;
+    /// <summary>
+    /// Saves configuration into specified file
+    /// </summary>
+    public virtual void SaveAs(string filename)
+    {
+      m_FileName = filename;
 
-          if (m_Root != null)
-            m_Root.ResetModified();
-        }
+      if (m_Root != null)
+        m_Root.ResetModified();
+    }
 
-        public void SetReadOnly(bool val)
-        {
-          m_IsReadOnly = val;
-        }
+    /// <summary>
+    /// Sets the file-based configuration read only state to True or False
+    /// </summary>
+    public void SetReadOnly(bool val)
+    {
+      m_IsReadOnly = val;
+    }
 
     #endregion
 

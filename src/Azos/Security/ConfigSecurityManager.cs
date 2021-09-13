@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Azos.Apps;
 using Azos.Conf;
 using Azos.Instrumentation;
+using Azos.Log;
 
 namespace Azos.Security
 {
@@ -94,15 +95,10 @@ namespace Azos.Security
 
     #region Public
 
-    public IConfigSectionNode GetUserLogArchiveDimensions(IIdentityDescriptor identity)
+    public string GetUserLogArchiveDimensions(IIdentityDescriptor identity)
     {
       if (identity==null) return null;
-
-      var cfg = new MemoryConfiguration();
-      cfg.Create("ad");
-      cfg.Root.AddAttributeNode("un", identity.IdentityDescriptorName);
-
-      return cfg.Root;
+      return ArchiveConventions.EncodeArchiveDimensions(new { un = identity.IdentityDescriptorName });
     }
 
     public void LogSecurityMessage(SecurityLogAction action, Log.Message msg, IIdentityDescriptor identity = null)
@@ -115,24 +111,46 @@ namespace Azos.Security
         if (identity==null)
           identity = ExecutionContext.Session.User;
 
-        msg.ArchiveDimensions = GetUserLogArchiveDimensions(identity).ToLaconicString();
+        msg.ArchiveDimensions = GetUserLogArchiveDimensions(identity);
       }
 
       logSecurityMessage(msg);
     }
 
-    public Task<User> AuthenticateAsync(Credentials credentials) => Task.FromResult(Authenticate(credentials));
+    protected virtual User MakeBadUser(Credentials credentials)
+    {
+      return new User(credentials,
+                           new SysAuthToken(),
+                           UserStatus.Invalid,
+                           StringConsts.SECURITY_NON_AUTHENTICATED,
+                           StringConsts.SECURITY_NON_AUTHENTICATED,
+                           Rights.None, App.TimeSource.UTCNow);
+    }
 
-    public User Authenticate(Credentials credentials)
+    protected virtual User MakeUser(Credentials credentials, SysAuthToken sysToken, UserStatus status, string name, string descr, Rights rights)
+    {
+      return new User(credentials,
+                          sysToken,
+                          status,
+                          name,
+                          descr,
+                          rights, App.TimeSource.UTCNow);
+    }
+
+    public Task<User> AuthenticateAsync(Credentials credentials, AuthenticationRequestContext ctx = null) => Task.FromResult(Authenticate(credentials, ctx));
+
+    public User Authenticate(Credentials credentials, AuthenticationRequestContext ctx = null)
     {
       if (credentials is BearerCredentials bearer)
       {
-        var oauth = App.ModuleRoot.Get<Services.IOAuthModule>();
+        var oauth = App.ModuleRoot.TryGet<Services.IOAuthModule>();
+        if (oauth == null) return MakeBadUser(credentials);
+
         var accessToken = oauth.TokenRing.GetAsync<Tokens.AccessToken>(bearer.Token).GetAwaiter().GetResult();//since this manager is sync-only
         if (accessToken!=null)//if token is valid
         {
           if (SysAuthToken.TryParse(accessToken.SubjectSysAuthToken, out var sysToken))
-            return Authenticate(sysToken);
+            return Authenticate(sysToken, ctx);
         }
       }
 
@@ -162,38 +180,33 @@ namespace Azos.Security
             rights = new Rights(data);
           }
 
-          return new User(credentials,
+          return MakeUser(credentials,
                           credToAuthToken(credentials),
                           status,
                           name,
                           descr,
-                          rights, App.TimeSource.UTCNow);
+                          rights);
         }
       }
 
-      return new User(credentials,
-                      new SysAuthToken(),
-                      UserStatus.Invalid,
-                      StringConsts.SECURITY_NON_AUTHENTICATED,
-                      StringConsts.SECURITY_NON_AUTHENTICATED,
-                      Rights.None, App.TimeSource.UTCNow);
+      return MakeBadUser(credentials);
     }
 
-    public Task<User> AuthenticateAsync(SysAuthToken token) => Task.FromResult(Authenticate(token));
+    public Task<User> AuthenticateAsync(SysAuthToken token, AuthenticationRequestContext ctx = null) => Task.FromResult(Authenticate(token, ctx));
 
-    public User Authenticate(SysAuthToken token)
+    public User Authenticate(SysAuthToken token, AuthenticationRequestContext ctx = null)
     {
       var credentials = authTokenToCred(token);
-      return Authenticate(credentials);
+      return Authenticate(credentials, ctx);
     }
 
-    public Task AuthenticateAsync(User user) { Authenticate(user); return Task.CompletedTask;}
+    public Task AuthenticateAsync(User user, AuthenticationRequestContext ctx = null) { Authenticate(user, ctx); return Task.CompletedTask;}
 
-    public void Authenticate(User user)
+    public void Authenticate(User user, AuthenticationRequestContext ctx = null)
     {
       if (user == null) return;
       var token = user.AuthToken;
-      var reuser = Authenticate(token);
+      var reuser = Authenticate(token, ctx);
 
       user.___update_status(reuser.Status, reuser.Name, reuser.Description, reuser.Rights, App.TimeSource.UTCNow);
     }
@@ -238,7 +251,7 @@ namespace Azos.Security
     protected override void DoStart()
     {
       if (m_PasswordManager == null) throw new SecurityException("{0}.PasswordManager == null/not configured");
-      if (m_Cryptography == null) throw new SecurityException("{0}.Cruptography == null/not configured");
+      if (m_Cryptography == null) throw new SecurityException("{0}.Cryptography == null/not configured");
 
       m_PasswordManager.Start();
       m_Cryptography.Start();

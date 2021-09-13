@@ -15,9 +15,25 @@ namespace Azos.Conf
   [Serializable]
   public class ConfigException : AzosException
   {
+    /// <summary>
+    /// Initializes a new instance of a configuration-related exception
+    /// </summary>
     public ConfigException() { }
+
+    /// <summary>
+    /// Initializes a new instance of a configuration-related exception with a specified error message
+    /// </summary>
     public ConfigException(string message) : base(message) { }
+
+    /// <summary>
+    /// Initializes a new instance of a configuration-related exception with a specified error message
+    /// and a reference to the inner exception that is the cause of this exception
+    /// </summary>
     public ConfigException(string message, Exception inner) : base(message, inner) { }
+
+    /// <summary>
+    /// Initializes a new instance of a configuration-related exception with serialized data
+    /// </summary>
     protected ConfigException(SerializationInfo info, StreamingContext context) : base(info, context) { }
   }
 
@@ -27,9 +43,25 @@ namespace Azos.Conf
   [Serializable]
   public sealed class BehaviorApplyException : ConfigException
   {
+    /// <summary>
+    /// Initializes a new instance of a behavior apply configuration-related exception
+    /// </summary>
     public BehaviorApplyException() { }
+
+    /// <summary>
+    /// Initializes a new instance of a behavior apply configuration-related exception with a specified error message
+    /// </summary>
     public BehaviorApplyException(string message) : base(message) { }
+
+    /// <summary>
+    /// Initializes a new instance of a behavior apply configuration-related exception with a specified error message
+    /// and a reference to the inner exception that is the cause of this exception
+    /// </summary>
     public BehaviorApplyException(string message, Exception inner) : base(message, inner) { }
+
+    /// <summary>
+    /// Initializes a new instance of a behavior apply configuration-related exception with serialized data
+    /// </summary>
     internal BehaviorApplyException(SerializationInfo info, StreamingContext context) : base(info, context) { }
   }
 }

@@ -48,10 +48,10 @@ namespace Azos.Data.Access.MsSql
         {
           switch (change.ChangeType)
           {
-            case DocChangeType.Insert: affected += await DoInsertAsync(cnn, transaction, change.Doc); break;
-            case DocChangeType.Update: affected += await DoUpdateAsync(cnn, transaction, change.Doc, change.Key); break;
-            case DocChangeType.Upsert: affected += await DoUpsertAsync(cnn, transaction, change.Doc); break;
-            case DocChangeType.Delete: affected += await DoDeleteAsync(cnn, transaction, change.Doc, change.Key); break;
+            case DocChangeType.Insert: affected += await DoInsertAsync(cnn, transaction, change.Doc).ConfigureAwait(false); break;
+            case DocChangeType.Update: affected += await DoUpdateAsync(cnn, transaction, change.Doc, change.Key).ConfigureAwait(false); break;
+            case DocChangeType.Upsert: affected += await DoUpsertAsync(cnn, transaction, change.Doc).ConfigureAwait(false); break;
+            case DocChangeType.Delete: affected += await DoDeleteAsync(cnn, transaction, change.Doc, change.Key).ConfigureAwait(false); break;
           }
         }
       }
@@ -65,7 +65,7 @@ namespace Azos.Data.Access.MsSql
     protected internal async override Task<int> DoInsertAsync(SqlConnection cnn, SqlTransaction transaction, Doc row, FieldFilterFunc filter = null)
     {
       CheckReadOnly(row.Schema, "insert");
-      return await CRUDGenerator.CRUDInsert(this, cnn, transaction, row, filter);
+      return await CRUDGenerator.CRUDInsert(this, cnn, transaction, row, filter).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -74,7 +74,7 @@ namespace Azos.Data.Access.MsSql
     protected internal async override Task<int> DoUpsertAsync(SqlConnection cnn, SqlTransaction transaction, Doc row, FieldFilterFunc filter = null)
     {
       CheckReadOnly(row.Schema, "upsert");
-      return await CRUDGenerator.CRUDUpsert(this, cnn, transaction, row, filter);
+      return await CRUDGenerator.CRUDUpsert(this, cnn, transaction, row, filter).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -83,7 +83,7 @@ namespace Azos.Data.Access.MsSql
     protected internal async override Task<int> DoUpdateAsync(SqlConnection cnn, SqlTransaction transaction, Doc row, IDataStoreKey key = null, FieldFilterFunc filter = null)
     {
       CheckReadOnly(row.Schema, "update");
-      return await CRUDGenerator.CRUDUpdate(this, cnn, transaction, row, key, filter);
+      return await CRUDGenerator.CRUDUpdate(this, cnn, transaction, row, key, filter).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -92,7 +92,7 @@ namespace Azos.Data.Access.MsSql
     protected internal async override Task<int> DoDeleteAsync(SqlConnection cnn, SqlTransaction transaction, Doc row, IDataStoreKey key = null)
     {
       CheckReadOnly(row.Schema, "delete");
-      return await CRUDGenerator.CRUDDelete(this, cnn, transaction, row, key);
+      return await CRUDGenerator.CRUDDelete(this, cnn, transaction, row, key).ConfigureAwait(false);
     }
     #endregion
   }

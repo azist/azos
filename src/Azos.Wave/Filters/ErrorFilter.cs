@@ -244,11 +244,17 @@ namespace Azos.Wave.Filters
             {
               WaveTemplate errorPage = null;
 
-              if (customPageType!=null)
+              if (customPageType != null)
+              {
                 try
                 {
-                  errorPage = Activator.CreateInstance(customPageType) as WaveTemplate;
-                  if (errorPage==null) throw new WaveException("not WaveTemplate");
+                  //20201130 DKh fix #376
+                  var simpleCtor = customPageType.GetConstructor(new Type[]{typeof(Exception), typeof(bool)}) == null;
+                  errorPage = (simpleCtor ? Activator.CreateInstance(customPageType) :
+                                            Activator.CreateInstance(customPageType, error, showDump)
+                              ) as WaveTemplate;//fix #376
+
+                  if (errorPage == null) throw new WaveException("not a {0}".Args(nameof(WaveTemplate)));
                 }
                 catch(Exception actErr)
                 {
@@ -257,15 +263,16 @@ namespace Azos.Wave.Filters
                             typeof(ErrorFilter).FullName+".ctor(customPageType)",
                             actErr);
                 }
+              }
 
-              if (errorPage==null)
+              if (errorPage == null)
                 errorPage =  new ErrorPage(error, showDump);
 
               errorPage.Render(work, error);
             }
           }
 
-          if (logMatches!=null && logMatches.Count>0)
+          if (logMatches != null && logMatches.Count > 0)
           {
             JsonDataMap matched = null;
             foreach(var match in logMatches.OrderedValues)
@@ -282,10 +289,10 @@ namespace Azos.Wave.Filters
               matched["$ref"] = work.Request.UrlReferrer?.ToString().TakeFirstChars(78, "..");
               matched["$stat"] = "{0}/{1}".Args(work.Response.StatusCode, work.Response.StatusDescription);
 
-              if (work.Portal!=null)
+              if (work.Portal != null)
                matched["$portal"] = work.Portal.Name;
 
-              if (work.GeoEntity!=null)
+              if (work.GeoEntity != null)
                matched["$geo"] = work.GeoEntity.LocalityName;
 
               work.Log(Log.MessageType.Error, error.ToMessageWithType(), typeof(ErrorFilter).FullName, pars: matched.ToJson(JsonWritingOptions.CompactASCII));

@@ -138,7 +138,7 @@ namespace Azos.Log.Sinks
 
     protected override void DoStart()
     {
-        m_LastFlush = LocalizedTime;
+        m_LastFlush = DateTime.UtcNow;
         m_Count = 0;
         base.DoStart();
     }
@@ -161,8 +161,10 @@ namespace Azos.Log.Sinks
 
     protected internal override void DoPulse()
     {
-      if ((LocalizedTime - m_LastFlush).TotalSeconds > m_IntervalSec)
+      if ((DateTime.UtcNow - m_LastFlush).TotalSeconds > m_IntervalSec)
+      {
         flush();
+      }
     }
 
 
@@ -183,6 +185,8 @@ namespace Azos.Log.Sinks
         {
           msg = new Message();
 
+          msg.InitDefaultFields(App);
+
           msg.Type = m_MessageType;
           msg.Topic = m_MessageTopic;
           msg.From = m_MessageFrom;
@@ -197,7 +201,7 @@ namespace Azos.Log.Sinks
             if (!Running && !ComponentDirector.LogDaemon.Reliable) return;
             txt.Append("@");
             txt.AppendLine( m.ToString() );
-            txt.AppendLine();
+            txt.AppendLine( m.Parameters.TakeFirstChars(128, "..") );
             txt.AppendLine();
 
             if (m_MaxTextLength>0 && txt.Length>m_MaxTextLength) break;
@@ -221,7 +225,7 @@ namespace Azos.Log.Sinks
       }
       finally
       {
-        m_LastFlush = LocalizedTime;
+        m_LastFlush = DateTime.UtcNow;
       }
     }
 

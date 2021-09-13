@@ -14,8 +14,9 @@ namespace Azos.Data
 {
   /// <summary>
   /// Provides base for rowsets.
-  /// Rowsets are mutable lists of documents where all documents(rows) must adhere to the same schema (hence called "rows"),
-  /// however a rowset may contain a mix of dynamic and typed documents as long as they have the same schema.
+  /// Rowsets are mutable lists of documents where all documents(rows) must adhere to the same/compatible schema (hence called "rows"),
+  /// however a rowset may contain a mix of dynamic and typed documents as long as they have the same or compatible schema.
+  /// Two schemas are compatible if they are equal or both represent typedDocs which extend the schema of rowset.
   /// Rowsets are not thread-safe
   /// </summary>
   [Serializable]
@@ -27,19 +28,13 @@ namespace Azos.Data
     /// Reads either Table or Rowset from JSON created by WriteAsJSON. Metadata must be present
     /// </summary>
     public static RowsetBase FromJSON(string json, bool schemaOnly = false, bool readOnlySchema = false)
-    {
-      return FromJSON( JsonReader.DeserializeDataObject(json) as JsonDataMap, schemaOnly, readOnlySchema );
-    }
-
+      => FromJSON(JsonReader.DeserializeDataObject(json) as JsonDataMap, schemaOnly, readOnlySchema);
 
     /// <summary>
     /// Reads either Table or Rowset from JSON created by WriteAsJSON. Metadata must be present
     /// </summary>
     public static RowsetBase FromJSON(JsonDataMap jsonMap, bool schemaOnly = false, bool readOnlySchema = false)
-    {
-      bool dummy;
-      return FromJSON(jsonMap, out dummy, schemaOnly, readOnlySchema);
-    }
+      => FromJSON(jsonMap, out bool dummy, schemaOnly, readOnlySchema);
 
     /// <summary>
     /// Reads either Table or Rowset from JSON created by WriteAsJSON. Metadata must be present.
@@ -55,7 +50,7 @@ namespace Azos.Data
         throw new DataException(StringConsts.ARGUMENT_ERROR + "RowsetBase.FromJSON(jsonMap=null)");
 
       var schMap = jsonMap["Schema"] as JsonDataMap;
-      if (schMap==null)
+      if (schMap == null)
         throw new DataException(StringConsts.ARGUMENT_ERROR + "RowsetBase.FromJSON(jsonMap!schema)");
 
       var schema = Schema.FromJSON(schMap, readOnlySchema);
@@ -66,13 +61,13 @@ namespace Azos.Data
       if (schemaOnly) return result;
 
       var rows = jsonMap["Rows"] as JsonDataArray;
-      if (rows==null) return result;
+      if (rows == null) return result;
 
 
-      foreach(var jrow in rows)
+      foreach (var jrow in rows)
       {
         var jdo = jrow as IJsonDataObject;
-        if (jdo==null)
+        if (jdo == null)
         {
           allMatched = false;
           continue;
@@ -82,7 +77,7 @@ namespace Azos.Data
 
         if (!Doc.TryFillFromJSON(doc, jdo, setFieldFunc)) allMatched = false;
 
-        result.Add( doc );
+        result.Add(doc);
       }
 
       return result;
@@ -132,12 +127,12 @@ namespace Azos.Data
         throw new DataException(StringConsts.ARGUMENT_ERROR + "RowsetBase.FromJSON(): invalid result schema");
 
       var rows = jsonMap["Rows"] as JsonDataArray;
-      if (rows==null) return 0;
+      if (rows == null) return 0;
 
-      foreach(var jrow in rows)
+      foreach (var jrow in rows)
       {
         var jdo = jrow as IJsonDataObject;
-        if (jdo==null)
+        if (jdo == null)
           continue;
 
         var doc = new T();
@@ -154,47 +149,47 @@ namespace Azos.Data
     /// </summary>
     protected RowsetBase(Schema schema)
     {
-        m_Schema = schema;
-        m_InstanceGUID = Guid.NewGuid();
+      m_Schema = schema.NonNull(nameof(schema));
+      m_InstanceGUID = Guid.NewGuid();
     }
 
-  #endregion
+    #endregion
 
-  #region Fields
+    #region Fields
 
     private Guid m_InstanceGUID;
     protected Schema m_Schema;
     protected internal List<Doc> m_List;
     protected internal List<DocChange> m_Changes;
 
+
     private JsonDynamicObject m_DataContext;
-  #endregion
 
+    #endregion
 
-  #region Properties
+    #region Properties
 
     /// <summary>
     /// Returns globaly-unique instance ID.
     /// This ID is useful as a key for storing rowsets in object stores and posting data back from web client to server.
     /// </summary>
-    public Guid InstanceGUID { get { return m_InstanceGUID;} }
-
+    public Guid InstanceGUID => m_InstanceGUID;
 
     /// <summary>
     /// Returns a schema for rows that this rowset contains
     /// </summary>
-    public Schema Schema { get { return m_Schema;} }
+    public Schema Schema => m_Schema;
 
     /// <summary>
     /// Returns row count in this rowset
     /// </summary>
-    public int Count { get { return m_List.Count; }}
+    public int Count => m_List.Count;
 
 
     /// <summary>
     /// Returns data as non-generic readonly IList
     /// </summary>
-    public System.Collections.IList AsReadonlyIList{ get{ return new iListReadOnly(m_List);}}
+    public System.Collections.IList AsReadonlyIList => new iListReadOnly(m_List);
 
     /// <summary>
     /// Gets/Sets whether this rowset keeps track of all modifications done to it.
@@ -202,32 +197,26 @@ namespace Azos.Data
     /// </summary>
     public bool LogChanges
     {
-        get { return m_Changes != null; }
-        set
-        {
-            if (value && m_Changes==null) m_Changes = new List<DocChange>();
-            else
-            if (!value && m_Changes!=null) m_Changes = null;
-        }
+      get => m_Changes != null;
+      set
+      {
+        if (value && m_Changes == null) m_Changes = new List<DocChange>();
+        else
+        if (!value && m_Changes != null) m_Changes = null;
+      }
     }
 
     /// <summary>
     /// Returns accumulated modifications performed on the rowset, or empty enumerator if no modifications have been made or
     ///  LogModifications = false
     /// </summary>
-    public IEnumerable<DocChange> Changes
-    {
-        get { return m_Changes ?? Enumerable.Empty<DocChange>(); }
-    }
+    public IEnumerable<DocChange> Changes => m_Changes ?? Enumerable.Empty<DocChange>();
 
     /// <summary>
     /// Returns a count of accumulated modifications performed on the rowset, or zero when no modifications have been made or
     ///  LogModifications = false
     ///  </summary>
-    public int ChangeCount
-    {
-        get { return m_Changes!=null?m_Changes.Count : 0; }
-    }
+    public int ChangeCount => m_Changes != null ? m_Changes.Count : 0;
 
 
     /// <summary>
@@ -235,12 +224,12 @@ namespace Azos.Data
     /// </summary>
     public JsonDataMap ContextMap
     {
-        get
-        {
-          var data = this.Context;//laizily created if needed
+      get
+      {
+        var data = this.Context;//laizily created if needed
 
-          return m_DataContext.Data as JsonDataMap;
-        }
+        return m_DataContext.Data as JsonDataMap;
+      }
     }
 
     /// <summary>
@@ -248,42 +237,40 @@ namespace Azos.Data
     /// </summary>
     public dynamic Context
     {
-        get
-        {
-          if (m_DataContext==null)
-            m_DataContext = new JsonDynamicObject(JSONDynamicObjectKind.Map, false);
+      get
+      {
+        if (m_DataContext == null)
+          m_DataContext = new JsonDynamicObject(JSONDynamicObjectKind.Map, false);
 
-          return m_DataContext;
-        }
+        return m_DataContext;
+      }
     }
 
-  #endregion
+    #endregion
 
-  #region Public
+    #region Public
 
     /// <summary>
     /// Inserts the doc. Returns insertion index
     /// </summary>
     public int Insert(Doc doc)
     {
-        Check(doc);
-        var idx = DoInsert(doc);
-        if (idx>=0 && m_Changes!=null) m_Changes.Add( new DocChange(DocChangeType.Insert, doc, null) );
-        return idx;
+      Check(doc);
+      var idx = DoInsert(doc);
+      if (idx >= 0 && m_Changes != null) m_Changes.Add(new DocChange(DocChangeType.Insert, doc, null));
+      return idx;
     }
-
 
     /// <summary>
     /// Updates the doc, Returns the row index or -1
     /// </summary>
     public UpdateResult Update(Doc doc, Access.IDataStoreKey key = null, Func<Doc, Doc, Doc> docUpgrade = null)
     {
-        Check(doc);
-        var idx = DoUpdate(doc, key, docUpgrade);
-        if (idx>=0 && m_Changes!=null) m_Changes.Add( new DocChange(DocChangeType.Update, doc, key) );
-        return new UpdateResult(idx, true);
+      Check(doc);
+      var idx = DoUpdate(doc, key, docUpgrade);
+      if (idx >= 0 && m_Changes != null) m_Changes.Add(new DocChange(DocChangeType.Update, doc, key));
+      return new UpdateResult(idx, true);
     }
-
 
     /// <summary>
     /// Tries to find a doc for update and if found, updates it and returns true,
@@ -292,10 +279,10 @@ namespace Azos.Data
     /// </summary>
     public UpdateResult Upsert(Doc doc, Func<Doc, bool> updateWhere = null, Func<Doc, Doc, Doc> rowUpgrade = null)
     {
-        Check(doc);
-        var update = DoUpsert(doc, updateWhere, rowUpgrade);
-        if (m_Changes!=null) m_Changes.Add( new DocChange(DocChangeType.Upsert, doc, null) );
-        return update;
+      Check(doc);
+      var update = DoUpsert(doc, updateWhere, rowUpgrade);
+      if (m_Changes != null) m_Changes.Add(new DocChange(DocChangeType.Upsert, doc, null));
+      return update;
     }
 
     /// <summary>
@@ -303,13 +290,13 @@ namespace Azos.Data
     /// </summary>
     public int Delete(Doc doc, Access.IDataStoreKey key = null)
     {
-        Check(doc);
-        var idx = DoDelete(doc, key);
+      Check(doc);
+      var idx = DoDelete(doc, key);
 
-        if (idx>=0 && m_Changes!=null)
-          m_Changes.Add( new DocChange(DocChangeType.Delete, doc, null) );
+      if (idx >= 0 && m_Changes != null)
+        m_Changes.Add(new DocChange(DocChangeType.Delete, doc, null));
 
-        return idx;
+      return idx;
     }
 
     /// <summary>
@@ -317,7 +304,7 @@ namespace Azos.Data
     /// </summary>
     public int Delete(params object[] keys)
     {
-        return Delete(KeyDocFromValues(keys));
+      return Delete(KeyDocFromValues(keys));
     }
 
     /// <summary>
@@ -325,8 +312,8 @@ namespace Azos.Data
     /// </summary>
     public void Purge()
     {
-        m_List.Clear();
-        m_List.TrimExcess();
+      m_List.Clear();
+      m_List.TrimExcess();
     }
 
     /// <summary>
@@ -334,11 +321,11 @@ namespace Azos.Data
     /// </summary>
     public void DeleteAll()
     {
-        if (m_Changes!=null)
-            foreach(var row in m_List)
-              m_Changes.Add( new DocChange(DocChangeType.Delete, row, null) );
+      if (m_Changes != null)
+        foreach (var row in m_List)
+          m_Changes.Add(new DocChange(DocChangeType.Delete, row, null));
 
-        Purge();
+      Purge();
     }
 
     /// <summary>
@@ -346,7 +333,7 @@ namespace Azos.Data
     /// </summary>
     public void PurgeChanges()
     {
-        if (m_Changes!=null) m_Changes.Clear();
+      if (m_Changes != null) m_Changes.Clear();
     }
 
     /// <summary>
@@ -354,7 +341,7 @@ namespace Azos.Data
     /// </summary>
     public Doc KeyDocFromValues(params object[] keys)
     {
-        return DoKeyDocFromValues(new DynamicDoc(Schema), keys);
+      return DoKeyDocFromValues(new DynamicDoc(Schema), keys);
     }
 
     /// <summary>
@@ -362,7 +349,7 @@ namespace Azos.Data
     /// </summary>
     public Doc FindByKey(Doc keyDoc)
     {
-        return FindByKey(keyDoc, null);
+      return FindByKey(keyDoc, null);
     }
 
     /// <summary>
@@ -372,9 +359,8 @@ namespace Azos.Data
     /// </summary>
     public Doc FindByKey(params object[] keys)
     {
-        return FindByKey(KeyDocFromValues(keys), null);
+      return FindByKey(KeyDocFromValues(keys), null);
     }
-
 
     /// <summary>
     /// Tries to find a row by specified keyset and extra WHERE clause and returns it or null if not found.
@@ -383,37 +369,30 @@ namespace Azos.Data
     /// </summary>
     public Doc FindByKey(Doc doc, Func<Doc, bool> extraWhere)
     {
-        Check(doc);
+      Check(doc);
+      int idx = SearchForDoc(doc, out _);
+      if (idx < 0)
+        return null;
 
-        int insertIndex;
-        int idx = SearchForDoc(doc, out insertIndex);
-        if (idx<0)
-          return null;
+      if (extraWhere != null)
+      {
+        if (!extraWhere(m_List[idx])) return null;//where did notmatch
+      }
 
-        if (extraWhere!=null)
-        {
-          if (!extraWhere(m_List[idx])) return null;//where did notmatch
-        }
-
-        return m_List[idx];
+      return m_List[idx];
     }
 
     /// <summary>
     /// Tries to find a doc index by specified keyset and extra WHERE clause and returns it or null if not found
     /// </summary>
     public Doc FindByKey(Func<Doc, bool> extraWhere, params object[] keys)
-    {
-        return FindByKey(KeyDocFromValues(keys), extraWhere);
-    }
-
+      => FindByKey(KeyDocFromValues(keys), extraWhere);
 
     /// <summary>
     /// Tries to find a doc index by specified keyset and returns it or null if not found
     /// </summary>
     public int FindIndexByKey(Doc keyDoc)
-    {
-        return FindIndexByKey(keyDoc, null);
-    }
+      => FindIndexByKey(keyDoc, null);
 
     /// <summary>
     /// Tries to find a row index by specified keyset and returns it or null if not found.
@@ -421,10 +400,7 @@ namespace Azos.Data
     /// In contrast, Tables are always ordered and perform binary search instead
     /// </summary>
     public int FindIndexByKey(params object[] keys)
-    {
-        return FindIndexByKey(KeyDocFromValues(keys), null);
-    }
-
+      => FindIndexByKey(KeyDocFromValues(keys), null);
 
     /// <summary>
     /// Tries to find a row index by specified keyset and extra WHERE clause and returns it or null if not found.
@@ -433,32 +409,28 @@ namespace Azos.Data
     /// </summary>
     public int FindIndexByKey(Doc doc, Func<Doc, bool> extraWhere)
     {
-        Check(doc);
+      Check(doc);
+      int idx = SearchForDoc(doc, out _);
+      if (idx < 0)
+        return idx;
 
-        int insertIndex;
-        int idx = SearchForDoc(doc, out insertIndex);
-        if (idx<0)
-          return idx;
-
-        return extraWhere != null && !extraWhere(m_List[idx]) ? -1 : idx;
+      return extraWhere != null && !extraWhere(m_List[idx]) ? -1 : idx;
     }
 
     /// <summary>
     /// Tries to find a row index by specified keyset and extra WHERE clause and returns it or null if not found
     /// </summary>
     public int FindIndexByKey(Func<Doc, bool> extraWhere, params object[] keys)
-    {
-        return FindIndexByKey(KeyDocFromValues(keys), extraWhere);
-    }
+      => FindIndexByKey(KeyDocFromValues(keys), extraWhere);
 
     /// <summary>
     /// Retrievs a change by index or null if index is out of bounds or changes are not logged
     /// </summary>
     public DocChange? GetChangeAt(int idx)
     {
-      if (m_Changes==null) return null;
+      if (m_Changes == null) return null;
 
-      if (idx>=m_Changes.Count) return null;
+      if (idx >= m_Changes.Count) return null;
 
       return m_Changes[idx];
     }
@@ -471,48 +443,46 @@ namespace Azos.Data
     /// </summary>
     public virtual ValidState Validate(ValidState state, string scope = null)
     {
-        foreach(var row in this)
-        {
-            state = row.Validate(state, scope);
-            if (state.ShouldStop) break;
-        }
+      foreach (var row in this)
+      {
+        state = row.Validate(state, scope);
+        if (state.ShouldStop) break;
+      }
 
-        return state;
+      return state;
     }
 
+    #endregion
 
-  #endregion
+    #region IComparer<Row> Members
 
-  #region IComparer<Row> Members
-
-  /// <summary>
-  /// Compares two rows
-  /// </summary>
-  public abstract int Compare(Doc docA, Doc docB);
-  #endregion
+    /// <summary>
+    /// Compares two rows
+    /// </summary>
+    public abstract int Compare(Doc docA, Doc docB);
+    #endregion
 
 
-  #region IEnumerable Members
+    #region IEnumerable Members
 
     public IEnumerator<Doc> GetEnumerator()
     {
       return m_List.GetEnumerator();
     }
 
-
     System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
     {
       return m_List.GetEnumerator();
     }
-  #endregion
 
+    #endregion
 
-  #region IList
+    #region IList
 
     public int IndexOf(Doc doc)
     {
-        Check(doc);
-        return m_List.IndexOf(doc);
+      Check(doc);
+      return m_List.IndexOf(doc);
     }
 
     /// <summary>
@@ -520,125 +490,99 @@ namespace Azos.Data
     /// </summary>
     public virtual void Insert(int index, Doc doc)
     {
-        Check(doc);
-        m_List.Insert(index, doc);
-        if (m_Changes!=null) m_Changes.Add( new DocChange(DocChangeType.Insert, doc, null) );
+      Check(doc);
+      m_List.Insert(index, doc);
+      if (m_Changes != null) m_Changes.Add(new DocChange(DocChangeType.Insert, doc, null));
     }
 
     /// <summary>
     /// Deletes row
     /// </summary>
-    public void RemoveAt(int index)
-    {
-        Delete( m_List[index] );
-    }
+    public void RemoveAt(int index) => Delete(m_List[index]);
 
     /// <summary>
     /// This method performs update on set
     /// </summary>
     public virtual Doc this[int index]
     {
-        get
+      get => m_List[index];
+      set
+      {
+        Check(value);
+        var existing = m_List[index];
+        if (object.ReferenceEquals(existing, value)) return;
+        m_List[index] = value;
+        if (m_Changes != null)
         {
-            return m_List[index];
+          m_Changes.Add(new DocChange(DocChangeType.Delete, existing, null));
+          m_Changes.Add(new DocChange(DocChangeType.Insert, value, null));
         }
-        set
-        {
-            Check(value);
-            var existing = m_List[index];
-            if (object.ReferenceEquals(existing, value)) return;
-            m_List[index] = value;
-            if (m_Changes!=null)
-            {
-              m_Changes.Add( new DocChange(DocChangeType.Delete, existing, null) );
-              m_Changes.Add( new DocChange(DocChangeType.Insert, value, null) );
-            }
-        }
+      }
     }
 
     /// <summary>
     /// Inserts a row
     /// </summary>
-    public void Add(Doc doc)
-    {
-        Insert(doc);
-    }
+    public void Add(Doc doc) => Insert(doc);
 
     /// <summary>
     /// Purges table
     /// </summary>
-    public void Clear()
-    {
-        Purge();
-    }
+    public void Clear() => Purge();
 
-    public bool Contains(Doc doc)
-    {
-        return m_List.Contains(doc);
-    }
+    public bool Contains(Doc doc) => m_List.Contains(doc);
 
     public void CopyTo(Doc[] array, int arrayIndex)
-    {
-        m_List.CopyTo(array, arrayIndex);
-    }
+      => m_List.CopyTo(array, arrayIndex);
 
-    public bool IsReadOnly
-    {
-        get { return false; }
-    }
+    public bool IsReadOnly => false;
 
     /// <summary>
     /// Performs row delete
     /// </summary>
-    public bool Remove(Doc item)
-    {
-        return Delete(item)>=0;
-    }
-  #endregion
+    public bool Remove(Doc item) => Delete(item) >= 0;
 
+    #endregion
 
-  #region IJSONWritable
+    #region IJSONWritable
 
     /// <summary>
     /// Writes rowset as JSON including schema information. Do not call this method directly, instead call rowset.ToJSON() or use JSONWriter class
     /// </summary>
     public void WriteAsJson(System.IO.TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
     {
-        var tp = GetType();
+      var tp = GetType();
 
-        var metadata = options!=null && options.RowsetMetadata;
+      var metadata = options != null && options.RowsetMetadata;
 
-        var map = new Dictionary<string, object>//A root JSON object is needed for security, as some browsers can EXECUTE a valid JSON root array
+      var map = new Dictionary<string, object>//A root JSON object is needed for security, as some browsers can EXECUTE a valid JSON root array
         {
           {"Rows", m_List}
         };
 
-        if (metadata)
-        {
-            map.Add("Instance", m_InstanceGUID.ToString("D"));
-            map.Add("Type", tp.FullName);
-            map.Add("IsTable", typeof(Table).IsAssignableFrom( tp ));
-            map.Add("Schema", m_Schema);
-        }
+      if (metadata)
+      {
+        map.Add("Instance", m_InstanceGUID.ToString("D"));
+        map.Add("Type", tp.FullName);
+        map.Add("IsTable", typeof(Table).IsAssignableFrom(tp));
+        map.Add("Schema", m_Schema);
+      }
 
-        JsonWriter.WriteMap(wri, map, nestingLevel, options);
+      JsonWriter.WriteMap(wri, map, nestingLevel, options);
     }
 
+    #endregion
 
-  #endregion
-
-
-  #region .Protected
+    #region .Protected
 
     /// <summary>
-    /// Checks argument for being non-null and of the same schema with this rowset
+    /// Checks argument for being non-null and of the same or compatible  schema with this rowset
     /// </summary>
     protected void Check(Doc doc)
     {
-      if (doc == null || m_Schema != doc.Schema)
+      if (doc == null || !m_Schema.IsCompatibleBaseFor(doc.Schema))
         throw new DataException(StringConsts.CRUD_ROWSET_OPERATION_ROW_IS_NULL_OR_SCHEMA_MISMATCH_ERROR);
     }
-
 
     /// <summary>
     /// Provides rowsearching. Override to do binary search in sorted rowsets
@@ -647,12 +591,12 @@ namespace Azos.Data
     /// <param name="index">An index where search collapsed without finding the match. Used for sorted insertions</param>
     protected virtual int SearchForDoc(Doc doc, out int index)
     {
-      for(int i=0; i<m_List.Count; i++)
+      for (int i = 0; i < m_List.Count; i++)
       {
         if (m_List[i].Equals(doc))
         {
-              index = i;
-              return i;
+          index = i;
+          return i;
         }
       }
 
@@ -660,19 +604,17 @@ namespace Azos.Data
       return -1;
     }
 
-
     /// <summary>
     /// Tries to insert a document. If another doc with the same set of key fields already in the table returns -1, otherwise
     ///  returns insertion index
     /// </summary>
     protected virtual int DoInsert(Doc doc)
     {
-        int idx = 0;
-        if (SearchForDoc(doc, out idx) >=0) return -1;
+      if (SearchForDoc(doc, out int idx) >= 0) return -1;
 
-        m_List.Insert(idx, doc);
+      m_List.Insert(idx, doc);
 
-        return idx;
+      return idx;
     }
 
     /// <summary>
@@ -687,13 +629,12 @@ namespace Azos.Data
     /// </param>
     protected virtual int DoUpdate(Doc doc, Access.IDataStoreKey key = null, Func<Doc, Doc, Doc> docUpgrade = null)
     {
-        int dummy;
-        var idx = SearchForDoc(doc, out dummy);
-        if (idx<0) return -1;
+      var idx = SearchForDoc(doc, out int dummy);
+      if (idx < 0) return -1;
 
-        DoUpgrade(dummy, doc, docUpgrade);
+      DoUpgrade(dummy, doc, docUpgrade);
 
-        return idx;
+      return idx;
     }
 
     /// <summary>
@@ -702,22 +643,21 @@ namespace Azos.Data
     /// </summary>
     protected virtual void DoUpgrade(int idx, Doc newDoc, Func<Doc, Doc, Doc> docUpgrade)
     {
-        if (docUpgrade == null)
-        {
-          m_List[idx] = newDoc;
-          return;
-        }
+      if (docUpgrade == null)
+      {
+        m_List[idx] = newDoc;
+        return;
+      }
 
-        var upgradedRow = docUpgrade(m_List[idx], newDoc);
-        // Ensure that the Schema hasn't been changed
-        Check(upgradedRow);
-        // Check that the row's key is unmodified
-        int dummy;
-        int idxUpgraded = SearchForDoc(upgradedRow, out dummy);
-        if (idxUpgraded != idx)
-          throw new DataException(StringConsts.CRUD_ROW_UPGRADE_KEY_MUTATION_ERROR);
+      var upgradedRow = docUpgrade(m_List[idx], newDoc);
+      // Ensure that the Schema hasn't been changed
+      Check(upgradedRow);
+      // Check that the row's key is unmodified
+      int idxUpgraded = SearchForDoc(upgradedRow, out _);
+      if (idxUpgraded != idx)
+        throw new DataException(StringConsts.CRUD_ROW_UPGRADE_KEY_MUTATION_ERROR);
 
-        m_List[idx] = upgradedRow;
+      m_List[idx] = upgradedRow;
     }
 
     /// <summary>
@@ -727,19 +667,18 @@ namespace Azos.Data
     /// </summary>
     protected virtual UpdateResult DoUpsert(Doc doc, Func<Doc, bool> updateWhere, Func<Doc, Doc, Doc> docUpgrade = null)
     {
-        int insertIndex;
-        int idx = SearchForDoc(doc, out insertIndex);
-        if (idx<0)
-        {
-          m_List.Insert(insertIndex, doc);
-          return new UpdateResult(insertIndex, false);
-        }
+      int idx = SearchForDoc(doc, out int insertIndex);
+      if (idx < 0)
+      {
+        m_List.Insert(insertIndex, doc);
+        return new UpdateResult(insertIndex, false);
+      }
 
-        if (updateWhere!=null && !updateWhere(m_List[idx]))
-          return new UpdateResult(-1, false);//where did not match
+      if (updateWhere != null && !updateWhere(m_List[idx]))
+        return new UpdateResult(-1, false);//where did not match
 
-        DoUpgrade(idx, doc, docUpgrade);
-        return new UpdateResult(idx, true);
+      DoUpgrade(idx, doc, docUpgrade);
+      return new UpdateResult(idx, true);
     }
 
     /// <summary>
@@ -747,40 +686,39 @@ namespace Azos.Data
     /// </summary>
     protected virtual int DoDelete(Doc doc, Access.IDataStoreKey key = null)
     {
-        int dummy;
-        int idx = SearchForDoc(doc, out dummy);
-        if (idx<0) return -1;
+      int idx = SearchForDoc(doc, out int dummy);
+      if (idx < 0) return -1;
 
-        m_List.RemoveAt(idx);
-        return idx;
+      m_List.RemoveAt(idx);
+      return idx;
     }
-
 
     protected T DoKeyDocFromValues<T>(T kdoc, params object[] keys) where T : Doc
     {
-        Check(kdoc);
-        var idx = 0;
-        foreach(var kdef in Schema.AnyTargetKeyFieldDefs)
-        {
-          if (idx>keys.Length-1)
-            throw new DataException(StringConsts.CRUD_FIND_BY_KEY_LENGTH_ERROR);
+      Check(kdoc);
+      var idx = 0;
+      foreach (var kdef in Schema.AnyTargetKeyFieldDefs)
+      {
+        if (idx > keys.Length - 1)
+          throw new DataException(StringConsts.CRUD_FIND_BY_KEY_LENGTH_ERROR);
 
-          kdoc[kdef.Order] = keys[idx];
-          idx++;
-        }
+        kdoc[kdef.Order] = keys[idx];
+        idx++;
+      }
 
-        return kdoc;
+      return kdoc;
     }
 
-  #endregion
+    #endregion
 
   }
 
+
   public struct UpdateResult
   {
-    public UpdateResult(int idx, bool updated) { Index=idx; Updated=updated; }
+    public UpdateResult(int idx, bool updated) { Index = idx; Updated = updated; }
 
-    public readonly int  Index;
+    public readonly int Index;
     public readonly bool Updated;
   }
 

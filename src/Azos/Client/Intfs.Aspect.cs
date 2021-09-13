@@ -4,13 +4,7 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
-
-using Azos.Apps;
 using Azos.Collections;
-using Azos.Instrumentation;
 
 namespace Azos.Client
 {

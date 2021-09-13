@@ -16,8 +16,8 @@ namespace Azos.Log
   /// </summary>
   public class LogModule : ModuleBase, ILogModuleImplementation
   {
-    protected LogModule(IApplication application) : base(application) { }
-    protected LogModule(IModule parent) : base(parent) { }
+    public LogModule(IApplication application) : base(application) { }
+    public LogModule(IModule parent) : base(parent) { }
 
     private ILogImplementation m_Log;
 

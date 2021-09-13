@@ -6,6 +6,8 @@ using System.Runtime.Serialization;
 
 using Azos.Conf;
 using Azos.Data;
+using Azos.Platform;
+using Azos.Text;
 
 namespace Azos
 {
@@ -60,6 +62,7 @@ namespace Azos
     /// </summary>
     MetadataDetailLevel DetailLevel {  get; }
 
+
     /// <summary>
     /// Default target name used for extraction of targeted metadata such as database backend target name used in data documents/ schemas
     /// </summary>
@@ -93,7 +96,7 @@ namespace Azos
     /// This mechanism is used to get proper target names in call context, for example
     /// you may need to get a different metadata depending on a call context such as Session.DataContextName etc.
     /// </summary>
-    string GetSchemaDataTargetName(Schema schema, IDataDoc instance);
+    (string name, bool useFieldNames) GetSchemaDataTargetName(Schema schema, IDataDoc instance);
 
     /// <summary>
     /// Adds a type with an optional instance to be described, this is typically used to register Permissions and Doc schemas
@@ -111,7 +114,7 @@ namespace Azos
 
 
   /// <summary>
-  /// Implemented by class which provide metadata from their instance (not only types), e.g. a Permission may need to provide
+  /// Implemented by classes which provide metadata from their instances (not just from their types), e.g. a `Permission` may need to provide
   /// metadata based on its instance state such as requested access level
   /// </summary>
   public interface IInstanceCustomMetadataProvider
@@ -257,12 +260,15 @@ namespace Azos
         }
       }
 
-      //Default SKU is added for types only taking type name (which may not be unique, so set SKU on the public types)
+      //Default SKU is added for types only taking type name (which may not be globally unique),
+      //so set `SKU` attribute on the public types, or use [MetadataTypeSkuNamespaceMappingAttribute]
+      //to map CLR namespaces to metadata sku type names
       if (target is Type typeTarget)
       {
         if (data.AttrByName(CONFIG_SKU_ATTR).Value.IsNullOrWhiteSpace())
         {
-          data.AddAttributeNode(CONFIG_SKU_ATTR, typeTarget.Name);
+          var ns = MetadataTypeSkuNamespaceMappingAttribute.GetTypeSku(typeTarget);
+          data.AddAttributeNode(CONFIG_SKU_ATTR, ns.Default(typeTarget.Name));
         }
 
         //enumerated types get handled automatically
@@ -317,6 +323,78 @@ namespace Azos
     public CustomMetadataException(string message, Exception inner) : base(message, inner) { }
     protected CustomMetadataException(SerializationInfo info, StreamingContext context) : base(info, context) { Code = info.GetInt32(CODE_FLD_NAME); }
   }
+
+
+  /// <summary>
+  /// Applied to assemblies, maps namespace names for types to metadata namespace names used for documentation.
+  /// This is needed not to disclose real CLR namespace names to the metadata consumer
+  /// </summary>
+  [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true, Inherited = false)]
+  public sealed class MetadataTypeSkuNamespaceMappingAttribute : Attribute
+  {
+    public const string VAR_NS = "$ns$";
+    public const string VAR_NAME = "$name$";
+    public const string VAR_ASM = "$asm$";
+
+
+    private static FiniteSetLookup<Type, string> s_Cache = new FiniteSetLookup<Type, string>( type => {
+      var asm = type.Assembly;
+      var atrs = asm.GetCustomAttributes<MetadataTypeSkuNamespaceMappingAttribute>().OrderBy(a => a.Order);
+      foreach (var atr in atrs)
+      {
+        if (atr.ClrNamespaces.Any(nsp => type.Namespace.MatchPattern(nsp, senseCase: true)))
+        {
+          return (atr.Sku ?? string.Empty).Replace(VAR_NS, type.Namespace)
+                                          .Replace(VAR_NAME, type.Name)
+                                          .Replace(VAR_ASM, System.IO.Path.GetFileNameWithoutExtension(asm.Location.Default(string.Empty)));
+        }
+      }
+      return string.Empty;
+    });
+
+    /// <summary>
+    /// Gets SKU namespace prefix for a type. The prefix mappings are defined using [MetadataTypeSkuNamespaceMappingAttribute]
+    /// attribute decorations on an assembly which contains the type of interest
+    /// </summary>
+    public static string GetTypeSku(Type type) => s_Cache[type.NonNull(nameof(type))];
+
+    /// <summary>
+    /// MetadataTypeSkuNamespaceMappingAttribute .ctor which maps possibly multiple pattern matches applied to CLR namespace names
+    /// for types, to metadata type SKU prefixes
+    /// </summary>
+    /// <param name="order">The relative order of attribute evaluation among other assembly attributes</param>
+    /// <param name="clrNamespaces">The pattern match expression(s) applied to CLR namespace names. Separate multiple values with ';' or '|' character</param>
+    /// <param name="sku">
+    /// The SKU prefix mapped to. Use `$name$` for target type name;
+    /// `$ns$` for original namespace string;
+    /// `$asm$` for assembly file name w/o extension and path
+    /// </param>
+    public MetadataTypeSkuNamespaceMappingAttribute(int order, string clrNamespaces, string sku)
+    {
+      Order = order;
+      Sku = sku.NonBlank(nameof(sku));
+      ClrNamespaces = clrNamespaces.NonBlank(nameof(clrNamespaces))
+                                  .Split(';','|')
+                                  .Where(s => s.IsNotNullOrWhiteSpace())
+                                  .ToArray();
+    }
+
+    /// <summary>
+    /// Specifies the order of attribute evaluation when multiple attributes are defined on the assembly
+    /// </summary>
+    public int Order{  get; private set; }
+
+    /// <summary>
+    /// A list of CLR namespace pattern matches, e.g. "My.Application.Controllers.*". The patterns are case-sensitive
+    /// </summary>
+    public string[] ClrNamespaces{  get; private set; }
+
+    /// <summary>
+    /// SKU used for name, use `$name$` for target type name; `$ns$` for original namespace string; `$asm$` for assembly file name w/o extension and path
+    /// </summary>
+    public string Sku {  get; private set; }
+  }
+
 
   /// <summary>
   /// Utilities for working with custom metadata

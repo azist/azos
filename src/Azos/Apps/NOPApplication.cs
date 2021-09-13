@@ -3,10 +3,9 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
+
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 using Azos.Apps.Injection;
 using Azos.Log;
@@ -28,30 +27,30 @@ namespace Azos.Apps
   public class NOPApplication : DisposableObject, IApplicationImplementation
   {
 
-     private static readonly NOPApplication s_Instance = new NOPApplication();
+    private static readonly NOPApplication s_Instance = new NOPApplication();
 
-     protected NOPApplication()
-     {
-        m_Configuration = new MemoryConfiguration();
-        m_Configuration.Create();
+    protected NOPApplication()
+    {
+      m_Configuration = new MemoryConfiguration();
+      m_Configuration.Create();
 
-        m_CommandArgsConfiguration = new MemoryConfiguration();
-        m_CommandArgsConfiguration.Create();
+      m_CommandArgsConfiguration = new MemoryConfiguration();
+      m_CommandArgsConfiguration.Create();
 
-        m_StartTime = DateTime.Now;
-        m_Singletons = new NOPApplicationSingletonManager();
-        m_DependencyInjector = new ApplicationDependencyInjector(this);
-        m_Realm = new ApplicationRealmBase(this);
+      m_StartTime = DateTime.Now;
+      m_Singletons = new NOPApplicationSingletonManager();
+      m_DependencyInjector = new ApplicationDependencyInjector(this);
+      m_Realm = new ApplicationRealmBase(this);
 
-        m_Log = new NOPLog(this);
-        m_Instrumentation = new NOPInstrumentation(this);
-        m_ObjectStore = new NOPObjectStore(this);
-        m_Glue = new NOPGlue(this);
-        m_DataStore = new NOPDataStore(this);
-        m_SecurityManager = new NOPSecurityManager(this);
-        m_Module = new NOPModule(this);
-        m_TimeSource = new DefaultTimeSource(this);
-        m_EventTimer = new EventTimer(this);
+      m_Log = new NOPLog(this);
+      m_Instrumentation = new NOPInstrumentation(this);
+      m_ObjectStore = new NOPObjectStore(this);
+      m_Glue = new NOPGlue(this);
+      m_DataStore = new NOPDataStore(this);
+      m_SecurityManager = new NOPSecurityManager(this);
+      m_Module = new NOPModule(this);
+      m_TimeSource = new DefaultTimeSource(this);
+      m_EventTimer = new EventTimer(this);
     }
 
     //Added for symmetry, as NOPApplication is never going to be disposed anyway as it is a process singleton
@@ -74,16 +73,10 @@ namespace Azos.Apps
       base.Destructor();
     }
 
-
-
     /// <summary>
     /// Returns a singleton instance of the NOPApplication
     /// </summary>
-    public static IApplication Instance
-     {
-       get { return s_Instance; }
-     }
-
+    public static IApplication Instance => s_Instance;
 
     protected Guid m_InstanceID = Guid.NewGuid();
     protected DateTime m_StartTime;
@@ -92,169 +85,138 @@ namespace Azos.Apps
     protected IApplicationDependencyInjectorImplementation m_DependencyInjector;
     protected IApplicationSingletonManager m_Singletons;
     protected IApplicationRealmImplementation m_Realm;
-    protected ILog               m_Log;
-    protected IInstrumentation   m_Instrumentation;
-    protected IObjectStore       m_ObjectStore;
-    protected IGlue              m_Glue;
-    protected IDataStore         m_DataStore;
-    protected ISecurityManager   m_SecurityManager;
-    protected IModule            m_Module;
-    protected ITimeSource        m_TimeSource;
-    protected IEventTimer        m_EventTimer;
-
-
-
-
+    protected ILog m_Log;
+    protected IInstrumentation m_Instrumentation;
+    protected IObjectStore m_ObjectStore;
+    protected IGlue m_Glue;
+    protected IDataStore m_DataStore;
+    protected ISecurityManager m_SecurityManager;
+    protected IModule m_Module;
+    protected ITimeSource m_TimeSource;
+    protected IEventTimer m_EventTimer;
 
     #region IApplication Members
 
+    public bool IsUnitTest => false;
 
-        public bool IsUnitTest{ get{ return false; } }
+    public string EnvironmentName => string.Empty;
 
-        public string EnvironmentName { get { return string.Empty; } }
+    public bool ForceInvariantCulture => false;
 
-        public bool ForceInvariantCulture { get { return false; } }
+    public string Description => "NOP Application";
 
+    public int ExpectedComponentShutdownDurationMs => 0;
 
-        public IO.Console.IConsolePort ConsolePort => null;
+    public string Copyright => "2020 Framework";
 
-        public Atom AppId => Atom.ZERO;
+    public IO.Console.IConsolePort ConsolePort => null;
 
-        public Guid InstanceId
-        {
-            get { return m_InstanceID; }
-        }
+    public Atom AppId => Atom.ZERO;
 
-        public bool AllowNesting
-        {
-            get { return false; }
-        }
+    public Atom CloudOrigin => Atom.ZERO;
 
-        public DateTime StartTime
-        {
-            get { return m_StartTime; }
-        }
+    public ushort NodeDiscriminator => 0;
 
-        public bool Active => false;//20140128 DKh was true before
+    public Guid InstanceId => m_InstanceID;
 
-        public IApplicationRealm Realm => m_Realm;
+    public bool AllowNesting => false;
 
-        public IApplicationDependencyInjector DependencyInjector => m_DependencyInjector;
+    public DateTime StartTime => m_StartTime;
 
-        public bool Stopping => false;
+    public bool Active => false;//20140128 DKh was true before
 
-        public bool ShutdownStarted => false;
+    public IApplicationRealm Realm => m_Realm;
 
-        public string Name => GetType().FullName;
+    public IApplicationDependencyInjector DependencyInjector => m_DependencyInjector;
 
-        /// <summary>
-        /// Enumerates all components of this application
-        /// </summary>
-        public IEnumerable<IApplicationComponent> AllComponents => ApplicationComponent.AllComponents(this);
+    public bool Stopping => false;
 
-        public IApplicationSingletonManager Singletons => m_Singletons;
+    public bool ShutdownStarted => false;
 
-        public ILog Log => m_Log;
+    public string Name => GetType().FullName;
 
-        public IInstrumentation Instrumentation => m_Instrumentation;
+    /// <summary>
+    /// Enumerates all components of this application
+    /// </summary>
+    public IEnumerable<IApplicationComponent> AllComponents => ApplicationComponent.AllComponents(this);
 
-        public IConfigSectionNode ConfigRoot
-        {
-          get { return m_Configuration.Root; }
-        }
+    public IApplicationSingletonManager Singletons => m_Singletons;
 
-        public IConfigSectionNode CommandArgs
-        {
-          get { return m_CommandArgsConfiguration.Root; }
-        }
+    public ILog Log => m_Log;
 
-        public IDataStore DataStore => m_DataStore;
-        public IObjectStore ObjectStore => m_ObjectStore;
-        public IGlue Glue => m_Glue;
-        public ISecurityManager SecurityManager => m_SecurityManager;
-        public IModule ModuleRoot => m_Module;
-        public ITimeSource TimeSource => m_TimeSource;
-        public IEventTimer EventTimer => m_EventTimer;
+    public IInstrumentation Instrumentation => m_Instrumentation;
 
-        public Platform.RandomGenerator Random => Platform.RandomGenerator.Instance;
+    public IConfigSectionNode ConfigRoot => m_Configuration.Root;
 
-        public TimeLocation TimeLocation
-        {
-            get { return TimeLocation.Parent; }
-        }
+    public IConfigSectionNode CommandArgs => m_CommandArgsConfiguration.Root;
 
-        public DateTime LocalizedTime
-        {
-            get { return TimeSource.Now; }
-        }
+    public IDataStore DataStore => m_DataStore;
 
-        public DateTime UniversalTimeToLocalizedTime(DateTime utc)
-        {
-            return TimeSource.UniversalTimeToLocalizedTime(utc);
-        }
+    public IObjectStore ObjectStore => m_ObjectStore;
 
-        public DateTime LocalizedTimeToUniversalTime(DateTime local)
-        {
-            return TimeSource.LocalizedTimeToUniversalTime(local);
-        }
+    public IGlue Glue => m_Glue;
 
-        public ISession MakeNewSessionInstance(Guid sessionID, Security.User user = null)
-        {
-            return NOPSession.Instance;
-        }
+    public ISecurityManager SecurityManager => m_SecurityManager;
 
-        public bool RegisterConfigSettings(IConfigSettings settings)
-        {
-            return false;
-        }
+    public IModule ModuleRoot => m_Module;
 
-        public bool UnregisterConfigSettings(IConfigSettings settings)
-        {
-            return false;
-        }
+    public ITimeSource TimeSource => m_TimeSource;
 
-        public void NotifyAllConfigSettingsAboutChange()
-        {
+    public IEventTimer EventTimer => m_EventTimer;
 
-        }
+    public Platform.RandomGenerator Random => Platform.RandomGenerator.Instance;
 
-        public bool RegisterAppFinishNotifiable(IApplicationFinishNotifiable notifiable)
-        {
-            return false;
-        }
+    public TimeLocation TimeLocation => TimeLocation.Parent;
 
-        public bool UnregisterAppFinishNotifiable(IApplicationFinishNotifiable notifiable)
-        {
-            return false;
-        }
+    public DateTime LocalizedTime => TimeSource.Now;
 
-        public void Stop()
-        {
+    public DateTime UniversalTimeToLocalizedTime(DateTime utc)
+      => TimeSource.UniversalTimeToLocalizedTime(utc);
 
-        }
+    public DateTime LocalizedTimeToUniversalTime(DateTime local)
+      => TimeSource.LocalizedTimeToUniversalTime(local);
 
-        /// <summary>
-        /// Returns a component by SID or null
-        /// </summary>
-        public IApplicationComponent GetComponentBySID(ulong sid)
-        {
-          return ApplicationComponent.GetAppComponentBySID(this, sid);
-        }
+    public ISession MakeNewSessionInstance(Guid sessionID, Security.User user = null)
+      => NOPSession.Instance;
 
-        /// <summary>
-        /// Returns an existing application component instance by its ComponentCommonName or null. The search is case-insensitive
-        /// </summary>
-        public IApplicationComponent GetComponentByCommonName(string name)
-        {
-          return ApplicationComponent.GetAppComponentByCommonName(this, name);
-        }
+    public bool RegisterConfigSettings(IConfigSettings settings)
+      => false;
 
-        public bool ResolveNamedVar(string name, out string value)
-        {
-          return DefaultAppVarResolver.ResolveNamedVar(this, name, out value);
-        }
+    public bool UnregisterConfigSettings(IConfigSettings settings)
+      => false;
 
-        public void SetConsolePort(IO.Console.IConsolePort port){ }
+    public void NotifyAllConfigSettingsAboutChange() { }
+
+    public bool RegisterAppFinishNotifiable(IApplicationFinishNotifiable notifiable)
+      => false;
+
+    public bool UnregisterAppFinishNotifiable(IApplicationFinishNotifiable notifiable)
+    => false;
+
+    public void Stop() { }
+
+    /// <summary>
+    /// Returns a component by SID or null
+    /// </summary>
+    public IApplicationComponent GetComponentBySID(ulong sid)
+      => ApplicationComponent.GetAppComponentBySID(this, sid);
+
+    /// <summary>
+    /// Returns an existing application component instance by its ComponentCommonName or null. The search is case-insensitive
+    /// </summary>
+    public IApplicationComponent GetComponentByCommonName(string name)
+      => ApplicationComponent.GetAppComponentByCommonName(this, name);
+
+    public bool ResolveNamedVar(string name, out string value)
+      => DefaultAppVarResolver.ResolveNamedVar(this, name, out value);
+
+    public void SetConsolePort(IO.Console.IConsolePort port) { }
+
+    public bool WaitForStopOrShutdown(int waitIntervalMs)
+    {
+      if (waitIntervalMs > 0) System.Threading.Thread.Sleep(waitIntervalMs);
+      return false;
+    }
 
     #endregion
 

@@ -4,7 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-
 using System;
 using System.Globalization;
 
@@ -43,12 +42,9 @@ namespace Azos.CodeAnalysis.JSON
         return fnum;
       }
 
-
       type = JsonTokenType.tUnknown;
       return null;
     }//Convert
-
-
 
     private static bool strToInt(string str, out ulong num)
     {
@@ -94,8 +90,5 @@ namespace Azos.CodeAnalysis.JSON
     //  return Decimal.TryParse(str, out num);
     //}
 
-
-
   }
-
 }

@@ -11,7 +11,7 @@ namespace Azos.Apps.Terminal.Cmdlets
   /// <summary>
   /// Echoes text
   /// </summary>
-  public class Echo: Cmdlet
+  public sealed class Echo: Cmdlet
   {
     public Echo(AppRemoteTerminal terminal, IConfigSectionNode args) : base(terminal, args) { }
 

@@ -20,6 +20,7 @@ namespace Azos.Data
   /// </summary>
   public delegate bool SetFieldFunc(Doc doc, Schema.FieldDef fdef, object val);
 
+
   /// <summary>
   /// Marker interface - abstraction for data documents, interface used as constraint on other interfaces
   /// typically used in domain entity design. Doc class is the only one implementing this interface
@@ -29,22 +30,22 @@ namespace Azos.Data
     /// <summary>
     /// Gets/sets field values by name
     /// </summary>
-    object this[string fieldName] {  get; set; }
+    object this[string fieldName] { get; set; }
 
     /// <summary>
     /// Gets/sets field values by positional index(Order)
     /// </summary>
-    object this[int fieldIdx]{  get; set; }
+    object this[int fieldIdx] { get; set; }
   }
+
 
   /// <summary>
   /// Base class for any data document. This class has two direct subtypes - DynamicDoc and TypedDoc.
-  /// Documents are NOT THREAD SAFE by definition
+  /// Documents are NOT THREAD SAFE by design
   /// </summary>
   [Serializable, CustomMetadata(typeof(DocCustomMetadataProvider))]
   public abstract partial class Doc : IDataDoc, IJsonWritable, IJsonReadable, Apps.Injection.IApplicationInjection
   {
-
     #region Static
 
     /// <summary>
@@ -64,10 +65,10 @@ namespace Azos.Data
     {
       if (tDoc != null && tDoc != typeof(Doc) && tDoc != typeof(DynamicDoc))
       {
-          if (typeof(TypedDoc).IsAssignableFrom(tDoc))
-              return Activator.CreateInstance(tDoc) as Doc;
-          else                                         //todo Compile do dynamic functors for speed
-              return Activator.CreateInstance(tDoc, schema) as Doc;
+        if (typeof(TypedDoc).IsAssignableFrom(tDoc))
+          return Activator.CreateInstance(tDoc) as Doc;
+        else                                         //todo Compile do dynamic functors for speed
+          return Activator.CreateInstance(tDoc, schema) as Doc;
       }
 
       return new DynamicDoc(schema);
@@ -78,26 +79,26 @@ namespace Azos.Data
     /// </summary>
     public static bool TryFillFromJSON(Doc doc, IJsonDataObject jsonData, SetFieldFunc setFieldFunc = null)
     {
-      if (doc==null || jsonData==null) return false;
+      if (doc == null || jsonData == null) return false;
 
       var allMatch = true;
       var map = jsonData as JsonDataMap;
-      if (map!=null)
+      if (map != null)
       {
-        foreach(var kvp in map)
+        foreach (var kvp in map)
         {
           var fdef = doc.Schema[kvp.Key];
-          if (fdef==null)
+          if (fdef == null)
           {
             var ad = doc as IAmorphousData;
-            if (ad!=null && ad.AmorphousDataEnabled)
+            if (ad != null && ad.AmorphousDataEnabled)
               ad.AmorphousData[kvp.Key] = kvp.Value;
 
             allMatch = false;
             continue;
           }
 
-          if (setFieldFunc==null)
+          if (setFieldFunc == null)
             doc.SetFieldValue(fdef, kvp.Value);
           else
           {
@@ -105,27 +106,27 @@ namespace Azos.Data
             if (!ok) allMatch = false;
           }
         }
-        if (map.Count!=doc.Schema.FieldCount) allMatch = false;
+        if (map.Count != doc.Schema.FieldCount) allMatch = false;
       }
       else
       {
         var arr = jsonData as JsonDataArray;
-        if (arr==null) return false;
+        if (arr == null) return false;
 
-        for(var i=0; i<doc.Schema.FieldCount; i++)
+        for (var i = 0; i < doc.Schema.FieldCount; i++)
         {
-            if (i==arr.Count) break;
-            var fdef = doc.Schema[i];
+          if (i == arr.Count) break;
+          var fdef = doc.Schema[i];
 
-            if (setFieldFunc==null)
-              doc.SetFieldValue(fdef, arr[i]);
-            else
-            {
-              var ok = setFieldFunc(doc, fdef, arr[i]);
-              if (!ok) allMatch = false;
-            }
+          if (setFieldFunc == null)
+            doc.SetFieldValue(fdef, arr[i]);
+          else
+          {
+            var ok = setFieldFunc(doc, fdef, arr[i]);
+            if (!ok) allMatch = false;
+          }
         }
-        if (arr.Count!=doc.Schema.FieldCount) allMatch = false;
+        if (arr.Count != doc.Schema.FieldCount) allMatch = false;
       }
 
       return allMatch;
@@ -149,9 +150,9 @@ namespace Azos.Data
       {
         try
         {
-          return GetFieldValue( Schema.GetFieldDefByName(fieldName) );
+          return GetFieldValue(Schema.GetFieldDefByName(fieldName));
         }
-        catch(Exception error)
+        catch (Exception error)
         {
           throw new DataException(StringConsts.CRUD_FIELD_VALUE_GET_ERROR.Args(fieldName, error.ToMessageWithType()), error);
         }
@@ -160,9 +161,9 @@ namespace Azos.Data
       {
         try
         {
-          SetFieldValue( Schema.GetFieldDefByName(fieldName), value);
+          SetFieldValue(Schema.GetFieldDefByName(fieldName), value);
         }
-        catch(Exception error)
+        catch (Exception error)
         {
           throw new DataException(StringConsts.CRUD_FIELD_VALUE_SET_ERROR.Args(fieldName, error.ToMessageWithType()), error);
         }
@@ -178,26 +179,25 @@ namespace Azos.Data
       {
         try
         {
-            return GetFieldValue( Schema.GetFieldDefByIndex( fieldIdx ) );
+          return GetFieldValue(Schema.GetFieldDefByIndex(fieldIdx));
         }
-        catch(Exception error)
+        catch (Exception error)
         {
-            throw new DataException(StringConsts.CRUD_FIELD_VALUE_GET_ERROR.Args("["+fieldIdx+"]", error.ToMessageWithType()), error);
+          throw new DataException(StringConsts.CRUD_FIELD_VALUE_GET_ERROR.Args("[" + fieldIdx + "]", error.ToMessageWithType()), error);
         }
       }
       set
       {
         try
         {
-            SetFieldValue(Schema.GetFieldDefByIndex(fieldIdx), value);
+          SetFieldValue(Schema.GetFieldDefByIndex(fieldIdx), value);
         }
-        catch(Exception error)
+        catch (Exception error)
         {
-            throw new DataException(StringConsts.CRUD_FIELD_VALUE_SET_ERROR.Args("["+fieldIdx+"]", error.ToMessageWithType()), error);
+          throw new DataException(StringConsts.CRUD_FIELD_VALUE_SET_ERROR.Args("[" + fieldIdx + "]", error.ToMessageWithType()), error);
         }
       }
     }
-
 
     /// <summary>
     /// Returns values for fields that represent document/row primary key
@@ -205,8 +205,8 @@ namespace Azos.Data
     public Access.IDataStoreKey GetDataStoreKey(string targetName = null)
     {
       var result = new Access.NameValueDataStoreKey();
-      foreach(var kdef in Schema.GetKeyFieldDefsForTarget(targetName))
-          result.Add(kdef.GetBackendNameForTarget(targetName), this[kdef.Order]);
+      foreach (var kdef in Schema.GetKeyFieldDefsForTarget(targetName))
+        result.Add(kdef.GetBackendNameForTarget(targetName), this[kdef.Order]);
 
       return result;
     }
@@ -237,18 +237,18 @@ namespace Azos.Data
     /// </summary>
     public virtual bool Equals(Doc other)
     {
-        if (other==null) return false;
-        if (!this.Schema.IsEquivalentTo(other.Schema)) return false;
+      if (other == null) return false;
+      if (!Schema.IsEquivalentTo(other.Schema)) return false;
 
-        foreach(var fdef in Schema.AnyTargetKeyFieldDefs)
-        {
-              var obj1 = this[fdef.Order];
-              var obj2 = other[fdef.Order];
-              if (obj1==null && obj2==null) continue;
-              if (! obj1.Equals(obj2) ) return false;
-        }
+      foreach (var fdef in Schema.AnyTargetKeyFieldDefs)
+      {
+        var obj1 = this[fdef.Order];
+        var obj2 = other[fdef.Order];
+        if (obj1 == null && obj2 == null) continue;
+        if (!obj1.Equals(obj2)) return false;
+      }
 
-        return true;
+      return true;
     }
 
     /// <summary>
@@ -256,7 +256,7 @@ namespace Azos.Data
     /// </summary>
     public sealed override bool Equals(object obj)
     {
-        return this.Equals(obj as Doc);
+      return Equals(obj as Doc);
     }
 
     /// <summary>
@@ -264,15 +264,14 @@ namespace Azos.Data
     /// </summary>
     public override int GetHashCode()
     {
-        var result = 0;
-        foreach(var fdef in Schema.AnyTargetKeyFieldDefs)
-        {
-              var val = this[fdef.Order];
-              if (val!=null) result+= val.GetHashCode();
-        }
-        return result;
+      var result = 0;
+      foreach (var fdef in Schema.AnyTargetKeyFieldDefs)
+      {
+        var val = this[fdef.Order];
+        if (val != null) result += val.GetHashCode();
+      }
+      return result;
     }
-
 
     /// <summary>
     /// Returns true if this row satisfies simple filter - it contains the supplied filter string.
@@ -280,7 +279,7 @@ namespace Azos.Data
     /// </summary>
     public bool SimpleFilterPredicate(string filter, bool caseSensitive = false)
     {
-      if (filter==null) return false;
+      if (filter == null) return false;
 
       if (!caseSensitive)
         filter = filter.ToUpperInvariant();
@@ -297,25 +296,25 @@ namespace Azos.Data
       if (filter.EndsWith("*"))
       {
         eany = true;
-        filter = filter.Remove(filter.Length-1, 1);
+        filter = filter.Remove(filter.Length - 1, 1);
       }
 
-      foreach(var val in this)
+      foreach (var val in this)
       {
-          if (val==null) continue;
+        if (val == null) continue;
 
-          var sval = val.ToString();
+        var sval = val.ToString();
 
-          if (!caseSensitive)
-            sval = sval.ToUpperInvariant();
+        if (!caseSensitive)
+          sval = sval.ToUpperInvariant();
 
-          if (sany && eany && sval.Contains(filter)) return true;
+        if (sany && eany && sval.Contains(filter)) return true;
 
-          if (!sany && eany && sval.StartsWith(filter)) return true;
+        if (!sany && eany && sval.StartsWith(filter)) return true;
 
-          if (sany && !eany && sval.EndsWith(filter)) return true;
+        if (sany && !eany && sval.EndsWith(filter)) return true;
 
-          if (!sany && !eany && sval==filter) return true;
+        if (!sany && !eany && sval == filter) return true;
       }
 
       return false;
@@ -323,14 +322,13 @@ namespace Azos.Data
 
     IEnumerator IEnumerable.GetEnumerator()
     {
-        return new docFieldValueEnumerator(this);
+      return new docFieldValueEnumerator(this);
     }
 
     public IEnumerator<Object> GetEnumerator()
     {
-        return new docFieldValueEnumerator(this);
+      return new docFieldValueEnumerator(this);
     }
-
 
     /// <summary>
     /// Gets value of the field, for typeddocs it accesses property using reflection; for dynamic rows it reads data from
@@ -356,7 +354,7 @@ namespace Azos.Data
     /// <returns>Converted value before assignment to field buffer</returns>
     public virtual object ConvertFieldValueToDef(Schema.FieldDef fdef, object value)
     {
-      if (value==DBNull.Value) value = null;
+      if (value == DBNull.Value) value = null;
 
       if (value == null) return null;
 
@@ -365,77 +363,76 @@ namespace Azos.Data
       if (tv != fdef.NonNullableType && !fdef.NonNullableType.IsAssignableFrom(tv))
       {
 
-          if (value is ObjectValueConversion.TriStateBool)
+        if (value is ObjectValueConversion.TriStateBool)
+        {
+          var tsb = (ObjectValueConversion.TriStateBool)value;
+          if (tsb == ObjectValueConversion.TriStateBool.Unspecified)
+            value = null;
+          else
+            value = tsb == ObjectValueConversion.TriStateBool.True;
+
+          return value;
+        }
+
+        if (fdef.NonNullableType == typeof(ObjectValueConversion.TriStateBool))
+        {
+          var nb = value.AsNullableBool();
+          if (!nb.HasValue)
+            value = ObjectValueConversion.TriStateBool.Unspecified;
+          else
+            value = nb.Value ? ObjectValueConversion.TriStateBool.True : ObjectValueConversion.TriStateBool.False;
+
+          return value;
+        }
+
+        // 20150224 DKh, addedEra to GDID. Only GDIDS with ERA=0 can be converted to/from INT64
+        if (fdef.NonNullableType == typeof(GDID))
+        {
+          if (tv == typeof(byte[]))//20151103 DKh GDID support for byte[]
+            value = new GDID((byte[])value);
+          else if (tv == typeof(string))//20160504 Spol GDID support for string
           {
-            var tsb = (ObjectValueConversion.TriStateBool)value;
-            if (tsb==ObjectValueConversion.TriStateBool.Unspecified)
-              value = null;
+            var sv = (string)value;
+            if (sv.IsNotNullOrWhiteSpace())
+              value = GDID.Parse((string)value);
             else
-              value = tsb==ObjectValueConversion.TriStateBool.True;
-
-            return value;
+              value = fdef.Type == typeof(GDID?) ? (GDID?)null : GDID.ZERO;
           }
+          else
+            value = new GDID(0, (UInt64)Convert.ChangeType(value, typeof(UInt64)));
 
-          if (fdef.NonNullableType==typeof(ObjectValueConversion.TriStateBool))
+          return value;
+        }
+
+        if (tv == typeof(GDID))
+        {
+          if (fdef.NonNullableType == typeof(byte[]))
           {
-            var nb = value.AsNullableBool();
-            if (!nb.HasValue)
-              value = ObjectValueConversion.TriStateBool.Unspecified;
-            else
-              value = nb.Value ? ObjectValueConversion.TriStateBool.True : ObjectValueConversion.TriStateBool.False;
-
-            return value;
+            value = ((GDID)value).Bytes;
           }
-
-
-          // 20150224 DKh, addedEra to GDID. Only GDIDS with ERA=0 can be converted to/from INT64
-          if (fdef.NonNullableType==typeof(GDID))
+          else if (fdef.NonNullableType == typeof(string))
           {
-              if (tv==typeof(byte[]))//20151103 DKh GDID support for byte[]
-                value = new GDID((byte[])value);
-              else if (tv==typeof(string))//20160504 Spol GDID support for string
-              {
-                var sv = (string)value;
-                if (sv.IsNotNullOrWhiteSpace())
-                  value = GDID.Parse((string)value);
-                else
-                  value = fdef.Type == typeof(GDID?) ? (GDID?)null : GDID.ZERO;
-              }
-              else
-                value = new GDID(0, (UInt64)Convert.ChangeType(value, typeof(UInt64)));
-
-              return value;
+            value = value.ToString();
           }
-
-          if (tv==typeof(GDID))
+          else
           {
-              if (fdef.NonNullableType==typeof(byte[]))
-              {
-                value = ((GDID)value).Bytes;
-              }
-              else if (fdef.NonNullableType==typeof(string))
-              {
-                value = value.ToString();
-              }
-              else
-              {
-                var gdid = (GDID)value;
-                if (gdid.Era!=0)
-                  throw new DataException(StringConsts.CRUD_GDID_ERA_CONVERSION_ERROR.Args(fdef.Name, fdef.NonNullableType.Name));
-                value = gdid.ID;
-              }
-
-              return value;
+            var gdid = (GDID)value;
+            if (gdid.Era != 0)
+              throw new DataException(StringConsts.CRUD_GDID_ERA_CONVERSION_ERROR.Args(fdef.Name, fdef.NonNullableType.Name));
+            value = gdid.ID;
           }
 
-          // 20161026 Serge: handle values of enumerated field types
-          if (fdef.NonNullableType.IsEnum)
-          {
-              value = value.AsString().AsType(fdef.NonNullableType);
-              return value;
-          }
+          return value;
+        }
 
-          value = Convert.ChangeType(value, fdef.NonNullableType);
+        // 20161026 Serge: handle values of enumerated field types
+        if (fdef.NonNullableType.IsEnum)
+        {
+          value = value.AsString().AsType(fdef.NonNullableType);
+          return value;
+        }
+
+        value = Convert.ChangeType(value, fdef.NonNullableType);
 
       }//Types Differ
 
@@ -448,16 +445,15 @@ namespace Azos.Data
     /// </summary>
     public void ApplyDefaultFieldValues(string targetName = null, bool overwrite = false)
     {
-      foreach(var fdef in  Schema)
+      foreach (var fdef in Schema)
       {
         var attr = fdef[targetName];
-        if (attr==null) continue;
-        if (attr.Default!=null)
-          if (overwrite || this.GetFieldValue(fdef)==null)
-          this.SetFieldValue(fdef, attr.Default);
+        if (attr == null) continue;
+        if (attr.Default != null)
+          if (overwrite || GetFieldValue(fdef) == null)
+            SetFieldValue(fdef, attr.Default);
       }
     }
-
 
     /// <summary>
     /// Copies fields from this doc into another doc/form.
@@ -470,27 +466,27 @@ namespace Azos.Data
                            Func<string, Schema.FieldDef, bool> fieldFilter = null,
                            Func<string, string, bool> amorphousFieldFilter = null)
     {
-      if (other==null || object.ReferenceEquals(this, other)) return;
+      if (other == null || object.ReferenceEquals(this, other)) return;
 
       if (target.IsNullOrWhiteSpace())
       {
         if (other is Form frm) target = frm.DataStoreTargetName;
-        if (target==null) target = string.Empty;
+        if (target == null) target = string.Empty;
       }
 
       var oad = includeAmorphousData ? other as IAmorphousData : null;
 
-      if (oad!=null && this is IAmorphousData)
+      if (oad != null && this is IAmorphousData)
       {
         var athis = (IAmorphousData)this;
         if (oad.AmorphousDataEnabled && athis.AmorphousDataEnabled)//only copy IF amorphous behavior is enabled here and in the destination
         {
-          foreach(var kvp in athis.AmorphousData)
+          foreach (var kvp in athis.AmorphousData)
           {
-            if (amorphousFieldFilter!=null && !amorphousFieldFilter(target, kvp.Key)) continue;
+            if (amorphousFieldFilter != null && !amorphousFieldFilter(target, kvp.Key)) continue;
 
             var ofd = other.Schema[kvp.Key];
-            if (ofd!=null)
+            if (ofd != null)
             {
               try
               {
@@ -498,23 +494,24 @@ namespace Azos.Data
 
                 other.SetFieldValue(ofd, kvp.Value);
                 continue;
-              }catch{} //this may be impossible, then we assign to amorphous in other
+              }
+              catch { } //this may be impossible, then we assign to amorphous in other
             }
             oad.AmorphousData[kvp.Key] = kvp.Value;
           }
         }
       }
 
-      foreach(var fdef in this.Schema)
+      foreach (var fdef in Schema)
       {
-        if (fieldFilter!=null && !fieldFilter(target, fdef)) continue;
+        if (fieldFilter != null && !fieldFilter(target, fdef)) continue;
 
         if (!isFieldDefLoaded(target, fdef)) continue;
 
         var ofd = other.Schema[fdef.Name];
-        if (ofd==null)
+        if (ofd == null)
         {
-          if (oad!=null && oad.AmorphousDataEnabled)// IF amorphous behavior is enabled in destination
+          if (oad != null && oad.AmorphousDataEnabled)// IF amorphous behavior is enabled in destination
           {
             oad.AmorphousData[fdef.Name] = GetFieldValue(fdef);
           }
@@ -524,49 +521,47 @@ namespace Azos.Data
         other.SetFieldValue(ofd, GetFieldValue(fdef));
       }//foreach
 
-      if (oad!=null && oad.AmorphousDataEnabled && invokeAmorphousAfterLoad)
-        oad.AfterLoad( target );
+      if (oad != null && oad.AmorphousDataEnabled && invokeAmorphousAfterLoad)
+        oad.AfterLoad(target);
     }
 
     private bool isFieldDefLoaded(string target, Schema.FieldDef def)
     {
       var atr = def[target];
-      return (atr==null) ? true : (atr.StoreFlag == StoreFlag.LoadAndStore || atr.StoreFlag == StoreFlag.OnlyLoad);
+      return (atr == null) ? true : (atr.StoreFlag == StoreFlag.LoadAndStore || atr.StoreFlag == StoreFlag.OnlyLoad);
     }
-
 
     /// <summary>
     /// For fields with ValueList returns value's description per specified targeted schema
     /// </summary>
-    public string GetFieldValueDescription(string fieldName, string targetName=null, bool caseSensitiveKeys=false)
+    public string GetFieldValueDescription(string fieldName, string targetName = null, bool caseSensitiveKeys = false)
     {
       var def = Schema[fieldName];
-      if (def==null)
+      if (def == null)
         throw new DataException(StringConsts.CRUD_FIELD_NOT_FOUND_ERROR.Args(fieldName, Schema));
 
-      return def.ValueDescription( GetFieldValue(def), targetName, caseSensitiveKeys);
+      return def.ValueDescription(GetFieldValue(def), targetName, caseSensitiveKeys);
     }
 
     /// <summary>
     /// For fields with ValueList returns value's description per specified targeted schema
     /// </summary>
-    public string GetFieldValueDescription(int fieldIndex, string targetName=null, bool caseSensitiveKeys=false)
+    public string GetFieldValueDescription(int fieldIndex, string targetName = null, bool caseSensitiveKeys = false)
     {
       var def = Schema[fieldIndex];
-      if (def==null)
+      if (def == null)
         throw new DataException(StringConsts.CRUD_FIELD_NOT_FOUND_ERROR.Args("[{0}]".Args(fieldIndex), Schema));
 
-      return def.ValueDescription( GetFieldValue(def), targetName, caseSensitiveKeys);
+      return def.ValueDescription(GetFieldValue(def), targetName, caseSensitiveKeys);
     }
-
 
     /// <summary>
     /// Returns field value as string formatted per target DisplayFormat attribute
     /// </summary>
-    public string GetDisplayFieldValue(string fieldName, string targetName=null, Func<object,object> transform = null)
+    public string GetDisplayFieldValue(string fieldName, string targetName = null, Func<object, object> transform = null)
     {
       var def = Schema[fieldName];
-      if (def==null)
+      if (def == null)
         throw new DataException(StringConsts.CRUD_FIELD_NOT_FOUND_ERROR.Args(fieldName, Schema));
 
       return getDisplayFieldValue(targetName, def, transform);
@@ -575,33 +570,32 @@ namespace Azos.Data
     /// <summary>
     /// Returns field value as string formatted per target DisplayFormat attribute
     /// </summary>
-    public string GetDisplayFieldValue(int fieldIndex, string targetName=null, Func<object, object> transform = null)
+    public string GetDisplayFieldValue(int fieldIndex, string targetName = null, Func<object, object> transform = null)
     {
       var def = Schema[fieldIndex];
-      if (def==null)
+      if (def == null)
         throw new DataException(StringConsts.CRUD_FIELD_NOT_FOUND_ERROR.Args("[{0}]".Args(fieldIndex), Schema));
 
       return getDisplayFieldValue(targetName, def, transform);
     }
 
-          /// <summary>
-          /// Returns field value as string formatted per target DisplayFormat attribute
-          /// </summary>
-          private string getDisplayFieldValue(string targetName, Schema.FieldDef fdef, Func<object, object> transform =null)
-          {
-              var value = GetFieldValue(fdef);
-              if (value==null) return null;
+    /// <summary>
+    /// Returns field value as string formatted per target DisplayFormat attribute
+    /// </summary>
+    private string getDisplayFieldValue(string targetName, Schema.FieldDef fdef, Func<object, object> transform = null)
+    {
+      var value = GetFieldValue(fdef);
+      if (value == null) return null;
 
-              var atr = fdef[targetName];
-              if (transform != null)
-                value = transform(value);
+      var atr = fdef[targetName];
+      if (transform != null)
+        value = transform(value);
 
-              if (atr==null || atr.DisplayFormat.IsNullOrWhiteSpace())
-                return value.ToString();
+      if (atr == null || atr.DisplayFormat.IsNullOrWhiteSpace())
+        return value.ToString();
 
-              return atr.DisplayFormat.Args(value);
-          }
-
+      return atr.DisplayFormat.Args(value);
+    }
 
     /// <summary>
     /// Override to get a list of permissible field values for the specified field for the specified target.
@@ -664,9 +658,7 @@ namespace Azos.Data
 
       foreach (var fd in Schema)
       {
-        string name;
-
-        var val = FilterJsonSerializerField(fd, options, out name);
+        var val = FilterJsonSerializerField(fd, options, out string name);
         if (name.IsNullOrWhiteSpace()) continue;//field was excluded for Json serialization
 
         AddJsonSerializerField(fd, options, map, name, val);
@@ -695,7 +687,7 @@ namespace Azos.Data
     /// </summary>
     public virtual void WriteAsJson(System.IO.TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
     {
-      if (options==null || !options.RowsAsMap)
+      if (options == null || !options.RowsAsMap)
       {
         JsonWriter.WriteArray(wri, this, nestingLevel, options);
         return;
@@ -734,22 +726,22 @@ namespace Azos.Data
     /// </summary>
     protected virtual object FilterJsonSerializerField(Schema.FieldDef def, JsonWritingOptions options, out string name)
     {
-      var tname = options!=null ? options.RowMapTargetName : null;
+      var tname = options != null ? options.RowMapTargetName : null;
 
       if (tname.IsNotNullOrWhiteSpace())
       {
         FieldAttribute attr;
         name = def.GetBackendNameForTarget(tname, out attr);
-        if (attr!=null)
+        if (attr != null)
         {
-          if(attr.StoreFlag==StoreFlag.None || attr.StoreFlag==StoreFlag.OnlyLoad)
+          if (attr.StoreFlag == StoreFlag.None || attr.StoreFlag == StoreFlag.OnlyLoad)
           {
             name = null;
             return null;
           }
 
           var dflt = attr.Default;
-          if (dflt!=null)
+          if (dflt != null)
           {
             var value = GetFieldValue(def);
             if (dflt.Equals(value))
@@ -779,8 +771,6 @@ namespace Azos.Data
 
     #endregion
 
-
-
     #region .pvt
 
     private struct docFieldValueEnumerator : IEnumerator<object>
@@ -800,14 +790,14 @@ namespace Azos.Data
 
       public bool MoveNext()
       {
-          if (m_Index == m_Doc.Schema.FieldCount-1) return false;
-          m_Index++;
-          return true;
+        if (m_Index == m_Doc.Schema.FieldCount - 1) return false;
+        m_Index++;
+        return true;
       }
 
       public void Reset()
       {
-          m_Index = -1;
+        m_Index = -1;
       }
     }
 

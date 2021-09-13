@@ -4,12 +4,7 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-
-using Azos.Conf;
 
 namespace Azos.CodeAnalysis.Laconfig
 {
@@ -18,26 +13,22 @@ namespace Azos.CodeAnalysis.Laconfig
   /// </summary>
   public sealed class LJSData : ObjectResultAnalysisContext<LJSTree>
   {
+    public LJSData() : base(null)
+    {
+      m_ResultObject = new LJSTree();
+    }
 
-      public LJSData() : base(null)
-      {
-        m_ResultObject = new LJSTree();
-      }
+    public LJSData(IAnalysisContext ctx) : base(ctx)
+    {
+      m_ResultObject = new LJSTree();
+    }
 
-       public LJSData(IAnalysisContext ctx) : base(ctx)
-      {
-        m_ResultObject = new LJSTree();
-      }
+    public override Language Language => LJSLanguage.Instance;
 
-
-      public override Language Language => LJSLanguage.Instance;
-
-
-      public override string MessageCodeToString(int code)
-      {
-          return ((LaconfigMsgCode)code).ToString();
-      }
+    public override string MessageCodeToString(int code)
+      => ((LaconfigMsgCode)code).ToString();
   }
+
 
   /// <summary>
   /// Represents the result of parsing of LJS content into Laconic Java Script Document Object Model
@@ -48,24 +39,25 @@ namespace Azos.CodeAnalysis.Laconfig
     public LJSSectionNode Root { get; internal set; }
 
     /// <summary> Attaches arbitrary data, such as the one used by the generator </summary>
-    public object Data{ get; set;}
+    public object Data { get; set; }
 
     /// <summary>
     /// Returns The tree transpiled by the transpiler
     /// </summary>
-    public string TranspiledContent{ get; set;}
+    public string TranspiledContent { get; set; }
   }
+
 
   public abstract class LJSNode
   {
     /// <summary> The first laconic content token that starts this node </summary>
-    public  LaconfigToken StartToken { get; internal set; }
+    public LaconfigToken StartToken { get; internal set; }
 
     /// <summary> Parent node that this node is in</summary>
-    public  LJSSectionNode   Parent { get; internal set; }
+    public LJSSectionNode Parent { get; internal set; }
 
     /// <summary> Node name - name of attribute or section </summary>
-    public  string Name { get; internal set; }
+    public string Name { get; internal set; }
 
     /// <summary> Attaches arbitrary data, such as the one used by the generator </summary>
     public object Data { get; set; }
@@ -74,6 +66,7 @@ namespace Azos.CodeAnalysis.Laconfig
     public abstract void Print(StringBuilder builder, int indent);
   }
 
+
   public sealed class LJSAttributeNode : LJSNode
   {
     /// <summary>The value of attribute node</summary>
@@ -81,10 +74,11 @@ namespace Azos.CodeAnalysis.Laconfig
 
     public override void Print(StringBuilder builder, int indent)
     {
-      builder.Append(new string(' ',indent *2));
+      builder.Append(new string(' ', indent * 2));
       builder.AppendLine("{0} {1} -> {2}".Args("Attr", StartToken.Type, Value));
     }
   }
+
 
   public sealed class LJSSectionNode : LJSNode
   {
@@ -98,12 +92,13 @@ namespace Azos.CodeAnalysis.Laconfig
 
     public override void Print(StringBuilder builder, int indent)
     {
-      builder.Append(new string(' ',indent *2));
-      builder.AppendLine("{0} {1} -> {2} = {3}".Args("Section", StartToken.Type,  Name, TranspilerPragma));
-      foreach(var c in Children)
-        c.Print(builder, indent+1);
+      builder.Append(new string(' ', indent * 2));
+      builder.AppendLine("{0} {1} -> {2} = {3}".Args("Section", StartToken.Type, Name, TranspilerPragma));
+      foreach (var c in Children)
+        c.Print(builder, indent + 1);
     }
   }
+
 
   /// <summary> Represents textual content block, such as:   div{ content block text }</summary>
   public sealed class LJSContentNode : LJSNode
@@ -113,10 +108,11 @@ namespace Azos.CodeAnalysis.Laconfig
 
     public override void Print(StringBuilder builder, int indent)
     {
-      builder.Append(new string(' ',indent *2));
+      builder.Append(new string(' ', indent * 2));
       builder.AppendLine("{0} {1} -> {2}".Args("Content", StartToken.Type, Content));
     }
   }
+
 
   /// <summary> Represents script textual content block, such as: # let x =1;</summary>
   public sealed class LJSScriptNode : LJSNode
@@ -126,12 +122,9 @@ namespace Azos.CodeAnalysis.Laconfig
 
     public override void Print(StringBuilder builder, int indent)
     {
-      builder.Append(new string(' ',indent *2));
+      builder.Append(new string(' ', indent * 2));
       builder.AppendLine("{0} {1} -> {2}".Args("Script", StartToken.Type, Script));
     }
   }
-
-
-
 
 }

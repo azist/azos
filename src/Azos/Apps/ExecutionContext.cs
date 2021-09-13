@@ -3,6 +3,7 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
+
 using System;
 using System.Collections.Generic;
 
@@ -25,15 +26,11 @@ namespace Azos.Apps
     private static AsyncFlowMutableLocal<ISession> ats_Session = new AsyncFlowMutableLocal<ISession>();
     private static AsyncFlowMutableLocal<ICallFlow> ats_CallFlow = new AsyncFlowMutableLocal<ICallFlow>();
 
-
     /// <summary>
     /// Returns global application context. The value is never null, the NOPApplication is returned
     /// had the specific app container not been allocated
     /// </summary>
-    public static IApplication Application
-    {
-      get { return s_Application ?? NOPApplication.Instance; }
-    }
+    public static IApplication Application => s_Application ?? NOPApplication.Instance;
 
     /// <summary>
     /// Returns Session object for current call thread or async flow context, or if it is null NOPSession object is returned
@@ -87,7 +84,6 @@ namespace Azos.Apps
         return result;
       }
     }
-
 
     /// <summary>
     /// Framework internal app bootstrapping method.
@@ -179,7 +175,7 @@ namespace Azos.Apps
 
       var log = app.Log;
 
-      if (log is Log.NOPLog) return;
+      if (log==null || log is Log.NOPLog) return;
 
       log.Write(new Log.Message
       {

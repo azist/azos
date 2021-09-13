@@ -5,8 +5,6 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Azos.Graphics
 {
@@ -21,6 +19,7 @@ namespace Azos.Graphics
       HQBilinear,
       HQBicubic
     }
+
 
     /// <summary>
     /// Specifies image pixel format
@@ -56,6 +55,7 @@ namespace Azos.Graphics
       RGBA32
     }
 
+
     /// <summary>
     /// Specifies the style of dashed lines drawn with pens
     /// </summary>
@@ -73,6 +73,7 @@ namespace Azos.Graphics
       DashDotDot
     }
 
+
     /// <summary>Specifies style information applied to text.</summary>
     [Flags]
     public enum FontStyling
@@ -88,6 +89,7 @@ namespace Azos.Graphics
       /// <summary>Text with a line through the middle.</summary>
       Strikeout = 1 << 3
     }
+
 
     /// <summary>Specifies the unit of measure for graphics</summary>
     public enum MeasureUnit
@@ -107,7 +109,5 @@ namespace Azos.Graphics
       /// <summary>Specifies the millimeter as the unit of measure.</summary>
       Millimeter
     }
-
-
 
 }

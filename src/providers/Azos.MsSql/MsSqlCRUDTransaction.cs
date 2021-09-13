@@ -15,7 +15,7 @@ namespace Azos.Data.Access.MsSql
     /// <summary>
     /// Represents MsSql CRUD transaction
     /// </summary>
-    public sealed class MsSqlCRUDTransaction : CRUDTransaction
+    public sealed class MsSqlCRUDTransaction : CrudTransaction
     {
       #region .ctor/.dctor
       internal MsSqlCRUDTransaction(MsSqlCRUDDataStoreBase store, SqlConnection cnn, IsolationLevel iso, TransactionDisposeBehavior disposeBehavior) : base (store, disposeBehavior)
@@ -69,11 +69,11 @@ namespace Azos.Data.Access.MsSql
       protected override Task<Cursor> DoOpenCursorAsync(Query query)
        => Store.DoOpenCursorAsync(m_Connection, m_Transaction, query);
 
-      protected override int DoExecuteWithoutFetch(params Query[] queries)
-       => Store.DoExecuteWithoutFetchAsync(m_Connection, m_Transaction, queries).GetAwaiter().GetResult();
+      protected override Doc DoExecute(Query query)
+       => Store.DoExecuteAsync(m_Connection, m_Transaction, query).GetAwaiter().GetResult();
 
-      protected override Task<int> DoExecuteWithoutFetchAsync(params Query[] queries)
-       => Store.DoExecuteWithoutFetchAsync(m_Connection, m_Transaction, queries);
+      protected override Task<Doc> DoExecuteAsync(Query query)
+       => Store.DoExecuteAsync(m_Connection, m_Transaction, query);
 
       protected override int DoSave(params RowsetBase[] rowsets)
        => Store.DoSaveAsync(m_Connection, m_Transaction, rowsets).GetAwaiter().GetResult();
