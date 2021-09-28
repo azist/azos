@@ -61,7 +61,7 @@ namespace Azos.Text
     {
       if (markdown == null || section.IsNullOrWhiteSpace()) return (string.Empty, -1, -1);
 
-      markdown = '\n'+markdown+'\n';//content is padded +1
+      markdown = '\n' + markdown + '\n';//content is padded +1
 
       var start = '\n' + section;
       var istart = markdown.IndexOf(start);
