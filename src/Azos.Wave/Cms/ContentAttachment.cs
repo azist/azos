@@ -22,21 +22,19 @@ namespace Azos.Wave.Cms
     /// <summary>
     /// Creates an Mvc action result based on CMS content with optional attachment name override
     /// </summary>
-    public ContentAttachment(Content content, string attachmentName = null)
+    public ContentAttachment(Content content)
     {
       Content = content.NonNull(nameof(content));
-      AttachmentName = attachmentName;
     }
 
     /// <summary>
     /// Creates an Mvc action result based on CMS content with binary content offset and size and with optional attachment name override
     /// </summary>
-    public ContentAttachment(Content content, int binOffset, int binSize, string attachmentName = null)
+    public ContentAttachment(Content content, int binOffset, int binSize)
     {
       Content = content.NonNull(nameof(content));
       BinaryOffset = binOffset;
       BinarySize = binSize;
-      AttachmentName = attachmentName;
     }
 
     /// <summary>
@@ -47,7 +45,13 @@ namespace Azos.Wave.Cms
     /// <summary>
     /// When set, overrides the attachment name specified in the content object
     /// </summary>
-    public readonly String AttachmentName;
+    public string AttachmentName { get; set; }
+
+    /// <summary>
+    /// When set to true, uses either the attachment name specified here or tries to take it from content object.
+    /// Default is false, meaning that resource gets downloaded inline without content-disposition header
+    /// </summary> //Re: #575
+    public bool IsAttachment { get; set; }
 
     /// <summary>
     /// When set imposes an offset on the binary content data.
@@ -115,19 +119,24 @@ namespace Azos.Wave.Cms
       work.Response.ContentType = Content.ContentType;
 
       if (Content.IsString)
+      {
         work.Response.Write(Content.StringContent);
+      }
       else
       {
         var bin = Content.BinaryContent;
         var idx = BinaryOffset <= 0 || BinaryOffset >= bin.Length ? 0 : BinaryOffset;
         var sz = BinarySize <= 0 || idx + BinarySize >= bin.Length ? bin.Length - idx : BinarySize;
 
+        string attachmentName = null;
+        if (IsAttachment)
+        {
+          attachmentName = this.AttachmentName.Default(Content.AttachmentFileName);
+        }
+
         using (var ms = new MemoryStream(bin, idx, sz))
         {
-          work.Response
-              .WriteStream(ms,
-                          attachmentName: this.AttachmentName.IsNotNullOrWhiteSpace() ? this.AttachmentName
-                                                                                      : Content.AttachmentFileName);
+          work.Response.WriteStream(ms, attachmentName: attachmentName);
         }
       }
     }

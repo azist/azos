@@ -297,7 +297,7 @@ content-type-mappings
     extensions='avi'
     content-type='video/x-msvideo'
     binary=true 
-    name{eng{n='AVI' d='AVI COntainer'}}
+    name{eng{n='AVI' d='AVI Container'}}
   }
 
 
