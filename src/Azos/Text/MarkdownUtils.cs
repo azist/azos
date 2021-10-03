@@ -283,6 +283,7 @@ namespace Azos.Text
           result.AppendLine("<p>");
         }
         result.Append(processBoldItalic(line));
+        result.Append(' ');//Fix #571
       }
 
       string processBoldItalic(string line)

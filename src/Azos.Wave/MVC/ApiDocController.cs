@@ -344,7 +344,7 @@ namespace Azos.Wave.Mvc
         if (v.IsNotNullOrWhiteSpace() && v.StartsWith("@"))
         {
           v = v.Substring(1);
-          return "<a href=\"{0}\">{1} Schema</a>".Args("schema?id={0}".Args(v), v);
+          return "<a href=\"{0}\">{1}</a>".Args("schema?id={0}".Args(v), v);
         }
         return v;
       });
