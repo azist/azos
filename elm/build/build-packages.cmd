@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.40.0.1
-set HEADLINE=ApiProtocolController change, ChangeResult: IHttpStatusProivder, #557-#561, CRUD Execute EntityChangeInfo
+set VER=1.40.2
+set HEADLINE=Cms, Markdown, SessionInfo
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
