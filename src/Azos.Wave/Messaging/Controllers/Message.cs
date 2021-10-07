@@ -17,7 +17,7 @@ namespace Azos.Web.Messaging.Services.Server
   /// </summary>
   [NoCache]
   [ApiControllerDoc(
-    BaseUri = "/message",
+    BaseUri = "/messaging",
     Title = "Message management",
     Description = @"Sends messages (e.g. email, text, fax) to recipient/s via any of the configured messaging channels",
     ResponseHeaders = new[] { API_DOC_HDR_NO_CACHE }
