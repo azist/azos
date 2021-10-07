@@ -45,7 +45,7 @@ namespace Azos.Web.Messaging.Services.Server
 
 
     [ApiEndpointDoc(
-      Uri = "send",
+      Uri = "sender",
       Title = "Sends a single message envelope",
       Description = "Sends a single message envelope returning unique ID for the sent message; the ID can be later used for querying",
       Methods = new[] { "POST: post Json message envelope, get Json with unique message id" },
@@ -55,7 +55,7 @@ namespace Azos.Web.Messaging.Services.Server
       TypeSchemas = new[] { typeof(MessageEnvelope) }
     )]
     [MessagingPermission(MessagingAccessLevel.Send)]
-    [ActionOnPost(Name = "send"), AcceptsJson]
+    [ActionOnPost(Name = "sender"), AcceptsJson]
     public async Task<object> SendMessage(MessageEnvelope envelope) => await SaveNewAsync(envelope).ConfigureAwait(false);
 
 
