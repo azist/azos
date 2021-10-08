@@ -425,7 +425,12 @@ namespace Azos
                 typeKey + "::" +
                 info.MetadataToken;
 
-      return "{0:x2}-{1}".Args(ShardKey.ForString(key), key.ToMD5().ToWebSafeBase64());
+      var hash1 = new byte[8];
+      IOUtils.WriteBEUInt64(hash1, ShardKey.ForString(key));
+
+      var hash2 = key.ToMD5();
+
+      return  hash1.ToWebSafeBase64() + hash2.ToWebSafeBase64();
     }
 
     /// <summary>
