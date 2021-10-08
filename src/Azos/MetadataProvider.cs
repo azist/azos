@@ -430,7 +430,7 @@ namespace Azos
 
       var hash2 = key.ToMD5();
 
-      return  hash1.ToWebSafeBase64() + hash2.ToWebSafeBase64();
+      return  hash1.ToWebSafeBase64() + '-' + hash2.ToWebSafeBase64();
     }
 
     /// <summary>
