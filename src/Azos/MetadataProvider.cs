@@ -404,12 +404,33 @@ namespace Azos
     public const string CONFIG_RUN_METADATA_ID_ATTR = "run-id";
 
     /// <summary>
-    /// Generates string ID based on MetadataTokes: module-member
+    /// Generates string ID based on MetadataTokens: module-member
     /// </summary>
     public static string GetMetadataTokenId(MemberInfo info)
     {
       if (info==null) return "0-0";
-      return "{0:x2}-{1:x2}".Args(info.Module.MetadataToken, info.MetadataToken);
+
+      string typeKey;
+
+      if (info is Type tp)
+      {
+        typeKey = tp.AssemblyQualifiedName;
+      }
+      else
+      {
+        typeKey = "{0}::{1}".Args(info.DeclaringType?.AssemblyQualifiedName, info.Name);
+      }
+
+      var key = info.Module.ScopeName + "::" +  //return name of dll without path on .Net 5 and .Net 4.x
+                typeKey + "::" +
+                info.MetadataToken;
+
+      var hash1 = new byte[8];
+      IOUtils.WriteBEUInt64(hash1, ShardKey.ForString(key));
+
+      var hash2 = key.ToMD5();
+
+      return  hash1.ToWebSafeBase64() + '-' + hash2.ToWebSafeBase64();
     }
 
     /// <summary>

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 
 using Azos.Apps;
@@ -151,10 +152,10 @@ namespace Azos.Scripting
       public uint?    GetNullableUInt(string attr)    => this[attr].Value.AsNullableUInt(handling: ConvertErrorHandling.Throw);
       public ulong?   GetNullableULong(string attr)   => this[attr].Value.AsNullableULong(handling: ConvertErrorHandling.Throw);
 
-      public byte[]    GetByteArray(string attr)        => this[attr].Value.AsByteArray(null).NonNull(attr);
+      public byte[]    GetByteArray(string attr)      => this[attr].Value.AsByteArray(null).NonNull(attr);
 
-      public DateTime  GetDateTime(string attr)         => this[attr].Value.AsDateTime(new DateTime(), handling: ConvertErrorHandling.Throw);
-      public DateTime? GetNullableDateTime(string attr) => this[attr].Value.AsNullableDateTime(null, handling: ConvertErrorHandling.Throw);
+      public DateTime  GetDateTime(string attr, DateTimeStyles styles = CoreConsts.UTC_TIMESTAMP_STYLES)         => this[attr].Value.AsDateTime(new DateTime(), handling: ConvertErrorHandling.Throw, styles: styles);
+      public DateTime? GetNullableDateTime(string attr, DateTimeStyles styles = CoreConsts.UTC_TIMESTAMP_STYLES) => this[attr].Value.AsNullableDateTime(null, handling: ConvertErrorHandling.Throw, styles: styles);
 
       public bool      GetBool(string attr)          => this[attr].Value.AsBool(handling: ConvertErrorHandling.Throw);
       public bool?     GetNullableBool(string attr)  => this[attr].Value.AsNullableBool(handling: ConvertErrorHandling.Throw);

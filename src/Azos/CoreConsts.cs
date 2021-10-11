@@ -4,6 +4,8 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using System.Globalization;
+
 namespace Azos
 {
   /// <summary>
@@ -14,6 +16,11 @@ namespace Azos
     public const string NULL_STRING = "<null>";
 
     public const int ABS_HASH_MASK = 0x7FFFFFFF;
+
+    /// <summary>
+    /// DatTime conversion styles: Assumes universal | Adjust to universal
+    /// </summary>
+    public const DateTimeStyles UTC_TIMESTAMP_STYLES = DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal;
 
     public const int MAX_BYTE_BUFFER_SIZE = 2147483647 - 256 - 15; // 2 Gbyte - 256 (reserved for object headers etc.) - 15 bytes (16-aligned)
 

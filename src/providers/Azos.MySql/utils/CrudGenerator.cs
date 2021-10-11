@@ -446,7 +446,7 @@ namespace Azos.Data.Access.MySql
       {
         if (((GDID)value).IsZero)
         {
-          return (null, convertedDbType);
+          return (null, MySqlDbType.Null);
         }
 
         if(store.FullGDIDS)
@@ -457,7 +457,7 @@ namespace Azos.Data.Access.MySql
         else
         {
           value = (object)((GDID)value).ID;
-          convertedDbType = MySqlDbType.Int64;
+          convertedDbType = MySqlDbType.UInt64;
         }
 
       }
@@ -466,8 +466,20 @@ namespace Azos.Data.Access.MySql
         if (store.StringBool)
         {
           value = (bool)value ? store.StringForTrue : store.StringForFalse;
-          convertedDbType = MySqlDbType.VarChar;
+          convertedDbType = MySqlDbType.String;
         }
+      }
+      else if (value is Atom atm)
+      {
+        if (atm.IsZero) return (null, MySqlDbType.Null);
+        value = atm.ID;
+        convertedDbType = MySqlDbType.UInt64;
+      }
+      else if (value is EntityId eid)
+      {
+        if (!eid.IsAssigned) return (null, MySqlDbType.Null);
+        value = eid.AsString;
+        convertedDbType = MySqlDbType.String;
       }
 
       return (value, convertedDbType);

@@ -1113,7 +1113,7 @@ namespace Azos.Conf
     }
 
     /// <summary>
-    /// Resets modification of this an all child nodes
+    /// Resets modification of this and all child nodes
     /// </summary>
     public override void ResetModified()
     {

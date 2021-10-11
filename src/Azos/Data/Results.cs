@@ -15,18 +15,35 @@ namespace Azos.Data
   /// <summary>
   /// Describes data change operation result: {ChangeType, AffectedCount, Message, Data}
   /// </summary>
-  public struct ChangeResult : IJsonWritable, IJsonReadable
+  public struct ChangeResult : IJsonWritable, IJsonReadable, IHttpStatusProvider
   {
     /// <summary>
-    /// Change types: Inserted/Updated/Upserted/Deleted
+    /// Change types: Undefined/Inserted/Updated/Upserted/Deleted/Other.
+    /// Undefined is treated as non-success (OK: false)
     /// </summary>
     public enum ChangeType
     {
+      /// <summary> Change type is undefined - the structure does not represent a valid change, OK: false </summary>
       Undefined = 0,
+
+      /// <summary> A new item was inserted/added, e.g. a row into database </summary>
       Inserted,
+
+      /// <summary> An existing item was updated/patched </summary>
       Updated,
+
+      /// <summary> Either a new item was inserted or existing item was updated </summary>
       Upserted,
-      Deleted
+
+      /// <summary> An item was deleted </summary>
+      Deleted,
+
+      /// <summary>
+      /// A complex change happened, a system may have inserted/updated/deleted items in different parts of the system.
+      /// This value is different from others in that it does not specify how data has changed, it just indicates that
+      /// request was processed, OK: true
+      /// </summary>
+      Processed
     }
 
     /// <summary>
@@ -36,10 +53,27 @@ namespace Azos.Data
     /// <param name="affectedCount">Affected entity count</param>
     /// <param name="msg">Optional message from the serving party</param>
     /// <param name="data">Returns optional extra data which is returned from the data change operation</param>
-    public ChangeResult(ChangeType change, long affectedCount, string msg, object data)
+    /// <param name="statusCode">Status code mappable to http response, zero by default</param>
+    public ChangeResult(ChangeType change, long affectedCount, string msg, object data, int statusCode = 0)
     {
       Change = change;
+      StatusCode = statusCode;
       AffectedCount = affectedCount;
+      Message = msg;
+      Data = data;
+    }
+
+    /// <summary>
+    /// Describes data change operation non-successful result such as 404 not found/Undefined change
+    /// </summary>
+    /// <param name="msg">Optional message from the serving party</param>
+    /// <param name="statusCode">Status code mappable to http response, zero by default which maps to HTTP 404</param>
+    /// <param name="data">Returns optional extra data which is returned from the data change operation</param>
+    public ChangeResult(string msg, int statusCode = 0, object data = null)
+    {
+      Change = ChangeType.Undefined;
+      StatusCode = statusCode;
+      AffectedCount = 0;
       Message = msg;
       Data = data;
     }
@@ -53,13 +87,28 @@ namespace Azos.Data
     {
       map.NonNull(nameof(map));
       Change        = map["change"].AsEnum(ChangeType.Undefined);
+      StatusCode    = map["status"].AsInt();
       AffectedCount = map["affected"].AsLong();
       Message       = map["message"].AsString();
       Data          = map["data"];
     }
 
+    /// <summary> True if change is not `Undefined` </summary>
+    public bool IsOk => Change != ChangeType.Undefined;
+
+    /// <summary>
+    /// Is StatusCode is set then returns it, otherwise returns 200 for non-undefined changes, or 404 for undefined change types
+    /// </summary>
+    public int HttpStatusCode =>  StatusCode != 0 ? StatusCode : IsOk ? 200 : 404;
+
+    /// <summary> Http status description </summary>
+    public string HttpStatusDescription => Message;
+
     /// <summary> Specifies the change type Insert/Update/Delete etc.. </summary>
     public readonly ChangeType Change;
+
+    /// <summary> Operation Status code, which is returned for HTTP callers </summary>
+    public readonly int StatusCode;
 
     /// <summary> How many entities/rows/docs was/were affected by the change </summary>
     public readonly long AffectedCount;
@@ -79,8 +128,9 @@ namespace Azos.Data
     void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options)
     {
       JsonWriter.WriteMap(wri, nestingLevel, options,
-                    new DictionaryEntry("OK", true),
+                    new DictionaryEntry("OK", IsOk),
                     new DictionaryEntry("change", Change),
+                    new DictionaryEntry("status", StatusCode),
                     new DictionaryEntry("affected", AffectedCount),
                     new DictionaryEntry("message", Message),
                     new DictionaryEntry("data", Data)
