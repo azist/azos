@@ -66,6 +66,18 @@ namespace Azos.Security.Services
     ///                                 //   request included 'state'.
     /// </code>
     /// </returns>
+    [ApiEndpointDoc(
+      Title = "OAuth Authorize GET",
+      Description = "Provides entry point for OAuth `code` flow by getting a login page for the specified application",
+      RequestQueryParameters = new []{
+        "client_id: Client Id issued by your IDP during Client/App registration",
+        "response_type: code | token (for implicit flow which returns token). Only `code` flow is supported as `token` flow is security flawed",
+        "scope: e.g. `read` Specifies the level of access that the application is requesting",
+        "redirect_uri: Where the service redirects the user-agent after an authorization code is granted",
+        "state: Arbitrary String specific to client application"
+      },
+      ResponseContent = "200 with either an HTML login form or JSON if it was requested via `Accept` header. 401 for bad requested parameters"
+    )]
     [ActionOnGet(Name = "authorize")]
     [ActionOnGet(Name = "authorization")]
     public async Task<object> Authorize_GET(string response_type, string scope, string client_id, string redirect_uri, string state)
@@ -120,6 +132,10 @@ namespace Azos.Security.Services
       return MakeAuthorizeResult(clientUser, roundtrip, error);
     }
 
+    /// <summary>
+    /// Override to provide a authorize result which is by default either a stock login form or
+    /// JSON object
+    /// </summary>
     protected virtual object MakeAuthorizeResult(User clientUser, string roundtrip, string error)
     {
       if (WorkContext.RequestedJson)
@@ -128,7 +144,12 @@ namespace Azos.Security.Services
       return new Wave.Templatization.StockContent.OAuthLogin(clientUser, roundtrip, error);
     }
 
-
+    [ApiEndpointDoc(
+      Title = "OAuth Authorize POST",
+      Description = "Provides OAuth flow continuation taking Id/Password and returning client access code on success",
+      RequestBody = "Login vector as: {roundtrip, id, pwd}",
+      ResponseContent = "200 with client access code or 401 for bad requested parameters. 403 for unauthorized client URI"
+    )]
     [ActionOnPost(Name = "authorize")]
     [ActionOnPost(Name = "authorization")]
     public async virtual Task<object> Authorize_POST(string roundtrip, string id, string pwd)
@@ -228,6 +249,12 @@ namespace Azos.Security.Services
     /// }
     /// </code>
     /// </returns>
+    [ApiEndpointDoc(
+      Title = "OAuth Token POST",
+      Description = "Obtains the TOKEN based either on the `Authorization Code`received in authorize step or `Refresh Token` received with previous call",
+      RequestBody = "Login vector as: {roundtrip, id, pwd}",
+      ResponseContent = "200 with client access code or 401 for bad requested parameters. 403 for unauthorized client URI"
+    )]
     [ActionOnPost(Name = "token")]
     public async Task<object> Token_POST(string client_id, string client_secret,
                                          string grant_type,

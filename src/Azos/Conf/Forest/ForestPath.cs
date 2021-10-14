@@ -15,33 +15,46 @@ namespace Azos.Conf.Metabiz
   /// <summary>
   /// Path is either a string or gdid
   /// </summary>
-  public struct MetabizPath : IEquatable<MetabizPath>
+  public struct ForestPath : IEquatable<ForestPath>
   {
-    public MetabizPath(GDID g)
+    public const string TREE_DELIMITER = "://";
+
+    public ForestPath FromString(string fullPath)
     {
+      return new ForestPath();//.......
+    }
+
+    public ForestPath(Atom tree, GDID g)
+    {
+      Tree = tree;
       Gdid = g;
       Path = null;
     }
 
-    public MetabizPath(string path)
+    public ForestPath(Atom tree, string path)
     {
+      Tree = tree;
       Gdid = GDID.ZERO;
       Path = path.NonBlank(nameof(path));
     }
 
+
+
+    public readonly Atom Tree;
     public readonly GDID Gdid;
+
     public readonly string Path;
 
     public bool IsAssigned => Path.IsNotNullOrWhiteSpace() || !Gdid.IsZero;
 
-    public bool Equals(MetabizPath other) => this.Gdid == other.Gdid && this.Path.EqualsOrdSenseCase(other.Path);
+    public bool Equals(ForestPath other) => this.Gdid == other.Gdid && this.Path.EqualsOrdSenseCase(other.Path);
 
     public override int GetHashCode() => Gdid.GetHashCode() ^ (Path != null ? Path.GetHashCode() : 0);
-    public override bool Equals(object obj) => obj is MetabizPath other ? this.Equals(other) : false;
+    public override bool Equals(object obj) => obj is ForestPath other ? this.Equals(other) : false;
 
     public override string ToString() => Gdid.IsZero ? Path : '#' + Gdid.ToHexString();
 
-    public static bool operator ==(MetabizPath a, MetabizPath b) => a.Equals(b);
-    public static bool operator !=(MetabizPath a, MetabizPath b) => !a.Equals(b);
+    public static bool operator ==(ForestPath a, ForestPath b) => a.Equals(b);
+    public static bool operator !=(ForestPath a, ForestPath b) => !a.Equals(b);
   }
 }
