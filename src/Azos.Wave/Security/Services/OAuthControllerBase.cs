@@ -228,7 +228,7 @@ namespace Azos.Security.Services
     /// </summary>
     /// <param name="client_id">Client Id issued by your IDP during Client/App registration, if not supplied will try to parse out of [Authorization] header</param>
     /// <param name="client_secret">Client Secret as issued by the IDP during registration, if not supplied will try to parse out of [Authorization] header</param>
-    /// <param name="grant_type">authorization_code</param>
+    /// <param name="grant_type">`authorization_code` or `refresh_token` (if enabled)</param>
     /// <param name="code">{Authorization Code} received as a part of authorize step response</param>
     /// <param name="refresh_token">{Refresh Token} or refresh token gotten previously</param>
     /// <param name="redirect_uri">Where the service redirects the user-agent after an token is issued</param>
@@ -239,6 +239,7 @@ namespace Azos.Security.Services
     ///   Cache-Control: no-store
     /// Pragma: no-cache
     /// {
+    ///   "id_token": "{JWT OIDConnect}",      // - Always included
     ///   "access_token": "{Access Token}",    // - Always included
     ///   "token_type": "{Token Type}",        // - Always included
     ///   "expires_in": {Lifetime In Seconds}  // - Optional
@@ -252,8 +253,15 @@ namespace Azos.Security.Services
     [ApiEndpointDoc(
       Title = "OAuth Token POST",
       Description = "Obtains the TOKEN based either on the `Authorization Code`received in authorize step or `Refresh Token` received with previous call",
-      RequestBody = "Login vector as: {roundtrip, id, pwd}",
-      ResponseContent = "200 with client access code or 401 for bad requested parameters. 403 for unauthorized client URI"
+      RequestBody = "Data object supplied as JSOn body or request parameters (see)",
+      RequestQueryParameters = new []{
+        "client_id: Client Id issued by your IDP during Client/App registration, if not supplied will try to parse out of [Authorization] header",
+        "client_secret: Client Secret as issued by the IDP during registration, if not supplied will try to parse out of [Authorization] header",
+        "grant_type: `authorization_code` or `refresh_token` (if enabled)",
+        "code: {Authorization Code} received as a part of authorize step response",
+        "refresh_token: {Refresh Token} or refresh token gotten previously",
+        "redirect_uri: Where the service redirects the user-agent after an token is issued"},
+      ResponseContent = "200 with client access code and OIDC JWT or 401 for bad requested parameters. 403 for unauthorized client URI"
     )]
     [ActionOnPost(Name = "token")]
     public async Task<object> Token_POST(string client_id, string client_secret,
