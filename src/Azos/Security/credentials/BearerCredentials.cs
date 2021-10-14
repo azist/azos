@@ -9,15 +9,21 @@ using System;
 namespace Azos.Security
 {
   /// <summary>
-  /// Represents credentials based on a bearer scheme token supplied as: `Authorization: Bearer (token)`
+  /// Represents credentials based on a bearer scheme token supplied as: `Authorization: Bearer (token)`.
+  /// This class is typically used for OAuth integration
   /// </summary>
   [Serializable]
   public sealed class BearerCredentials : Credentials
   {
     public BearerCredentials(string token) => Token = token.NonBlank(nameof(token));
 
-    public string Token { get; }
-    public override void Forget(){ }
-    public override string ToString() => "{0}({1})".Args(GetType().Name, Token);
+    public string Token { get; private set; }
+
+    public override void Forget()
+    {
+      Token = Token.TakeFirstChars(12, "..???");
+    }
+
+    public override string ToString() => "{0}(`{1}`)".Args(GetType().Name, Token.TakeFirstChars(32, ".."));
   }
 }
