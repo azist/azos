@@ -12,7 +12,7 @@
 ////using Azos.Data.Business;
 
 
-////namespace Azos.Conf.Metabiz
+////namespace Azos.Conf.Forest
 ////{
 ////  /// <summary>
 ////  /// Defines logic for consuming Metabiz services
@@ -24,7 +24,7 @@
 ////    /// </summary>
 ////    /// <param name="path">Full node path</param>
 ////    /// <returns>List of versions of the specified path or null if such id does not exist</returns>
-////    Task<IEnumerable<VersionInfo>> GetNodeVersionListAsync(ForestPath path);
+////    Task<IEnumerable<VersionInfo>> GetNodeVersionListAsync(EntityId id);
 
 ////    /// <summary>
 ////    /// Retrieves node information of the specified version
