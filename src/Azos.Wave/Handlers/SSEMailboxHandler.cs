@@ -56,7 +56,15 @@ namespace Azos.Wave.Handlers
     public static string EncodeSSEContent(string id, string evt, string data)
     {
       var sb = ts_Builder;
-      if (sb==null) sb = ts_Builder = new StringBuilder(512);//typical event size < 512 bytes
+      if (sb == null)
+      {
+        sb = ts_Builder = new StringBuilder(512);//typical event size < 512 bytes
+      }
+      else
+      {
+        sb.Clear();
+      }
+
 
       if (id.IsNotNullOrWhiteSpace())
       {
