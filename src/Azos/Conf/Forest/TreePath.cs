@@ -24,20 +24,28 @@ namespace Azos.Conf.Forest
 
     [ThreadStatic] private static StringBuilder ts_Buffer;
 
+
+    /// <summary>
+    /// True when this path is the very root path and has zero segments
+    /// </summary>
+    public bool IsRoot => Count == 0;
+
+
     /// <summary>
     /// Creates the path object which is a list of segments
     /// </summary>
-    public TreePath(string path)
+    public TreePath(string path) : base(PATH_SEGMENT_MAX_COUNT)
     {
       path.NonBlank(nameof(path));
 
       var buf = ts_Buffer;
       if (buf == null)
       {
-        buf = new StringBuilder(SEGMENT_MAX_LEN, SEGMENT_MAX_LEN);
+        buf = new StringBuilder(SEGMENT_MAX_LEN);
         ts_Buffer = buf;//cache
       }
 
+      buf.Clear();
       var len = path.Length;
       for(var i=0; i < len; i++)
       {
@@ -50,7 +58,7 @@ namespace Azos.Conf.Forest
           if (line.IsNotNullOrWhiteSpace())
           {
             this.Add(line);
-            if (Count == PATH_SEGMENT_MAX_COUNT) throw new ConfigException("Maximum path segment count of {0} is exceeded".Args(PATH_SEGMENT_MAX_COUNT));
+            if (Count == PATH_SEGMENT_MAX_COUNT) throw new ConfigException(StringConsts.CONFIG_FOREST_MAX_SEGMENT_COUNT_ERROR.Args(PATH_SEGMENT_MAX_COUNT));
           }
 
           buf.Clear();
@@ -59,19 +67,18 @@ namespace Azos.Conf.Forest
 
         if (c == '%')
         {
-          i += 3;
-          if (i > len) throw new ConfigException("Invalid escape sequence in forest path");
+          i += 2;
+          if (i >= len) throw new ConfigException(StringConsts.CONFIG_FOREST_PATH_ESCAPE_ERROR.Args("<eol>"));
 
-          var hex = path.Substring(i - 2, 2);
-
+          var hex = path.Substring(i - 1, 2);
           if (!byte.TryParse(hex, System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.InvariantCulture, out var ascii))
-            throw new ConfigException("Invalid escape sequence in forest path");
+            throw new ConfigException(StringConsts.CONFIG_FOREST_PATH_ESCAPE_ERROR.Args(hex));
 
           c = (char)ascii;
         }
 
         buf.Append(c);
-        if (buf.Length > SEGMENT_MAX_LEN) throw new ConfigException("Maximum path segment length of {0} is exceeded".Args(SEGMENT_MAX_LEN));
+        if (buf.Length > SEGMENT_MAX_LEN) throw new ConfigException(StringConsts.CONFIG_FOREST_MAX_SEGMENT_LEN_ERROR.Args(SEGMENT_MAX_LEN));
       }
 
       //tail

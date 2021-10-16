@@ -285,6 +285,10 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
         "Expression scope compilation error: ";
 
 
+    public const string CONFIG_FOREST_MAX_SEGMENT_COUNT_ERROR = "Maximum allowed forest path segment count of {0} is exceeded";
+    public const string CONFIG_FOREST_MAX_SEGMENT_LEN_ERROR = "Maximum allowed path segment length of {0} chars is exceeded";
+    public const string CONFIG_FOREST_PATH_ESCAPE_ERROR = "Invalid escape sequence in forest path: `{0}`";
+
 
     public const string MODEL_METHOD_NOT_FOUND_ERROR =
      "Model could not find a public callable method to invoke. Method Name: '{0}'";
