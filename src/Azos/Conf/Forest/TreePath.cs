@@ -19,11 +19,7 @@ namespace Azos.Conf.Forest
   /// </summary>
   public sealed class TreePath : List<string>
   {
-    public const int PATH_SEGMENT_MAX_COUNT = 0xff;
-    public const int SEGMENT_MAX_LEN = 64;
-
     [ThreadStatic] private static StringBuilder ts_Buffer;
-
 
     /// <summary>
     /// True when this path is the very root path and has zero segments
@@ -34,14 +30,14 @@ namespace Azos.Conf.Forest
     /// <summary>
     /// Creates the path object which is a list of segments
     /// </summary>
-    public TreePath(string path) : base(PATH_SEGMENT_MAX_COUNT)
+    public TreePath(string path) : base(Constraints.PATH_SEGMENT_MAX_COUNT)
     {
       path.NonBlank(nameof(path));
 
       var buf = ts_Buffer;
       if (buf == null)
       {
-        buf = new StringBuilder(SEGMENT_MAX_LEN);
+        buf = new StringBuilder(Constraints.SEGMENT_MAX_LEN);
         ts_Buffer = buf;//cache
       }
 
@@ -58,7 +54,7 @@ namespace Azos.Conf.Forest
           if (line.IsNotNullOrWhiteSpace())
           {
             this.Add(line);
-            if (Count == PATH_SEGMENT_MAX_COUNT) throw new ConfigException(StringConsts.CONFIG_FOREST_MAX_SEGMENT_COUNT_ERROR.Args(PATH_SEGMENT_MAX_COUNT));
+            if (Count == Constraints.PATH_SEGMENT_MAX_COUNT) throw new ConfigException(StringConsts.CONFIG_FOREST_MAX_SEGMENT_COUNT_ERROR.Args(Constraints.PATH_SEGMENT_MAX_COUNT));
           }
 
           buf.Clear();
@@ -78,7 +74,7 @@ namespace Azos.Conf.Forest
         }
 
         buf.Append(c);
-        if (buf.Length > SEGMENT_MAX_LEN) throw new ConfigException(StringConsts.CONFIG_FOREST_MAX_SEGMENT_LEN_ERROR.Args(SEGMENT_MAX_LEN));
+        if (buf.Length > Constraints.SEGMENT_MAX_LEN) throw new ConfigException(StringConsts.CONFIG_FOREST_MAX_SEGMENT_LEN_ERROR.Args(Constraints.SEGMENT_MAX_LEN));
       }
 
       //tail

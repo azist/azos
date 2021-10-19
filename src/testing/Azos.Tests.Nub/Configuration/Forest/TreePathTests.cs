@@ -46,7 +46,7 @@ namespace Azos.Tests.Nub.Configuration.Forest
     public void TooMany()
     {
       var path = new StringBuilder();
-      for(var i=0; i<TreePath.PATH_SEGMENT_MAX_COUNT + 1; i++)
+      for(var i=0; i < Constraints.PATH_SEGMENT_MAX_COUNT + 1; i++)
       {
         path.Append("/a");
       }
