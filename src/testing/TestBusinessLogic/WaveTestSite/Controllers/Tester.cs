@@ -19,6 +19,7 @@ using Azos.Serialization.JSON;
 using Azos.Data;
 
 using WaveTestSite.Pages;
+using Azos.Serialization.Bix;
 
 namespace WaveTestSite.Controllers
 {
@@ -339,7 +340,7 @@ namespace WaveTestSite.Controllers
 
         public enum StatusCode{None=0 , Beginner, Advanced, Master}
 
-
+        [Bix("d5af97b4-33df-433a-a11e-b69b5169c2c2")]
         public class Person : TypedDoc
         {
           [Field(metadata: "z=true b=234")]

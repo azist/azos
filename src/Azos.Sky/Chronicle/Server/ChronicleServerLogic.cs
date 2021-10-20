@@ -13,6 +13,7 @@ using Azos.Apps;
 using Azos.Apps.Injection;
 using Azos.Conf;
 using Azos.Data;
+using Azos.Data.Idgen;
 using Azos.Log;
 using Azos.Serialization.JSON;
 using Azos.Sky.Identification;

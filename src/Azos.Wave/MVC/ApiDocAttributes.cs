@@ -103,9 +103,9 @@ namespace Azos.Wave.Mvc
     public string[] Methods { get; set; }
 
     /// <summary>
-    /// Specifies the anchor/id used as a topic in the doc markdown file. Endpoint anchors start with "##" (html H2 level) like "## list".
+    /// Specifies the anchor/id used as a topic in the doc markdown file. Endpoint anchors start with "###" (html H3 level) like "### list".
     /// The system reads content starting from that anchor up to the beginning of the next adjacent anchor of the same level.
-    /// If this property is not set, the system takes the name from action attribute and prepends "## " at the front
+    /// If this property is not set, the system takes the name from action attribute and prepends "### " at the front
     /// </summary>
     public string DocAnchor { get; set; }
   }

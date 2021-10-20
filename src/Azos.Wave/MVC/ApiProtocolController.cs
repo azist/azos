@@ -50,7 +50,12 @@ namespace Azos.Wave.Mvc
                            .SaveAsync().ConfigureAwait(false);
 
       if (saved.IsSuccess)
-        return saved.Result;
+      {
+        var change = saved.Result;
+        WorkContext.Response.StatusCode = change.HttpStatusCode;
+        WorkContext.Response.StatusDescription = change.HttpStatusDescription;
+        return change;
+      }
 
       throw new BusinessException($"Could not save model `{model.GetType().DisplayNameWithExpandedGenericArgs()}`" +
                                   $"in mode `{model.FormMode}`: {saved.Error.ToMessageWithType()}", saved.Error);
@@ -87,11 +92,33 @@ namespace Azos.Wave.Mvc
       return await save(model).ConfigureAwait(false);
     }
 
+
     /// <summary>
-    /// Analyzes the result of a logic call and returns either JSON {OK=true|false} with HTTP status 404 when nothing is returned
+    /// Maps ChangeResult returned by logic into HTTP status codes
+    /// </summary>
+    public object GetLogicChangeResult(ChangeResult result)
+    {
+      WorkContext.Response.StatusCode = result.HttpStatusCode;
+      WorkContext.Response.StatusDescription = result.HttpStatusDescription;
+      return result;
+    }
+
+    /// <summary>
+    /// Analyzes the result of a logic call and returns JSON {OK=true|false, data: object} with HTTP status 404 when nothing was returned
     /// </summary>
     public object GetLogicResult<T>(T result)
     {
+      if (result is IHttpStatusProvider hsp)
+      {
+        var code = hsp.HttpStatusCode;
+        //for the purpose of business APIs only Successful responses are treated as OK
+        //https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+        var ok = code >= 200 && code <= 299;
+        WorkContext.Response.StatusCode = code;
+        WorkContext.Response.StatusDescription = hsp.HttpStatusDescription;
+        return new { OK = ok, data = result };
+      }
+
       var is404 = result == null;
       if (!is404)
       {

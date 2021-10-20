@@ -61,7 +61,7 @@ namespace Azos.Text
     {
       if (markdown == null || section.IsNullOrWhiteSpace()) return (string.Empty, -1, -1);
 
-      markdown = '\n'+markdown+'\n';//content is padded +1
+      markdown = '\n' + markdown + '\n';//content is padded +1
 
       var start = '\n' + section;
       var istart = markdown.IndexOf(start);
@@ -283,6 +283,7 @@ namespace Azos.Text
           result.AppendLine("<p>");
         }
         result.Append(processBoldItalic(line));
+        result.Append(' ');//Fix #571
       }
 
       string processBoldItalic(string line)

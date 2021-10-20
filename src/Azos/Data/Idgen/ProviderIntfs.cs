@@ -4,6 +4,7 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using Azos.Apps;
 using System;
 using System.Collections.Generic;
 
@@ -174,5 +175,27 @@ namespace Azos.Data.Idgen
     ///  completely bypassed during block allocation
     /// </summary>
     string TestingAuthorityNode { get; set;}
+  }
+
+
+  /// <summary>
+  /// Sets contract for hosting IGdidProvider as an app module
+  /// </summary>
+  public interface IGdidProviderModule : IModule
+  {
+    /// <summary>
+    /// Returns provider that generates GDIDs
+    /// </summary>
+    IGdidProvider Provider { get; }
+
+    /// <summary>
+    /// Returns ScopePrefix that gets appended  before the scope name. In most cases this property is null
+    /// </summary>
+    string ScopePrefix { get; }
+
+    /// <summary>
+    /// Returns SequencePrefix that gets appended  before the sequence name. In most cases this property is null
+    /// </summary>
+    string SequencePrefix { get; }
   }
 }

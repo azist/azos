@@ -14,53 +14,43 @@ namespace Azos.Security
   /// Represents credentials supplied from/to Social Net site (i.e. Facebook, Twitter etc.)
   /// </summary>
   [Serializable]
-  public class SocialNetTokenCredentials : Credentials
+  public sealed class SocialNetTokenCredentials : Credentials
   {
-     public SocialNetTokenCredentials(string netName, string token, string userName = null)
-     {
-       m_NetName = netName;
-       m_Token = token;
-       m_UserName = userName;
-     }
+    public SocialNetTokenCredentials(string netName, string token, string userName = null)
+    {
+      m_NetName = netName;
+      m_Token = token;
+      m_UserName = userName;
+    }
 
+    private string m_NetName;
+    private string m_Token;
+    private string m_UserName;
 
-     private string m_NetName;
-     private string m_Token;
-     private string m_UserName;
+    /// <summary>
+    /// Name of social network that returned the token
+    /// </summary>
+    public string NetName => m_NetName ?? string.Empty;
 
-     /// <summary>
-     /// Name of social network that returned the token
-     /// </summary>
-     public string NetName
-     {
-       get { return m_NetName ?? string.Empty; }
-     }
+    /// <summary>
+    /// Auth token returned by the network
+    /// </summary>
+    public string Token => m_Token ?? string.Empty;
 
-     /// <summary>
-     /// Auth token returned by the network
-     /// </summary>
-     public string Token
-     {
-       get { return m_Token ?? string.Empty; }
-     }
+    /// <summary>
+    /// Optional user name as returned from social network (i.e. email or account screen name)
+    /// </summary>
+    public string UserName => m_UserName ?? string.Empty;
 
-     /// <summary>
-     /// Optional user name as returned from social network (i.e. email or account screen name)
-     /// </summary>
-     public string UserName
-     {
-       get { return m_UserName ?? string.Empty; }
-     }
+    public override void Forget()
+    {
+      m_Token = string.Empty;
+      base.Forget();
+    }
 
-     public override void Forget()
-     {
-       m_Token = string.Empty;
-       base.Forget();
-     }
-
-     public override string ToString()
-     {
-       return "{0}({1}:{2})".Args(GetType().Name, NetName, UserName);
-     }
+    public override string ToString()
+    {
+      return "{0}({1}:{2})".Args(GetType().Name, NetName, UserName);
+    }
   }
 }

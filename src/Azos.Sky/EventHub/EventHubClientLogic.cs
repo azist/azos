@@ -15,6 +15,7 @@ using Azos.Apps.Injection;
 using Azos.Client;
 using Azos.Conf;
 using Azos.Data;
+using Azos.Data.Idgen;
 using Azos.Instrumentation;
 using Azos.Log;
 using Azos.Serialization.JSON;
