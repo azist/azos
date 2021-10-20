@@ -15,6 +15,7 @@ using Azos.Conf;
 using Azos.Security;
 using Azos.Text;
 using Azos.Data;
+using Azos.Serialization.Bix;
 
 namespace Azos.Wave.Mvc
 {

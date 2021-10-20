@@ -98,13 +98,15 @@ namespace Azos.Wave.Cms.Default
       var result = new Dictionary<string, IEnumerable<LangInfo>>();
       using (var session = m_FS.StartSession(m_FSConnectParams))
       {
-        var rootDir = await session.GetItemAsync(m_FSRootPath).ConfigureAwait(false) as FileSystemDirectory;
+        var rootDir = (await session.GetItemAsync(m_FSRootPath).ConfigureAwait(false)) as FileSystemDirectory;
         if (rootDir==null)
           throw new CmsException($"Error in configuration of `{nameof(FileSystemCmsSource)}`. The root fs path `{m_FSRootPath}` does not land at the existing directory");
 
         foreach (var portalDirName in await rootDir.GetSubDirectoryNamesAsync().ConfigureAwait(false))
         {
-          var dir = await rootDir.GetItemAsync(portalDirName).ConfigureAwait(false) as FileSystemDirectory;
+          if (portalDirName.StartsWith(".")) continue;//#573 - must skip hidden folder names
+
+          var dir = (await rootDir.GetItemAsync(portalDirName).ConfigureAwait(false)) as FileSystemDirectory;
           if (dir == null) continue;
 
           //portal directory found, try to read config file

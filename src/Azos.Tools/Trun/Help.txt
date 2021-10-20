@@ -77,7 +77,10 @@ Passes named args to test case 'cli-args':<f color=darkgray>
   public void RunnerArgs(string cliArg1, int cliArg2){...}
 
 <f color=yellow> trun mytests.dll -host out="c:\azos\result.laconf"<f color=gray>
-Only emulates running all test cases
+Creates an output file.
+
+<f color=yellow> trun mytests.dll > console-dump.txt <f color=gray>
+You can also redirect the whole output using standard OS means
 
 <f color=yellow> trun mytests.dll -r emulate=true<f color=gray>
 Only emulates running all test cases

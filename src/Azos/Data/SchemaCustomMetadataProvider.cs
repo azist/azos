@@ -8,6 +8,7 @@ using System;
 using System.Reflection;
 
 using Azos.Conf;
+using Azos.Serialization.Bix;
 
 namespace Azos.Data
 {
@@ -48,6 +49,14 @@ namespace Azos.Data
           }
           catch { }
         }
+
+        #region Add Bix #568
+        var bix = schema.TypedDocType.GetCustomAttribute<BixAttribute>(false);
+        if (bix != null)
+        {
+          ndoc.AddAttributeNode("bix-id", bix.TypeGuid);
+        }
+        #endregion
       }
 
       foreach (var def in schema)
