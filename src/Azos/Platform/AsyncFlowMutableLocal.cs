@@ -16,6 +16,9 @@ namespace Azos.Platform
   /// as it uses the mutable flow-global value, it should not be transacted from multi-threaded child callers, such as
   /// forking sub-tasks
   /// </summary>
+  /// <remarks>
+  /// See https://devblogs.microsoft.com/pfxteam/executioncontext-vs-synchronizationcontext/
+  /// </remarks>
   public sealed class AsyncFlowMutableLocal<T>
   {
     private class wrap<TData>{  public TData Data; }
