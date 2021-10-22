@@ -28,6 +28,13 @@ namespace Azos.Security.ConfigForest
   /// </summary>
   public sealed class TreePermission : TypedPermission
   {
+    /// <summary>
+    /// If this flag is set on the current call scope, relaxes the permission check
+    /// for system-use cases, when the system needs to access data for internal purposes, vs
+    /// disclosing the data directly to the calling user
+    /// </summary>
+    public static readonly Atom SYSTEM_USE_FLAG = Atom.Encode("SYS-USE");
+
     public const string ALLOW_SECT = "allow";
     public const string DENY_SECT = "deny";
     public const string PATH_ATTR = "path";
@@ -46,7 +53,11 @@ namespace Azos.Security.ConfigForest
 
     protected override bool DoCheckAccessLevel(IApplication app, ISession session, AccessLevel access)
     {
+      //Bypass security checks if the data is needed for system use
+      if (SecurityFlowScope.CheckFlag(SYSTEM_USE_FLAG)) return true;
+
       if (!base.DoCheckAccessLevel(app, session, access)) return false;
+
 
       //todo:  Check for call context to see the INTENT of the call, such as an internal function that will relax the constraint below
       //Bypass ALLOW/DENY checks for system access
