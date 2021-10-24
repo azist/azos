@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 using Azos.Data;
 using Azos.Data.Business;
 
-
 namespace Azos.Conf.Forest
 {
   /// <summary>

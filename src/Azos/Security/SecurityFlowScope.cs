@@ -13,9 +13,8 @@ namespace Azos.Security
 {
   /// <summary>
   /// Implements a logical context set around certain operations, establishing a scope by allocating
-  /// and disposing the instance of this class.
-  /// The context can be logically nested just by allocating another inner context - it will capture
-  /// the `Parent` context
+  /// and disposing the instance of this class. The context can be logically nested just by allocating
+  /// an instance of another inner context - it will capture the `Parent`/outer context if one exists.
   /// </summary>
   public sealed class SecurityFlowScope : DisposableObject
   {

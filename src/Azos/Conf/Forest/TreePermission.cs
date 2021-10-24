@@ -58,11 +58,6 @@ namespace Azos.Security.ConfigForest
 
       if (!base.DoCheckAccessLevel(app, session, access)) return false;
 
-
-      //todo:  Check for call context to see the INTENT of the call, such as an internal function that will relax the constraint below
-      //Bypass ALLOW/DENY checks for system access
-      //if (SecurityCodeAttributeScope.Purpose == IsSystemCode) return true; //depends on code path
-
       var id = Target.AsString();
 
       //allow{ path='*' } - match all
