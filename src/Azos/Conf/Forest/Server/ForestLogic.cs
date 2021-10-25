@@ -11,7 +11,9 @@ using System.Threading.Tasks;
 using Azos;
 using Azos.Apps;
 using Azos.Data;
+using Azos.Data.Access;
 using Azos.Data.Business;
+using Azos.Security.ConfigForest;
 
 namespace Azos.Conf.Forest.Server
 {
@@ -36,7 +38,7 @@ namespace Azos.Conf.Forest.Server
     public bool IsServerImplementation => true;
 
     //allocated here
-    IForestDataSource m_Data;
+    private IForestDataSource m_Data;
 //todo Abstract this away
 //    [InjectModule] IEventProducer m_Events;
 
@@ -70,16 +72,58 @@ namespace Azos.Conf.Forest.Server
 
     #region IForestLogic
 
-    public Task<IEnumerable<Atom>> GetTreeListAsync(Atom idForest) => Task.FromResult(m_Data.TryGetAllForestTrees(idForest));
+    public async Task<IEnumerable<Atom>> GetTreeListAsync(Atom idForest) => await m_Data.NonNull(nameof(m_Data)).TryGetAllForestTreesAsync(idForest);
 
     public Task<IEnumerable<TreeNodeHeader>> GetChildNodeListAsync(EntityId idParent, DateTime? asOfUtc = null, ICacheParams cache = null)
     {
-      throw new NotImplementedException();
+      return null;
+      //var pgom = EntityIds.Corporate.CheckHierarchyId(idParent);
+      //var tchild = EntityIds.Corporate.GetHierarchyChildType(pgom.Type);
+      //var asof = asOfUtc.DefaultAndAlignOnPolicyBoundary(App);
+      //if (cache == null) cache = CacheParams.DefaultCache;
+
+      //App.Authorize(CorporatePermission.VIEW);
+
+      //var result = await m_Data.Cache.FetchThroughAsync(("GetChildNodeListAsync" + idParent, asof),
+      //  CACHE_TBL_GENERIC,
+      //  cache,
+      //  async key =>
+      //  {
+      //    var gparent = pgom.Gdid;
+      //    if (gparent.IsZero)//lookup G_Parent by mnemonic
+      //    {
+      //      var pnode = await GetNodeInfoAsync(idParent, asof, cache).ConfigureAwait(false);
+      //      if (pnode == null) return null;
+      //      gparent = pnode.Gdid;
+      //    }
+
+      //    var qry = new Query<ListItem>("Hierarchy.GetChildNodeList")
+      //    {
+      //      new Query.Param("etp", tchild),
+      //      new Query.Param("gparent", gparent),
+      //      new Query.Param("asof", asof)
+      //    };
+
+      //    return await m_DataHub.CorporateLoadEnumerableAsync(qry);
+      //  }
+      //).ConfigureAwait(false);
+
+      //return result;
     }
 
-    public Task<IEnumerable<VersionInfo>> GetNodeVersionListAsync(EntityId id)
+    public async Task<IEnumerable<VersionInfo>> GetNodeVersionListAsync(EntityId id)
     {
-      throw new NotImplementedException();
+      var gop = GdidOrPath.OfGNode(id);
+
+      App.Authorize(new TreePermission(TreeAccessLevel.Read, id));
+
+      var qry = new Query<VersionInfo>("Tree.GetNodeVersionList")
+      {
+        new Query.Param("gop", gop)
+      };
+
+      var result = await m_Data.CorporateLoadEnumerableAsync(id.System, id.Type, qry);
+      return result;
     }
 
     public Task<TreeNodeInfo> GetNodeInfoVersionAsync(EntityId idVersion)

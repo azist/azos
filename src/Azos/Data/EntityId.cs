@@ -106,7 +106,7 @@ namespace Azos.Data
       => Type == other.Type &&
          Schema == other.Schema &&
          System == other.System &&
-         Address.EqualsOrdSenseCase(other.Address);
+         Address.EqualsOrdSenseCase(other.Address);//addresses are CASE sensitive
 
     public (bool match, IJsonReadable self) ReadAsJson(object data, bool fromUI, JsonReader.DocReadOptions? options)
     {

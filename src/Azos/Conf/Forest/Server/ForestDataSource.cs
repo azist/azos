@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
+using System.Threading.Tasks;
 using Azos.Apps;
 using Azos.Collections;
 using Azos.Data.Access;
@@ -24,6 +24,8 @@ namespace Azos.Conf.Forest.Server
   {
     public const string CONFIG_FOREST_SECTION = "forest";
     public const string CONFIG_TREE_SECTION = "tree";
+    public const string CONFIG_CACHE_SECTION = "cache";
+    public const string CONFIG_PILE_SECTION = "pile";
 
     private sealed class _forest : INamed
     {
@@ -49,6 +51,8 @@ namespace Azos.Conf.Forest.Server
 
     private Registry<_forest> m_Forests = new Registry<_forest>();
     private IEnumerable<IDataStoreImplementation> allStores => m_Forests.SelectMany(f => f.Trees);
+    private IPileImplementation m_Pile;
+    private ICacheImplementation m_Cache;
 
     private bool m_InstrumentationEnabled;
     public override string ComponentLogTopic => CoreConsts.CONF_TOPIC;
@@ -64,19 +68,20 @@ namespace Azos.Conf.Forest.Server
       set { m_InstrumentationEnabled = value; }
     }
 
-
-    public ICache Cache => null;
-
+    /// <summary>
+    /// Cache or null
+    /// </summary>
+    public ICache Cache => m_Cache.NonNull(nameof(Cache));
 
     /// <summary>
     /// Tries to return all trees for the forest or null enumerable if the forest is not found
     /// </summary>
-    public IEnumerable<Atom> TryGetAllForestTrees(Atom idForest)
+    public Task<IEnumerable<Atom>> TryGetAllForestTreesAsync(Atom idForest)
     {
-      if (!Running) return null;
+      if (!Running) return Task.FromResult<IEnumerable<Atom>>(null);
       var forest = m_Forests[idForest.Value];
       if (forest == null) return null;
-      return forest.Trees.Select( t => Atom.Encode(t.Name) );
+      return Task.FromResult(forest.Trees.Select( t => Atom.Encode(t.Name) ));
     }
 
     /// <summary>
@@ -125,23 +130,51 @@ namespace Azos.Conf.Forest.Server
             throw new ConfigException($"{nameof(ForestDataSource)} config duplicate section: ./forest[name='{forest.Name}']/tree['{tree.Name}']");
         }
       }
+
+      //Build CACHE
+      var ncache = node[CONFIG_CACHE_SECTION];
+      m_Cache = FactoryUtils.MakeAndConfigureDirectedComponent<ICacheImplementation>(this,
+                                                                         ncache,
+                                                                         typeof(LocalCache),
+                                                                         new[] { "Cache::{0}::{1}".Args(nameof(ForestDataSource), Name) });
+      if (m_Cache is LocalCache lcache)
+      {
+        var npile = node[CONFIG_PILE_SECTION];
+        m_Pile = FactoryUtils.MakeAndConfigureDirectedComponent<IPileImplementation>(this,
+                                npile,
+                                typeof(DefaultPile),
+                                new[] { "Pile::{0}::{1}".Args(nameof(ForestDataSource), Name) });
+        lcache.Pile = m_Pile;
+      }
     }
 
     protected override void DoStart()
     {
       base.DoStart();
+
+      m_Pile.NonNull("pile");
+      m_Cache.NonNull("cache");
+      (m_Forests.Count > 0).IsTrue("Forest > 0");
+
+      if (m_Pile is Daemon dp) dp.Start();
+      if (m_Cache is Daemon d) d.Start();
+
       allStores.OfType<Daemon>().ForEach(c => this.DontLeak(() => c.Start()));
     }
 
     protected override void DoSignalStop()
     {
       base.DoSignalStop();
+      this.DontLeak(() => m_Cache.SignalStop());
+      this.DontLeak(() => m_Pile.SignalStop());
       allStores.OfType<Daemon>().ForEach(c => this.DontLeak(() => c.SignalStop()));
     }
 
     protected override void DoWaitForCompleteStop()
     {
       base.DoWaitForCompleteStop();
+      this.DontLeak(() => m_Cache.SignalStop());
+      this.DontLeak(() => m_Pile.SignalStop());
       allStores.OfType<Daemon>().ForEach(c => this.DontLeak(() => c.WaitForCompleteStop()));
     }
 
@@ -156,6 +189,9 @@ namespace Azos.Conf.Forest.Server
       var all = allStores.ToArray();
       m_Forests.Clear();
       all.ForEach( tree => this.DontLeak(() => tree.Dispose()) );
+
+      DisposeAndNull(ref m_Cache);
+      DisposeAndNull(ref m_Pile);
     }
 
   }

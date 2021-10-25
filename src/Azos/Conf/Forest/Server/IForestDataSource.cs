@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 using Azos.Apps;
 using Azos.Data.Access;
@@ -22,12 +23,12 @@ namespace Azos.Conf.Forest.Server
     /// <summary>
     /// Big memory cache used for node caching
     /// </summary>
-    ICache Cache {  get; }
+    ICache Cache { get; }
 
     /// <summary>
     /// Tries to return all trees for the forest or null enumerable if the forest is not found
     /// </summary>
-    IEnumerable<Atom> TryGetAllForestTrees(Atom idForest);
+    Task<IEnumerable<Atom>> TryGetAllForestTreesAsync(Atom idForest);
 
     /// <summary>
     /// Returns a context for the specified forest tree or null if not found
