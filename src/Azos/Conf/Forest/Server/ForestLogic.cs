@@ -10,22 +10,21 @@ using System.Text;
 using System.Threading.Tasks;
 using Azos;
 using Azos.Apps;
-using Azos.Apps.Injection;
 using Azos.Data;
-using Azos.Data.Access;
 using Azos.Data.Business;
-using Azos.Pile;
-using Azos.Platform;
-using Azos.Serialization.JSON;
-using Azos.Sky.EventHub;
-using Azos.Text;
 
 namespace Azos.Conf.Forest.Server
 {
+  /*
+  Datastore hub is hosted by the logic
+  Data context name is: `[forest]::[tree]`
+
+  */
   public sealed class CorporateHierarchyLogic : ModuleBase, IForestLogic, IForestSetupLogic
   {
     private const string CACHE_TBL_GENERIC = "CorporateHierarchyLogic.GENERIC";
     private const string CACHE_TBL_HIERARCHY_NODE = "CorporateHierarchyLogic.HIERARCHY_NODE";
+    private const string CONFIG_DATA_SECTION = "data";
 
     public CorporateHierarchyLogic(IApplication app) : base(app) { }
     public CorporateHierarchyLogic(IModule parent) : base(parent) { }
@@ -36,25 +35,47 @@ namespace Azos.Conf.Forest.Server
 
     public bool IsServerImplementation => true;
 
-    [Inject] IDataStoreHub m_DataHub;
-    [Inject] ICacheModule m_Cache;
+    //allocated here
+    IForestDataSource m_Data;
 //todo Abstract this away
 //    [InjectModule] IEventProducer m_Events;
 
 
     private void purgeHierarchyCacheTables()
     {
-      m_Cache.Cache.Tables[CACHE_TBL_GENERIC]?.Purge();
-      m_Cache.Cache.Tables[CACHE_TBL_HIERARCHY_NODE]?.Purge();
+      m_Data.Cache.Tables[CACHE_TBL_GENERIC]?.Purge();
+      m_Data.Cache.Tables[CACHE_TBL_HIERARCHY_NODE]?.Purge();
+    }
+
+    protected override void DoConfigure(IConfigSectionNode node)
+    {
+      base.DoConfigure(node);
+      var ndata = node.NonEmpty(nameof(node))[CONFIG_DATA_SECTION]
+                      .NonEmpty($"section `{CONFIG_DATA_SECTION}`");
+      m_Data = FactoryUtils.MakeAndConfigureDirectedComponent<IForestDataSource>(this, ndata, typeof(ForestDataSource));
     }
 
     protected override bool DoApplicationAfterInit()
     {
+      m_Data.NonNull(nameof(Data)).Start();
       return base.DoApplicationAfterInit();
+    }
+
+    protected override bool DoApplicationBeforeCleanup()
+    {
+      this.DontLeak(() => m_Data.Dispose() );
+      return base.DoApplicationBeforeCleanup();
     }
 
 
     #region IForestLogic
+
+    public Task<IEnumerable<Atom>> GetTreeListAsync(Atom idForest) => Task.FromResult(m_Data.TryGetAllForestTrees(idForest));
+
+    public Task<IEnumerable<TreeNodeHeader>> GetChildNodeListAsync(EntityId idParent, DateTime? asOfUtc = null, ICacheParams cache = null)
+    {
+      throw new NotImplementedException();
+    }
 
     public Task<IEnumerable<VersionInfo>> GetNodeVersionListAsync(EntityId id)
     {
@@ -66,15 +87,6 @@ namespace Azos.Conf.Forest.Server
       throw new NotImplementedException();
     }
 
-    public Task<IEnumerable<Atom>> GetTreeListAsync(Atom idForest)
-    {
-      throw new NotImplementedException();
-    }
-
-    public Task<IEnumerable<TreeNodeHeader>> GetChildNodeListAsync(EntityId idParent, DateTime? asOfUtc = null, ICacheParams cache = null)
-    {
-      throw new NotImplementedException();
-    }
 
     public Task<TreeNodeInfo> GetNodeInfoAsync(EntityId id, DateTime? asOfUtc = null, ICacheParams cache = null)
     {
