@@ -19,7 +19,7 @@ namespace Azos.Conf.Forest
   /// in the config forest data store
   /// </summary>
   [Bix("a5950275-e12f-4f6c-83b7-1f6862ac3308")]
-  public sealed class TreeNode : PersistedEntity<IForestLogic, ChangeResult>
+  public sealed class TreeNode : PersistedEntity<IForestSetupLogic, ChangeResult>
   {
     /// <summary>
     /// Returns a forest id (EntityId.System) of the forest which contains this tree which contains this node
@@ -89,7 +89,7 @@ namespace Azos.Conf.Forest
       }
     }
 
-    protected override async Task<ChangeResult> SaveBody(IForestLogic logic)
+    protected override async Task<ChangeResult> SaveBody(IForestSetupLogic logic)
      => await logic.SaveNodeAsync(this).ConfigureAwait(false);
 
   }

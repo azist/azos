@@ -63,7 +63,7 @@ namespace Azos.Conf.Forest
     /// <summary>
     /// Full path of this tree node starting from the very root
     /// </summary>
-    [Field(required: true, Description = "Entity caption is a short description")]
+    [Field(required: true, Description = "Full path of this tree node starting from the very root")]
     public string FullPath { get; set; }
 
     /// <summary>
