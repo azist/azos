@@ -343,7 +343,8 @@ app
 ## Log Sinks
 Log component can work with any custom `Sink`-derivative.
 
-**Note:** sinks are synchronous, the [`LogDaemon`](/src/Azos/Log/LogDaemon.cs) and [`ArchiveAppender`](/src/Azos/IO/Archiving/ArchiveAppender.cs) (used by the [`ArchiveSink`](/src/Azos/Log/Sinks/ArchiveSink.cs)) are asynchronous. 
+**Note:** sinks are synchronous, the [`LogDaemon`](/src/Azos/Log/LogDaemon.cs) and [`ArchiveAppender`](/src/Azos/IO/Archiving/ArchiveAppender.cs) 
+(used by the [`ArchiveSink`](/src/Azos/Log/Sinks/ArchiveSink.cs)) are asynchronous. 
 There is a [`LogDaemonSink`](/src/Azos/Log/Sinks/LogDaemonSink.cs) which is based on asynchronous 
 inner daemon. The following sinks are supplied right out of the box:
 
