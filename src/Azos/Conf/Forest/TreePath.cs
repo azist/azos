@@ -16,6 +16,8 @@ namespace Azos.Conf.Forest
   /// The `/` character delimits the segments. There may be maximum of PATH_SEGMENT_MAX_COUNT(0xff) segments, each may not be longer than SEGMENT_MAX_LEN(64).
   /// You can escape characters using `%xx` syntax, for example you can create a segment `a/b` like so `a%2fb` where `%2f` is ASCII for forward slash.
   /// The `%` can be escaped as `%25`.
+  /// Warning: by design for performance reasons (not to make extra allocations) this class is a mutable list of strings since it is not used for pub API facade
+  /// use caution changing paths while implementing forest server components
   /// </summary>
   public sealed class TreePath : List<string>
   {

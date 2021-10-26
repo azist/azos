@@ -14,6 +14,7 @@ using Azos.Apps;
 using System.Runtime.CompilerServices;
 using Azos.Serialization.JSON;
 using System.Threading.Tasks;
+using Azos.Data.Idgen;
 
 namespace Azos
 {
@@ -375,6 +376,23 @@ namespace Azos
       return default(TResult);
     }
 
+    /// <summary>
+    /// Returns current UTC Now using app precision time source
+    /// </summary>
+    public static DateTime GetUtcNow(this IApplication app) => app.NonNull(nameof(app)).TimeSource.UTCNow;
+
+    /// <summary>
+    /// Returns app cloud origin
+    /// </summary>
+    public static Atom GetCloudOrigin(this IApplication app)
+     => app.NonNull(nameof(app)).CloudOrigin.IsTrue(o => !o.IsZero && o.IsValid, "cloud-origin");
+
+
+    /// <summary>
+    /// Returns IGdidProvider
+    /// </summary>
+    public static IGdidProvider GetGdidProvider(this IApplication app)
+     => app.NonNull(nameof(app)).ModuleRoot.Get<IGdidProviderModule>().Provider;
 
   }
 }

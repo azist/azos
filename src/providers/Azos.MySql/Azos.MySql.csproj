@@ -26,6 +26,14 @@
     <ProjectReference Include="..\..\Azos\Azos.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="ConfForest/Queries/**/*.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="ConfForest/Queries/**/*.sql" />
+  </ItemGroup>
+
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
     <Exec Command="$(ProjectDir)_build/pre-build $(SolutionDir) $(ProjectDir) $(ConfigurationName)" />
   </Target>

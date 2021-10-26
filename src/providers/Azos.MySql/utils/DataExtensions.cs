@@ -13,7 +13,7 @@ namespace Azos.Data.Access.MySql
   /// <summary>
   /// Provides MySql extensions
   /// </summary>
-  public static class Extensions
+  public static class DataExtensions
   {
     public static string AsStringField(this MySqlDataReader reader, string fld, string dflt = null, ConvertErrorHandling handling = ConvertErrorHandling.ReturnDefault)
     {
