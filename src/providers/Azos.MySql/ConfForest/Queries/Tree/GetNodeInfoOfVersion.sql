@@ -1,0 +1,17 @@
+﻿select
+  TN.GDID AS GDID,
+  TL.GDID AS G_VERSION,
+  TL.G_PARENT,
+  TL.VERSION_UTC,
+  TL.VERSION_ORIGIN,
+  TL.VERSION_ACTOR,
+  TL.VERSION_STATE,
+  TL.MNEMONIC,
+  TL.CAPTION,
+  TL.START_UTC,
+  TL.PROPERTIES,
+  TL.CONFIG
+from
+  tbl_hnodelog TL inner join tbl_hnode TN on TL.G_NODE = TN.GDID
+where
+  (TL.GDID = @gv) AND (TN.ETYPE = @etp)
