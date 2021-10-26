@@ -122,7 +122,7 @@ namespace Azos.Conf.Forest.Server
         new Query.Param("gop", gop)
       };
 
-      var result = await m_Data.CorporateLoadEnumerableAsync(id.System, id.Type, qry);
+      var result = await m_Data.TreeLoadEnumerableAsync(id.System, id.Type, qry);
       return result;
     }
 

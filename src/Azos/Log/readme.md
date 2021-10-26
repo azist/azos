@@ -34,8 +34,30 @@ The following describes `Message` properties:
 <tr><th>Property</th><th>Description</th></tr>
 
 <tr>
+  <td>Gdid <br><sup>GDID</sup></td>
+  <td> Global distributed ID used by distributed log warehouses. The field is assigned by distributed warehouse implementations such as Sky Chronicle Logic. GDID.ZERO is used for local logging applications which do not use distributed ids.</td>
+</tr>
+
+<tr>
   <td>Guid <br><sup>Guid</sup></td>
-  <td> Provides global unique identifier for this log message instance</td>
+  <td> Provides global unique identifier for this log message instance. GDID.ZERO is used for local logging applications which do not use distributed ids.</td>
+</tr>
+
+<tr>
+  <td>RelatedTo <br><sup>Guid</sup></td>
+  <td> Gets/Sets global unique identifier of a message that this message is related to. No referential integrity check is performed.</td>
+</tr>
+
+<tr>
+  <td>App <br><sup>Atom</sup></td>
+  <td> Identifies the emitting application by including it asset identifier, taken from App.AppId.</td>
+</tr>
+
+<tr>
+  <td>Channel <br><sup>string</sup></td>
+  <td> 
+   Gets/Sets logical partition name for messages. This property is usually used in Archive for splitting destinations
+  </td>
 </tr>
 
 <tr>
@@ -64,6 +86,11 @@ which may not be set in which case local computer name is used. In Sky applicati
   </td>
 </tr>
 
+<tr>
+  <td>From <br><sup>string</sup></td>
+  <td> Gets/Sets logical component ID, such as: class name, method name, process instance, that generated the message.
+    This field is used in the scope of Topic </td>
+</tr>
 
 <tr>
   <td>Topic <br><sup>string</sup></td>
@@ -71,12 +98,6 @@ which may not be set in which case local computer name is used. In Sky applicati
    Gets/Sets a message topic/relation - the name of software concern within a big app, e.g. "Database", "Security" ...
    The `From` message property provides more detailed location under the specified `Topic`
  </td>
-</tr>
-
-<tr>
-  <td>From <br><sup>string</sup></td>
-  <td> Gets/Sets logical component ID, such as: class name, method name, process instance, that generated the message.
-    This field is used in the scope of Topic </td>
 </tr>
 
 <tr>
@@ -112,12 +133,6 @@ structured logging
   </td>
 </tr>
 
-<tr>
-  <td>Cahnnel <br><sup>string</sup></td>
-  <td> 
-   Gets/Sets logical partition name for messages. This property is usually used in Archive for splitting destinations
-  </td>
-</tr>
 
 </table>
 
@@ -281,13 +296,59 @@ app
 }
 ```
 
+
+
+## Customizing Sinks with Filtering
+An important aspect of proper logging is the ability to provide granular filtering of messages through the logging pipeline per sink.  The framework provides the ability to add expression tree advanced `filter` configuration as shown below:
+```CSharp
+app
+{
+  name="myapp" // name of the application
+  
+  paths//set all app paths here (this is not required, but recommended)
+  {
+    disk-root=$(~MY_APP_HOME) //disk root - take it from MY_APP_HOME env variable
+    log-path=$($disk-root)logs
+  }
+
+  log //this is app root logging component
+  {
+    name="applog"
+    write-interval-ms=500//flush queues once 0.5 sec
+
+      sink
+      {
+        order=11
+        name="vegetarian"//as an example we are going to write messages which pass filter
+        description="Only messages which satisfy filter"
+        type="CSVFileSink"
+        path=$(/paths/$log)
+        file-name="{0:yyyyMMdd}-$(/$name)-$($name).csv.log"
+        generate-failover-msg=true
+        filter //<---- use expression tree with predicates
+        {
+          tree
+          {
+            type='And'
+            flesh="*meat*;*chicken*;*fish*;*poultry*"
+            left  { type='ByFrom' exclude=$(../$flesh) }
+            right { type='ByText' exclude=$(../$flesh) }
+          }
+        }
+      }
+  }
+}
+```
+
 ## Log Sinks
 Log component can work with any custom `Sink`-derivative.
 
-**Note:** sinks are synchronous, the [`LogDaemon`](/src/Azos/Log/LogDaemon.cs) is asynchronous. 
+**Note:** sinks are synchronous, the [`LogDaemon`](/src/Azos/Log/LogDaemon.cs) and [`ArchiveAppender`](/src/Azos/IO/Archiving/ArchiveAppender.cs) 
+(used by the [`ArchiveSink`](/src/Azos/Log/Sinks/ArchiveSink.cs)) are asynchronous. 
 There is a [`LogDaemonSink`](/src/Azos/Log/Sinks/LogDaemonSink.cs) which is based on asynchronous 
 inner daemon. The following sinks are supplied right out of the box:
 
+- **ArchiveSink** - asynchronous high speed binary append only sink with numerous abstract `ArchiveAppender' implementations (e.g. BIX(biz info exchange), JSON, etc.)
 - **CSVFileSink** - dumps messages into local files in the parsable CSV file format
 - **CompositeSink** - creates a wrapper around multiple child sinks, used to set filtering and routing rules for sink sub-group
 - **ConsoleSink** - writes log messages into STDOUT/Console, with optional coloring
