@@ -4,13 +4,10 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 using Azos.Data.Access.MySql;
+using Azos.Conf.Forest.Server;
 
-namespace Azos.Conf.Forest.Server.Db
+namespace Azos.MySql.ConfForest
 {
   /// <summary>
   /// Declares a MySql data store for config forest tree.
