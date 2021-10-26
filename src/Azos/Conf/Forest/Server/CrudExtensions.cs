@@ -37,7 +37,7 @@ namespace Azos.Conf.Forest.Server
     /// <summary>
     /// Extension which loads enumerable returned by query executed in tree data context
     /// </summary>
-    public static ConfiguredTaskAwaitable<IEnumerable<TDoc>> CorporateLoadEnumerableAsync<TDoc>(this IForestDataSource forestData,
+    public static ConfiguredTaskAwaitable<IEnumerable<TDoc>> LoadEnumerableAsync<TDoc>(this IForestDataSource forestData,
                       Atom idForest,
                       Atom idTree,
                       Query<TDoc> qry) where TDoc : Doc
