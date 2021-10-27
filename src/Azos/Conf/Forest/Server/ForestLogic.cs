@@ -184,7 +184,14 @@ namespace Azos.Conf.Forest.Server
         keyCache, tblCache, caching,
         async key =>
         {
-          //todo: new query
+          if (gParent.IsZero || gParent == Constraints.G_VERY_ROOT_NODE)
+          {
+            //fetch the root node as-of date
+          }
+          else
+          {
+            //fetch by path segment as of date
+          }
           return new TreeNodeInfo();
         }
       ).ConfigureAwait(false);

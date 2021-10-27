@@ -85,7 +85,7 @@ namespace Azos.Conf.Forest
       {
         if (FormMode == FormMode.Insert)
         {
-          result = new ValidState(result, new DocValidationException(nameof(TreeNode), "Root tree node insert is prohibited. You may only update"));
+          result = new ValidState(result, new DocValidationException(nameof(TreeNode), "Root tree node insert is prohibited. May only update root nodes"));
         }
 
         if (PathSegment != Constraints.VERY_ROOT_PATH_SEGMENT)
@@ -107,7 +107,7 @@ namespace Azos.Conf.Forest
       if (FormMode == FormMode.Insert && m_GdidGenerator != null)
       {
         do Gdid = m_GdidGenerator.Provider.GenerateOneGdid(Constraints.ID_NS_CONFIG_FOREST_PREFIX + Forest.Value, Tree.Value);
-        while(Gdid == Constraints.G_VERY_ROOT_NODE);
+        while(Gdid == Constraints.G_VERY_ROOT_NODE);//skip the reserved value for root node gdid
       }
     }
 
