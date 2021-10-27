@@ -13,6 +13,7 @@ using Azos.Apps;
 using Azos.Data;
 using Azos.Data.Access;
 using Azos.Data.Business;
+using Azos.Platform;
 using Azos.Security.ConfigForest;
 
 namespace Azos.Conf.Forest.Server
@@ -24,8 +25,6 @@ namespace Azos.Conf.Forest.Server
   */
   public sealed class CorporateHierarchyLogic : ModuleBase, IForestLogic, IForestSetupLogic
   {
-    private const string CACHE_TBL_GENERIC = "CorporateHierarchyLogic.GENERIC";
-    private const string CACHE_TBL_HIERARCHY_NODE = "CorporateHierarchyLogic.HIERARCHY_NODE";
     private const string CONFIG_DATA_SECTION = "data";
 
     public CorporateHierarchyLogic(IApplication app) : base(app) { }
@@ -43,10 +42,9 @@ namespace Azos.Conf.Forest.Server
 //    [InjectModule] IEventProducer m_Events;
 
 
-    private void purgeHierarchyCacheTables()
+    private void purgeCacheTables()
     {
-      m_Data.Cache.Tables[CACHE_TBL_GENERIC]?.Purge();
-      m_Data.Cache.Tables[CACHE_TBL_HIERARCHY_NODE]?.Purge();
+      m_Data.Cache.PurgeAll();
     }
 
     protected override void DoConfigure(IConfigSectionNode node)
@@ -139,7 +137,7 @@ namespace Azos.Conf.Forest.Server
     #endregion
 
 
-    #region IForestSetyupLogic
+    #region IForestSetupLogic
     public Task<ValidState> ValidateNodeAsync(TreeNode node, ValidState state)
     {
       throw new NotImplementedException();
@@ -153,6 +151,45 @@ namespace Azos.Conf.Forest.Server
     public Task<ChangeResult> DeleteNodeAsync(EntityId id, DateTime? startUtc = null)
     {
       throw new NotImplementedException();
+    }
+    #endregion
+
+    #region pvt
+
+    //cache 2 atom concatenation as string
+    private static FiniteSetLookup<(Atom, Atom), string> s_CacheTableName =
+      new FiniteSetLookup<(Atom, Atom), string>((t) => "{0}::{1}".Args(t.Item1, t.Item2));
+
+    private async Task<TreeNodeInfo> getNodeByTreePath(Atom idForest, Atom idTree, TreePath path, DateTime asOfUtc, ICacheParams caching)
+    {
+      TreeNodeInfo node = null;
+      var gParent = GDID.ZERO;
+      for(var i = -1; i < path.Count; i++)
+      {
+        var segment = i < 0 ? Constraints.VERY_ROOT_PATH_SEGMENT : path[i];
+        node = await getNodeByPathSegment(idForest, idTree, gParent, segment, asOfUtc, caching).ConfigureAwait(false);
+        if (node == null) return null;// deleted
+        gParent = node.Gdid;
+      }
+
+      return node;
+    }
+
+    private async Task<TreeNodeInfo> getNodeByPathSegment(Atom idForest, Atom idTree, GDID gParent, string pathSegment, DateTime asOfUtc, ICacheParams caching)
+    {
+      var tblCache = s_CacheTableName[(idForest, idTree)];
+      var keyCache = gParent.ToHexString() + (pathSegment ?? string.Empty);
+
+      var node = await m_Data.Cache.FetchThroughAsync(
+        keyCache, tblCache, caching,
+        async key =>
+        {
+          //todo: new query
+          return new TreeNodeInfo();
+        }
+      ).ConfigureAwait(false);
+
+      return node;
     }
     #endregion
   }
