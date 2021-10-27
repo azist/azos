@@ -19,7 +19,7 @@ create table `tbl_nodelog`
  `VERSION_ACTOR`  varchar(256)   not null comment 'Who made the change',
  `VERSION_STATE`  CHAR(1)        not null comment 'The state of data: Inserted/Updated/Deleted',
  `G_NODE`         BINARY(12)     not null comment 'Node master reference',
- `G_PARENT`       VARBINARY(12)   comment 'Parent Node reference',
+ `G_PARENT`       BINARY(12)     not null comment 'Parent Node reference, for very root node it is `0:0:1`',
  `PATH_SEGMENT`   varchar(64)    not null comment 'Path Segment see Constaints.MAX_LEN = 64',
  `START_UTC`      DATETIME       not null comment 'As of which point in time the node takes effect',
  `PROPERTIES`     MEDIUMTEXT     not null comment 'Property configuration data',
@@ -37,3 +37,38 @@ delimiter ;.
   create  index `idx_tbl_nodelog_gpsd` on `tbl_nodelog`(`G_PARENT`, `START_UTC`);.
 delimiter ;.
   create  index `idx_tbl_nodelog_phsd` on `tbl_nodelog`(`PATH_SEGMENT`, `START_UTC`);.
+
+-- Create tree root node
+delimiter ;.
+insert into `tbl_node` (`GDID`, `CREATE_UTC`)
+values (0x000000000000000000000001, utc_timestamp());.
+
+delimiter ;.
+insert into `tbl_nodelog`
+(
+  `GDID`,
+  `VERSION_UTC`,
+  `VERSION_ORIGIN`,
+  `VERSION_ACTOR`,
+  `VERSION_STATE`,
+  `G_NODE`,
+  `G_PARENT`,
+  `PATH_SEGMENT`,
+  `START_UTC`,
+  `PROPERTIES`,
+  `CONFIG`
+)
+values
+(
+  0x000000000000000000000001, -- GDID
+  utc_timestamp(),  -- VERSION_UTC
+  7567731,          -- VERSION_ORIGIN - 0x737973 = `sys`
+  'usrn@idp::root', -- VERSION_ACTOR
+  'C',-- VERSION_STATE - 'C' = created
+  0x000000000000000000000001, -- G_NODE
+  0x000000000000000000000001, -- G_PARENT
+  '/', -- PATH_SEGMENT
+  '1000-01-01 00:00:00', -- START_UTC
+  '{"r": {}}', -- PROPERTIES
+  '{"r": {}}'  -- CONFIG
+);.
