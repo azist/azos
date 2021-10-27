@@ -29,7 +29,11 @@ namespace Azos.Conf.Forest.Server
     {
       try
       {
-        Id = new EntityId(id.System, id.Type, id.Schema, id.Address.NonBlank("address").ToLowerInvariant());//normalize the address
+        (id.System.IsValid && !id.System.IsZero).IsTrue("ForestId");
+        (id.Type.IsValid && !id.Type.IsZero).IsTrue("TreeId");
+        id.Address.NonBlank("Address");
+
+        Id = id = new EntityId(id.System, id.Type, id.Schema, id.Address.NonBlank("address").ToLowerInvariant());//normalize the address
 
         if (id.IsGNode() || id.IsGVersion())
         {
@@ -62,6 +66,7 @@ namespace Azos.Conf.Forest.Server
     public readonly TreePath PathAddress;
 
     public bool IsAssigned => Id.IsAssigned;
+    public TreePtr Tree => new TreePtr(Id);
 
     public bool Equals(GdidOrPath other) => this.Id == other.Id;
 
