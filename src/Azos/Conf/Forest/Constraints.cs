@@ -26,6 +26,17 @@ namespace Azos.Conf.Forest
     public const int CONFIG_MIN_LEN = 6; // {r:{}}
     public const int CONFIG_MAX_LEN = 512 * 1024;
 
+#warning THIS IS TENTATIVE NEED DESIGN!!!!!!!!!!!!!!!!!!!!!!!!  Why not require at least one path segment??? Why is this needed?
+#warning Reserve GDID for root node 0:0:1 (may not be Gdid.ZERO) as special GDID for very root node and treat it as a special case
+    /// <summary>
+    /// The name of the very root path segment.
+    /// Example: a path `us/oh` or equivalent `/us/oh` really has 3 levels: [`/`, `us`, `oh`] where the
+    /// very first level is implicit un-named root.
+    /// Note: the only time when TreeNode instances with G_Parent = null are allowed is  when their path segment is `/`.
+    /// There can be only one
+    /// </summary>
+    public const string VERY_ROOT_PATH_SEGMENT = "/";
+
     /// <summary>
     /// Returns true if the id is of `gnode` address schema
     /// </summary>
