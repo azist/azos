@@ -34,9 +34,7 @@ create table `tbl_nodelog`
 delimiter ;.
   create  index `idx_tbl_nodelog_gnsd` on `tbl_nodelog`(`G_NODE`, `START_UTC`);.
 delimiter ;.
-  create  index `idx_tbl_nodelog_gpsd` on `tbl_nodelog`(`G_PARENT`, `START_UTC`);.
-delimiter ;.
-  create  index `idx_tbl_nodelog_phsd` on `tbl_nodelog`(`PATH_SEGMENT`, `START_UTC`);.
+  create  index `idx_tbl_nodelog_gpsd` on `tbl_nodelog`(`G_PARENT`, `PATH_SEGMENT`, `START_UTC`);.
 
 -- Create tree root node
 delimiter ;.

@@ -192,7 +192,18 @@ namespace Azos.Conf.Forest.Server
           {
             //fetch by path segment as of date
           }
-          return new TreeNodeInfo();
+
+          var qry = new Query<TreeNodeInfo>("Tree.GetNodeInfo")
+          {
+            new Query.Param("idforest", idForest),
+            new Query.Param("idtree", idTree),
+            new Query.Param("gparent", gParent),
+            new Query.Param("psegment", pathSegment),
+            new Query.Param("asof", asOfUtc)
+          };
+
+
+          return await m_Data.TreeLoadDocAsync(idForest, idTree, qry);
         }
       ).ConfigureAwait(false);
 

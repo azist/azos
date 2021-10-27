@@ -42,5 +42,15 @@ namespace Azos.Conf.Forest.Server
                       Atom idTree,
                       Query<TDoc> qry) where TDoc : Doc
       => forestData.GetCrudData(idForest, idTree).LoadEnumerableAsync(qry).ConfigureAwait(false);
+
+
+    /// <summary>
+    /// Extension which loads a document returned by query executed in tree data context
+    /// </summary>
+    public static ConfiguredTaskAwaitable<TDoc> TreeLoadDocAsync<TDoc>(this IForestDataSource forestData,
+                      Atom idForest,
+                      Atom idTree,
+                      Query<TDoc> qry) where TDoc : Doc
+      => forestData.GetCrudData(idForest, idTree).LoadDocAsync(qry).ConfigureAwait(false);
   }
 }
