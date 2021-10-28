@@ -120,7 +120,7 @@ namespace Azos.Conf.Forest.Server
         new Query.Param("gop", gop)
       };
 
-      var result = await m_Data.TreeLoadEnumerableAsync(id.System, id.Type, qry);
+      var result = await m_Data.TreeLoadEnumerableAsync(gop.Tree, qry);
       return result;
     }
 
@@ -157,17 +157,17 @@ namespace Azos.Conf.Forest.Server
     #region pvt
 
     //cache 2 atom concatenation as string
-    private static FiniteSetLookup<(Atom, Atom), string> s_CacheTableName =
-      new FiniteSetLookup<(Atom, Atom), string>((t) => "{0}::{1}".Args(t.Item1, t.Item2));
+    private static FiniteSetLookup<TreePtr, string> s_CacheTableName =
+      new FiniteSetLookup<TreePtr, string>((t) => "{0}::{1}".Args(t.IdForest, t.IdTree));
 
-    private async Task<TreeNodeInfo> getNodeByTreePath(Atom idForest, Atom idTree, TreePath path, DateTime asOfUtc, ICacheParams caching)
+    private async Task<TreeNodeInfo> getNodeByTreePath(TreePtr tree, TreePath path, DateTime asOfUtc, ICacheParams caching)
     {
       TreeNodeInfo node = null;
       var gParent = GDID.ZERO;
       for(var i = -1; i < path.Count; i++)
       {
         var segment = i < 0 ? Constraints.VERY_ROOT_PATH_SEGMENT : path[i];
-        node = await getNodeByPathSegment(idForest, idTree, gParent, segment, asOfUtc, caching).ConfigureAwait(false);
+        node = await getNodeByPathSegment(tree, gParent, segment, asOfUtc, caching).ConfigureAwait(false);
         if (node == null) return null;// deleted
         gParent = node.Gdid;
       }
@@ -175,17 +175,23 @@ namespace Azos.Conf.Forest.Server
       return node;
     }
 
-    private async Task<TreeNodeInfo> getNodeByPathSegment(Atom idForest, Atom idTree, GDID gParent, string pathSegment, DateTime asOfUtc, ICacheParams caching)
+    private async Task<TreeNodeInfo> getNodeByPathSegment(TreePtr tree, GDID gParent, string pathSegment, DateTime asOfUtc, ICacheParams caching)
     {
-      var tblCache = s_CacheTableName[(idForest, idTree)];
+      var tblCache = s_CacheTableName[tree];
       var keyCache = gParent.ToHexString() + (pathSegment ?? string.Empty);
 
       var node = await m_Data.Cache.FetchThroughAsync(
         keyCache, tblCache, caching,
         async key =>
         {
-          //todo: new query
-          return new TreeNodeInfo();
+          var qry = new Query<TreeNodeInfo>("Tree.GetNodeInfo")
+          {
+            new Query.Param("tree", tree),
+            new Query.Param("gparent", gParent),
+            new Query.Param("psegment", pathSegment),
+            new Query.Param("asof", asOfUtc)
+          };
+          return await m_Data.TreeLoadDocAsync(tree, qry);
         }
       ).ConfigureAwait(false);
 

@@ -38,6 +38,11 @@ namespace Azos.Conf.Forest
     public const string VERY_ROOT_PATH_SEGMENT = "/";
 
     /// <summary>
+    /// The very root node GDID is hard-coded
+    /// </summary>
+    public static readonly GDID G_VERY_ROOT_NODE = new GDID(0, 1);//0:0:1
+
+    /// <summary>
     /// Returns true if the id is of `gnode` address schema
     /// </summary>
     public static bool IsGNode(this EntityId id) => id.Schema == SCH_GNODE;

@@ -77,6 +77,27 @@ namespace Azos.Conf.Forest
            Description = "Configuration content for this node level. Config is inherited from parent levels")]
     public ConfigVector Config { get; set; }
 
+    protected override ValidState DoBeforeValidateOnSave()
+    {
+      var result = new ValidState(DataStoreTargetName, ValidErrorMode.Batch);
+
+      if (G_Parent == GDID.ZERO || G_Parent == Constraints.G_VERY_ROOT_NODE)
+      {
+        if (FormMode == FormMode.Insert)
+        {
+          result = new ValidState(result, new DocValidationException(nameof(TreeNode), "Root tree node insert is prohibited. May only update root nodes"));
+        }
+
+        if (PathSegment != Constraints.VERY_ROOT_PATH_SEGMENT)
+        {
+          result = new ValidState(result, new FieldValidationException(this, nameof(PathSegment), $"Value must be `{Constraints.VERY_ROOT_PATH_SEGMENT}` for root tree node"));
+        }
+
+      }
+      return result;
+    }
+
+
     protected override async Task DoBeforeSaveAsync()
     {
       await base.DoBeforeSaveAsync().ConfigureAwait(false);
@@ -85,7 +106,8 @@ namespace Azos.Conf.Forest
       //in case of validation errors
       if (FormMode == FormMode.Insert && m_GdidGenerator != null)
       {
-        Gdid = m_GdidGenerator.Provider.GenerateOneGdid(Constraints.ID_NS_CONFIG_FOREST_PREFIX + Forest.Value, Tree.Value);
+        do Gdid = m_GdidGenerator.Provider.GenerateOneGdid(Constraints.ID_NS_CONFIG_FOREST_PREFIX + Forest.Value, Tree.Value);
+        while(Gdid == Constraints.G_VERY_ROOT_NODE);//skip the reserved value for root node gdid
       }
     }
 

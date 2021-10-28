@@ -7,7 +7,6 @@
 //using System;
 
 //using Azos;
-//using Azos.Conf.Forest;
 //using Azos.Conf.Forest.Server;
 //using Azos.Data;
 //using Azos.Data.Access;
@@ -25,7 +24,7 @@
 
 //    protected override void DoBuildCommandAndParameters(MySqlCrudQueryExecutionContext context, MySqlCommand cmd, Query qry)
 //    {
-//      var gom = qry.GetParameterValueAs<GdidOrPath>("gop");
+//      var gom = qry.GetParameterValueAs<GdidOrPath>("gom");
 //      context.SetState(gom);
 
 //      cmd.Parameters.AddWithValue("asof", qry.GetParameterValueAs<DateTime>("asof"));
@@ -45,11 +44,11 @@
 
 //    protected override Doc DoPopulateDoc(MySqlCrudQueryExecutionContext context, Type tDoc, Schema schema, Schema.FieldDef[] toLoad, MySqlDataReader reader)
 //    {
-//      var verState = VersionInfo.MapCanonicalState(reader.AsStringField("VERSION_STATE"));
+//      var verState = G8DataState.Map(reader.AsStringField("VERSION_STATE"));
 //      if (!VersionInfo.IsExistingStateOf(verState)) return null; //deleted, skip this doc
 
 //      var gom = context.GetState<GdidOrPath>();
-//      var result = new TreeNodeInfo();  CorporateNodeInfo.MakeOfType(gom.Type, reader.AsGdidField("G_PARENT"));
+//      var result = CorporateNodeInfo.MakeOfType(gom.Type, reader.AsGdidField("G_PARENT"));
 
 //      result.Gdid = reader.AsGdidField("GDID");
 //      result.Caption = reader.AsStringField("CAPTION");

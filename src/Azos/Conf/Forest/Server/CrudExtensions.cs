@@ -24,11 +24,11 @@ namespace Azos.Conf.Forest.Server
     /// <summary>
     /// Gets ICrudDataStore context for Corporate Area
     /// </summary>
-    public static ICrudDataStore GetCrudData(this IForestDataSource forestData, Atom idForest, Atom idTree)
+    public static ICrudDataStore GetCrudData(this IForestDataSource forestData, TreePtr tree)
     {
-      var tds = forestData.NonNull(nameof(forestData)).TryGetTreeDataStore(idForest, idTree);
+      var tds = forestData.NonNull(nameof(forestData)).TryGetTreeDataStore(tree.IdForest, tree.IdTree);
       if (tds == null)
-        throw new ConfigException("Forest `{0}` tree `{1}` is not found".Args(idForest, idTree));
+        throw new ConfigException("Forest tree `{0}` is not found".Args(tree));
 
       return (tds as ICrudDataStore).NonNull(DATA_STORE_CLAUSE);
     }
@@ -38,9 +38,17 @@ namespace Azos.Conf.Forest.Server
     /// Extension which loads enumerable returned by query executed in tree data context
     /// </summary>
     public static ConfiguredTaskAwaitable<IEnumerable<TDoc>> TreeLoadEnumerableAsync<TDoc>(this IForestDataSource forestData,
-                      Atom idForest,
-                      Atom idTree,
+                      TreePtr tree,
                       Query<TDoc> qry) where TDoc : Doc
-      => forestData.GetCrudData(idForest, idTree).LoadEnumerableAsync(qry).ConfigureAwait(false);
+      => forestData.GetCrudData(tree).LoadEnumerableAsync(qry).ConfigureAwait(false);
+
+
+    /// <summary>
+    /// Extension which loads a document returned by query executed in tree data context
+    /// </summary>
+    public static ConfiguredTaskAwaitable<TDoc> TreeLoadDocAsync<TDoc>(this IForestDataSource forestData,
+                      TreePtr tree,
+                      Query<TDoc> qry) where TDoc : Doc
+      => forestData.GetCrudData(tree).LoadDocAsync(qry).ConfigureAwait(false);
   }
 }
