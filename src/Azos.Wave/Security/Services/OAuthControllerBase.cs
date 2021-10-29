@@ -12,6 +12,7 @@ using Azos.Data;
 using Azos.Wave.Mvc;
 using Azos.Security.Tokens;
 using Azos.Serialization.JSON;
+using Azos.Wave;
 
 namespace Azos.Security.Services
 {
@@ -21,7 +22,7 @@ namespace Azos.Security.Services
   /// This class depends on Azos.Security.Services.IOAuthModule present in app chassis
   /// </summary>
   [NoCache]
-  public abstract class OAuthControllerBase : Controller
+  public abstract partial class OAuthControllerBase : Controller
   {
     //https://www.digitalocean.com/community/tutorials/an-introduction-to-oauth-2
     //https://medium.com/@darutk/diagrams-and-movies-of-all-the-oauth-2-0-flows-194f3c3ade85
@@ -36,18 +37,6 @@ namespace Azos.Security.Services
 
     /// <summary> References IOAuthModule dependency </summary>
     protected IOAuthModule OAuth => m_OAuth;
-
-
-    protected T GateError<T>(T response) => gate(response, false);
-    protected T GateUser<T>(T response) => gate(response, true);
-    private T gate<T>(T response, bool isInvalidUser)
-    {
-      var varName = isInvalidUser ? OAuth.GateVarInvalidUser : OAuth.GateVarErrors;
-      if (varName.IsNullOrWhiteSpace()) return response;
-      WorkContext.IncreaseGateVar(varName);
-      return response;
-    }
-
 
     /// <summary>
     /// Represents the entry point of OAuth flow
@@ -79,7 +68,7 @@ namespace Azos.Security.Services
       ResponseContent = "200 with either an HTML login form or JSON if it was requested via `Accept` header. 401 for bad requested parameters"
     )]
     [ActionOnGet(Name = "authorize")]
-    [ActionOnGet(Name = "authorization")]
+    [ActionOnGet(Name = "authorization")]    //note: param naming here and below is dictated by OAuth specification
     public async Task<object> Authorize_GET(string response_type, string scope, string client_id, string redirect_uri, string state)
     {
       //only Support CODE
@@ -104,44 +93,26 @@ namespace Azos.Security.Services
       var uriAllowed = await redirectPermission.CheckAsync(App, cluser).ConfigureAwait(false);
       if (!uriAllowed) return GateError(new Http403Forbidden("Unauthorized redirect Uri"));
 
-      //3. Generate result, such as JSON or Login Form
-      var startedUtc = App.TimeSource.UTCNow.ToSecondsSinceUnixEpochStart();
-      return RespondWithAuthorizeResult(startedUtc, cluser, response_type, scope, client_id, redirect_uri, state, error: null);
-    }
-
-    protected virtual object RespondWithAuthorizeResult(long sdUtc, User clientUser, string response_type, string scope, string client_id, string redirect_uri, string state, string error)
-    {
-      //Pack all requested content(session) into cryptographically encoded message aka "roundtrip"
-      var flow = new {
-        sd = sdUtc,
-        iss = App.TimeSource.UTCNow.ToSecondsSinceUnixEpochStart(),
-        tp = response_type,
-        scp = scope,
-        id = client_id,
-        uri = redirect_uri,
-        st = state
-      };
-      var roundtrip = App.SecurityManager.PublicProtectAsString(flow);
-
-      if (error!=null)
+      //3. SSO: See if the subject user is already logged-in (SSO is turned on)
+      var idSsoSession = TryExtractSsoSessionId();
+      if (idSsoSession != null)
       {
-        WorkContext.Response.StatusCode = WebConsts.STATUS_403;
-        WorkContext.Response.StatusDescription = error;
+        var ssoSubject = await TryGetSsoSubjectAsync(idSsoSession).ConfigureAwait(false);
+        if (ssoSubject != null)//valid
+        {
+          //SSO success ------------------
+          // 4A. Generate ClientAccessCodeToken
+          var result = await GenerateSuccessfulClientAccessCodeTokenRedirectAsync(ssoSubject,
+                                                                                  client_id,
+                                                                                  state,
+                                                                                  redirect_uri).ConfigureAwait(false);
+          return result;
+        }
       }
 
-      return MakeAuthorizeResult(clientUser, roundtrip, error);
-    }
-
-    /// <summary>
-    /// Override to provide a authorize result which is by default either a stock login form or
-    /// JSON object
-    /// </summary>
-    protected virtual object MakeAuthorizeResult(User clientUser, string roundtrip, string error)
-    {
-      if (WorkContext.RequestedJson)
-        return new { OK = error.IsNullOrEmpty(), roundtrip, error };
-
-      return new Wave.Templatization.StockContent.OAuthLogin(clientUser, roundtrip, error);
+      //4B. Generate result, such as JSON or Login Form
+      var startedUtc = App.TimeSource.UTCNow.ToSecondsSinceUnixEpochStart();
+      return RespondWithAuthorizeResult(startedUtc, cluser, response_type, scope, client_id, redirect_uri, state, error: null);
     }
 
     [ApiEndpointDoc(
@@ -204,23 +175,15 @@ namespace Azos.Security.Services
       }
 
       //success ------------------
+      // 5. SSO: if sso enabled, must set cookie
+#warning todo SET COOKIE
 
-      // 5. Generate ClientAccessCodeToken
-      var acToken = OAuth.TokenRing.GenerateNew<ClientAccessCodeToken>();
-      acToken.ClientId = clid;
-      acToken.State = flow["st"].AsString();
-      acToken.RedirectURI = flow["uri"].AsString();
-      acToken.SubjectSysAuthToken = subject.AuthToken.ToString();
-      var accessCode = await OAuth.TokenRing.PutAsync(acToken).ConfigureAwait(false);
-
-      //6. Redirect to URI
-      var redirect = new UriQueryBuilder(flow["uri"].AsString())
-      {
-        {"code", accessCode},
-        {"state", flow["st"].AsString()}
-      }.ToString();
-
-      return new Redirect(redirect);
+      // 6. Generate ClientAccessCodeToken
+      var result = await GenerateSuccessfulClientAccessCodeTokenRedirectAsync(subject,
+                                                                              clid,
+                                                                              flow["st"].AsString(),
+                                                                              flow["uri"].AsString()).ConfigureAwait(false);
+      return result;
     }
 
     /// <summary>
@@ -373,43 +336,6 @@ namespace Azos.Security.Services
       //for clarity
       WorkContext.Response.SetNoCacheHeaders(force: true);
       return new JsonResult(result, JsonWritingOptions.PrettyPrint);
-    }
-
-
-    /// <summary>
-    /// Override to add extra claims to id_token JWT
-    /// </summary>
-    protected virtual void AddExtraClaimsToIDToken(User clientUser, User subjectUser, AccessToken accessToken, JsonDataMap jwtClaims)
-    {
-    }
-
-    /// <summary>
-    /// Override to add extra field to response body (rarely needed)
-    /// </summary>
-    protected virtual void AddExtraFieldsToResponseBody(User clientUser, User subjectUser, AccessToken accessToken, JsonDataMap responseBody)
-    {
-    }
-
-    protected object ReturnError(string error, string error_description, string error_uri = null, int code = 400)
-    {
-      if (error.IsNullOrWhiteSpace())
-        error_uri = "invalid_request";
-
-      if (error_description.IsNullOrWhiteSpace())
-        error_description = "Could not be processed";
-
-      if (error_uri.IsNullOrWhiteSpace())
-       error_uri = "https://en.wikipedia.org/wiki/OAuth";
-
-      var json = new // https://www.oauth.com/oauth2-servers/access-tokens/access-token-response/
-      {
-        error,
-        error_description,
-        error_uri
-      };
-      WorkContext.Response.StatusCode = code;
-      WorkContext.Response.StatusDescription = "Bad request";
-      return new JsonResult(json, JsonWritingOptions.PrettyPrint);
     }
 
     //https://openid.net/specs/openid-connect-basic-1_0-28.html#userinfo
