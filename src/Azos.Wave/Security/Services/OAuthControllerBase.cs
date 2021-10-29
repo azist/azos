@@ -148,7 +148,7 @@ namespace Azos.Security.Services
       Title = "OAuth Authorize POST",
       Description = "Provides OAuth flow continuation taking Id/Password and returning client access code on success",
       RequestBody = "Login vector as: {roundtrip, id, pwd}",
-      ResponseContent = "200 with client access code or 401 for bad requested parameters. 403 for unauthorized client URI"
+      ResponseContent = "302 with client access code or 401 for bad requested parameters. 403 for unauthorized client URI"
     )]
     [ActionOnPost(Name = "authorize")]
     [ActionOnPost(Name = "authorization")]

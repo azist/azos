@@ -29,7 +29,7 @@ namespace Azos.Security.Services
     /// Imposes a maximum age of roundtrip state which is generated on flow start and checked at user credentials POST.
     /// Value is in seconds
     /// </summary>
-    int MaxAuthorizeRoundtripAgeSec { get; set;}
+    int MaxAuthorizeRoundtripAgeSec { get; set; }
 
     /// <summary>
     /// Imposes a maximum lifespan for access tokens. If the value is less or equal to zero, then access token defaults are used (e.g. 10 hrs)
@@ -43,10 +43,12 @@ namespace Azos.Security.Services
     int RefreshTokenLifespanSec { get; set; }
 
     /// <summary>
-    /// Returns true if the specified scope specification is supported. The string may contain multiple
-    /// scopes delimited by spaces or commas
+    /// Turns-on the Single Sign-on (SSO) session persistence when set. SSO "remembers" the user identity
+    /// between authorization calls. This way, multiple OAuth clients do not need to re-enter their
+    /// credentials. Depending on implementation this name may be used as a cookie name for storing session identifier.
+    /// If this setting is not set, then all SSO-related activities are inactivated.
     /// </summary>
-    bool CheckScope(string scope);
+    string SsoSessionName { get; set; }
 
     /// <summary>
     /// Returns security manager responsible for authentication and authorization of clients(applications) which
@@ -62,6 +64,13 @@ namespace Azos.Security.Services
     /// flows such as OAuth token grant, refresh tokens etc.
     /// </summary>
     Tokens.ITokenRing TokenRing { get; }
+
+
+    /// <summary>
+    /// Returns true if the specified scope specification is supported. The string may contain multiple
+    /// scopes delimited by spaces or commas
+    /// </summary>
+    bool CheckScope(string scope);
   }
 
   /// <summary>
