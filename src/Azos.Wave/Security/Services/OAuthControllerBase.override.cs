@@ -54,11 +54,11 @@ namespace Azos.Security.Services
     /// </summary>
     protected async virtual Task<(User subject, bool hasClient, bool hasScope)> TryGetSsoSubjectAsync(string idSsoSession, User clientUser, string scope)
     {
-      var session = App.SecurityManager.PublicUnprotectMap(idSsoSession);
+      var session = await OAuth.TokenRing.GetAsync<SsoSessionToken>(idSsoSession).ConfigureAwait(false);
       if (session == null) return (null, false, false);
-      //check expiration
-      var rawToken = session["sa"].AsString();
-      if (!SysAuthToken.TryParse(rawToken, out var sysToken)) return (null, false, false);
+
+      if (!SysAuthToken.TryParse(session.SysAuthToken, out var sysToken)) return (null, false, false);
+
       var ssoSubject =  await App.SecurityManager.AuthenticateAsync(sysToken).ConfigureAwait(false);
       if (!ssoSubject.IsAuthenticated) return (null, false, false); //sys auth token may have expired
 
@@ -66,7 +66,7 @@ namespace Azos.Security.Services
       //return (subject, hasClient, hasScope)
 
 
-      return (null, false, false);//for now
+      return (ssoSubject, false, false);//for now
     }
 
     protected virtual object RespondWithAuthorizeResult(long sdUtc, User clientUser, User ssoSubjectUser, string response_type, string scope, string client_id, string redirect_uri, string state, string error)
