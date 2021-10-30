@@ -11,6 +11,7 @@ using Azos.Wave.Mvc;
 using Azos.Security.Tokens;
 using Azos.Serialization.JSON;
 using Azos.Wave;
+using Azos.Data;
 
 namespace Azos.Security.Services
 {
@@ -47,14 +48,28 @@ namespace Azos.Security.Services
     }
 
     /// <summary>
-    /// Tries to get SSO subject user. or NULL if the SSO session id is invalid/or user revoked etc..
+    /// Tries to get SSO subject user by examining the supplied idSsoSession.
+    /// The session identified by the ID must match the supplied client user and scope.
+    /// Returns NULL if the SSO session id is invalid/or user revoked etc..
     /// </summary>
-    protected virtual Task<User> TryGetSsoSubjectAsync(string idSsoSession)
+    protected async virtual Task<(User subject, bool hasClient, bool hasScope)> TryGetSsoSubjectAsync(string idSsoSession, User clientUser, string scope)
     {
-      return null;
+      var session = App.SecurityManager.PublicUnprotectMap(idSsoSession);
+      if (session == null) return (null, false, false);
+      //check expiration
+      var rawToken = session["sa"].AsString();
+      if (!SysAuthToken.TryParse(rawToken, out var sysToken)) return (null, false, false);
+      var ssoSubject =  await App.SecurityManager.AuthenticateAsync(sysToken).ConfigureAwait(false);
+      if (!ssoSubject.IsAuthenticated) return (null, false, false); //sys auth token may have expired
+
+      //(hasClient, hasScope) = virtual InspectRights(user, clientUser, scope);//override to check your db table etc...
+      //return (subject, hasClient, hasScope)
+
+
+      return (null, false, false);//for now
     }
 
-    protected virtual object RespondWithAuthorizeResult(long sdUtc, User clientUser, string response_type, string scope, string client_id, string redirect_uri, string state, string error)
+    protected virtual object RespondWithAuthorizeResult(long sdUtc, User clientUser, User ssoSubjectUser, string response_type, string scope, string client_id, string redirect_uri, string state, string error)
     {
       //Pack all requested content(session) into cryptographically encoded message aka "roundtrip"
       var flow = new {
@@ -74,18 +89,22 @@ namespace Azos.Security.Services
         WorkContext.Response.StatusDescription = error;
       }
 
-      return MakeAuthorizeResult(clientUser, roundtrip, error);
+      return MakeAuthorizeResult(clientUser, ssoSubjectUser, scope, roundtrip, error);
     }
 
     /// <summary>
     /// Override to provide a authorize result which is by default either a stock login form or
     /// JSON object
     /// </summary>
-    protected virtual object MakeAuthorizeResult(User clientUser, string roundtrip, string error)
+    protected virtual object MakeAuthorizeResult(User clientUser, User ssoSubject, string scope, string roundtrip, string error)
     {
       if (WorkContext.RequestedJson)
         return new { OK = error.IsNullOrEmpty(), roundtrip, error };
 
+//20211029 DKh
+//todo: use SSOSUBJECT to return a different page with authorization of CLIENTUSER and SCOPE
+
+      //default always returns stock log-in page
       return new Wave.Templatization.StockContent.OAuthLogin(clientUser, roundtrip, error);
     }
 

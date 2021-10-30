@@ -95,14 +95,17 @@ namespace Azos.Security.Services
 
       //3. SSO: See if the subject user is already logged-in (SSO is turned on)
       var idSsoSession = TryExtractSsoSessionId();
+      User ssoSubjectUser = null;
       if (idSsoSession != null)
       {
-        var ssoSubject = await TryGetSsoSubjectAsync(idSsoSession).ConfigureAwait(false);
-        if (ssoSubject != null)//valid
+        var hasClient = false;
+        var hasScope = false;
+        (ssoSubjectUser, hasClient, hasScope) = await TryGetSsoSubjectAsync(idSsoSession, cluser, scope).ConfigureAwait(false);
+        if (ssoSubjectUser != null && ssoSubjectUser.IsAuthenticated && hasClient && hasScope)//valid
         {
           //SSO success ------------------
           // 4A. Generate ClientAccessCodeToken
-          var result = await GenerateSuccessfulClientAccessCodeTokenRedirectAsync(ssoSubject,
+          var result = await GenerateSuccessfulClientAccessCodeTokenRedirectAsync(ssoSubjectUser,
                                                                                   client_id,
                                                                                   state,
                                                                                   redirect_uri).ConfigureAwait(false);
@@ -112,7 +115,7 @@ namespace Azos.Security.Services
 
       //4B. Generate result, such as JSON or Login Form
       var startedUtc = App.TimeSource.UTCNow.ToSecondsSinceUnixEpochStart();
-      return RespondWithAuthorizeResult(startedUtc, cluser, response_type, scope, client_id, redirect_uri, state, error: null);
+      return RespondWithAuthorizeResult(startedUtc, cluser, ssoSubjectUser, response_type, scope, client_id, redirect_uri, state, error: null);
     }
 
     [ApiEndpointDoc(
@@ -164,6 +167,7 @@ namespace Azos.Security.Services
         await Task.Delay(1000);//this call resulting in error is guaranteed to take at least 1 second to complete, throttling down the hack attempts
         var redo = RespondWithAuthorizeResult(flow["sd"].AsLong(),
                                        cluser,
+                                       null,//ssoSubjectUser
                                        flow["tp"].AsString(),
                                        flow["scp"].AsString(),
                                        clid,
