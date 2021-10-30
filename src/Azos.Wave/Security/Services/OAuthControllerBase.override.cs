@@ -28,58 +28,68 @@ namespace Azos.Security.Services
       return response;
     }
 
-
+    /// <summary>
+    /// Override to allocate a custom derived type for login flow context
+    /// </summary>
+    protected virtual LoginFlow MakeLoginFlow() => new LoginFlow();
 
     /// <summary>
-    /// Override to extract SSO session cookie from the request.
+    /// Override to extract SSO session cookie from the request. The value (if any) is set on `loginFlow.SsoSessionId`
     /// Default implementation uses Request Cookie named OAuth.SsoSessionName if it is set.
-    /// You must return null if there is no such session id provided or OAuth.ssoSessionName is turned off (null or whitespace)
+    /// You must set loginFlow.SsoSessionId to null if there is no such session id provided or OAuth.ssoSessionName is turned off (null or whitespace)
     /// </summary>
-    /// <returns>Null or SSO Session ID as supplied by the caller</returns>
-    protected virtual string TryExtractSsoSessionId()
+    protected virtual void TryExtractSsoSessionId(LoginFlow loginFlow)
     {
       var ssoCookieName = OAuth.SsoSessionName;//copy
-      if (ssoCookieName.IsNullOrWhiteSpace()) return null;
+      if (ssoCookieName.IsNullOrWhiteSpace()) return;
       var cookie = WorkContext.Request.Cookies[ssoCookieName];
-      if (cookie == null) return null;
+      if (cookie == null) return;
       var result = cookie.Value;
-      if (result.IsNullOrWhiteSpace()) return null;
-      return result;
+      if (result.IsNullOrWhiteSpace()) return;
+
+      loginFlow.SsoSessionId = result;
     }
 
     /// <summary>
     /// Tries to get SSO subject user by examining the supplied idSsoSession.
-    /// The session identified by the ID must match the supplied client user and scope.
-    /// Returns NULL if the SSO session id is invalid/or user revoked etc..
+    /// Set sso user to NULL if the SSO session id is invalid/or user revoked etc..
     /// </summary>
-    protected async virtual Task<(User subject, bool hasClient, bool hasScope)> TryGetSsoSubjectAsync(string idSsoSession, User clientUser, string scope)
+    protected async virtual Task TryGetSsoSubjectAsync(LoginFlow loginFlow)
     {
-      var session = await OAuth.TokenRing.GetAsync<SsoSessionToken>(idSsoSession).ConfigureAwait(false);
-      if (session == null) return (null, false, false);
+      var session = await OAuth.TokenRing.GetAsync<SsoSessionToken>(loginFlow.SsoSessionId).ConfigureAwait(false);
+      if (session == null) return;
 
-      if (!SysAuthToken.TryParse(session.SysAuthToken, out var sysToken)) return (null, false, false);
+      if (!SysAuthToken.TryParse(session.SysAuthToken, out var sysToken)) return;
 
       var ssoSubject =  await App.SecurityManager.AuthenticateAsync(sysToken).ConfigureAwait(false);
-      if (!ssoSubject.IsAuthenticated) return (null, false, false); //sys auth token may have expired
+      if (!ssoSubject.IsAuthenticated) return; //sys auth token may have expired
 
-      //(hasClient, hasScope) = virtual InspectRights(user, clientUser, scope);//override to check your db table etc...
-      //return (subject, hasClient, hasScope)
-
-
-      return (ssoSubject, false, false);//for now
+      loginFlow.SsoSubjectUser = ssoSubject;
     }
 
-    protected virtual object RespondWithAuthorizeResult(long sdUtc, User clientUser, User ssoSubjectUser, string response_type, string scope, string client_id, string redirect_uri, string state, string error)
+    /// <summary>
+    /// Advances login flow state to the next level.
+    /// You may override this and accompanying "RespondWithAuthorizeResult/MakeAuthorizeResult"/>
+    /// method to build a complex login flows which return different views, such as 2FA etc.
+    /// </summary>
+    protected virtual Task AdvanceLoginFlowStateAsync(LoginFlow loginFlow)
+    {
+      if (loginFlow.IsValidSsoUser) loginFlow.FiniteStateSuccess = true;
+      return Task.CompletedTask;
+    }
+
+
+    protected virtual object RespondWithAuthorizeResult(long sdUtc, LoginFlow loginFlow, string error)
     {
       //Pack all requested content(session) into cryptographically encoded message aka "roundtrip"
       var flow = new {
-        sd = sdUtc,
+        sd  = sdUtc,
         iss = App.TimeSource.UTCNow.ToSecondsSinceUnixEpochStart(),
-        tp = response_type,
-        scp = scope,
-        id = client_id,
-        uri = redirect_uri,
-        st = state
+        tp  = loginFlow.ClientResponseType,
+        scp = loginFlow.ClientScope,
+        id  = loginFlow.ClientId,
+        uri = loginFlow.ClientRedirectUri,
+        st  = loginFlow.ClientState
       };
       var roundtrip = App.SecurityManager.PublicProtectAsString(flow);
 
@@ -89,23 +99,23 @@ namespace Azos.Security.Services
         WorkContext.Response.StatusDescription = error;
       }
 
-      return MakeAuthorizeResult(clientUser, ssoSubjectUser, scope, roundtrip, error);
+      return MakeAuthorizeResult(loginFlow, roundtrip, error);
     }
 
     /// <summary>
     /// Override to provide a authorize result which is by default either a stock login form or
     /// JSON object
     /// </summary>
-    protected virtual object MakeAuthorizeResult(User clientUser, User ssoSubject, string scope, string roundtrip, string error)
+    protected virtual object MakeAuthorizeResult(LoginFlow loginFlow, string roundtrip, string error)
     {
       if (WorkContext.RequestedJson)
         return new { OK = error.IsNullOrEmpty(), roundtrip, error };
 
-//20211029 DKh
-//todo: use SSOSUBJECT to return a different page with authorization of CLIENTUSER and SCOPE
+      //20211029 DKh
+      //todo: use loginFlow.sso etc... to return a different CONFIRMATION page with authorization of CLIENTUSER and SCOPE
 
       //default always returns stock log-in page
-      return new Wave.Templatization.StockContent.OAuthLogin(clientUser, roundtrip, error);
+      return new Wave.Templatization.StockContent.OAuthLogin(loginFlow.ClientUser, roundtrip, error);
     }
 
 

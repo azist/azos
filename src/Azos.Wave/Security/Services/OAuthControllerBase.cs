@@ -93,29 +93,39 @@ namespace Azos.Security.Services
       var uriAllowed = await redirectPermission.CheckAsync(App, cluser).ConfigureAwait(false);
       if (!uriAllowed) return GateError(new Http403Forbidden("Unauthorized redirect Uri"));
 
-      //3. SSO: See if the subject user is already logged-in (SSO is turned on)
-      var idSsoSession = TryExtractSsoSessionId();
-      User ssoSubjectUser = null;
-      if (idSsoSession != null)
-      {
-        var hasClient = false;
-        var hasScope = false;
-        (ssoSubjectUser, hasClient, hasScope) = await TryGetSsoSubjectAsync(idSsoSession, cluser, scope).ConfigureAwait(false);
-        if (ssoSubjectUser != null && ssoSubjectUser.IsAuthenticated && hasClient && hasScope)//valid
-        {
-          //SSO success ------------------
-          // 4A. Generate ClientAccessCodeToken
-          var result = await GenerateSuccessfulClientAccessCodeTokenRedirectAsync(ssoSubjectUser,
-                                                                                  client_id,
-                                                                                  state,
-                                                                                  redirect_uri).ConfigureAwait(false);
-          return result;
-        }
-      }
+      //3. Establish a login flow instance of appropriate type (factory method)
+      var loginFlow = MakeLoginFlow();
+      loginFlow.ClientId = client_id;
+      loginFlow.ClientResponseType = response_type;
+      loginFlow.ClientUser = cluser;
+      loginFlow.ClientScope = scope;
+      loginFlow.ClientRedirectUri = redirect_uri;
+      loginFlow.ClientState = state;
 
-      //4B. Generate result, such as JSON or Login Form
+      //4. SSO: See if the subject user is already logged-in (SSO is turned on)
+      TryExtractSsoSessionId(loginFlow);
+      if (loginFlow.HasSsoSessionId)
+      {
+        await TryGetSsoSubjectAsync(loginFlow).ConfigureAwait(false);
+        if (loginFlow.IsValidSsoUser)
+        {
+          await AdvanceLoginFlowStateAsync(loginFlow).ConfigureAwait(false);
+          if (loginFlow.FiniteStateSuccess)//all set, there is nothing else to do with login, so shirt-circuit to OAuth redirect
+          {
+            //SSO success ------------------
+            // 5A. Generate ClientAccessCodeToken
+            var result = await GenerateSuccessfulClientAccessCodeTokenRedirectAsync(loginFlow.SsoSubjectUser,
+                                                                                    client_id,
+                                                                                    state,
+                                                                                    redirect_uri).ConfigureAwait(false);
+            return result;
+          }
+        }//ssoSubjectUser
+      }//idSsoSession
+
+      //5B. Generate result, such as JSON or Login Form
       var startedUtc = App.TimeSource.UTCNow.ToSecondsSinceUnixEpochStart();
-      return RespondWithAuthorizeResult(startedUtc, cluser, ssoSubjectUser, response_type, scope, client_id, redirect_uri, state, error: null);
+      return RespondWithAuthorizeResult(startedUtc, loginFlow, error: null);
     }
 
     [ApiEndpointDoc(
@@ -126,7 +136,7 @@ namespace Azos.Security.Services
     )]
     [ActionOnPost(Name = "authorize")]
     [ActionOnPost(Name = "authorization")]
-    public async virtual Task<object> Authorize_POST(string roundtrip, string id, string pwd)
+    public async virtual Task<object> Authorize_POST(string roundtrip, string id, string pwd, bool keepLogin = false)
     {
       var flow = App.SecurityManager.PublicUnprotectMap(roundtrip);
       if (flow == null) return GateError(new Http401Unauthorized("Bad Request X1"));//we don't have ACL yet, hence can't check redirect_uri
@@ -165,15 +175,16 @@ namespace Azos.Security.Services
       if (!subject.IsAuthenticated)
       {
         await Task.Delay(1000);//this call resulting in error is guaranteed to take at least 1 second to complete, throttling down the hack attempts
-        var redo = RespondWithAuthorizeResult(flow["sd"].AsLong(),
-                                       cluser,
-                                       null,//ssoSubjectUser
-                                       flow["tp"].AsString(),
-                                       flow["scp"].AsString(),
-                                       clid,
-                                       flow["uri"].AsString(),
-                                       flow["st"].AsString(),
-                                       "Bad login");//!!! DO NOT disclose any more details
+        //////////var redo = RespondWithAuthorizeResult(flow["sd"].AsLong(),
+        //////////                               cluser,
+        //////////                               null,//ssoSubjectUser
+        //////////                               flow["tp"].AsString(),
+        //////////                               flow["scp"].AsString(),
+        //////////                               clid,
+        //////////                               flow["uri"].AsString(),
+        //////////                               flow["st"].AsString(),
+        //////////                               "Bad login");//!!! DO NOT disclose any more details
+var redo = "";//temp
 
         return GateUser(redo);
       }
