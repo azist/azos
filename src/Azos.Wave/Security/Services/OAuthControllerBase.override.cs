@@ -138,6 +138,14 @@ namespace Azos.Security.Services
       return new Redirect(redirect);
     }
 
+    /// <summary>
+    /// Override to add extra information to <see cref="AuthenticationRequestContext"/>.
+    /// Default implementation does nothing
+    /// </summary>
+    protected virtual void ConfigureAuthenticationRequestContext(LoginFlow loginFlow, AuthenticationRequestContext context)
+    {
+    }
+
 
     /// <summary>
     /// Override to add extra claims to id_token JWT

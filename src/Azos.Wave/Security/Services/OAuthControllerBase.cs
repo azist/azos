@@ -136,7 +136,7 @@ namespace Azos.Security.Services
     )]
     [ActionOnPost(Name = "authorize")]
     [ActionOnPost(Name = "authorization")]
-    public async virtual Task<object> Authorize_POST(string roundtrip, string id, string pwd, bool keepLogin = false)
+    public async virtual Task<object> Authorize_POST(string roundtrip, string id, string pwd, bool stay = false)
     {
       var flow = App.SecurityManager.PublicUnprotectMap(roundtrip);
       if (flow == null) return GateError(new Http401Unauthorized("Bad Request X1"));//we don't have ACL yet, hence can't check redirect_uri
@@ -157,7 +157,16 @@ namespace Azos.Security.Services
       var uriAllowed = await redirectPermission.CheckAsync(App, cluser).ConfigureAwait(false);
       if (!uriAllowed) return GateError(new Http403Forbidden("Unauthorized redirect Uri"));
 
-      //4. Check user credentials for the subject
+      //4. Establish a login flow instance of appropriate type (factory method)
+      var loginFlow = MakeLoginFlow();
+      loginFlow.ClientId = clid;
+      loginFlow.ClientResponseType = flow["tp"].AsString();
+      loginFlow.ClientUser = cluser;
+      loginFlow.ClientScope = flow["scp"].AsString();
+      loginFlow.ClientRedirectUri = flow["uri"].AsString();
+      loginFlow.ClientState = flow["st"].AsString();
+
+      //5. Check user credentials for the subject
       var subjcred = new IDPasswordCredentials(id, pwd);
       var oauthCtx = new AuthenticationRequestContext
       {
@@ -170,34 +179,30 @@ namespace Azos.Security.Services
         oauthCtx.SysAuthTokenValiditySpanSec = OAuth.AccessTokenLifespanSec + 60;//+1 min for login
       }
 
+      ConfigureAuthenticationRequestContext(loginFlow, oauthCtx);
+
 
       var subject = await App.SecurityManager.AuthenticateAsync(subjcred, oauthCtx).ConfigureAwait(false);
       if (!subject.IsAuthenticated)
       {
-        await Task.Delay(1000);//this call resulting in error is guaranteed to take at least 1 second to complete, throttling down the hack attempts
-        //////////var redo = RespondWithAuthorizeResult(flow["sd"].AsLong(),
-        //////////                               cluser,
-        //////////                               null,//ssoSubjectUser
-        //////////                               flow["tp"].AsString(),
-        //////////                               flow["scp"].AsString(),
-        //////////                               clid,
-        //////////                               flow["uri"].AsString(),
-        //////////                               flow["st"].AsString(),
-        //////////                               "Bad login");//!!! DO NOT disclose any more details
-var redo = "";//temp
-
+        //this call resulting in error is guaranteed to take at least 0.5 second to complete, throttling down the hack attempts
+        await Task.Delay(Ambient.Random.NextScaledRandomInteger(500, 1500)).ConfigureAwait(false);
+        var redo = RespondWithAuthorizeResult(flow["sd"].AsLong(), loginFlow, "Bad login");//!!! DO NOT disclose any more details
         return GateUser(redo);
       }
 
       //success ------------------
       // 5. SSO: if sso enabled, must set cookie
+      if (stay)
+      {
 #warning todo SET COOKIE
+      }
 
       // 6. Generate ClientAccessCodeToken
       var result = await GenerateSuccessfulClientAccessCodeTokenRedirectAsync(subject,
-                                                                              clid,
-                                                                              flow["st"].AsString(),
-                                                                              flow["uri"].AsString()).ConfigureAwait(false);
+                                                                              loginFlow.ClientId,
+                                                                              loginFlow.ClientState,
+                                                                              loginFlow.ClientRedirectUri).ConfigureAwait(false);
       return result;
     }
 
