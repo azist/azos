@@ -161,10 +161,10 @@ namespace Azos.Security.Services
       var loginFlow = MakeLoginFlow();
       loginFlow.ClientId = clid;
       loginFlow.ClientResponseType = flow["tp"].AsString();
-      loginFlow.ClientUser = cluser;
-      loginFlow.ClientScope = flow["scp"].AsString();
-      loginFlow.ClientRedirectUri = flow["uri"].AsString();
-      loginFlow.ClientState = flow["st"].AsString();
+      loginFlow.ClientUser         = cluser;
+      loginFlow.ClientScope        = flow["scp"].AsString();
+      loginFlow.ClientRedirectUri  = flow["uri"].AsString();
+      loginFlow.ClientState        = flow["st"].AsString();
 
       //5. Check user credentials for the subject
       var subjcred = new IDPasswordCredentials(id, pwd);
@@ -183,27 +183,46 @@ namespace Azos.Security.Services
 
 
       var subject = await App.SecurityManager.AuthenticateAsync(subjcred, oauthCtx).ConfigureAwait(false);
-      if (!subject.IsAuthenticated)
+      loginFlow.SubjectUser = subject;
+      loginFlow.SubjectUserWasJustSet = true;
+      if (!subject.IsAuthenticated)  //e.g. 2FA will report as NOT(yet)Authenticated
       {
         //this call resulting in error is guaranteed to take at least 0.5 second to complete, throttling down the hack attempts
         await Task.Delay(Ambient.Random.NextScaledRandomInteger(500, 1500)).ConfigureAwait(false);
+
+        //What is next, user is bad
+        await AdvanceLoginFlowStateAsync(loginFlow).ConfigureAwait(false);
+
         var redo = RespondWithAuthorizeResult(flow["sd"].AsLong(), loginFlow, "Bad login");//!!! DO NOT disclose any more details
         return GateUser(redo);
       }
 
       //success ------------------
-      // 5. SSO: if sso enabled, must set cookie
-      if (stay)
+      // 6. SSO
+      var ssoSessionName = OAuth.SsoSessionName;//make copy
+      if (stay && ssoSessionName.IsNotNullOrWhiteSpace())//if STAY logged-in was checked
       {
-#warning todo SET COOKIE
+        await SetSsoSubjectSessionAsync(loginFlow, utcNow, subject).ConfigureAwait(false);
+        //e.g. sets a cookie
+        SetSsoSessionId(loginFlow, ssoSessionName);
       }
 
-      // 6. Generate ClientAccessCodeToken
-      var result = await GenerateSuccessfulClientAccessCodeTokenRedirectAsync(subject,
-                                                                              loginFlow.ClientId,
-                                                                              loginFlow.ClientState,
-                                                                              loginFlow.ClientRedirectUri).ConfigureAwait(false);
-      return result;
+      //7. Advance the flow to determine whats next
+      await AdvanceLoginFlowStateAsync(loginFlow).ConfigureAwait(false);
+
+      if (loginFlow.FiniteStateSuccess)
+      {
+        // 8A. Generate ClientAccessCodeToken
+        var result = await GenerateSuccessfulClientAccessCodeTokenRedirectAsync(subject,
+                                                                                loginFlow.ClientId,
+                                                                                loginFlow.ClientState,
+                                                                                loginFlow.ClientRedirectUri,
+                                                                                usePageRedirect: loginFlow.SsoWasJustSet).ConfigureAwait(false);
+        return result;
+      }
+
+      //8B. Generate result, such as JSON or next step in the flow Form
+      return RespondWithAuthorizeResult(flow["sd"].AsLong(), loginFlow, error: null);
     }
 
     /// <summary>

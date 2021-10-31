@@ -61,6 +61,11 @@ namespace Azos.Security.Services
     public User SsoSubjectUser { get; set; }
 
     /// <summary>
+    /// True if SsoSubjectUser was just set in THIS PROCESSING cycle
+    /// </summary>
+    public bool SsoWasJustSet {  get; set; }
+
+    /// <summary>
     /// When set, tells the system when the SSO user logged-in for the last time
     /// </summary>
     public DateTime? SsoSubjectLastLoginUtc {  get; set;}
@@ -69,6 +74,23 @@ namespace Azos.Security.Services
     /// True if there is a valid authenticated SsoSubjectUser
     /// </summary>
     public bool IsValidSsoUser => SsoSubjectUser != null && SsoSubjectUser.IsAuthenticated;
+
+
+    /// <summary>
+    /// When set, indicates the current subject user
+    /// </summary>
+    public User SubjectUser { get; set; }
+
+    /// <summary>
+    /// True if there is a valid authenticated SubjectUser
+    /// </summary>
+    public bool IsValidSubjectUser => SubjectUser != null && SubjectUser.IsAuthenticated;
+
+    /// <summary>
+    /// True if SubjectUser was just set in THIS PROCESSING cycle
+    /// </summary>
+    public bool SubjectUserWasJustSet { get; set; }
+
 
 
     /// <summary>

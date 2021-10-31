@@ -12,6 +12,7 @@ using Azos.Security.Tokens;
 using Azos.Serialization.JSON;
 using Azos.Wave;
 using Azos.Data;
+using System.Net;
 
 namespace Azos.Security.Services
 {
@@ -50,6 +51,14 @@ namespace Azos.Security.Services
       loginFlow.SsoSessionId = result;
     }
 
+    protected virtual void SetSsoSessionId(LoginFlow loginFlow, string ssoSessionName)
+    {
+      var cookie = new Cookie(ssoSessionName, loginFlow.SsoSessionId);
+      cookie.HttpOnly = true;
+      cookie.Secure = true;
+      WorkContext.Response.AppendCookie(cookie);
+    }
+
     /// <summary>
     /// Tries to get SSO subject user by examining the supplied idSsoSession.
     /// Set sso user to NULL if the SSO session id is invalid/or user revoked etc..
@@ -67,6 +76,17 @@ namespace Azos.Security.Services
       loginFlow.SsoSubjectUser = ssoSubject;
     }
 
+    protected async virtual Task SetSsoSubjectSessionAsync(LoginFlow loginFlow, DateTime lastLoginUtc, User ssoSubjectUser)
+    {
+      loginFlow.SsoWasJustSet = true;
+      loginFlow.SsoSubjectLastLoginUtc = lastLoginUtc;
+      loginFlow.SsoSubjectUser = ssoSubjectUser;
+      var session = OAuth.TokenRing.GenerateNew<SsoSessionToken>();
+      session.SysAuthToken = loginFlow.SsoSubjectUser.AuthToken.ToString();
+      loginFlow.SsoSessionId = await OAuth.TokenRing.PutAsync(session).ConfigureAwait(false);
+    }
+
+
     /// <summary>
     /// Advances login flow state to the next level.
     /// You may override this and accompanying "RespondWithAuthorizeResult/MakeAuthorizeResult"/>
@@ -75,6 +95,7 @@ namespace Azos.Security.Services
     protected virtual Task AdvanceLoginFlowStateAsync(LoginFlow loginFlow)
     {
       if (loginFlow.IsValidSsoUser) loginFlow.FiniteStateSuccess = true;
+      if (loginFlow.IsValidSubjectUser) loginFlow.FiniteStateSuccess = true;
       return Task.CompletedTask;
     }
 
@@ -111,15 +132,12 @@ namespace Azos.Security.Services
       if (WorkContext.RequestedJson)
         return new { OK = error.IsNullOrEmpty(), roundtrip, error };
 
-      //20211029 DKh
-      //todo: use loginFlow.sso etc... to return a different CONFIRMATION page with authorization of CLIENTUSER and SCOPE
-
-      //default always returns stock log-in page
+      //stock log-in page
       return new Wave.Templatization.StockContent.OAuthLogin(loginFlow.ClientUser, roundtrip, error);
     }
 
 
-    protected virtual async Task<object> GenerateSuccessfulClientAccessCodeTokenRedirectAsync(User subject, string clid, string state, string uri)
+    protected virtual async Task<object> GenerateSuccessfulClientAccessCodeTokenRedirectAsync(User subject, string clid, string state, string uri, bool usePageRedirect = false)
     {
       var acToken = OAuth.TokenRing.GenerateNew<ClientAccessCodeToken>();
       acToken.ClientId = clid;
@@ -135,7 +153,10 @@ namespace Azos.Security.Services
         {"state", state}
       }.ToString();
 
-      return new Redirect(redirect);
+      if (usePageRedirect)
+        return new Wave.Templatization.StockContent.OAuthSsoRedirect(redirect);
+      else
+        return new Redirect(redirect);
     }
 
     /// <summary>
