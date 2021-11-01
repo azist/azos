@@ -146,7 +146,7 @@ namespace Azos.Instrumentation
       //Execution MANDATES handler authorization of the calling principal
       if (execute)
       {
-        Permission.AuthorizeAndGuardAction(App, tr);
+        Permission.AuthorizeAndGuardAction(App.SecurityManager, tr);
       }
 
       //Create instance of the appropriate handler

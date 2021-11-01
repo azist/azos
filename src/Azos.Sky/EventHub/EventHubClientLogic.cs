@@ -160,7 +160,7 @@ namespace Azos.Sky.EventHub
       var ve = evt.NonNull(nameof(evt)).Validate();
       if (ve != null) throw ve;
 
-      EventProducerPermission.Instance.Check(App);
+      EventProducerPermission.Instance.Check(App.SecurityManager);
 
       //Capture the checkpoint time as of writing
       evt.CheckpointUtc = App.TimeSource.UTCNow.ToUnsignedMillisecondsSinceUnixEpochStart();
@@ -212,7 +212,7 @@ namespace Azos.Sky.EventHub
       if (count <= 0) count = FetchBy;
       count = count.KeepBetween(1, FETCH_BY_MAX);
 
-      EventConsumerPermission.Instance.Check(App);
+      EventConsumerPermission.Instance.Check(App.SecurityManager);
 
       var all = m_Server.GetEndpointsForCall(OriginServiceAddress,
                                              nameof(IEventConsumer),
@@ -269,7 +269,7 @@ namespace Azos.Sky.EventHub
       route.IsTrue(v => v.Assigned, "assigned Route");
       idConsumer.NonBlank(nameof(idConsumer));
 
-      EventConsumerPermission.Instance.Check(App);
+      EventConsumerPermission.Instance.Check(App.SecurityManager);
 
       var all = m_Server.GetEndpointsForCall(OriginServiceAddress,
                                             nameof(IEventConsumer),
@@ -316,7 +316,7 @@ namespace Azos.Sky.EventHub
 
       idConsumer.NonBlank(nameof(idConsumer));
 
-      EventProducerPermission.Instance.Check(App);
+      EventProducerPermission.Instance.Check(App.SecurityManager);
 
       var all = m_Server.GetEndpointsForCall(OriginServiceAddress,
                                             nameof(IEventProducer),

@@ -51,9 +51,9 @@ namespace Azos.Security
     /// Checks the action represented by MemberInfo by checking the permission-derived attributes and returns false if
     /// any of authorization attributes do not pass
     /// </summary>
-    public static bool AuthorizeAction(IApplication app, MemberInfo actionInfo, ISession session = null, GetSessionFunc getSessionFunc = null)
+    public static bool AuthorizeAction(ISecurityManager secman, MemberInfo actionInfo, ISession session = null, GetSessionFunc getSessionFunc = null)
     {
-      return FindAuthorizationFailingPermission(app, actionInfo, session, getSessionFunc) == null;
+      return FindAuthorizationFailingPermission(secman, actionInfo, session, getSessionFunc) == null;
     }
 
 
@@ -64,7 +64,7 @@ namespace Azos.Security
     /// Checks the action represented by MemberInfo by checking the permission-derived attributes and returns false if
     /// any of authorization attributes do not pass
     /// </summary>
-    public static Permission FindAuthorizationFailingPermission(IApplication app, MemberInfo actionInfo, ISession session = null, GetSessionFunc getSessionFunc = null)
+    public static Permission FindAuthorizationFailingPermission(ISecurityManager secman, MemberInfo actionInfo, ISession session = null, GetSessionFunc getSessionFunc = null)
     { //20150124 DKh - added caching instead of reflection. Glue inproc binding speed improved 20%
       Permission[] permissions;
       if (!s_AttrCache.TryGetValue(actionInfo, out permissions))
@@ -80,7 +80,7 @@ namespace Azos.Security
       {
         var permission = permissions[i];
         if (i==0 && session==null && getSessionFunc!=null) session = getSessionFunc();
-        if (!permission.Check(app, session)) return permission;
+        if (!permission.Check(secman, session)) return permission;
       }
       return null;
     }
@@ -89,12 +89,12 @@ namespace Azos.Security
     /// Guards the action represented by MemberInfo by checking the permission-derived attributes and throwing exception if
     /// any of authorization attributes do not pass
     /// </summary>
-    public static void AuthorizeAndGuardAction(IApplication app,
+    public static void AuthorizeAndGuardAction(ISecurityManager secman,
                                                MemberInfo actionInfo,
                                                ISession session = null,
                                                GetSessionFunc getSessionFunc = null)
     {
-      var failed = FindAuthorizationFailingPermission(app, actionInfo, session, getSessionFunc);
+      var failed = FindAuthorizationFailingPermission(secman, actionInfo, session, getSessionFunc);
 
       if (failed!=null)
         throw new AuthorizationException(string.Format(StringConsts.SECURITY_AUTHROIZATION_ERROR, failed,  actionInfo.ToDescription()));
@@ -110,7 +110,7 @@ namespace Azos.Security
     /// Guards the action represented by enumerable of permissions by checking all permissions and throwing exception if
     /// any of authorization attributes do not pass
     /// </summary>
-    public static void AuthorizeAndGuardAction(IApplication app,
+    public static void AuthorizeAndGuardAction(ISecurityManager secman,
                                                IEnumerable<Permission> permissions,
                                                string actionName,
                                                ISession session = null,
@@ -121,7 +121,7 @@ namespace Azos.Security
 
       if (session==null && permissions.Any() && getSessionFunc!=null) session = getSessionFunc();
 
-      var failed = permissions.FirstOrDefault(perm => perm!=null && !perm.Check(app, session));
+      var failed = permissions.FirstOrDefault(perm => perm!=null && !perm.Check(secman, session));
 
       if (failed!=null)
         throw new AuthorizationException(string.Format(StringConsts.SECURITY_AUTHROIZATION_ERROR, failed,  actionName ?? CoreConsts.UNKNOWN));
@@ -130,7 +130,7 @@ namespace Azos.Security
     /// <summary>
     /// Guards the action  by checking a single permission and throwing exception if any of authorization attributes do not pass
     /// </summary>
-    public static void AuthorizeAndGuardAction(IApplication app,
+    public static void AuthorizeAndGuardAction(ISecurityManager secman,
                                                Permission permission,
                                                string actionName,
                                                ISession session = null,
@@ -140,7 +140,7 @@ namespace Azos.Security
 
       if (session == null && getSessionFunc != null) session = getSessionFunc();
 
-      var failed = !permission.Check(app, session);
+      var failed = !permission.Check(secman, session);
 
       if (failed)
         throw new AuthorizationException(string.Format(StringConsts.SECURITY_AUTHROIZATION_ERROR, permission.FullPath, actionName ?? CoreConsts.UNKNOWN));
@@ -239,25 +239,25 @@ namespace Azos.Security
     /// <summary>
     /// Shortcut method that creates a temp/mock BaseSession object thus checking permission in mock BaseSession context
     /// </summary>
-    public bool Check(IApplication app, User user)
+    public bool Check(ISecurityManager secman, User user)
     {
-      if (user==null || !user.IsAuthenticated) return false;
-#warning May avoid heap allocation here by implementing SessionStub as struct
-      var session = new BaseSession(Guid.NewGuid(), app.Random.NextRandomUnsignedLong);
+      secman.NonNull(nameof(secman));
+      if (user == null || !user.IsAuthenticated) return false;
+      var session = new BaseSession(Guid.NewGuid(), secman.App.Random.NextRandomUnsignedLong);
       session.User = user;
-      return this.Check(app, session);
+      return this.Check(secman, session);
     }
 
     /// <summary>
     /// Shortcut method that creates a temp/mock BaseSession object thus checking permission in mock BaseSession context
     /// </summary>
-    public Task<bool> CheckAsync(IApplication app, User user)
+    public Task<bool> CheckAsync(ISecurityManager secman, User user)
     {
+      secman.NonNull(nameof(secman));
       if (user == null || !user.IsAuthenticated) return Task.FromResult(false);
-#warning May avoid heap allocation here by implementing SessionStub as struct
-      var session = new BaseSession(Guid.NewGuid(), app.Random.NextRandomUnsignedLong);
+      var session = new BaseSession(Guid.NewGuid(), secman.App.Random.NextRandomUnsignedLong);
       session.User = user;
-      return this.CheckAsync(app, session);
+      return this.CheckAsync(secman, session);
     }
 
     /// <summary>
@@ -266,21 +266,20 @@ namespace Azos.Security
     ///  current execution context session is assumed
     /// </summary>
     /// <returns>True when action is authorized, false otherwise</returns>
-    public virtual bool Check(IApplication app, ISession sessionInstance = null)
+    public virtual bool Check(ISecurityManager secman, ISession sessionInstance = null)
     {
+      secman.NonNull(nameof(secman));
       var session = sessionInstance ?? ExecutionContext.Session ?? NOPSession.Instance;
       var user = session.User;
 
       //System user passes all permission checks
-      if (user.Status==UserStatus.System) return true;
+      if (user.Status == UserStatus.System) return true;
 
-      var manager = app.SecurityManager;
-
-      var access = manager.Authorize(user, this);
+      var access = secman.Authorize(user, this);
 
       if (!access.IsAssigned) return false;
 
-      return DoCheckAccessLevel(app, session, access);
+      return DoCheckAccessLevel(secman, session, access);
     }
 
     /// <summary>
@@ -289,28 +288,23 @@ namespace Azos.Security
     ///  current execution context session is assumed. An Async version which uses async manager.AuthorizeAsync() call
     /// </summary>
     /// <returns>True when action is authorized, false otherwise</returns>
-    public virtual async Task<bool> CheckAsync(IApplication app, ISession sessionInstance = null)
+    public virtual async Task<bool> CheckAsync(ISecurityManager secman, ISession sessionInstance = null)
     {
+      secman.NonNull(nameof(secman));
       var session = sessionInstance ?? ExecutionContext.Session ?? NOPSession.Instance;
       var user = session.User;
 
       //System user passes all permission checks
       if (user.Status == UserStatus.System) return true;
 
-      var manager = app.SecurityManager;
-
-      var access = await manager.AuthorizeAsync(user, this).ConfigureAwait(false);
+      var access = await secman.AuthorizeAsync(user, this).ConfigureAwait(false);
 
       if (!access.IsAssigned) return false;
 
-      return DoCheckAccessLevel(app, session, access);
+      return DoCheckAccessLevel(secman, session, access);
     }
 
-    public override string ToString()
-    {
-      return FullPath;
-    }
-
+    public override string ToString() => FullPath;
     #endregion
 
     #region Protected
@@ -320,7 +314,7 @@ namespace Azos.Security
     /// True if  accessLevel satisfies permission requirements.
     /// The default implementation just checks the access.Level
     /// </summary>
-    protected virtual bool DoCheckAccessLevel(IApplication app, ISession session, AccessLevel access)
+    protected virtual bool DoCheckAccessLevel(ISecurityManager secman, ISession session, AccessLevel access)
     {
       return access.Level >= m_Level;
     }
