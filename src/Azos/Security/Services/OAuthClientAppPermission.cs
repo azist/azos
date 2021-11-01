@@ -51,9 +51,9 @@ namespace Azos.Security.Services
     public readonly string BackchannelCallerAddress;
 
 
-    protected override bool DoCheckAccessLevel(IApplication app, ISession session, AccessLevel access)
+    protected override bool DoCheckAccessLevel(ISecurityManager secman, ISession session, AccessLevel access)
     {
-      if (!base.DoCheckAccessLevel(app, session, access)) return false;//deny on insufficient level
+      if (!base.DoCheckAccessLevel(secman, session, access)) return false;//deny on insufficient level
 
       if (RedirectUri.IsNotNullOrWhiteSpace())
         return checkPatterns(access, CONFIG_ACL_URI_SECTION, RedirectUri);

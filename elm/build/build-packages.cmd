@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.40.3
-set HEADLINE=Fix #586
+set VER=1.41.1
+set HEADLINE=OAuthServer SSO #596, Conf Forest WIP #562
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

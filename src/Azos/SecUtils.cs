@@ -48,7 +48,7 @@ namespace Azos
     /// </code>
     /// </remarks>
     public static void Authorize(this IApplication app, Permission permission, [CallerMemberName] string caller = null, Apps.ISession session = null)
-     => Permission.AuthorizeAndGuardAction(app.NonNull(nameof(app)), permission, caller, session ?? Ambient.CurrentCallSession);
+     => Permission.AuthorizeAndGuardAction(app.NonNull(nameof(app)).SecurityManager, permission, caller, session ?? Ambient.CurrentCallSession);
 
     /// <summary>
     /// Checks the specified permissions in the calling scope security context
@@ -65,6 +65,6 @@ namespace Azos
     /// </code>
     /// </remarks>
     public static void Authorize(this IApplication app, IEnumerable<Permission> permissions, [CallerMemberName] string caller = null, Apps.ISession session = null)
-     => Permission.AuthorizeAndGuardAction(app.NonNull(nameof(app)), permissions, caller, session ?? Ambient.CurrentCallSession);
+     => Permission.AuthorizeAndGuardAction(app.NonNull(nameof(app)).SecurityManager, permissions, caller, session ?? Ambient.CurrentCallSession);
   }
 }
