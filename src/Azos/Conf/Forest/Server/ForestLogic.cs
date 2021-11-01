@@ -16,19 +16,20 @@ using Azos.Data.Business;
 using Azos.Platform;
 using Azos.Security.ConfigForest;
 
+using static Azos.Canonical;
+
 namespace Azos.Conf.Forest.Server
 {
   /*
   Datastore hub is hosted by the logic
   Data context name is: `[forest]::[tree]`
-
   */
-  public sealed class CorporateHierarchyLogic : ModuleBase, IForestLogic, IForestSetupLogic
+  public sealed class ForestLogic : ModuleBase, IForestLogic, IForestSetupLogic
   {
     private const string CONFIG_DATA_SECTION = "data";
 
-    public CorporateHierarchyLogic(IApplication app) : base(app) { }
-    public CorporateHierarchyLogic(IModule parent) : base(parent) { }
+    public ForestLogic(IApplication app) : base(app) { }
+    public ForestLogic(IModule parent) : base(parent) { }
 
     public override bool IsHardcodedModule => false;
 
@@ -70,8 +71,10 @@ namespace Azos.Conf.Forest.Server
 
     #region IForestLogic
 
+    /// <inheritdoc/>
     public async Task<IEnumerable<Atom>> GetTreeListAsync(Atom idForest) => await m_Data.NonNull(nameof(m_Data)).TryGetAllForestTreesAsync(idForest);
 
+    /// <inheritdoc/>
     public Task<IEnumerable<TreeNodeHeader>> GetChildNodeListAsync(EntityId idParent, DateTime? asOfUtc = null, ICacheParams cache = null)
     {
       return null;
@@ -109,6 +112,7 @@ namespace Azos.Conf.Forest.Server
       //return result;
     }
 
+    /// <inheritdoc/>
     public async Task<IEnumerable<VersionInfo>> GetNodeVersionListAsync(EntityId id)
     {
       var gop = GdidOrPath.OfGNode(id);
@@ -124,30 +128,59 @@ namespace Azos.Conf.Forest.Server
       return result;
     }
 
-    public Task<TreeNodeInfo> GetNodeInfoVersionAsync(EntityId idVersion)
+    /// <inheritdoc/>
+    public async Task<TreeNodeInfo> GetNodeInfoVersionAsync(EntityId idVersion)
     {
-      throw new NotImplementedException();
+      App.Authorize(new TreePermission(TreeAccessLevel.Read, idVersion)); // TODO: This needs reviewed!!!!
+
+      if (idVersion.IsGVersion())
+      {
+        if(GDID.TryParse(idVersion.Address, out GDID gdid))
+        {
+          var ptr = new TreePtr(idVersion);
+          var qry = new Query<TreeNodeInfo>("Tree.GetNodeInfoByGdid")
+          {
+            new Query.Param("ptr", ptr),
+            new Query.Param("gdid", gdid.HasRequiredValue(nameof(gdid)))
+          };
+          return await m_Data.TreeLoadDocAsync(ptr, qry);
+        }
+        else
+        {
+          throw new ConfigException("Invalid tree address GDID");
+        }
+      }
+      else
+      {
+        throw new ConfigException("Unsupported tree address schema");
+      }
     }
 
-
-    public Task<TreeNodeInfo> GetNodeInfoAsync(EntityId id, DateTime? asOfUtc = null, ICacheParams cache = null)
+    /// <inheritdoc/>
+    public async Task<TreeNodeInfo> GetNodeInfoAsync(EntityId id, DateTime? asOfUtc = null, ICacheParams cache = null)
     {
-      throw new NotImplementedException();
+      var gop = GdidOrPath.OfGNode(id);
+      // TODO: add DefaultAndAlignOnPolicyBoundary to DateUtils. Determine constant value for POLICY_REFRESH_WINDOW_MINUTES
+      return await getNodeByTreePath(gop.Tree, gop.PathAddress, asOfUtc.GetValueOrDefault(App.TimeSource.UTCNow), cache)
+        .ConfigureAwait(false);
     }
     #endregion
 
 
     #region IForestSetupLogic
+    /// <inheritdoc/>
     public Task<ValidState> ValidateNodeAsync(TreeNode node, ValidState state)
     {
       throw new NotImplementedException();
     }
 
+    /// <inheritdoc/>
     public Task<ChangeResult> SaveNodeAsync(TreeNode node)
     {
       throw new NotImplementedException();
     }
 
+    /// <inheritdoc/>
     public Task<ChangeResult> DeleteNodeAsync(EntityId id, DateTime? startUtc = null)
     {
       throw new NotImplementedException();
@@ -162,6 +195,7 @@ namespace Azos.Conf.Forest.Server
 
     private async Task<TreeNodeInfo> getNodeByTreePath(TreePtr tree, TreePath path, DateTime asOfUtc, ICacheParams caching)
     {
+      // TODO: Need to calculate EffectiveConfig in ForestLogic, see G8 CorporateHierarchyLogic getNodeInfoAsync_Implementation.
       TreeNodeInfo node = null;
       var gParent = GDID.ZERO;
       for(var i = -1; i < path.Count; i++)
@@ -197,6 +231,7 @@ namespace Azos.Conf.Forest.Server
 
       return node;
     }
+
     #endregion
   }
 }
