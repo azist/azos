@@ -190,7 +190,7 @@ namespace Azos.Security.Services
         //this call resulting in error is guaranteed to take at least 0.5 second to complete, throttling down the hack attempts
         await Task.Delay(Ambient.Random.NextScaledRandomInteger(500, 1500)).ConfigureAwait(false);
 
-        //What is next, user is bad
+        //What is next, user is bad, e.g. process 2FA request
         await AdvanceLoginFlowStateAsync(loginFlow).ConfigureAwait(false);
 
         var redo = RespondWithAuthorizeResult(flow["sd"].AsLong(), loginFlow, "Bad login");//!!! DO NOT disclose any more details
