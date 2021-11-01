@@ -15,10 +15,12 @@ using Azos.Data.Access;
 using Azos.Data.Business;
 using Azos.Glue.Native;
 using Azos.Platform;
+using Azos.Scripting.Expressions;
 using Azos.Security.ConfigForest;
 using Azos.Time;
 
 using static Azos.Canonical;
+using static Azos.Web.Multipart;
 
 namespace Azos.Conf.Forest.Server
 {
@@ -81,8 +83,6 @@ namespace Azos.Conf.Forest.Server
       var boundary = 10;
 
       return v.Value.AlignDailyMinutes(boundary);
-
-
     }
 
 
@@ -165,8 +165,8 @@ namespace Azos.Conf.Forest.Server
       var asof = DefaultAndAlignOnPolicyBoundary(asOfUtc, id);
       var gop = GdidOrPath.OfGNode(id);
 
-      if (gop.PathAddress != null) return await getNodeByTreePath(gop.Tree, gop.PathAddress, asof, cache)
-        .ConfigureAwait(false);
+      if (gop.PathAddress != null)
+        return await getNodeByTreePath(gop.Tree, gop.PathAddress, asof, cache).ConfigureAwait(false);
 
       return await getNodeByGdid(gop.Tree, gop.GdidAddress, asof, cache);
     }
@@ -202,16 +202,30 @@ namespace Azos.Conf.Forest.Server
     private async Task<TreeNodeInfo> getNodeByTreePath(TreePtr tree, TreePath path, DateTime asOfUtc, ICacheParams caching)
     {
       // TODO: Need to calculate EffectiveConfig in ForestLogic, see G8 CorporateHierarchyLogic getNodeInfoAsync_Implementation.
+      TreeNodeInfo nodeParent = null;
       TreeNodeInfo node = null;
-      var gParent = GDID.ZERO;
       for(var i = -1; i < path.Count; i++)
       {
         var segment = i < 0 ? Constraints.VERY_ROOT_PATH_SEGMENT : path[i];
-        node = await getNodeByPathSegment(tree, gParent, segment, asOfUtc, caching).ConfigureAwait(false);
+        node = await getNodeByPathSegment(tree, nodeParent == null ? GDID.ZERO: nodeParent.Gdid, segment, asOfUtc, caching).ConfigureAwait(false);
         if (node == null) return null;// deleted
-        gParent = node.Gdid;
-      }
 
+        //Config chain inheritance pattern
+        var confHere = node.LevelConfig.Node.NonEmpty(nameof(node.LevelConfig));
+        if(nodeParent == null)
+        {
+          node.EffectiveConfig = new ConfigVector(node.LevelConfig.Content);//Copy
+        }
+        else
+        {
+          var confParent = nodeParent.EffectiveConfig.Node.NonEmpty(nameof(nodeParent.EffectiveConfig));
+          var confResult = new MemoryConfiguration() { Application = this.App };
+          confResult.CreateFromNode(confParent);//inherit
+          confResult.Root.OverrideBy(confHere); //override
+          node.EffectiveConfig = new ConfigVector(confResult.Root);
+        }
+        nodeParent = node;
+      }
       return node;
     }
 
@@ -237,9 +251,6 @@ namespace Azos.Conf.Forest.Server
 
       return node;
     }
-
-
-
 
     private async Task<TreeNodeInfo> getNodeByGdid(TreePtr tree, GDID gNode, DateTime asOfUtc, ICacheParams caching)
     {
