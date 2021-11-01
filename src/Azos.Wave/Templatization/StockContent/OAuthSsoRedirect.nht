@@ -1,0 +1,31 @@
+﻿#<laconf>
+compiler
+{
+  using{ns="Azos.Data"}
+  using{ns="Azos.Security"}
+  base-class-name="Azos.Wave.Templatization.WaveTemplate"
+  namespace="Azos.Wave.Templatization.StockContent"
+  abstract="false"
+  summary="OAuth SSO Redirect"
+}
+#</laconf>
+#[class]
+
+public readonly string Uri;
+
+public OAuthSsoRedirect(string uri) : base()
+{
+  Uri = uri;
+}
+
+#[render]
+<html>
+<head>
+  <meta http-equiv="refresh" content="0; url=?[:Uri]">
+</head>
+<body>
+  <a href="?[:Uri]">Tap link to continue...</a>
+</body>
+</html>
+
+

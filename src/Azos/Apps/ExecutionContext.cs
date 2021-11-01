@@ -6,7 +6,7 @@
 
 using System;
 using System.Collections.Generic;
-
+using System.Threading;
 using Azos.Platform;
 
 namespace Azos.Apps
@@ -24,7 +24,7 @@ namespace Azos.Apps
     private static volatile IApplication s_Application;
     private static Stack<IApplication> s_AppStack = new Stack<IApplication>();
     private static AsyncFlowMutableLocal<ISession> ats_Session = new AsyncFlowMutableLocal<ISession>();
-    private static AsyncFlowMutableLocal<ICallFlow> ats_CallFlow = new AsyncFlowMutableLocal<ICallFlow>();
+    private static AsyncLocal<ICallFlow> ats_CallFlow = new AsyncLocal<ICallFlow>();
 
     /// <summary>
     /// Returns global application context. The value is never null, the NOPApplication is returned
@@ -57,7 +57,9 @@ namespace Azos.Apps
     }
 
     /// <summary>
-    /// Returns a current call flow if any, or null if none is used
+    /// Returns a current call flow if any, or null if none is used.
+    /// The callflow state flows down the async call chain, but does not flow up: if you
+    /// set it to a different value in an inner async call, the original parent caller would still retain the original value
     /// </summary>
     public static ICallFlow CallFlow => ats_CallFlow.Value;
 
@@ -133,7 +135,9 @@ namespace Azos.Apps
     }
 
     /// <summary>
-    /// Internal framework-only method to bind thread-level/async flow context
+    /// Internal framework-only method to bind thread-level/async flow context.
+    /// The context is down-flow only: if you change it in the inner async method, the original parent
+    /// caller method will not "see" the change due to copy-on-write semantics
     /// </summary>
     public static void __SetThreadLevelCallContext(ICallFlow call)
     {

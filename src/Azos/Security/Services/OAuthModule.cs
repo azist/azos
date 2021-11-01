@@ -77,6 +77,10 @@ namespace Azos.Security.Services
     [Config]
     public int RefreshTokenLifespanSec { get; set; }
 
+    [Config]
+    public string SsoSessionName {  get; set; }
+
+
     public bool CheckScope(string scope)
     {
       if (scope.IsNullOrWhiteSpace()) return m_SupportedScopesSet.Count==0;

@@ -29,6 +29,42 @@ namespace Azos.Data.Business
     }
 
     /// <summary>
+    /// Defines canonical values for Create/Update/Delete data state
+    /// </summary>
+    public const string DATA_STATE_CANONICAL_VALUE_LIST = "C: Created, U: Updated, D: Deleted";
+
+    /// <summary>
+    /// Defines canonical value mapping for Create/Update/Delete data state
+    /// </summary>
+    public static DataState MapCanonicalState(string s)
+    {
+      switch (s)
+      {
+        case "C": return DataState.Created;
+        case "U": return DataState.Updated;
+        case "D": return DataState.Deleted;
+        case "c": return DataState.Created;
+        case "u": return DataState.Updated;
+        case "d": return DataState.Deleted;
+        default: return DataState.Undefined;
+      }
+    }
+
+    /// <summary>
+    /// Defines canonical value mapping for Create/Update/Delete data state
+    /// </summary>
+    public static string MapCanonicalState(DataState s)
+    {
+      switch (s)
+      {
+        case DataState.Created: return "C";
+        case DataState.Updated: return "U";
+        case DataState.Deleted: return "D";
+        default: return null;
+      }
+    }
+
+    /// <summary>
     /// True if the state is either Created or Updated but not undefined or deleted
     /// </summary>
     public static bool IsExistingStateOf(DataState state)
