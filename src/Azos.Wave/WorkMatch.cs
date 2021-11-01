@@ -569,7 +569,7 @@ namespace Azos.Wave
       protected virtual bool Check_Permissions(WorkContext work)
       {
         if (m_Permissions==null) return true;
-        var failed = m_Permissions.FirstOrDefault(prm => !prm.Check(work.App, work.Session));
+        var failed = m_Permissions.FirstOrDefault(prm => !prm.Check(work.App.SecurityManager, work.Session));
         return failed == null;
       }
 

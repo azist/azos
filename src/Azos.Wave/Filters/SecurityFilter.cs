@@ -71,7 +71,7 @@ namespace Azos.Wave.Filters
           if (!m_BypassMatches.Any(match => match.Make(work)!=null))
           {
             work.NeedsSession();
-            Permission.AuthorizeAndGuardAction(App, m_Permissions, "{0}({1})".Args(GetType().FullName, this.Name), work.Session);
+            Permission.AuthorizeAndGuardAction(App.SecurityManager, m_Permissions, "{0}({1})".Args(GetType().FullName, this.Name), work.Session);
           }
         }
 

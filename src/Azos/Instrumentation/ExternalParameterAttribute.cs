@@ -236,12 +236,12 @@ namespace Azos.Instrumentation
               if (isSet)
               {
                 //throws
-                Permission.AuthorizeAndGuardAction(app, prop);
+                Permission.AuthorizeAndGuardAction(app.SecurityManager, prop);
               }
               else
               {
                 //filter out, do not throw
-                if (!Permission.AuthorizeAction(app, prop)) return null;//not found because of lack of security
+                if (!Permission.AuthorizeAction(app.SecurityManager, prop)) return null;//not found because of lack of security
               }
             }
             return prop;

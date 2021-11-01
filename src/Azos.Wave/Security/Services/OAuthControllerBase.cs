@@ -90,7 +90,7 @@ namespace Azos.Security.Services
 
       //2. Check client ACL for allowed redirect URIs
       var redirectPermission = new OAuthClientAppPermission(redirect_uri);//this call comes from front channel, hence we don't check for address
-      var uriAllowed = await redirectPermission.CheckAsync(App, cluser).ConfigureAwait(false);
+      var uriAllowed = await redirectPermission.CheckAsync(OAuth.ClientSecurity, cluser).ConfigureAwait(false);
       if (!uriAllowed) return GateError(new Http403Forbidden("Unauthorized redirect Uri"));
 
       //3. Establish a login flow instance of appropriate type (factory method)
@@ -154,7 +154,7 @@ namespace Azos.Security.Services
 
       //3. Check client ACL for allowed redirect URIs
       var redirectPermission = new OAuthClientAppPermission(flow["uri"].AsString());//this call comes from front channel, hence we don't check for address
-      var uriAllowed = await redirectPermission.CheckAsync(App, cluser).ConfigureAwait(false);
+      var uriAllowed = await redirectPermission.CheckAsync(OAuth.ClientSecurity, cluser).ConfigureAwait(false);
       if (!uriAllowed) return GateError(new Http403Forbidden("Unauthorized redirect Uri"));
 
       //4. Establish a login flow instance of appropriate type (factory method)
@@ -316,7 +316,7 @@ namespace Azos.Security.Services
 
       //3. Check that the requested redirect_uri is indeed in the list of permitted URIs for this client
       var redirectPermission = new OAuthClientAppPermission(redirect_uri, WorkContext.EffectiveCallerIPEndPoint.Address.ToString());
-      var uriAllowed = await redirectPermission.CheckAsync(App, cluser).ConfigureAwait(false);
+      var uriAllowed = await redirectPermission.CheckAsync(OAuth.ClientSecurity, cluser).ConfigureAwait(false);
       if (!uriAllowed) return GateError(ReturnError("invalid_grant", "Invalid grant", code: 403));
 
       //4. Fetch subject/target user

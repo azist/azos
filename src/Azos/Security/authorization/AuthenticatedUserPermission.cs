@@ -19,7 +19,7 @@ namespace Azos.Security
   {
     public AuthenticatedUserPermission() : base(0){ }
 
-    public override bool Check(IApplication app, ISession sessionInstance = null)
+    public override bool Check(ISecurityManager secman, ISession sessionInstance = null)
     {
       var session = sessionInstance ?? ExecutionContext.Session ?? NOPSession.Instance;
       var user = session.User;
@@ -27,7 +27,7 @@ namespace Azos.Security
       return user.Status > UserStatus.Invalid;
     }
 
-    public override Task<bool> CheckAsync(IApplication app, ISession sessionInstance = null)
+    public override Task<bool> CheckAsync(ISecurityManager secman, ISession sessionInstance = null)
     {
       var session = sessionInstance ?? ExecutionContext.Session ?? NOPSession.Instance;
       var user = session.User;

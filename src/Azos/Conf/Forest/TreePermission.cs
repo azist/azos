@@ -51,12 +51,12 @@ namespace Azos.Security.ConfigForest
 
     public override string Description => $"Grants the assignee to have desired access level to a tree node in a forest";
 
-    protected override bool DoCheckAccessLevel(IApplication app, ISession session, AccessLevel access)
+    protected override bool DoCheckAccessLevel(ISecurityManager secman, ISession session, AccessLevel access)
     {
       //Bypass security checks if the data is needed for system use
       if (SecurityFlowScope.CheckFlag(SYSTEM_USE_FLAG)) return true;
 
-      if (!base.DoCheckAccessLevel(app, session, access)) return false;
+      if (!base.DoCheckAccessLevel(secman, session, access)) return false;
 
       var id = Target.AsString();
 
