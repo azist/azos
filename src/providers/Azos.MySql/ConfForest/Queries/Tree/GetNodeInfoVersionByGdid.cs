@@ -19,9 +19,9 @@ using MySqlConnector;
 
 namespace Azos.MySql.ConfForest.Queries.Tree
 {
-  public sealed class GetNodeInfoByGdid : MySqlCrudQueryHandler<Query>  // TODO: determine if we should pass <Query> or <T> using override virtual CastParameters methods
+  public sealed class GetNodeInfoVersionByGdid : MySqlCrudQueryHandler<Query>  // TODO: determine if we should pass <Query> or <T> using override virtual CastParameters methods
   {
-    public GetNodeInfoByGdid(MySqlCrudDataStoreBase store, string name) : base(store, name) { }
+    public GetNodeInfoVersionByGdid(MySqlCrudDataStoreBase store, string name) : base(store, name) { }
 
     protected override void DoBuildCommandAndParameters(MySqlCrudQueryExecutionContext context, MySqlCommand cmd, Query qry)
     {
@@ -43,13 +43,10 @@ namespace Azos.MySql.ConfForest.Queries.Tree
       result.Gdid = reader.AsGdidField("GDID");
       result.G_Parent = reader.AsGdidField("G_PARENT");
       result.PathSegment = reader.AsStringField("PATH_SEGMENT");
-      result.FullPath = null;
+      result.FullPath = "[n/a for version specific node]";
       result.StartUtc = reader.AsDateTimeField("START_UTC").Value;
-
-      // TODO: We have no asof date so do we so effective config is null? Where do we put MapToConfigRoot logic????
-
-      //      result.Properties = G8ConfigScript.MapToConfigRoot(reader.AsStringField("PROPERTIES"));
-      //      result.LevelConfig = G8ConfigScript.MapToConfigRoot(reader.AsStringField("CONFIG"));
+      result.Properties = Constraints.MapToConfigRoot(reader.AsStringField("PROPERTIES"));
+      result.LevelConfig = Constraints.MapToConfigRoot(reader.AsStringField("CONFIG"));
       result.DataVersion = new VersionInfo
       {
         G_Version = reader.AsGdidField("G_VERSION"),

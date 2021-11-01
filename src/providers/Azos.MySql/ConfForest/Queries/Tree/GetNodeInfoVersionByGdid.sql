@@ -13,8 +13,4 @@
 from
   tbl_node TN inner join tbl_nodelog TL on TN.GDID = TL.G_NODE
 where
-  (TN.GDID = @gdid) AND
-  (TL.G_NODE = @gdid)
-order by
- TL.START_UTC desc, TL.VERSION_UTC desc
-limit 1
+  TL.GDID = @gdid

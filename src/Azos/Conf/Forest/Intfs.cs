@@ -24,6 +24,16 @@ namespace Azos.Conf.Forest
   public interface IForestLogic : IBusinessLogic
   {
     /// <summary>
+    /// Defaults Utc timestamp value from app time source when the supplied one is null, then
+    /// aligns the supplied or defaulted timestamp on the configured value for the optionally specified tree
+    /// if provided or the <see cref="Constraints.DEFAULT_POLICY_REFRESH_WINDOW_MINUTES"/>
+    /// </summary>
+    /// <param name="v">UTC timestamp, or null to default the app-current time</param>
+    /// <param name="id">The optional EntityId of the tree targeted in the configuration policy</param>
+    /// <returns></returns>
+    DateTime DefaultAndAlignOnPolicyBoundary(DateTime? v, EntityId? id = null);
+
+    /// <summary>
     /// Retrieves all versions of the specified tree node identified by GDID.
     /// You must use <see cref="Constraints.SCH_GNODE"/> address schema
     /// </summary>

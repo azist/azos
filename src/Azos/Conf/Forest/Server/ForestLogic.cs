@@ -13,8 +13,10 @@ using Azos.Apps;
 using Azos.Data;
 using Azos.Data.Access;
 using Azos.Data.Business;
+using Azos.Glue.Native;
 using Azos.Platform;
 using Azos.Security.ConfigForest;
+using Azos.Time;
 
 using static Azos.Canonical;
 
@@ -70,6 +72,19 @@ namespace Azos.Conf.Forest.Server
 
 
     #region IForestLogic
+
+    public DateTime DefaultAndAlignOnPolicyBoundary(DateTime? v, EntityId? id = null)
+    {
+      if (!v.HasValue) v = App.TimeSource.UTCNow;
+
+      #warning Make configurable per tree
+      var boundary = 10;
+
+      return v.Value.AlignDailyMinutes(boundary);
+
+
+    }
+
 
     /// <inheritdoc/>
     public async Task<IEnumerable<Atom>> GetTreeListAsync(Atom idForest) => await m_Data.NonNull(nameof(m_Data)).TryGetAllForestTreesAsync(idForest);
@@ -133,36 +148,27 @@ namespace Azos.Conf.Forest.Server
     {
       App.Authorize(new TreePermission(TreeAccessLevel.Read, idVersion)); // TODO: This needs reviewed!!!!
 
-      if (idVersion.IsGVersion())
-      {
-        if(GDID.TryParse(idVersion.Address, out GDID gdid))
-        {
-          var ptr = new TreePtr(idVersion);
-          var qry = new Query<TreeNodeInfo>("Tree.GetNodeInfoByGdid")
+      var gop = GdidOrPath.OfGVersion(idVersion);
+      var ptr = new TreePtr(idVersion);
+      var qry = new Query<TreeNodeInfo>("Tree.GetNodeInfoVersionByGdid")
           {
             new Query.Param("ptr", ptr),
-            new Query.Param("gdid", gdid.HasRequiredValue(nameof(gdid)))
+            new Query.Param("gdid", gop.GdidAddress)
           };
-          return await m_Data.TreeLoadDocAsync(ptr, qry);
-        }
-        else
-        {
-          throw new ConfigException("Invalid tree address GDID");
-        }
-      }
-      else
-      {
-        throw new ConfigException("Unsupported tree address schema");
-      }
+      return await m_Data.TreeLoadDocAsync(ptr, qry);
     }
 
     /// <inheritdoc/>
     public async Task<TreeNodeInfo> GetNodeInfoAsync(EntityId id, DateTime? asOfUtc = null, ICacheParams cache = null)
     {
+      if (cache == null) cache = CacheParams.DefaultCache;
+      var asof = DefaultAndAlignOnPolicyBoundary(asOfUtc, id);
       var gop = GdidOrPath.OfGNode(id);
-      // TODO: add DefaultAndAlignOnPolicyBoundary to DateUtils. Determine constant value for POLICY_REFRESH_WINDOW_MINUTES
-      return await getNodeByTreePath(gop.Tree, gop.PathAddress, asOfUtc.GetValueOrDefault(App.TimeSource.UTCNow), cache)
+
+      if (gop.PathAddress != null) return await getNodeByTreePath(gop.Tree, gop.PathAddress, asof, cache)
         .ConfigureAwait(false);
+
+      return await getNodeByGdid(gop.Tree, gop.GdidAddress, asof, cache);
     }
     #endregion
 
@@ -212,7 +218,7 @@ namespace Azos.Conf.Forest.Server
     private async Task<TreeNodeInfo> getNodeByPathSegment(TreePtr tree, GDID gParent, string pathSegment, DateTime asOfUtc, ICacheParams caching)
     {
       var tblCache = s_CacheTableName[tree];
-      var keyCache = gParent.ToHexString() + (pathSegment ?? string.Empty);
+      var keyCache = asOfUtc.Ticks + gParent.ToHexString() + (pathSegment ?? string.Empty);
 
       var node = await m_Data.Cache.FetchThroughAsync(
         keyCache, tblCache, caching,
@@ -228,6 +234,19 @@ namespace Azos.Conf.Forest.Server
           return await m_Data.TreeLoadDocAsync(tree, qry);
         }
       ).ConfigureAwait(false);
+
+      return node;
+    }
+
+
+
+
+    private async Task<TreeNodeInfo> getNodeByGdid(TreePtr tree, GDID gNode, DateTime asOfUtc, ICacheParams caching)
+    {
+      // TODO: Need to calculate EffectiveConfig in ForestLogic, see G8 CorporateHierarchyLogic getNodeInfoAsync_Implementation.
+      TreeNodeInfo node = null;
+      var gParent = GDID.ZERO;
+      // TODO:
 
       return node;
     }

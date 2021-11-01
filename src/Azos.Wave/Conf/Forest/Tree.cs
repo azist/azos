@@ -9,14 +9,14 @@ using Azos.Data.Business;
 using Azos.Security.ConfigForest;
 using Azos.Wave.Mvc;
 
-namespace Azos.Wave.Conf.Forest
+namespace Azos.Conf.Forest.Server
 {
   /// <summary>
   /// Provides API controller service for configuration Tree management
   /// </summary>
   [NoCache]
   [ApiControllerDoc(
-    BaseUri = "/forest/tree",
+    BaseUri = "/conf/forest/tree",
     Title = "Config Tree management",
     Description = @"Provides API controller service for configuration Tree management",
     ResponseHeaders = new[] { API_DOC_HDR_NO_CACHE }
@@ -30,10 +30,9 @@ namespace Azos.Wave.Conf.Forest
     [Inject] IForestSetupLogic m_Logic;
 
     //////[ApiEndpointDoc(
-    //////  Title = "GET - Retrieves a list of enterprises",
-    //////  Description = "Gets a list of enterprise items at the top of corporate hierarchy as of the specified timestamp." +
-    //////  "Use this endpoint to dynamically build a first rank of a 'tree' UI.",
-    //////  DocAnchor = "### /corporate/hierarchy/enterprise-list/ GET",
+    //////  Title = "GET - Retrieves a list of tree nodes",
+    //////  Description = "Gets a list of tree nodes of a specified forest as of the specified timestamp.",
+    //////  DocAnchor = "### /conf/forest/tree-list/ GET",
     //////  RequestQueryParameters = new[]{
     //////        "asofutc=Nullable timestamp as of which to retrieve the list. Null denotes UTC now (default)"},
     //////  ResponseContent = "Http 200 / JSON representation of {OK: true, data: [ListItem]} or Http 404 {OK: false, data: null}",
@@ -41,9 +40,9 @@ namespace Azos.Wave.Conf.Forest
     //////  TypeSchemas = new[]{
     //////        typeof(ListItem)
     //////  })]
-    //////[CorporatePermission(CorporateAccessLevel.View)]
+    ////////[TreePermission(TreeAccessLevel.View)]  // TODO: determine if there needs to be another permission? ForestPermission???
     //////[ActionOnGet(Name = ACT_ENTERPRISE_LIST)]
-    //////public async Task<object> EnterpriseListGet(DateTime? asofutc = null)
+    //////public async Task<object> GetTreeListAsync(DateTime? asofutc = null)
     //////  => GetLogicResult(await m_Logic.GetTreeListAsync(asofutc).ConfigureAwait(false));
 
 
@@ -88,7 +87,7 @@ namespace Azos.Wave.Conf.Forest
       Title = "GET - Retrieves a specific Tree Node Info version.",
       Description = "Retrieves tree node information of the specified version. " +
       "Note: you must use 'gver' address schema:  `region.gver@geo::0:0:345`",
-      DocAnchor = "### /forest/tree/version/ GET",
+      DocAnchor = "### /conf/forest/tree/version/ GET",
       RequestQueryParameters = new[]{ "id=EntityId of the node to retrieve" },
       ResponseContent = "Http 200 / JSON representation of {OK: true, data: [TreeNodeInfo]} or Http 404 {OK: false, data: null}",
       Methods = new[] { "GET: TreeNodeInfo of the specified version" },
@@ -104,7 +103,7 @@ namespace Azos.Wave.Conf.Forest
       Title = "GET - Retrieves the Tree Node Info",
       Description = "Retrieves a node of TreeNodeInfo by its id as of certain point in time" +
       "This action returns a TreeNodeInfo object or null if such item is not found",
-      DocAnchor = "### /forest/tree/node/ GET",
+      DocAnchor = "### /conf/forest/tree/node/ GET",
       RequestQueryParameters = new[]{
             "id=EntityId of the node to retrieve",
             "asofutc=Nullable timestamp as of which to retrieve the info. Null denotes UTC now (default)",
