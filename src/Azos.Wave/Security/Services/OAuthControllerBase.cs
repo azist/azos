@@ -229,7 +229,7 @@ namespace Azos.Security.Services
     [ApiEndpointDoc(
       Title = "OAuth Authorize Cancel",
       Description = "Provides ability to redirect back to the calling app without an authorization token effectively canceling the OAuth flow",
-      RequestQueryParameters = new[]{"roundtrip: the roundtrip produced by authorization/get"},
+      RequestQueryParameters = new[]{"roundtrip: the roundtrip content produced by authorization/get"},
       ResponseContent = "302 without client access code or 401 for bad requested parameters. 403 for unauthorized client URI"
     )]
     [ActionOnGet(Name = "cancel")]
@@ -257,8 +257,6 @@ namespace Azos.Security.Services
 
       return new Redirect(uri);
     }
-
-
 
     /// <summary>
     /// Obtains the TOKEN based on the {Authorization Code} received in authorize step
