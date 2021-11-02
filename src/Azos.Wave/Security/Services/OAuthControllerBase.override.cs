@@ -56,6 +56,7 @@ namespace Azos.Security.Services
       var cookie = new Cookie(ssoSessionName, loginFlow.SsoSessionId);
       cookie.HttpOnly = true;
       cookie.Secure = true;
+      //cookie.Expires = ;//
       WorkContext.Response.AppendCookie(cookie);
     }
 
