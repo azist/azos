@@ -69,9 +69,8 @@ namespace Azos.Conf.Forest.Server
 
     #endregion
 
-
     #region IForestLogic
-
+    /// <inheritdoc/>
     public DateTime DefaultAndAlignOnPolicyBoundary(DateTime? v, EntityId? id = null)
     {
       if (!v.HasValue) v = App.TimeSource.UTCNow;
@@ -81,7 +80,6 @@ namespace Azos.Conf.Forest.Server
 
       return v.Value.AlignDailyMinutes(boundary);
     }
-
 
     /// <inheritdoc/>
     public async Task<IEnumerable<Atom>> GetTreeListAsync(Atom idForest) => await m_Data.NonNull(nameof(m_Data)).TryGetAllForestTreesAsync(idForest);
@@ -145,7 +143,6 @@ namespace Azos.Conf.Forest.Server
       return await getNodeByGdid(gop.Tree, gop.GdidAddress, asof, cache);
     }
     #endregion
-
 
     #region IForestSetupLogic
     /// <inheritdoc/>
@@ -231,7 +228,31 @@ namespace Azos.Conf.Forest.Server
       // TODO: Need to calculate EffectiveConfig in ForestLogic, see G8 CorporateHierarchyLogic getNodeInfoAsync_Implementation.
       TreeNodeInfo node = null;
       var gParent = GDID.ZERO;
+
       // TODO:
+      node = await getNodeByGdid_Implementation(tree, gNode, asOfUtc, caching).ConfigureAwait(false);
+
+      return node;
+    }
+
+    private async Task<TreeNodeInfo> getNodeByGdid_Implementation(TreePtr tree, GDID gNode, DateTime asOfUtc, ICacheParams caching)
+    {
+      var tblCache = s_CacheTableName[tree] + "::gdid";
+      var keyCache = asOfUtc.Ticks + gNode.ToHexString();
+
+      var node = await m_Data.Cache.FetchThroughAsync(
+        keyCache, tblCache, caching,
+        async key =>
+        {
+          var qry = new Query<TreeNodeInfo>("Tree.GetNodeInfoByGdid")
+          {
+            new Query.Param("tree", tree),
+            new Query.Param("gdid", gNode),
+            new Query.Param("asof", asOfUtc)
+          };
+          return await m_Data.TreeLoadDocAsync(tree, qry);
+        }
+      ).ConfigureAwait(false);
 
       return node;
     }

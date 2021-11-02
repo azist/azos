@@ -19,27 +19,28 @@ using MySqlConnector;
 
 namespace Azos.MySql.ConfForest.Queries.Tree
 {
-  public sealed class GetNodeInfoVersionByGdid : MySqlCrudQueryHandler<Query>  // TODO: determine if we should pass <Query> or <T> using override virtual CastParameters methods
+  public sealed class GetNodeInfoByGdid : MySqlCrudQueryHandler<Query>  // TODO: determine if we should pass <Query> or <T> using override virtual CastParameters methods
   {
-    public GetNodeInfoVersionByGdid(MySqlCrudDataStoreBase store, string name) : base(store, name) { }
+    public GetNodeInfoByGdid(MySqlCrudDataStoreBase store, string name) : base(store, name) { }
 
     protected override void DoBuildCommandAndParameters(MySqlCrudQueryExecutionContext context, MySqlCommand cmd, Query qry)
     {
-      var tpr = qry.GetParameterValueAs<TreePtr>("tpr");
+      var tpr = qry.GetParameterValueAs<TreePtr>("tree");
       context.SetState(tpr);
+      cmd.Parameters.AddWithValue("asof", qry.GetParameterValueAs<DateTime>("asof"));
       cmd.Parameters.AddWithValue("gdid", qry.GetParameterValueAs<GDID>("gdid"));
-      cmd.CommandText = GetType().GetText("GetNodeInfoVersionByGdid.sql");
+      cmd.CommandText = GetType().GetText("GetNodeInfoByGdid.sql");
     }
 
     protected override Doc DoPopulateDoc(MySqlCrudQueryExecutionContext context, Type tDoc, Schema schema, Schema.FieldDef[] toLoad, MySqlDataReader reader)
     {
       var verState = VersionInfo.MapCanonicalState(reader.AsStringField("VERSION_STATE"));
-      var tpr = context.GetState<TreePtr>();
+      var tree = context.GetState<TreePtr>();
 
       var result = new TreeNodeInfo();
 
-      result.Forest = tpr.IdForest;
-      result.Tree = tpr.IdTree;
+      result.Forest = tree.IdForest;
+      result.Tree = tree.IdTree;
       result.Gdid = reader.AsGdidField("GDID");
       result.G_Parent = reader.AsGdidField("G_PARENT");
       result.PathSegment = reader.AsStringField("PATH_SEGMENT");
