@@ -87,8 +87,6 @@ namespace Azos.Conf.Forest.Server
     /// <inheritdoc/>
     public async Task<IEnumerable<TreeNodeHeader>> GetChildNodeListAsync(EntityId idParent, DateTime? asOfUtc = null, ICacheParams cache = null)
     {
-      return null;
-
       if (cache == null) cache = CacheParams.DefaultCache;
       var asof = DefaultAndAlignOnPolicyBoundary(asOfUtc, idParent);
       var gop = GdidOrPath.OfGNode(idParent);
