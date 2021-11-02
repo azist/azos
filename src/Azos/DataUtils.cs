@@ -218,6 +218,9 @@ namespace Azos
       return result;
     }
 
-
+    /// <summary>
+    /// If NoCache is true then returns `CacheParams.NoCache` otherwise returns default (null by dflt)
+    /// </summary>
+    public static ICacheParams NoOrDefaultCache(this bool noCache, ICacheParams dflt = null) => noCache ? CacheParams.NoCache : dflt;
   }
 }
