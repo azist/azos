@@ -19,27 +19,21 @@ using MySqlConnector;
 
 namespace Azos.MySql.ConfForest.Queries.Tree
 {
-  public sealed class GetNodeInfo : MySqlCrudQueryHandler<Query>
+  public sealed class GetNodeInfoVersionByGdid : MySqlCrudQueryHandler<Query>  // TODO: determine if we should pass <Query> or <T> using override virtual CastParameters methods
   {
-    public GetNodeInfo(MySqlCrudDataStoreBase store, string name) : base(store, name) { }
+    public GetNodeInfoVersionByGdid(MySqlCrudDataStoreBase store, string name) : base(store, name) { }
 
     protected override void DoBuildCommandAndParameters(MySqlCrudQueryExecutionContext context, MySqlCommand cmd, Query qry)
     {
       var tpr = qry.GetParameterValueAs<TreePtr>("tpr");
       context.SetState(tpr);
-
-      cmd.Parameters.AddWithValue("gparent", qry.GetParameterValueAs<GDID>("gparent"));
-      cmd.Parameters.AddWithValue("psegment", qry.GetParameterValueAs<String>("psegment"));
-      cmd.Parameters.AddWithValue("asof", qry.GetParameterValueAs<DateTime>("asof"));
-
-      cmd.CommandText = GetType().GetText("GetNodeInfo.sql");
+      cmd.Parameters.AddWithValue("gdid", qry.GetParameterValueAs<GDID>("gdid"));
+      cmd.CommandText = GetType().GetText("GetNodeInfoVersionByGdid.sql");
     }
 
     protected override Doc DoPopulateDoc(MySqlCrudQueryExecutionContext context, Type tDoc, Schema schema, Schema.FieldDef[] toLoad, MySqlDataReader reader)
     {
       var verState = VersionInfo.MapCanonicalState(reader.AsStringField("VERSION_STATE"));
-      if (!VersionInfo.IsExistingStateOf(verState)) return null; //deleted, skip this doc
-
       var tpr = context.GetState<TreePtr>();
 
       var result = new TreeNodeInfo();
@@ -49,13 +43,10 @@ namespace Azos.MySql.ConfForest.Queries.Tree
       result.Gdid = reader.AsGdidField("GDID");
       result.G_Parent = reader.AsGdidField("G_PARENT");
       result.PathSegment = reader.AsStringField("PATH_SEGMENT");
-      result.FullPath = null;
+      result.FullPath = "[n/a for version specific node]";
       result.StartUtc = reader.AsDateTimeField("START_UTC").Value;
-
-      // TODO: Need to calculate EffectiveConfig in ForestLogic, see G8 CorporateHierarchyLogic getNodeInfoAsync_Implementation.  Where do we put MapToConfigRoot logic????
-
-      //      result.Properties = G8ConfigScript.MapToConfigRoot(reader.AsStringField("PROPERTIES"));
-      //      result.LevelConfig = G8ConfigScript.MapToConfigRoot(reader.AsStringField("CONFIG"));
+      result.Properties = Constraints.MapToConfigRoot(reader.AsStringField("PROPERTIES"));
+      result.LevelConfig = Constraints.MapToConfigRoot(reader.AsStringField("CONFIG"));
       result.DataVersion = new VersionInfo
       {
         G_Version = reader.AsGdidField("G_VERSION"),
@@ -69,7 +60,3 @@ namespace Azos.MySql.ConfForest.Queries.Tree
     }
   }
 }
-
-
-
-// you can pass <Query> or <T> using override virtual CastParameters methods

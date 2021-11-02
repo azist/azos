@@ -24,6 +24,16 @@ namespace Azos.Conf.Forest
   public interface IForestLogic : IBusinessLogic
   {
     /// <summary>
+    /// Defaults Utc timestamp value from app time source when the supplied one is null, then
+    /// aligns the supplied or defaulted timestamp on the configured value for the optionally specified tree
+    /// if provided or the <see cref="Constraints.DEFAULT_POLICY_REFRESH_WINDOW_MINUTES"/>
+    /// </summary>
+    /// <param name="v">UTC timestamp, or null to default the app-current time</param>
+    /// <param name="id">The optional EntityId of the tree targeted in the configuration policy</param>
+    /// <returns></returns>
+    DateTime DefaultAndAlignOnPolicyBoundary(DateTime? v, EntityId? id = null);
+
+    /// <summary>
     /// Retrieves all versions of the specified tree node identified by GDID.
     /// You must use <see cref="Constraints.SCH_GNODE"/> address schema
     /// </summary>
@@ -56,12 +66,12 @@ namespace Azos.Conf.Forest
     Task<IEnumerable<TreeNodeHeader>> GetChildNodeListAsync(EntityId idParent, DateTime? asOfUtc = null, ICacheParams cache = null);
 
     /// <summary>
-    /// Retrieves a node of corporate hierarchy by its id as of certain point in time
+    /// Retrieves a node of TreeNodeInfo by its id as of certain point in time
     /// </summary>
     /// <param name="id">Node id</param>
     /// <param name="asOfUtc">As of which point in time to retrieve the state, if null passed then current timestamp assumed</param>
     /// <param name="cache">Controls cache options used by the call, such as bypass cache etc.</param>
-    /// <returns>CorporateHierarchyNodeInfo-derived object for the requested level, null if such item is not found</returns>
+    /// <returns>TreeNodeInfo object or null if such item is not found</returns>
     Task<TreeNodeInfo> GetNodeInfoAsync(EntityId id, DateTime? asOfUtc = null, ICacheParams cache = null);
   }
 

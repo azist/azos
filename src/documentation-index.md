@@ -54,6 +54,8 @@
 * Distributed Worker Coordination
 * [Locking](/src/Azos.Sky/Locking)
 * [Global ID Generation/GDID](/src/Azos.Sky/Identification)
+* [Chronicle Logging Framework](/src/Azos.Sky/Chronicle)
+* [Event Hub](/src/Azos.Sky/EventHub)
 * [MDB - Database Router](/src/Azos.Sky/Mdb)
 * [Metabase](/src/Azos.Sky/Metabase)
 * [Distributed Workers](/src/Azos.Sky/Workers)

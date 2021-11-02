@@ -5,6 +5,7 @@
 </FILE_LICENSE>*/
 
 using Azos.Data;
+using Azos.Serialization.JSON;
 
 namespace Azos.Conf.Forest
 {
@@ -26,8 +27,8 @@ namespace Azos.Conf.Forest
     public const int CONFIG_MIN_LEN = 6; // {r:{}}
     public const int CONFIG_MAX_LEN = 512 * 1024;
 
-#warning THIS IS TENTATIVE NEED DESIGN!!!!!!!!!!!!!!!!!!!!!!!!  Why not require at least one path segment??? Why is this needed?
-#warning Reserve GDID for root node 0:0:1 (may not be Gdid.ZERO) as special GDID for very root node and treat it as a special case
+    public const int DEFAULT_POLICY_REFRESH_WINDOW_MINUTES = 10;
+
     /// <summary>
     /// The name of the very root path segment.
     /// Example: a path `us/oh` or equivalent `/us/oh` really has 3 levels: [`/`, `us`, `oh`] where the
@@ -57,6 +58,22 @@ namespace Azos.Conf.Forest
     /// having absence of schema specification treated as being equivalent to path
     /// </summary>
     public static bool IsPath(this EntityId id) => id.Schema == SCH_PATH || id.Schema.IsZero;
+
+    public static ConfigSectionNode MapToConfigRoot(string content, string name = null)
+    {
+      if (name.IsNullOrWhiteSpace()) name = "r";
+
+      if (content.IsNullOrWhiteSpace()) return Configuration.NewEmptyRoot(name);
+
+      return content.AsJSONConfig(wrapRootName: name, handling: ConvertErrorHandling.Throw);
+    }
+
+    public static string MapToValue(IConfigSectionNode node)
+    {
+      if (node == null || !node.Exists) return null;
+
+      return node.ToJSONString(JsonWritingOptions.Compact);
+    }
 
   }
 }
