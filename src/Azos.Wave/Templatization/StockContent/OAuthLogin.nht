@@ -33,6 +33,7 @@ public override string Title { get {return "OAuth - User Login"; } }
   <input type="hidden" name="roundtrip" value="?[:Roundtrip]">
   Email: <input type="text" name="id"><br>
   Password: <input type="password" name="pwd" ><br>
+  Remember me <input type="checkbox" name="stay" value="true"><br>
   <input type="submit">
 </form>
 

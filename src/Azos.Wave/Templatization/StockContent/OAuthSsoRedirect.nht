@@ -12,19 +12,23 @@ compiler
 #[class]
 
 public readonly string Uri;
+public readonly bool AutoRedirect;
 
-public OAuthSsoRedirect(string uri) : base()
+public OAuthSsoRedirect(string uri, bool noAutoRedirect) : base()
 {
   Uri = uri;
+  AutoRedirect = !noAutoRedirect;
 }
 
 #[render]
 <html>
 <head>
+ @[if (AutoRedirect){]
   <meta http-equiv="refresh" content="0; url=?[:Uri]">
+ @[}]
 </head>
 <body>
-  <a href="?[:Uri]">Tap link to continue...</a>
+  <a href="?[:Uri]">TAP LINK TO PROCEED to requesting application...</a>
 </body>
 </html>
 
