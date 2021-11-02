@@ -23,30 +23,23 @@ namespace Azos.Conf.Forest.Server
   */
   public sealed class ForestLogic : ModuleBase, IForestLogic, IForestSetupLogic
   {
-    #region const / .ctor / etc.
-
     private const string CONFIG_DATA_SECTION = "data";
 
     public ForestLogic(IApplication app) : base(app) { }
     public ForestLogic(IModule parent) : base(parent) { }
 
-    public override bool IsHardcodedModule => false;
-
-    public override string ComponentLogTopic => CoreConsts.CONF_TOPIC;
-
-    public bool IsServerImplementation => true;
-
     //allocated here
     private IForestDataSource m_Data;
-//todo Abstract this away
-//    [InjectModule] IEventProducer m_Events;
+#warning Abstract this away - need Event source very much
+    //    [InjectModule] IEventProducer m_Events;
 
+    #region Props
+    public override bool IsHardcodedModule => false;
+    public override string ComponentLogTopic => CoreConsts.CONF_TOPIC;
+    public bool IsServerImplementation => true;
+    #endregion
 
-    private void purgeCacheTables()
-    {
-      m_Data.Cache.PurgeAll();
-    }
-
+    #region Protected
     protected override void DoConfigure(IConfigSectionNode node)
     {
       base.DoConfigure(node);
@@ -75,26 +68,36 @@ namespace Azos.Conf.Forest.Server
     {
       if (!v.HasValue) v = App.TimeSource.UTCNow;
 
-      #warning Make configurable per tree
+#warning Make configurable per tree
       var boundary = 10;
 
       return v.Value.AlignDailyMinutes(boundary);
     }
 
     /// <inheritdoc/>
-    public async Task<IEnumerable<Atom>> GetTreeListAsync(Atom idForest) => await m_Data.NonNull(nameof(m_Data)).TryGetAllForestTreesAsync(idForest);
+    public async Task<IEnumerable<Atom>> GetTreeListAsync(Atom idForest)
+    {
+      App.Authorize(new TreePermission(TreeAccessLevel.Read, EntityId.EMPTY));
+      return await m_Data.NonNull(nameof(m_Data)).TryGetAllForestTreesAsync(idForest).ConfigureAwait(false);
+    }
 
     /// <inheritdoc/>
     public async Task<IEnumerable<TreeNodeHeader>> GetChildNodeListAsync(EntityId idParent, DateTime? asOfUtc = null, ICacheParams cache = null)
     {
-      if (cache == null) cache = CacheParams.DefaultCache;
-      var asof = DefaultAndAlignOnPolicyBoundary(asOfUtc, idParent);
+      //permission checks are performed in the child traverse loop down below
+
       var gop = GdidOrPath.OfGNode(idParent);
+      var asof = DefaultAndAlignOnPolicyBoundary(asOfUtc, idParent);
+      if (cache == null) cache = CacheParams.DefaultCache;
+
+      IEnumerable<TreeNodeHeader> result;
 
       if (gop.PathAddress != null)
-        return await getChildNodeListByTreePath(gop.Tree, gop.PathAddress, asof, cache).ConfigureAwait(false);
+        result = await getChildNodeListByTreePath(gop.Tree, gop.PathAddress, asof, cache).ConfigureAwait(false);
+      else
+        result = await getChildNodeListByGdid(gop.Tree, gop.GdidAddress, asof, cache).ConfigureAwait(false);
 
-      return await getChildNodeListByGdid(gop.Tree, gop.GdidAddress, asof, cache);
+      return result;
     }
 
     /// <inheritdoc/>
@@ -102,7 +105,7 @@ namespace Azos.Conf.Forest.Server
     {
       var gop = GdidOrPath.OfGNode(id);
 
-      App.Authorize(new TreePermission(TreeAccessLevel.Read, id));
+      App.Authorize(new TreePermission(TreeAccessLevel.Setup, id));
 
       var qry = new Query<VersionInfo>("Tree.GetNodeVersionList")
       {
@@ -116,15 +119,15 @@ namespace Azos.Conf.Forest.Server
     /// <inheritdoc/>
     public async Task<TreeNodeInfo> GetNodeInfoVersionAsync(EntityId idVersion)
     {
-      App.Authorize(new TreePermission(TreeAccessLevel.Read, idVersion)); // TODO: This needs reviewed!!!!
+      App.Authorize(new TreePermission(TreeAccessLevel.Setup, idVersion));
 
       var gop = GdidOrPath.OfGVersion(idVersion);
       var ptr = new TreePtr(idVersion);
       var qry = new Query<TreeNodeInfo>("Tree.GetNodeInfoVersionByGdid")
-          {
-            new Query.Param("ptr", ptr),
-            new Query.Param("gdid", gop.GdidAddress)
-          };
+      {
+        new Query.Param("ptr", ptr),
+        new Query.Param("gdid", gop.GdidAddress)
+      };
       return await m_Data.TreeLoadDocAsync(ptr, qry);
     }
 
@@ -135,10 +138,13 @@ namespace Azos.Conf.Forest.Server
       var asof = DefaultAndAlignOnPolicyBoundary(asOfUtc, id);
       var gop = GdidOrPath.OfGNode(id);
 
+      TreeNodeInfo result = null;
       if (gop.PathAddress != null)
-        return await getNodeByTreePath(gop.Tree, gop.PathAddress, asof, cache).ConfigureAwait(false);
+        result = await getNodeByTreePath(gop.Tree, gop.PathAddress, asof, cache).ConfigureAwait(false);
+      else
+        result = await getNodeByGdid(gop.Tree, gop.GdidAddress, asof, cache).ConfigureAwait(false);
 
-      return await getNodeByGdid(gop.Tree, gop.GdidAddress, asof, cache);
+      return result;
     }
     #endregion
 
@@ -164,6 +170,11 @@ namespace Azos.Conf.Forest.Server
 
     #region pvt
 
+    private void purgeCacheTables()
+    {
+      m_Data.Cache.PurgeAll();
+    }
+
     //cache 2 atom concatenation as string
     private static FiniteSetLookup<TreePtr, string> s_CacheTableName =
       new FiniteSetLookup<TreePtr, string>((t) => "{0}::{1}".Args(t.IdForest, t.IdTree));
@@ -178,6 +189,8 @@ namespace Azos.Conf.Forest.Server
         var segment = i < 0 ? Constraints.VERY_ROOT_PATH_SEGMENT : path[i];
         node = await getNodeByPathSegment(tree, nodeParent == null ? GDID.ZERO: nodeParent.Gdid, segment, asOfUtc, caching).ConfigureAwait(false);
         if (node == null) return null;// deleted
+
+        App.Authorize(new TreePermission(TreeAccessLevel.Read, node.Id));
 
         //Config chain inheritance pattern
         var confHere = node.LevelConfig.Node.NonEmpty(nameof(node.LevelConfig));
