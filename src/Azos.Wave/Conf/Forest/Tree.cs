@@ -26,43 +26,44 @@ namespace Azos.Conf.Forest.Server
   {
     public const string ACT_VERSION = "version";
     public const string ACT_NODE = "node";
+    public const string ACT_TREE_LIST = "tree-list";
+    public const string ACT_NODE_LIST = "node-list";
 
     [Inject] IForestSetupLogic m_Logic;
 
-    //////[ApiEndpointDoc(
-    //////  Title = "GET - Retrieves a list of tree nodes",
-    //////  Description = "Gets a list of tree nodes of a specified forest as of the specified timestamp.",
-    //////  DocAnchor = "### /conf/forest/tree-list/ GET",
-    //////  RequestQueryParameters = new[]{
-    //////        "asofutc=Nullable timestamp as of which to retrieve the list. Null denotes UTC now (default)"},
-    //////  ResponseContent = "Http 200 / JSON representation of {OK: true, data: [ListItem]} or Http 404 {OK: false, data: null}",
-    //////  Methods = new[] { "GET: list of [ListItem]" },
-    //////  TypeSchemas = new[]{
-    //////        typeof(ListItem)
-    //////  })]
-    ////////[TreePermission(TreeAccessLevel.View)]  // TODO: determine if there needs to be another permission? ForestPermission???
-    //////[ActionOnGet(Name = ACT_ENTERPRISE_LIST)]
-    //////public async Task<object> GetTreeListAsync(DateTime? asofutc = null)
-    //////  => GetLogicResult(await m_Logic.GetTreeListAsync(asofutc).ConfigureAwait(false));
+    [ApiEndpointDoc(
+      Title = "GET - Retrieves a list of trees",
+      Description = "Gets a list of tree names of a specified forest as of the specified timestamp.",
+      DocAnchor = "### /conf/forest/tree-list/ GET",
+      RequestQueryParameters = new[]{
+            "forest=Forest Atom of the node to retrieve"},
+      ResponseContent = "Http 200 / JSON representation of {OK: true, data: [Atom]} or Http 404 {OK: false, data: null}",
+      Methods = new[] { "GET: list of [Atom]" },
+      TypeSchemas = new[]{
+            typeof(Atom)
+      })]
+    //[TreePermission(TreeAccessLevel.View)]  // TODO: determine if there needs to be another permission? ForestPermission???
+    [ActionOnGet(Name = ACT_TREE_LIST)]
+    public async Task<object> GetTreeListAsync(Atom forest)
+      => GetLogicResult(await m_Logic.GetTreeListAsync(forest).ConfigureAwait(false));
 
 
-    //////[ApiEndpointDoc(
-    //////  Title = "GET - Retrieves a list of child nodes of the specified node",
-    //////  Description = "Gets a list of child items of the specified node as of the specified timestamp." +
-    //////  "Use this endpoint to dynamically build a 1+ ranks of a 'tree' UI.",
-    //////  DocAnchor = "### /corporate/hierarchy/node-list/ GET",
-    //////  RequestQueryParameters = new[]{
-    //////    "idparent=EntytyId of a parent node to retrieve child nodes for",
-    //////    "asofutc=Nullable timestamp as of which to retrieve the list. Null denotes UTC now (default)"},
-    //////  ResponseContent = "Http 200 / JSON representation of {OK: true, data: [ListItem]} or Http 404 {OK: false, data: null}",
-    //////  Methods = new[] { "GET: list of [ListItem]" },
-    //////  TypeSchemas = new[]{
-    //////    typeof(ListItem)
-    //////  })]
-    //////[CorporatePermission(CorporateAccessLevel.View)]
-    //////[ActionOnGet(Name = ACT_NODE_LIST)]
-    //////public async Task<object> NodeListGet(EntityId idparent, DateTime? asofutc = null)
-    //////  => GetLogicResult(await m_Logic.GetChildNodeListAsync(idparent, asofutc).ConfigureAwait(false));
+    [ApiEndpointDoc(
+      Title = "GET - Retrieves a list of child nodes for the specified tree node",
+      Description = "Retrieves a list of child nodes headers (node info without config content) for the specified tree node as of the specified timestamp.",
+      DocAnchor = "### /conf/forest/node-list/ GET",
+      RequestQueryParameters = new[]{
+        "idparent=EntytyId of a parent node to retrieve child nodes for",
+        "asofutc=Nullable timestamp as of which to retrieve the list. Null denotes UTC now (default)"},
+      ResponseContent = "Http 200 / JSON representation of {OK: true, data: [TreeNodeHeader]} or Http 404 {OK: false, data: null}",
+      Methods = new[] { "GET: list of [TreeNodeHeader]" },
+      TypeSchemas = new[]{
+        typeof(TreeNodeHeader)
+      })]
+    //[TreePermission(TreeAccessLevel.View)]  // TODO: determine if there needs to be another permission? ForestPermission???
+    [ActionOnGet(Name = ACT_NODE_LIST)]
+    public async Task<object> NodeListGet(EntityId idparent, DateTime? asofutc = null, bool nocache = false)
+      => GetLogicResult(await m_Logic.GetChildNodeListAsync(idparent, asofutc, nocache ? CacheParams.NoCache : CacheParams.DefaultCache).ConfigureAwait(false));
 
 
 
@@ -94,8 +95,8 @@ namespace Azos.Conf.Forest.Server
       TypeSchemas = new[]{ typeof(TreeNodeInfo) })]
     //[TreePermission(TreeAccessLevel.View)]  // TODO: determine if there needs to be another permission? ForestPermission???
     [ActionOnGet(Name = ACT_VERSION)]
-    public async Task<object> GetNodeInfoVersionAsync(EntityId idVersion)
-      => GetLogicResult(await m_Logic.GetNodeInfoVersionAsync(idVersion).ConfigureAwait(false));
+    public async Task<object> GetNodeInfoVersionAsync(EntityId id)
+      => GetLogicResult(await m_Logic.GetNodeInfoVersionAsync(id).ConfigureAwait(false));
 
 
 

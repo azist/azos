@@ -3,11 +3,12 @@
   select
     json_pretty(json_object('g_ver', hex(TL.GDID),
                             'gdid', hex(TL.G_NODE),
-                            'psegment', TL.PATH_SEGMENT,
+                            'mnemonic', TL.MNEMONIC,
+                            'caption', TL.CAPTION,
                             'start_utc', TL.START_UTC,
                             'version_state', TL.VERSION_STATE))
   from
-    tbl_nodelog TL
+    tbl_hnodelog TL
   where
     (TL.G_NODE = TN.GDID) AND (TL.G_PARENT = @gparent) AND (TL.START_UTC <= @asof)
   order by
@@ -15,6 +16,8 @@
   limit 1
 ) as DATA
 from
-  tbl_node TN
+  tbl_hnode TN
+where
+  TN.ETYPE = @etp
 having
   `DATA` is not null

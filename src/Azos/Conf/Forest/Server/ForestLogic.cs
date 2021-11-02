@@ -6,21 +6,14 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
-using Azos;
+
 using Azos.Apps;
 using Azos.Data;
 using Azos.Data.Access;
 using Azos.Data.Business;
-using Azos.Glue.Native;
 using Azos.Platform;
-using Azos.Scripting.Expressions;
 using Azos.Security.ConfigForest;
-using Azos.Time;
-
-using static Azos.Canonical;
-using static Azos.Web.Multipart;
 
 namespace Azos.Conf.Forest.Server
 {
@@ -30,6 +23,8 @@ namespace Azos.Conf.Forest.Server
   */
   public sealed class ForestLogic : ModuleBase, IForestLogic, IForestSetupLogic
   {
+    #region const / .ctor / etc.
+
     private const string CONFIG_DATA_SECTION = "data";
 
     public ForestLogic(IApplication app) : base(app) { }
@@ -72,6 +67,8 @@ namespace Azos.Conf.Forest.Server
       return base.DoApplicationBeforeCleanup();
     }
 
+    #endregion
+
 
     #region IForestLogic
 
@@ -90,41 +87,18 @@ namespace Azos.Conf.Forest.Server
     public async Task<IEnumerable<Atom>> GetTreeListAsync(Atom idForest) => await m_Data.NonNull(nameof(m_Data)).TryGetAllForestTreesAsync(idForest);
 
     /// <inheritdoc/>
-    public Task<IEnumerable<TreeNodeHeader>> GetChildNodeListAsync(EntityId idParent, DateTime? asOfUtc = null, ICacheParams cache = null)
+    public async Task<IEnumerable<TreeNodeHeader>> GetChildNodeListAsync(EntityId idParent, DateTime? asOfUtc = null, ICacheParams cache = null)
     {
       return null;
-      //var pgom = EntityIds.Corporate.CheckHierarchyId(idParent);
-      //var tchild = EntityIds.Corporate.GetHierarchyChildType(pgom.Type);
-      //var asof = asOfUtc.DefaultAndAlignOnPolicyBoundary(App);
-      //if (cache == null) cache = CacheParams.DefaultCache;
 
-      //App.Authorize(CorporatePermission.VIEW);
+      if (cache == null) cache = CacheParams.DefaultCache;
+      var asof = DefaultAndAlignOnPolicyBoundary(asOfUtc, idParent);
+      var gop = GdidOrPath.OfGNode(idParent);
 
-      //var result = await m_Data.Cache.FetchThroughAsync(("GetChildNodeListAsync" + idParent, asof),
-      //  CACHE_TBL_GENERIC,
-      //  cache,
-      //  async key =>
-      //  {
-      //    var gparent = pgom.Gdid;
-      //    if (gparent.IsZero)//lookup G_Parent by mnemonic
-      //    {
-      //      var pnode = await GetNodeInfoAsync(idParent, asof, cache).ConfigureAwait(false);
-      //      if (pnode == null) return null;
-      //      gparent = pnode.Gdid;
-      //    }
+      if (gop.PathAddress != null)
+        return await getChildNodeListByTreePath(gop.Tree, gop.PathAddress, asof, cache).ConfigureAwait(false);
 
-      //    var qry = new Query<ListItem>("Hierarchy.GetChildNodeList")
-      //    {
-      //      new Query.Param("etp", tchild),
-      //      new Query.Param("gparent", gparent),
-      //      new Query.Param("asof", asof)
-      //    };
-
-      //    return await m_DataHub.CorporateLoadEnumerableAsync(qry);
-      //  }
-      //).ConfigureAwait(false);
-
-      //return result;
+      return await getChildNodeListByGdid(gop.Tree, gop.GdidAddress, asof, cache);
     }
 
     /// <inheritdoc/>
@@ -261,6 +235,34 @@ namespace Azos.Conf.Forest.Server
 
       return node;
     }
+
+    #region get child nodes
+    private async Task<IEnumerable<TreeNodeHeader>> getChildNodeListByTreePath(TreePtr tree, TreePath pathAddress, DateTime asOfUtc, ICacheParams caching)
+    {
+      var nodeParent = await getNodeByTreePath(tree, pathAddress, asOfUtc, caching).ConfigureAwait(false);
+      return await getChildNodeListByGdid(tree, nodeParent.Gdid, asOfUtc, caching);
+    }
+
+    private async Task<IEnumerable<TreeNodeHeader>> getChildNodeListByGdid(TreePtr tree, GDID gdidAddress, DateTime asOfUtc, ICacheParams caching)
+    {
+      var tblCache = s_CacheTableName[tree] + "::chld";
+      var keyCache = asOfUtc.Ticks + gdidAddress.ToHexString();
+
+      var nodes = await m_Data.Cache.FetchThroughAsync(
+        keyCache, tblCache, caching,
+        async key =>
+        {
+          var qry = new Query<TreeNodeHeader>("Tree.GetChildNodeList")
+          {
+            new Query.Param("gparent", gdidAddress),
+            new Query.Param("asof", asOfUtc)
+          };
+          return await m_Data.TreeLoadEnumerableAsync(tree, qry);
+        }
+      ).ConfigureAwait(false);
+      return nodes;
+    }
+    #endregion
 
     #endregion
   }
