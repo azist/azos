@@ -63,7 +63,7 @@ namespace Azos.Conf.Forest.Server
     //[TreePermission(TreeAccessLevel.View)]  // TODO: determine if there needs to be another permission? ForestPermission???
     [ActionOnGet(Name = ACT_NODE_LIST)]
     public async Task<object> NodeListGet(EntityId idparent, DateTime? asofutc = null, bool nocache = false)
-      => GetLogicResult(await m_Logic.GetChildNodeListAsync(idparent, asofutc, nocache ? CacheParams.NoCache : (ICacheParams)null).ConfigureAwait(false));
+      => GetLogicResult(await m_Logic.GetChildNodeListAsync(idparent, asofutc, nocache.NoOrDefaultCache()).ConfigureAwait(false));
 
 
 
@@ -114,7 +114,7 @@ namespace Azos.Conf.Forest.Server
       TypeSchemas = new[]{ typeof(TreeNodeInfo) })]
     [ActionOnGet(Name = ACT_NODE)]
     public async Task<object> GetNodeInfoAsync(EntityId id, DateTime? asofutc = null, bool nocache = false)
-      => GetLogicResult(await m_Logic.GetNodeInfoAsync(id, asofutc, nocache ? CacheParams.NoCache : (ICacheParams)null).ConfigureAwait(false));
+      => GetLogicResult(await m_Logic.GetNodeInfoAsync(id, asofutc, nocache.NoOrDefaultCache()).ConfigureAwait(false));
 
   }
 }

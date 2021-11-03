@@ -30,24 +30,8 @@ namespace Azos.Conf.Forest
     /// </summary>
     /// <param name="v">UTC timestamp, or null to default the app-current time</param>
     /// <param name="id">The optional EntityId of the tree targeted in the configuration policy</param>
-    /// <returns></returns>
+    /// <returns>Aligned dateTime</returns>
     DateTime DefaultAndAlignOnPolicyBoundary(DateTime? v, EntityId? id = null);
-
-    /// <summary>
-    /// Retrieves all versions of the specified tree node identified by GDID.
-    /// You must use <see cref="Constraints.SCH_GNODE"/> address schema
-    /// </summary>
-    /// <param name="id">Node Gdid is the only address schema supported</param>
-    /// <returns>List of versions of the specified path or null if such id does not exist</returns>
-    Task<IEnumerable<VersionInfo>> GetNodeVersionListAsync(EntityId id);
-
-    /// <summary>
-    /// Retrieves tree node information of the specified version.
-    /// Note: you must use <see cref="Constraints.SCH_GVER"/> address schema:  `region.gver@geo::0:0:345`
-    /// </summary>
-    /// <param name="idVersion">EntityId of version containing (system, type, gver: gVersion)</param>
-    /// <returns>NodeInfo or null if not found</returns>
-    Task<TreeNodeInfo> GetNodeInfoVersionAsync(EntityId idVersion);
 
     /// <summary>
     /// Retrieves a list trees in the specified forest
@@ -82,6 +66,22 @@ namespace Azos.Conf.Forest
   /// </summary>
   public interface IForestSetupLogic : IForestLogic
   {
+    /// <summary>
+    /// Retrieves all versions of the specified tree node identified by GDID.
+    /// You must use <see cref="Constraints.SCH_GNODE"/> address schema
+    /// </summary>
+    /// <param name="id">Node Gdid is the only address schema supported</param>
+    /// <returns>List of versions of the specified path or null if such id does not exist</returns>
+    Task<IEnumerable<VersionInfo>> GetNodeVersionListAsync(EntityId id);
+
+    /// <summary>
+    /// Retrieves tree node information of the specified version.
+    /// Note: you must use <see cref="Constraints.SCH_GVER"/> address schema:  `region.gver@geo::0:0:345`
+    /// </summary>
+    /// <param name="idVersion">EntityId of version containing (system, type, gver: gVersion)</param>
+    /// <returns>NodeInfo or null if not found</returns>
+    Task<TreeNodeInfo> GetNodeInfoVersionAsync(EntityId idVersion);
+
     /// <summary>
     /// Performs complex validation steps on the supplied node before it gets saved.
     /// This method is called by the `TreeNode` instance as a part of save activity.

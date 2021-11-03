@@ -225,6 +225,39 @@ namespace Azos.Security.Services
       return RespondWithAuthorizeResult(flow["sd"].AsLong(), loginFlow, error: null);
     }
 
+
+    [ApiEndpointDoc(
+      Title = "OAuth Authorize Cancel",
+      Description = "Provides ability to redirect back to the calling app without an authorization token effectively canceling the OAuth flow",
+      RequestQueryParameters = new[]{"roundtrip: the roundtrip content produced by authorization/get"},
+      ResponseContent = "302 without client access code or 401 for bad requested parameters. 403 for unauthorized client URI"
+    )]
+    [ActionOnGet(Name = "cancel")]
+    public async virtual Task<object> Cancel_Get(string roundtrip)
+    {
+      var flow = App.SecurityManager.PublicUnprotectMap(roundtrip);
+      if (flow == null) return GateError(new Http401Unauthorized("Bad Request X1"));//we don't have ACL yet, hence can't check redirect_uri
+
+      //1. check token age
+      var utcNow = App.TimeSource.UTCNow;
+      var age = utcNow - flow["sd"].AsLong(0).FromSecondsSinceUnixEpochStart();
+      if (age.TotalSeconds > OAuth.MaxAuthorizeRoundtripAgeSec) return GateError(new Http401Unauthorized("Bad Request X2"));
+
+      //2. Lookup client app, just by client_id (w/o password)
+      var clid = flow["id"].AsString();
+      var clcred = new EntityUriCredentials(clid);
+      var cluser = await OAuth.ClientSecurity.AuthenticateAsync(clcred).ConfigureAwait(false);
+      if (!cluser.IsAuthenticated) return GateError(new Http401Unauthorized("Unknown client"));//we don't have ACL yet, hence can't check redirect_uri
+
+      //3. Check client ACL for allowed redirect URIs
+      var uri = flow["uri"].AsString();
+      var redirectPermission = new OAuthClientAppPermission(uri);//this call comes from front channel, hence we don't check for address
+      var uriAllowed = await redirectPermission.CheckAsync(OAuth.ClientSecurity, cluser).ConfigureAwait(false);
+      if (!uriAllowed) return GateError(new Http403Forbidden("Unauthorized redirect Uri"));
+
+      return new Redirect(uri);
+    }
+
     /// <summary>
     /// Obtains the TOKEN based on the {Authorization Code} received in authorize step
     /// </summary>
