@@ -160,7 +160,6 @@ namespace Azos.Conf.Forest.Server
     {
       // TODO: Implement ValidateNodeAsync method logic
 
-
       node.NonNull(nameof(node));
       var tree = new TreePtr(node.Forest, node.Tree);
 
@@ -174,23 +173,7 @@ namespace Azos.Conf.Forest.Server
       //1. Update database
       var change = await m_Data.TreeExecuteAsync(tree, qry);
 
-      // TODO: review the below before deleting below.
-
-      ////2. Purge cached data because nodes have cascading config effect on other nodes
-      //// and a change to some node invalidates other cached records in a complex
-      //// non-determinictic fashion
-      //purgeHierarchyCacheTables();
-
-      ////3. Send event
-      //var evt = new Events.CorporateHierarchyNodeChanged
-      //{
-      //  NodeId = node.Id,
-      //  StartUtc = node.StartUtc.Value,
-      //  Description = "{0} saved".Args(node.GetType().Name),
-      //  Version = change.Version
-      //};
-
-      //await this.DontLeakAsync(async () => await m_Events.PostEventDocumentAsync(evt)).ConfigureAwait(false);
+      // TODO: review purge cache logic that was deleted. Is it needed here?
 
       return new ChangeResult(ChangeResult.ChangeType.Processed, 1, "Saved", change);
     }
