@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading.Tasks;
 
 using Azos.Data;
 using Azos.Data.Access;
@@ -50,5 +51,25 @@ namespace Azos.Conf.Forest.Server
                       TreePtr tree,
                       Query<TDoc> qry) where TDoc : Doc
       => forestData.GetCrudData(tree).LoadDocAsync(qry).ConfigureAwait(false);
+
+
+    /// <summary>
+    /// Extension which executes a query in tree data context and does not fetch any result
+    /// </summary>
+    public static ConfiguredTaskAwaitable<TDoc> TreeExecuteAsync<TDoc>(this IForestDataSource forestData,
+                    TreePtr tree,
+                    Query<TDoc> qry) where TDoc : Doc
+      => forestData.treeExecuteAsync(tree, qry).ConfigureAwait(false);
+
+    public static async Task<TDoc> treeExecuteAsync<TDoc>(this IForestDataSource forestData,
+                    TreePtr tree,
+                    Query<TDoc> qry) where TDoc : Doc
+    {
+      var doc = await forestData.GetCrudData(tree).ExecuteAsync(qry).ConfigureAwait(false);
+      if (doc == null) return null;
+      var result = doc.CastTo<TDoc>($"Query returned value of type `{doc.GetType().DisplayNameWithExpandedGenericArgs()}`");
+      return result;
+    }
+
   }
 }

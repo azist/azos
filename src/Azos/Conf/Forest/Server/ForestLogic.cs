@@ -156,15 +156,65 @@ namespace Azos.Conf.Forest.Server
     }
 
     /// <inheritdoc/>
-    public Task<ChangeResult> SaveNodeAsync(TreeNode node)
+    public async Task<ChangeResult> SaveNodeAsync(TreeNode node)
     {
-      throw new NotImplementedException();
+      // TODO: Implement ValidateNodeAsync method logic
+
+
+      node.NonNull(nameof(node));
+      var tree = new TreePtr(node.Forest, node.Tree);
+
+      App.Authorize(new TreePermission(TreeAccessLevel.Setup, node.Id));
+
+      var qry = new Query<EntityChangeInfo>("Tree.SaveNode")
+      {
+        new Query.Param("n", node)
+      };
+
+      //1. Update database
+      var change = await m_Data.TreeExecuteAsync(tree, qry);
+
+      // TODO: review the below before deleting below.
+
+      ////2. Purge cached data because nodes have cascading config effect on other nodes
+      //// and a change to some node invalidates other cached records in a complex
+      //// non-determinictic fashion
+      //purgeHierarchyCacheTables();
+
+      ////3. Send event
+      //var evt = new Events.CorporateHierarchyNodeChanged
+      //{
+      //  NodeId = node.Id,
+      //  StartUtc = node.StartUtc.Value,
+      //  Description = "{0} saved".Args(node.GetType().Name),
+      //  Version = change.Version
+      //};
+
+      //await this.DontLeakAsync(async () => await m_Events.PostEventDocumentAsync(evt)).ConfigureAwait(false);
+
+      return new ChangeResult(ChangeResult.ChangeType.Processed, 1, "Saved", change);
     }
 
     /// <inheritdoc/>
-    public Task<ChangeResult> DeleteNodeAsync(EntityId id, DateTime? startUtc = null)
+    public async Task<ChangeResult> DeleteNodeAsync(EntityId id, DateTime? startUtc = null)
     {
-      throw new NotImplementedException();
+      var asof = DefaultAndAlignOnPolicyBoundary(startUtc, id);
+      App.Authorize(new TreePermission(TreeAccessLevel.Setup, id));
+
+      //1. - Fetch the existing node state
+      var existing = await GetNodeInfoAsync(id, asof, CacheParams.NoCache).ConfigureAwait(false);
+
+      if (existing == null) return new ChangeResult("Not Found", 404);
+
+      //2. - Create tombstone
+      var tombstone = existing.CloneIntoPersistedModel();
+      tombstone.FormMode = FormMode.Delete;
+      tombstone.StartUtc = asof;
+
+      //delegate saving to existing SaveNode()
+      var change = await this.SaveNodeAsync(tombstone).ConfigureAwait(false);
+
+      return new ChangeResult(ChangeResult.ChangeType.Deleted, change.AffectedCount, "Deleted", change.Data);
     }
     #endregion
 

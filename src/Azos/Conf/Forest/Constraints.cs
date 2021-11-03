@@ -15,6 +15,8 @@ namespace Azos.Conf.Forest
   public static class Constraints
   {
     public const string ID_NS_CONFIG_FOREST_PREFIX = "az-cforest-";
+    //public const string ID_NS_FOREST = "cforst";     TODO: confirm we should be using ID_NS_CONFIG_FOREST_PREFIX above instead of this
+    public const string ID_SEQ_TREE_NODE = "tnode";
 
     public static readonly Atom SCH_PATH = Atom.Encode("path");
     public static readonly Atom SCH_GNODE = Atom.Encode("gnode");
@@ -28,6 +30,7 @@ namespace Azos.Conf.Forest
     public const int CONFIG_MAX_LEN = 512 * 1024;
 
     public const int DEFAULT_POLICY_REFRESH_WINDOW_MINUTES = 10;
+
 
     /// <summary>
     /// The name of the very root path segment.
