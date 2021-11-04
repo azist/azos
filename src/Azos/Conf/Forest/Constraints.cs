@@ -15,8 +15,7 @@ namespace Azos.Conf.Forest
   public static class Constraints
   {
     public const string ID_NS_CONFIG_FOREST_PREFIX = "az-cforest-";
-    //public const string ID_NS_FOREST = "cforst";     TODO: confirm we should be using ID_NS_CONFIG_FOREST_PREFIX above instead of this
-    public const string ID_SEQ_TREE_NODE = "tnode";
+    public const string ID_SEQ_TREE_NODE_GVERSION_SUFFIX = "-ver";
 
     public static readonly Atom SCH_PATH = Atom.Encode("path");
     public static readonly Atom SCH_GNODE = Atom.Encode("gnode");

@@ -153,13 +153,13 @@ namespace Azos.Conf.Forest.Server
     /// <inheritdoc/>
     public Task<ValidState> ValidateNodeAsync(TreeNode node, ValidState state)
     {
+#warning Implement ValidateNodeAsync method logic
       throw new NotImplementedException();
     }
 
     /// <inheritdoc/>
     public async Task<ChangeResult> SaveNodeAsync(TreeNode node)
     {
-      // TODO: Implement ValidateNodeAsync method logic
 
       node.NonNull(nameof(node));
       var tree = new TreePtr(node.Forest, node.Tree);
