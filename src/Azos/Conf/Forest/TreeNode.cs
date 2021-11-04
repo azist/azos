@@ -96,7 +96,16 @@ namespace Azos.Conf.Forest
       }
       return result;
     }
-#warning Where is the call to Logic.ValidateNodeAsync??????????????? it should be in DoValidate() override
+
+    protected override async Task<ValidState> DoAfterValidateOnSaveAsync(ValidState state)
+    {
+      var result = await base.DoAfterValidateOnSaveAsync(state).ConfigureAwait(false);
+      if (result.ShouldContinue)
+      {
+        state = await m_SaveLogic.ValidateNodeAsync(this, state).ConfigureAwait(false);
+      }
+      return result;
+    }
 
     protected override async Task DoBeforeSaveAsync()
     {
