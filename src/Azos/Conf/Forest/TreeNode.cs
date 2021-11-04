@@ -97,6 +97,15 @@ namespace Azos.Conf.Forest
       return result;
     }
 
+    protected override async Task<ValidState> DoAfterValidateOnSaveAsync(ValidState state)
+    {
+      var result = await base.DoAfterValidateOnSaveAsync(state).ConfigureAwait(false);
+      if (result.ShouldContinue)
+      {
+        state = await m_SaveLogic.ValidateNodeAsync(this, state).ConfigureAwait(false);
+      }
+      return result;
+    }
 
     protected override async Task DoBeforeSaveAsync()
     {

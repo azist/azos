@@ -28,8 +28,8 @@ namespace Azos.MySql.ConfForest.Queries.Tree
       var result = new EntityChangeInfo
       {
         Id = node.Id,
-        Version = ctx.MakeVersionInfo(Constraints.ID_NS_CONFIG_FOREST_PREFIX,  // TODO: should we use this prefix or create do we create ID_NS_FOREST etc. see Constraints.cs
-                                      Constraints.ID_SEQ_TREE_NODE,
+        Version = ctx.MakeVersionInfo(Constraints.ID_NS_CONFIG_FOREST_PREFIX,
+                                      node.Tree + Constraints.ID_SEQ_TREE_NODE_GVERSION_SUFFIX,
                                       node.FormMode)
       };
 
