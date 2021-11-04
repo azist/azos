@@ -35,6 +35,8 @@ namespace Azos.MySql.ConfForest.Queries.Tree
     protected override Doc DoPopulateDoc(MySqlCrudQueryExecutionContext context, Type tDoc, Schema schema, Schema.FieldDef[] toLoad, MySqlDataReader reader)
     {
       var verState = VersionInfo.MapCanonicalState(reader.AsStringField("VERSION_STATE"));
+      if (!VersionInfo.IsExistingStateOf(verState)) return null; //deleted, skip this doc
+
       var tree = context.GetState<TreePtr>();
 
       var result = new TreeNodeInfo();

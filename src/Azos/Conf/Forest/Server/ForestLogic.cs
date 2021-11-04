@@ -4,16 +4,17 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
 using Azos.Apps;
 using Azos.Data;
 using Azos.Data.Access;
 using Azos.Data.Business;
+using Azos.Data.Modeling.DataTypes;
 using Azos.Platform;
 using Azos.Security.ConfigForest;
+
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Azos.Conf.Forest.Server
 {
@@ -156,15 +157,48 @@ namespace Azos.Conf.Forest.Server
     }
 
     /// <inheritdoc/>
-    public Task<ChangeResult> SaveNodeAsync(TreeNode node)
+    public async Task<ChangeResult> SaveNodeAsync(TreeNode node)
     {
-      throw new NotImplementedException();
+      // TODO: Implement ValidateNodeAsync method logic
+
+      node.NonNull(nameof(node));
+      var tree = new TreePtr(node.Forest, node.Tree);
+
+      App.Authorize(new TreePermission(TreeAccessLevel.Setup, node.Id));
+
+      var qry = new Query<EntityChangeInfo>("Tree.SaveNode")
+      {
+        new Query.Param("n", node)
+      };
+
+      //1. Update database
+      var change = await m_Data.TreeExecuteAsync(tree, qry);
+
+      // TODO: review purge cache logic that was deleted. Is it needed here?
+
+      return new ChangeResult(ChangeResult.ChangeType.Processed, 1, "Saved", change);
     }
 
     /// <inheritdoc/>
-    public Task<ChangeResult> DeleteNodeAsync(EntityId id, DateTime? startUtc = null)
+    public async Task<ChangeResult> DeleteNodeAsync(EntityId id, DateTime? startUtc = null)
     {
-      throw new NotImplementedException();
+      var asof = DefaultAndAlignOnPolicyBoundary(startUtc, id);
+      App.Authorize(new TreePermission(TreeAccessLevel.Setup, id));
+
+      //1. - Fetch the existing node state
+      var existing = await GetNodeInfoAsync(id, asof, CacheParams.NoCache).ConfigureAwait(false);
+
+      if (existing == null) return new ChangeResult("Not Found", 404);
+
+      //2. - Create tombstone
+      var tombstone = existing.CloneIntoPersistedModel();
+      tombstone.FormMode = FormMode.Delete;
+      tombstone.StartUtc = asof;
+
+      //delegate saving to existing SaveNode()
+      var change = await this.SaveNodeAsync(tombstone).ConfigureAwait(false);
+
+      return new ChangeResult(ChangeResult.ChangeType.Deleted, change.AffectedCount, "Deleted", change.Data);
     }
     #endregion
 
@@ -193,13 +227,13 @@ namespace Azos.Conf.Forest.Server
         App.Authorize(new TreePermission(TreeAccessLevel.Read, node.Id));
 
         //Config chain inheritance pattern
-        var confHere = node.LevelConfig.Node.NonEmpty(nameof(node.LevelConfig));
         if(nodeParent == null)
         {
           node.EffectiveConfig = new ConfigVector(node.LevelConfig.Content);//Copy
         }
         else
         {
+          var confHere = node.LevelConfig.Node.NonEmpty(nameof(node.LevelConfig));  // Using LevelConfig is correct ????
           var confParent = nodeParent.EffectiveConfig.Node.NonEmpty(nameof(nodeParent.EffectiveConfig));
           var confResult = new MemoryConfiguration() { Application = this.App };
           confResult.CreateFromNode(confParent);//inherit
@@ -234,20 +268,62 @@ namespace Azos.Conf.Forest.Server
       return node;
     }
 
+
     private async Task<TreeNodeInfo> getNodeByGdid(TreePtr tree, GDID gNode, DateTime asOfUtc, ICacheParams caching)
     {
-      // TODO: Need to calculate EffectiveConfig in ForestLogic, see G8 CorporateHierarchyLogic getNodeInfoAsync_Implementation.
-      TreeNodeInfo node = null;
-      var gParent = GDID.ZERO;
+      TreeNodeInfo node = await getNodeByGdid_Implementation(tree, gNode, asOfUtc, caching).ConfigureAwait(false);
+      if (node == null) return node;
+      if (node.G_Parent == GDID.ZERO || node.Gdid == node.G_Parent)
+      {
+        node.EffectiveConfig = new ConfigVector(node.LevelConfig.Content);//Copy
+        return node;
+      }
 
-      // TODO:
-      node = await getNodeByGdid_Implementation(tree, gNode, asOfUtc, caching).ConfigureAwait(false);
+      var g_parent = node.G_Parent;
+      TreeNodeInfo nodeHere = null;
+
+      var nodeList = new List<TreeNodeInfo>();
+      while (true)
+      {
+        nodeHere = await getNodeByGdid_Implementation(tree, g_parent, asOfUtc, caching).ConfigureAwait(false);
+        if (nodeHere == null) break;
+        else
+        {
+          // Add node then walk up tree by parent
+          nodeList.Add(nodeHere);
+          if (nodeHere.G_Parent == GDID.ZERO || nodeHere.Gdid == nodeHere.G_Parent) break;
+          g_parent = nodeHere.G_Parent;
+        }
+      }
+
+      //Config chain inheritance pattern
+      IConfigSectionNode confParent = null;
+      IConfigSectionNode confHere = null;
+
+      // Walk down tree applying config
+      for (int i = nodeList.Count - 1; i > -1; i--)
+      {
+        nodeHere = nodeList[i];
+        if (confParent == null)
+        {
+          confParent = nodeHere.LevelConfig.Node.NonEmpty(nameof(nodeHere.LevelConfig));
+          continue;
+        }
+
+        confHere = nodeHere.LevelConfig.Node.NonEmpty(nameof(nodeHere.LevelConfig));
+        var confResult = new MemoryConfiguration() { Application = this.App };
+        confResult.CreateFromNode(confParent);//inherit
+        confResult.Root.OverrideBy(confHere); //override
+        confParent = confResult.Root;
+      }
+      node.EffectiveConfig = new ConfigVector(confHere);
 
       return node;
     }
 
     private async Task<TreeNodeInfo> getNodeByGdid_Implementation(TreePtr tree, GDID gNode, DateTime asOfUtc, ICacheParams caching)
     {
+      App.Authorize(new TreePermission(TreeAccessLevel.Read, new EntityId(tree.IdForest, tree.IdTree, Constraints.SCH_GNODE, gNode.ToString())));
       var tblCache = s_CacheTableName[tree] + "::gdid";
       var keyCache = asOfUtc.Ticks + gNode.ToHexString();
 
