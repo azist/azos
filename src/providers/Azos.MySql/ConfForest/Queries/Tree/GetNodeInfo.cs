@@ -51,11 +51,8 @@ namespace Azos.MySql.ConfForest.Queries.Tree
       result.PathSegment = reader.AsStringField("PATH_SEGMENT");
       result.FullPath = null;
       result.StartUtc = reader.AsDateTimeField("START_UTC").Value;
-
-      // TODO: Need to calculate EffectiveConfig in ForestLogic, see G8 CorporateHierarchyLogic getNodeInfoAsync_Implementation.  Where do we put MapToConfigRoot logic????
-
-      //      result.Properties = G8ConfigScript.MapToConfigRoot(reader.AsStringField("PROPERTIES"));
-      //      result.LevelConfig = G8ConfigScript.MapToConfigRoot(reader.AsStringField("CONFIG"));
+      result.Properties = Constraints.MapToConfigRoot(reader.AsStringField("PROPERTIES"));
+      result.LevelConfig = Constraints.MapToConfigRoot(reader.AsStringField("CONFIG"));
       result.DataVersion = new VersionInfo
       {
         G_Version = reader.AsGdidField("G_VERSION"),
