@@ -160,7 +160,6 @@ namespace Azos.Conf.Forest.Server
     /// <inheritdoc/>
     public async Task<ChangeResult> SaveNodeAsync(TreeNode node)
     {
-
       node.NonNull(nameof(node));
       var tree = new TreePtr(node.Forest, node.Tree);
 
@@ -215,7 +214,6 @@ namespace Azos.Conf.Forest.Server
 
     private async Task<TreeNodeInfo> getNodeByTreePath(TreePtr tree, TreePath path, DateTime asOfUtc, ICacheParams caching)
     {
-      // TODO: Need to calculate EffectiveConfig in ForestLogic, see G8 CorporateHierarchyLogic getNodeInfoAsync_Implementation.
       TreeNodeInfo nodeParent = null;
       TreeNodeInfo node = null;
       for(var i = -1; i < path.Count; i++)
@@ -272,27 +270,28 @@ namespace Azos.Conf.Forest.Server
     private async Task<TreeNodeInfo> getNodeByGdid(TreePtr tree, GDID gNode, DateTime asOfUtc, ICacheParams caching)
     {
       TreeNodeInfo node = await getNodeByGdid_Implementation(tree, gNode, asOfUtc, caching).ConfigureAwait(false);
-      if (node == null) return node;
+      if (node == null) return null;
       if (node.G_Parent == GDID.ZERO || node.Gdid == node.G_Parent)
       {
         node.EffectiveConfig = new ConfigVector(node.LevelConfig.Content);//Copy
         return node;
       }
 
-      var g_parent = node.G_Parent;
+      var gParent = node.G_Parent;
       TreeNodeInfo nodeHere = null;
 
+#warning Circular reference and unneeded complexity. You just need to fetch parent and apply child level over recursive call. See how it is done in Hierarchy
       var nodeList = new List<TreeNodeInfo>();
       while (true)
       {
-        nodeHere = await getNodeByGdid_Implementation(tree, g_parent, asOfUtc, caching).ConfigureAwait(false);
+        nodeHere = await getNodeByGdid_Implementation(tree, gParent, asOfUtc, caching).ConfigureAwait(false);
         if (nodeHere == null) break;
         else
         {
           // Add node then walk up tree by parent
           nodeList.Add(nodeHere);
           if (nodeHere.G_Parent == GDID.ZERO || nodeHere.Gdid == nodeHere.G_Parent) break;
-          g_parent = nodeHere.G_Parent;
+          gParent = nodeHere.G_Parent;
         }
       }
 
@@ -300,6 +299,7 @@ namespace Azos.Conf.Forest.Server
       IConfigSectionNode confParent = null;
       IConfigSectionNode confHere = null;
 
+#warning NOT NEEDED. Fetch parent instead (use recursive call instead of a list)
       // Walk down tree applying config
       for (int i = nodeList.Count - 1; i > -1; i--)
       {
