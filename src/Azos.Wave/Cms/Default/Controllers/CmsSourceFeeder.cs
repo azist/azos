@@ -5,8 +5,10 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
-using System.Text;
+using System.IO.Compression;
+using System.Linq;
+using System.Threading.Tasks;
+
 using Azos.Apps.Injection;
 using Azos.Wave.Mvc;
 
@@ -23,8 +25,30 @@ namespace Azos.Wave.Cms.Default.Controllers
 
     [InjectModule] ICmsFacade m_Cms;
 
+    [ApiEndpointDoc(
+      Methods = new []{"GET: gets for all portals all languages"},
+      Description = "Fetches all languages for all portals",
+      ResponseContent = "JSON {OK: true, data_dictionary({portal: [lang-info]}))}")]
+    [ActionOnGet(Name = "languages")]
+    public object Languages()
+    {
+      var allPortals = m_Cms.GetAllPortalsAsync().GetAwaiter().GetResult();
+      var data = allPortals.ToDictionary( p => p, p => m_Cms.GetAllSupportedLanguagesAsync(p).GetAwaiter().GetResult() );
+      return new {OK = true, data};
+    }
+
+    [ApiEndpointDoc(
+      Methods = new []{"GET: gets `Content` binary body"},
+      Description = "Fetches all languages for all portals",
+      ResponseContent = "Binary content representation",
+      RequestQueryParameters = new []{"portal: Portal id",
+                                      "ns: Namespace id within a portal",
+                                      "block: content Block id within portal namespace",
+                                      "isoLang: ISO language code",
+                                      "nocache: true to bypass cache and fetch from upstream, false is default",
+                                      "buffered: pass true to use double buffering with `Content-Length` header, otherwise(default) chunked transfer is used"})]
     [ActionOnGet(Name = "feed")]
-    public void Feed(string portal, string ns, string block, Atom isolang, bool nocache = false)
+    public void Feed(string portal, string ns, string block, Atom isolang, bool nocache = false, bool buffered = false)
     {
       ContentId id = default(ContentId);
       try
@@ -45,17 +69,27 @@ namespace Azos.Wave.Cms.Default.Controllers
       }
 
       var compressionThreshold = App.ConfigRoot[SysConsts.CONFIG_WAVE_SECTION]
-                                    .Of("cms-source-feeder-compressor-threshold").ValueAsInt(8000);
+                                    .Of("cms-source-feeder-compressor-threshold-bytes").ValueAsInt(8000);
 
       var compress = (content.StringContent != null && content.StringContent.Length > compressionThreshold) ||
                      (content.BinaryContent != null && content.BinaryContent.Length > compressionThreshold);
 
+      WorkContext.Response.Buffered = buffered;
       WorkContext.Response.StatusCode = 200;
       WorkContext.Response.StatusDescription = "Found CMS content";
       WorkContext.Response.ContentType = compress ? CTP_COMPRESSED : CTP_UNCOMPRESSED;
-      var http = WorkContext.Response.GetDirectOutputStreamForWriting();
-      //todo handle compression
-      content.WriteToStream(http);
+      var httpStream = WorkContext.Response.GetDirectOutputStreamForWriting();
+      if (compress)
+      {
+        using(var zipStream = new GZipStream(httpStream, CompressionLevel.Optimal))
+        {
+          content.WriteToStream(zipStream);
+        }
+      }
+      else
+      {
+        content.WriteToStream(httpStream);
+      }
     }
   }
 }
