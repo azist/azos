@@ -33,7 +33,11 @@ namespace Azos.Wave.Cms.Default.Controllers
     public object Languages()
     {
       var allPortals = m_Cms.GetAllPortalsAsync().GetAwaiter().GetResult();
-      var data = allPortals.ToDictionary( p => p, p => m_Cms.GetAllSupportedLanguagesAsync(p).GetAwaiter().GetResult() );
+      var data = allPortals.ToDictionary(
+                  p => p,
+                  p => m_Cms.GetAllSupportedLanguagesAsync(p).GetAwaiter().GetResult()
+                            .Select(one => new {iso = one.ISO, name = one.Name})
+                            .ToArray());
       return new {OK = true, data};
     }
 
