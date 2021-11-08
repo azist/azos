@@ -18,6 +18,7 @@ using Azos.Security;
 using Azos.Web;
 using System.Linq;
 using Azos.Serialization.JSON;
+using System.IO.Compression;
 
 namespace Azos.Wave.Cms.Default
 {
@@ -71,8 +72,40 @@ namespace Azos.Wave.Cms.Default
 
     public async Task<Content> FetchContentAsync(ContentId id, Atom isoLang, DateTime utcNow, ICacheParams caching)
     {
+      id.HasRequiredValue(nameof(id));
       var (svc, adr) = ensureOperationalState();
-      return null;//todo finish
+
+      var uri = new UriQueryBuilder("feed")
+           .Add("portal", id.Portal)
+           .Add("ns", id.Namespace)
+           .Add("block", id.Block)
+           .Add("isolang", isoLang.ToString())
+           .Add("nocache", caching == null || caching.ReadCacheMaxAgeSec < 0)
+           .Add("buffered", false)
+           .ToString();
+
+
+      var result = await svc.Call(adr, nameof(ICmsSource), new ShardKey(id.Block), async (http, ct) => {
+        Content content = null;
+        using(var httpResponse = await http.Client.GetAsync(uri).ConfigureAwait(false))
+        {
+          httpResponse.EnsureSuccessStatusCode();
+          var compress = httpResponse.Content.Headers.ContentType.MediaType.EqualsOrdIgnoreCase(Controllers.CmsSourceFeeder.CTP_COMPRESSED);
+          using(var stream = await httpResponse.Content.ReadAsStreamAsync().ConfigureAwait(false))
+          {
+            var rstream = stream;
+            if (compress) rstream = new GZipStream(stream, CompressionMode.Decompress, true);
+
+            content = new Content(stream);
+
+            if (compress) rstream.Dispose();
+          }
+        }
+
+        return content;
+      }).ConfigureAwait(false);
+
+      return result;
     }
 
 
