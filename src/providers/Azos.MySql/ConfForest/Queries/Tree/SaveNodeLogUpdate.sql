@@ -27,4 +27,4 @@ select
 from
   tbl_node TN
 where
-  TN.GDID = @g_node
+  TN.GDID = @gnode

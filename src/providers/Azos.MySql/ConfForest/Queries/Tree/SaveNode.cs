@@ -72,7 +72,7 @@ namespace Azos.MySql.ConfForest.Queries.Tree
       cmd.MapVersionToSqlParameters(version);
 
       cmd.Parameters.AddWithValue("gnode", node.Gdid);
-      cmd.Parameters.AddWithValue("gparent", node.G_Parent);
+      cmd.Parameters.AddWithValue("gparent", node.G_Parent.IsZero ? Constraints.G_VERY_ROOT_NODE : node.G_Parent);//GDID.ZERO is NEVER inserted
       cmd.Parameters.AddWithValue("psegment", node.PathSegment);
       cmd.Parameters.AddWithValue("start_utc", node.StartUtc.Value);
       cmd.Parameters.AddWithValue("properties", node.Properties.Content);
