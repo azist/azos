@@ -13,4 +13,4 @@
 from
   tbl_node TN inner join tbl_nodelog TL on TN.GDID = TL.G_NODE
 where
-  TL.GDID = @gdid
+  TL.GDID = @gver

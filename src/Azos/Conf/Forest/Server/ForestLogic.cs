@@ -78,16 +78,16 @@ namespace Azos.Conf.Forest.Server
     /// <inheritdoc/>
     public async Task<IEnumerable<Atom>> GetTreeListAsync(Atom idForest)
     {
-      App.Authorize(new TreePermission(TreeAccessLevel.Read, EntityId.EMPTY));
-      return await m_Data.NonNull(nameof(m_Data)).TryGetAllForestTreesAsync(idForest).ConfigureAwait(false);
+      App.Authorize(new TreePermission(TreeAccessLevel.Read));
+      var result = await m_Data.NonNull(nameof(m_Data)).TryGetAllForestTreesAsync(idForest).ConfigureAwait(false);
+      return result;
     }
 
     /// <inheritdoc/>
     public async Task<IEnumerable<TreeNodeHeader>> GetChildNodeListAsync(EntityId idParent, DateTime? asOfUtc = null, ICacheParams cache = null)
     {
       //permission checks are performed in the child traverse loop down below
-
-      var gop = GdidOrPath.OfGNode(idParent);
+      var gop = GdidOrPath.OfGNodeOrPath(idParent);
       var asof = DefaultAndAlignOnPolicyBoundary(asOfUtc, idParent);
       if (cache == null) cache = CacheParams.DefaultCache;
 
@@ -102,42 +102,12 @@ namespace Azos.Conf.Forest.Server
     }
 
     /// <inheritdoc/>
-    public async Task<IEnumerable<VersionInfo>> GetNodeVersionListAsync(EntityId id)
-    {
-      var gop = GdidOrPath.OfGNode(id);
-
-      App.Authorize(new TreePermission(TreeAccessLevel.Setup, id));
-
-      var qry = new Query<VersionInfo>("Tree.GetNodeVersionList")
-      {
-        new Query.Param("gop", gop)
-      };
-
-      var result = await m_Data.TreeLoadEnumerableAsync(gop.Tree, qry);
-      return result;
-    }
-
-    /// <inheritdoc/>
-    public async Task<TreeNodeInfo> GetNodeInfoVersionAsync(EntityId idVersion)
-    {
-      App.Authorize(new TreePermission(TreeAccessLevel.Setup, idVersion));
-
-      var gop = GdidOrPath.OfGVersion(idVersion);
-      var ptr = new TreePtr(idVersion);
-      var qry = new Query<TreeNodeInfo>("Tree.GetNodeInfoVersionByGdid")
-      {
-        new Query.Param("ptr", ptr),
-        new Query.Param("gdid", gop.GdidAddress)
-      };
-      return await m_Data.TreeLoadDocAsync(ptr, qry);
-    }
-
-    /// <inheritdoc/>
     public async Task<TreeNodeInfo> GetNodeInfoAsync(EntityId id, DateTime? asOfUtc = null, ICacheParams cache = null)
     {
+      //permission checks are performed in the child traverse loop down below
       if (cache == null) cache = CacheParams.DefaultCache;
       var asof = DefaultAndAlignOnPolicyBoundary(asOfUtc, id);
-      var gop = GdidOrPath.OfGNode(id);
+      var gop = GdidOrPath.OfGNodeOrPath(id);
 
       TreeNodeInfo result = null;
       if (gop.PathAddress != null)
@@ -154,8 +124,43 @@ namespace Azos.Conf.Forest.Server
     public Task<ValidState> ValidateNodeAsync(TreeNode node, ValidState state)
     {
 #warning Implement ValidateNodeAsync method logic
+    //todo: prevent recursive definitions etc...
       throw new NotImplementedException();
     }
+
+    /// <inheritdoc/>
+    public async Task<IEnumerable<VersionInfo>> GetNodeVersionListAsync(EntityId id)
+    {
+      var gop = GdidOrPath.OfGNode(id);
+
+      //Working with versions is a part of tree setup functionality
+      App.Authorize(new TreePermission(TreeAccessLevel.Setup, id));
+
+      var qry = new Query<VersionInfo>("Tree.GetNodeVersionList")
+      {
+        new Query.Param("gnode", gop.GdidAddress)
+      };
+
+      var result = await m_Data.TreeLoadEnumerableAsync(gop.Tree, qry);
+      return result;
+    }
+
+    /// <inheritdoc/>
+    public async Task<TreeNodeInfo> GetNodeInfoVersionAsync(EntityId idVersion)
+    {
+      var gop = GdidOrPath.OfGVersion(idVersion);
+
+      //Working with versions is a part of tree setup functionality
+      App.Authorize(new TreePermission(TreeAccessLevel.Setup, idVersion));
+
+      var qry = new Query<TreeNodeInfo>("Tree.GetNodeInfoVersionByGdid")
+      {
+        new Query.Param("gop", gop)
+      };
+      var result = await m_Data.TreeLoadDocAsync(gop.Tree, qry);
+      return result;
+    }
+
 
     /// <inheritdoc/>
     public async Task<ChangeResult> SaveNodeAsync(TreeNode node)
@@ -173,7 +178,9 @@ namespace Azos.Conf.Forest.Server
       //1. Update database
       var change = await m_Data.TreeExecuteAsync(tree, qry);
 
-      // TODO: review purge cache logic that was deleted. Is it needed here?
+      //purge cache for that tree
+      purgeCacheTables(new TreePtr(node.Forest, node.Tree));
+#warning Add shim for EVENT NOTIFICATION system
 
       return new ChangeResult(ChangeResult.ChangeType.Processed, 1, "Saved", change);
     }
@@ -194,7 +201,7 @@ namespace Azos.Conf.Forest.Server
       tombstone.FormMode = FormMode.Delete;
       tombstone.StartUtc = asof;
 
-      //delegate saving to existing SaveNode()
+      //3. - Delegate saving to existing SaveNode()
       var change = await this.SaveNodeAsync(tombstone).ConfigureAwait(false);
 
       return new ChangeResult(ChangeResult.ChangeType.Deleted, change.AffectedCount, "Deleted", change.Data);
@@ -203,9 +210,12 @@ namespace Azos.Conf.Forest.Server
 
     #region pvt
 
-    private void purgeCacheTables()
+    private void purgeCacheTables(TreePtr tree)
     {
-      m_Data.Cache.PurgeAll();
+      var tname = s_CacheTableName[tree];
+      var tbl = m_Data.Cache.Tables[tname];
+      if (tbl == null) return;
+      tbl.Purge();
     }
 
     //cache 2 atom concatenation as string
@@ -324,8 +334,8 @@ namespace Azos.Conf.Forest.Server
     private async Task<TreeNodeInfo> getNodeByGdid_Implementation(TreePtr tree, GDID gNode, DateTime asOfUtc, ICacheParams caching)
     {
       App.Authorize(new TreePermission(TreeAccessLevel.Read, new EntityId(tree.IdForest, tree.IdTree, Constraints.SCH_GNODE, gNode.ToString())));
-      var tblCache = s_CacheTableName[tree] + "::gdid";
-      var keyCache = asOfUtc.Ticks + gNode.ToHexString();
+      var tblCache = s_CacheTableName[tree];
+      var keyCache = asOfUtc.Ticks + gNode.ToHexString()+"gdid";
 
       var node = await m_Data.Cache.FetchThroughAsync(
         keyCache, tblCache, caching,
@@ -353,8 +363,8 @@ namespace Azos.Conf.Forest.Server
 
     private async Task<IEnumerable<TreeNodeHeader>> getChildNodeListByGdid(TreePtr tree, GDID gdidAddress, DateTime asOfUtc, ICacheParams caching)
     {
-      var tblCache = s_CacheTableName[tree] + "::chld";
-      var keyCache = asOfUtc.Ticks + gdidAddress.ToHexString();
+      var tblCache = s_CacheTableName[tree];
+      var keyCache = asOfUtc.Ticks + gdidAddress.ToHexString()+"-chld";
 
       var nodes = await m_Data.Cache.FetchThroughAsync(
         keyCache, tblCache, caching,

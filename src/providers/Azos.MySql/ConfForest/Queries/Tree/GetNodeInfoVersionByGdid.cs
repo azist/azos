@@ -19,33 +19,32 @@ using MySqlConnector;
 
 namespace Azos.MySql.ConfForest.Queries.Tree
 {
-  public sealed class GetNodeInfoVersionByGdid : MySqlCrudQueryHandler<Query>  // TODO: determine if we should pass <Query> or <T> using override virtual CastParameters methods
+  public sealed class GetNodeInfoVersionByGdid : MySqlCrudQueryHandler<GdidOrPath>
   {
     public GetNodeInfoVersionByGdid(MySqlCrudDataStoreBase store, string name) : base(store, name) { }
 
-    protected override void DoBuildCommandAndParameters(MySqlCrudQueryExecutionContext context, MySqlCommand cmd, Query qry)
+    protected override void DoBuildCommandAndParameters(MySqlCrudQueryExecutionContext context, MySqlCommand cmd, GdidOrPath gop)
     {
-      var tpr = qry.GetParameterValueAs<TreePtr>("tpr");
-      context.SetState(tpr);
-      cmd.Parameters.AddWithValue("gdid", qry.GetParameterValueAs<GDID>("gdid"));
+      context.SetState(gop);
+      cmd.Parameters.AddWithValue("gver", gop.GdidAddress);
       cmd.CommandText = GetType().GetText("GetNodeInfoVersionByGdid.sql");
     }
 
     protected override Doc DoPopulateDoc(MySqlCrudQueryExecutionContext context, Type tDoc, Schema schema, Schema.FieldDef[] toLoad, MySqlDataReader reader)
     {
       var verState = VersionInfo.MapCanonicalState(reader.AsStringField("VERSION_STATE"));
-      var tpr = context.GetState<TreePtr>();
+      var gop = context.GetState<GdidOrPath>();
 
       var result = new TreeNodeInfo();
 
-      result.Forest = tpr.IdForest;
-      result.Tree = tpr.IdTree;
-      result.Gdid = reader.AsGdidField("GDID");
+      result.Forest   = gop.Id.System;
+      result.Tree     = gop.Id.Type;
+      result.Gdid     = reader.AsGdidField("GDID");
       result.G_Parent = reader.AsGdidField("G_PARENT");
       result.PathSegment = reader.AsStringField("PATH_SEGMENT");
-      result.FullPath = "[n/a for version specific node]";
-      result.StartUtc = reader.AsDateTimeField("START_UTC").Value;
-      result.Properties = Constraints.MapToConfigRoot(reader.AsStringField("PROPERTIES"));
+      result.FullPath    = "[n/a for version specific node]";
+      result.StartUtc    = reader.AsDateTimeField("START_UTC").Value;
+      result.Properties  = Constraints.MapToConfigRoot(reader.AsStringField("PROPERTIES"));
       result.LevelConfig = Constraints.MapToConfigRoot(reader.AsStringField("CONFIG"));
       result.DataVersion = new VersionInfo
       {

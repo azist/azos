@@ -39,13 +39,16 @@ namespace Azos.Security.ConfigForest
     public const string DENY_SECT = "deny";
     public const string PATH_ATTR = "path";
 
+
+    public TreePermission(TreeAccessLevel level) : base((int)level){ }
+
     public TreePermission(TreeAccessLevel level, EntityId target) : base((int)level)
     {
-      Target = target;
+      Target = target.HasRequiredValue(nameof(target));
     }
 
     /// <summary>
-    /// Target subject path protected by permission
+    /// Optional target subject path protected by permission
     /// </summary>
     public readonly EntityId Target;
 
@@ -57,6 +60,8 @@ namespace Azos.Security.ConfigForest
       if (SecurityFlowScope.CheckFlag(SYSTEM_USE_FLAG)) return true;
 
       if (!base.DoCheckAccessLevel(secman, session, access)) return false;
+
+      if (!Target.IsAssigned) return true;
 
       var id = Target.AsString();
 
