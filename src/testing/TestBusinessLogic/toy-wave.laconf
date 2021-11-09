@@ -214,13 +214,40 @@
             }
             *|
 
-
+|*
             filter
             {
               name="sessions" order=2 type="Azos.Wave.Filters.SessionFilter, Azos.Wave"
              //session-timeout-ms="60000"
              // session-cookie-name="GANBA-BILLY-GATSY"
             }
+*|
+
+  filter
+  {
+     order=1
+     name="session"
+     type="Azos.Wave.Filters.AuthorizeSessionFilter, Azos.Wave"
+
+     //Enable database multi-targeting
+     //the callers can supply this header with data context name
+     data-context-header="wv-data-ctx"
+
+     //An alias to Authorization header
+     //This can be useful for browser-based sticky headers
+     alt-authorization-header="wv-pass"
+
+     //When set, enables gating of bad auth by bumping the named variable by +1
+     gate-bad-auth-var="session_badAuth" //see gate.laconf
+
+     //When set, forces the treatment of Bearer scheme token starting with this prefix as Basic
+     //this is used for some integrations which are not capable of setting proper auth scheme
+     //bearer-basic-prefix="treat-as-basic--"
+
+     //You can temporarily turn this on to pretend that callers have sent this in
+     //used for temp testing od clients and should always be disabled in prod
+     //////// default-impersonation-authorization-header-value="Basic xxxxxxxxxxxxx"
+  }
 
 
             filter
@@ -453,6 +480,19 @@
               level=150
             }
           }
+        }
+      }
+
+      user
+      {
+        name="root"
+        description="Root Account"
+        id="root"
+        password='{"alg":"KDF","fam":"Text","h":"BGi67Y0GTtJdA_BXKwg4cttKMXu4LHQCBob5P151sno","s":"Js-WppOKGW3PeC_sGF6eztRybm7CSkt141ohS9Y1qKQ"}'
+        status="System"
+        rights
+        {
+
         }
       }
 

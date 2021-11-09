@@ -6,6 +6,7 @@ using Azos.Conf.Forest;
 using Azos.Data;
 using Azos.Data.Access;
 using Azos.Data.Business;
+using Azos.Security;
 using Azos.Security.ConfigForest;
 using Azos.Wave.Mvc;
 
@@ -21,7 +22,7 @@ namespace Azos.Conf.Forest.Server
     Description = @"Provides API controller service for configuration Tree management",
     ResponseHeaders = new[] { API_DOC_HDR_NO_CACHE }
   )]
-  //[TreePermission(TreeAccessLevel.Read)] // TODO: determine if there needs to be another permission? ForestPermission???
+  [TreePermission(TreeAccessLevel.Read)]
   public sealed class Tree : ApiProtocolController
   {
     public const string ACT_VERSION = "version";
@@ -31,6 +32,7 @@ namespace Azos.Conf.Forest.Server
     public const string ACT_NODE_LIST = "node-list";
 
     [Inject] IForestSetupLogic m_Logic;
+
 
     [ApiEndpointDoc(
       Title = "GET - Retrieves a list of trees",
@@ -43,7 +45,6 @@ namespace Azos.Conf.Forest.Server
       TypeSchemas = new[]{
             typeof(Atom)
       })]
-    //[TreePermission(TreeAccessLevel.View)]  // TODO: determine if there needs to be another permission? ForestPermission???
     [ActionOnGet(Name = ACT_TREE_LIST)]
     public async Task<object> GetTreeListAsync(Atom forest)
       => GetLogicResult(await m_Logic.GetTreeListAsync(forest).ConfigureAwait(false));
@@ -61,7 +62,6 @@ namespace Azos.Conf.Forest.Server
       TypeSchemas = new[]{
         typeof(TreeNodeHeader)
       })]
-    //[TreePermission(TreeAccessLevel.View)]  // TODO: determine if there needs to be another permission? ForestPermission???
     [ActionOnGet(Name = ACT_NODE_LIST)]
     public async Task<object> NodeListGet(EntityId idparent, DateTime? asofutc = null, bool nocache = false)
       => GetLogicResult(await m_Logic.GetChildNodeListAsync(idparent, asofutc, nocache.NoOrDefaultCache()).ConfigureAwait(false));
@@ -79,7 +79,6 @@ namespace Azos.Conf.Forest.Server
       TypeSchemas = new[]{
             typeof(VersionInfo)
       })]
-    //[TreePermission(TreeAccessLevel.View)]  // TODO: determine if there needs to be another permission? ForestPermission???
     [ActionOnGet(Name = ACT_VERSION_LIST)]
     public async Task<object> NodeVersionsGet(EntityId id)
       => GetLogicResult(await m_Logic.GetNodeVersionListAsync(id).ConfigureAwait(false));
@@ -94,7 +93,6 @@ namespace Azos.Conf.Forest.Server
       ResponseContent = "Http 200 / JSON representation of {OK: true, data: [TreeNodeInfo]} or Http 404 {OK: false, data: null}",
       Methods = new[] { "GET: TreeNodeInfo of the specified version" },
       TypeSchemas = new[]{ typeof(TreeNodeInfo) })]
-    //[TreePermission(TreeAccessLevel.View)]  // TODO: determine if there needs to be another permission? ForestPermission???
     [ActionOnGet(Name = ACT_VERSION)]
     public async Task<object> GetNodeInfoVersionAsync(EntityId id)
       => GetLogicResult(await m_Logic.GetNodeInfoVersionAsync(id).ConfigureAwait(false));
@@ -131,7 +129,6 @@ namespace Azos.Conf.Forest.Server
         typeof(TreeNode),
         typeof(ChangeResult)
       })]
-    //[TreePermission(TreeAccessLevel.View)]  // TODO: determine if there needs to be another permission? ForestPermission???
     [ActionOnPost(Name = ACT_NODE)]
     public async Task<object> NodePost(TreeNode node)
      => await SaveNewAsync(node).ConfigureAwait(false);
@@ -148,7 +145,6 @@ namespace Azos.Conf.Forest.Server
         typeof(TreeNode),
         typeof(ChangeResult)
      })]
-    //[TreePermission(TreeAccessLevel.View)]  // TODO: determine if there needs to be another permission? ForestPermission???
     [ActionOnPut(Name = ACT_NODE)]
     public async Task<object> NodePut(TreeNode node)
     => await SaveEditAsync(node).ConfigureAwait(false);
@@ -170,7 +166,6 @@ namespace Azos.Conf.Forest.Server
      TypeSchemas = new[]{
         typeof(ChangeResult)
      })]
-    //[TreePermission(TreeAccessLevel.View)]  // TODO: determine if there needs to be another permission? ForestPermission???
     [ActionOnDelete(Name = ACT_NODE)]
     public async Task<object> NodeDelete(EntityId id, DateTime? asofutc = null)
     => GetLogicChangeResult(await m_Logic.DeleteNodeAsync(id, asofutc).ConfigureAwait(false));
