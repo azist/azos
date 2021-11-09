@@ -245,7 +245,6 @@ namespace Azos.Conf.Forest.Server
             node = await getNodeByPathSegment(tree, nodeParent == null ? GDID.ZERO : nodeParent.Gdid, segment, asOfUtc, caching).ConfigureAwait(false);
             if (node == null) return null;// deleted
 
-            App.Authorize(new TreePermission(TreeAccessLevel.Read, node.Id));
 
             //Config chain inheritance pattern
             if(nodeParent == null)
@@ -264,6 +263,7 @@ namespace Azos.Conf.Forest.Server
               node.FullPath = TreePath.Join(nodeParent.FullPath, node.PathSegment);
             }
             nodeParent = node;
+            App.Authorize(new TreePermission(TreeAccessLevel.Read, node.FullPathId));
           }
           return node;
 
@@ -361,17 +361,19 @@ namespace Azos.Conf.Forest.Server
     }
 
 
-    #region get child nodes
     private async Task<IEnumerable<TreeNodeHeader>> getChildNodeListByTreePath(TreePtr tree, TreePath pathAddress, DateTime asOfUtc, ICacheParams caching)
     {
       var nodeParent = await getNodeByTreePath(tree, pathAddress, asOfUtc, caching).ConfigureAwait(false);
-      return await getChildNodeListByGdid(tree, nodeParent.Gdid, asOfUtc, caching);
+      if (nodeParent == null) return null;
+
+      var result = await getChildNodeListByGdid(tree, nodeParent.Gdid, asOfUtc, caching);
+      return result;
     }
 
     private async Task<IEnumerable<TreeNodeHeader>> getChildNodeListByGdid(TreePtr tree, GDID gdidAddress, DateTime asOfUtc, ICacheParams caching)
     {
       var tblCache = s_CacheTableName[tree];
-      var keyCache = asOfUtc.Ticks + gdidAddress.ToHexString()+"-chld";
+      var keyCache = nameof(getChildNodeListByGdid) + gdidAddress.ToHexString()+ asOfUtc.Ticks;
 
       var nodes = await m_Data.Cache.FetchThroughAsync(
         keyCache, tblCache, caching,
@@ -387,8 +389,6 @@ namespace Azos.Conf.Forest.Server
       ).ConfigureAwait(false);
       return nodes;
     }
-    #endregion
-
     #endregion
   }
 }
