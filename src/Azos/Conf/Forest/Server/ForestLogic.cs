@@ -80,7 +80,7 @@ namespace Azos.Conf.Forest.Server
     {
       idForest.HasRequiredValue(nameof(idForest));
       App.Authorize(new TreePermission(TreeAccessLevel.Read));
-      var result = await m_Data.NonNull(nameof(m_Data)).TryGetAllForestTreesAsync(idForest).ConfigureAwait(false);
+      var result = await (m_Data.NonNull(nameof(m_Data)).TryGetAllForestTreesAsync(idForest)).ConfigureAwait(false);
       return result;
     }
 

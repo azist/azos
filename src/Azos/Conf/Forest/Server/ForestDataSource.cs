@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Azos.Apps;
 using Azos.Collections;
+using Azos.Data;
 using Azos.Data.Access;
 using Azos.Instrumentation;
 using Azos.Pile;
@@ -80,7 +81,8 @@ namespace Azos.Conf.Forest.Server
     {
       if (!Running) return Task.FromResult<IEnumerable<Atom>>(null);
       var forest = m_Forests[idForest.Value];
-      if (forest == null) return null;
+      if (forest == null)
+        throw new ValidationException("Forest not found"){ HttpStatusCode = 404, HttpStatusDescription = "Forest not found"};
       return Task.FromResult(forest.Trees.Select( t => Atom.Encode(t.Name) ));
     }
 
