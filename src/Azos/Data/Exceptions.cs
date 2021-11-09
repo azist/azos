@@ -36,8 +36,8 @@ namespace Azos.Data
     public ValidationException(string message, Exception inner) : base(message, inner) { }
     protected ValidationException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 
-    public int HttpStatusCode => WebConsts.STATUS_400;
-    public string HttpStatusDescription => WebConsts.STATUS_400_DESCRIPTION + " / Data validation";
+    public int HttpStatusCode { get; set; } = WebConsts.STATUS_400;
+    public string HttpStatusDescription { get; set;} = WebConsts.STATUS_400_DESCRIPTION + " / Data validation";
 
     public virtual JsonDataMap ProvideExternalStatus(bool includeDump)
      => this.DefaultBuildErrorStatusProviderMap(includeDump, "data.validation");

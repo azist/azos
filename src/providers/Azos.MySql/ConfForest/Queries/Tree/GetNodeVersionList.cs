@@ -5,12 +5,8 @@
 //</FILE_LICENSE>*/
 
 using System;
-using System.Threading.Tasks;
 
-using Azos;
-using Azos.Conf.Forest.Server;
 using Azos.Data;
-using Azos.Data.Access;
 using Azos.Data.Access.MySql;
 using Azos.Data.Business;
 using Azos.Platform;
@@ -19,13 +15,13 @@ using MySqlConnector;
 
 namespace Azos.MySql.ConfForest.Queries.Tree
 {
-  public sealed class GetNodeVersionList : MySqlCrudQueryHandler<GdidOrPath>
+  public sealed class GetNodeVersionList : MySqlCrudQueryHandler<GDID>
   {
     public GetNodeVersionList(MySqlCrudDataStoreBase store, string name) : base(store, name) { }
 
-    protected override void DoBuildCommandAndParameters(MySqlCrudQueryExecutionContext context, MySqlCommand cmd, GdidOrPath gom)
+    protected override void DoBuildCommandAndParameters(MySqlCrudQueryExecutionContext context, MySqlCommand cmd, GDID gNode)
     {
-      cmd.Parameters.AddWithValue("gnode", gom.GdidAddress);
+      cmd.Parameters.AddWithValue("gnode", gNode);
       cmd.CommandText = GetType().GetText("GetNodeVersionList.sql");
     }
 

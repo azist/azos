@@ -18,8 +18,8 @@ select
   @version_origin,
   @version_actor,
   @version_state,
-  @g_node,
-  @g_parent,
+  @gnode,
+  @gparent,
   @psegment,
   @start_utc,
   @properties,
@@ -27,4 +27,4 @@ select
 from
   tbl_node TN
 where
-  TN.GDID = @g_node
+  TN.GDID = @gnode

@@ -28,8 +28,8 @@ namespace Azos.MySql.ConfForest.Queries.Tree
       var result = new EntityChangeInfo
       {
         Id = node.Id,
-        Version = ctx.MakeVersionInfo(Constraints.ID_NS_CONFIG_FOREST_PREFIX,
-                                      node.Tree + Constraints.ID_SEQ_TREE_NODE_GVERSION_SUFFIX,
+        Version = ctx.MakeVersionInfo(Constraints.ID_NS_CONFIG_FOREST_PREFIX + node.Forest.Value,
+                                      node.Tree.Value + Constraints.ID_SEQ_TREE_NODE_GVERSION_SUFFIX,
                                       node.FormMode)
       };
 
@@ -48,11 +48,11 @@ namespace Azos.MySql.ConfForest.Queries.Tree
 
         if (affected < 1)
         {
-#warning Just using CallGuardException for now. TODO: refactor
-          throw new CallGuardException(nameof(SaveNode),
-            "Entity not found", "Can not find `{0}`(Gdid=`{1}`) entity of expected type to update".Args(node.GetType().Name, node.Gdid));
-          //throw new HTTPStatusException(404,
-          // "Entity not found", "Can not find `{0}`(Gdid=`{1}`) entity of expected type to update".Args(node.GetType().Name, node.Gdid));
+          throw new DocValidationException(nameof(TreeNode), "Could not find TreeNode(Gdid=`{0}`) to update".Args(node.Gdid))
+          {
+            HttpStatusCode = 404,
+            HttpStatusDescription = "Tree node not found"
+          };
         }
       }
 
@@ -71,7 +71,8 @@ namespace Azos.MySql.ConfForest.Queries.Tree
       cmd.CommandText = GetType().GetText(isInsert ? "SaveNodeLogInsert.sql" : "SaveNodeLogUpdate.sql");
       cmd.MapVersionToSqlParameters(version);
 
-      cmd.Parameters.AddWithValue("g_parent", node.G_Parent);
+      cmd.Parameters.AddWithValue("gnode", node.Gdid);
+      cmd.Parameters.AddWithValue("gparent", node.G_Parent.IsZero ? Constraints.G_VERY_ROOT_NODE : node.G_Parent);//GDID.ZERO is NEVER inserted
       cmd.Parameters.AddWithValue("psegment", node.PathSegment);
       cmd.Parameters.AddWithValue("start_utc", node.StartUtc.Value);
       cmd.Parameters.AddWithValue("properties", node.Properties.Content);
