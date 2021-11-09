@@ -21,6 +21,23 @@ namespace Azos.Conf.Forest
   /// </summary>
   public sealed class TreePath : List<string>
   {
+    /// <summary>
+    /// Joins two path segments putting PATH_SEPARATOR in between if needed
+    /// </summary>
+    public static string Join(string p1, string p2)
+    {
+      p1 = p1.Default(Constraints.VERY_ROOT_PATH_SEGMENT).Trim();
+
+      if (p2.IsNullOrWhiteSpace()) return p1;
+
+      p2 = p2.Trim();
+
+      if (p1[p1.Length-1] == Constraints.PATH_SEPARATOR || p2[0] == Constraints.PATH_SEPARATOR) return p1 + p2;
+
+      return p1 + Constraints.PATH_SEPARATOR + p2;
+    }
+
+
     [ThreadStatic] private static StringBuilder ts_Buffer;
 
     /// <summary>
@@ -49,7 +66,7 @@ namespace Azos.Conf.Forest
       {
         var c = Char.ToLowerInvariant(path[i]);
 
-        if (c == '/')//flush
+        if (c == Constraints.PATH_SEPARATOR)//flush
         {
           var line = buf.ToString().Trim();
 
@@ -63,7 +80,7 @@ namespace Azos.Conf.Forest
           continue;
         }
 
-        if (c == '%')
+        if (c == Constraints.PATH_ESCAPE)
         {
           i += 2;
           if (i >= len) throw new ConfigException(StringConsts.CONFIG_FOREST_PATH_ESCAPE_ERROR.Args("<eol>"));
@@ -88,6 +105,7 @@ namespace Azos.Conf.Forest
       }
     }
 
+    public override string ToString() => Constraints.VERY_ROOT_PATH_SEGMENT + string.Join(Constraints.PATH_SEPARATOR.ToString(), this);
 
   }
 }

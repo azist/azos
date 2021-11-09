@@ -11,7 +11,7 @@ using Azos.Data.Business;
 using Azos.Data.Modeling.DataTypes;
 using Azos.Platform;
 using Azos.Security.ConfigForest;
-
+using Azos.Serialization.JSON;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -109,13 +109,19 @@ namespace Azos.Conf.Forest.Server
       var asof = DefaultAndAlignOnPolicyBoundary(asOfUtc, id);
       var gop = GdidOrPath.OfGNodeOrPath(id);
 
-      TreeNodeInfo result = null;
-      if (gop.PathAddress != null)
-        result = await getNodeByTreePath(gop.Tree, gop.PathAddress, asof, cache).ConfigureAwait(false);
-      else
-        result = await getNodeByGdid(gop.Tree, gop.GdidAddress, asof, cache).ConfigureAwait(false);
+      TreeNodeInfo result;
 
-      return result;
+      if (gop.PathAddress != null)
+      {
+        result = await getNodeByTreePath(gop.Tree, gop.PathAddress, asof, cache).ConfigureAwait(false);
+      }
+      else
+      {
+        var graph = new HashSet<GDID>();
+        result = await getNodeByGdid(graph, gop.Tree, gop.GdidAddress, asof, cache).ConfigureAwait(false);
+      }
+
+      return  result;
     }
     #endregion
 
@@ -210,6 +216,10 @@ namespace Azos.Conf.Forest.Server
 
     #region pvt
 
+    //cache 2 atom concatenation as string
+    private static FiniteSetLookup<TreePtr, string> s_CacheTableName =
+      new FiniteSetLookup<TreePtr, string>((t) => "{0}::{1}".Args(t.IdForest, t.IdTree));
+
     private void purgeCacheTables(TreePtr tree)
     {
       var tname = s_CacheTableName[tree];
@@ -218,45 +228,56 @@ namespace Azos.Conf.Forest.Server
       tbl.Purge();
     }
 
-    //cache 2 atom concatenation as string
-    private static FiniteSetLookup<TreePtr, string> s_CacheTableName =
-      new FiniteSetLookup<TreePtr, string>((t) => "{0}::{1}".Args(t.IdForest, t.IdTree));
-
     private async Task<TreeNodeInfo> getNodeByTreePath(TreePtr tree, TreePath path, DateTime asOfUtc, ICacheParams caching)
     {
-      TreeNodeInfo nodeParent = null;
-      TreeNodeInfo node = null;
-      for(var i = -1; i < path.Count; i++)
-      {
-        var segment = i < 0 ? Constraints.VERY_ROOT_PATH_SEGMENT : path[i];
-        node = await getNodeByPathSegment(tree, nodeParent == null ? GDID.ZERO: nodeParent.Gdid, segment, asOfUtc, caching).ConfigureAwait(false);
-        if (node == null) return null;// deleted
+      var tblCache = s_CacheTableName[tree];
+      var keyCache = nameof(getNodeByTreePath) + path + asOfUtc.Ticks;
 
-        App.Authorize(new TreePermission(TreeAccessLevel.Read, node.Id));
+      var result = await m_Data.Cache.FetchThroughAsync(
+        keyCache, tblCache, caching,
+        async key => {
 
-        //Config chain inheritance pattern
-        if(nodeParent == null)
-        {
-          node.EffectiveConfig = new ConfigVector(node.LevelConfig.Content);//Copy
-        }
-        else
-        {
-          var confHere = node.LevelConfig.Node.NonEmpty(nameof(node.LevelConfig));  // Using LevelConfig is correct ????
-          var confParent = nodeParent.EffectiveConfig.Node.NonEmpty(nameof(nodeParent.EffectiveConfig));
-          var confResult = new MemoryConfiguration() { Application = this.App };
-          confResult.CreateFromNode(confParent);//inherit
-          confResult.Root.OverrideBy(confHere); //override
-          node.EffectiveConfig = new ConfigVector(confResult.Root);
-        }
-        nodeParent = node;
-      }
-      return node;
+          TreeNodeInfo nodeParent = null;
+          TreeNodeInfo node = null;
+          for(var i = -1; i < path.Count; i++) //going from LEFT to RIGHT
+          {
+            var segment = i < 0 ? Constraints.VERY_ROOT_PATH_SEGMENT : path[i];
+            node = await getNodeByPathSegment(tree, nodeParent == null ? GDID.ZERO : nodeParent.Gdid, segment, asOfUtc, caching).ConfigureAwait(false);
+            if (node == null) return null;// deleted
+
+            App.Authorize(new TreePermission(TreeAccessLevel.Read, node.Id));
+
+            //Config chain inheritance pattern
+            if(nodeParent == null)
+            {
+              node.EffectiveConfig = new ConfigVector(node.LevelConfig.Content);//Copy
+              node.FullPath = Constraints.VERY_ROOT_PATH_SEGMENT;
+            }
+            else
+            {
+              var confHere = node.LevelConfig.Node.NonEmpty(nameof(node.LevelConfig));
+              var confParent = nodeParent.EffectiveConfig.Node.NonEmpty(nameof(nodeParent.EffectiveConfig));
+              var confResult = new MemoryConfiguration() { Application = this.App };
+              confResult.CreateFromNode(confParent);//inherit
+              confResult.Root.OverrideBy(confHere); //override
+              node.EffectiveConfig = new ConfigVector(confResult.Root);
+              node.FullPath = TreePath.Join(nodeParent.FullPath, node.PathSegment);
+            }
+            nodeParent = node;
+          }
+          return node;
+
+      }).ConfigureAwait(false);
+
+      return result;
     }
 
     private async Task<TreeNodeInfo> getNodeByPathSegment(TreePtr tree, GDID gParent, string pathSegment, DateTime asOfUtc, ICacheParams caching)
     {
+      if (gParent.IsZero) gParent = Constraints.G_VERY_ROOT_NODE;
+
       var tblCache = s_CacheTableName[tree];
-      var keyCache = asOfUtc.Ticks + gParent.ToHexString() + (pathSegment ?? string.Empty);
+      var keyCache = nameof(getNodeByPathSegment) + gParent.ToHexString() + (pathSegment ?? string.Empty) + asOfUtc.Ticks;
 
       var node = await m_Data.Cache.FetchThroughAsync(
         keyCache, tblCache, caching,
@@ -277,82 +298,68 @@ namespace Azos.Conf.Forest.Server
     }
 
 
-    private async Task<TreeNodeInfo> getNodeByGdid(TreePtr tree, GDID gNode, DateTime asOfUtc, ICacheParams caching)
+    private async Task<TreeNodeInfo> getNodeByGdid(HashSet<GDID> graph, TreePtr tree, GDID gNode, DateTime asOfUtc, ICacheParams caching)
     {
-      TreeNodeInfo node = await getNodeByGdid_Implementation(tree, gNode, asOfUtc, caching).ConfigureAwait(false);
-      if (node == null) return null;
-      if (node.G_Parent == GDID.ZERO || node.Gdid == node.G_Parent)
-      {
-        node.EffectiveConfig = new ConfigVector(node.LevelConfig.Content);//Copy
-        return node;
-      }
-
-      var gParent = node.G_Parent;
-      TreeNodeInfo nodeHere = null;
-
-#warning Circular reference and unneeded complexity. You just need to fetch parent and apply child level over recursive call. See how it is done in Hierarchy
-      var nodeList = new List<TreeNodeInfo>();
-      while (true)
-      {
-        nodeHere = await getNodeByGdid_Implementation(tree, gParent, asOfUtc, caching).ConfigureAwait(false);
-        if (nodeHere == null) break;
-        else
-        {
-          // Add node then walk up tree by parent
-          nodeList.Add(nodeHere);
-          if (nodeHere.G_Parent == GDID.ZERO || nodeHere.Gdid == nodeHere.G_Parent) break;
-          gParent = nodeHere.G_Parent;
-        }
-      }
-
-      //Config chain inheritance pattern
-      IConfigSectionNode confParent = null;
-      IConfigSectionNode confHere = null;
-
-#warning NOT NEEDED. Fetch parent instead (use recursive call instead of a list)
-      // Walk down tree applying config
-      for (int i = nodeList.Count - 1; i > -1; i--)
-      {
-        nodeHere = nodeList[i];
-        if (confParent == null)
-        {
-          confParent = nodeHere.LevelConfig.Node.NonEmpty(nameof(nodeHere.LevelConfig));
-          continue;
-        }
-
-        confHere = nodeHere.LevelConfig.Node.NonEmpty(nameof(nodeHere.LevelConfig));
-        var confResult = new MemoryConfiguration() { Application = this.App };
-        confResult.CreateFromNode(confParent);//inherit
-        confResult.Root.OverrideBy(confHere); //override
-        confParent = confResult.Root;
-      }
-      node.EffectiveConfig = new ConfigVector(confHere);
-
-      return node;
-    }
-
-    private async Task<TreeNodeInfo> getNodeByGdid_Implementation(TreePtr tree, GDID gNode, DateTime asOfUtc, ICacheParams caching)
-    {
-      App.Authorize(new TreePermission(TreeAccessLevel.Read, new EntityId(tree.IdForest, tree.IdTree, Constraints.SCH_GNODE, gNode.ToString())));
       var tblCache = s_CacheTableName[tree];
-      var keyCache = asOfUtc.Ticks + gNode.ToHexString()+"gdid";
-
-      var node = await m_Data.Cache.FetchThroughAsync(
+      var keyCache = nameof(getNodeByGdid) + gNode.ToHexString() + asOfUtc.Ticks;
+      var result = await m_Data.Cache.FetchThroughAsync(
         keyCache, tblCache, caching,
         async key =>
         {
+          if (!graph.Add(gNode))
+          {
+            //circular reference
+            var err = new ConfigException("Circular reference in config tree = `{0}`, gnode = `{1}`, asof = `{2}`".Args(tree, gNode, asOfUtc));
+            WriteLogFromHere(Log.MessageType.CatastrophicError,
+                             err.Message,
+                             err,
+                             pars: new {tree = tree.ToString(), gnode = gNode, asof = asOfUtc}.ToJson());
+            throw err;
+          }
+
+          //1 - fetch THIS level - rightmost part of the tree
           var qry = new Query<TreeNodeInfo>("Tree.GetNodeInfoByGdid")
           {
             new Query.Param("tree", tree),
             new Query.Param("gdid", gNode),
             new Query.Param("asof", asOfUtc)
           };
-          return await m_Data.TreeLoadDocAsync(tree, qry);
+
+          var node = await m_Data.TreeLoadDocAsync(tree, qry);
+          if (node == null) return null;
+
+          //2 - if IAM ROOT, there is no parent for root
+          if (node.Gdid == Constraints.G_VERY_ROOT_NODE)
+          {
+            node.EffectiveConfig = new ConfigVector(node.LevelConfig.Content);//Copy
+            node.FullPath = Constraints.VERY_ROOT_PATH_SEGMENT;
+            return node;
+          }
+
+          //3 - Fetch parent of THIS
+          TreeNodeInfo nodeParent = await getNodeByGdid(graph, tree, node.G_Parent, asOfUtc, caching).ConfigureAwait(false);
+          if (nodeParent == null) return null;
+
+          //4 - calculate effective config
+          var cfgNode = node.LevelConfig.Node.NonEmpty(nameof(node.LevelConfig));
+          var cfgParent = nodeParent.EffectiveConfig.Node.NonEmpty(nameof(nodeParent.EffectiveConfig));
+
+          var confResult = new MemoryConfiguration() { Application = this.App };
+          confResult.CreateFromNode(cfgParent);//inherit
+          confResult.Root.OverrideBy(cfgNode); //override
+          node.EffectiveConfig.Node = confResult.Root;
+
+          node.FullPath = TreePath.Join(nodeParent.FullPath, node.PathSegment);
+
+          //the security check is done post factum AFTER tree node full path is known
+          return node;
         }
       ).ConfigureAwait(false);
 
-      return node;
+      App.Authorize(new TreePermission(TreeAccessLevel.Read,  result.FullPathId));
+      return result;
     }
+
 
     #region get child nodes
     private async Task<IEnumerable<TreeNodeHeader>> getChildNodeListByTreePath(TreePtr tree, TreePath pathAddress, DateTime asOfUtc, ICacheParams caching)

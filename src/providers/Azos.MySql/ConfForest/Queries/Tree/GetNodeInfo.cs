@@ -25,7 +25,7 @@ namespace Azos.MySql.ConfForest.Queries.Tree
 
     protected override void DoBuildCommandAndParameters(MySqlCrudQueryExecutionContext context, MySqlCommand cmd, Query qry)
     {
-      var tpr = qry.GetParameterValueAs<TreePtr>("tpr");
+      var tpr = qry.GetParameterValueAs<TreePtr>("tree");
       context.SetState(tpr);
 
       cmd.Parameters.AddWithValue("gparent", qry.GetParameterValueAs<GDID>("gparent"));

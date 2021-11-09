@@ -14,6 +14,9 @@ namespace Azos.Conf.Forest
   /// </summary>
   public static class Constraints
   {
+    public const char PATH_SEPARATOR = '/';
+    public const char PATH_ESCAPE = '%';
+
     public const string ID_NS_CONFIG_FOREST_PREFIX = "az-cforest-";
     public const string ID_SEQ_TREE_NODE_GVERSION_SUFFIX = "-ver";
 
