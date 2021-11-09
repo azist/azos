@@ -306,7 +306,6 @@ namespace Azos.Conf.Forest.Server
         keyCache, tblCache, caching,
         async key =>
         {
-
           if (!graph.Add(gNode))
           {
             //circular reference
@@ -317,7 +316,6 @@ namespace Azos.Conf.Forest.Server
                              pars: new {tree = tree.ToString(), gnode = gNode, asof = asOfUtc}.ToJson());
             throw err;
           }
-
 
           //1 - fetch THIS level - rightmost part of the tree
           var qry = new Query<TreeNodeInfo>("Tree.GetNodeInfoByGdid")
@@ -354,10 +352,11 @@ namespace Azos.Conf.Forest.Server
           node.FullPath = TreePath.Join(nodeParent.FullPath, node.PathSegment);
 
           //the security check is done post factum AFTER tree node full path is known
-          App.Authorize(new TreePermission(TreeAccessLevel.Read, new EntityId(tree.IdForest, tree.IdTree, Constraints.SCH_PATH, node.FullPath)));
           return node;
         }
       ).ConfigureAwait(false);
+
+      App.Authorize(new TreePermission(TreeAccessLevel.Read,  result.FullPathId));
       return result;
     }
 
