@@ -100,9 +100,17 @@ namespace Azos.Security.Services
       base.DoConfigure(node);
       if (node==null || !node.Exists) return;
 
-      var copt = new MemoryConfiguration();
-      copt.CreateFromNode(node[CONFIG_OPTIONS_SECTION]);
-      m_Options = copt.Root;
+      var noptions = node[CONFIG_OPTIONS_SECTION];
+      if (noptions.Exists)
+      {
+        var copt = new MemoryConfiguration();
+        copt.CreateFromNode(node[CONFIG_OPTIONS_SECTION]);
+        m_Options = copt.Root;
+      }
+      else
+      {
+        m_Options = Configuration.NewEmptyRoot("options");
+      }
 
       var nsec = node[CONFIG_CLIENT_SECURITY_SECTION];
       if (nsec.Exists)

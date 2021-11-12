@@ -58,7 +58,6 @@ namespace Azos.Security.ConfigForest
     {
       //Bypass security checks if the data is needed for system use
       if (SecurityFlowScope.CheckFlag(SYSTEM_USE_FLAG)) return true;
-
       if (!base.DoCheckAccessLevel(secman, session, access)) return false;
 
       if (!Target.IsAssigned) return true;
