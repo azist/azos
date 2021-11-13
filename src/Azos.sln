@@ -161,6 +161,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tv", "runtimes\netf\tv\tv.c
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "tv", "runtimes\core\tv\tv.csproj", "{1ADD1C2B-40AC-4DA4-BF9D-9AAF8688A7F3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Azos.AuthKit", "providers\Azos.AuthKit\Azos.AuthKit.csproj", "{C1CA5780-86B9-4A07-87A7-50C2306F6B58}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -415,6 +417,10 @@ Global
 		{1ADD1C2B-40AC-4DA4-BF9D-9AAF8688A7F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1ADD1C2B-40AC-4DA4-BF9D-9AAF8688A7F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1ADD1C2B-40AC-4DA4-BF9D-9AAF8688A7F3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C1CA5780-86B9-4A07-87A7-50C2306F6B58}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1CA5780-86B9-4A07-87A7-50C2306F6B58}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1CA5780-86B9-4A07-87A7-50C2306F6B58}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1CA5780-86B9-4A07-87A7-50C2306F6B58}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -478,6 +484,7 @@ Global
 		{C2CF5A80-206E-4BE0-AEDD-0CD0592AECFC} = {608A6011-035A-4E1C-A1EB-29F91960A5BD}
 		{9130C7C0-038E-4A77-BD3C-0B2D8E4FDD24} = {F572F5AC-8BDE-4D36-BE8A-ED42299C576F}
 		{1ADD1C2B-40AC-4DA4-BF9D-9AAF8688A7F3} = {ABC662BC-C8F5-4D1F-A411-E45DCFC5417E}
+		{C1CA5780-86B9-4A07-87A7-50C2306F6B58} = {608A6011-035A-4E1C-A1EB-29F91960A5BD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {75EF590C-FE75-45E7-B941-B225EF484F5F}
