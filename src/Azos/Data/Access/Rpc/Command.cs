@@ -21,6 +21,9 @@ namespace Azos.Data.Access.Rpc
   [Schema(Description = "Represents a command sent to proxy for execution as a part of request")]
   public sealed class Command : FragmentModel
   {
+    /// <summary>
+    /// Represents a command parameter which has a `Name`, `Value`, and `TypeHint`
+    /// </summary>
     [Bix("507ad8fa-8ab9-4ce8-ab4d-482e9b2a0d18")]
     [Schema(Description = "Represents a command parameter which has a `Name`, `Value`, and `TypeHint`")]
     public sealed class Param : FragmentModel
@@ -75,9 +78,9 @@ namespace Azos.Data.Access.Rpc
       public string Name { get; set; }
 
       /// <summary>
-      /// Parameter value or null. The value would be tried to type-cast using a `TypeHint`
+      /// Parameter value or null. The value would be tried to be typecasted using a `TypeHint`
       /// </summary>
-      [Field(Description = "Parameter value or null. The value would be tried to type-cast using a `TypeHint`")]
+      [Field(Description = "Parameter value or null. The value would be tried to be typecasted using a `TypeHint`")]
       public object Value { get; set; }
 
       /// <summary>
