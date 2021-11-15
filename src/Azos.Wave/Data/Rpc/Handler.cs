@@ -44,6 +44,7 @@ namespace Azos.Data.Access.Rpc.Server
       Methods = new[] { "POST: posts TransactRequest body" },
       TypeSchemas = new[] { typeof(TransactRequest) })]
     [ActionOnPost(Name = "transaction"), AcceptsJson]
+    [DataRpcPermission(DataRpcAccessLevel.Transact)]
     public async Task<object> PostTransactRequest(TransactRequest request) => await SaveNewAsync(request).ConfigureAwait(false);
 
 
