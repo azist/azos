@@ -543,14 +543,20 @@
           {
             name="t1"
             type="Azos.MySql.ConfForest.MySqlConfForestTreeDataStore, Azos.MySql"
-            connect-string="Server=localhost;Database=sherwood_t1;Uid=root;Pwd=thejake;"
+            connect-string="Server=localhost;Database=sherwood_t1;Uid=svcbasic;Pwd=thejake;"
+            //Defines where query objects are resolved into
+            script-assembly="Azos.MySql"
+            handler-location{ns="Azos.MySql.ConfForest.Queries, Azos.MySql"}
           }
 
           tree
           {
             name="t2"
             type="Azos.MySql.ConfForest.MySqlConfForestTreeDataStore, Azos.MySql"
-            connect-string="Server=localhost;Database=sherwood_t2;Uid=root;Pwd=thejake;"
+            connect-string="Server=localhost;Database=sherwood_t2;Uid=svcbasic;Pwd=thejake;"
+            //Defines where query objects are resolved into
+            script-assembly="Azos.MySql"
+            handler-location{ns="Azos.MySql.ConfForest.Queries, Azos.MySql"}
           }
 
         }

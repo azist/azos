@@ -382,6 +382,7 @@ namespace Azos.Conf.Forest.Server
         {
           var qry = new Query<TreeNodeHeader>("Tree.GetChildNodeList")
           {
+            new Query.Param("tree", tree),
             new Query.Param("gparent", gdidAddress),
             new Query.Param("asof", asOfUtc)
           };
