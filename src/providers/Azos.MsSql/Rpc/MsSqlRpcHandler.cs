@@ -104,7 +104,7 @@ namespace Azos.Data.Access.MsSql
       return result;
     }
 
-    public async Task<IEnumerable<ChangeResult>> TransactAsync(TransactRequest request)
+    public async Task<ChangeResult> TransactAsync(TransactRequest request)
     {
       App.Authorize(PERM_TRANSACT);
 
@@ -112,6 +112,7 @@ namespace Azos.Data.Access.MsSql
 
       var result = new List<ChangeResult>();
 
+      var time = Time.Timeter.StartNew();
       using (var connection = GetSqlConnection(request.TxHeaders))
       {
         using(var tx = connection.BeginTransaction())
@@ -131,8 +132,9 @@ namespace Azos.Data.Access.MsSql
           throw;
         }
       }
+      time.Stop();
 
-      return result;
+      return new ChangeResult($"Processed in {time.ElapsedMs:n0} ms", 200, result);
     }
     #endregion
 
