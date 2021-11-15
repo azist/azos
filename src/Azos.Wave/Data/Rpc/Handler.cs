@@ -1,10 +1,13 @@
-﻿using System;
+﻿/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
+
+using System;
 using System.Threading.Tasks;
 
 using Azos.Apps.Injection;
-using Azos.Conf.Forest;
-using Azos.Data;
-using Azos.Data.Business;
 using Azos.Security.Permissions.Data;
 using Azos.Wave.Mvc;
 
@@ -23,26 +26,24 @@ namespace Azos.Data.Access.Rpc.Server
   [DataRpcPermission(DataRpcAccessLevel.Read)]
   public sealed class Handler : ApiProtocolController
   {
-    [Inject] IRpcHandler m_Logic;
-
     [ApiEndpointDoc(
       Title = "POST - Executes read request",
       Description = "Executes read request by posting request body into this endpoint",
       ResponseContent = "Json data",
-      RequestBody = "JSON payload {request: RequestBody}",
+      RequestBody = "JSON payload {request: ReadRequest}",
       Methods = new[] { "POST: posts ReadRequest body" },
       TypeSchemas = new[]{ typeof(ReadRequest)})]
     [ActionOnPost(Name = "reader"), AcceptsJson]
     public async Task<object> PostReadRequest(ReadRequest request) => await ApplyFilterAsync(request).ConfigureAwait(false);
 
     [ApiEndpointDoc(
-      Title = "POST - Executes read request",
-      Description = "Executes read request by posting request body into this endpoint",
+      Title = "POST - Executes transaction request",
+      Description = "Executes transaction request by posting request body into this endpoint",
       ResponseContent = "Json data",
-      RequestBody = "JSON payload {request: RequestBody}",
-      Methods = new[] { "POST: posts ReadRequest body" },
-      TypeSchemas = new[] { typeof(ReadRequest) })]
-    [ActionOnPost(Name = "reader"), AcceptsJson]
+      RequestBody = "JSON payload {request: TransactRequest}",
+      Methods = new[] { "POST: posts TransactRequest body" },
+      TypeSchemas = new[] { typeof(TransactRequest) })]
+    [ActionOnPost(Name = "transaction"), AcceptsJson]
     public async Task<object> PostTransactRequest(TransactRequest request) => await SaveNewAsync(request).ConfigureAwait(false);
 
 
