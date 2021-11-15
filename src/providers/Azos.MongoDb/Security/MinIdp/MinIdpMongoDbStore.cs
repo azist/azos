@@ -177,10 +177,11 @@ namespace Azos.Security.MinIdp
       //2. Make subject principal data
       var result = new MinIdpUserData{ Realm = realm };
       BsonDataModel.ReadLogin(login, result);
-      if (result.SysId == 0) return null;
+      var sysId = result.SysId.AsULong(0);
+      if (sysId == 0) return null;
 
       //3. Try to fetch user
-      var user = await fetch(realm, BsonDataModel.COLLECTION_USER, Query.ID_EQ_UInt64(result.SysId)).ConfigureAwait(false);
+      var user = await fetch(realm, BsonDataModel.COLLECTION_USER, Query.ID_EQ_UInt64(sysId)).ConfigureAwait(false);
       if (user == null) return null;
       BsonDataModel.ReadUser(user, result);
 

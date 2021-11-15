@@ -10,7 +10,7 @@ using Azos.Apps;
 using Azos.Data;
 using Azos.Text;
 
-namespace Azos.Security.ConfigForest
+namespace Azos.Security.Permissions.Config
 {
   /// <summary>
   /// Defines access levels for conf forest tree access

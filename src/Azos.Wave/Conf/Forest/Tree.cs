@@ -4,10 +4,8 @@ using System.Threading.Tasks;
 using Azos.Apps.Injection;
 using Azos.Conf.Forest;
 using Azos.Data;
-using Azos.Data.Access;
 using Azos.Data.Business;
-using Azos.Security;
-using Azos.Security.ConfigForest;
+using Azos.Security.Permissions.Config;
 using Azos.Wave.Mvc;
 
 namespace Azos.Conf.Forest.Server

@@ -54,7 +54,7 @@ namespace Azos.Security.MinIdp
         data.ScreenName = id.Value;
       }
 
-      if (bson[FLD_SYSID] is BSONInt64Element sysid) data.SysId = (ulong)sysid.Value;
+      if (bson[FLD_SYSID] is BSONInt64Element sysid) data.SysId = ((ulong)sysid.Value).ToString(System.Globalization.CultureInfo.InvariantCulture);
       if (bson[FLD_PASSWORD] is BSONStringElement pwd) data.LoginPassword = pwd.Value;
 
       if (bson[FLD_STARTUTC] is BSONDateTimeElement sdt) data.LoginStartUtc = sdt.Value;
@@ -63,7 +63,7 @@ namespace Azos.Security.MinIdp
 
     public static void ReadUser(BSONDocument bson, MinIdpUserData data)
     {
-      if (bson[_ID] is BSONInt64Element sysid) data.SysId = (ulong)sysid.Value;
+      if (bson[_ID] is BSONInt64Element sysid) data.SysId = ((ulong)sysid.Value).ToString(System.Globalization.CultureInfo.InvariantCulture);
       if (bson[FLD_STATUS] is BSONInt32Element status) data.Status = (UserStatus)status.Value;
       if (bson[FLD_ROLE] is BSONStringElement role) data.Role = role.Value;
 
