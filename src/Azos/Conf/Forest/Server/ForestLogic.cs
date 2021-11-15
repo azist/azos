@@ -10,7 +10,7 @@ using Azos.Data.Access;
 using Azos.Data.Business;
 using Azos.Data.Modeling.DataTypes;
 using Azos.Platform;
-using Azos.Security.ConfigForest;
+using Azos.Security.Permissions.Config;
 using Azos.Serialization.JSON;
 using System;
 using System.Collections.Generic;

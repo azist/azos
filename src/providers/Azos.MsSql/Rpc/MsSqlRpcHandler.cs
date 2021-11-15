@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 
 using Azos.Apps;
 using Azos.Data.Access.Rpc;
+using Azos.Security.Permissions.Data;
 
 namespace Azos.Data.Access.MsSql
 {
@@ -33,6 +34,10 @@ namespace Azos.Data.Access.MsSql
     public override string ComponentLogTopic => MsSqlConsts.MSSQL_TOPIC;
 
     #region Protected
+    protected static readonly DataRpcPermission PERM_READ = new DataRpcPermission(DataRpcAccessLevel.Read);
+    protected static readonly DataRpcPermission PERM_TRANSACT = new DataRpcPermission(DataRpcAccessLevel.Transact);
+
+
     protected override bool DoApplicationAfterInit()
     {
       return base.DoApplicationAfterInit();
@@ -65,9 +70,9 @@ namespace Azos.Data.Access.MsSql
 
     public async Task<Rowset> ReadAsync(ReadRequest request)
     {
-#warning Finish this tomorrow
-      //App.Authorize();
+      App.Authorize(PERM_READ);
       SqlConnection connection = null;//getConnection for context() <-- add as a virtual function to allow only certain context mappings
+#warning Finish this tomorrow
 
       var command = request.Command.NonNull(nameof(request.Command));
       command.Text.NonBlank(nameof(command.Text));
@@ -91,6 +96,7 @@ namespace Azos.Data.Access.MsSql
 
     public Task<IEnumerable<ChangeResult>> TransactAsync(TransactRequest request)
     {
+      App.Authorize(PERM_TRANSACT);
       throw new NotImplementedException();
     }
     #endregion
