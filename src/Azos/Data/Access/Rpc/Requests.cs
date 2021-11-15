@@ -20,7 +20,7 @@ namespace Azos.Data.Access.Rpc
   /// </summary>
   [Bix("ae669802-bfb9-4acb-9b86-ec43248c909c")]
   [Schema(Description = "Represents a data fetch RPC request")]
-  public class ReadRequest : FilterModel<IEnumerable<Doc>>
+  public class ReadRequest : FilterModel<Rowset>
   {
     [Inject] IRpcHandler m_Rpc;
 
@@ -39,8 +39,8 @@ namespace Azos.Data.Access.Rpc
       return state;
     }
 
-    protected override async Task<SaveResult<IEnumerable<Doc>>> DoSaveAsync()
-     => new SaveResult<IEnumerable<Doc>>(await m_Rpc.ReadAsync(this).ConfigureAwait(false));
+    protected override async Task<SaveResult<Rowset>> DoSaveAsync()
+     => new SaveResult<Rowset>(await m_Rpc.ReadAsync(this).ConfigureAwait(false));
   }
 
   /// <summary>

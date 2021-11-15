@@ -30,7 +30,7 @@ namespace Azos.Data.Access.Rpc
     /// <summary>
     /// Executes a single data fetch RPC request against the `Session.DataContext` yielding a Doc resultset
     /// </summary>
-    Task<IEnumerable<Doc>> ReadAsync(ReadRequest request);
+    Task<Rowset> ReadAsync(ReadRequest request);
 
     /// <summary>
     /// Executes a transactional RPC request against the `Session.DataContext`
