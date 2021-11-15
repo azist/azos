@@ -11,6 +11,8 @@ using Azos.Data;
 using Azos.Data.Business;
 using Azos.Serialization.Bix;
 
+using static Azos.Canonical;
+
 namespace Azos.Conf.Forest
 {
   /// <summary>
@@ -19,6 +21,7 @@ namespace Azos.Conf.Forest
   /// in the config forest data store
   /// </summary>
   [Bix("a5950275-e12f-4f6c-83b7-1f6862ac3308")]
+  //[UniqueSequence("azos", "forest")]
   public sealed class TreeNode : PersistedEntity<IForestSetupLogic, ChangeResult>
   {
     /// <summary>
@@ -80,20 +83,21 @@ namespace Azos.Conf.Forest
     protected override ValidState DoBeforeValidateOnSave()
     {
       var result = new ValidState(DataStoreTargetName, ValidErrorMode.Batch);
+#warning TODO: working validation needs discussed!
 
-      if (G_Parent == GDID.ZERO || G_Parent == Constraints.G_VERY_ROOT_NODE)
-      {
-        if (FormMode == FormMode.Insert)
-        {
-          result = new ValidState(result, new DocValidationException(nameof(TreeNode), "Root tree node insert is prohibited. May only update root nodes"));
-        }
+      //if (G_Parent == GDID.ZERO || G_Parent == Constraints.G_VERY_ROOT_NODE)
+      //{
+      //  if (FormMode == FormMode.Insert)
+      //  {
+      //    result = new ValidState(result, new DocValidationException(nameof(TreeNode), "Root tree node insert is prohibited. May only update root nodes"));
+      //  }
 
-        if (PathSegment != Constraints.VERY_ROOT_PATH_SEGMENT)
-        {
-          result = new ValidState(result, new FieldValidationException(this, nameof(PathSegment), $"Value must be `{Constraints.VERY_ROOT_PATH_SEGMENT}` for root tree node"));
-        }
+      //  if (PathSegment != Constraints.VERY_ROOT_PATH_SEGMENT)
+      //  {
+      //    result = new ValidState(result, new FieldValidationException(this, nameof(PathSegment), $"Value must be `{Constraints.VERY_ROOT_PATH_SEGMENT}` for root tree node"));
+      //  }
 
-      }
+      //}
       return result;
     }
 
@@ -109,7 +113,7 @@ namespace Azos.Conf.Forest
 
     protected override async Task DoBeforeSaveAsync()
     {
-      await base.DoBeforeSaveAsync().ConfigureAwait(false);
+      //await base.DoBeforeSaveAsync().ConfigureAwait(false); // Not needed as we overide the logic below!
 
       //Generate new GDID only AFTER all checks are passed not to waste gdid instance
       //in case of validation errors

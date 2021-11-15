@@ -128,11 +128,13 @@ namespace Azos.Conf.Forest.Server
 
     #region IForestSetupLogic
     /// <inheritdoc/>
-    public Task<ValidState> ValidateNodeAsync(TreeNode node, ValidState state)
+    public async Task<ValidState> ValidateNodeAsync(TreeNode node, ValidState state)
     {
 #warning Implement ValidateNodeAsync method logic
-    //todo: prevent recursive definitions etc...
-      throw new NotImplementedException();
+      //todo: prevent recursive definitions etc...
+      //throw new NotImplementedException();
+
+      return state;
     }
 
     /// <inheritdoc/>
@@ -330,10 +332,11 @@ namespace Azos.Conf.Forest.Server
           if (node == null) return null;
 
           //2 - if IAM ROOT, there is no parent for root
+          node.EffectiveConfig = new ConfigVector(node.LevelConfig.Content);//Copy
+          node.FullPath = Constraints.VERY_ROOT_PATH_SEGMENT;
+
           if (node.Gdid == Constraints.G_VERY_ROOT_NODE)
           {
-            node.EffectiveConfig = new ConfigVector(node.LevelConfig.Content);//Copy
-            node.FullPath = Constraints.VERY_ROOT_PATH_SEGMENT;
             return node;
           }
 
@@ -357,6 +360,7 @@ namespace Azos.Conf.Forest.Server
         }
       ).ConfigureAwait(false);
 
+      if (result == null) return null;
       App.Authorize(new TreePermission(TreeAccessLevel.Read,  result.FullPathId));
       return result;
     }

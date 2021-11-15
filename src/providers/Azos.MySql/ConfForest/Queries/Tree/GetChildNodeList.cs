@@ -43,7 +43,7 @@ namespace Azos.MySql.ConfForest.Queries.Tree
 
       if (isDeleted) return null;
 
-      var gdid = json["g_ver"].AsGDID();
+      var gdid = json["gdid"].AsGDID();
       var tree = context.GetState<TreePtr>();
       var eid = new EntityId(tree.IdForest, tree.IdTree, Constraints.SCH_GNODE, gdid.ToString());
 
