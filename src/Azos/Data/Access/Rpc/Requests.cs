@@ -27,6 +27,18 @@ namespace Azos.Data.Access.Rpc
     [Field(required: true, Description = "Command object to execute")]
     public Command Command { get; set; }
 
+    public override ValidState Validate(ValidState state, string scope = null)
+    {
+      state = base.Validate(state, scope);
+
+      if (state.ShouldContinue)
+      {
+        state = m_Rpc.ValidateReadRequest(state, this);
+      }
+
+      return state;
+    }
+
     protected override async Task<SaveResult<IEnumerable<Doc>>> DoSaveAsync()
      => new SaveResult<IEnumerable<Doc>>(await m_Rpc.ReadAsync(this).ConfigureAwait(false));
   }
@@ -53,6 +65,18 @@ namespace Azos.Data.Access.Rpc
            minLength: 1,
            Description = "A list of commands to execute under the same logical transaction")]
     public List<Command> Commands { get; set; }
+
+    public override ValidState Validate(ValidState state, string scope = null)
+    {
+      state = base.Validate(state, scope);
+
+      if (state.ShouldContinue)
+      {
+        state = m_Rpc.ValidateTransactRequest(state, this);
+      }
+
+      return state;
+    }
 
     protected override async Task<SaveResult<IEnumerable<ChangeResult>>> DoSaveAsync()
      => new SaveResult<IEnumerable<ChangeResult>>(await m_Rpc.TransactAsync(this).ConfigureAwait(false));

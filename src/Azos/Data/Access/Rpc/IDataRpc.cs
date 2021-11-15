@@ -18,6 +18,16 @@ namespace Azos.Data.Access.Rpc
   public interface IRpcHandler : IModule
   {
     /// <summary>
+    /// Validates read request, e.g. filtering out potentially dangerous/banned commands
+    /// </summary>
+    ValidState ValidateReadRequest(ValidState state, ReadRequest request);
+
+    /// <summary>
+    /// Validates transact request, e.g. filtering out potentially dangerous/banned commands
+    /// </summary>
+    ValidState ValidateTransactRequest(ValidState state, TransactRequest request);
+
+    /// <summary>
     /// Executes a single data fetch RPC request against the `Session.DataContext` yielding a Doc resultset
     /// </summary>
     Task<IEnumerable<Doc>> ReadAsync(ReadRequest request);
