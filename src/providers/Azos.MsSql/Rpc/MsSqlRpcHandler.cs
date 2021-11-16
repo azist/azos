@@ -10,8 +10,10 @@ using System.Data.SqlClient;
 using System.Threading.Tasks;
 
 using Azos.Apps;
+using Azos.Conf;
 using Azos.Data.Access.Rpc;
 using Azos.Security.Permissions.Data;
+using Azos.Serialization.JSON;
 
 namespace Azos.Data.Access.MsSql
 {
@@ -33,6 +35,10 @@ namespace Azos.Data.Access.MsSql
     public override bool IsHardcodedModule => false;
     public override string ComponentLogTopic => MsSqlConsts.MSSQL_TOPIC;
 
+
+    [Config]
+    public string ConnectString { get; set; }
+
     #region Protected
     protected static readonly DataRpcPermission PERM_READ = new DataRpcPermission(DataRpcAccessLevel.Read);
     protected static readonly DataRpcPermission PERM_TRANSACT = new DataRpcPermission(DataRpcAccessLevel.Transact);
@@ -41,6 +47,19 @@ namespace Azos.Data.Access.MsSql
     protected override bool DoApplicationAfterInit()
     {
       return base.DoApplicationAfterInit();
+    }
+
+    /// <summary>
+    /// Override to map incoming request based on normalized <see cref="ISession.DataContextName"/> into a connect string.
+    /// The default base implementation just allocates a connection using <see cref="ConnectString" /> property
+    /// </summary>
+    /// <param name="headers">Optional headers supplied with request (may be null)</param>
+    /// <returns>New SqlConnection instance</returns>
+    protected virtual SqlConnection GetSqlConnection(JsonDataMap headers)
+    {
+      var result = new SqlConnection(ConnectString);
+      result.Open();
+      return result;
     }
 
     /// <summary>
@@ -68,14 +87,61 @@ namespace Azos.Data.Access.MsSql
       return DoValidateTransactRequest(state, request);
     }
 
+
+
     public async Task<Rowset> ReadAsync(ReadRequest request)
     {
       App.Authorize(PERM_READ);
-      SqlConnection connection = null;//getConnection for context() <-- add as a virtual function to allow only certain context mappings
-#warning Finish this tomorrow
 
       var command = request.Command.NonNull(nameof(request.Command));
       command.Text.NonBlank(nameof(command.Text));
+      var isSql = isSqlStatementType(command);
+
+      Rowset result;
+      using(var connection = GetSqlConnection(command.Headers))
+      {
+        result = await readAsync(connection, command, isSql).ConfigureAwait(false);
+      }
+      return result;
+    }
+
+    public async Task<ChangeResult> TransactAsync(TransactRequest request)
+    {
+      App.Authorize(PERM_TRANSACT);
+
+      var commands = request.Commands.NonNull(nameof(request.Commands));
+
+      var result = new List<ChangeResult>();
+
+      var time = Time.Timeter.StartNew();
+      using (var connection = GetSqlConnection(request.TxHeaders))
+      {
+        using(var tx = connection.BeginTransaction())
+        try
+        {
+          foreach (var command in commands)
+          {
+            var isSql = isSqlStatementType(command);
+            var oneChange = await txAsync(connection, tx, command, isSql).ConfigureAwait(false);
+            result.Add(oneChange);
+          }
+          tx.Commit();
+        }
+        catch
+        {
+          tx.Rollback();
+          throw;
+        }
+      }
+      time.Stop();
+
+      return new ChangeResult($"Processed in {time.ElapsedMs:n0} ms", 200, result);
+    }
+    #endregion
+
+    #region .pvt
+    private bool isSqlStatementType(Command command)
+    {
       var isSql = true;
 
       if (command.Headers != null)
@@ -90,18 +156,9 @@ namespace Azos.Data.Access.MsSql
         }
       }
 
-      var rowset = await readAsync(connection, command, isSql).ConfigureAwait(false);
-      return rowset;
+      return isSql;
     }
 
-    public Task<IEnumerable<ChangeResult>> TransactAsync(TransactRequest request)
-    {
-      App.Authorize(PERM_TRANSACT);
-      throw new NotImplementedException();
-    }
-    #endregion
-
-    #region .pvt
     private void bindParams(SqlCommand cmd, Command command)
     {
       if (command.Parameters == null) return;
@@ -192,6 +249,24 @@ namespace Azos.Data.Access.MsSql
       }
 
       return result;
+    }
+
+    private async Task<ChangeResult> txAsync(SqlConnection connection, SqlTransaction tx, Command command, bool isSql)
+    {
+      using (var cmd = connection.CreateCommand())
+      {
+        cmd.CommandType = isSql ? System.Data.CommandType.Text : System.Data.CommandType.StoredProcedure;
+        cmd.CommandText = command.Text;
+        cmd.Transaction = tx;
+
+        bindParams(cmd, command);
+
+        var time = Time.Timeter.StartNew();
+        var got = await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
+        time.Stop();
+
+        return new ChangeResult(ChangeResult.ChangeType.Processed, got, $"Done in {time.ElapsedMs:n0} ms", null);
+      }
     }
     #endregion
   }

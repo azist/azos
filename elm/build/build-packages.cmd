@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.41.2
-set HEADLINE=OAuthServer SSO #596, Conf Forest WIP #562
+set VER=1.42.1
+set HEADLINE=Data.Rpc svc fix
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

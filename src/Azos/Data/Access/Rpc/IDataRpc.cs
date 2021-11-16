@@ -35,6 +35,6 @@ namespace Azos.Data.Access.Rpc
     /// <summary>
     /// Executes a transactional RPC request against the `Session.DataContext`
     /// </summary>
-    Task<IEnumerable<ChangeResult>> TransactAsync(TransactRequest request);
+    Task<ChangeResult> TransactAsync(TransactRequest request);
   }
 }

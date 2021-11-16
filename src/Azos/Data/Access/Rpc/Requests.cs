@@ -48,7 +48,7 @@ namespace Azos.Data.Access.Rpc
   /// </summary>
   [Bix("ab1d19a2-80d7-448c-9dfa-b319fb998fe9")]
   [Schema(Description = "Represents a data change transactional (batch) RPC request")]
-  public class TransactRequest : PersistedModel<IEnumerable<ChangeResult>>
+  public class TransactRequest : PersistedModel<ChangeResult>
   {
     [Inject] IRpcHandler m_Rpc;
 
@@ -78,7 +78,7 @@ namespace Azos.Data.Access.Rpc
       return state;
     }
 
-    protected override async Task<SaveResult<IEnumerable<ChangeResult>>> DoSaveAsync()
-     => new SaveResult<IEnumerable<ChangeResult>>(await m_Rpc.TransactAsync(this).ConfigureAwait(false));
+    protected override async Task<SaveResult<ChangeResult>> DoSaveAsync()
+     => new SaveResult<ChangeResult>(await m_Rpc.TransactAsync(this).ConfigureAwait(false));
   }
 }
