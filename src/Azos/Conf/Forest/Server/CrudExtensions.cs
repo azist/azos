@@ -29,7 +29,10 @@ namespace Azos.Conf.Forest.Server
     {
       var tds = forestData.NonNull(nameof(forestData)).TryGetTreeDataStore(tree.IdForest, tree.IdTree);
       if (tds == null)
-        throw new ConfigException("Forest tree `{0}` is not found".Args(tree));
+      {
+        var tnmsg = "Forest tree `{0}` is not found".Args(tree);
+        throw new ValidationException(tnmsg) { HttpStatusCode = 404, HttpStatusDescription = tnmsg };
+      }
 
       return (tds as ICrudDataStore).NonNull(DATA_STORE_CLAUSE);
     }

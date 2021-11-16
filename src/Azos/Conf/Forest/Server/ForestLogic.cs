@@ -176,7 +176,7 @@ namespace Azos.Conf.Forest.Server
     {
       node.NonNull(nameof(node));
       var tree = new TreePtr(node.Forest, node.Tree);
-
+      tree.IsAssigned.IsTrue("Assigned Tree");
       App.Authorize(new TreePermission(TreeAccessLevel.Setup, node.Id));
 
       var qry = new Query<EntityChangeInfo>("Tree.SaveNode")
@@ -197,6 +197,7 @@ namespace Azos.Conf.Forest.Server
     /// <inheritdoc/>
     public async Task<ChangeResult> DeleteNodeAsync(EntityId id, DateTime? startUtc = null)
     {
+      id.HasRequiredValue(nameof(id));
       var asof = DefaultAndAlignOnPolicyBoundary(startUtc, id);
       App.Authorize(new TreePermission(TreeAccessLevel.Setup, id));
 
