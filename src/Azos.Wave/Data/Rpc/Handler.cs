@@ -18,7 +18,7 @@ namespace Azos.Data.Access.Rpc.Server
   /// </summary>
   [NoCache]
   [ApiControllerDoc(
-    BaseUri = "/data/rpc",
+    BaseUri = "/data/rpc/handler",
     Title = "Data RPC server",
     Description = @"Serves Data RPC",
     ResponseHeaders = new[] { API_DOC_HDR_NO_CACHE }

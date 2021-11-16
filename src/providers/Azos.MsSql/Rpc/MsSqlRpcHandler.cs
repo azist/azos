@@ -58,6 +58,7 @@ namespace Azos.Data.Access.MsSql
     protected virtual SqlConnection GetSqlConnection(JsonDataMap headers)
     {
       var result = new SqlConnection(ConnectString);
+      result.Open();
       return result;
     }
 
