@@ -115,6 +115,8 @@ namespace Azos.Conf.Forest
       result.Properties = this.Properties.Content;//a copy
       result.Config = this.LevelConfig.Content;//a copy
       result.StartUtc = this.StartUtc;
+      result.Tree = this.Tree;
+      result.Forest = this.Forest;
       return result;
     }
   }
