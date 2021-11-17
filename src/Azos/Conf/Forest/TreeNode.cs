@@ -84,9 +84,6 @@ namespace Azos.Conf.Forest
     protected override ValidState DoBeforeValidateOnSave()
     {
       var result = new ValidState(DataStoreTargetName, ValidErrorMode.Batch);
-#warning TODO: working validation needs discussed!
-
-      // TODO: Set Gdid to G root node
 
       if (G_Parent == GDID.ZERO)
       {
@@ -100,6 +97,19 @@ namespace Azos.Conf.Forest
           result = new ValidState(result, new FieldValidationException(this, nameof(PathSegment), $"Value must be `{Constraints.VERY_ROOT_PATH_SEGMENT}` for root tree node"));
         }
 
+        if (!this.Gdid.IsZero && this.Gdid != Constraints.G_VERY_ROOT_NODE)
+        {
+          result = new ValidState(result, new FieldValidationException(this, nameof(Gdid), $"Gdid field must either be null or `{Constraints.G_VERY_ROOT_NODE}` for the root tree node"));
+        }
+
+        if (this.Gdid.IsZero) this.Gdid = Constraints.G_VERY_ROOT_NODE;
+      }
+      else
+      {
+        if(this.Gdid == Constraints.G_VERY_ROOT_NODE)
+        {
+          result = new ValidState(result, new FieldValidationException(this, nameof(Gdid), $"Parent modification for very root node is prohibited"));
+        }
       }
       return result;
     }
