@@ -24,6 +24,12 @@ namespace Azos.Data.Access.Rpc
   {
     [Inject] IRpcHandler m_Rpc;
 
+    /// <summary>
+    /// Provides optional header map used for whole read request execution
+    /// </summary>
+    [Field(description: "Provides optional header map used for whole read request execution")]
+    public JsonDataMap RequestHeaders { get; set; }
+
     [Field(required: true, Description = "Command object to execute")]
     public Command Command { get; set; }
 
@@ -56,7 +62,7 @@ namespace Azos.Data.Access.Rpc
     /// Provides optional header map used for transaction execution
     /// </summary>
     [Field(description: "Provides optional header map used for transaction execution")]
-    public JsonDataMap TxHeaders { get; set; }
+    public JsonDataMap RequestHeaders { get; set; }
 
     /// <summary>
     /// A list of commands to execute under the same logical transaction

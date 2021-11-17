@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 using Azos.Apps.Injection;
 using Azos.Security.Permissions.Data;
+using Azos.Serialization.JSON;
 using Azos.Wave.Mvc;
 
 namespace Azos.Data.Access.Rpc.Server
@@ -34,7 +35,32 @@ namespace Azos.Data.Access.Rpc.Server
       Methods = new[] { "POST: posts ReadRequest body" },
       TypeSchemas = new[]{ typeof(ReadRequest)})]
     [ActionOnPost(Name = "reader"), AcceptsJson]
-    public async Task<object> PostReadRequest(ReadRequest request) => await ApplyFilterAsync(request).ConfigureAwait(false);
+    public async Task<object> PostReadRequest(ReadRequest request)
+    {
+      var resultData =  await ApplyFilterAsync(request).ConfigureAwait(false);
+      var opts = new JsonWritingOptions
+      {
+        RowsetMetadata = true,
+        RowsAsMap = false,
+        Purpose = JsonSerializationPurpose.Marshalling,
+        MapSkipNulls = false
+      };
+
+      if (request.RequestHeaders != null)
+      {
+        opts.RowsetMetadata = !request.RequestHeaders[StandardHeaders.NO_SCHEMA].AsBool(false);
+        opts.RowsAsMap = request.RequestHeaders[StandardHeaders.ROWS_AS_MAP].AsBool(false);
+        if (request.RequestHeaders[StandardHeaders.PRETTY].AsBool(false))
+        {
+          opts.SpaceSymbols = true;
+          opts.IndentWidth = 2;
+          opts.ObjectLineBreak = true;
+          opts.MemberLineBreak = true;
+        }
+      }
+
+      return new JsonResult(resultData, opts);
+    }
 
     [ApiEndpointDoc(
       Title = "POST - Executes transaction request",

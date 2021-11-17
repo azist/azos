@@ -1,6 +1,6 @@
 @echo on
 
-set VER=1.42.1
+set VER=1.42.2
 set HEADLINE=Data.Rpc svc fix
 call vs2017-build-release %VER%
 
