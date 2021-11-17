@@ -4,6 +4,8 @@
   log-csv="Azos.Log.Sinks.CSVFileSink, Azos"
   debug-default-action="Log,Throw"
 
+  cloud-origin="local"
+
  web-settings
  {
     social
@@ -523,6 +525,27 @@
 
   modules
   {
+    //Responsible for generating Global Distributed Id (GDID)
+    //The `local` environment uses local authority for testing instead of true id service
+    //the local authority generates gdid based on timestamp prefixes and has worse resolution
+    module
+    {
+        name="gdidprovider"
+        type="Azos.Sky.Identification.GdidProviderModule, Azos.Sky"
+        log-level=$(/machine/$log-level-comp)
+
+        use-local-authority=true
+        generator
+        {
+            //As a protection mechanism in case when various environments share the same
+            //physical data store, we set era to some unrealistic number in future so
+            //the ids never clash
+            era=0xff$(~SKY_NODE_DISCRIMINATOR)00//use unrealistic era for a very distant future
+            authority=0
+        }
+    }
+
+
     module
     {
       type='Azos.Security.Services.OAuthModule, Azos'
@@ -543,14 +566,20 @@
           {
             name="t1"
             type="Azos.MySql.ConfForest.MySqlConfForestTreeDataStore, Azos.MySql"
-            connect-string="Server=localhost;Database=sherwood_t1;Uid=root;Pwd=thejake;"
+            connect-string="Server=localhost;Database=sherwood_t1;Uid=svcbasic;Pwd=thejake;"
+            //Defines where query objects are resolved into
+            script-assembly="Azos.MySql"
+            handler-location{ns="Azos.MySql.ConfForest.Queries, Azos.MySql"}
           }
 
           tree
           {
             name="t2"
             type="Azos.MySql.ConfForest.MySqlConfForestTreeDataStore, Azos.MySql"
-            connect-string="Server=localhost;Database=sherwood_t2;Uid=root;Pwd=thejake;"
+            connect-string="Server=localhost;Database=sherwood_t2;Uid=svcbasic;Pwd=thejake;"
+            //Defines where query objects are resolved into
+            script-assembly="Azos.MySql"
+            handler-location{ns="Azos.MySql.ConfForest.Queries, Azos.MySql"}
           }
 
         }

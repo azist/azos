@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 using Azos;
 using Azos.Conf.Forest;
+using Azos.Conf.Forest.Server;
 using Azos.Data;
 using Azos.Data.Access;
 using Azos.Data.Access.MySql;
@@ -26,8 +27,8 @@ namespace Azos.MySql.ConfForest.Queries.Tree
 
     protected override void DoBuildCommandAndParameters(MySqlCrudQueryExecutionContext context, MySqlCommand cmd, Query qry)
     {
-      var eid = qry.GetParameterValueAs<EntityId>("eid");
-      context.SetState(eid);
+      var tree = qry.GetParameterValueAs<TreePtr>("tree");
+      context.SetState(tree);
 
       cmd.Parameters.AddWithValue("gparent", qry.GetParameterValueAs<GDID>("gparent"));
       cmd.Parameters.AddWithValue("asof", qry.GetParameterValueAs<DateTime>("asof"));
@@ -38,10 +39,13 @@ namespace Azos.MySql.ConfForest.Queries.Tree
     protected override Doc DoPopulateDoc(MySqlCrudQueryExecutionContext context, Type tDoc, Schema schema, Schema.FieldDef[] toLoad, MySqlDataReader reader)
     {
       var json = (reader.AsStringField("DATA").JsonToDataObject() as JsonDataMap).NonNull("DATA!null");
-      var eid = context.GetState<EntityId>();
       var isDeleted = VersionInfo.MapCanonicalState(json["version_state"].AsString()) == VersionInfo.DataState.Deleted;
 
       if (isDeleted) return null;
+
+      var gdid = json["gdid"].AsGDID();
+      var tree = context.GetState<TreePtr>();
+      var eid = new EntityId(tree.IdForest, tree.IdTree, Constraints.SCH_GNODE, gdid.ToString());
 
       return new TreeNodeHeader
       {

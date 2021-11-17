@@ -11,6 +11,8 @@ using Azos.Data;
 using Azos.Data.Business;
 using Azos.Serialization.Bix;
 
+using static Azos.Canonical;
+
 namespace Azos.Conf.Forest
 {
   /// <summary>
@@ -19,6 +21,7 @@ namespace Azos.Conf.Forest
   /// in the config forest data store
   /// </summary>
   [Bix("a5950275-e12f-4f6c-83b7-1f6862ac3308")]
+  //[UniqueSequence("azos", "forest")]
   public sealed class TreeNode : PersistedEntity<IForestSetupLogic, ChangeResult>
   {
     /// <summary>
@@ -33,8 +36,9 @@ namespace Azos.Conf.Forest
     [Field(required: true, Description = "Returns tree id which contains this node")]
     public Atom Tree { get; set; }
 
-    public override EntityId Id => new EntityId(Forest, Tree, Constraints.SCH_GNODE, this.Gdid.ToString());
-
+    public override EntityId Id => !Forest.IsZero && Forest.IsValid
+                                      ? new EntityId(Forest, Tree, Constraints.SCH_GNODE, this.Gdid.ToString()) 
+                                      : EntityId.EMPTY;
 
     [Field(Description = "Parent node id, root has GDID.ZERO")]
     public GDID G_Parent { get; set; }
@@ -81,7 +85,7 @@ namespace Azos.Conf.Forest
     {
       var result = new ValidState(DataStoreTargetName, ValidErrorMode.Batch);
 
-      if (G_Parent == GDID.ZERO || G_Parent == Constraints.G_VERY_ROOT_NODE)
+      if (G_Parent == GDID.ZERO)
       {
         if (FormMode == FormMode.Insert)
         {
@@ -93,6 +97,19 @@ namespace Azos.Conf.Forest
           result = new ValidState(result, new FieldValidationException(this, nameof(PathSegment), $"Value must be `{Constraints.VERY_ROOT_PATH_SEGMENT}` for root tree node"));
         }
 
+        if (!this.Gdid.IsZero && this.Gdid != Constraints.G_VERY_ROOT_NODE)
+        {
+          result = new ValidState(result, new FieldValidationException(this, nameof(Gdid), $"Gdid field must either be null or `{Constraints.G_VERY_ROOT_NODE}` for the root tree node"));
+        }
+
+        if (this.Gdid.IsZero) this.Gdid = Constraints.G_VERY_ROOT_NODE;
+      }
+      else
+      {
+        if(this.Gdid == Constraints.G_VERY_ROOT_NODE)
+        {
+          result = new ValidState(result, new FieldValidationException(this, nameof(Gdid), $"Parent modification for very root node is prohibited"));
+        }
       }
       return result;
     }
@@ -107,9 +124,10 @@ namespace Azos.Conf.Forest
       return result;
     }
 
-    protected override async Task DoBeforeSaveAsync()
+    protected override Task DoBeforeSaveAsync()
     {
-      await base.DoBeforeSaveAsync().ConfigureAwait(false);
+      // Not needed as we overide the logic below because we generate gdid differently here using forest ns
+      ////await base.DoBeforeSaveAsync().ConfigureAwait(false); 
 
       //Generate new GDID only AFTER all checks are passed not to waste gdid instance
       //in case of validation errors
@@ -118,6 +136,8 @@ namespace Azos.Conf.Forest
         do Gdid = m_GdidGenerator.Provider.GenerateOneGdid(Constraints.ID_NS_CONFIG_FOREST_PREFIX + Forest.Value, Tree.Value);
         while(Gdid == Constraints.G_VERY_ROOT_NODE);//skip the reserved value for root node gdid
       }
+
+      return Task.CompletedTask;
     }
 
     protected override async Task<ChangeResult> SaveBody(IForestSetupLogic logic)
