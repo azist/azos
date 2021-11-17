@@ -23,6 +23,12 @@ namespace Azos.Data.Access.MsSql
   public abstract class MsSqlRpcHandler : ModuleBase, IRpcHandler
   {
     /// <summary>
+    /// Absolute maximum number of rows to fetch at once
+    /// </summary>
+    public const int FETCH_LIMIT = 1000;
+
+
+    /// <summary>
     /// Creates a root module without a parent
     /// </summary>
     protected MsSqlRpcHandler(IApplication application) : base(application) { }
@@ -114,7 +120,7 @@ namespace Azos.Data.Access.MsSql
       var result = new List<ChangeResult>();
 
       var time = Time.Timeter.StartNew();
-      using (var connection = GetSqlConnection(request.TxHeaders))
+      using (var connection = GetSqlConnection(request.RequestHeaders))
       {
         using(var tx = connection.BeginTransaction())
         try
@@ -244,6 +250,8 @@ namespace Azos.Data.Access.MsSql
             var doc = Doc.MakeDoc(result.Schema);
             populateDoc(doc, reader, command);
             result.Add(doc);
+
+            if (result.Count > FETCH_LIMIT) break;
           }
         }
       }

@@ -14,6 +14,22 @@ namespace Azos.Data.Access.Rpc
   public static class StandardHeaders
   {
     /// <summary>
+    /// If passed, suppresses result rowset schema object, false by default = include schema
+    /// </summary>
+    public const string NO_SCHEMA = "no-schema";
+
+    /// <summary>
+    /// If true, serializes rows as map with field name, otherwise as an array (default)
+    /// </summary>
+    public const string ROWS_AS_MAP = "rows-as-map";
+
+    /// <summary>
+    /// If true, makes result look pretty by using line breaks and spacing, default is false
+    /// </summary>
+    public const string PRETTY = "pretty";
+
+
+    /// <summary>
     /// Headers related to RDBMS/SQL technologies
     /// </summary>
     public static class Sql
