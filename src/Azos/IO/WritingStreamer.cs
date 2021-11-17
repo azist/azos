@@ -94,6 +94,9 @@ namespace Azos.IO
     public abstract void Write(DateTime value);
     public abstract void Write(DateTime? value);
 
+    public abstract void Write(DateTimeOffset value);
+    public abstract void Write(DateTimeOffset? value);
+
     public abstract void Write(TimeSpan value);
     public abstract void Write(TimeSpan? value);
 
