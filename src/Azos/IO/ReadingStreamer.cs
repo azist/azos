@@ -113,6 +113,9 @@ namespace Azos.IO
     public abstract DateTime ReadDateTime();
     public abstract DateTime? ReadNullableDateTime();
 
+    public abstract DateTimeOffset ReadDateTimeOffset();
+    public abstract DateTimeOffset? ReadNullableDateTimeOffset();
+
     public abstract TimeSpan ReadTimeSpan();
     public abstract TimeSpan? ReadNullableTimeSpan();
 

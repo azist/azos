@@ -597,6 +597,24 @@ namespace Azos.IO
     }
 
 
+    public override void Write(DateTimeOffset value)
+    {
+      Write(value.DateTime);
+      Write(value.Offset);
+    }
+
+    public override void Write(DateTimeOffset? value)
+    {
+      if (value.HasValue)
+      {
+        Write(true);
+        Write(value.Value);
+        return;
+      }
+      Write(false);
+    }
+
+
     public override void Write(TimeSpan value)
     {
       this.Write(value.Ticks);
