@@ -9,8 +9,8 @@
   from
     tbl_nodelog TL
   where
-    (TL.G_NODE = TN.GDID) 
-    AND (TL.G_PARENT = @gparent) 
+    (TL.G_NODE = TN.GDID)
+    AND (TL.G_PARENT = @gparent)
     AND (TL.START_UTC <= @asof)
     AND (TL.G_PARENT <> TL.G_NODE)
   order by
