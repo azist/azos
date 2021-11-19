@@ -106,6 +106,6 @@ For additional information on the `Schema` and other values see [Azos Data Docum
 
 =======================================
 
- ### Previous <- [Getting Started](readme.md)
+ ### Previous <- [README](readme.md)
 
  ### Next -> [Mapping Rows as JSON Objects](ex2-mapping-rows.md)

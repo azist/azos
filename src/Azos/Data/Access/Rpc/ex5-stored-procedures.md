@@ -32,7 +32,7 @@ Content-Type: application/json
             "Headers": {
                 "sql-command-type": "proc"
             },
-        "Text": "GDI_Return_Subcontractors",
+        "Text": "Return_Subcontractors",
         "Parameters":
             [
                 {"Name": "SiteID", "Value": "KAN01"}
@@ -52,12 +52,12 @@ Content-Type: application/json
   "data": {
     "Rows": [
       {
-        "SubID": "7a896aa2-3000-49b9-b957-4d79a26c0965",
-        "Name": "Austin-Don Kabel"
+        "SubID": "7a896aa2-3000-49b9-b957-4d79a28c0965",
+        "Name": "Austin-Don Juan"
       },
       {
-        "SubID": "ca3e075a-112e-40bc-bb1f-c2992350d375",
-        "Name": "Lawson - Don Kabel"
+        "SubID": "ca3e075a-112e-40bc-bb1f-c2992360d375",
+        "Name": "Lawson - Don Juan"
       }
     ]
   },
