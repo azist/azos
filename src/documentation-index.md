@@ -31,6 +31,7 @@
   * [Data Validation with Domains](/src/Azos/Data/domains.md)
   * [Data Modeling](/src/Azos/Data/modeling.md)
   * [Advanced Query APIs with AST (Abstract Syntax Trees)](/src/Azos/Data/AST)
+  * [Data RPC](/src/Azos/Data/Access/Rpc)
 * [Glue](/src/Azos/Glue) - interprocess communication
 * [Logging](/src/Azos/Log) - logging and sinks
 * [Instrumentation](/src/Azos/Instrumentation) - telemetry with gauges and events
