@@ -1,4 +1,4 @@
-# RPC Data Pipe (API for [Data Access RPC](https://github.com/azist/azos/blob/master/src/Azos/Data/Access/Rpc/readme.md))
+# Data Access RPC
 
 RPC stands for **R**emote **P**rocedure **C**all
 https://en.wikipedia.org/wiki/Remote_procedure_call

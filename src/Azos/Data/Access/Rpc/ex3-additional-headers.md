@@ -13,7 +13,7 @@ actual raw response body is returned as shown below.
 
 
 ### Actual Raw Response Text:
-```json
+```rest
 {"data":{"Rows":[[3,4]],"Instance":"4005082a-311b-4955-9564-61745aabbe19","Type":"Azos.Data.Rowset","IsTable":false,"Schema":{"Name":"JSON-1275186659","FieldDefs":[{"Name":"NobelPrizeInMath","Order":0,"Type":"int","Nullable":false,"GetOnly":false,"IsKey":false,"IsRequired":false,"Visible":true},{"Name":"EqualsFour","Order":1,"Type":"int","Nullable":false,"GetOnly":false,"IsKey":false,"IsRequired":false,"Visible":true}]}},"OK":true}
 ```
 
@@ -49,7 +49,7 @@ Content-Type: application/json
 #### Response:
 
 
-```json
+```rest
 {
   "data": 
     {

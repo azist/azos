@@ -71,7 +71,7 @@ Content-Type: application/json
 #### Response:
 
 
-```json
+```rest
 {
   "OK": false,
   "change": "Undefined",
