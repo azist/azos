@@ -62,7 +62,6 @@
         font-family: monospace;
         font-size: 12px;
         padding: 8px;
-        padding-top: 2px;
         border: 1px solid #e8efef;
         background: #e4e4e4;
         color: #646464;
