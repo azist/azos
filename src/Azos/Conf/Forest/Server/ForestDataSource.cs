@@ -156,7 +156,11 @@ namespace Azos.Conf.Forest.Server
 
       m_Pile.NonNull("pile");
       m_Cache.NonNull("cache");
-      (m_Forests.Count > 0).IsTrue("Forest > 0");
+
+      if (m_Forests.Count == 0)
+      {
+        WriteLogFromHere(Log.MessageType.Warning, "No config forests configured");
+      }
 
       if (m_Pile is Daemon dp) dp.Start();
       if (m_Cache is Daemon d) d.Start();
