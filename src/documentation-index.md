@@ -33,6 +33,7 @@
   * [Advanced Query APIs with AST (Abstract Syntax Trees)](/src/Azos/Data/AST)
 * [Glue](/src/Azos/Glue) - interprocess communication
 * [Logging](/src/Azos/Log) - logging and sinks
+    * [Chronicle Logging Framework](/src/Azos.Sky/Chronicle)
 * [Instrumentation](/src/Azos/Instrumentation) - telemetry with gauges and events
 * IO
   * [Virtual File Systems](/src/Azos/IO/FileSystem) - pluggable file system
@@ -54,7 +55,6 @@
 * Distributed Worker Coordination
 * [Locking](/src/Azos.Sky/Locking)
 * [Global ID Generation/GDID](/src/Azos.Sky/Identification)
-* [Chronicle Logging Framework](/src/Azos.Sky/Chronicle)
 * [Event Hub](/src/Azos.Sky/EventHub)
 * [MDB - Database Router](/src/Azos.Sky/Mdb)
 * [Metabase](/src/Azos.Sky/Metabase)
