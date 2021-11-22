@@ -10,6 +10,7 @@ namespace WaveTestSite.Controllers
   /// <summary>
   /// Generates documentation for this site
   /// </summary>
+  //[NoApiDoc]
   [Release(ReleaseType.Preview, 2019, 08, 01, "Initial testing")]
   [ApiControllerDoc(BaseUri = "/mvc/testapidoc", Title = "TestApiDoc", Description = "This controller is used for testing")]
   public class TestApiDoc : ApiDocController

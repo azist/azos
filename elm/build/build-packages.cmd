@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.42.2
-set HEADLINE=Data.Rpc svc fix
+set VER=1.42.5.1
+set HEADLINE=Svc fix 616,615 etc.
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

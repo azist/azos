@@ -141,7 +141,7 @@ namespace Azos.Data.Access.MsSql
       }
       time.Stop();
 
-      return new ChangeResult($"Processed in {time.ElapsedMs:n0} ms", 200, result);
+      return new ChangeResult(ChangeResult.ChangeType.Processed, result.Count, $"Processed in {time.ElapsedMs:n0} ms", result, 200);
     }
     #endregion
 

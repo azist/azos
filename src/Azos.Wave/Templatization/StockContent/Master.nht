@@ -61,11 +61,11 @@
     pre{
         font-family: monospace;
         font-size: 12px;
-        padding: 6px;
+        padding: 8px;
         border: 1px solid #e8efef;
-        background: #f0f0f8;
-        color: #a080e0;
-        border-radius: 4px;
+        background: #e4e4e4;
+        color: #646464;
+        border-radius: 8px;
         margin: 2px;
         overflow: auto;
     }
@@ -184,17 +184,17 @@
 
     td{
       padding: 4px;
-      border-right: 1px solid #e4e8e8;
-      color: #525252;
+      border-right: 1px solid #e0e0e0;
+      color: #7a7a7a;
     }
 
-    tr:nth-child(even) {background-color: #e8f0f4;}
+    tr:nth-child(even) {background-color: #f0f0f0;}
 
     thead{
-     background: #e0e4e8;
-     color: #484848;
+     background: #e8e8e8;
+     color: #a8a8a8;
      padding: 4px;
-     border-right: 1px solid #e4e8e8;
+     border-right: 1px solid #e0e0e0;
     }
 
 
@@ -207,7 +207,6 @@
     .text-hi-red   { text-shadow: 0px 0px 8px #f84010; }
     .text-hi-green { text-shadow: 0px 0px 8px #30d410; }
     .text-hi-yellow{ text-shadow: 0px 0px 8px #b8c800; }
-
 
 </style>
 
