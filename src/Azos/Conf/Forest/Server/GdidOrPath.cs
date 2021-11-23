@@ -16,7 +16,7 @@ namespace Azos.Conf.Forest.Server
   public struct GdidOrPath : IEquatable<GdidOrPath>
   {
     public static GdidOrPath OfGVersion(EntityId id)
-      => new GdidOrPath(id).IsTrue(v => v.Id.IsGNode(), $"`{Constraints.SCH_GVER}` schema");
+      => new GdidOrPath(id).IsTrue(v => v.Id.IsGVersion(), $"`{Constraints.SCH_GVER}` schema");
 
     public static GdidOrPath OfGNode(EntityId id)
       => new GdidOrPath(id).IsTrue(v => v.Id.IsGNode(), $"`{Constraints.SCH_GNODE}` schema");
