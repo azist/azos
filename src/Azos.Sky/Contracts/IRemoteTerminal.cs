@@ -8,7 +8,7 @@ using System;
 using Azos.Data;
 using Azos.Glue;
 using Azos.Serialization.JSON;
-using Azos.Sky.Security.Permissions.Admin;
+using Azos.Security.Admin;
 
 namespace Azos.Sky.Contracts
 {

@@ -13,7 +13,7 @@ using Azos.Wave;
 using Azos.Wave.Mvc;
 
 using Azos.Apps.Terminal;
-using Azos.Sky.Security.Permissions.Admin;
+using Azos.Security.Admin;
 
 namespace Azos.Sky.WebManager.Controllers
 {

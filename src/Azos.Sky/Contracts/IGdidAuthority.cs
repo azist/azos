@@ -8,7 +8,7 @@ using System;
 using Azos.Glue;
 using Azos.Data;
 
-using Azos.Sky.Security.Permissions.Admin;
+using Azos.Security.Admin;
 using System.IO;
 
 namespace Azos.Sky.Contracts

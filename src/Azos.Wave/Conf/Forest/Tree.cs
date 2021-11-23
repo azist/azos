@@ -8,10 +8,9 @@ using System;
 using System.Threading.Tasks;
 
 using Azos.Apps.Injection;
-using Azos.Conf.Forest;
 using Azos.Data;
 using Azos.Data.Business;
-using Azos.Security.Permissions.Config;
+using Azos.Security.Config;
 using Azos.Wave.Mvc;
 
 namespace Azos.Conf.Forest.Server

@@ -4,9 +4,7 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using Azos.Security;
-
-namespace Azos.Sky.Security.Permissions.Admin
+namespace Azos.Security.Admin
 {
   /// <summary>
   /// Controls whether users can access remote terminals
@@ -17,7 +15,7 @@ namespace Azos.Sky.Security.Permissions.Admin
 
       public override string Description
       {
-          get { return StringConsts.PERMISSION_DESCRIPTION_RemoteTerminalOperatorPermission; }
+          get { return Sky.StringConsts.PERMISSION_DESCRIPTION_RemoteTerminalOperatorPermission; }
       }
   }
 }

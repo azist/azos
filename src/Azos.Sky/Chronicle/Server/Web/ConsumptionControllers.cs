@@ -9,8 +9,7 @@ using System.Threading.Tasks;
 
 using Azos.Log;
 using Azos.Platform;
-using Azos.Security;
-using Azos.Sky.Security.Permissions.Chronicle;
+using Azos.Security.Chronicle;
 using Azos.Wave.Mvc;
 using Azos.Web;
 
