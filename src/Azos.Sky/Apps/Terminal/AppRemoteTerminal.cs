@@ -17,7 +17,7 @@ using Azos.Security;
 
 using Azos.Sky;
 using Azos.Sky.Contracts;
-using Azos.Sky.Security.Permissions.Admin;
+using Azos.Security.Admin;
 using Azos.IO.Console;
 
 namespace Azos.Apps.Terminal
