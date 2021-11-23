@@ -215,6 +215,18 @@ namespace Azos.Conf.Forest.Server
 
       return new ChangeResult(ChangeResult.ChangeType.Deleted, change.AffectedCount, "Deleted", change.Data);
     }
+
+    /// <inheritdoc/>
+    public async Task PurgeAsync(Atom idForest, Atom idTree)
+    {
+      idForest.HasRequiredValue(nameof(idForest));
+      idTree.HasRequiredValue(nameof(idForest));
+      App.Authorize(TreePurgePermission.Instance);
+      var tree = new TreePtr(idForest, idTree);
+
+      var qry = new Query<Doc>("Tree.Purge");
+      await m_Data.TreeExecuteAsync(tree, qry);
+    }
     #endregion
 
     #region pvt

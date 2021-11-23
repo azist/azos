@@ -110,6 +110,14 @@ namespace Azos.Conf.Forest
     /// <param name="startUtc">Timestamp as of which the node becomes logically deleted</param>
     /// <returns>ChangeResult</returns>
     Task<ChangeResult> DeleteNodeAsync(EntityId id, DateTime? startUtc = null);
+
+    /// <summary>
+    /// Physically deletes all data from the specified forest tree.
+    /// The tree is returned to the state as-if just created anew.
+    /// The data loss is unrecoverable.
+    /// Requires additional <see cref="Security.Config.TreePurgePermission"/> granted to the caller
+    /// </summary>
+    Task PurgeAsync(Atom idForest, Atom idTree);
   }
 }
 
