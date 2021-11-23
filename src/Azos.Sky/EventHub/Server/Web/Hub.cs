@@ -11,7 +11,7 @@ using Azos.Apps.Injection;
 using Azos.Wave;
 using Azos.Wave.Mvc;
 
-using Azos.Sky.Security.Permissions.EventHub;
+using Azos.Security.EventHub;
 
 namespace Azos.Sky.EventHub.Server.Web
 {

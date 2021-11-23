@@ -8,9 +8,8 @@ using Azos.Apps;
 using Azos.Data;
 using Azos.Data.Access;
 using Azos.Data.Business;
-using Azos.Data.Modeling.DataTypes;
 using Azos.Platform;
-using Azos.Security.Permissions.Config;
+using Azos.Security.Config;
 using Azos.Serialization.JSON;
 using System;
 using System.Collections.Generic;
@@ -215,6 +214,18 @@ namespace Azos.Conf.Forest.Server
       var change = await this.SaveNodeAsync(tombstone).ConfigureAwait(false);
 
       return new ChangeResult(ChangeResult.ChangeType.Deleted, change.AffectedCount, "Deleted", change.Data);
+    }
+
+    /// <inheritdoc/>
+    public async Task PurgeAsync(Atom idForest, Atom idTree)
+    {
+      idForest.HasRequiredValue(nameof(idForest));
+      idTree.HasRequiredValue(nameof(idForest));
+      App.Authorize(TreePurgePermission.Instance);
+      var tree = new TreePtr(idForest, idTree);
+
+      var qry = new Query<Doc>("Tree.Purge");
+      await m_Data.TreeExecuteAsync(tree, qry);
     }
     #endregion
 
