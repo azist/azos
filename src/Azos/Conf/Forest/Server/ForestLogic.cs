@@ -134,7 +134,7 @@ namespace Azos.Conf.Forest.Server
       if (parent == null)
       {
         state = new ValidState(state, new FieldValidationException(node, nameof(node.G_Parent),
-           "Parent entity `{0}` is not found as of the requested StartUtc of `{1}`. Create parent entity first".Args(id, node.StartUtc)));
+           "Parent node `{0}` is not found as of the requested StartUtc of `{1}`. Create parent node first".Args(id, node.StartUtc)));
       }
       return state;
     }
