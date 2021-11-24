@@ -129,17 +129,13 @@ namespace Azos.Conf.Forest.Server
     /// <inheritdoc/>
     public async Task<ValidState> ValidateNodeAsync(TreeNode node, ValidState state)
     {
-#warning Implement ValidateNodeAsync method logic
-      //todo: prevent recursive definitions etc...
-
-      //var parent = await this.GetNodeInfoAsync(cnode.ParentId, cnode.StartUtc, CacheParams.ReadFreshWriteSec(60)).ConfigureAwait(false);
-      //if (parent == null)
-      //{
-      //  state = new ValidState(state, new FieldValidationException(cnode, nameof(cnode.ParentId),
-      //     "Parent entity `{0}` is not found as of the requested StartUtc of `{1}`. Create parent entity first".Args(cnode.ParentId, cnode.StartUtc)));
-      //}
-
-
+      var id = new EntityId(node.Id.System, node.Id.Type, Constraints.SCH_GNODE, node.G_Parent.ToString());
+      var parent = await this.GetNodeInfoAsync(id, node.StartUtc, CacheParams.ReadFreshWriteSec(60)).ConfigureAwait(false);
+      if (parent == null)
+      {
+        state = new ValidState(state, new FieldValidationException(node, nameof(node.G_Parent),
+           "Parent entity `{0}` is not found as of the requested StartUtc of `{1}`. Create parent entity first".Args(id, node.StartUtc)));
+      }
       return state;
     }
 
