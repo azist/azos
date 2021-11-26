@@ -111,6 +111,7 @@ namespace Azos.Conf.Forest
     {
       var result = new TreeNode();
       result.Gdid = this.Gdid;
+      result.G_Parent = this.G_Parent;
       result.PathSegment = this.PathSegment;
       result.Properties = this.Properties.Content;//a copy
       result.Config = this.LevelConfig.Content;//a copy

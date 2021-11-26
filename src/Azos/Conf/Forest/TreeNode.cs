@@ -21,7 +21,7 @@ namespace Azos.Conf.Forest
   /// in the config forest data store
   /// </summary>
   [Bix("a5950275-e12f-4f6c-83b7-1f6862ac3308")]
-  //[UniqueSequence("azos", "forest")]
+  ////[UniqueSequence("azos", "forest")]
   public sealed class TreeNode : PersistedEntity<IForestSetupLogic, ChangeResult>
   {
     /// <summary>
@@ -37,7 +37,7 @@ namespace Azos.Conf.Forest
     public Atom Tree { get; set; }
 
     public override EntityId Id => !Forest.IsZero && Forest.IsValid
-                                      ? new EntityId(Forest, Tree, Constraints.SCH_GNODE, this.Gdid.ToString()) 
+                                      ? new EntityId(Forest, Tree, Constraints.SCH_GNODE, this.Gdid.ToString())
                                       : EntityId.EMPTY;
 
     [Field(Description = "Parent node id, root has GDID.ZERO")]
@@ -127,7 +127,7 @@ namespace Azos.Conf.Forest
     protected override Task DoBeforeSaveAsync()
     {
       // Not needed as we overide the logic below because we generate gdid differently here using forest ns
-      ////await base.DoBeforeSaveAsync().ConfigureAwait(false); 
+      ////await base.DoBeforeSaveAsync().ConfigureAwait(false);
 
       //Generate new GDID only AFTER all checks are passed not to waste gdid instance
       //in case of validation errors
