@@ -4,17 +4,30 @@
 create table tbl_user
 (
   `GDID`       BINARY(12)        not null comment 'User Account Immutable UK',
-  `GUID`       BINARY(16)        not null comment 'User Account Immutable Guid Network Byte Order, used for Chronicle REL',
+  `GUID`       BINARY(16)        not null comment 'User Account Immutable Guid Network Byte Order, used for Chronicle (co)REL(ation)',
   `REALM`      BIGINT UNSIGNED   not null comment 'Realm Atom',
 
-  //name, description etc...
   //where is LOCKED information?
-  `LEVEL`      CHAR(1)                    comment 'User level: I|U|A|S',
+  `NAME`       VARCHAR(64)       not null comment 'User name',
+  `LEVEL`      CHAR(1)                    comment 'User archetype access level: I|U|A|S',
+  `DESCRIPTION` VARCHAR(128)     not null comment 'User name',
 
   `START_UTC`  datetime       not null    comment 'When user privilege takes effect',
   `END_UTC`    datetime       not null    comment 'When user privilege stops',
-  `RIGHTS`            MEDIUMTEXT          comment 'Rights override or null',
+  `ORG_UNIT`   varchar(256)               comment 'Tree path for org unit. So the user list may be searched by it',
+  `PROPS`      MEDIUMTEXT     not null    comment 'Properties such as tree connections (e.g. roles) and claims',
+  `RIGHTS`     MEDIUMTEXT          comment 'User-specific Rights override or null for default rights',
 
+  `NOTE`       MEDIUMTEXT          comment 'Free form text notes associated with the account',
+
+  `CREATE_UTC`    DATETIME       not null comment 'Creation UTC timestamp',
+  `CREATE_ORIGIN` BIGINT UNSIGNED  not null comment 'Cloud partition where this record first originated from',
+  `CREATE_ACTOR`  varchar(256)   not null comment 'Who created the record',
+
+  `LOCK_START_UTC` DATETIME           comment 'Lock timestamp, if set the account is inactive past that timestamp, until LOCK_END_UTC',
+  `LOCK_END_UTC`   DATETIME           comment 'If present, resets lock after that point in time',
+  `LOCK_ACTOR`     varchar(256)       comment 'Who locked the user account',
+  `LOCK_NOTE`      VARCHAR(128)       comment 'Short note explaining lock reason/status',
 
   `VERSION_UTC`    DATETIME       not null comment 'Version UTC timestamp',
   `VERSION_ORIGIN` BIGINT UNSIGNED  not null comment 'Cloud partition where this version originated from',
@@ -27,7 +40,10 @@ create table tbl_user
 ;.
 
 delimiter ;.
-  create unique index `idx_tbl_user_guid` on `tbl_user`(`GUID`);.
+  create unique index `idx_tbl_user_ukguid` on `tbl_user`(`GUID`);.
+
+delimiter ;.
+  create index `idx_tbl_user_org` on `tbl_user`(`ORG_UNIT`);.
 
 
 delimiter ;.
@@ -62,7 +78,7 @@ create table tbl_login
 delimiter ;.
   create unique index `idx_tbl_login_uk1` on `tbl_login`(`REALM`, `ID`, `TID`, `PROVIDER`);.
 
-
+//Is this even needed here?
 create table tbl_loginstatus
 (
   `GDID`      BINARY(12)        not null comment 'Login UK, status uses the same GDID as Login entity',
