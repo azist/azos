@@ -24,4 +24,9 @@
     <ProjectReference Include="..\..\Azos.Wave\Azos.Wave.csproj" />
     <ProjectReference Include="..\Azos.AuthKit\Azos.AuthKit.csproj" />
   </ItemGroup>
+
+
+  <ItemGroup>
+    <Folder Include="Queries\" />
+  </ItemGroup>
 </Project>
