@@ -30,7 +30,7 @@ create table tbl_user
 
   `VERSION_UTC`    DATETIME       not null comment 'Version UTC timestamp',
   `VERSION_ORIGIN` BIGINT UNSIGNED  not null comment 'Cloud partition where this version originated from',
-  `VERSION_ACTOR`  varchar(256)   not null comment 'Who made the change',
+  `VERSION_ACTOR`  VARCHAR(256)   not null comment 'Who made the change',
   `VERSION_STATE`  CHAR(1)        not null comment 'The state of data: Inserted/Updated/Deleted',
 
   constraint `pk_tbl_user_pk` primary key (`GDID`),
@@ -80,7 +80,7 @@ create table tbl_login
   `VERSION_STATE`  CHAR(1)        not null comment 'The state of data: Inserted/Updated/Deleted',
 
   constraint `pk_tbl_login_primary` primary key (`GDID`),
-  constraint `fk_tbl_login_user` foreign key (`G_USER`) references `tbl_user`(`GDID`),
+  constraint `fk_tbl_login_user` foreign key (`G_USER`) references `tbl_user`(`GDID`)
 )
    comment = 'Stores user account login information'
 ;.
@@ -90,19 +90,30 @@ delimiter ;.
 
 create table tbl_loginstatus
 (
-  `GDID`      BINARY(12)        not null comment 'Login UK, status uses the same GDID as Login entity',
+  `G_LOGIN`      BINARY(12)        not null comment 'Login UK, status uses the same GDID as Login entity',
 
-  `PWD_DATE_UTC`    DATETIME    not null comment 'When pwd was set last time',
-  --pwd confirm data {date, method, history} etc.. used by Policy (loaded from tree)
+  `PWD_SET_UTC`  DATETIME     comment 'When pwd was set last time',
+  `CONFIRM_UTC`  DATETIME     comment 'When account was confirmed for the last time',
+  `PROPS`        MEDIUMTEXT   comment 'Optional properties such as confirmation attributes, etc.',
 
-  `LAST_OK_UTC`    DATETIME      comment 'Last correct login timestamp or null',
-  `LAST_OK_ADDR`   VARCHAR(32)   comment 'Last correct login timestamp or null',
-  `LAST_OK_AGENT`  VARCHAR(256)  comment 'Last correct login user agent or null',
+  `OK_UTC`    DATETIME      comment 'Last correct login timestamp or null',
+  `OK_ADDR`   VARCHAR(64)   comment 'Last correct login timestamp or null',
+  `OK_AGENT`  VARCHAR(256)  comment 'Last correct login user agent or null',
 
-  `LAST_BAD_UTC`    DATETIME         comment 'Last bad login timestamp or null',
-  `LAST_BAD_ADDR`   VARCHAR(32)      comment 'Last bad login timestamp or null',
-  `LAST_BAD_AGENT`  VARCHAR(256)     comment 'Last bad login user agent or null',
-  `BAD_COUNT`       INT              comment 'Consecutive incorrect login count',
+  `BAD_CAUSE`  BIGINT UNSIGNED  comment 'Last bad login cause atom',
+  `BAD_UTC`    DATETIME         comment 'Last bad login timestamp or null',
+  `BAD_ADDR`   VARCHAR(64)      comment 'Last bad login timestamp or null',
+  `BAD_AGENT`  VARCHAR(256)     comment 'Last bad login user agent or null',
+  `BAD_COUNT`  INT              comment 'Consecutive incorrect login count',
+
+  constraint `pk_tbl_loginstatus_primary` primary key (`G_LOGIN`),
+  constraint `fk_tbl_loginstatus_login` foreign key (`G_LOGIN`) references `tbl_login`(`GDID`)
 )
-   comment = 'LoginStatus keeps Login volatile information to lessen the replication load Login:LoginStatus = 1:1 (same GDID)'
+   comment = 'LoginStatus keeps the last known snapshot of log-in volatile information to lessen the replication load Login:LoginStatus = 1:1 (same GDID)'
 ;.
+
+delimiter ;.
+  create index `idx_tbl_loginstatus_badutc` on `tbl_user`(`BAD_UTC`);.
+
+delimiter ;.
+  create index `idx_tbl_loginstatus_badaddr` on `tbl_user`(`BAD_ADDR`);.
