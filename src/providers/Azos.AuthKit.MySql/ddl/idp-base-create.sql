@@ -33,7 +33,7 @@ create table tbl_user
   `VERSION_ACTOR`  VARCHAR(256)   not null comment 'Who made the change',
   `VERSION_STATE`  CHAR(1)        not null comment 'The state of data: Inserted/Updated/Deleted',
 
-  constraint `pk_tbl_user_pk` primary key (`GDID`),
+  constraint `pk_tbl_user_pk` primary key (`GDID`)
 )
     comment = 'Stores user accounts'
 ;.
@@ -58,7 +58,7 @@ create table tbl_login
   `G_USER`     BINARY(12)        not null comment 'FK to USER ACCOUNT table',
   `LEVEL_DOWN` CHAR(1)                    comment 'User level restriction: I|U|A',
 
-  `ID`         VARCHAR(2048)     not null comment 'Login ID, or provider key',
+  `ID`         VARCHAR(700)     not null comment 'Login ID, or provider key',
   `TID`        BIGINT UNSIGNED   not null comment 'Login Type Atom',
   `PROVIDER`   BIGINT UNSIGNED   not null comment 'Login provider, e.g.  AZOS, FBK, TWT, AD, SYSTEM X etc.. or Atom.ZERO for not eternal provider',
   `PWD`        VARCHAR(2048)              comment 'Password vector, or NULL for providers who dont need it',
@@ -113,7 +113,7 @@ create table tbl_loginstatus
 ;.
 
 delimiter ;.
-  create index `idx_tbl_loginstatus_badutc` on `tbl_user`(`BAD_UTC`);.
+  create index `idx_tbl_loginstatus_badutc` on `tbl_loginstatus`(`BAD_UTC`);.
 
 delimiter ;.
-  create index `idx_tbl_loginstatus_badaddr` on `tbl_user`(`BAD_ADDR`);.
+  create index `idx_tbl_loginstatus_badaddr` on `tbl_loginstatus`(`BAD_ADDR`);.

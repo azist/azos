@@ -19,7 +19,7 @@ namespace Azos.AuthKit
     public const int USER_DESCR_MIN_LEN = 1;
     public const int USER_DESCR_MAX_LEN = 128;
 
-    public const int LOGIN_ID_MAX_LEN = 2048;
+    public const int LOGIN_ID_MAX_LEN = 700;
 
     public const int LOGIN_PWD_MIN_LEN = 2;// { }
     public const int LOGIN_PWD_MAX_LEN = 2048;// { }
