@@ -12,7 +12,7 @@ namespace Azos.Sky.EventHub
   /// </summary>
   public enum DataLossMode
   {
-    /// <summary> (Default) Writes to/read from 3 nodes = prevents temporal failures between the two nodes via the 3rd node</summary>
+    /// <summary> (Default) Writes to/reads from 3 nodes = prevents temporal failures between the two nodes via the 3rd node</summary>
     Default = 0,
 
     /// <summary> Fastest - only one node gets written to/read from </summary>

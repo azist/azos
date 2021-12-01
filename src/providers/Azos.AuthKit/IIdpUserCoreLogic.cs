@@ -7,15 +7,15 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Threading.Tasks;
 
 using Azos.Data.Business;
 
 namespace Azos.AuthKit
 {
-  public interface IUserManagementLogic : IBusinessLogic
+  /// <summary>
+  /// Outlines core functionality for working with user accounts
+  /// </summary>
+  public interface IIdpUserCoreLogic : IBusinessLogic
   {
-    //Task<IEnumerable<UserInfo>> GetUserListAsync(UserListFilter filter);
-
   }
 }
