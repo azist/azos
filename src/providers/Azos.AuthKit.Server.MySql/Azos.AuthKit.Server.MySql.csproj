@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Description>Azos.AuthKit.MySql - AuthKit implementations related t MySql backed store technology</Description>
+    <Description>Azos.AuthKit.Server.MySql - AuthKit implementations related t MySql backed store technology</Description>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -19,10 +19,7 @@
 
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Azos\Azos.csproj" />
-    <ProjectReference Include="..\..\Azos.Web\Azos.Web.csproj" />
-    <ProjectReference Include="..\..\Azos.Wave\Azos.Wave.csproj" />
-    <ProjectReference Include="..\Azos.AuthKit\Azos.AuthKit.csproj" />
+    <ProjectReference Include="..\Azos.AuthKit.Server\Azos.AuthKit.Server.csproj" />
     <ProjectReference Include="..\Azos.MySql\Azos.MySql.csproj" />
   </ItemGroup>
 

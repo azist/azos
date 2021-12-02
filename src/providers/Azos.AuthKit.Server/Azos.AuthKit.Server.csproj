@@ -20,9 +20,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Azos.Sky\Azos.Sky.csproj" />
-    <ProjectReference Include="..\..\Azos\Azos.csproj" />
-    <ProjectReference Include="..\..\Azos.Web\Azos.Web.csproj" />
     <ProjectReference Include="..\..\Azos.Wave\Azos.Wave.csproj" />
+    <ProjectReference Include="..\..\Azos.Web\Azos.Web.csproj" />
     <ProjectReference Include="..\Azos.AuthKit\Azos.AuthKit.csproj" />
   </ItemGroup>
 
