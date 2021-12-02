@@ -9,6 +9,11 @@ using Azos.Data.Business;
 
 namespace Azos.Wave.Mvc
 {
+  /// <summary>
+  /// Establishes a base protocol for API controllers: filters yielding Info objects on post, saving models returning JSON with OK flags.
+  /// The controller works in conjunction with `UnwrapPayloadObject()`, `UnwrapPayloadArray()`, `UnwrapChangeResult()` Http response helpers
+  /// on the client side
+  /// </summary>
   [ApiControllerDoc(
     Connection = "default/keep alive",
     Title = "ApiProtocolController",
@@ -94,7 +99,7 @@ namespace Azos.Wave.Mvc
 
 
     /// <summary>
-    /// Maps ChangeResult returned by logic into HTTP status codes with proper {OK: true/false, change: { }}
+    /// Maps ChangeResult returned by logic into HTTP status codes with proper API protocol {OK: true/false, change: ...}
     /// </summary>
     public object GetLogicChangeResult(ChangeResult result)
     {
