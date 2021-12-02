@@ -94,7 +94,7 @@ namespace Azos.Wave.Mvc
 
 
     /// <summary>
-    /// Maps ChangeResult returned by logic into HTTP status codes
+    /// Maps ChangeResult returned by logic into HTTP status codes with proper {OK: true/false, change: { }}
     /// </summary>
     public object GetLogicChangeResult(ChangeResult result)
     {
