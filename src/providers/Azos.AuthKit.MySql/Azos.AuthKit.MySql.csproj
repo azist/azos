@@ -23,6 +23,7 @@
     <ProjectReference Include="..\..\Azos.Web\Azos.Web.csproj" />
     <ProjectReference Include="..\..\Azos.Wave\Azos.Wave.csproj" />
     <ProjectReference Include="..\Azos.AuthKit\Azos.AuthKit.csproj" />
+    <ProjectReference Include="..\Azos.MySql\Azos.MySql.csproj" />
   </ItemGroup>
 
 
