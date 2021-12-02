@@ -9,14 +9,21 @@ using System.Collections.Generic;
 using System.Text;
 
 using Azos.Apps;
+using Azos.Data.Access;
 using Azos.Security.MinIdp;
 
-namespace Azos.AuthKit
+namespace Azos.AuthKit.Server
 {
-  public sealed class IdpUserCoreMySqlLogic : ModuleBase, IIdpUserCoreLogic
+  /// <summary>
+  /// Embodies IIdpUserCoreLogic based on CRUD datastore solution
+  /// </summary>
+  public sealed class IdpUserCoreCrudDataLogic : ModuleBase, IIdpUserCoreLogic
   {
-    public IdpUserCoreMySqlLogic(IApplication application) : base(application) { }
-    public IdpUserCoreMySqlLogic(IModule parent) : base(parent) { }
+    public IdpUserCoreCrudDataLogic(IApplication application) : base(application) { }
+    public IdpUserCoreCrudDataLogic(IModule parent) : base(parent) { }
+
+
+    private ICrudDataStore m_Data;
 
     public bool IsServerImplementation => true;
 

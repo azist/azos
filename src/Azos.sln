@@ -163,7 +163,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "tv", "runtimes\core\tv\tv.c
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.AuthKit", "providers\Azos.AuthKit\Azos.AuthKit.csproj", "{C1CA5780-86B9-4A07-87A7-50C2306F6B58}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Azos.AuthKit.MySql", "providers\Azos.AuthKit.MySql\Azos.AuthKit.MySql.csproj", "{ECF59439-17B0-45CA-8304-779E12949A28}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.AuthKit.MySql", "providers\Azos.AuthKit.MySql\Azos.AuthKit.MySql.csproj", "{ECF59439-17B0-45CA-8304-779E12949A28}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Azos.AuthKit.Server", "providers\Azos.AuthKit.Server\Azos.AuthKit.Server.csproj", "{4464552F-613C-492B-A686-2FF0D43F4CB6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -427,6 +429,10 @@ Global
 		{ECF59439-17B0-45CA-8304-779E12949A28}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ECF59439-17B0-45CA-8304-779E12949A28}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ECF59439-17B0-45CA-8304-779E12949A28}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4464552F-613C-492B-A686-2FF0D43F4CB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4464552F-613C-492B-A686-2FF0D43F4CB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4464552F-613C-492B-A686-2FF0D43F4CB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4464552F-613C-492B-A686-2FF0D43F4CB6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -492,6 +498,7 @@ Global
 		{1ADD1C2B-40AC-4DA4-BF9D-9AAF8688A7F3} = {ABC662BC-C8F5-4D1F-A411-E45DCFC5417E}
 		{C1CA5780-86B9-4A07-87A7-50C2306F6B58} = {608A6011-035A-4E1C-A1EB-29F91960A5BD}
 		{ECF59439-17B0-45CA-8304-779E12949A28} = {608A6011-035A-4E1C-A1EB-29F91960A5BD}
+		{4464552F-613C-492B-A686-2FF0D43F4CB6} = {608A6011-035A-4E1C-A1EB-29F91960A5BD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {75EF590C-FE75-45E7-B941-B225EF484F5F}

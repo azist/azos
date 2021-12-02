@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Description>Azos.AuthKit - IDP/Authorization Server</Description>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>..\..\..\out\Debug\</OutputPath>
+    <DocumentationFile>..\..\..\out\Debug\Azos.AuthKit.Server.xml</DocumentationFile>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>..\..\..\out\Release\</OutputPath>
+    <DocumentationFile>..\..\..\out\Release\Azos.AuthKit.Server.xml</DocumentationFile>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Azos.Sky\Azos.Sky.csproj" />
+    <ProjectReference Include="..\..\Azos\Azos.csproj" />
+    <ProjectReference Include="..\..\Azos.Web\Azos.Web.csproj" />
+    <ProjectReference Include="..\..\Azos.Wave\Azos.Wave.csproj" />
+    <ProjectReference Include="..\Azos.AuthKit\Azos.AuthKit.csproj" />
+  </ItemGroup>
+
+</Project>
