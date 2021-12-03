@@ -21,32 +21,23 @@ namespace Azos.AuthKit
   /// </summary>
   public sealed class MinIdpCoreStore : DaemonWithInstrumentation<IApplicationComponent>, IMinIdpStoreImplementation
   {
-    public MinIdpCoreStore(IApplicationComponent dir) : base(dir)
-    {
-    }
+    public MinIdpCoreStore(IApplicationComponent dir) : base(dir) { }
 
-    [Inject]
-    private IIdpUserCoreLogic m_Logic;
+    [Inject] IIdpUserCoreLogic m_Logic;
 
-    public ICryptoMessageAlgorithm MessageProtectionAlgorithm => throw new NotImplementedException();
+    public ICryptoMessageAlgorithm MessageProtectionAlgorithm => m_Logic.MessageProtectionAlgorithm;
 
-    public override bool InstrumentationEnabled { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+    public override bool InstrumentationEnabled { get => false; set { } }
 
-    public override string ComponentLogTopic => throw new NotImplementedException();
+    public override string ComponentLogTopic => m_Logic.ComponentLogTopic;
 
-    public Task<MinIdpUserData> GetByIdAsync(Atom realm, string id, AuthenticationRequestContext ctx)
-    {
-      throw new NotImplementedException();
-    }
+    public async Task<MinIdpUserData> GetByIdAsync(Atom realm, string id, AuthenticationRequestContext ctx)
+      => !Running ? null : await m_Logic.GetByIdAsync(realm, id, ctx).ConfigureAwait(false);
 
-    public Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri, AuthenticationRequestContext ctx)
-    {
-      throw new NotImplementedException();
-    }
+    public async Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri, AuthenticationRequestContext ctx)
+      => !Running ? null : await m_Logic.GetByUriAsync(realm, uri, ctx).ConfigureAwait(false);
 
-    public Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken, AuthenticationRequestContext ctx)
-    {
-      throw new NotImplementedException();
-    }
+    public async Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken, AuthenticationRequestContext ctx)
+      => !Running ? null : await m_Logic.GetBySysAsync(realm, sysToken, ctx).ConfigureAwait(false);
   }
 }

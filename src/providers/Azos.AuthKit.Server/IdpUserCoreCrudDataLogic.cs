@@ -7,9 +7,10 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-
+using System.Threading.Tasks;
 using Azos.Apps;
 using Azos.Data.Access;
+using Azos.Security;
 using Azos.Security.MinIdp;
 
 namespace Azos.AuthKit.Server
@@ -30,5 +31,22 @@ namespace Azos.AuthKit.Server
     public override bool IsHardcodedModule => false;
 
     public override string ComponentLogTopic => throw new NotImplementedException();
+
+    public ICryptoMessageAlgorithm MessageProtectionAlgorithm => throw new NotImplementedException();
+
+    public Task<MinIdpUserData> GetByIdAsync(Atom realm, string id, AuthenticationRequestContext ctx)
+    {
+      throw new NotImplementedException();
+    }
+
+    public Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri, AuthenticationRequestContext ctx)
+    {
+      throw new NotImplementedException();
+    }
+
+    public Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken, AuthenticationRequestContext ctx)
+    {
+      throw new NotImplementedException();
+    }
   }
 }
