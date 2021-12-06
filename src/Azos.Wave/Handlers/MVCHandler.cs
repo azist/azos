@@ -64,7 +64,7 @@ namespace Azos.Wave.Handlers
                                         WebConsts.STATUS_404_DESCRIPTION,
                                         StringConsts.MVC_CONTROLLER_ACTION_UNMATCHED_HANDLER_ERROR.Args(target.GetType().FullName, action));
 
-        Security.Permission.AuthorizeAndGuardAction(App, mi, work.Session, () => work.NeedsSession());
+        Security.Permission.AuthorizeAndGuardAction(App.SecurityManager, mi, work.Session, () => work.NeedsSession());
 
         object result = null;
 

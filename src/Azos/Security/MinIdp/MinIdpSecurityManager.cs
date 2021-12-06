@@ -160,7 +160,7 @@ namespace Azos.Security.MinIdp
       if (Realm.Value.EqualsOrdSenseCase(token.Realm))
       {
         var data = await m_Store.GetBySysAsync(Realm, token.Data, ctx).ConfigureAwait(false);
-        if (data!=null)
+        if (data != null)
         {
           var user = TryAuthenticateUser(data);
           if (user != null) return user;

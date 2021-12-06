@@ -20,6 +20,7 @@ namespace Azos.Security.Services
   {
     public const string CONFIG_CLIENT_SECURITY_SECTION = "client-security";
     public const string CONFIG_TOKEN_RING_SECTION = "token-ring";
+    public const string CONFIG_OPTIONS_SECTION = "options";
     public const string GATE_VAR_ERRORS = "oauth_Errors";
     public const string GATE_VAR_INVALID_USER = "oauth_InvalidUser";
     public const int MAX_AUTHROIZE_ROUNDTRIP_AGE_SEC_MIN = 30;
@@ -34,6 +35,7 @@ namespace Azos.Security.Services
 
     private ISecurityManagerImplementation m_ClientSecurity;
     private ITokenRingImplementation m_TokenRing;
+    private IConfigSectionNode m_Options = Configuration.NewEmptyRoot();
     private string m_SupportedScopes;
     private HashSet<string> m_SupportedScopesSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
     private int m_MaxAuthorizeRoundtripAgeSec = MAX_AUTHROIZE_ROUNDTRIP_AGE_SEC_DFLT;
@@ -77,6 +79,12 @@ namespace Azos.Security.Services
     [Config]
     public int RefreshTokenLifespanSec { get; set; }
 
+    [Config]
+    public string SsoSessionName { get; set; }
+
+    public IConfigSectionNode Options => m_Options;
+
+
     public bool CheckScope(string scope)
     {
       if (scope.IsNullOrWhiteSpace()) return m_SupportedScopesSet.Count==0;
@@ -91,6 +99,18 @@ namespace Azos.Security.Services
     {
       base.DoConfigure(node);
       if (node==null || !node.Exists) return;
+
+      var noptions = node[CONFIG_OPTIONS_SECTION];
+      if (noptions.Exists)
+      {
+        var copt = new MemoryConfiguration();
+        copt.CreateFromNode(node[CONFIG_OPTIONS_SECTION]);
+        m_Options = copt.Root;
+      }
+      else
+      {
+        m_Options = Configuration.NewEmptyRoot("options");
+      }
 
       var nsec = node[CONFIG_CLIENT_SECURITY_SECTION];
       if (nsec.Exists)

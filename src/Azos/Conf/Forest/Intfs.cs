@@ -24,20 +24,14 @@ namespace Azos.Conf.Forest
   public interface IForestLogic : IBusinessLogic
   {
     /// <summary>
-    /// Retrieves all versions of the specified tree node identified by GDID.
-    /// You must use <see cref="Constraints.SCH_GNODE"/> address schema
+    /// Defaults Utc timestamp value from app time source when the supplied one is null, then
+    /// aligns the supplied or defaulted timestamp on the configured value for the optionally specified tree
+    /// if provided or the <see cref="Constraints.DEFAULT_POLICY_REFRESH_WINDOW_MINUTES"/>
     /// </summary>
-    /// <param name="id">Node Gdid is the only address schema supported</param>
-    /// <returns>List of versions of the specified path or null if such id does not exist</returns>
-    Task<IEnumerable<VersionInfo>> GetNodeVersionListAsync(EntityId id);
-
-    /// <summary>
-    /// Retrieves tree node information of the specified version.
-    /// Note: you must use <see cref="Constraints.SCH_GVER"/> address schema:  `region.gver@geo::0:0:345`
-    /// </summary>
-    /// <param name="idVersion">EntityId of version containing (system, type, gver: gVersion)</param>
-    /// <returns>NodeInfo or null if not found</returns>
-    Task<TreeNodeInfo> GetNodeInfoVersionAsync(EntityId idVersion);
+    /// <param name="v">UTC timestamp, or null to default the app-current time</param>
+    /// <param name="id">The optional EntityId of the tree targeted in the configuration policy</param>
+    /// <returns>Aligned dateTime</returns>
+    DateTime DefaultAndAlignOnPolicyBoundary(DateTime? v, EntityId? id = null);
 
     /// <summary>
     /// Retrieves a list trees in the specified forest
@@ -56,12 +50,12 @@ namespace Azos.Conf.Forest
     Task<IEnumerable<TreeNodeHeader>> GetChildNodeListAsync(EntityId idParent, DateTime? asOfUtc = null, ICacheParams cache = null);
 
     /// <summary>
-    /// Retrieves a node of corporate hierarchy by its id as of certain point in time
+    /// Retrieves a node of TreeNodeInfo by its id as of certain point in time
     /// </summary>
     /// <param name="id">Node id</param>
     /// <param name="asOfUtc">As of which point in time to retrieve the state, if null passed then current timestamp assumed</param>
     /// <param name="cache">Controls cache options used by the call, such as bypass cache etc.</param>
-    /// <returns>CorporateHierarchyNodeInfo-derived object for the requested level, null if such item is not found</returns>
+    /// <returns>TreeNodeInfo object or null if such item is not found</returns>
     Task<TreeNodeInfo> GetNodeInfoAsync(EntityId id, DateTime? asOfUtc = null, ICacheParams cache = null);
   }
 
@@ -72,6 +66,22 @@ namespace Azos.Conf.Forest
   /// </summary>
   public interface IForestSetupLogic : IForestLogic
   {
+    /// <summary>
+    /// Retrieves all versions of the specified tree node identified by GDID.
+    /// You must use <see cref="Constraints.SCH_GNODE"/> address schema
+    /// </summary>
+    /// <param name="id">Node Gdid is the only address schema supported</param>
+    /// <returns>List of versions of the specified path or null if such id does not exist</returns>
+    Task<IEnumerable<VersionInfo>> GetNodeVersionListAsync(EntityId id);
+
+    /// <summary>
+    /// Retrieves tree node information of the specified version.
+    /// Note: you must use <see cref="Constraints.SCH_GVER"/> address schema:  `region.gver@geo::0:0:345`
+    /// </summary>
+    /// <param name="idVersion">EntityId of version containing (system, type, gver: gVersion)</param>
+    /// <returns>NodeInfo or null if not found</returns>
+    Task<TreeNodeInfo> GetNodeInfoVersionAsync(EntityId idVersion);
+
     /// <summary>
     /// Performs complex validation steps on the supplied node before it gets saved.
     /// This method is called by the `TreeNode` instance as a part of save activity.
@@ -100,6 +110,14 @@ namespace Azos.Conf.Forest
     /// <param name="startUtc">Timestamp as of which the node becomes logically deleted</param>
     /// <returns>ChangeResult</returns>
     Task<ChangeResult> DeleteNodeAsync(EntityId id, DateTime? startUtc = null);
+
+    /// <summary>
+    /// Physically deletes all data from the specified forest tree.
+    /// The tree is returned to the state as-if just created anew.
+    /// The data loss is unrecoverable.
+    /// Requires additional <see cref="Security.Config.TreePurgePermission"/> granted to the caller
+    /// </summary>
+    Task PurgeAsync(Atom idForest, Atom idTree);
   }
 }
 

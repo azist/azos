@@ -11,7 +11,7 @@ using Azos.Apps.Injection;
 using Azos.Wave;
 using Azos.Wave.Mvc;
 
-using Azos.Sky.Security.Permissions.EventHub;
+using Azos.Security.EventHub;
 
 namespace Azos.Sky.EventHub.Server.Web
 {
@@ -43,7 +43,7 @@ namespace Azos.Sky.EventHub.Server.Web
     public async Task<object> PostEvent(Atom ns, Atom queue, Event evt)
     {
       var changeResult = await m_Server.WriteAsync(ns, queue, evt).ConfigureAwait(false);
-      return new {OK = true, data = changeResult};
+      return GetLogicChangeResult(changeResult);
     }
 
     [ApiEndpointDoc(Title = "Feed",

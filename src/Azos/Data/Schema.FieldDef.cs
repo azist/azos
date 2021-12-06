@@ -26,7 +26,11 @@ namespace Azos.Data
     public sealed class FieldDef : INamed, IOrdered, ISerializable, IJsonWritable
     {
       public FieldDef(string name, Type type, FieldAttribute attr)
-       => ctor(name, 0, type, new[] { attr }, null);
+      {
+        //https://github.com/azist/azos/issues/609#issuecomment-969580460
+        if (attr == null) attr = new FieldAttribute(targetName: TargetedAttribute.ANY_TARGET);
+        ctor(name, 0, type, new[] { attr }, null);
+      }
 
       public FieldDef(string name, Type type, IEnumerable<FieldAttribute> attrs)
        => ctor(name, 0, type, attrs, null);

@@ -1,4 +1,10 @@
-﻿CREATE TABLE [MIDP_ROLE]
+﻿
+-- ILLUSTRATION PURPOSES ONLY
+-- MS SQL MINIDP is not supported at this time
+
+ *  *  *  D E M O  *  *  *
+
+CREATE TABLE [MIDP_ROLE]
 (
   [ID]      nvarchar(25)    NOT NULL,
   [REALM]   bigint          NOT NULL,

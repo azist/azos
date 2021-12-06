@@ -25,7 +25,7 @@ namespace Azos.Sky.EventHub
 
     /// <summary>
     /// Specifies ShardKey how this event should be routed for processing in terms of partitioning across shards.
-    /// A queue may contain more than one partition - be sharded in which case this function returns a
+    /// A queue may contain more than one partition - be sharded, in which case this function returns a
     /// sharding key derived from this event document state
     /// </summary>
     public abstract ShardKey GetEventPartition();

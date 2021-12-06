@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Azos.Conf;
 using Azos.Data;
 using Azos.Data.Access;
+using Azos.Data.Business;
 
 namespace Azos
 {
@@ -185,5 +186,41 @@ namespace Azos
       if (p == null || p.Value == null || p.Value is DBNull || p.Value is AbsentValue) return defaultValue;
       return p.Value.CastTo<T>($"Query `{qry.Name}`[`{pName}`]");
     }
+
+    /// <summary>
+    /// Creates new version stamp - an instance of VersionInfo object initialized with callers context
+    /// </summary>
+    /// <param name="app">Operation context</param>
+    /// <param name="gdidScopeName">GDID generation scope name - use EntityIds.ID_NS* constant</param>
+    /// <param name="gdidSeqName">GDID generation sequence name - use EntityIds.ID_SEQ* constant</param>
+    /// <param name="mode">Form model mode</param>
+    /// <returns>New instance of VersionInfo with generated GDID and other fields stamped from context</returns>
+    public static VersionInfo MakeVersionInfo(this IApplication app, string gdidScopeName, string gdidSeqName, FormMode mode)
+    {
+      var state = VersionInfo.DataState.Undefined;
+      switch (mode)
+      {
+        case FormMode.Insert: state = VersionInfo.DataState.Created; break;
+        case FormMode.Update: state = VersionInfo.DataState.Updated; break;
+        case FormMode.Delete: state = VersionInfo.DataState.Deleted; break;
+        default: false.IsTrue("FormMode=C|U|D"); break;
+      }
+
+      var result = new VersionInfo
+      {
+        G_Version = app.GetGdidProvider()
+                       .GenerateOneGdid(gdidScopeName, gdidSeqName),
+        State = state,
+        Utc = app.GetUtcNow(),
+        Origin = app.GetCloudOrigin(),
+        Actor = Canonical.EntityIds.OfUser()
+      };
+      return result;
+    }
+
+    /// <summary>
+    /// If NoCache is true then returns `CacheParams.NoCache` otherwise returns default (null by dflt)
+    /// </summary>
+    public static ICacheParams NoOrDefaultCache(this bool noCache, ICacheParams dflt = null) => noCache ? CacheParams.NoCache : dflt;
   }
 }

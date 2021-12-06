@@ -274,69 +274,72 @@ namespace Azos.Wave.Mvc
       var hasEndpointsBlock = excision.iexcision >= 0;
       var finalMarkdown = scopeContent;
 
+      var epContent = new StringBuilder();
+      epContent.AppendLine("## Endpoints");
+
+      foreach(var nep in data.Children.Where( c=> c.IsSameName("endpoint")))
+      {
+        var epdoc = nep.ValOf("doc-content-tpl");
+        var hadContent = false;
+        if (epdoc.IsNotNullOrWhiteSpace())
+        {
+          hadContent = true;
+          //epoint content in ep section scope
+          epdoc = MarkdownUtils.EvaluateVariables(epdoc, (v) =>
+          {
+            if (v.IsNullOrWhiteSpace()) return v;
+            //Escape: ``{{a}}`` -> `{a}`
+            if (v.StartsWith("{") && v.EndsWith("}")) return v.Substring(1, v.Length - 2);
+            if (v.StartsWith("@")) return $"`{{{v}}}`";//do not expand TYPE spec here
+
+            //else navigate config path
+            return nep.Navigate(v).Value;
+          });
+          epContent.AppendLine(epdoc);
+        }
+        else
+        {
+          //otherwise build EPOINT documentation here
+          epContent.AppendLine("### {0} - {1}".Args(nep.ValOf("uri"), nep.ValOf("title")));
+          var d = nep.ValOf("description");
+          if (d.IsNotNullOrWhiteSpace()) epContent.AppendLine(d);
+        }
+
+        //Add type map sections:
+        var refTypes = nep.Attributes.Where(a => a.IsSameName("tp-ref"));
+        if (refTypes.Any())
+        {
+          epContent.AppendLine("##### Referenced Types");
+          foreach(var tref in refTypes)
+          {
+            var nt = Data["type-schemas"][tref.Value];
+            var sku = nt.ValOf("sku");
+            if (sku.IsNullOrWhiteSpace()) continue;
+            hadContent = true;
+            epContent.AppendLine("* <a href=\"schema?id={0}\">{1}</a>".Args(tref.Value, sku));
+          }
+        }
+
+        if (hadContent) epContent.AppendLine("##### Definition Metadata");
+
+        epContent.AppendLine("```");
+        epContent.AppendLine(nep.ToLaconicString(CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint));
+        epContent.AppendLine("```");
+        epContent.AppendLine("---");
+
+      }//foreach endpoint
+
       if (hasEndpointsBlock)
       {
-        var epContent = new StringBuilder();
-        epContent.AppendLine("## Endpoints");
-
-        foreach(var nep in data.Children.Where( c=> c.IsSameName("endpoint")))
-        {
-          var epdoc = nep.ValOf("doc-content-tpl");
-          var hadContent = false;
-          if (epdoc.IsNotNullOrWhiteSpace())
-          {
-            hadContent = true;
-            //epoint content in ep section scope
-            epdoc = MarkdownUtils.EvaluateVariables(epdoc, (v) =>
-            {
-              if (v.IsNullOrWhiteSpace()) return v;
-              //Escape: ``{{a}}`` -> `{a}`
-              if (v.StartsWith("{") && v.EndsWith("}")) return v.Substring(1, v.Length - 2);
-              if (v.StartsWith("@")) return $"`{{{v}}}`";//do not expand TYPE spec here
-
-              //else navigate config path
-              return nep.Navigate(v).Value;
-            });
-            epContent.AppendLine(epdoc);
-          }
-          else
-          {
-            //otherwise build EPOINT documentation here
-            epContent.AppendLine("### {0} - {1}".Args(nep.ValOf("uri"), nep.ValOf("title")));
-            var d = nep.ValOf("description");
-            if (d.IsNotNullOrWhiteSpace()) epContent.AppendLine(d);
-          }
-
-          //Add type map sections:
-          var refTypes = nep.Attributes.Where(a => a.IsSameName("tp-ref"));
-          if (refTypes.Any())
-          {
-            epContent.AppendLine("##### Referenced Types");
-            foreach(var tref in refTypes)
-            {
-              var nt = Data["type-schemas"][tref.Value];
-              var sku = nt.ValOf("sku");
-              if (sku.IsNullOrWhiteSpace()) continue;
-              hadContent = true;
-              epContent.AppendLine("* <a href=\"schema?id={0}\">{1}</a>".Args(tref.Value, sku));
-            }
-          }
-
-          if (hadContent) epContent.AppendLine("##### Definition Metadata");
-
-          epContent.AppendLine("```");
-          epContent.AppendLine(nep.ToLaconicString(CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint));
-          epContent.AppendLine("```");
-          epContent.AppendLine("---");
-
-        }//foreach endpoint
-
-        //stitch endpoint content back together
-        finalMarkdown = "{0}\n{1}\n{2}".Args(excision.content?.Substring(0, excision.iexcision),
+          //stitch endpoint content back together
+          finalMarkdown = "{0}\n{1}\n{2}".Args(excision.content?.Substring(0, excision.iexcision),
                                              epContent.ToString(),
                                              excision.content?.Substring(excision.iexcision));
       }//if hasEndpointBlock
-
+      else
+      {
+         finalMarkdown = epContent.ToString();
+      }
 
       //eval type references
       finalMarkdown = MarkdownUtils.EvaluateVariables(finalMarkdown, v =>

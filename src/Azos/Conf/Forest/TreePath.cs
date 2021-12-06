@@ -16,9 +16,28 @@ namespace Azos.Conf.Forest
   /// The `/` character delimits the segments. There may be maximum of PATH_SEGMENT_MAX_COUNT(0xff) segments, each may not be longer than SEGMENT_MAX_LEN(64).
   /// You can escape characters using `%xx` syntax, for example you can create a segment `a/b` like so `a%2fb` where `%2f` is ASCII for forward slash.
   /// The `%` can be escaped as `%25`.
+  /// Warning: by design for performance reasons (not to make extra allocations) this class is a mutable list of strings since it is not used for pub API facade
+  /// use caution changing paths while implementing forest server components
   /// </summary>
   public sealed class TreePath : List<string>
   {
+    /// <summary>
+    /// Joins two path segments putting PATH_SEPARATOR in between if needed
+    /// </summary>
+    public static string Join(string p1, string p2)
+    {
+      p1 = p1.Default(Constraints.VERY_ROOT_PATH_SEGMENT).Trim();
+
+      if (p2.IsNullOrWhiteSpace()) return p1;
+
+      p2 = p2.Trim();
+
+      if (p1[p1.Length-1] == Constraints.PATH_SEPARATOR || p2[0] == Constraints.PATH_SEPARATOR) return p1 + p2;
+
+      return p1 + Constraints.PATH_SEPARATOR + p2;
+    }
+
+
     [ThreadStatic] private static StringBuilder ts_Buffer;
 
     /// <summary>
@@ -47,7 +66,7 @@ namespace Azos.Conf.Forest
       {
         var c = Char.ToLowerInvariant(path[i]);
 
-        if (c == '/')//flush
+        if (c == Constraints.PATH_SEPARATOR)//flush
         {
           var line = buf.ToString().Trim();
 
@@ -61,7 +80,7 @@ namespace Azos.Conf.Forest
           continue;
         }
 
-        if (c == '%')
+        if (c == Constraints.PATH_ESCAPE)
         {
           i += 2;
           if (i >= len) throw new ConfigException(StringConsts.CONFIG_FOREST_PATH_ESCAPE_ERROR.Args("<eol>"));
@@ -86,6 +105,7 @@ namespace Azos.Conf.Forest
       }
     }
 
+    public override string ToString() => Constraints.VERY_ROOT_PATH_SEGMENT + string.Join(Constraints.PATH_SEPARATOR.ToString(), this);
 
   }
 }

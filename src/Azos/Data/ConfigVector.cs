@@ -5,9 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 using Azos.Conf;
 using Azos.Serialization.JSON;
@@ -19,6 +17,7 @@ namespace Azos.Data
   /// which is lazily parsed upon first access then cached. This instance is NOT thread safe
   /// and designed for use in data document fields
   /// </summary>
+  [Serializable]
   public sealed class ConfigVector : IJsonWritable, IJsonReadable, IRequiredCheck, ILengthCheck, IValidatable
   {
     public ConfigVector(){ }
@@ -26,6 +25,8 @@ namespace Azos.Data
     public ConfigVector(IConfigSectionNode node) => Node = node;
 
     private string m_Content;
+
+    [NonSerialized]
     private IConfigSectionNode m_Node;
 
     /// <summary>
