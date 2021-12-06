@@ -258,6 +258,43 @@ namespace Azos.Security.Services
       return new Redirect(uri);
     }
 
+    [ApiEndpointDoc(
+      Title = "OAuth SSO Logout",
+      Description = "Provides ability to logout from single-sign-on IDP. The caller must be authenticated to log-out",
+      RequestQueryParameters = new[]{
+        "client_id: Client Id issued by your IDP during Client/App registration",
+        "redirect_uri: Where the service redirects the user-agent after logout. Must be authorized for client_id",
+        "state: Arbitrary String specific to client application"
+      },
+      ResponseContent = "302 redirect or 401 for bad requested parameters or logout is not supported. 403 for unauthenticated caller or unauthorized client URI"
+    )]
+    [AuthenticatedUserPermission]//<---- The caller needs to be authenticated
+    [ActionOnGet(Name = "sso-logout")]
+    public async virtual Task<object> SsoLogout_Get(string client_id, string redirect_uri, string state)
+    {
+      var sso = OAuth.SsoSessionName;
+      if (sso.IsNullOrWhiteSpace()) return new Http401Unauthorized("Logout not supported");
+
+      if (client_id.IsNullOrWhiteSpace() ||
+         redirect_uri.IsNullOrWhiteSpace())
+        return new Http401Unauthorized("Malformed request");//we can not redirect because redirect_uri has not been checked yet for inclusion in client ACL
+
+      //1. Lookup client app, just by client_id (w/o password)
+      var clcred = new EntityUriCredentials(client_id);
+      var cluser = await OAuth.ClientSecurity.AuthenticateAsync(clcred).ConfigureAwait(false);
+      if (!cluser.IsAuthenticated) return GateError(new Http401Unauthorized("Unknown client"));//we don't have ACL yet, hence can't check redirect_uri
+
+      //2. Check client ACL for allowed redirect URIs
+      var redirectPermission = new OAuthClientAppPermission(redirect_uri);//this call comes from front channel, hence we don't check for address
+      var uriAllowed = await redirectPermission.CheckAsync(OAuth.ClientSecurity, cluser).ConfigureAwait(false);
+      if (!uriAllowed) return GateError(new Http403Forbidden("Unauthorized redirect Uri"));
+
+      DeleteSsoSessionId(sso);
+
+      return new Redirect(redirect_uri);
+    }
+
+
     /// <summary>
     /// Obtains the TOKEN based on the {Authorization Code} received in authorize step
     /// </summary>
