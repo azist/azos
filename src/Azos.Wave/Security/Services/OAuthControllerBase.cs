@@ -260,7 +260,7 @@ namespace Azos.Security.Services
 
     [ApiEndpointDoc(
       Title = "OAuth SSO Logout",
-      Description = "Provides ability to logout from single-sign-on IDP. The caller must be authenticated to log-out",
+      Description = "Provides ability to logout user from single-sign-on IDP. The caller must be authenticated to log-out",
       RequestQueryParameters = new[]{
         "client_id: Client Id issued by your IDP during Client/App registration",
         "redirect_uri: Where the service redirects the user-agent after logout. Must be authorized for client_id",
@@ -275,8 +275,7 @@ namespace Azos.Security.Services
       var sso = OAuth.SsoSessionName;
       if (sso.IsNullOrWhiteSpace()) return new Http401Unauthorized("Logout not supported");
 
-      if (client_id.IsNullOrWhiteSpace() ||
-         redirect_uri.IsNullOrWhiteSpace())
+      if (client_id.IsNullOrWhiteSpace() || redirect_uri.IsNullOrWhiteSpace())
         return new Http401Unauthorized("Malformed request");//we can not redirect because redirect_uri has not been checked yet for inclusion in client ACL
 
       //1. Lookup client app, just by client_id (w/o password)
@@ -291,7 +290,14 @@ namespace Azos.Security.Services
 
       DeleteSsoSessionId(sso);
 
-      return new Redirect(redirect_uri);
+      //3. Redirect to URI
+      var redirect = new UriQueryBuilder(redirect_uri)
+      {
+        {"state", state}
+      }.ToString();
+
+      var suppressAutoRedirect = WebOptions.Of("suppress-auto-sso-redirect").ValueAsBool(false);
+      return new Wave.Templatization.StockContent.OAuthSsoRedirect(redirect, suppressAutoRedirect);
     }
 
 
