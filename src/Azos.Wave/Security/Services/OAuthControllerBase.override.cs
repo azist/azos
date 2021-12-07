@@ -58,12 +58,27 @@ namespace Azos.Security.Services
       loginFlow.SsoSessionId = result;
     }
 
+    /// <summary>
+    /// Sets SSO token. Default implementation sets browser cookie
+    /// </summary>
     protected virtual void SetSsoSessionId(LoginFlow loginFlow, string ssoSessionName)
     {
       var cookie = new Cookie(ssoSessionName, loginFlow.SsoSessionId);
       cookie.HttpOnly = true;
       cookie.Secure = true ^ WebOptions.Of("cookie-not-secure").ValueAsBool(false);
       cookie.Expires = App.TimeSource.UTCNow.AddMinutes(WebOptions.Of("cookie-expire-in-minutes").ValueAsDouble(2 * 24 * 60));
+      WorkContext.Response.AppendCookie(cookie);
+    }
+
+    /// <summary>
+    /// Erases SSO token. Default implementation un-sets cookie
+    /// </summary>
+    protected virtual void DeleteSsoSessionId(string ssoSessionName)
+    {
+      var cookie = new Cookie(ssoSessionName, "");
+      cookie.HttpOnly = true;
+      cookie.Secure = true ^ WebOptions.Of("cookie-not-secure").ValueAsBool(false);
+      cookie.Expires = App.TimeSource.UTCNow.AddDays(-2);
       WorkContext.Response.AppendCookie(cookie);
     }
 
