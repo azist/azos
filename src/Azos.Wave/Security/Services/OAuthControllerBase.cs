@@ -260,7 +260,7 @@ namespace Azos.Security.Services
 
     [ApiEndpointDoc(
       Title = "OAuth SSO Logout",
-      Description = "Provides ability to logout user from single-sign-on IDP. The caller must be authenticated to log-out",
+      Description = "Provides ability to logout user from single-sign-on IDP",
       RequestQueryParameters = new[]{
         "client_id: Client Id issued by your IDP during Client/App registration",
         "redirect_uri: Where the service redirects the user-agent after logout. Must be authorized for client_id",
@@ -268,7 +268,6 @@ namespace Azos.Security.Services
       },
       ResponseContent = "302 redirect or 401 for bad requested parameters or logout is not supported. 403 for unauthenticated caller or unauthorized client URI"
     )]
-    [AuthenticatedUserPermission]//<---- The caller needs to be authenticated
     [ActionOnGet(Name = "sso-logout")]
     public async virtual Task<object> SsoLogout_Get(string client_id, string redirect_uri, string state)
     {
@@ -288,16 +287,38 @@ namespace Azos.Security.Services
       var uriAllowed = await redirectPermission.CheckAsync(OAuth.ClientSecurity, cluser).ConfigureAwait(false);
       if (!uriAllowed) return GateError(new Http403Forbidden("Unauthorized redirect Uri"));
 
-      DeleteSsoSessionId(sso);
 
-      //3. Redirect to URI
-      var redirect = new UriQueryBuilder(redirect_uri)
+      //3. Establish a login flow instance of appropriate type (factory method)
+      var loginFlow = MakeLoginFlow();
+      loginFlow.ClientId = client_id;
+      loginFlow.ClientResponseType = "code";
+      loginFlow.ClientUser = cluser;
+      loginFlow.ClientScope = "openidc";
+      loginFlow.ClientRedirectUri = redirect_uri;
+      loginFlow.ClientState = state;
+
+      //4. SSO: See if the subject user is already logged-in and if so check it and log him out
+      TryExtractSsoSessionId(loginFlow);
+      if (loginFlow.HasSsoSessionId)
       {
-        {"state", state}
-      }.ToString();
+        await TryGetSsoSubjectAsync(loginFlow).ConfigureAwait(false);
+        if (loginFlow.IsValidSsoUser)
+        {
+          DeleteSsoSessionId(sso);
 
-      var suppressAutoRedirect = WebOptions.Of("suppress-auto-sso-redirect").ValueAsBool(false);
-      return new Wave.Templatization.StockContent.OAuthSsoRedirect(redirect, suppressAutoRedirect);
+          //4A. Redirect to URI
+          var redirect = new UriQueryBuilder(redirect_uri)
+          {
+            {"state", state}
+          }.ToString();
+
+          var suppressAutoRedirect = WebOptions.Of("suppress-auto-sso-redirect").ValueAsBool(false);
+          return new Wave.Templatization.StockContent.OAuthSsoRedirect(redirect, suppressAutoRedirect);
+        }//ssoSubjectUser
+      }//idSsoSession
+
+      //a derived handler can return an error page or another redirect
+      return ReturnSsoLogout403(loginFlow);
     }
 
 
