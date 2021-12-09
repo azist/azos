@@ -317,7 +317,8 @@ namespace Azos.Security.Services
         }//ssoSubjectUser
       }//idSsoSession
 
-      return new Http403Forbidden();
+      //a derived handler can return an error page or another redirect
+      return ReturnSsoLogout403(loginFlow);
     }
 
 
