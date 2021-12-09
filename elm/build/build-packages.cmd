@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.42.5.4
-set HEADLINE=Svc fix 601 etc.
+set VER=1.42.5.5
+set HEADLINE=Svc fix 601 sso session
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

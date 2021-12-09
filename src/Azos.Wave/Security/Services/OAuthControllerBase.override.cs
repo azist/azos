@@ -83,6 +83,15 @@ namespace Azos.Security.Services
     }
 
     /// <summary>
+    /// Override to return a 403 (unauthorized result) of user logout
+    /// </summary>
+    protected virtual object ReturnSsoLogout403(LoginFlow flow)
+    {
+      return new Http403Forbidden();
+    }
+
+
+    /// <summary>
     /// Tries to get SSO subject user by examining the supplied idSsoSession.
     /// Set sso user to NULL if the SSO session id is invalid/or user revoked etc..
     /// </summary>
