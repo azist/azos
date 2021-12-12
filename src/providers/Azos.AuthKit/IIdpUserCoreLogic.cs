@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
+using Azos.Data;
 using Azos.Data.Business;
 using Azos.Security;
 using Azos.Security.MinIdp;
@@ -21,5 +22,27 @@ namespace Azos.AuthKit
   /// </summary>
   public interface IIdpUserCoreLogic : IBusinessLogic, IMinIdpStore
   {
+    ///// <summary>
+    ///// Returns a list of user accounts
+    ///// </summary>
+    //Task<IEnumerable<UserInfo>> GetUserListAsync(UserListFilter filter);
+
+    ///// <summary>
+    ///// Returns a list of login info objects for the selected user account
+    ///// </summary>
+    //Task<IEnumerable<LoginInfo>> GetLogins(GDID gUser);
+
+    //Task<ValidState> ValidateUserAsync(UserEntity user, ValidState state);
+    //Task<ChangeResult> SaveUserEntityAsync(UserEntity user);
+
+    //Task<ValidState> ValidateLoginAsync(LoginEntity login, ValidState state);
+    //Task<ChangeResult> SaveLoginAsync(LoginEntity login);
+
+    /// <summary>
+    /// Invoked by EventHub reactor, pulls event from queue and applies it to the IDP.
+    /// A `LoginEvent` is generated in response to successful password set, login or
+    /// bad login attempt
+    /// </summary>
+   // Task<ChangeResult> ApplyLoginEventAsync(LoginEvent what);
   }
 }
