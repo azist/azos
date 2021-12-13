@@ -8,7 +8,10 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
+using Azos.Data;
+using Azos.Data.Business;
 using Azos.Serialization.Bix;
+using Azos.Serialization.JSON;
 using Azos.Sky.EventHub;
 
 namespace Azos.AuthKit.Events
@@ -21,8 +24,60 @@ namespace Azos.AuthKit.Events
   //[Event(CorporateConsts.EVT_NS_CORPORATE, CorporateConsts.EVT_QUEUE_ALL, DataLossMode.Default)]
   public sealed class LoginEvent : EventDocument
   {
+
+    /// <summary>
+    /// Bad password. Most likely reaction: bump the invalid count until account gets locked
+    /// </summary>
+    public const string TP_FAIL_PASSWORD = "fail-pwd";
+
+    /// <summary>
+    /// Account is locked and login is not possible at this time
+    /// </summary>
+    public const string TP_FAIL_LOCKED = "fail-locked";
+
+    /// <summary>
+    /// Login could have succeeded but the moment of login is outside of  start/end date validity spans
+    /// </summary>
+    public const string TP_FAIL_DATES  = "fail-dates";
+
+
     public override ShardKey GetEventPartition() => throw new NotImplementedException();
 
+    [Field(required: false, Description = "User account GDID PK, if it is known")]
+    public GDID G_User { get; set; }
 
+    [Field(required: true, Description = "Login GDID PK, if it is known")]
+    public GDID G_Login { get; set; }
+
+    [Field(required: true, Description = "Describes what happened, see TP_* constants")]
+    public string EventType { get; set; }
+
+    [Field(required: true, Description = "Gets a unique CallFlow identifier, you can use it for things like log correlation id")]
+    public Guid CallFlowId { get; set; }
+
+    [Field(required: true, Description = "UTC timestamp when event happened")]
+    public DateTime Utc { get; set; }
+
+    [Field(required: true, Description = "What origin (data center) has the change originated from")]
+    public Atom Origin { get; set; }
+
+    [Field(required: true, Description = "Host where event was generated")]
+    public string Host { get; set; }
+
+    [Field(required: true, Description = "Application id which generated the event")]
+    public Atom App { get; set; }
+
+    [Field(required: true, Description = "Address of the calling party (e.g. client IP)")]
+    public string CallerAddress { get; set; }
+
+    [Field(required: true, Description = "User agent (e.g. from browser) of the calling party")]
+    public string CallerAgent { get; set; }
+
+    [Field(required: true, Description = "Describes the port/entry point through which the caller made the call," +
+                                         " e.g. this may be set to a web Uri that initiated the call")]
+    public string CallerPort { get; set; }
+
+    [Field(required: false, Description = "Call flow graph, if available, which generated the event")]
+    public JsonDataMap CallFlow { get; set; }
   }
 }
