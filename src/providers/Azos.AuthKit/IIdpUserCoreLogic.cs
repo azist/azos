@@ -28,6 +28,11 @@ namespace Azos.AuthKit
     Task<IEnumerable<UserInfo>> GetUserListAsync(UserListFilter filter);
 
     ///// <summary>
+    ///// Returns a list of tags for the specified user account
+    ///// </summary>
+    //PII//Task<IEnumerable<UserTagInfo>> GetUserTagsAsync(GDID gUser);
+
+    ///// <summary>
     ///// Returns a list of login info objects for the selected user account
     ///// </summary>
     //Task<IEnumerable<LoginInfo>> GetLoginsAsync(GDID gUser);

@@ -8,7 +8,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+
 using Azos.Apps;
+using Azos.Apps.Injection;
 using Azos.Data.Access;
 using Azos.Security;
 using Azos.Security.MinIdp;
@@ -23,7 +25,7 @@ namespace Azos.AuthKit.Server
     public IdpUserCoreCrudDataLogic(IApplication application) : base(application) { }
     public IdpUserCoreCrudDataLogic(IModule parent) : base(parent) { }
 
-
+    [Inject]
     private ICrudDataStore m_Data;
 
     public bool IsServerImplementation => true;
