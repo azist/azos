@@ -5,11 +5,8 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 using Azos.Data;
-using Azos.Data.Business;
 using Azos.Serialization.Bix;
 using Azos.Serialization.JSON;
 using Azos.Sky.EventHub;
@@ -21,9 +18,19 @@ namespace Azos.AuthKit.Events
   /// password reset etc...
   /// </summary>
   [Bix("ada5df48-c892-4043-9d7c-3990fed8b548")]
-  //[Event(CorporateConsts.EVT_NS_CORPORATE, CorporateConsts.EVT_QUEUE_ALL, DataLossMode.Default)]
+  [Event(Constraints.EVT_NS_AUTHKIT, Constraints.EVT_QUEUE_LOGIN, DataLossMode.Default)]
   public sealed class LoginEvent : EventDocument
   {
+    /// <summary>
+    /// The password was successfully set
+    /// </summary>
+    public const string TP_OK_SET_PASSWORD = "ok-set-pwd";
+
+    /// <summary>
+    /// The logon succeeded
+    /// </summary>
+    public const string TP_OK_LOGON = "ok-logon";
+
 
     /// <summary>
     /// Bad password. Most likely reaction: bump the invalid count until account gets locked
@@ -41,12 +48,12 @@ namespace Azos.AuthKit.Events
     public const string TP_FAIL_DATES  = "fail-dates";
 
 
-    public override ShardKey GetEventPartition() => throw new NotImplementedException();
+    public override ShardKey GetEventPartition() => G_User.IsZero ? new ShardKey(CallFlowId) : new ShardKey(G_User);
 
     [Field(required: false, Description = "User account GDID PK, if it is known")]
     public GDID G_User { get; set; }
 
-    [Field(required: true, Description = "Login GDID PK, if it is known")]
+    [Field(required: false, Description = "Login GDID PK, if it is known")]
     public GDID G_Login { get; set; }
 
     [Field(required: true, Description = "Describes what happened, see TP_* constants")]

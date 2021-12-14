@@ -30,10 +30,10 @@ namespace Azos.AuthKit
     ///// <summary>
     ///// Returns a list of login info objects for the selected user account
     ///// </summary>
-    //Task<IEnumerable<LoginInfo>> GetLogins(GDID gUser);
+    //Task<IEnumerable<LoginInfo>> GetLoginsAsync(GDID gUser);
 
     //Task<ValidState> ValidateUserAsync(UserEntity user, ValidState state);
-    //Task<ChangeResult> SaveUserEntityAsync(UserEntity user);
+    //Task<ChangeResult> SaveUserAsync(UserEntity user);
 
     //Task<ValidState> ValidateLoginAsync(LoginEntity login, ValidState state);
     //Task<ChangeResult> SaveLoginAsync(LoginEntity login);

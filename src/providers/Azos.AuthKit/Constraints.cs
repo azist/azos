@@ -8,6 +8,17 @@ namespace Azos.AuthKit
 {
   public static class Constraints
   {
+    /// <summary>
+    /// AuthKit event namespace
+    /// </summary>
+    public const string EVT_NS_AUTHKIT = "aukit";
+
+    /// <summary>
+    /// Name of the queue for login-related events
+    /// </summary>
+    public const string EVT_QUEUE_LOGIN = "login";
+
+
     public const string CONFIG_CLAIMS_SECTION = "claims";// props{  claims{ pub{...} } }
     public const string CONFIG_PUBLIC_SECTION = "pub";
 
