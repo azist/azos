@@ -25,7 +25,7 @@ namespace Azos.AuthKit
     ///// <summary>
     ///// Returns a list of user accounts
     ///// </summary>
-    //Task<IEnumerable<UserInfo>> GetUserListAsync(UserListFilter filter);
+    Task<IEnumerable<UserInfo>> GetUserListAsync(UserListFilter filter);
 
     ///// <summary>
     ///// Returns a list of login info objects for the selected user account

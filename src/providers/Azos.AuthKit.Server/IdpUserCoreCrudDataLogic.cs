@@ -34,6 +34,7 @@ namespace Azos.AuthKit.Server
 
     public ICryptoMessageAlgorithm MessageProtectionAlgorithm => throw new NotImplementedException();
 
+    #region MinIdp logic portion
     public Task<MinIdpUserData> GetByIdAsync(Atom realm, string id, AuthenticationRequestContext ctx)
     {
       throw new NotImplementedException();
@@ -48,5 +49,13 @@ namespace Azos.AuthKit.Server
     {
       throw new NotImplementedException();
     }
+    #endregion
+
+    #region IIdpUserCoreLogic-specifics
+    public Task<IEnumerable<UserInfo>> GetUserListAsync(UserListFilter filter)
+    {
+      throw new NotImplementedException();
+    }
+    #endregion
   }
 }

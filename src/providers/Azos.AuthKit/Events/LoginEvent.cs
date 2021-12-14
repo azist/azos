@@ -33,6 +33,11 @@ namespace Azos.AuthKit.Events
 
 
     /// <summary>
+    /// Unknown user account id
+    /// </summary>
+    public const string TP_FAIL_ID = "fail-id";
+
+    /// <summary>
     /// Bad password. Most likely reaction: bump the invalid count until account gets locked
     /// </summary>
     public const string TP_FAIL_PASSWORD = "fail-pwd";
