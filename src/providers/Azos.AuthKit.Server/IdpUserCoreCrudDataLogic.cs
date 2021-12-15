@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 
 using Azos.Apps;
 using Azos.Apps.Injection;
+using Azos.AuthKit.Events;
+using Azos.Data;
 using Azos.Data.Access;
 using Azos.Security;
 using Azos.Security.MinIdp;
@@ -54,10 +56,22 @@ namespace Azos.AuthKit.Server
     #endregion
 
     #region IIdpUserCoreLogic-specifics
+
     public Task<IEnumerable<UserInfo>> GetUserListAsync(UserListFilter filter)
     {
       throw new NotImplementedException();
     }
+
+    public Task<IEnumerable<LoginInfo>> GetLoginsAsync(GDID gUser)
+    {
+      throw new NotImplementedException();
+    }
+
+    public Task<ChangeResult> ApplyLoginEventAsync(LoginEvent what)
+    {
+      throw new NotImplementedException();
+    }
+
     #endregion
   }
 }

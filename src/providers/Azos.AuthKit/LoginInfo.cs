@@ -15,7 +15,7 @@ namespace Azos.AuthKit
   /// <summary>
   /// Describes user login
   /// </summary>
-  [Bix("05B1A10E-9A0C-45F4-AA0B-BB673FF7CAED")]
+  [Bix("a3462cf3-d82c-4cb4-8679-b77c78ac5e1e")]
   [Schema(Description = "Describes user login")]
   public sealed class LoginInfo : TransientModel
   {
@@ -38,10 +38,10 @@ namespace Azos.AuthKit
     public GDID UserId { get; set; }
 
     /// <summary>
-    /// User access level
+    /// Login access level demotion (level down)
     /// </summary>
-    [Field(Description = "Login access level")] // should this be same as User model - ddl statement be not null and required????
-    public UserStatus? Level { get; set; }
+    [Field(Description = "Login access level demotion (level down)")]
+    public UserStatus? LevelDemotion { get; set; }
 
     /// <summary>
     /// Login ID, or provider key
@@ -120,5 +120,12 @@ namespace Azos.AuthKit
     /// </summary>
     [Field(Description = "Short note explaining lock reason/status")]
     public string    LockNote     { get; set; }
+
+
+    /// <summary>
+    /// Login status object
+    /// </summary>
+    [Field(Description = "Login status object")]
+    public LoginStatusInfo LoginStatus  { get; set; }
   }
 }
