@@ -1,4 +1,4 @@
-﻿
+﻿delimiter ;.
 
 -- groups and roles are stored in Config tree, addressed by pass via PROPS
 create table tbl_user
@@ -46,6 +46,22 @@ delimiter ;.
 
 delimiter ;.
   create index `idx_tbl_user_org` on `tbl_user`(`REALM`, `ORG_UNIT`);.
+
+
+-- delimiter ;.
+
+-- create table tbl_tag
+-- (
+--   `GDID`       BINARY(12)        not null comment 'User Tag Immutable UK',
+--   `G_USER`     BINARY(12)        not null comment 'FK to USER ACCOUNT table',
+--   `TAG`        BIGINT UNSIGNED   not null comment 'Tag id: Atom',
+--   `VALUE`      VARCHAR(64)       not null comment 'Tag value: String',
+--    constraint `pk_tbl_tag_pk` primary key (`GDID`),
+--    constraint `fk_tbl_tag_user` foreign key (`G_USER`) references `tbl_user`(`GDID`)
+-- )
+--    comment = 'Stores searchable tags for user accounts'
+-- ;,
+
 
 
 delimiter ;.
