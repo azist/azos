@@ -19,6 +19,7 @@
 
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Azos.Sky\Azos.Sky.csproj" />
     <ProjectReference Include="..\..\Azos\Azos.csproj" />
   </ItemGroup>
 
