@@ -117,12 +117,12 @@ create table tbl_loginstatus
   `PROPS`        MEDIUMTEXT   comment 'Optional properties such as confirmation attributes, etc.',
 
   `OK_UTC`    DATETIME      comment 'Last correct login timestamp or null',
-  `OK_ADDR`   VARCHAR(64)   comment 'Last correct login timestamp or null',
+  `OK_ADDR`   VARCHAR(64)   comment 'Last correct login address or null',
   `OK_AGENT`  VARCHAR(256)  comment 'Last correct login user agent or null',
 
   `BAD_CAUSE`  BIGINT UNSIGNED  comment 'Last bad login cause atom',
   `BAD_UTC`    DATETIME         comment 'Last bad login timestamp or null',
-  `BAD_ADDR`   VARCHAR(64)      comment 'Last bad login timestamp or null',
+  `BAD_ADDR`   VARCHAR(64)      comment 'Last bad login address or null',
   `BAD_AGENT`  VARCHAR(256)     comment 'Last bad login user agent or null',
   `BAD_COUNT`  INT              comment 'Consecutive incorrect login count',
 
