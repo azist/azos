@@ -23,7 +23,9 @@ namespace Azos.AuthKit
   [UniqueSequence(Constraints.ID_NS_AUTHKIT, Constraints.ID_SEQ_USER)]
   public sealed class UserEntity : PersistedEntity<IIdpUserCoreLogic, ChangeResult>
   {
-    public override EntityId Id => throw new NotImplementedException();
+    public override EntityId Id => new EntityId(Constraints.SYS_AUTHKIT,
+                                                Constraints.ETP_USER,
+                                                Constraints.SCH_GDID, Gdid.ToString());
 
 
     protected override async Task<ValidState> DoAfterValidateOnSaveAsync(ValidState state)

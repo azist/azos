@@ -11,9 +11,17 @@ namespace Azos.AuthKit
     /// <summary>
     /// Gdid generation namespace
     /// </summary>
-    public const string ID_NS_AUTHKIT = "azos.authkit";
+    public const string ID_NS_AUTHKIT = "sky.akit";
     public const string ID_SEQ_USER  = "user";
     public const string ID_SEQ_LOGIN = "login";
+
+    //EntityIds
+    public static readonly Atom SYS_AUTHKIT = Atom.Encode("sky-auth");
+    public static readonly Atom SCH_GDID    = Atom.Encode("gdid");
+    public static readonly Atom SCH_ID      = Atom.Encode("id");
+    public static readonly Atom ETP_USER    = Atom.Encode("user");
+    public static readonly Atom ETP_LOGIN   = Atom.Encode("login");
+
 
     /// <summary>
     /// AuthKit event namespace
