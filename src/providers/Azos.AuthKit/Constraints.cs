@@ -9,6 +9,13 @@ namespace Azos.AuthKit
   public static class Constraints
   {
     /// <summary>
+    /// Gdid generation namespace
+    /// </summary>
+    public const string ID_NS_AUTHKIT = "azos.authkit";
+    public const string ID_SEQ_USER  = "user";
+    public const string ID_SEQ_LOGIN = "login";
+
+    /// <summary>
     /// AuthKit event namespace
     /// </summary>
     public const string EVT_NS_AUTHKIT = "aukit";
@@ -17,7 +24,6 @@ namespace Azos.AuthKit
     /// Name of the queue for login-related events
     /// </summary>
     public const string EVT_QUEUE_LOGIN = "login";
-
 
     public const string CONFIG_CLAIMS_SECTION = "claims";// props{  claims{ pub{...} } }
     public const string CONFIG_PUBLIC_SECTION = "pub";

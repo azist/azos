@@ -72,6 +72,16 @@ namespace Azos.AuthKit.Server
       throw new NotImplementedException();
     }
 
+    public Task<ValidState> ValidateUserAsync(UserEntity user, ValidState state)
+    {
+      throw new NotImplementedException();
+    }
+
+    public Task<ChangeResult> SaveUserAsync(UserEntity user)
+    {
+      throw new NotImplementedException();
+    }
+
     #endregion
   }
 }

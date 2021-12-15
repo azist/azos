@@ -6,12 +6,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 using Azos.Data;
 using Azos.Data.Business;
-using Azos.Security;
 using Azos.Security.MinIdp;
 
 namespace Azos.AuthKit
@@ -37,8 +35,8 @@ namespace Azos.AuthKit
     // </summary>
     Task<IEnumerable<LoginInfo>> GetLoginsAsync(GDID gUser);
 
-    //Task<ValidState> ValidateUserAsync(UserEntity user, ValidState state);
-    //Task<ChangeResult> SaveUserAsync(UserEntity user);
+    Task<ValidState> ValidateUserAsync(UserEntity user, ValidState state);
+    Task<ChangeResult> SaveUserAsync(UserEntity user);
 
     //Task<ValidState> ValidateLoginAsync(LoginEntity login, ValidState state);
     //Task<ChangeResult> SaveLoginAsync(LoginEntity login);
