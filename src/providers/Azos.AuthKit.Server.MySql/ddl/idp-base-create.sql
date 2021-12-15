@@ -85,6 +85,10 @@ create table tbl_login
   `PROPS`      MEDIUMTEXT                 comment 'Properties such as tree connections (e.g. roles) and claims',
   `RIGHTS`     MEDIUMTEXT                 comment 'Rights override or null',
 
+  `CREATE_UTC`    DATETIME         not null comment 'Creation UTC timestamp',
+  `CREATE_ORIGIN` BIGINT UNSIGNED  not null comment 'Cloud partition where this record first originated from',
+  `CREATE_ACTOR`  VARCHAR(256)     not null comment 'Who created the record',
+
   `LOCK_START_UTC` DATETIME           comment 'Lock timestamp, if set the account is inactive past that timestamp, until LOCK_END_UTC',
   `LOCK_END_UTC`   DATETIME           comment 'If present, resets lock after that point in time',
   `LOCK_ACTOR`     VARCHAR(256)       comment 'Who locked the user account',

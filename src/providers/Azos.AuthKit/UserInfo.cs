@@ -12,6 +12,7 @@ using Azos.Data;
 using Azos.Data.Business;
 using Azos.Security;
 using Azos.Serialization.Bix;
+using Azos.Time;
 
 namespace Azos.AuthKit
 {
@@ -58,6 +59,64 @@ namespace Azos.AuthKit
     [Field(required: true, Description = "User description")]
     public string Description { get; set; }
 
+    /// <summary>
+    /// When user privilege takes effect
+    /// </summary>
+    [Field(required: true, Description = "When user privilege takes effect")]
+    public DateRange ValidSpanUtc { get; set; }
 
+    /// <summary>
+    /// Tree path for org unit. So the user list may be searched by it
+    /// </summary>
+    [Field(required: false, Description = "Tree path for org unit. So the user list may be searched by it")]
+    public EntityId? OrgUnit { get; set; }
+
+    /// <summary>
+    /// Properties such as tree connections (e.g. roles) and claims
+    /// </summary>
+    [Field(required: true, Description = "Properties such as tree connections (e.g. roles) and claims")]
+    public ConfigVector Props { get; set; }
+
+    /// <summary>
+    /// User-specific Rights override or null for default rights
+    /// </summary>
+    [Field(required: false, Description = "User-specific Rights override or null for default rights")]
+    public ConfigVector Rights { get; set; }
+
+    /// <summary>
+    /// Free form text notes associated with the account
+    /// </summary>
+    [Field(required: true, Description = "Free form text notes associated with the account")]
+    public string Note { get; set; }
+
+    /// <summary>
+    /// Creation version (UTC, Actor, Origin)
+    /// </summary>
+    [Field(required: true, Description = "Creation version (UTC, Actor, Origin)")]
+    public VersionInfo CreateVersion { get; set; }
+
+    /// <summary>
+    /// Version of this node data record
+    /// </summary>
+    [Field(required: true, Description = "Version of this data record")]
+    public VersionInfo DataVersion { get; set; }
+
+    /// <summary>
+    /// Lock timestamp range, if set the account is inactive past that timestamp, until LOCK_END_UTC
+    /// </summary>
+    [Field(Description = "Lock timestamp range, if set the account is inactive past that timestamp, until LOCK_END_UTC")]
+    public DateRange? LockSpanUtc { get; set; }
+
+    /// <summary>
+    /// Who locked the user account
+    /// </summary>
+    [Field(Description = "Who locked the user account")]
+    public EntityId? LockActor    { get; set; }
+
+    /// <summary>
+    /// Short note explaining lock reason/status
+    /// </summary>
+    [Field(Description = "Short note explaining lock reason/status")]
+    public string    LockNote     { get; set; }
   }
 }
