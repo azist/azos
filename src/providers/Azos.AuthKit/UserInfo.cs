@@ -5,8 +5,6 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 using Azos.Data;
 using Azos.Data.Business;
@@ -80,13 +78,13 @@ namespace Azos.AuthKit
     /// <summary>
     /// User-specific Rights override or null for default rights
     /// </summary>
-    [Field(required: false, Description = "User-specific Rights override or null for default rights")]
+    [Field(Description = "User-specific Rights override or null for default rights")]
     public ConfigVector Rights { get; set; }
 
     /// <summary>
     /// Free form text notes associated with the account
     /// </summary>
-    [Field(required: true, Description = "Free form text notes associated with the account")]
+    [Field(Description = "Free form text notes associated with the account")]
     public string Note { get; set; }
 
     /// <summary>
@@ -96,7 +94,7 @@ namespace Azos.AuthKit
     public VersionInfo CreateVersion { get; set; }
 
     /// <summary>
-    /// Version of this node data record
+    /// Version of this data record
     /// </summary>
     [Field(required: true, Description = "Version of this data record")]
     public VersionInfo DataVersion { get; set; }
