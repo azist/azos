@@ -11,7 +11,9 @@ using System.Threading.Tasks;
 
 using Azos.Data;
 using Azos.Data.Business;
+using Azos.Security;
 using Azos.Serialization.Bix;
+using Azos.Time;
 
 namespace Azos.AuthKit
 {
@@ -26,15 +28,62 @@ namespace Azos.AuthKit
     public override EntityId Id => new EntityId(Constraints.SYS_AUTHKIT,
                                                 Constraints.ETP_USER,
                                                 Constraints.SCH_GDID, Gdid.ToString());
+    /// <summary>
+    /// User account realm set only on insert. Must be null/not supplied for update
+    /// </summary>
+    [Field(required: true, Description = "User account realm set only on insert. Must be null/not supplied for update")]
+    public Atom? Realm { get; set; }
+
+    /// <summary>
+    /// User account name/title
+    /// </summary>
+    [Field(required: true,
+           minLength: Constraints.USER_NAME_MIN_LEN,
+           maxLength: Constraints.USER_NAME_MAX_LEN,
+           Description = "User account name/title")]
+    public string Name { get; set; }
+
+    /// <summary>
+    /// User access level
+    /// </summary>
+    [Field(required: true, Description = "User access level")]
+    public UserStatus Level   { get; set; }
+
+    /// <summary>
+    /// User description
+    /// </summary>
+    [Field(required: true,
+           minLength: Constraints.USER_DESCR_MIN_LEN,
+           maxLength: Constraints.USER_DESCR_MAX_LEN,
+           Description = "User description")]
+    public string Description { get; set; }
+
+    public DateRange? ValidSpanUtc {  get; set; }
+    public EntityId? OrgUnit { get; set; }
+
+    public ConfigVector Props  { get; set; }
+    public ConfigVector Rights { get; set; }
+    public string Note { get; set; }
 
 
     protected override async Task<ValidState> DoAfterValidateOnSaveAsync(ValidState state)
     {
       var result = await base.DoAfterValidateOnSaveAsync(state).ConfigureAwait(false);
-      if (result.ShouldContinue)
+      if (!result.ShouldContinue) return result;
+
+      state = await m_SaveLogic.ValidateUserAsync(this, state).ConfigureAwait(false);
+
+      if (FormMode == FormMode.Update)
       {
-        state = await m_SaveLogic.ValidateUserAsync(this, state).ConfigureAwait(false);
+        if (Realm.HasValue && !Realm.Value.IsZero)
+        {
+          return new ValidState(state, new FieldValidationException(this, nameof(Realm),
+             "`Realm` field value may not be provided for entity UPDATES as it is immutable. " +
+             "If you are trying to re-use the same `UserEtity` instance for an update, " +
+             "set its `Realm` field value to null first to signify the intent"));
+        }
       }
+
       return result;
     }
 
