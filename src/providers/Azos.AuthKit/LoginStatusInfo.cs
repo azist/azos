@@ -15,7 +15,7 @@ namespace Azos.AuthKit
   /// <summary>
   /// LoginStatus keeps the last known snapshot of log-in volatile information to lessen the replication load Login:LoginStatus = 1:1 (same GDID)
   /// </summary>
-  [Bix("BB679B3B-FCE5-408D-9AAE-D5BBB37E07F6")]
+  [Bix("a9ab1b4f-0f57-4029-bbb9-eb19ca2d144b")]
   [Schema(Description = "LoginStatus keeps the last known snapshot of log-in volatile information to lessen the replication load Login:LoginStatus = 1:1 (same GDID)")]
   public sealed class LoginStatusInfo : TransientModel
   {
@@ -23,7 +23,7 @@ namespace Azos.AuthKit
     /// Login UK, status uses the same GDID as Login entity
     /// </summary>
     [Field(required: true, Description = "Login UK, status uses the same GDID as Login entity")]
-    public GDID LoginId { get; set; }
+    public GDID G_Login { get; set; }
 
     /// <summary>
     /// When pwd was set last time
@@ -59,13 +59,13 @@ namespace Azos.AuthKit
     /// Last correct login user agent or null
     /// </summary>
     [Field(Description = "Last correct login user agent or null")]
-    public EntityId OkAgent { get; set; }
+    public EntityId? OkAgent { get; set; }
 
     /// <summary>
     /// Last bad login cause atom
     /// </summary>
     [Field(Description = "Last bad login cause atom")]
-    public Atom BadCause { get; set; }
+    public Atom? BadCause { get; set; }
 
     /// <summary>
     /// Last correct login timestamp or null
@@ -83,12 +83,12 @@ namespace Azos.AuthKit
     /// Last bad login user agent or null
     /// </summary>
     [Field(Description = "Last bad login user agent or null")]
-    public EntityId BadAgent { get; set; }
+    public EntityId? BadAgent { get; set; }
 
     /// <summary>
     /// Consecutive incorrect login count
     /// </summary>
     [Field(Description = "Consecutive incorrect login count")]
-    public int BadCount { get; set; }
+    public int? BadCount { get; set; }
   }
 }

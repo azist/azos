@@ -6,12 +6,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 using Azos.Data;
 using Azos.Data.Business;
-using Azos.Security;
 using Azos.Security.MinIdp;
 
 namespace Azos.AuthKit
@@ -32,13 +30,13 @@ namespace Azos.AuthKit
     ///// </summary>
     //PII//Task<IEnumerable<UserTagInfo>> GetUserTagsAsync(GDID gUser);
 
-    ///// <summary>
-    ///// Returns a list of login info objects for the selected user account
-    ///// </summary>
-    //Task<IEnumerable<LoginInfo>> GetLoginsAsync(GDID gUser);
+    // <summary>
+    // Returns a list of login info objects for the selected user account
+    // </summary>
+    Task<IEnumerable<LoginInfo>> GetLoginsAsync(GDID gUser);
 
-    //Task<ValidState> ValidateUserAsync(UserEntity user, ValidState state);
-    //Task<ChangeResult> SaveUserAsync(UserEntity user);
+    Task<ValidState> ValidateUserAsync(UserEntity user, ValidState state);
+    Task<ChangeResult> SaveUserAsync(UserEntity user);
 
     //Task<ValidState> ValidateLoginAsync(LoginEntity login, ValidState state);
     //Task<ChangeResult> SaveLoginAsync(LoginEntity login);
@@ -48,6 +46,6 @@ namespace Azos.AuthKit
     /// A `LoginEvent` is generated in response to successful password set, login or
     /// bad login attempt
     /// </summary>
-   // Task<ChangeResult> ApplyLoginEventAsync(LoginEvent what);
+    Task<ChangeResult> ApplyLoginEventAsync(Events.LoginEvent what);
   }
 }

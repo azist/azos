@@ -24,7 +24,7 @@ namespace Azos.AuthKit
   public sealed class UserListFilter : FilterModel<IEnumerable<UserInfo>>
   {
     [Field(required: true, description: @"User realm - required value")]
-    public Atom  Realm { get; set; }
+    public Atom Realm { get; set; }
 
     [Field(description: @"User GDID (immutable primary key)")]
     public GDID Gdid { get; set; }

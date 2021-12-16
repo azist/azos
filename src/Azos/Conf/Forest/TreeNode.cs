@@ -21,6 +21,7 @@ namespace Azos.Conf.Forest
   /// in the config forest data store
   /// </summary>
   [Bix("a5950275-e12f-4f6c-83b7-1f6862ac3308")]
+  [Schema(Description = "Provides persisted model for forest tree node")]
   ////[UniqueSequence("azos", "forest")]
   public sealed class TreeNode : PersistedEntity<IForestSetupLogic, ChangeResult>
   {
