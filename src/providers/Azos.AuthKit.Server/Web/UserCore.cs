@@ -58,12 +58,12 @@ namespace Azos.AuthKit.Server.Web
     public async Task<object> PostUserEntity(UserEntity user)
       => await SaveNewAsync(user).ConfigureAwait(false);
 
-    [ApiEndpointDoc(Title = "POST - Updates User Entity",
+    [ApiEndpointDoc(Title = "PUT - Updates User Entity",
                     Description = "Updates an user account. " +
                     "Must include `Gdid` for the user which is being updated",
                     RequestBody = "JSON representation of {node: UserEntity}",
                     ResponseContent = "JSON representation of {OK: bool, data: ChangeResult}",
-                    Methods = new[] { "POST: Updates user account entity" },
+                    Methods = new[] { "PUT: Updates user account entity" },
                     TypeSchemas = new[] { typeof(UserEntity), typeof(ChangeResult) })]
     [ActionOnPut(Name = ACT_USER)]
     [UserManagementPermission(UserManagementAccessLevel.Change)]
@@ -77,13 +77,13 @@ namespace Azos.AuthKit.Server.Web
       RequestQueryParameters = new[]{
             "gUser=GDID of the user used to retrieve logins"},
       ResponseContent = "Http 200 / JSON representation of {OK: true, data: [LoginInfo]} or Http 404 {OK: false, data: null}",
-      Methods = new[] { "GET: list of [Atom]" },
+      Methods = new[] { "GET: list of [LoginInfo]" },
       TypeSchemas = new[]{
-            typeof(Atom)
+            typeof(LoginInfo)
       })]
     [ActionOnGet(Name = ACT_USER_LOGINS)]
     [UserManagementPermission(UserManagementAccessLevel.View)]
-    public async Task<object> GetTreeListAsync(GDID gUser)
+    public async Task<object> GetLoginListAsync(GDID gUser)
       => GetLogicResult(await m_Logic.GetLoginsAsync(gUser).ConfigureAwait(false));
   }
 }

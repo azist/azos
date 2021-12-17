@@ -21,7 +21,7 @@ namespace Azos.AuthKit
   /// Provides persisted model for user login data
   /// </summary>
   [Bix("ac75cd1f-75d4-471b-879d-17235c1241e5")]
-  [Schema(Description = "Provides persisted model for user account data")]
+  [Schema(Description = "Provides persisted model for user login data")]
   [UniqueSequence(Constraints.ID_NS_AUTHKIT, Constraints.ID_SEQ_USER)]
   public sealed class LoginEntity : PersistedEntity<IIdpUserCoreLogic, ChangeResult>
   {
@@ -31,13 +31,13 @@ namespace Azos.AuthKit
     /// <summary>
     /// User login realm set only on insert. Must be null/not supplied for update
     /// </summary>
-    [Field(required: true, Description = "User account realm set only on insert. Must be null/not supplied for update")]
+    [Field(required: true, Description = "User login realm set only on insert. Must be null/not supplied for update")]
     public Atom? Realm { get; set; }
 
     /// <summary>
     /// User account Gdid
     /// </summary>
-    [Field(required: true, Description = "User account Gdid")]
+    [Field(required: true, Description = "User login Gdid")]
     public GDID UserId { get; set; }
 
     /// <summary>

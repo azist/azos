@@ -49,7 +49,7 @@ namespace Azos.AuthKit
     public const int LOGIN_PWD_MIN_LEN = 2;// { }
     public const int LOGIN_PWD_MAX_LEN = 2048;// { }
 
-    public const int PROVIDER_DATA_MAX_LEN = 256 * 1024;
+    public const int PROVIDER_DATA_MAX_LEN = 128 * 1024;
 
     public const int RIGHTS_MIN_LEN = 6; // {r:{}}
     public const int RIGHTS_MAX_LEN = 256 * 1024;

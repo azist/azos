@@ -15,7 +15,7 @@ namespace Azos.AuthKit
   /// <summary>
   /// Describes user login
   /// </summary>
-  [Bix("a3462cf3-d82c-4cb4-8679-b77c78ac5e1e")]
+  [Bix("ab902d1e-65d9-41d7-9805-14a7bc757efe")]
   [Schema(Description = "Describes user login")]
   public sealed class LoginInfo : TransientModel
   {
