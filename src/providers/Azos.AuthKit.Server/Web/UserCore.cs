@@ -21,9 +21,9 @@ namespace Azos.AuthKit.Server.Web
     Authentication = "Token/Default",
     Description = "Provides REST API for IIdpUserCoreLogic contracts",
     ResponseHeaders = new[] { API_DOC_HDR_NO_CACHE },
-    TypeSchemas = new[] { typeof(UserCorePermission), typeof(LoginCorePermission) }
+    TypeSchemas = new[] { typeof(UserManagementPermission) }
   )]
-  [UserCorePermission(UserCoreAccessLevel.View)]
+  [UserManagementPermission(UserManagementAccessLevel.View)]
   public sealed class UserCore : ApiProtocolController
   {
     public const string ACT_FILTER = "filter";
@@ -42,7 +42,7 @@ namespace Azos.AuthKit.Server.Web
                     ResponseContent = "JSON filter result - enumerable of `{@UserInfo}`",
                     TypeSchemas = new[] { typeof(UserInfo), typeof(UserListFilter) })]
     [ActionOnPost(Name = ACT_FILTER), AcceptsJson]
-    [UserCorePermission(UserCoreAccessLevel.View)]
+    [UserManagementPermission(UserManagementAccessLevel.View)]
     public async Task<object> PostUserFilter(UserListFilter filter)
       => await ApplyFilterAsync(filter).ConfigureAwait(false);
 
@@ -54,7 +54,7 @@ namespace Azos.AuthKit.Server.Web
                     Methods = new[] { "POST: Inserts a new user account entity" },
                     TypeSchemas = new[]{ typeof(UserEntity), typeof(ChangeResult) })]
     [ActionOnPost(Name = ACT_USER)]
-    [UserCorePermission(UserCoreAccessLevel.Change)]
+    [UserManagementPermission(UserManagementAccessLevel.Change)]
     public async Task<object> PostUserEntity(UserEntity user)
       => await SaveNewAsync(user).ConfigureAwait(false);
 
@@ -66,7 +66,7 @@ namespace Azos.AuthKit.Server.Web
                     Methods = new[] { "POST: Updates user account entity" },
                     TypeSchemas = new[] { typeof(UserEntity), typeof(ChangeResult) })]
     [ActionOnPut(Name = ACT_USER)]
-    [UserCorePermission(UserCoreAccessLevel.Change)]
+    [UserManagementPermission(UserManagementAccessLevel.Change)]
     public async Task<object> PutUserEntity(UserEntity user)
     => await SaveEditAsync(user).ConfigureAwait(false);
 
@@ -82,7 +82,7 @@ namespace Azos.AuthKit.Server.Web
             typeof(Atom)
       })]
     [ActionOnGet(Name = ACT_USER_LOGINS)]
-    [LoginCorePermission(LoginCoreAccessLevel.View)]
+    [UserManagementPermission(UserManagementAccessLevel.View)]
     public async Task<object> GetTreeListAsync(GDID gUser)
       => GetLogicResult(await m_Logic.GetLoginsAsync(gUser).ConfigureAwait(false));
   }

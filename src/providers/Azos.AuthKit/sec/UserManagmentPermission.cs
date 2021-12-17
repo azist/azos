@@ -4,16 +4,13 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using Azos.AuthKit.Server;
-
-using System.Security;
 
 namespace Azos.Security.Authkit
 {
   /// <summary>
   /// Defines access levels for core AuthKit user accounts
   /// </summary>
-  public enum UserCoreAccessLevel
+  public enum UserManagementAccessLevel
   {
     Denied = AccessLevel.DENIED,
     View = AccessLevel.VIEW,
@@ -24,10 +21,10 @@ namespace Azos.Security.Authkit
   /// <summary>
   /// Grants the assignee an ability to access core AuthKit user account functionality, possibly making changes depending on access level
   /// </summary>
-  public sealed class UserCorePermission : TypedPermission
+  public sealed class UserManagementPermission : TypedPermission
   {
-    public UserCorePermission() : base(AccessLevel.VIEW) { }
-    public UserCorePermission(UserCoreAccessLevel level) : base((int)level) { }
+    public UserManagementPermission() : base(AccessLevel.VIEW) { }
+    public UserManagementPermission(UserManagementAccessLevel level) : base((int)level) { }
 
     public override string Description
       => $"Grants the asignee an ability to access user account functionality " +
