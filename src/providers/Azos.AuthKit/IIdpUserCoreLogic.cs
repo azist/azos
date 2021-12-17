@@ -36,10 +36,11 @@ namespace Azos.AuthKit
     Task<IEnumerable<LoginInfo>> GetLoginsAsync(GDID gUser);
 
     Task<ValidState> ValidateUserAsync(UserEntity user, ValidState state);
+
     Task<ChangeResult> SaveUserAsync(UserEntity user);
 
-    //Task<ValidState> ValidateLoginAsync(LoginEntity login, ValidState state);
-    //Task<ChangeResult> SaveLoginAsync(LoginEntity login);
+    Task<ValidState> ValidateLoginAsync(LoginEntity login, ValidState state);
+    Task<ChangeResult> SaveLoginAsync(LoginEntity login);
 
     /// <summary>
     /// Invoked by EventHub reactor, pulls event from queue and applies it to the IDP.
