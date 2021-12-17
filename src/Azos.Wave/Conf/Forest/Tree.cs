@@ -49,6 +49,7 @@ namespace Azos.Conf.Forest.Server
             typeof(Atom)
       })]
     [ActionOnGet(Name = ACT_TREE_LIST)]
+    [TreePermission(TreeAccessLevel.Read)]
     public async Task<object> GetTreeListAsync(Atom forest)
       => GetLogicResult(await m_Logic.GetTreeListAsync(forest).ConfigureAwait(false));
 
@@ -66,6 +67,7 @@ namespace Azos.Conf.Forest.Server
         typeof(TreeNodeHeader)
       })]
     [ActionOnGet(Name = ACT_NODE_LIST)]
+    [TreePermission(TreeAccessLevel.Read)]
     public async Task<object> NodeListGet(EntityId idparent, DateTime? asofutc = null, bool nocache = false)
       => GetLogicResult(await m_Logic.GetChildNodeListAsync(idparent, asofutc, nocache.NoOrDefaultCache()).ConfigureAwait(false));
 
@@ -83,6 +85,7 @@ namespace Azos.Conf.Forest.Server
             typeof(VersionInfo)
       })]
     [ActionOnGet(Name = ACT_VERSION_LIST)]
+    [TreePermission(TreeAccessLevel.Read)]
     public async Task<object> NodeVersionsGet(EntityId id)
       => GetLogicResult(await m_Logic.GetNodeVersionListAsync(id).ConfigureAwait(false));
 
@@ -97,6 +100,7 @@ namespace Azos.Conf.Forest.Server
       Methods = new[] { "GET: TreeNodeInfo of the specified version" },
       TypeSchemas = new[]{ typeof(TreeNodeInfo) })]
     [ActionOnGet(Name = ACT_VERSION)]
+    [TreePermission(TreeAccessLevel.Read)]
     public async Task<object> GetNodeInfoVersionAsync(EntityId id)
       => GetLogicResult(await m_Logic.GetNodeInfoVersionAsync(id).ConfigureAwait(false));
 
@@ -115,6 +119,7 @@ namespace Azos.Conf.Forest.Server
       Methods = new[] { "GET: Gets the TreeNodeInfo by its id as of certain point in time" },
       TypeSchemas = new[]{ typeof(TreeNodeInfo) })]
     [ActionOnGet(Name = ACT_NODE)]
+    [TreePermission(TreeAccessLevel.Read)]
     public async Task<object> GetNodeInfoAsync(EntityId id, DateTime? asofutc = null, bool nocache = false)
       => GetLogicResult(await m_Logic.GetNodeInfoAsync(id, asofutc, nocache.NoOrDefaultCache()).ConfigureAwait(false));
 
@@ -133,6 +138,7 @@ namespace Azos.Conf.Forest.Server
         typeof(ChangeResult)
       })]
     [ActionOnPost(Name = ACT_NODE)]
+    [TreePermission(TreeAccessLevel.Setup)]
     public async Task<object> NodePost(TreeNode node)
      => await SaveNewAsync(node).ConfigureAwait(false);
 
@@ -149,6 +155,7 @@ namespace Azos.Conf.Forest.Server
         typeof(ChangeResult)
      })]
     [ActionOnPut(Name = ACT_NODE)]
+    [TreePermission(TreeAccessLevel.Setup)]
     public async Task<object> NodePut(TreeNode node)
     => await SaveEditAsync(node).ConfigureAwait(false);
 
@@ -170,6 +177,7 @@ namespace Azos.Conf.Forest.Server
         typeof(ChangeResult)
      })]
     [ActionOnDelete(Name = ACT_NODE)]
+    [TreePermission(TreeAccessLevel.Setup)]
     public async Task<object> NodeDelete(EntityId id, DateTime? asofutc = null)
     => GetLogicChangeResult(await m_Logic.DeleteNodeAsync(id, asofutc).ConfigureAwait(false));
 

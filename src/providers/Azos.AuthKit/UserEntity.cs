@@ -58,11 +58,40 @@ namespace Azos.AuthKit
            Description = "User description")]
     public string Description { get; set; }
 
+    /// <summary>
+    /// User account start/end date UTC time range
+    /// </summary>
+    [Field(required: true, description: "User account start/end date UTC time range")]
     public DateRange? ValidSpanUtc {  get; set; }
+
+    /// <summary>
+    /// User organization unit
+    /// </summary>
+    [Field(description: @"User organization unit")]
     public EntityId? OrgUnit { get; set; }
 
+    /// <summary>
+    /// Properties such as tree connections (e.g. roles) and claims
+    /// </summary>
+    [Field(required: true,
+           minLength: Constraints.PROPS_MIN_LEN,
+           maxLength: Constraints.PROPS_MAX_LEN,
+           Description = "Properties such as tree connections (e.g. roles) and claims")]
     public ConfigVector Props  { get; set; }
+
+    /// <summary>
+    /// User-specific Rights override or null for default rights
+    /// </summary>
+    [Field(minLength: Constraints.RIGHTS_MIN_LEN,
+           maxLength: Constraints.RIGHTS_MAX_LEN,
+           Description = "User-specific Rights override or null for default rights")]
     public ConfigVector Rights { get; set; }
+
+    /// <summary>
+    /// Free form text notes associated with the account
+    /// </summary>
+    [Field(maxLength:Constraints.NOTE_MAX_LEN,
+           Description = "Free form text notes associated with the account")]
     public string Note { get; set; }
 
 
