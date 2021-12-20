@@ -17,6 +17,10 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="IdpUserCoreCrudDataLogic.cs" />
+  </ItemGroup>
+
 
   <ItemGroup>
     <ProjectReference Include="..\..\Azos.Sky\Azos.Sky.csproj" />
