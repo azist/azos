@@ -92,6 +92,11 @@ namespace Azos.AuthKit.Server
       throw new NotImplementedException();
     }
 
+    public Task<ChangeResult> SetLockStatusAsync(LockStatus status)
+    {
+      throw new NotImplementedException();
+    }
+
     #endregion
   }
 }

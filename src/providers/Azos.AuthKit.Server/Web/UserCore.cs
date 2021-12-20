@@ -15,7 +15,7 @@ namespace Azos.AuthKit.Server.Web
 {
   [NoCache]
   [ApiControllerDoc(
-    BaseUri = "/authkit/users",
+    BaseUri = "/idp/usercore",
     Connection = "default/keep alive",
     Title = "AuthKit User Core Controller",
     Authentication = "Token/Default",

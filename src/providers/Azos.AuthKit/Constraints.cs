@@ -4,8 +4,13 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using Azos.Data;
+
 namespace Azos.AuthKit
 {
+  /// <summary>
+  /// Provides global AuthKit constraints and definitions
+  /// </summary>
   public static class Constraints
   {
     /// <summary>
@@ -63,5 +68,23 @@ namespace Azos.AuthKit
 
     public const int CALLER_ADDR_MAX_LEN = 64;
     public const int CALLER_AGENT_MAX_LEN = 256;
+
+    /// <summary>
+    /// Returns entity GDID if the supplied EntityId points to a valid entity type, using GDID schema
+    /// </summary>
+    public static GDID IsLockEntityIdValid(EntityId id)
+    {
+      if (
+           (!id.IsAssigned) ||
+           (id.System != SYS_AUTHKIT) ||
+           (!id.Schema.IsZero && id.Schema != SCH_GDID)
+         ) return GDID.ZERO;
+
+      if (id.Type != ETP_USER &&
+          id.Type != ETP_LOGIN) return GDID.ZERO;
+
+      return id.Address.AsGDID(GDID.ZERO);
+    }
+
   }
 }
