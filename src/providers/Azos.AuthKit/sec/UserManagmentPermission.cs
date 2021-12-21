@@ -27,7 +27,7 @@ namespace Azos.Security.Authkit
     public UserManagementPermission(UserManagementAccessLevel level) : base((int)level) { }
 
     public override string Description
-      => $"Grants the asignee an ability to access user account functionality " +
+      => $"Grants the assignee an ability to access user account functionality " +
          $"{(Level > AccessLevel.VIEW ? "and making changes" : "in read only mode")}";
   }
 }

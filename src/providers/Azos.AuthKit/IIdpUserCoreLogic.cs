@@ -35,17 +35,38 @@ namespace Azos.AuthKit
     // </summary>
     Task<IEnumerable<LoginInfo>> GetLoginsAsync(GDID gUser);
 
+    /// <summary>
+    /// UserEntity validation hook - called by UserEntity
+    /// </summary>
     Task<ValidState> ValidateUserAsync(UserEntity user, ValidState state);
 
+    /// <summary>
+    /// Saves UserEntity
+    /// </summary>
     Task<ChangeResult> SaveUserAsync(UserEntity user);
 
+    /// <summary>
+    /// `LoginEntity` validation hook - called by `LoginEntity`
+    /// </summary>
     Task<ValidState> ValidateLoginAsync(LoginEntity login, ValidState state);
+
+    /// <summary>
+    /// Saves `LoginEntity` into IDP persistence layer
+    /// </summary>
     Task<ChangeResult> SaveLoginAsync(LoginEntity login);
+
+
+    /// <summary>
+    /// Sets/resets lock-related field on account or login target.
+    /// You remove locked record status by setting a null lock dates or setting lock end UTC before the target UTC
+    /// </summary>
+    Task<ChangeResult> SetLockStatusAsync(LockStatus status);
+
 
     /// <summary>
     /// Invoked by EventHub reactor, pulls event from queue and applies it to the IDP.
     /// A `LoginEvent` is generated in response to successful password set, login or
-    /// bad login attempt
+    /// bad login attempt among other events
     /// </summary>
     Task<ChangeResult> ApplyLoginEventAsync(Events.LoginEvent what);
   }
