@@ -28,6 +28,11 @@ namespace Azos.AuthKit
     public static readonly Atom ETP_LOGIN   = Atom.Encode("login");
 
 
+    //Login types
+    public static readonly Atom LTP_EMAIL = Atom.Encode("email");//detected by searching for @
+    public static readonly Atom LTP_PHONE = Atom.Encode("phone");//detected by searching for digits
+    public static readonly Atom LTP_ID    = Atom.Encode("id");//if not email or phone
+
     /// <summary>
     /// AuthKit event namespace
     /// </summary>
