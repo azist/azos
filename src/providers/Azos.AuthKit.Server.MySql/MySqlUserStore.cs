@@ -4,29 +4,23 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-using Azos.Apps;
 using Azos.AuthKit.Server;
 using Azos.Data.Access.MySql;
-using Azos.Security.MinIdp;
 
 namespace Azos.AuthKit.MySql
 {
   /// <summary>
-  /// Declares a MySql data store for config forest tree.
-  /// This class is allocated by ForestDataSource
+  /// Declares a MySql data store for AuthKit IDP data.
+  /// The class provides services for IdpUserCoreCrudDataLogic which is based on CRUD data access layer
   /// </summary>
   public sealed class MySqlIdpUserCoreDataStore : MySqlCrudDataStoreBase
   {
-    public MySqlIdpUserCoreDataStore(IdpUserCoreDataSource director) : base(director) { }
+    public MySqlIdpUserCoreDataStore(IdpUserCoreCrudDataLogic director) : base(director) { }
 
-    public override string TargetName { get => "mysql"; }
-    public override bool FullGDIDS { get => true; set { } }
-    public override bool StringBool { get => true; set { } }
+    public override string TargetName     { get => "mysql"; }
+    public override bool FullGDIDS        { get => true; set { } }
+    public override bool StringBool       { get => true; set { } }
     public override string StringForFalse { get => "F"; set { } }
-    public override string StringForTrue { get => "T"; set { } }
+    public override string StringForTrue  { get => "T"; set { } }
   }
 }

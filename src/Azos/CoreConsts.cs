@@ -140,7 +140,6 @@ namespace Azos
       public const string GLUE_TOPIC = "Glue";
       public const string CLIENT_TOPIC = "Client";
       public const string PAY_TOPIC = "Pay";
-      public const string ERLANG_TOPIC = "Erl";
       public const string CACHE_TOPIC = "Cache";
       public const string LOCALIZATION_TOPIC = "Lcl";
       public const string SOCIAL_TOPIC = "Social";
@@ -154,7 +153,6 @@ namespace Azos
       public const string WAVE_TOPIC = "Wave";
       public const string DOC_TOPIC = "Doc";
       public const string TOPIC_ID_GEN = "idg";
-      public const string IDPUSER_TOPIC = "IdpUserCore";
 
       public static readonly Atom LOG_CHANNEL_SECURITY = Atom.Encode("sec");
 
