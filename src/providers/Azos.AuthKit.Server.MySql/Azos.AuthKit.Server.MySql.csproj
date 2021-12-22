@@ -17,14 +17,16 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="Queries/**/*.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Queries/**/*.sql" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Azos.AuthKit.Server\Azos.AuthKit.Server.csproj" />
     <ProjectReference Include="..\Azos.MySql\Azos.MySql.csproj" />
-  </ItemGroup>
-
-
-  <ItemGroup>
-    <Folder Include="Queries\" />
   </ItemGroup>
 </Project>

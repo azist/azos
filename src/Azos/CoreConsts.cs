@@ -154,6 +154,7 @@ namespace Azos
       public const string WAVE_TOPIC = "Wave";
       public const string DOC_TOPIC = "Doc";
       public const string TOPIC_ID_GEN = "idg";
+      public const string IDPUSER_TOPIC = "IdpUserCore";
 
       public static readonly Atom LOG_CHANNEL_SECURITY = Atom.Encode("sec");
 
