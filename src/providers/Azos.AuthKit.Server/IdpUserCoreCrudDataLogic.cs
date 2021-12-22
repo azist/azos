@@ -12,6 +12,8 @@ using System.Threading.Tasks;
 using Azos.Apps;
 using Azos.Apps.Injection;
 using Azos.AuthKit.Events;
+using Azos.Conf.Forest;
+using Azos.Conf.Forest.Server;
 using Azos.Data;
 using Azos.Data.Access;
 using Azos.Security;
@@ -46,36 +48,47 @@ namespace Azos.AuthKit.Server
     //+   File: Azos.MogoDb.dll::/Security/MinIdp/MinIdpMongoDbStore.cs                              +
     //+==============================================================================================+
 
-    public Task<MinIdpUserData> GetByIdAsync(Atom realm, string id, AuthenticationRequestContext ctx)
+    public async Task<MinIdpUserData> GetByIdAsync(Atom realm, string id, AuthenticationRequestContext ctx)
     {
       if (id.IsNullOrWhiteSpace()) return null;//bad user
       var (provider, loginType, parsedId) = parseId(id);
 
+      parsedId = parsedId.ToLowerInvariant(); // TODO: review if this is needed?
 
       //Lookup by:
       //(`REALM`, `ID`, `TID`, `PROVIDER`);.
       // by executing CRUD query against ICrudDataStore (which needs to be configured as a part of this class)
-
-
-      throw new NotImplementedException();
+      return await getByIdAsync_Implementation(realm, provider, loginType, parsedId).ConfigureAwait(false);
     }
 
-    public Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri, AuthenticationRequestContext ctx)
+    public async Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri, AuthenticationRequestContext ctx)
     {
       if (uri.IsNullOrWhiteSpace()) return null;//bad user
-      var provider = "default";
-      var loginType = Constraints.LTP_ID;
-      var parsedId = uri;
 
-      //call the same function as above
-      throw new NotImplementedException();
+      uri = uri.ToLowerInvariant(); // TODO: review if this is needed?
+
+      return await getByIdAsync_Implementation(realm, "default", Constraints.LTP_ID, uri);
     }
 
     public Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken, AuthenticationRequestContext ctx)
     {
       if (sysToken.IsNullOrWhiteSpace()) return null;//bad user
 
+      // TODO: Add system token logic
+
       throw new NotImplementedException();
+    }
+
+    private async Task<MinIdpUserData> getByIdAsync_Implementation(Atom realm, string provider, Atom loginType, string parsedId)
+    {
+      var qry = new Query<MinIdpUserData>("UserCore.GetByIdAsync")
+          {
+            new Query.Param("realm", realm),
+            new Query.Param("id", parsedId),
+            new Query.Param("tid", loginType),
+            new Query.Param("provider", provider)
+          };
+      return await m_Data.LoadDocAsync(qry).ConfigureAwait(false);
     }
     #endregion
 

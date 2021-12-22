@@ -17,14 +17,17 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="Queries\UserCore\GetByIdAsync.sql" />
+  </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Azos.AuthKit.Server\Azos.AuthKit.Server.csproj" />
-    <ProjectReference Include="..\Azos.MySql\Azos.MySql.csproj" />
+    <EmbeddedResource Include="Queries\UserCore\GetByIdAsync.sql" />
   </ItemGroup>
 
 
   <ItemGroup>
-    <Folder Include="Queries\" />
+    <ProjectReference Include="..\Azos.AuthKit.Server\Azos.AuthKit.Server.csproj" />
+    <ProjectReference Include="..\Azos.MySql\Azos.MySql.csproj" />
   </ItemGroup>
 </Project>
