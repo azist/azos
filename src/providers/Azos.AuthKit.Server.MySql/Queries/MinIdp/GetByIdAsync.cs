@@ -12,7 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Azos.AuthKit.Server.MySql.Queries.UserCore
+namespace Azos.AuthKit.Server.MySql.Queries.MinIdp
 {
   public sealed class GetByIdAsync : MySqlCrudQueryHandler<Query>
   {
