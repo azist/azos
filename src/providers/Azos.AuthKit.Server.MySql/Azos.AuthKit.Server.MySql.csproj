@@ -18,13 +18,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Queries\UserCore\GetByIdAsync.sql" />
+    <None Remove="Queries/**/*.sql" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Queries\UserCore\GetByIdAsync.sql" />
+    <EmbeddedResource Include="Queries/**/*.sql" />
   </ItemGroup>
-
 
   <ItemGroup>
     <ProjectReference Include="..\Azos.AuthKit.Server\Azos.AuthKit.Server.csproj" />
