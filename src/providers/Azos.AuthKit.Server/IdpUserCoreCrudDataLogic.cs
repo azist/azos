@@ -178,6 +178,9 @@ namespace Azos.AuthKit.Server
       //otherwise try to oarse for digits, -, (phone) then it is a Constraints.LTP_PHONE
       //otherwise it is Constraints.LTP_ID
 
+      //this must be done ONLY for LOGIN type
+      //parsedId = parsedId.ToLowerInvariant(); // TODO: review if this is needed?
+
       return (null, Atom.ZERO, null);
     }
 
