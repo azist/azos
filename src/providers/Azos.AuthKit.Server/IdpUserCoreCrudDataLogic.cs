@@ -6,14 +6,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 using Azos.Apps;
 using Azos.Apps.Injection;
 using Azos.AuthKit.Events;
-using Azos.Conf.Forest;
-using Azos.Conf.Forest.Server;
+using Azos.Conf;
 using Azos.Data;
 using Azos.Data.Access;
 using Azos.Security;
@@ -26,11 +24,14 @@ namespace Azos.AuthKit.Server
   /// </summary>
   public sealed class IdpUserCoreCrudDataLogic : ModuleBase, IIdpUserCoreLogic
   {
+    public const string CONFIG_DATA_STORE_SECTION = "data-store";
+
     public IdpUserCoreCrudDataLogic(IApplication application) : base(application) { }
     public IdpUserCoreCrudDataLogic(IModule parent) : base(parent) { }
 
-    [Inject]
-    private ICrudDataStore m_Data;
+    private ICrudDataStoreImplementation m_Data;
+
+    private ICrudDataStore Data => m_Data.NonDisposed(nameof(m_Data));
 
     public bool IsServerImplementation => true;
 
@@ -39,6 +40,35 @@ namespace Azos.AuthKit.Server
     public override string ComponentLogTopic => throw new NotImplementedException();
 
     public ICryptoMessageAlgorithm MessageProtectionAlgorithm => throw new NotImplementedException();
+
+    #region Module Lifecycle
+
+    protected override void DoConfigure(IConfigSectionNode node)
+    {
+      base.DoConfigure(node);
+
+      if (node==null || !node.Exists) return;
+
+      var ndata = node[CONFIG_DATA_STORE_SECTION];
+      if (!ndata.Exists) return;
+
+      m_Data = FactoryUtils.MakeAndConfigureDirectedComponent<ICrudDataStoreImplementation>(this, ndata);
+    }
+
+    protected override bool DoApplicationAfterInit()
+    {
+      m_Data.NonNull("Configured {0}".Args(CONFIG_DATA_STORE_SECTION));
+
+      return base.DoApplicationAfterInit();
+    }
+
+    protected override bool DoApplicationBeforeCleanup()
+    {
+      DisposeAndNull(ref m_Data);
+      return base.DoApplicationBeforeCleanup();
+    }
+
+    #endregion
 
     #region MinIdp logic portion
 
@@ -81,14 +111,14 @@ namespace Azos.AuthKit.Server
 
     private async Task<MinIdpUserData> getByIdAsync_Implementation(Atom realm, string provider, Atom loginType, string parsedId)
     {
-      var qry = new Query<MinIdpUserData>("UserCore.GetByIdAsync")
+      var qry = new Query<MinIdpUserData>("MinIdp.GetByIdAsync")
           {
             new Query.Param("realm", realm),
             new Query.Param("id", parsedId),
             new Query.Param("tid", loginType),
             new Query.Param("provider", provider)
           };
-      return await m_Data.LoadDocAsync(qry).ConfigureAwait(false);
+      return await Data.LoadDocAsync(qry).ConfigureAwait(false);
     }
     #endregion
 
