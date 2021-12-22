@@ -19,7 +19,7 @@ namespace Azos.AuthKit.Server.MySql.Queries.MinIdp
   {
     public GetByIdAsync(MySqlCrudDataStoreBase store, string name) : base(store, name) { }
 
-    //[Inject] IMyLogic m_Logic;
+    [Inject] IIdpHandlerLogic m_Logic;
 
     protected override void DoBuildCommandAndParameters(MySqlCrudQueryExecutionContext context, MySqlCommand cmd, Query qry)
     {

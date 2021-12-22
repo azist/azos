@@ -29,6 +29,7 @@ namespace Azos.AuthKit.Server
     public IdpUserCoreCrudDataLogic(IApplication application) : base(application) { }
     public IdpUserCoreCrudDataLogic(IModule parent) : base(parent) { }
 
+    [Inject] IIdpHandlerLogic m_Handler;
     private ICrudDataStoreImplementation m_Data;
 
     private ICrudDataStore Data => m_Data.NonDisposed(nameof(m_Data));
@@ -81,9 +82,7 @@ namespace Azos.AuthKit.Server
     public async Task<MinIdpUserData> GetByIdAsync(Atom realm, string id, AuthenticationRequestContext ctx)
     {
       if (id.IsNullOrWhiteSpace()) return null;//bad user
-      var (provider, loginType, parsedId) = parseId(id);
-
-      parsedId = parsedId.ToLowerInvariant(); // TODO: review if this is needed?
+      var (provider, loginType, parsedId) = m_Handler.ParseId(id);
 
       //Lookup by:
       //(`REALM`, `ID`, `TID`, `PROVIDER`);.
@@ -95,9 +94,9 @@ namespace Azos.AuthKit.Server
     {
       if (uri.IsNullOrWhiteSpace()) return null;//bad user
 
-      uri = uri.ToLowerInvariant(); // TODO: review if this is needed?
+      var (provider, loginType, parsedId) = m_Handler.ParseUri(uri);
 
-      return await getByIdAsync_Implementation(realm, "default", Constraints.LTP_ID, uri);
+      return await getByIdAsync_Implementation(realm, provider, loginType, uri);
     }
 
     public Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken, AuthenticationRequestContext ctx)
@@ -167,22 +166,7 @@ namespace Azos.AuthKit.Server
     #endregion
 
     #region pvt
-    private (string provider, Atom loginType, string parsedId) parseId(string id)
-    {
-      //in future, this function would be delegated to ID pre-parsing strategy which will be connected to this logic.
-      //For now we are going to hard-code the rules below here
 
-      //look for ":" - everything to the left is provider:    <provider>:<id>, if no ":" then use default provider (will be a property later)
-
-      //parse the <id> for "@" - then it is an Constraints.LTP_EMAIL
-      //otherwise try to oarse for digits, -, (phone) then it is a Constraints.LTP_PHONE
-      //otherwise it is Constraints.LTP_ID
-
-      //this must be done ONLY for LOGIN type
-      //parsedId = parsedId.ToLowerInvariant(); // TODO: review if this is needed?
-
-      return (null, Atom.ZERO, null);
-    }
 
     #endregion
   }
