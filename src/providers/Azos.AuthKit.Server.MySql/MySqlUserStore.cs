@@ -13,13 +13,13 @@ namespace Azos.AuthKit.MySql
   /// Declares a MySql data store for AuthKit IDP data.
   /// The class provides services for IdpUserCoreCrudDataLogic which is based on CRUD data access layer
   /// </summary>
-  public sealed class MySqlIdpUserCoreDataStore : MySqlCrudDataStoreBase
+  public sealed class MySqlUserStore : MySqlCrudDataStoreBase
   {
-    public MySqlIdpUserCoreDataStore(IdpUserCoreCrudDataLogic director) : base(director) { }
+    public MySqlUserStore(IdpUserCoreCrudDataLogic director) : base(director) { }
 
     public override string TargetName     { get => "mysql"; }
-    public override bool FullGDIDS        { get => true; set { } }
-    public override bool StringBool       { get => true; set { } }
+    public override bool   FullGDIDS      { get => true; set { } }
+    public override bool   StringBool     { get => true; set { } }
     public override string StringForFalse { get => "F"; set { } }
     public override string StringForTrue  { get => "T"; set { } }
   }
