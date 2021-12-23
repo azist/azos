@@ -1,4 +1,5 @@
-﻿using Azos.Data;
+﻿using Azos.Apps.Injection;
+using Azos.Data;
 using Azos.Data.Access;
 using Azos.Data.Access.MySql;
 using Azos.Data.Business;
@@ -18,11 +19,12 @@ namespace Azos.AuthKit.Server.MySql.Queries.MinIdp
   {
     public GetByIdAsync(MySqlCrudDataStoreBase store, string name) : base(store, name) { }
 
+    [Inject] IIdpHandlerLogic m_Logic;
+
     protected override void DoBuildCommandAndParameters(MySqlCrudQueryExecutionContext context, MySqlCommand cmd, Query qry)
     {
       //var tpr = qry.GetParameterValueAs<TreePtr>("tree");
       //context.SetState(tpr);
-
       cmd.Parameters.AddWithValue("realm", qry.GetParameterValueAs<Atom>("realm"));
       cmd.Parameters.AddWithValue("id", qry.GetParameterValueAs<string>("id"));
       cmd.Parameters.AddWithValue("tid", qry.GetParameterValueAs<Atom>("tid"));
