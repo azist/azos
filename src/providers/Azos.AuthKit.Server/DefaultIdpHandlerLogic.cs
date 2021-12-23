@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.Text;
 
 using Azos.Apps;
+using Azos.Collections;
+using Azos.Conf;
 using Azos.Data;
 using Azos.Serialization.JSON;
 
@@ -19,27 +21,47 @@ namespace Azos.AuthKit.Server
     public DefaultIdpHandlerLogic(IApplication application) : base(application) { }
     public DefaultIdpHandlerLogic(IModule parent) : base(parent) { }
 
+    Registry<LoginProvider> m_Providers;
+
     public bool IsServerImplementation => true;
     public override bool IsHardcodedModule => false;
     public override string ComponentLogTopic => CoreConsts.SECURITY_TOPIC;
 
+    public IRegistry<LoginProvider> Providers => m_Providers;
 
     public string SysTokenCryptoAlgorithmName => throw new NotImplementedException();
 
     public double SysTokenLifespanHours => throw new NotImplementedException();
 
 
+    #region Protected/Lifecycle
+    protected override void DoConfigure(IConfigSectionNode node)
+    {
+      base.DoConfigure(node);
+    }
+
+    protected override bool DoApplicationAfterInit()
+    {
+      return base.DoApplicationAfterInit();
+    }
+
+    protected override bool DoApplicationBeforeCleanup()
+    {
+      return base.DoApplicationBeforeCleanup();
+    }
+    #endregion
+
     public string MakeSystemTokenData(GDID gUser, JsonDataMap data = null)
     {
       throw new NotImplementedException();
     }
 
-    public (string provider, Atom loginType, string parsedId) ParseId(string id)
+    public EntityId ParseId(string id)
     {
       throw new NotImplementedException();
     }
 
-    public (string provider, Atom loginType, string parsedUri) ParseUri(string uri)
+    public EntityId ParseUri(string uri)
     {
       throw new NotImplementedException();
     }

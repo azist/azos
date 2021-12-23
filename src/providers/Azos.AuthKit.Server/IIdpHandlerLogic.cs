@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
+using Azos.Collections;
 using Azos.Data;
 using Azos.Data.Business;
 using Azos.Serialization.JSON;
@@ -19,8 +20,24 @@ namespace Azos.AuthKit.Server
   /// </summary>
   public interface IIdpHandlerLogic : IBusinessLogic
   {
-    (string provider, Atom loginType, string parsedId) ParseId(string id);
-    (string provider, Atom loginType, string parsedUri) ParseUri(string uri);
+    /// <summary>
+    /// Registry of login providers
+    /// </summary>
+    IRegistry<LoginProvider> Providers {  get; }
+
+    /// <summary>
+    /// Parses the supplied login string expressed in EntityId format.
+    /// The string has to be formatted as EntityId or plain string which then assumes defaults.
+    /// The EntityId.System is Provider.Name, and EntityId.Type is login type
+    /// </summary>
+    EntityId ParseId(string id);
+
+    /// <summary>
+    /// Parses the supplied uri expressed in EntityId format.
+    /// The string has to be formatted as EntityId or plain string which then assumes defaults.
+    /// The EntityId.System is Provider.Name, and EntityId.Type is login type
+    /// </summary>
+    EntityId ParseUri(string uri);
 
     string SysTokenCryptoAlgorithmName { get; }
     double SysTokenLifespanHours       { get; }
@@ -30,4 +47,5 @@ namespace Azos.AuthKit.Server
     string MakeSystemTokenData(GDID gUser, JsonDataMap data = null);
     //JsonDataMap CheckSystemToken(string token)
   }
+
 }

@@ -82,21 +82,21 @@ namespace Azos.AuthKit.Server
     public async Task<MinIdpUserData> GetByIdAsync(Atom realm, string id, AuthenticationRequestContext ctx)
     {
       if (id.IsNullOrWhiteSpace()) return null;//bad user
-      var (provider, loginType, parsedId) = m_Handler.ParseId(id);
+      var eid = m_Handler.ParseId(id);
 
       //Lookup by:
       //(`REALM`, `ID`, `TID`, `PROVIDER`);.
       // by executing CRUD query against ICrudDataStore (which needs to be configured as a part of this class)
-      return await getByIdAsync_Implementation(realm, provider, loginType, parsedId).ConfigureAwait(false);
+      return await getByIdAsync_Implementation(realm, eid).ConfigureAwait(false);
     }
 
     public async Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri, AuthenticationRequestContext ctx)
     {
       if (uri.IsNullOrWhiteSpace()) return null;//bad user
 
-      var (provider, loginType, parsedId) = m_Handler.ParseUri(uri);
+      var euri = m_Handler.ParseUri(uri);
 
-      return await getByIdAsync_Implementation(realm, provider, loginType, uri);
+      return await getByIdAsync_Implementation(realm, euri);
     }
 
     public Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken, AuthenticationRequestContext ctx)
@@ -108,14 +108,14 @@ namespace Azos.AuthKit.Server
       throw new NotImplementedException();
     }
 
-    private async Task<MinIdpUserData> getByIdAsync_Implementation(Atom realm, string provider, Atom loginType, string parsedId)
+    private async Task<MinIdpUserData> getByIdAsync_Implementation(Atom realm, EntityId login)
     {
       var qry = new Query<MinIdpUserData>("MinIdp.GetByIdAsync")
           {
             new Query.Param("realm", realm),
-            new Query.Param("id", parsedId),
-            new Query.Param("tid", loginType),
-            new Query.Param("provider", provider)
+            new Query.Param("id", login.Address),
+            new Query.Param("tid", login.Type.Value),
+            new Query.Param("provider", login.System.Value)
           };
       return await Data.LoadDocAsync(qry).ConfigureAwait(false);
     }
