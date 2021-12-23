@@ -38,15 +38,36 @@ namespace Azos.AuthKit.Server
     protected override void DoConfigure(IConfigSectionNode node)
     {
       base.DoConfigure(node);
+      if (node==null || !node.Exists) return;
+
+      cleanup();
+      m_Providers = new Registry<LoginProvider>();
+
+      foreach(var np in node.ChildrenNamed(LoginProvider.CONFIG_PROVIDER_SECTION))
+      {
+        var provider = FactoryUtils.MakeDirectedComponent<LoginProvider>(this, np, extraArgs: new object[]{ np });
+        if (!m_Providers.Register(provider))
+        {
+          throw new AuthKitException("Duplicate provider `{0}` name in config".Args(provider.Name));
+        }
+      }
+    }
+
+    private void cleanup()
+    {
+      m_Providers.ForEach( p => this.DontLeak( () => p.Dispose()) );
+      m_Providers = null;
     }
 
     protected override bool DoApplicationAfterInit()
     {
+      m_Providers.NonNull("configured providers");
       return base.DoApplicationAfterInit();
     }
 
     protected override bool DoApplicationBeforeCleanup()
     {
+      cleanup();
       return base.DoApplicationBeforeCleanup();
     }
     #endregion

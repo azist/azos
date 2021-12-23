@@ -22,6 +22,8 @@ namespace Azos.AuthKit.Server
   /// </summary>
   public abstract class LoginProvider : ApplicationComponent<IIdpHandlerLogic>, INamed
   {
+    public const string CONFIG_PROVIDER_SECTION = "provider";
+
     protected LoginProvider(IIdpHandlerLogic handler, IConfigSectionNode cfg) : base(handler)
     {
       cfg.NonEmpty(nameof(cfg));
