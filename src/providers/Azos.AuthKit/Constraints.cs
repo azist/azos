@@ -5,6 +5,7 @@
 </FILE_LICENSE>*/
 
 using Azos.Data;
+using Azos.Security;
 
 namespace Azos.AuthKit
 {
@@ -89,6 +90,26 @@ namespace Azos.AuthKit
           id.Type != ETP_LOGIN) return GDID.ZERO;
 
       return id.Address.AsGDID(GDID.ZERO);
+    }
+
+    public static UserStatus? MapUserStatus(string v)
+    {
+      if (v.IsNullOrWhiteSpace()) return null;
+
+      if (v == "u" || v == "U") return UserStatus.User;
+      if (v == "a" || v == "A") return UserStatus.Admin;
+      if (v == "s" || v == "S") return UserStatus.System;
+      return UserStatus.Invalid;
+    }
+
+    public static string MapUserStatus(UserStatus? v)
+    {
+      if (!v.HasValue) return null;
+
+      if (v == UserStatus.User) return "U";
+      if (v == UserStatus.Admin) return "A";
+      if (v == UserStatus.System) return "S";
+      return "I";
     }
 
   }

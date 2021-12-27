@@ -78,7 +78,7 @@ namespace Azos.AuthKit.Server
     }
     #endregion
 
-    public string MakeSystemTokenData(GDID gUser, JsonDataMap data = null)
+    public string MakeSystemTokenData(Atom realm, GDID gUser, JsonDataMap auxData = null)
     {
       throw new NotImplementedException();
     }

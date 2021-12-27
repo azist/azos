@@ -52,7 +52,7 @@ namespace Azos.AuthKit.Server
 
    // (ConfigVector props, ConfigVector rights) CalculateEffectivePolicies(ConfigVector userProps, ConfigVector loginProps);
 
-    string MakeSystemTokenData(GDID gUser, JsonDataMap data = null);
+    string MakeSystemTokenData(Atom realm, GDID gUser, JsonDataMap auxData = null);
     //JsonDataMap CheckSystemToken(string token)
   }
 

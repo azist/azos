@@ -1,4 +1,10 @@
-﻿using Azos.Apps.Injection;
+﻿/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
+
+using Azos.Apps.Injection;
 using Azos.Data;
 using Azos.Data.Access;
 using Azos.Data.Access.MySql;
@@ -38,16 +44,25 @@ namespace Azos.AuthKit.Server.MySql.Queries.MinIdp
       var verState = VersionInfo.MapCanonicalState(reader.AsStringField("VERSION_STATE"));
       if (!VersionInfo.IsExistingStateOf(verState)) return null; //deleted, skip this doc
 
+      var realm = reader.AsAtomField("REALM").Value;
+      var gUser = reader.AsGdidField("GDID");
+      var sysToken = m_Logic.MakeSystemTokenData(realm, gUser);
+
+      var level = Constraints.MapUserStatus(reader.AsString("LEVEL")) ?? Security.UserStatus.Invalid;
+      var levelDown = Constraints.MapUserStatus(reader.AsString("LEVEL_DOWN"));
+      if (levelDown.HasValue && levelDown.Value < level) level = levelDown.Value;
+
       var result = new MinIdpUserData
       {
-        SysId = reader.AsGdidField("GDID").ID.ToString(),
-        Realm = reader.AsAtomField("REALM", Atom.ZERO).Value,
-        // TODO: Add SysToken Logic
-        // TODO: Add Status Logic - LEVEL I|U|A|S and LEVEL_DOWN?
+        SysId = gUser.ToHexString(),
+        Realm = realm,
+        SysTokenData = sysToken,
+        Status = level,
+
         CreateUtc = reader.AsDateTimeField("CREATE_UTC", DateTime.MinValue).Value,
         StartUtc = reader.AsDateTimeField("START_UTC", DateTime.MinValue).Value,
         EndUtc = reader.AsDateTimeField("END_UTC", DateTime.MaxValue).Value,
-        LoginId = reader.AsStringField("ID"),
+        LoginId = reader.AsStringField("ID"), //compose back to entity id using provider etc...
         LoginPassword = reader.AsStringField("PWD"),
         LoginStartUtc = reader.AsDateTimeField("LOGIN_START_UTC"),
         LoginEndUtc = reader.AsDateTimeField("LOGIN_START_UTC"),
