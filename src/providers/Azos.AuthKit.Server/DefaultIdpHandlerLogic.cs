@@ -23,7 +23,8 @@ namespace Azos.AuthKit.Server
     public DefaultIdpHandlerLogic(IModule parent) : base(parent) { }
 
     Registry<LoginProvider> m_Providers;
-    Atom m_DefaultLoginProvider;
+
+    [Config] Atom m_DefaultLoginProvider;
 
     public bool IsServerImplementation => true;
     public override bool IsHardcodedModule => false;
@@ -65,7 +66,8 @@ namespace Azos.AuthKit.Server
 
     protected override bool DoApplicationAfterInit()
     {
-      m_Providers.NonNull("configured providers");
+      m_Providers.NonNull("configured providers")[DefaultLoginProvider.Value]
+                 .NonNull("default login provider `{0}`".Args(DefaultLoginProvider));
       return base.DoApplicationAfterInit();
     }
 
@@ -96,12 +98,11 @@ namespace Azos.AuthKit.Server
       {
         var p = Providers[DefaultLoginProvider.Value].NonNull(nameof(DefaultLoginProvider));
         return new EntityId(DefaultLoginProvider, p.DefaultLoginType, Atom.ZERO, id);
-
       }
 
       if (!EntityId.TryParse(id, out var result))
       {
-        throw new ValidationException("Bad id format") { HttpStatusDescription = "The ID is not parable as EntityId"};
+        throw new ValidationException("Bad id format") { HttpStatusDescription = "The ID is not parsable as EntityId"};
       }
 
       var provider = Providers[result.System.Value];
@@ -110,9 +111,11 @@ namespace Azos.AuthKit.Server
         throw new ValidationException("Unknown provider") { HttpStatusDescription = "Login provider `{0}` is not known".Args(result.System) };
       }
 
-      if (result.Type.IsZero) result = new EntityId(result.System, provider.DefaultLoginType, Atom.ZERO, result.Address);
-
-      if (!provider.SupportedLoginTypes.Any(t => t == result.Type))
+      if (result.Type.IsZero)
+      {
+        result = new EntityId(result.System, provider.DefaultLoginType, Atom.ZERO, result.Address);
+      }
+      else if (!provider.SupportedLoginTypes.Any(t => t == result.Type))
       {
         throw new ValidationException("Bad login type") { HttpStatusDescription = "Login provider `{0}` does not support login type `{1}`".Args(result.System, result.Type) };
       }
