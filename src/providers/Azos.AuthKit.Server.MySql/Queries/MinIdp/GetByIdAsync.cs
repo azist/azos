@@ -29,12 +29,12 @@ namespace Azos.AuthKit.Server.MySql.Queries.MinIdp
 
     protected override void DoBuildCommandAndParameters(MySqlCrudQueryExecutionContext context, MySqlCommand cmd, Query qry)
     {
-      //var tpr = qry.GetParameterValueAs<TreePtr>("tree");
-      //context.SetState(tpr);
+      var id = qry.GetParameterValueAs<EntityId>("id");
+      context.SetState(id);
       cmd.Parameters.AddWithValue("realm", qry.GetParameterValueAs<Atom>("realm"));
-      cmd.Parameters.AddWithValue("id", qry.GetParameterValueAs<string>("id"));
-      cmd.Parameters.AddWithValue("tid", qry.GetParameterValueAs<Atom>("tid"));
-      cmd.Parameters.AddWithValue("provider", qry.GetParameterValueAs<string>("provider"));
+      cmd.Parameters.AddWithValue("id",       id.Address);
+      cmd.Parameters.AddWithValue("tid",      id.Type);
+      cmd.Parameters.AddWithValue("provider", id.System);
 
       cmd.CommandText = GetType().GetText("GetUserById.sql");
     }
@@ -43,6 +43,8 @@ namespace Azos.AuthKit.Server.MySql.Queries.MinIdp
     {
       var verState = VersionInfo.MapCanonicalState(reader.AsStringField("VERSION_STATE"));
       if (!VersionInfo.IsExistingStateOf(verState)) return null; //deleted, skip this doc
+
+      var id = context.GetState<EntityId>();
 
       var realm = reader.AsAtomField("REALM").Value;
       var gUser = reader.AsGdidField("GDID");
@@ -62,7 +64,7 @@ namespace Azos.AuthKit.Server.MySql.Queries.MinIdp
         CreateUtc = reader.AsDateTimeField("CREATE_UTC", DateTime.MinValue).Value,
         StartUtc = reader.AsDateTimeField("START_UTC", DateTime.MinValue).Value,
         EndUtc = reader.AsDateTimeField("END_UTC", DateTime.MaxValue).Value,
-        LoginId = reader.AsStringField("ID"), //compose back to entity id using provider etc...
+        LoginId = id,
         LoginPassword = reader.AsStringField("PWD"),
         LoginStartUtc = reader.AsDateTimeField("LOGIN_START_UTC"),
         LoginEndUtc = reader.AsDateTimeField("LOGIN_START_UTC"),
