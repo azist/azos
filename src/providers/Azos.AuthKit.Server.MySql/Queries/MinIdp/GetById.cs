@@ -49,6 +49,7 @@ namespace Azos.AuthKit.Server.MySql.Queries.MinIdp
       var realm = reader.AsAtomField("REALM").Value;
       var gUser = reader.AsGdidField("GDID");
       var sysToken = m_Logic.MakeSystemTokenData(realm, gUser);
+      var name = reader.AsStringField("NAME");
 
       var level = Constraints.MapUserStatus(reader.AsString("LEVEL")) ?? Security.UserStatus.Invalid;
       var levelDown = Constraints.MapUserStatus(reader.AsString("LEVEL_DOWN"));
@@ -68,8 +69,8 @@ namespace Azos.AuthKit.Server.MySql.Queries.MinIdp
         LoginPassword = reader.AsStringField("PWD"),
         LoginStartUtc = reader.AsDateTimeField("LOGIN_START_UTC"),
         LoginEndUtc = reader.AsDateTimeField("LOGIN_START_UTC"),
-        ScreenName = reader.AsStringField("NAME"), // TODO: review this!
-        Name = reader.AsStringField("NAME"),
+        ScreenName = name,
+        Name = name,
         Description = reader.AsStringField("DESCRIPTION"),
         Role = null, // TODO: extract role from PROPS column data
         Rights = reader.AsStringField("RIGHTS"),

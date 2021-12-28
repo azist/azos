@@ -35,12 +35,12 @@ namespace Azos.AuthKit
     public Atom? Realm { get; set; }
 
     /// <summary>
-    /// User account name/title
+    /// Name/(Screen Name)/Uri//Title of user account unique per realm
     /// </summary>
     [Field(required: true,
            minLength: Constraints.USER_NAME_MIN_LEN,
            maxLength: Constraints.USER_NAME_MAX_LEN,
-           Description = "User account name/title")]
+           Description = "Name/(Screen Name)/Uri//Title of user account unique per realm")]
     public string Name { get; set; }
 
     /// <summary>

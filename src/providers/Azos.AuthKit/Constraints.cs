@@ -49,7 +49,7 @@ namespace Azos.AuthKit
 
     public const int ENTITY_ID_MAX_LEN = 256;
 
-    public const int USER_NAME_MIN_LEN = 1;
+    public const int USER_NAME_MIN_LEN = 3;
     public const int USER_NAME_MAX_LEN = 64;
 
     public const int USER_DESCR_MIN_LEN = 1;

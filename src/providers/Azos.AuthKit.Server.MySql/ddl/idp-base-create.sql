@@ -42,7 +42,7 @@ delimiter ;.
   create unique index `idx_tbl_user_ukguid` on `tbl_user`(`GUID`);.
 
 delimiter ;.
-  create index `idx_tbl_user_name` on `tbl_user`(`REALM`, `NAME`);.
+  create unique index `idx_tbl_user_ukname` on `tbl_user`(`REALM`, `NAME`);.
 
 delimiter ;.
   create index `idx_tbl_user_org` on `tbl_user`(`REALM`, `ORG_UNIT`);.
