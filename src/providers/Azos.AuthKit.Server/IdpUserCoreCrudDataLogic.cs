@@ -110,7 +110,7 @@ namespace Azos.AuthKit.Server
 
     private async Task<MinIdpUserData> getByIdAsync_Implementation(Atom realm, EntityId login)
     {
-      var qry = new Query<MinIdpUserData>("MinIdp.GetByIdAsync")
+      var qry = new Query<MinIdpUserData>("MinIdp.GetById")
       {
         new Query.Param("realm", realm),
         new Query.Param("id", login)

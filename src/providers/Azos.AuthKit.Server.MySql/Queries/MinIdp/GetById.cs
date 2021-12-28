@@ -4,26 +4,26 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using System;
+using System.Collections.Generic;
+using System.Text;
+
 using Azos.Apps.Injection;
 using Azos.Data;
 using Azos.Data.Access;
 using Azos.Data.Access.MySql;
 using Azos.Data.Business;
-using Azos.Data.Modeling.DataTypes;
 using Azos.Platform;
 using Azos.Security.MinIdp;
 
 using MySqlConnector;
 
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Azos.AuthKit.Server.MySql.Queries.MinIdp
 {
-  public sealed class GetByIdAsync : MySqlCrudQueryHandler<Query>
+  public sealed class GetById : MySqlCrudQueryHandler<Query>
   {
-    public GetByIdAsync(MySqlCrudDataStoreBase store, string name) : base(store, name) { }
+    public GetById(MySqlCrudDataStoreBase store, string name) : base(store, name) { }
 
     [Inject] IIdpHandlerLogic m_Logic;
 
@@ -31,7 +31,7 @@ namespace Azos.AuthKit.Server.MySql.Queries.MinIdp
     {
       var id = qry.GetParameterValueAs<EntityId>("id");
       context.SetState(id);
-      cmd.Parameters.AddWithValue("realm", qry.GetParameterValueAs<Atom>("realm"));
+      cmd.Parameters.AddWithValue("realm",    qry.GetParameterValueAs<Atom>("realm"));
       cmd.Parameters.AddWithValue("id",       id.Address);
       cmd.Parameters.AddWithValue("tid",      id.Type);
       cmd.Parameters.AddWithValue("provider", id.System);
