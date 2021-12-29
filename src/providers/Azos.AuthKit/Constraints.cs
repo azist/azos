@@ -15,6 +15,17 @@ namespace Azos.AuthKit
   public static class Constraints
   {
     /// <summary>
+    /// Reserving X GDIDS in authority A:  0:A:0..X
+    /// </summary>
+    public const int GDID_RESERVED_ID_AUTHORITY = 0;
+
+    /// <summary>
+    /// Reserving X GDIDS in authority A:  0:A:0..X
+    /// </summary>
+    public const int GDID_RESERVED_ID_COUNT = 32;
+
+
+    /// <summary>
     /// Gdid generation namespace
     /// </summary>
     public const string ID_NS_AUTHKIT = "sky.akit";

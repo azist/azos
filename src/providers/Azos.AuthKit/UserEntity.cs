@@ -23,7 +23,7 @@ namespace Azos.AuthKit
   [Bix("ac75cd1f-75d4-471b-879d-17235c1241e5")]
   [Schema(Description = "Provides persisted model for user account data")]
   [UniqueSequence(Constraints.ID_NS_AUTHKIT, Constraints.ID_SEQ_USER)]
-  public sealed class UserEntity : PersistedEntity<IIdpUserCoreLogic, ChangeResult>
+  public sealed class UserEntity : EntityBase<IIdpUserCoreLogic, ChangeResult>
   {
     public override EntityId Id => new EntityId(Constraints.SYS_AUTHKIT,
                                                 Constraints.ETP_USER,
