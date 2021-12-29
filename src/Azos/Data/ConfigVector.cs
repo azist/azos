@@ -53,14 +53,30 @@ namespace Azos.Data
       {
         if (m_Node == null)
         {
+          Exception jsonError = null;
           try
           {
             m_Node = m_Content.AsJSONConfig(wrapRootName: "r", handling: ConvertErrorHandling.Throw);
           }
           catch(Exception error)
           {
-            throw new ConfigException("Invalid {0} content: {1}".Args(nameof(ConfigVector), error.ToMessageWithType()), error);
+            jsonError = error;
           }
+
+          if (m_Node == null)
+          {
+            try
+            {
+              m_Node = m_Content.AsLaconicConfig(wrapRootName: "r", handling: ConvertErrorHandling.Throw);
+            }
+            catch (Exception error)
+            {
+              var both = new ValidationBatchException(jsonError);
+              both.Batch.Add(error);
+              throw new ConfigException("Invalid {0} content: {1}".Args(nameof(ConfigVector), error.ToMessageWithType()), both);
+            }
+          }
+
         }
 
         return m_Node;

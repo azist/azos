@@ -72,9 +72,11 @@ namespace Azos.AuthKit.Server.MySql.Queries.MinIdp
         ScreenName = name,
         Name = name,
         Description = reader.AsStringField("DESCRIPTION"),
+        Note = reader.AsStringField("NOTE"),
+
         Role = null, // TODO: extract role from PROPS column data
         Rights = reader.AsStringField("RIGHTS"),
-        Note = reader.AsStringField("NOTE")
+        Props = null
       };
 
 
