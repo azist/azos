@@ -40,9 +40,9 @@ namespace Azos.AuthKit
     public Guid Guid { get; set; }
 
     /// <summary>
-    /// Name/Title of user account
+    /// Name/(Screen Name)/Uri//Title of user account unique per realm
     /// </summary>
-    [Field(required: true, Description = "Name/Title of user account")]
+    [Field(required: true, Description = "Name/(Screen Name)/Uri//Title of user account unique per realm")]
     public string Name { get; set; }
 
     /// <summary>

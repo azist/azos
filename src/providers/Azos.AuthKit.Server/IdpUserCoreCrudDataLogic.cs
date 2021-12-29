@@ -87,7 +87,12 @@ namespace Azos.AuthKit.Server
       //Lookup by:
       //(`REALM`, `ID`, `TID`, `PROVIDER`);.
       // by executing CRUD query against ICrudDataStore (which needs to be configured as a part of this class)
-      return await getByIdAsync_Implementation(realm, eid).ConfigureAwait(false);
+      var qry = new Query<MinIdpUserData>("MinIdp.GetById")
+      {
+        new Query.Param("realm", realm),
+        new Query.Param("id", eid)
+      };
+      return await Data.LoadDocAsync(qry).ConfigureAwait(false);
     }
 
     public async Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri, AuthenticationRequestContext ctx)
@@ -96,7 +101,12 @@ namespace Azos.AuthKit.Server
 
       var euri = m_Handler.ParseUri(uri);
 
-      return await getByIdAsync_Implementation(realm, euri);
+      var qry = new Query<MinIdpUserData>("MinIdp.GetByUserName")
+      {
+        new Query.Param("realm", realm),
+        new Query.Param("uname", euri)
+      };
+      return await Data.LoadDocAsync(qry).ConfigureAwait(false);
     }
 
     public Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken, AuthenticationRequestContext ctx)
@@ -108,17 +118,6 @@ namespace Azos.AuthKit.Server
       throw new NotImplementedException();
     }
 
-    private async Task<MinIdpUserData> getByIdAsync_Implementation(Atom realm, EntityId login)
-    {
-      var qry = new Query<MinIdpUserData>("MinIdp.GetByIdAsync")
-          {
-            new Query.Param("realm", realm),
-            new Query.Param("id", login.Address),
-            new Query.Param("tid", login.Type.Value),
-            new Query.Param("provider", login.System.Value)
-          };
-      return await Data.LoadDocAsync(qry).ConfigureAwait(false);
-    }
     #endregion
 
     #region IIdpUserCoreLogic-specifics

@@ -18,7 +18,8 @@ FROM tbl_user TU
 INNER JOIN tbl_login TL
 ON TU.GDID = TL.G_USER
     AND TU.REALM = TL.REALM
-WHERE TU.REALM = @realm
+WHERE
+ TU.REALM = @realm
     AND TL.ID = @id
     AND TL.TID = @tid
     AND TL.PROVIDER = @provider

@@ -5,6 +5,7 @@
 </FILE_LICENSE>*/
 
 using Azos.Data;
+using Azos.Security;
 
 namespace Azos.AuthKit
 {
@@ -13,6 +14,17 @@ namespace Azos.AuthKit
   /// </summary>
   public static class Constraints
   {
+    /// <summary>
+    /// Reserving X GDIDS in authority A:  0:A:0..X
+    /// </summary>
+    public const int GDID_RESERVED_ID_AUTHORITY = 0;
+
+    /// <summary>
+    /// Reserving X GDIDS in authority A:  0:A:0..X
+    /// </summary>
+    public const int GDID_RESERVED_ID_COUNT = 32;
+
+
     /// <summary>
     /// Gdid generation namespace
     /// </summary>
@@ -28,11 +40,10 @@ namespace Azos.AuthKit
     public static readonly Atom ETP_LOGIN   = Atom.Encode("login");
 
 
-#warning this goes into Handler now
-    //Login types
-    public static readonly Atom LTP_EMAIL = Atom.Encode("email");//detected by searching for @
-    public static readonly Atom LTP_PHONE = Atom.Encode("phone");//detected by searching for digits
-    public static readonly Atom LTP_ID    = Atom.Encode("id");//if not email or phone
+    //System provider Login types
+    public static readonly Atom LTP_SYS_EMAIL = Atom.Encode("email");//detected by searching for @
+    public static readonly Atom LTP_SYS_PHONE = Atom.Encode("phone");//detected by searching for digits
+    public static readonly Atom LTP_SYS_ID    = Atom.Encode("id");//if not email or phone
 
     /// <summary>
     /// AuthKit event namespace
@@ -49,7 +60,7 @@ namespace Azos.AuthKit
 
     public const int ENTITY_ID_MAX_LEN = 256;
 
-    public const int USER_NAME_MIN_LEN = 1;
+    public const int USER_NAME_MIN_LEN = 3;
     public const int USER_NAME_MAX_LEN = 64;
 
     public const int USER_DESCR_MIN_LEN = 1;
@@ -90,6 +101,26 @@ namespace Azos.AuthKit
           id.Type != ETP_LOGIN) return GDID.ZERO;
 
       return id.Address.AsGDID(GDID.ZERO);
+    }
+
+    public static UserStatus? MapUserStatus(string v)
+    {
+      if (v.IsNullOrWhiteSpace()) return null;
+
+      if (v == "u" || v == "U") return UserStatus.User;
+      if (v == "a" || v == "A") return UserStatus.Admin;
+      if (v == "s" || v == "S") return UserStatus.System;
+      return UserStatus.Invalid;
+    }
+
+    public static string MapUserStatus(UserStatus? v)
+    {
+      if (!v.HasValue) return null;
+
+      if (v == UserStatus.User) return "U";
+      if (v == UserStatus.Admin) return "A";
+      if (v == UserStatus.System) return "S";
+      return "I";
     }
 
   }

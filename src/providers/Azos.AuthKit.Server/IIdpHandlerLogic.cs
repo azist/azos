@@ -25,17 +25,25 @@ namespace Azos.AuthKit.Server
     /// </summary>
     IRegistry<LoginProvider> Providers {  get; }
 
+
+    /// <summary>
+    /// Used if the login ID does not specify the provider
+    /// </summary>
+    Atom DefaultLoginProvider {  get; }
+
     /// <summary>
     /// Parses the supplied login string expressed in EntityId format.
     /// The string has to be formatted as EntityId or plain string which then assumes defaults.
-    /// The EntityId.System is Provider.Name, and EntityId.Type is login type
+    /// The EntityId.System is Provider.Name, and EntityId.Type is login type.
+    /// Throws `DataValidationException/400` on wrong ID
     /// </summary>
     EntityId ParseId(string id);
 
     /// <summary>
     /// Parses the supplied uri expressed in EntityId format.
     /// The string has to be formatted as EntityId or plain string which then assumes defaults.
-    /// The EntityId.System is Provider.Name, and EntityId.Type is login type
+    /// The EntityId.System is Provider.Name, and EntityId.Type is login type.
+    /// Throws `DataValidationException/400` on wrong ID
     /// </summary>
     EntityId ParseUri(string uri);
 
@@ -44,7 +52,7 @@ namespace Azos.AuthKit.Server
 
    // (ConfigVector props, ConfigVector rights) CalculateEffectivePolicies(ConfigVector userProps, ConfigVector loginProps);
 
-    string MakeSystemTokenData(GDID gUser, JsonDataMap data = null);
+    string MakeSystemTokenData(Atom realm, GDID gUser, JsonDataMap auxData = null);
     //JsonDataMap CheckSystemToken(string token)
   }
 
