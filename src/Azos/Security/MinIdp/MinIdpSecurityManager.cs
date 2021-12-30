@@ -218,13 +218,16 @@ namespace Azos.Security.MinIdp
       var rights = Rights.None;
       if (credentials == null) credentials = BlankCredentials.Instance;
 
-      if (data.Rights.IsNotNullOrWhiteSpace())
+      if (data.Rights != null)
       {
-        var cfg = data.Rights.AsLaconicConfig(handling: ConvertErrorHandling.ReturnDefault);
-        if (cfg == null)
-          WriteLog(MessageType.Warning, nameof(MakeOkUser), "Rights could not be read for `{0}`@`{1}`".Args(credentials, Realm));
-        else
-          rights = new Rights(cfg.Configuration);
+        try
+        {
+          rights = new Rights(data.Rights.Node.Configuration);
+        }
+        catch (Exception error)
+        {
+          WriteLog(MessageType.Error, nameof(MakeOkUser), "Rights could not be read for `{0}`@`{1}`".Args(credentials, Realm), error);
+        }
       }
 
       return new User(credentials,
