@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.42.7.1
-set HEADLINE=#632 Crud query handler injection
+set VER=1.42.7.2
+set HEADLINE=#635 MinIdp ConfigVector
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
