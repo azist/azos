@@ -124,5 +124,42 @@ namespace Azos.Tests.Nub.DataAccess
       got.See();
     }
 
+
+    [Run]
+    public void Test_FullCycle_Laconic()
+    {
+      var d = new Tezt
+      {
+        C1 = "r {a=1 b=2}",
+        C2 = "r {a=-1 b=-2}"
+      };
+
+      var json = JsonWriter.Write(d, JsonWritingOptions.PrettyPrintRowsAsMap);
+
+      json.See();
+
+      var got = JsonReader.ToDoc<Tezt>(json);
+
+      var n1 = got.C1.Node;
+      Aver.AreEqual(1, got.C1.Node.Of("a").ValueAsInt());
+      Aver.AreEqual(2, got.C1.Node.Of("b").ValueAsInt());
+      Aver.AreSameRef(n1, got.C1.Node);
+
+      got.C1.Content = "{r: {a:10, b:20}}";
+      var n2 = got.C1.Node;
+      Aver.AreNotSameRef(n1, n2);
+      Aver.AreSameRef(n2, got.C1.Node);
+
+      got.C1.Node = "r{z=900}".AsLaconicConfig();
+      var n3 = got.C1.Node;
+      Aver.AreNotSameRef(n2, n3);
+      Aver.AreEqual(900, got.C1.Node.Of("z").ValueAsInt());
+
+      Aver.AreEqual(-1, got.C2.Node.Of("a").ValueAsInt());
+      Aver.AreEqual(-2, got.C2.Node.Of("b").ValueAsInt());
+
+      got.See();
+    }
+
   }
 }
