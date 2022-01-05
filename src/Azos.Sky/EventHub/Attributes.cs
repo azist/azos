@@ -23,7 +23,7 @@ namespace Azos.Sky.EventHub
     public EventAttribute(string ns, string queue, DataLossMode mode)
     {
       Namespace = Atom.Encode(ns.NonBlank(nameof(ns)));
-      Queue = Atom.Encode(ns.NonBlank(nameof(queue)));
+      Queue = Atom.Encode(queue.NonBlank(nameof(queue)));
       LossMode = mode;
     }
 
