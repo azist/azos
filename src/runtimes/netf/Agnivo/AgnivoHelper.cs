@@ -26,6 +26,14 @@ namespace Agnivo
       return map.ToJson(JsonWritingOptions.PrettyPrint);
     }
 
+    public static string Base64ToJson(string str)
+    {
+      byte[] raw = Convert.FromBase64String(str);
+      var json = raw.FromUTF8Bytes();
+      var map = JsonReader.DeserializeDataObject(json);
+      return map.ToJson(JsonWritingOptions.PrettyPrint);
+    }
+
     public static string ParseGDID(string str)
     {
       if (str.IsNullOrWhiteSpace()) return string.Empty;
