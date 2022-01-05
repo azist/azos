@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.42.7.2
-set HEADLINE=#635 MinIdp ConfigVector
+set VER=1.42.7.3
+set HEADLINE=#639 and Agnivo json support
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

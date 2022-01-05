@@ -97,37 +97,37 @@ namespace Agnivo
 
     private void tbAtomNumber_TextChanged(object sender, EventArgs e)
     {
-    //  try
-    //  {
-    //    if (tbAtomNumber.Text.IsNullOrWhiteSpace())
-    //    {
-    //      tbAtomValue.Text = "ZERO";
-    //      return;
-    //    }
+      try
+      {
+        if (tbAtomNumber.Text.IsNullOrWhiteSpace())
+        {
+          tbAtomValue.Text = "ZERO";
+          return;
+        }
 
-    //    Atom atom;
+        Atom atom;
 
-    //    if (ulong.TryParse(tbAtomNumber.Text, out var id))
-    //    {
-    //      atom = new Atom(id);
-    //      tbAtomValue.Text = ("{0} = `{1}` \n" +
-    //                          "{2} chars \n" +
-    //                          "valid: {3}").Args(atom.ID, atom.Value, atom.Length, atom.IsValid);
-    //      return;
-    //    }
+        if (ulong.TryParse(tbAtomNumber.Text, out var id))
+        {
+          atom = new Atom(id);
+          tbAtomValue.Text = ("{0} = `{1}` \r\n" +
+                              "{2} chars \r\n" +
+                              "valid: {3}").Args(atom.ID, atom.Value, atom.Length, atom.IsValid);
+          return;
+        }
 
-    //    if (Atom.TryEncodeValueOrId(tbAtomNumber.Text, out atom))
-    //    {
-    //      tbAtomValue.Text = ("{0} = `{1}` \n" +
-    //                          "{2} chars \n" +
-    //                          "valid: {3}").Args(atom.ID, atom.Value, atom.Length, atom.IsValid);
-    //      return;
-    //    }
-    //  }
-    //  catch(Exception error)
-    //  {
-    //    tbAtomValue.Text = "Invalid: "+error.ToMessageWithType();
-    //  }
+        if (Atom.TryEncodeValueOrId(tbAtomNumber.Text, out atom))
+        {
+          tbAtomValue.Text = ("{0} = `{1}` \r\n" +
+                              "{2} chars \r\n" +
+                              "valid: {3}").Args(atom.ID, atom.Value, atom.Length, atom.IsValid);
+          return;
+        }
+      }
+      catch (Exception error)
+      {
+        tbAtomValue.Text = "Invalid: " + error.ToMessageWithType();
+      }
     }
   }
 }

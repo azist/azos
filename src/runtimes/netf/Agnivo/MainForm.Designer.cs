@@ -37,6 +37,7 @@ namespace Agnivo
       this.tamMisc = new System.Windows.Forms.TabControl();
       this.tabBson = new System.Windows.Forms.TabPage();
       this.label1 = new System.Windows.Forms.Label();
+      this.statistics = new System.Windows.Forms.Label();
       this.DecodeBSONButton = new System.Windows.Forms.Button();
       this.SourceBSONText = new System.Windows.Forms.TextBox();
       this.tabGdid = new System.Windows.Forms.TabPage();
