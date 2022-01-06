@@ -35,16 +35,11 @@ namespace Azos.Sky.EventHub
     /// </summary>
     public bool Assigned => !Namespace.IsZero;
 
-    public bool Equals(Route other)
-      => this.Namespace == other.Namespace &&
-         this.Queue     == other.Queue;
+    public bool Equals(Route other) => this.Namespace == other.Namespace && this.Queue == other.Queue;
 
-    public override int GetHashCode()
-      => Namespace.GetHashCode() ^
-         Queue    .GetHashCode();
+    public override int GetHashCode() => Namespace.GetHashCode() ^ Queue.GetHashCode();
 
-    public override bool Equals(object obj)
-      => obj is Route other ? this.Equals(other) : false;
+    public override bool Equals(object obj) => obj is Route other ? this.Equals(other) : false;
 
     public override string ToString() => $"{Namespace}.{Queue}";
 
