@@ -46,8 +46,8 @@ namespace Azos.Conf.Forest.Server
 
     protected override void Destructor()
     {
+      base.Destructor(); //AZ#638 fix
       cleanup();
-      base.Destructor();
     }
 
     private Registry<_forest> m_Forests = new Registry<_forest>();
@@ -171,16 +171,16 @@ namespace Azos.Conf.Forest.Server
     protected override void DoSignalStop()
     {
       base.DoSignalStop();
-      this.DontLeak(() => m_Cache.SignalStop());
-      this.DontLeak(() => m_Pile.SignalStop());
+      this.DontLeak(() => m_Cache?.SignalStop());
+      this.DontLeak(() => m_Pile?.SignalStop());
       allStores.OfType<Daemon>().ForEach(c => this.DontLeak(() => c.SignalStop()));
     }
 
     protected override void DoWaitForCompleteStop()
     {
       base.DoWaitForCompleteStop();
-      this.DontLeak(() => m_Cache.SignalStop());
-      this.DontLeak(() => m_Pile.SignalStop());
+      this.DontLeak(() => m_Cache?.SignalStop());
+      this.DontLeak(() => m_Pile?.SignalStop());
       allStores.OfType<Daemon>().ForEach(c => this.DontLeak(() => c.WaitForCompleteStop()));
     }
 
