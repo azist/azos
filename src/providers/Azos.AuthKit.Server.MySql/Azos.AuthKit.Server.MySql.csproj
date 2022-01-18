@@ -7,24 +7,26 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>..\..\..\out\Debug\</OutputPath>
-    <DocumentationFile>..\..\..\out\Debug\Azos.AuthKit.MySql.xml</DocumentationFile>
+    <DocumentationFile>..\..\..\out\Debug\Azos.AuthKit.Server.MySql.xml</DocumentationFile>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <OutputPath>..\..\..\out\Release\</OutputPath>
-    <DocumentationFile>..\..\..\out\Release\Azos.AuthKit.MySql.xml</DocumentationFile>
+    <DocumentationFile>..\..\..\out\Release\Azos.AuthKit.Server.MySql.xml</DocumentationFile>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="Queries/**/*.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Queries/**/*.sql" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Azos.AuthKit.Server\Azos.AuthKit.Server.csproj" />
     <ProjectReference Include="..\Azos.MySql\Azos.MySql.csproj" />
-  </ItemGroup>
-
-
-  <ItemGroup>
-    <Folder Include="Queries\" />
   </ItemGroup>
 </Project>

@@ -103,12 +103,19 @@ namespace Azos.Data.Access.MsSql
       command.Text.NonBlank(nameof(command.Text));
       var isSql = isSqlStatementType(command);
 
-      Rowset result;
-      using(var connection = GetSqlConnection(command.Headers))
+      try
       {
-        result = await readAsync(connection, command, isSql).ConfigureAwait(false);
+        Rowset result;
+        using(var connection = GetSqlConnection(command.Headers))
+        {
+          result = await readAsync(connection, command, isSql).ConfigureAwait(false);
+        }
+        return result;
       }
-      return result;
+      catch(Exception error)
+      {
+        throw new DocValidationException(nameof(ReadRequest.Command), "Error executing read request: \n{0}".Args(error.ToMessageWithType()), error);
+      }
     }
 
     public async Task<ChangeResult> TransactAsync(TransactRequest request)
@@ -117,31 +124,38 @@ namespace Azos.Data.Access.MsSql
 
       var commands = request.Commands.NonNull(nameof(request.Commands));
 
-      var result = new List<ChangeResult>();
-
-      var time = Time.Timeter.StartNew();
-      using (var connection = GetSqlConnection(request.RequestHeaders))
+      try
       {
-        using(var tx = connection.BeginTransaction())
-        try
-        {
-          foreach (var command in commands)
-          {
-            var isSql = isSqlStatementType(command);
-            var oneChange = await txAsync(connection, tx, command, isSql).ConfigureAwait(false);
-            result.Add(oneChange);
-          }
-          tx.Commit();
-        }
-        catch
-        {
-          tx.Rollback();
-          throw;
-        }
-      }
-      time.Stop();
+        var result = new List<ChangeResult>();
 
-      return new ChangeResult(ChangeResult.ChangeType.Processed, result.Count, $"Processed in {time.ElapsedMs:n0} ms", result, 200);
+        var time = Time.Timeter.StartNew();
+        using (var connection = GetSqlConnection(request.RequestHeaders))
+        {
+          using(var tx = connection.BeginTransaction())
+          try
+          {
+            foreach (var command in commands)
+            {
+              var isSql = isSqlStatementType(command);
+              var oneChange = await txAsync(connection, tx, command, isSql).ConfigureAwait(false);
+              result.Add(oneChange);
+            }
+            tx.Commit();
+          }
+          catch
+          {
+            tx.Rollback();
+            throw;
+          }
+        }
+        time.Stop();
+
+        return new ChangeResult(ChangeResult.ChangeType.Processed, result.Count, $"Processed in {time.ElapsedMs:n0} ms", result, 200);
+      }
+      catch (Exception error)
+      {
+        throw new DocValidationException(nameof(ReadRequest.Command), "Error executing transact request: \n{0}".Args(error.ToMessageWithType()), error);
+      }
     }
     #endregion
 

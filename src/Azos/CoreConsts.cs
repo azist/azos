@@ -140,7 +140,6 @@ namespace Azos
       public const string GLUE_TOPIC = "Glue";
       public const string CLIENT_TOPIC = "Client";
       public const string PAY_TOPIC = "Pay";
-      public const string ERLANG_TOPIC = "Erl";
       public const string CACHE_TOPIC = "Cache";
       public const string LOCALIZATION_TOPIC = "Lcl";
       public const string SOCIAL_TOPIC = "Social";

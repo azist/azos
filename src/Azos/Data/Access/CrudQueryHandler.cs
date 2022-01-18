@@ -24,11 +24,16 @@ namespace Azos.Data.Access
     {
       m_Store = store.NonNull(nameof(store));
       m_Name = name.NonBlank(nameof(name));
+
+      //20211222 DKh, JPK Query handler inject
+      m_Store.App.InjectInto(this);
+      System.Threading.Thread.MemoryBarrier();
     }
 
     protected CrudQueryHandler(ICrudDataStore store, QuerySource source) : this(store, source.NonNull(nameof(source)).Name)
     {
       Source = source;
+      System.Threading.Thread.MemoryBarrier();
     }
 
     private string m_Name;
@@ -82,7 +87,7 @@ namespace Azos.Data.Access
     public abstract RowsetBase Execute(ICrudQueryExecutionContext context, Query query, bool oneRow = false);
 
     /// <summary>
-    /// xecutes query which fetches rowset, such as SELECT statement. The implementation may be called by multiple threads and must be safe
+    /// Executes query which fetches rowset, such as SELECT statement. The implementation may be called by multiple threads and must be safe
     /// </summary>
     public abstract Task<RowsetBase> ExecuteAsync(ICrudQueryExecutionContext context, Query query, bool oneRow = false);
 

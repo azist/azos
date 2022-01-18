@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.42.5.5
-set HEADLINE=Svc fix 601 sso session
+set VER=1.42.7.3
+set HEADLINE=#639 and Agnivo json support
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
@@ -29,6 +29,9 @@ nuget pack Azos.Oracle.nuspec -Version %VER% %WARNING% -OutputDirectory "%OUT%" 
 nuget pack Azos.Sky.nuspec -Version %VER% %WARNING% -OutputDirectory "%OUT%" -Properties icon="%ICON%";headline="%HEADLINE%"
 nuget pack Azos.Sky.MongoDb.nuspec -Version %VER% %WARNING% -OutputDirectory "%OUT%" -Properties icon="%ICON%";headline="%HEADLINE%"
 nuget pack Azos.WinForms.nuspec -Version %VER% %WARNING% -OutputDirectory "%OUT%" -Properties icon="%ICON%";headline="%HEADLINE%"
+nuget pack Azos.AuthKit.nuspec -Version %VER% %WARNING% -OutputDirectory "%OUT%" -Properties icon="%ICON%";headline="%HEADLINE%"
+nuget pack Azos.AuthKit.Server.nuspec -Version %VER% %WARNING% -OutputDirectory "%OUT%" -Properties icon="%ICON%";headline="%HEADLINE%"
+nuget pack Azos.AuthKit.Server.MySql.nuspec -Version %VER% %WARNING% -OutputDirectory "%OUT%" -Properties icon="%ICON%";headline="%HEADLINE%"
 
 rem goto :FINISH
 
@@ -43,6 +46,9 @@ nuget push "%OUT%\Azos.Oracle.%VER%.nupkg" %AZIST_NUGET_API_KEY%
 nuget push "%OUT%\Azos.Sky.%VER%.nupkg" %AZIST_NUGET_API_KEY% 
 nuget push "%OUT%\Azos.Sky.MongoDb.%VER%.nupkg" %AZIST_NUGET_API_KEY%
 nuget push "%OUT%\Azos.WinForms.%VER%.nupkg" %AZIST_NUGET_API_KEY%
+nuget push "%OUT%\Azos.AuthKit.%VER%.nupkg" %AZIST_NUGET_API_KEY%
+nuget push "%OUT%\Azos.AuthKit.Server.%VER%.nupkg" %AZIST_NUGET_API_KEY%
+nuget push "%OUT%\Azos.AuthKit.Server.MySql.%VER%.nupkg" %AZIST_NUGET_API_KEY%
  
  echo Nuget Published!
  goto :FINISH
