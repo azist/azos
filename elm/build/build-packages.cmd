@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.42.7.3
-set HEADLINE=#639 and Agnivo json support
+set VER=1.42.7.5
+set HEADLINE=#638 #587 #605 rolling support
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
