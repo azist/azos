@@ -20,6 +20,7 @@ namespace Azos.Security.MinIdp
 
     public const int MAX_ID_LEN = 64;
     public const int MAX_NOTE_LEN = 4 * 1024;
+    public const int MAX_PROPS_LEN = 2 * 1024;
     public const int MAX_DESCR_LEN = 256;
     public const int MAX_NAME_LEN  = 64;
     public const int MAX_PWD_LEN = 4 * 1024;
