@@ -230,13 +230,18 @@ namespace Azos.Security.MinIdp
         }
       }
 
+      var props = data.Props?.Content;
+      //make a copy
+      ConfigVector userProps = props.IsNotNullOrWhiteSpace() ? new ConfigVector(props) : null;
+
       return new User(credentials,
                       data.SysToken,
                       data.Status,
                       data.Name,
                       data.Description,
                       rights,
-                      App.TimeSource.UTCNow);
+                      App.TimeSource.UTCNow,
+                      props: userProps);
     }
 
 

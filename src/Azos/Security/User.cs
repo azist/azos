@@ -38,23 +38,26 @@ namespace Azos.Security
                 string name,
                 string descr,
                 Rights rights,
-                DateTime? utcNow = null)
+                DateTime? utcNow = null,
+                ConfigVector props = null)
     {
-        m_Credentials = credentials;
-        m_AuthenticationToken = token;
-        m_Status = status;
-        m_Name = name;
-        m_Description = descr;
-        m_Rights = rights;
-        m_StatusTimeStampUTC = utcNow ?? Ambient.UTCNow;
+      m_Credentials = credentials;
+      m_AuthenticationToken = token;
+      m_Status = status;
+      m_Name = name;
+      m_Description = descr;
+      m_Rights = rights;
+      m_StatusTimeStampUTC = utcNow ?? Ambient.UTCNow;
+      m_Props = props;
     }
 
     public User(Credentials credentials,
                 SysAuthToken token,
                 string name,
-                Rights rights, DateTime? utcNow = null) : this(credentials, token, UserStatus.User, name, null, rights, utcNow)
+                Rights rights,
+                DateTime? utcNow = null,
+                ConfigVector props = null) : this(credentials, token, UserStatus.User, name, null, rights, utcNow, props)
     {
-
     }
     #endregion
 
@@ -72,6 +75,9 @@ namespace Azos.Security
 
     [NonSerialized]//Important, rights are NOT serializable
     private Rights m_Rights;
+
+    [NonSerialized]//Important, rights are NOT serializable
+    private ConfigVector m_Props;
 
     #endregion
 
@@ -109,6 +115,11 @@ namespace Azos.Security
     ///    to obtain AccessLevel
     /// </summary>
     public Rights Rights => m_Rights;
+
+    /// <summary>
+    /// Returns principal properties or NULL if none were set
+    /// </summary>
+    public ConfigVector Props => m_Props;
 
     #endregion
 
