@@ -231,8 +231,22 @@ namespace Azos.Security.MinIdp
       }
 
       var props = data.Props?.Content;
-      //make a copy
-      ConfigVector userProps = props.IsNotNullOrWhiteSpace() ? new ConfigVector(props) : null;
+
+      //making a copy of ConfigProps
+      ConfigVector userProps = null;
+      if (props.IsNotNullOrWhiteSpace())
+      {
+        try
+        {
+          userProps = new ConfigVector(props);
+          var _ = userProps.Node;
+        }
+        catch (Exception error)
+        {
+          WriteLog(MessageType.Error, nameof(MakeOkUser), "User properties could not be read for `{0}`@`{1}`".Args(credentials, Realm), error);
+        }
+      }
+
 
       return new User(credentials,
                       data.SysToken,

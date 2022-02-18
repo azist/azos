@@ -76,7 +76,7 @@ namespace Azos.Security
     [NonSerialized]//Important, rights are NOT serializable
     private Rights m_Rights;
 
-    [NonSerialized]//Important, rights are NOT serializable
+    [NonSerialized]//Important, props are NOT serializable
     private ConfigVector m_Props;
 
     #endregion
@@ -93,7 +93,7 @@ namespace Azos.Security
 
     /// <summary>
     /// System authentication token - this token is issued by the security manager and
-    /// used "inside" the system perimietr - it should never be disclosed to the public/outside
+    /// used "inside" the system perimeter - it should never be disclosed to the public/outside
     /// consuming parties, as external callers should use appropriate credentials (e.g. Bearer)
     /// in place of this token.
     /// </summary>
