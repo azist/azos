@@ -25,7 +25,7 @@ namespace Azos.AuthKit
       //in case of validation errors
       if (FormMode == FormMode.Insert && m_GdidGenerator != null)
       {
-        do Gdid = Gdid = m_GdidGenerator.Provider.GenerateGdidFor(this.GetType());
+        do Gdid = m_GdidGenerator.Provider.GenerateGdidFor(this.GetType());
         while (Gdid.Authority == Constraints.GDID_RESERVED_ID_AUTHORITY && Gdid.Counter < Constraints.GDID_RESERVED_ID_COUNT);//skip COUNT reserved IDs
       }
 

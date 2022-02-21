@@ -36,7 +36,7 @@ namespace Azos.AuthKit.Server.MySql.Queries.MinIdp
       cmd.Parameters.AddWithValue("tid",      id.Type);
       cmd.Parameters.AddWithValue("provider", id.System);
 
-      cmd.CommandText = GetType().GetText("GetUserById.sql");
+      cmd.CommandText = GetType().GetText("GetById.sql");
     }
 
     protected override Doc DoPopulateDoc(MySqlCrudQueryExecutionContext context, Type tDoc, Schema schema, Schema.FieldDef[] toLoad, MySqlDataReader reader)

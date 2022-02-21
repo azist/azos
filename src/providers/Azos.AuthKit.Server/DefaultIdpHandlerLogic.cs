@@ -102,7 +102,7 @@ namespace Azos.AuthKit.Server
 
       if (!EntityId.TryParse(id, out var result))
       {
-        throw new ValidationException("Bad id format") { HttpStatusDescription = "The ID is not parsable as EntityId"};
+        throw new ValidationException("Bad id format") { HttpStatusDescription = "The id value is not a parsable `EntityId`"};
       }
 
       var provider = Providers[result.System.Value];
