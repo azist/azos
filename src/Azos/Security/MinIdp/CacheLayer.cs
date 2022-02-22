@@ -127,7 +127,7 @@ namespace Azos.Security.MinIdp
       var entry = (DateTime.UtcNow.AddSeconds(maxAge), data);
       lock (m_DataLock)
       {
-        if (data.VerbatimLoginId.IsNotNullOrWhiteSpace() && data.VerbatimLoginId != data.LoginId)
+        if (data.VerbatimLoginId.IsNotNullOrWhiteSpace())
         {
           m_IdxId[new realmed(realm, data.VerbatimLoginId)] = data;
         }
