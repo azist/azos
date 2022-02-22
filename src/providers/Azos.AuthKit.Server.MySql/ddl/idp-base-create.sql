@@ -74,7 +74,7 @@ create table tbl_login
   `G_USER`     BINARY(12)        not null comment 'FK to USER ACCOUNT table',
   `LEVEL_DOWN` CHAR(1)                    comment 'User level restriction: I|U|A',
 
-  `ID`         VARCHAR(700)     not null comment 'Login ID, or provider key',
+  `ID`         VARCHAR(700)      not null comment 'Login ID, or provider key',
   `TID`        BIGINT UNSIGNED   not null comment 'Login Type Atom',
   `PROVIDER`   BIGINT UNSIGNED   not null comment 'Login provider, e.g.  AZOS, FBK, TWT, AD, SYSTEM X etc.. or Atom.ZERO for not eternal provider',
   `PWD`        VARCHAR(2048)              comment 'Password vector, or NULL for providers who dont need it',

@@ -278,6 +278,7 @@ namespace Azos.Security.MinIdp
     protected virtual User TryAuthenticateUser(MinIdpUserData data, IDPasswordCredentials cred)
     {
       if (data.Realm != Realm) return null;
+      if (cred.Password.IsNullOrWhiteSpace()) return null;
       if (!CheckDates(data)) return null;
 
       using (var password = cred.SecurePassword)

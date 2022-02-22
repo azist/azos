@@ -44,6 +44,9 @@ namespace Azos.AuthKit.Server.MySql.Queries.MinIdp
       var verState = VersionInfo.MapCanonicalState(reader.AsStringField("VERSION_STATE"));
       if (!VersionInfo.IsExistingStateOf(verState)) return null; //deleted, skip this doc
 
+      verState = VersionInfo.MapCanonicalState(reader.AsStringField("LOGIN_VERSION_STATE"));
+      if (!VersionInfo.IsExistingStateOf(verState)) return null; //deleted, skip this doc
+
       var id = context.GetState<EntityId>();
 
       var realm = reader.AsAtomField("REALM").Value;
@@ -53,7 +56,7 @@ namespace Azos.AuthKit.Server.MySql.Queries.MinIdp
 
       var level = Constraints.MapUserStatus(reader.AsString("LEVEL")) ?? Security.UserStatus.Invalid;
       var levelDown = Constraints.MapUserStatus(reader.AsString("LEVEL_DOWN"));
-      if (levelDown.HasValue && levelDown.Value < level) level = levelDown.Value;
+      if (levelDown.HasValue && levelDown.Value < level) level = levelDown.Value;//the LEAST wins
 
       var result = new MinIdpUserData
       {
