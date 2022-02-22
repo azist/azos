@@ -38,7 +38,7 @@ namespace Azos.AuthKit
     /// User account Gdid
     /// </summary>
     [Field(required: true, Description = "User login Gdid")]
-    public GDID UserId { get; set; }
+    public GDID G_User { get; set; }
 
     /// <summary>
     /// Login access level demotion (level down)

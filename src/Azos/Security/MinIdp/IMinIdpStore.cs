@@ -71,12 +71,13 @@ namespace Azos.Security.MinIdp
     [Field] public DateTime StartUtc  { get; set; }//tbl_user.sd
     [Field] public DateTime EndUtc    { get; set; }//tbl_user.ed
 
+    /*...*/ public string    VerbatimLoginId {  get; set; }//login is AS USER entered it (un-altered/not normalized), this is NOT a doc field
     [Field] public string    LoginId       { get; set; }//tbl_login.id    vchar(36)
     [Field] public string    LoginPassword { get; set; }//tbl_login.pwd   vchar(2k) -- contains PWD JSON
     [Field] public DateTime? LoginStartUtc { get; set; }//tbl_login.sd
     [Field] public DateTime? LoginEndUtc   { get; set; }//tbl_login.ed
 
-    [Field] public string ScreenName  { get; set; }//tbl_user.screenName vchar(36)
+    [Field] public string ScreenName  { get; set; }//tbl_user.screenName vchar(36) aka URI
     [Field] public string Name        { get; set; }//tbl_user.name   vchar(64)
     [Field] public string Description { get; set; }//tbl_user.descr  vchar(96)
     [Field] public string Role        { get; set; }//tbl.role.id   vchar 25
