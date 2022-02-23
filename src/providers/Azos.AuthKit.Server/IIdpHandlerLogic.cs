@@ -11,6 +11,8 @@ using System.Text;
 using Azos.Collections;
 using Azos.Data;
 using Azos.Data.Business;
+using Azos.Security;
+using Azos.Security.MinIdp;
 using Azos.Serialization.JSON;
 
 namespace Azos.AuthKit.Server
@@ -50,10 +52,30 @@ namespace Azos.AuthKit.Server
     string SysTokenCryptoAlgorithmName { get; }
     double SysTokenLifespanHours       { get; }
 
-   // (ConfigVector props, ConfigVector rights) CalculateEffectivePolicies(ConfigVector userProps, ConfigVector loginProps);
+    /// <summary>
+    /// Factory pattern:
+    /// Create an instance of user authentication DTO object used during login.
+    /// The underlying store/handler implementation use this object as DTO passing relevant fields between methods
+    /// of handler and query during user authentication
+    /// </summary>
+    AuthContext MakeNewUserAuthenticationContext(Atom realm, AuthenticationRequestContext ctx);
 
-    string MakeSystemTokenData(Atom realm, GDID gUser, JsonDataMap auxData = null);
+    /// <summary>
+    /// Makes new SYSTEMAUTH token content for the `AuthContext`-derived concretion
+    /// </summary>
+    void MakeSystemTokenData(AuthContext context);
+
+    /// <summary>
+    /// Calculates effective Rights, and Props applying policies as necessary as defined
+    /// by the specific implementation of `IIdpHandlerLogic`.
+    /// The data is supplied in the `AuthContext`-derived concretion
+    /// </summary>
+    void ApplyEffectivePolicies(AuthContext context);
+
     //JsonDataMap CheckSystemToken(string token)
   }
+
+
+
 
 }

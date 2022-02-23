@@ -13,6 +13,7 @@ using Azos.Apps;
 using Azos.Collections;
 using Azos.Conf;
 using Azos.Data;
+using Azos.Security;
 using Azos.Serialization.JSON;
 
 namespace Azos.AuthKit.Server
@@ -78,11 +79,6 @@ namespace Azos.AuthKit.Server
     }
     #endregion
 
-    public string MakeSystemTokenData(Atom realm, GDID gUser, JsonDataMap auxData = null)
-    {
-      throw new NotImplementedException();
-    }
-
     /// <summary>
     /// Parses the supplied login string expressed in EntityId format.
     /// The string has to be formatted as EntityId or plain string which then assumes defaults.
@@ -124,6 +120,21 @@ namespace Azos.AuthKit.Server
     }
 
     public EntityId ParseUri(string uri)
+    {
+      throw new NotImplementedException();
+    }
+
+    public AuthContext MakeNewUserAuthenticationContext(Atom realm, AuthenticationRequestContext ctx)
+    {
+      throw new NotImplementedException();
+    }
+
+    public void MakeSystemTokenData(AuthContext context)
+    {
+      throw new NotImplementedException();
+    }
+
+    public void ApplyEffectivePolicies(AuthContext context)
     {
       throw new NotImplementedException();
     }

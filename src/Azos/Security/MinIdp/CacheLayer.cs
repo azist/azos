@@ -72,14 +72,14 @@ namespace Azos.Security.MinIdp
       if (!Running) return null;
 
       if (id.IsNullOrWhiteSpace()) return null;
-      id = id.ToLowerInvariant();
+      id = id.Trim();  // alex123, alex.123@something.com,  bearer@fbk::h2uIkosifds8Hw_83JIisqap
 
       if (MaxCacheAgeSec>0)
         lock(m_DataLock)
           if (m_IdxId.TryGetValue(new realmed(realm, id), out var existing)) return existing;
 
       var data = await m_Store.GetByIdAsync(realm, id, ctx).ConfigureAwait(false);
-      data.VerbatimLoginId = id;
+      data.EnteredLoginId = id;
 
       updateIndexes(realm, data);
       return data;
@@ -90,6 +90,7 @@ namespace Azos.Security.MinIdp
       if (!Running) return null;
 
       if (sysToken.IsNullOrWhiteSpace()) return null;
+      sysToken = sysToken.Trim();
 
       if (MaxCacheAgeSec > 0)
         lock (m_DataLock)
@@ -106,6 +107,7 @@ namespace Azos.Security.MinIdp
       if (!Running) return null;
 
       if (uri.IsNullOrWhiteSpace()) return null;
+      uri = uri.Trim();
 
       if (MaxCacheAgeSec > 0)
         lock (m_DataLock)
@@ -127,9 +129,9 @@ namespace Azos.Security.MinIdp
       var entry = (DateTime.UtcNow.AddSeconds(maxAge), data);
       lock (m_DataLock)
       {
-        if (data.VerbatimLoginId.IsNotNullOrWhiteSpace())
+        if (data.EnteredLoginId.IsNotNullOrWhiteSpace())
         {
-          m_IdxId[new realmed(realm, data.VerbatimLoginId)] = data;
+          m_IdxId[new realmed(realm, data.EnteredLoginId)] = data;
         }
         m_IdxSysToken[new realmed(realm, data.SysToken.Data)] = entry;
         m_IdxUri     [new realmed(realm, data.ScreenName)]    = data;
@@ -170,9 +172,9 @@ namespace Azos.Security.MinIdp
         {
           foreach(var item in toKill)
           {
-            if (item.VerbatimLoginId.IsNotNullOrWhiteSpace())
+            if (item.EnteredLoginId.IsNotNullOrWhiteSpace())
             {
-              m_IdxId.Remove(new realmed(item.Realm, item.VerbatimLoginId));
+              m_IdxId.Remove(new realmed(item.Realm, item.EnteredLoginId));
             }
             m_IdxSysToken.Remove(new realmed(item.Realm, item.SysToken.Data));
             m_IdxUri.Remove(new realmed(item.Realm, item.ScreenName));

@@ -278,14 +278,19 @@ namespace Azos.Security.MinIdp
     protected virtual User TryAuthenticateUser(MinIdpUserData data, IDPasswordCredentials cred)
     {
       if (data.Realm != Realm) return null;
-      if (cred.Password.IsNullOrWhiteSpace()) return null;
       if (!CheckDates(data)) return null;
 
-      using (var password = cred.SecurePassword)
+      //The provider password is optional, e.g. for token-based providers like:  `fbk::6Hw9_90jnHjskxCtwuwru2k804Op`
+      if (data.LoginPassword.IsNotNullOrWhiteSpace())
       {
-        cred.Forget();
-        var pass = m_PasswordManager.Verify(password, HashedPassword.FromString(data.LoginPassword), out var needRehash);
-        if (!pass) return null;
+        if (cred.Password.IsNullOrWhiteSpace()) return null;
+
+        using (var password = cred.SecurePassword)
+        {
+          cred.Forget();
+          var pass = m_PasswordManager.Verify(password, HashedPassword.FromString(data.LoginPassword), out var needRehash);
+          if (!pass) return null;
+        }
       }
 
       return MakeOkUser(cred, data);

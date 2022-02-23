@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-
+using System.Threading.Tasks;
 using Azos.Apps.Injection;
 using Azos.Data;
 using Azos.Data.Access;
@@ -21,69 +21,76 @@ using MySqlConnector;
 
 namespace Azos.AuthKit.Server.MySql.Queries.MinIdp
 {
-  public sealed class GetById : MySqlCrudQueryHandler<Query>
+  public sealed class GetById : MySqlCrudQueryHandler<AuthContext>
   {
     public GetById(MySqlCrudDataStoreBase store, string name) : base(store, name) { }
 
-    [Inject] IIdpHandlerLogic m_Logic;
+    //[Inject] IIdpHandlerLogic m_Logic;
 
-    protected override void DoBuildCommandAndParameters(MySqlCrudQueryExecutionContext context, MySqlCommand cmd, Query qry)
+    protected override void DoBuildCommandAndParameters(MySqlCrudQueryExecutionContext context, MySqlCommand cmd, AuthContext actx)
     {
-      var id = qry.GetParameterValueAs<EntityId>("id");
-      context.SetState(id);
-      cmd.Parameters.AddWithValue("realm",    qry.GetParameterValueAs<Atom>("realm"));
-      cmd.Parameters.AddWithValue("id",       id.Address);
-      cmd.Parameters.AddWithValue("tid",      id.Type);
-      cmd.Parameters.AddWithValue("provider", id.System);
+      context.SetState(actx);
+      cmd.Parameters.AddWithValue("realm",    actx.Realm);
+      cmd.Parameters.AddWithValue("id",       actx.LoginId.Address);
+      cmd.Parameters.AddWithValue("tid",      actx.LoginId.Type);
+      cmd.Parameters.AddWithValue("provider", actx.LoginId.System);
 
       cmd.CommandText = GetType().GetText("GetById.sql");
     }
 
+    protected override Task<RowsetBase> DoExecuteParameterizedQueryAsync(MySqlCrudQueryExecutionContext ctx, Query query, AuthContext queryParameters)
+    {
+      return base.DoExecuteParameterizedQueryAsync(ctx, query, queryParameters);
+    }
+
+    //we use this because we need a reader, but we read into INPUT parameter, hence we return affected dummy
     protected override Doc DoPopulateDoc(MySqlCrudQueryExecutionContext context, Type tDoc, Schema schema, Schema.FieldDef[] toLoad, MySqlDataReader reader)
     {
+      var actx = context.GetState<AuthContext>();
+
       var verState = VersionInfo.MapCanonicalState(reader.AsStringField("VERSION_STATE"));
       if (!VersionInfo.IsExistingStateOf(verState)) return null; //deleted, skip this doc
 
       verState = VersionInfo.MapCanonicalState(reader.AsStringField("LOGIN_VERSION_STATE"));
       if (!VersionInfo.IsExistingStateOf(verState)) return null; //deleted, skip this doc
 
-      var id = context.GetState<EntityId>();
+      actx.HasResult = true;//FOUND!!!!!!!!!!!!
 
       var realm = reader.AsAtomField("REALM").Value;
       var gUser = reader.AsGdidField("GDID");
-      var sysToken = m_Logic.MakeSystemTokenData(realm, gUser);
+      //var sysToken = m_Logic.MakeSystemTokenData(realm, gUser);
       var name = reader.AsStringField("NAME");
 
       var level = Constraints.MapUserStatus(reader.AsString("LEVEL")) ?? Security.UserStatus.Invalid;
       var levelDown = Constraints.MapUserStatus(reader.AsString("LEVEL_DOWN"));
       if (levelDown.HasValue && levelDown.Value < level) level = levelDown.Value;//the LEAST wins
 
-      var result = new MinIdpUserData
-      {
-        SysId = gUser.ToHexString(),
-        Realm = realm,
-        SysTokenData = sysToken,
-        Status = level,
+      //var result = new MinIdpUserData
+      //{
+      //  SysId = gUser.ToHexString(),
+      //  Realm = realm,
+      //  SysTokenData = sysToken,
+      //  Status = level,
 
-        CreateUtc = reader.AsDateTimeField("CREATE_UTC", DateTime.MinValue).Value,
-        StartUtc = reader.AsDateTimeField("START_UTC", DateTime.MinValue).Value,
-        EndUtc = reader.AsDateTimeField("END_UTC", DateTime.MaxValue).Value,
-        LoginId = id,
-        LoginPassword = reader.AsStringField("PWD"),
-        LoginStartUtc = reader.AsDateTimeField("LOGIN_START_UTC"),
-        LoginEndUtc = reader.AsDateTimeField("LOGIN_START_UTC"),
-        ScreenName = name,
-        Name = name,
-        Description = reader.AsStringField("DESCRIPTION"),
-        Note = reader.AsStringField("NOTE"),
+      //  CreateUtc = reader.AsDateTimeField("CREATE_UTC", DateTime.MinValue).Value,
+      //  StartUtc = reader.AsDateTimeField("START_UTC", DateTime.MinValue).Value,
+      //  EndUtc = reader.AsDateTimeField("END_UTC", DateTime.MaxValue).Value,
+      //  LoginId = id,
+      //  LoginPassword = reader.AsStringField("PWD"),
+      //  LoginStartUtc = reader.AsDateTimeField("LOGIN_START_UTC"),
+      //  LoginEndUtc = reader.AsDateTimeField("LOGIN_START_UTC"),
+      //  ScreenName = name,
+      //  Name = name,
+      //  Description = reader.AsStringField("DESCRIPTION"),
+      //  Note = reader.AsStringField("NOTE"),
 
-        Role = null, // TODO: extract role from PROPS column data
-        Rights = reader.AsStringField("RIGHTS"),
-        Props = null
-      };
+      //  Role = null, // TODO: extract role from PROPS column data
+      //  Rights = reader.AsStringField("RIGHTS"),
+      //  Props = reader.AsStringField("PROPS")
+      //};
 
 
-      return result;
+      return new RowsAffectedDoc(1);//we use this because we need a reader, but we read into INPUT parameter, hence we return affected dummy
     }
   }
 }
