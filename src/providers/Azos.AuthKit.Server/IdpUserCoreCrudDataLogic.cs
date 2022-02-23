@@ -84,15 +84,24 @@ namespace Azos.AuthKit.Server
       if (id.IsNullOrWhiteSpace()) return null;//bad user
       var eid = m_Handler.ParseId(id);
 
+      var actx = m_Handler.MakeNewUserAuthenticationContext(realm, ctx);
+      actx.LoginId = id;
+
       //Lookup by:
       //(`REALM`, `ID`, `TID`, `PROVIDER`);.
       // by executing CRUD query against ICrudDataStore (which needs to be configured as a part of this class)
-      var qry = new Query<MinIdpUserData>("MinIdp.GetById")
+      var qry = new Query<Doc>("MinIdp.GetById")
       {
-        new Query.Param("realm", realm),
-        new Query.Param("id", eid)
+        new Query.Param("ctx", actx)
       };
-      return await Data.LoadDocAsync(qry).ConfigureAwait(false);
+
+      await Data.LoadDocAsync(qry).ConfigureAwait(false);
+
+      if (!actx.HasResult) return null;
+
+      m_Handler.MakeSystemTokenData(actx);
+      m_Handler.ApplyEffectivePolicies(actx);
+      return actx.MakeResult();
     }
 
     public async Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri, AuthenticationRequestContext ctx)
