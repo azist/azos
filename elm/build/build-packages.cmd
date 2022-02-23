@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.42.8.1
-set HEADLINE=#605 minidp mongo claims support
+set VER=1.42.8.2
+set HEADLINE=#587 minidp caching
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
