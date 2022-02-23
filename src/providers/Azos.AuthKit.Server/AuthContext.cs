@@ -21,7 +21,7 @@ namespace Azos.AuthKit.Server
   /// Provides transitive data used between various methods calls during user authentication.
   /// The class is paired with IIdpHandlerLogic which makes a new instance of this or
   /// appropriate derivative class.
-  /// Your auth system may extend this object also overriding <see cref="IIdpHandlerLogic.MakeNewUserAuthenticationContext(EntityId)"/>
+  /// Your auth system may extend this object also overriding <see cref="IIdpHandlerLogic.MakeNewUserAuthenticationContext(Atom, AuthenticationRequestContext)"/>
   /// </summary>
   public class AuthContext
   {
