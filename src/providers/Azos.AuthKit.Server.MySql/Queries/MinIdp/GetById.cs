@@ -25,8 +25,6 @@ namespace Azos.AuthKit.Server.MySql.Queries.MinIdp
   {
     public GetById(MySqlCrudDataStoreBase store, string name) : base(store, name) { }
 
-    //[Inject] IIdpHandlerLogic m_Logic;
-
     protected override void DoBuildCommandAndParameters(MySqlCrudQueryExecutionContext context, MySqlCommand cmd, AuthContext actx)
     {
       context.SetState(actx);
@@ -46,7 +44,7 @@ namespace Azos.AuthKit.Server.MySql.Queries.MinIdp
     //we use this because we need a reader, but we read into INPUT parameter, hence we return affected dummy
     protected override Doc DoPopulateDoc(MySqlCrudQueryExecutionContext context, Type tDoc, Schema schema, Schema.FieldDef[] toLoad, MySqlDataReader reader)
     {
-      var actx = context.GetState<AuthContext>();
+      var ctx = context.GetState<AuthContext>();
 
       var verState = VersionInfo.MapCanonicalState(reader.AsStringField("VERSION_STATE"));
       if (!VersionInfo.IsExistingStateOf(verState)) return null; //deleted, skip this doc
@@ -54,16 +52,34 @@ namespace Azos.AuthKit.Server.MySql.Queries.MinIdp
       verState = VersionInfo.MapCanonicalState(reader.AsStringField("LOGIN_VERSION_STATE"));
       if (!VersionInfo.IsExistingStateOf(verState)) return null; //deleted, skip this doc
 
-      actx.HasResult = true;//FOUND!!!!!!!!!!!!
+      ctx.HasResult = true;//FOUND!!!!!!!!!!!!
+      ctx.G_User = reader.AsGdidField("GDID");
+      ctx.SysId = ctx.G_User.ToHexString();
+      ctx.Name = reader.AsStringField("NAME");
+      ctx.ScreenName = ctx.Name;
+      ctx.Description = reader.AsStringField("DESCRIPTION");
+      ctx.Note = reader.AsStringField("NOTE");
+      ctx.Rights = reader.AsStringField("RIGHTS");
+      ctx.Props = reader.AsStringField("PROPS");
 
-      var realm = reader.AsAtomField("REALM").Value;
-      var gUser = reader.AsGdidField("GDID");
-      //var sysToken = m_Logic.MakeSystemTokenData(realm, gUser);
-      var name = reader.AsStringField("NAME");
 
       var level = Constraints.MapUserStatus(reader.AsString("LEVEL")) ?? Security.UserStatus.Invalid;
       var levelDown = Constraints.MapUserStatus(reader.AsString("LEVEL_DOWN"));
       if (levelDown.HasValue && levelDown.Value < level) level = levelDown.Value;//the LEAST wins
+
+      ctx.Status = level;
+      ctx.CreateUtc = reader.AsDateTimeField("CREATE_UTC").Value;
+      ctx.StartUtc = reader.AsDateTimeField("START_UTC").Value;
+      ctx.EndUtc = reader.AsDateTimeField("END_UTC").Value;
+
+      ctx.G_Login = reader.AsGdidField("G_Login");
+      ctx.LoginPassword = reader.AsStringField("PWD");
+      ctx.LoginStartUtc = reader.AsDateTimeField("LOGIN_START_UTC").Value;
+      ctx.LoginEndUtc = reader.AsDateTimeField("LOGIN_END_UTC").Value;
+
+      ctx.LoginProps = reader.AsStringField("LOGIN_PROPS");
+      ctx.LoginRights = reader.AsStringField("LOGIN_RIGHTS");
+
 
       //var result = new MinIdpUserData
       //{

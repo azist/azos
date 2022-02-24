@@ -82,10 +82,11 @@ namespace Azos.AuthKit.Server
     public async Task<MinIdpUserData> GetByIdAsync(Atom realm, string id, AuthenticationRequestContext ctx)
     {
       if (id.IsNullOrWhiteSpace()) return null;//bad user
-      var eid = m_Handler.ParseId(id);
+      var (pvd, eid) = m_Handler.ParseId(id);
 
       var actx = m_Handler.MakeNewUserAuthenticationContext(realm, ctx);
-      actx.LoginId = id;
+      actx.LoginId = eid;
+      actx.Provider = pvd;
 
       //Lookup by:
       //(`REALM`, `ID`, `TID`, `PROVIDER`);.

@@ -39,7 +39,10 @@ namespace Azos.AuthKit.Server
     /// The EntityId.System is Provider.Name, and EntityId.Type is login type.
     /// Throws `DataValidationException/400` on wrong ID
     /// </summary>
-    EntityId ParseId(string id);
+    /// <example>
+    /// "provider::id", "type@provider::id", "[default-type]@[default-provider]::id"
+    /// </example>
+    (LoginProvider provider, EntityId id) ParseId(string id);
 
     /// <summary>
     /// Parses the supplied uri expressed in EntityId format.
@@ -47,7 +50,10 @@ namespace Azos.AuthKit.Server
     /// The EntityId.System is Provider.Name, and EntityId.Type is login type.
     /// Throws `DataValidationException/400` on wrong ID
     /// </summary>
-    EntityId ParseUri(string uri);
+    /// <example>
+    /// "uri@provider::uri_address", "uri@[default-provider]::uri_address"
+    /// </example>
+    (LoginProvider provider, EntityId id) ParseUri(string uri);
 
     string SysTokenCryptoAlgorithmName { get; }
     double SysTokenLifespanHours       { get; }

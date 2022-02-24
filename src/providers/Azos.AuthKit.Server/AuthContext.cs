@@ -38,6 +38,8 @@ namespace Azos.AuthKit.Server
 
     public LoginProvider Provider {  get; set; }
 
+    public GDID G_User { get; set; }
+
     public string SysId { get; set; }
     public string SysTokenData { get; set; }
 
@@ -46,11 +48,11 @@ namespace Azos.AuthKit.Server
     public DateTime StartUtc { get; set; }
     public DateTime EndUtc { get; set; }
 
-
+    public GDID G_Login { get; set; }
     public EntityId  LoginId {  get; set; }
     public string    LoginPassword { get; set; }
-    public DateTime? LoginStartUtc { get; set; }
-    public DateTime? LoginEndUtc { get; set; }
+    public DateTime LoginStartUtc { get; set; }
+    public DateTime LoginEndUtc { get; set; }
 
     public string ScreenName { get; set; }
     public string Name { get; set; }
