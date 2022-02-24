@@ -6,6 +6,7 @@
   , TU.CREATE_UTC
   , TU.START_UTC
   , TU.END_UTC
+  , TL.GDID as G_Login
   , TL.ID
   , TL.PWD
   , TL.START_UTC AS LOGIN_START_UTC

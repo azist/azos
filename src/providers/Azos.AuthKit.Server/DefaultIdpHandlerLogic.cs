@@ -35,7 +35,17 @@ namespace Azos.AuthKit.Server
 
     public Atom DefaultLoginProvider => m_DefaultLoginProvider;
 
-    public string SysTokenCryptoAlgorithmName => throw new NotImplementedException();
+    [Config("$msg-algo;$msg-algorithm")]
+    public string SysTokenCryptoAlgorithmName { get; set; }
+
+    private ICryptoMessageAlgorithm SysTokenCryptoAlgorithm => App.SecurityManager
+                                                       .Cryptography
+                                                       .MessageProtectionAlgorithms[SysTokenCryptoAlgorithmName]
+                                                       .NonNull("Algo `{0}`".Args(SysTokenCryptoAlgorithmName))
+                                                       .IsTrue(a => a.Audience == CryptoMessageAlgorithmAudience.Internal &&
+                                                                    a.Flags.HasFlag(CryptoMessageAlgorithmFlags.Cipher) &&
+                                                                    a.Flags.HasFlag(CryptoMessageAlgorithmFlags.CanUnprotect),
+                                                                    "Algo `{0}` !internal !cipher".Args(SysTokenCryptoAlgorithmName));
 
     public double SysTokenLifespanHours => throw new NotImplementedException();
 
@@ -85,7 +95,7 @@ namespace Azos.AuthKit.Server
     /// The EntityId.System is Provider.Name, and EntityId.Type is login type.
     /// Throws `DataValidationException/400` on wrong ID
     /// </summary>
-    public EntityId ParseId(string id)
+    public (LoginProvider provider, EntityId id) ParseId(string id)
     {
       var isplain = id.NonBlank(nameof(id))
                       .IndexOf(EntityId.SYS_PREFIX) == -1;
@@ -93,7 +103,7 @@ namespace Azos.AuthKit.Server
       if (isplain)
       {
         var p = Providers[DefaultLoginProvider.Value].NonNull(nameof(DefaultLoginProvider));
-        return new EntityId(DefaultLoginProvider, p.DefaultLoginType, Atom.ZERO, id);
+        return (p, new EntityId(DefaultLoginProvider, p.DefaultLoginType, Atom.ZERO, id));
       }
 
       if (!EntityId.TryParse(id, out var result))
@@ -109,29 +119,41 @@ namespace Azos.AuthKit.Server
 
       if (result.Type.IsZero)
       {
-        result = new EntityId(result.System, provider.DefaultLoginType, Atom.ZERO, result.Address);
+        return (provider, new EntityId(result.System, provider.DefaultLoginType, Atom.ZERO, result.Address));
       }
       else if (!provider.SupportedLoginTypes.Any(t => t == result.Type))
       {
         throw new ValidationException("Bad login type") { HttpStatusDescription = "Login provider `{0}` does not support login type `{1}`".Args(result.System, result.Type) };
       }
 
-      return result;
+      return (provider, result);
     }
 
-    public EntityId ParseUri(string uri)
+    public (LoginProvider provider, EntityId id) ParseUri(string uri)
     {
       throw new NotImplementedException();
     }
 
     public AuthContext MakeNewUserAuthenticationContext(Atom realm, AuthenticationRequestContext ctx)
     {
-      throw new NotImplementedException();
+      return new AuthContext(realm, ctx);
     }
 
     public void MakeSystemTokenData(AuthContext context)
     {
-      throw new NotImplementedException();
+      var sysSpanHrs = SysTokenLifespanHours > 0 ? SysTokenLifespanHours : 0.35d;//21 minutes by default
+      var request = context.RequestContext;
+
+      if (request != null && request.Intent.EqualsOrdSenseCase(AuthenticationRequestContext.INTENT_OAUTH))
+      {
+        var ssec = request.SysAuthTokenValiditySpanSec ?? 0;
+        if (ssec > 0) sysSpanHrs = Math.Max(sysSpanHrs, ssec / 3_600d);
+      }
+
+      var sysExpiration = App.TimeSource.UTCNow.AddHours(sysSpanHrs);
+
+      var msg = new { id = context.SysId, exp = sysExpiration, gl = context.G_Login };
+      context.SysTokenData = SysTokenCryptoAlgorithm.ProtectAsString(msg);
     }
 
     public void ApplyEffectivePolicies(AuthContext context)

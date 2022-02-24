@@ -48,7 +48,7 @@ namespace Azos.AuthKit.Server
     public DateTime StartUtc { get; set; }
     public DateTime EndUtc { get; set; }
 
-
+    public GDID G_Login { get; set; }
     public EntityId  LoginId {  get; set; }
     public string    LoginPassword { get; set; }
     public DateTime LoginStartUtc { get; set; }

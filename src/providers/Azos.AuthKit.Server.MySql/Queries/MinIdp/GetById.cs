@@ -72,6 +72,7 @@ namespace Azos.AuthKit.Server.MySql.Queries.MinIdp
       ctx.StartUtc = reader.AsDateTimeField("START_UTC").Value;
       ctx.EndUtc = reader.AsDateTimeField("END_UTC").Value;
 
+      ctx.G_Login = reader.AsGdidField("G_Login");
       ctx.LoginPassword = reader.AsStringField("PWD");
       ctx.LoginStartUtc = reader.AsDateTimeField("LOGIN_START_UTC").Value;
       ctx.LoginEndUtc = reader.AsDateTimeField("LOGIN_END_UTC").Value;
