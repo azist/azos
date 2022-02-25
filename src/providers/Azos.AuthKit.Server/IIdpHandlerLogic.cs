@@ -83,11 +83,5 @@ namespace Azos.AuthKit.Server
     /// The data is supplied in the `AuthContext`-derived concretion
     /// </summary>
     void ApplyEffectivePolicies(AuthContext context);
-
-    //JsonDataMap CheckSystemToken(string token)
   }
-
-
-
-
 }

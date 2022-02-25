@@ -180,9 +180,10 @@ namespace Azos.AuthKit.Server
 
       var msgToken = new
       {
+        r = context.Realm,
         g = context.G_Login,
-        e = sysExpiration,
-        i = context.LoginId//Login Id
+        i = context.LoginId, //Login Id
+        e = sysExpiration
       };
 
       context.SysTokenData = SysTokenCryptoAlgorithm.ProtectAsString(msgToken);
@@ -202,14 +203,17 @@ namespace Azos.AuthKit.Server
                                       );
       if (expire <= App.TimeSource.UTCNow) return null;//expired
 
+      var tokenRealm = msgToken["r"].AsAtom(Atom.ZERO);
+      if (tokenRealm != context.Realm) return null;//realm mismatch
+
       context.G_Login = msgToken["g"].AsGDID(GDID.ZERO);
-      if (context.G_Login.IsZero) return null;
+      if (context.G_Login.IsZero) return null;//G_Login missing
 
       context.LoginId = msgToken["i"].AsEntityId(EntityId.EMPTY);
-      if (!context.LoginId.IsAssigned) return null;
+      if (!context.LoginId.IsAssigned) return null;//Login id missing
 
       //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-      //ATTENTION!!! You MUST NOT re-generate the token but use existing one AS-IS!!!
+      //ATTENTION!!! We MUST NOT re-generate the token but use existing one AS-IS!!!
       context.SysTokenData = token;//DO NOT re-issue token!!!
 
       var pvd = Providers[context.LoginId.System.Value];//may be null if not found

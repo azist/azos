@@ -139,7 +139,7 @@ namespace Azos.AuthKit.Server
 
       actx.Provider = pvd;
 
-      var qry = new Query<Doc>("MinIdp.GetBySysToken")
+      var qry = new Query<Doc>("MinIdp.GetBySys")
       {
         new Query.Param("ctx", actx)
       };
