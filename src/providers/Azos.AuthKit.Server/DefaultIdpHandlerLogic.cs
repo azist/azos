@@ -131,7 +131,32 @@ namespace Azos.AuthKit.Server
 
     public (LoginProvider provider, EntityId id) ParseUri(string uri)
     {
-      throw new NotImplementedException();
+      var isplain = uri.NonBlank(nameof(uri))
+                       .IndexOf(EntityId.SYS_PREFIX) == -1;
+
+      if (isplain)
+      {
+        var p = Providers[DefaultLoginProvider.Value].NonNull(nameof(DefaultLoginProvider));
+        return (p, new EntityId(DefaultLoginProvider, Constraints.LTP_SYS_URI, Atom.ZERO, uri));
+      }
+
+      if (!EntityId.TryParse(uri, out var result))
+      {
+        throw new ValidationException("Bad URI format") { HttpStatusDescription = "The URI value is not a parsable `EntityId`" };
+      }
+
+      var provider = Providers[result.System.Value];
+      if (provider == null)
+      {
+        throw new ValidationException("Unknown provider") { HttpStatusDescription = "Login URI provider `{0}` is not known".Args(result.System) };
+      }
+
+      if (result.Type.IsZero || result.Type == Constraints.LTP_SYS_URI)
+      {
+        return (provider, new EntityId(result.System, Constraints.LTP_SYS_URI, Atom.ZERO, result.Address));
+      }
+
+      throw new ValidationException("Bad URI type") { HttpStatusDescription = "The URI type must be omitted or set to `uri`" };
     }
 
     public AuthContext MakeNewUserAuthenticationContext(Atom realm, AuthenticationRequestContext ctx)
