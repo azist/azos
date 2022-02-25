@@ -164,6 +164,7 @@ namespace Azos.AuthKit.Server
       return new AuthContext(realm, ctx);
     }
 
+    //complementary pair method for TryDecodeSystemTokenData()
     public void MakeSystemTokenData(AuthContext context)
     {
       var sysSpanHrs = SysTokenLifespanHours > 0 ? SysTokenLifespanHours : 0.35d;//21 minutes by default
@@ -177,13 +178,48 @@ namespace Azos.AuthKit.Server
 
       var sysExpiration = App.TimeSource.UTCNow.AddHours(sysSpanHrs);
 
-      var msg = new { id = context.SysId, exp = sysExpiration, gl = context.G_Login };
-      context.SysTokenData = SysTokenCryptoAlgorithm.ProtectAsString(msg);
+      var msgToken = new
+      {
+        g = context.G_Login,
+        e = sysExpiration,
+        i = context.LoginId//Login Id
+      };
+
+      context.SysTokenData = SysTokenCryptoAlgorithm.ProtectAsString(msgToken);
+    }
+
+    //complementary pair method for MakeSystemTokenData()
+    public LoginProvider TryDecodeSystemTokenData(string token, AuthContext context)
+    {
+      if (token.IsNullOrWhiteSpace()) return null;
+      var msgToken = SysTokenCryptoAlgorithm.UnprotectObject(token) as JsonDataMap;
+      if (msgToken == null) return null;//corrupted or forged token
+
+      var expire = msgToken["e"].AsDateTime(default(DateTime),
+                                       ConvertErrorHandling.ReturnDefault,
+                                       System.Globalization.DateTimeStyles.AssumeUniversal |
+                                       System.Globalization.DateTimeStyles.AdjustToUniversal
+                                      );
+      if (expire <= App.TimeSource.UTCNow) return null;//expired
+
+      context.G_Login = msgToken["g"].AsGDID(GDID.ZERO);
+      if (context.G_Login.IsZero) return null;
+
+      context.LoginId = msgToken["i"].AsEntityId(EntityId.EMPTY);
+      if (!context.LoginId.IsAssigned) return null;
+
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //ATTENTION!!! You MUST NOT re-generate the token but use existing one AS-IS!!!
+      context.SysTokenData = token;//DO NOT re-issue token!!!
+
+      var pvd = Providers[context.LoginId.System.Value];//may be null if not found
+      return pvd;
     }
 
     public void ApplyEffectivePolicies(AuthContext context)
     {
       throw new NotImplementedException();
     }
+
   }
 }

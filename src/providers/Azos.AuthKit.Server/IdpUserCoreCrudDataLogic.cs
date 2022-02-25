@@ -107,7 +107,7 @@ namespace Azos.AuthKit.Server
 
     public async Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri, AuthenticationRequestContext ctx)
     {
-      if (uri.IsNullOrWhiteSpace()) return null;//bad uri
+      if (uri.IsNullOrWhiteSpace()) return null;//bad user
       var (pvd, eid) = m_Handler.ParseUri(uri);
 
       var actx = m_Handler.MakeNewUserAuthenticationContext(realm, ctx);
@@ -128,13 +128,29 @@ namespace Azos.AuthKit.Server
       return actx.MakeResult();
     }
 
-    public Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken, AuthenticationRequestContext ctx)
+    public async Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken, AuthenticationRequestContext ctx)
     {
       if (sysToken.IsNullOrWhiteSpace()) return null;//bad user
 
-      // TODO: Add system token logic
+      var actx = m_Handler.MakeNewUserAuthenticationContext(realm, ctx);
 
-      throw new NotImplementedException();
+      var pvd = m_Handler.TryDecodeSystemTokenData(sysToken, actx);
+      if (pvd == null) return null;//Bad token
+
+      actx.Provider = pvd;
+
+      var qry = new Query<Doc>("MinIdp.GetBySysToken")
+      {
+        new Query.Param("ctx", actx)
+      };
+
+      await Data.LoadDocAsync(qry).ConfigureAwait(false);
+
+      if (!actx.HasResult) return null;
+
+      //notice: No MakeSystemTokenData because we must re-use EXISTING token as-is
+      m_Handler.ApplyEffectivePolicies(actx);
+      return actx.MakeResult();
     }
 
     #endregion

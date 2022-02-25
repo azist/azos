@@ -72,6 +72,12 @@ namespace Azos.AuthKit.Server
     void MakeSystemTokenData(AuthContext context);
 
     /// <summary>
+    /// Tries to decode the raw token data, returning null if it is compromised/tampered-with or simply malformed.
+    /// If OK, returns the login provider used and populates relevant fields in context
+    /// </summary>
+    LoginProvider TryDecodeSystemTokenData(string token, AuthContext context);
+
+    /// <summary>
     /// Calculates effective Rights, and Props applying policies as necessary as defined
     /// by the specific implementation of `IIdpHandlerLogic`.
     /// The data is supplied in the `AuthContext`-derived concretion
