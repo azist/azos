@@ -55,7 +55,16 @@ namespace Azos.AuthKit.Server
     /// </example>
     (LoginProvider provider, EntityId id) ParseUri(string uri);
 
+    /// <summary>
+    /// The name of cryptographic message protection algorithm used to protect raw token data.
+    /// Typically this would be configured to use <see cref="Azos.Security.HMACAESCryptoMessageAlgorithm"/>
+    /// </summary>
     string SysTokenCryptoAlgorithmName { get; }
+
+    /// <summary>
+    /// How long system token lasts for. However, some flows such as OAuth may request
+    /// tokens with longer life (by passing a corresponding authentication request intent)
+    /// </summary>
     double SysTokenLifespanHours       { get; }
 
     /// <summary>
