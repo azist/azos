@@ -59,6 +59,8 @@ namespace Azos.AuthKit
     public const string CONFIG_CLAIMS_SECTION = "claims";// props{  claims{ pub{...} } }
     public const string CONFIG_PUBLIC_SECTION = "pub";
 
+    public const string CONFIG_ROLE_ATTR = "role";
+
     public const int ENTITY_ID_MAX_LEN = 256;
 
     public const int USER_NAME_MIN_LEN = 3;

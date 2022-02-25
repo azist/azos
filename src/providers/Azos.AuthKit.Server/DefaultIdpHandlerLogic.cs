@@ -222,7 +222,35 @@ namespace Azos.AuthKit.Server
 
     public void ApplyEffectivePolicies(AuthContext context)
     {
-      throw new NotImplementedException();
+      //1. Assign PROPS =======================================
+      var eProps = new MemoryConfiguration{ Application = App };
+      eProps.CreateFromNode(context.Props.Node);
+      if (context.LoginProps != null)
+      {
+        eProps.Root.OverrideBy(context.LoginProps.Node);
+      }
+      context.ResultProps = new ConfigVector(eProps.Root);
+
+      //2. Assign RIGHTS =======================================
+      var eRights = new MemoryConfiguration { Application = App };
+      if (context.Rights != null)
+      {
+        eRights.CreateFromNode(context.Rights.Node);
+      }
+      else
+      {
+        eRights.Create(Rights.CONFIG_ROOT_SECTION);
+      }
+
+      if (context.LoginRights != null)
+      {
+        eRights.Root.OverrideBy(context.LoginRights.Node);
+      }
+      context.ResultRights = new ConfigVector(eRights.Root);
+
+
+      //3. Assign minidp Primary role ================================================
+      context.ResultRole = context.ResultProps.Node.ValOf(Constraints.CONFIG_ROLE_ATTR);
     }
 
   }
