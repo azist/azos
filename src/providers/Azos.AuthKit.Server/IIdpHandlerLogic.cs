@@ -55,7 +55,16 @@ namespace Azos.AuthKit.Server
     /// </example>
     (LoginProvider provider, EntityId id) ParseUri(string uri);
 
+    /// <summary>
+    /// The name of cryptographic message protection algorithm used to protect raw token data.
+    /// Typically this would be configured to use <see cref="Azos.Security.HMACAESCryptoMessageAlgorithm"/>
+    /// </summary>
     string SysTokenCryptoAlgorithmName { get; }
+
+    /// <summary>
+    /// How long system token lasts for. However, some flows such as OAuth may request
+    /// tokens with longer life (by passing a corresponding authentication request intent)
+    /// </summary>
     double SysTokenLifespanHours       { get; }
 
     /// <summary>
@@ -72,16 +81,16 @@ namespace Azos.AuthKit.Server
     void MakeSystemTokenData(AuthContext context);
 
     /// <summary>
+    /// Tries to decode the raw token data, returning null if it is compromised/tampered-with or simply malformed.
+    /// If OK, returns the login provider used and populates relevant fields in context
+    /// </summary>
+    LoginProvider TryDecodeSystemTokenData(string token, AuthContext context);
+
+    /// <summary>
     /// Calculates effective Rights, and Props applying policies as necessary as defined
     /// by the specific implementation of `IIdpHandlerLogic`.
     /// The data is supplied in the `AuthContext`-derived concretion
     /// </summary>
     void ApplyEffectivePolicies(AuthContext context);
-
-    //JsonDataMap CheckSystemToken(string token)
   }
-
-
-
-
 }

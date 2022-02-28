@@ -108,24 +108,49 @@ namespace Azos.AuthKit.Server
     public async Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri, AuthenticationRequestContext ctx)
     {
       if (uri.IsNullOrWhiteSpace()) return null;//bad user
+      var (pvd, eid) = m_Handler.ParseUri(uri);
 
-      var euri = m_Handler.ParseUri(uri);
+      var actx = m_Handler.MakeNewUserAuthenticationContext(realm, ctx);
+      actx.LoginId = eid;
+      actx.Provider = pvd;
 
-      var qry = new Query<MinIdpUserData>("MinIdp.GetByUserName")
+      var qry = new Query<Doc>("MinIdp.GetById")// A URI is really a special sub-type of ID Constraints.LTP_SYS_URI = 'uri'
       {
-        new Query.Param("realm", realm),
-        new Query.Param("uname", euri)
+        new Query.Param("ctx", actx)
       };
-      return await Data.LoadDocAsync(qry).ConfigureAwait(false);
+
+      await Data.LoadDocAsync(qry).ConfigureAwait(false);
+
+      if (!actx.HasResult) return null;
+
+      m_Handler.MakeSystemTokenData(actx);
+      m_Handler.ApplyEffectivePolicies(actx);
+      return actx.MakeResult();
     }
 
-    public Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken, AuthenticationRequestContext ctx)
+    public async Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken, AuthenticationRequestContext ctx)
     {
       if (sysToken.IsNullOrWhiteSpace()) return null;//bad user
 
-      // TODO: Add system token logic
+      var actx = m_Handler.MakeNewUserAuthenticationContext(realm, ctx);
 
-      throw new NotImplementedException();
+      var pvd = m_Handler.TryDecodeSystemTokenData(sysToken, actx);
+      if (pvd == null) return null;//Bad token
+
+      actx.Provider = pvd;
+
+      var qry = new Query<Doc>("MinIdp.GetBySys")
+      {
+        new Query.Param("ctx", actx)
+      };
+
+      await Data.LoadDocAsync(qry).ConfigureAwait(false);
+
+      if (!actx.HasResult) return null;
+
+      //notice: No MakeSystemTokenData because we must re-use EXISTING token as-is
+      m_Handler.ApplyEffectivePolicies(actx);
+      return actx.MakeResult();
     }
 
     #endregion

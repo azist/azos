@@ -44,6 +44,7 @@ namespace Azos.AuthKit
     public static readonly Atom LTP_SYS_EMAIL = Atom.Encode("email");//detected by searching for @
     public static readonly Atom LTP_SYS_PHONE = Atom.Encode("phone");//detected by searching for digits
     public static readonly Atom LTP_SYS_ID    = Atom.Encode("id");//if not email or phone
+    public static readonly Atom LTP_SYS_URI   = Atom.Encode("uri");//used by Login by URI
 
     /// <summary>
     /// AuthKit event namespace
@@ -57,6 +58,8 @@ namespace Azos.AuthKit
 
     public const string CONFIG_CLAIMS_SECTION = "claims";// props{  claims{ pub{...} } }
     public const string CONFIG_PUBLIC_SECTION = "pub";
+
+    public const string CONFIG_ROLE_ATTR = "role";
 
     public const int ENTITY_ID_MAX_LEN = 256;
 

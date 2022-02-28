@@ -57,7 +57,6 @@ namespace Azos.AuthKit.Server
     public string ScreenName { get; set; }
     public string Name { get; set; }
     public string Description { get; set; }
-    public string Role { get; set; }
     public string Note { get; set; }
 
     public ConfigVector Props { get; set; }
@@ -67,6 +66,7 @@ namespace Azos.AuthKit.Server
     public ConfigVector LoginRights { get; set; }
 
 
+    public string ResultRole { get; set; }
     public ConfigVector ResultRights { get; set; }
     public ConfigVector ResultProps{ get; set; }
 
@@ -76,7 +76,27 @@ namespace Azos.AuthKit.Server
     {
       return new MinIdpUserData
       {
+        SysId = this.SysId,
+        Realm = this.Realm,
+        SysTokenData = this.SysTokenData,
+        Status = this.Status,
+        CreateUtc = this.CreateUtc,
+        StartUtc =  this.StartUtc,
+        EndUtc   =  this.EndUtc,
 
+        LoginId = this.LoginId,
+        LoginPassword = this.LoginPassword,
+        LoginStartUtc = this.LoginStartUtc,
+        LoginEndUtc = this.LoginEndUtc,
+
+        ScreenName = this.ScreenName,
+        Name = this.Name,
+        Description = this.Description,
+        Note = this.Note,
+
+        Role = this.ResultRole,
+        Props = this.ResultProps,
+        Rights = this.ResultRights,
       };
     }
   }
