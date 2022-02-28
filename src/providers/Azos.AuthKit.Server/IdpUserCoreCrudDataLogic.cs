@@ -15,6 +15,7 @@ using Azos.Conf;
 using Azos.Data;
 using Azos.Data.Access;
 using Azos.Security;
+using Azos.Security.Authkit;
 using Azos.Security.MinIdp;
 
 namespace Azos.AuthKit.Server
@@ -28,6 +29,11 @@ namespace Azos.AuthKit.Server
 
     public IdpUserCoreCrudDataLogic(IApplication application) : base(application) { }
     public IdpUserCoreCrudDataLogic(IModule parent) : base(parent) { }
+
+    public static Permission[] SEC_USER_MGMT = new []
+    {
+      new UserManagementPermission(UserManagementAccessLevel.View)
+    };
 
     [Inject] IIdpHandlerLogic m_Handler;
     private ICrudDataStoreImplementation m_Data;
@@ -157,9 +163,17 @@ namespace Azos.AuthKit.Server
 
     #region IIdpUserCoreLogic-specifics
 
-    public Task<IEnumerable<UserInfo>> GetUserListAsync(UserListFilter filter)
+    public async Task<IEnumerable<UserInfo>> GetUserListAsync(UserListFilter filter)
     {
-      throw new NotImplementedException();
+      App.Authorize(SEC_USER_MGMT);
+
+      var qry = new Query<UserInfo>("Admin.GetUserList")
+      {
+        new Query.Param("filter", filter)
+      };
+
+      var result = await Data.LoadEnumerableAsync(qry).ConfigureAwait(false);
+      return result;
     }
 
     public Task<IEnumerable<LoginInfo>> GetLoginsAsync(GDID gUser)
