@@ -43,6 +43,13 @@ namespace Azos.Data.Access.MySql
       return val.AsNullableAtom(dflt, handling);
     }
 
+    public static Guid? AsGuidField(this MySqlDataReader reader, string fld, Guid? dflt = null, ConvertErrorHandling handling = ConvertErrorHandling.ReturnDefault)
+    {
+      var val = reader[fld];
+      if (val is DBNull) return null;
+      return val.AsGUID(dflt ?? Guid.Empty, handling);
+    }
+
     public static EntityId? AsEntityIdField(this MySqlDataReader reader, string fld, EntityId? dflt = null, ConvertErrorHandling handling = ConvertErrorHandling.ReturnDefault)
     {
       var val = reader[fld];
