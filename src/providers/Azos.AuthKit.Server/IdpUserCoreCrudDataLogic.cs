@@ -176,9 +176,17 @@ namespace Azos.AuthKit.Server
       return result;
     }
 
-    public Task<IEnumerable<LoginInfo>> GetLoginsAsync(GDID gUser)
+    public async Task<IEnumerable<LoginInfo>> GetLoginsAsync(GDID gUser)
     {
-      throw new NotImplementedException();
+      App.Authorize(SEC_USER_MGMT);
+
+      var qry = new Query<LoginInfo>("Admin.GetLogins")
+      {
+        new Query.Param("gUser", gUser)
+      };
+
+      var result = await Data.LoadEnumerableAsync(qry).ConfigureAwait(false);
+      return result;
     }
 
     public Task<ChangeResult> ApplyLoginEventAsync(LoginEvent what)
