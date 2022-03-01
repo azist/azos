@@ -29,12 +29,6 @@ namespace Azos.AuthKit
                                                 Constraints.ETP_USER,
                                                 Constraints.SCH_GDID, Gdid.ToString());
     /// <summary>
-    /// User account realm set only on insert. Must be null/not supplied for update
-    /// </summary>
-    [Field(required: true, Description = "User account realm set only on insert. Must be null/not supplied for update")]
-    public Atom? Realm { get; set; }
-
-    /// <summary>
     /// Name/(Screen Name)/Uri//Title of user account unique per realm
     /// </summary>
     [Field(required: true,
@@ -101,17 +95,6 @@ namespace Azos.AuthKit
       if (!result.ShouldContinue) return result;
 
       state = await m_SaveLogic.ValidateUserAsync(this, state).ConfigureAwait(false);
-
-      if (FormMode == FormMode.Update)
-      {
-        if (Realm.HasValue && !Realm.Value.IsZero)
-        {
-          return new ValidState(state, new FieldValidationException(this, nameof(Realm),
-             "`Realm` field value may not be provided for entity UPDATES as it is immutable. " +
-             "If you are trying to re-use the same `UserEtity` instance for an update, " +
-             "set its `Realm` field value to null first to signify the intent"));
-        }
-      }
 
       return result;
     }

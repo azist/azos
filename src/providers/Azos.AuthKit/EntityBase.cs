@@ -16,6 +16,12 @@ namespace Azos.AuthKit
 {
   public abstract class EntityBase<TSaveLogic, TSaveResult> : PersistedEntity<TSaveLogic, TSaveResult> where TSaveLogic : class, IBusinessLogic
   {
+    /// <summary>
+    /// Realm is an implicit ambient context which drives security checks,
+    /// therefore here we provide a convenience accessor only.
+    /// </summary>
+    public Atom Realm => Ambient.CurrentCallSession.GetAtomDataContextName();
+
     protected override Task DoBeforeSaveAsync()
     {
       // Not needed as we override the logic below because we skip Constraints.GDID_RESERVED_ID_COUNT gdids

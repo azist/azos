@@ -21,7 +21,7 @@ namespace Azos.Security.Authkit
   /// <summary>
   /// Grants the assignee an ability to access core AuthKit user account functionality, possibly making changes depending on access level
   /// </summary>
-  public sealed class UserManagementPermission : TypedPermission
+  public sealed class UserManagementPermission : DataContextualPermission
   {
     public UserManagementPermission() : base(AccessLevel.VIEW) { }
     public UserManagementPermission(UserManagementAccessLevel level) : base((int)level) { }
