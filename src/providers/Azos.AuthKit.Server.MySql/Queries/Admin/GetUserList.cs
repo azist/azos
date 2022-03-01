@@ -19,50 +19,50 @@ namespace Azos.AuthKit.Server.MySql.Queries.Admin
   {
     public GetUserList(MySqlCrudDataStoreBase store, string name) : base(store, name) { }
 
-    protected override void DoBuildCommandAndParameters(MySqlCrudQueryExecutionContext context, MySqlCommand cmd, UserListFilter qParams)
+    protected override void DoBuildCommandAndParameters(MySqlCrudQueryExecutionContext context, MySqlCommand cmd, UserListFilter filter)
     {
-      context.BuildSelect(cmd, qParams, builder =>
+      context.BuildSelect(cmd, filter, builder =>
       {
         builder.Limit = 100; // qParams.PagingCount.LimitPagingCount()
 
         builder.Select("T1.GDID");
 
-        builder.AndWhere("T1.REALM = @realm", new MySqlParameter("realm", qParams.Realm));
+        builder.AndWhere("T1.REALM = @realm", new MySqlParameter("realm", filter.Realm));
 
-        if (!qParams.Gdid.IsZero)
+        if (!filter.Gdid.IsZero)
         {
-          builder.AndWhere("T1.GDID = @g_user", new MySqlParameter("g_user", qParams.Gdid));
+          builder.AndWhere("T1.GDID = @g_user", new MySqlParameter("g_user", filter.Gdid));
         }
 
-        if (qParams.LoginId.IsNotNullOrWhiteSpace())
+        if (filter.LoginId.IsNotNullOrWhiteSpace())
         {
           builder.FromClause("tbl_user T1 INNER JOIN tbl_login T2 ON T1.GDID = T2.G_USER");
-          builder.AndWhere("T2.ID = @login_id", new MySqlParameter("login_id", qParams.LoginId));
+          builder.AndWhere("T2.ID = @login_id", new MySqlParameter("login_id", filter.LoginId));
         }
         else
         {
           builder.From("tbl_user", "T1");
         }
 
-        if (qParams.Guid.HasValue)
+        if (filter.Guid.HasValue)
         {
-          builder.AndWhere("T1.GUID = @guid", new MySqlParameter("guid", qParams.Guid));
+          builder.AndWhere("T1.GUID = @guid", new MySqlParameter("guid", filter.Guid));
         }
 
-        if (qParams.Level.HasValue)
+        if (filter.Level.HasValue)
         {
-          var level = Constraints.MapUserStatus(qParams.Level.Value);
+          var level = Constraints.MapUserStatus(filter.Level.Value);
           builder.AndWhere("T1.LEVEL = @level", new MySqlParameter("level", level));
         }
 
-        if (qParams.Name.IsNotNullOrWhiteSpace())
+        if (filter.Name.IsNotNullOrWhiteSpace())
         {
-          builder.AndWhere("T1.NAME = @name", new MySqlParameter("name", qParams.Name));
+          builder.AndWhere("T1.NAME = @name", new MySqlParameter("name", filter.Name));
         }
 
-        if (qParams.OrgUnit.IsNotNullOrWhiteSpace())
+        if (filter.OrgUnit.IsNotNullOrWhiteSpace())
         {
-          builder.AndWhere("T1.ORG_UNIT = @org_unit", new MySqlParameter("org_unit", qParams.OrgUnit));
+          builder.AndWhere("T1.ORG_UNIT = @org_unit", new MySqlParameter("org_unit", filter.OrgUnit));
         }
 
         //TODO: add AsOfUtc, Active, Locked, TagFilter properties to filter logic
