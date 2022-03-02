@@ -159,9 +159,10 @@ namespace Azos.AuthKit.Server
       throw new ValidationException("Bad URI type") { HttpStatusDescription = "The URI type must be omitted or set to `uri`" };
     }
 
-    public AuthContext MakeNewUserAuthenticationContext(Atom realm, AuthenticationRequestContext ctx)
+    public AuthContext MakeNewUserAuthenticationContext(AuthenticationRequestContext ctx)
     {
-      return new AuthContext(realm, ctx);
+      // Realm Atom is provided here as an implicit ambient context
+      return new AuthContext(Ambient.CurrentCallSession.GetAtomDataContextName(), ctx);
     }
 
     //complementary pair method for TryDecodeSystemTokenData()
