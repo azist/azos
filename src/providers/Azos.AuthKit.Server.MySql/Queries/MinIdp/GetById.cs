@@ -57,7 +57,6 @@ namespace Azos.AuthKit.Server.MySql.Queries.MinIdp
       ctx.Rights = reader.AsStringField("RIGHTS");
       ctx.Props = reader.AsStringField("PROPS");
 
-
       var level = Constraints.MapUserStatus(reader.AsString("LEVEL")) ?? Security.UserStatus.Invalid;
       var levelDown = Constraints.MapUserStatus(reader.AsString("LEVEL_DOWN"));
       if (levelDown.HasValue && levelDown.Value < level) level = levelDown.Value;//the LEAST wins

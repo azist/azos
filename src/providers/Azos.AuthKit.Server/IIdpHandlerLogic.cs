@@ -71,9 +71,9 @@ namespace Azos.AuthKit.Server
     /// Factory pattern:
     /// Create an instance of user authentication DTO object used during login.
     /// The underlying store/handler implementation use this object as DTO passing relevant fields between methods
-    /// of handler and query during user authentication
+    /// of handler and query during user authentication. The object is being made in the context of the implicit ambient realm.
     /// </summary>
-    AuthContext MakeNewUserAuthenticationContext(Atom realm, AuthenticationRequestContext ctx);
+    AuthContext MakeNewUserAuthenticationContext(AuthenticationRequestContext ctx);
 
     /// <summary>
     /// Makes new SYSTEMAUTH token content for the `AuthContext`-derived concretion

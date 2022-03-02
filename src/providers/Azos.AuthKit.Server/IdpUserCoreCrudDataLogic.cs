@@ -88,9 +88,12 @@ namespace Azos.AuthKit.Server
     public async Task<MinIdpUserData> GetByIdAsync(Atom realm, string id, AuthenticationRequestContext ctx)
     {
       if (id.IsNullOrWhiteSpace()) return null;//bad user
+
+      setAmbientRealm(realm);
+
       var (pvd, eid) = m_Handler.ParseId(id);
 
-      var actx = m_Handler.MakeNewUserAuthenticationContext(realm, ctx);
+      var actx = m_Handler.MakeNewUserAuthenticationContext(ctx);
       actx.LoginId = eid;
       actx.Provider = pvd;
 
@@ -111,12 +114,16 @@ namespace Azos.AuthKit.Server
       return actx.MakeResult();
     }
 
+
     public async Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri, AuthenticationRequestContext ctx)
     {
       if (uri.IsNullOrWhiteSpace()) return null;//bad user
+
+      setAmbientRealm(realm);
+
       var (pvd, eid) = m_Handler.ParseUri(uri);
 
-      var actx = m_Handler.MakeNewUserAuthenticationContext(realm, ctx);
+      var actx = m_Handler.MakeNewUserAuthenticationContext(ctx);
       actx.LoginId = eid;
       actx.Provider = pvd;
 
@@ -138,7 +145,9 @@ namespace Azos.AuthKit.Server
     {
       if (sysToken.IsNullOrWhiteSpace()) return null;//bad user
 
-      var actx = m_Handler.MakeNewUserAuthenticationContext(realm, ctx);
+      setAmbientRealm(realm);
+
+      var actx = m_Handler.MakeNewUserAuthenticationContext(ctx);
 
       var pvd = m_Handler.TryDecodeSystemTokenData(sysToken, actx);
       if (pvd == null) return null;//Bad token
@@ -223,6 +232,8 @@ namespace Azos.AuthKit.Server
 
     #region pvt
 
+    // Since realm is an implicit security context we need to set it explicitly
+    private void setAmbientRealm(Atom realm) => Ambient.CurrentCallSession.DataContextName = realm.Value;
 
     #endregion
   }
