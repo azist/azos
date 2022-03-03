@@ -14,6 +14,7 @@ using Azos.AuthKit.Events;
 using Azos.Conf;
 using Azos.Data;
 using Azos.Data.Access;
+using Azos.Data.Business;
 using Azos.Security;
 using Azos.Security.Authkit;
 using Azos.Security.MinIdp;
@@ -30,9 +31,19 @@ namespace Azos.AuthKit.Server
     public IdpUserCoreCrudDataLogic(IApplication application) : base(application) { }
     public IdpUserCoreCrudDataLogic(IModule parent) : base(parent) { }
 
-    public static Permission[] SEC_USER_MGMT = new []
+    public static Permission[] SEC_USER_VIEW = new []
     {
       new UserManagementPermission(UserManagementAccessLevel.View)
+    };
+
+    public static Permission[] SEC_USER_CHANGE = new[]
+    {
+      new UserManagementPermission(UserManagementAccessLevel.Change)
+    };
+
+    public static Permission[] SEC_USER_DELETE = new[]
+    {
+      new UserManagementPermission(UserManagementAccessLevel.Delete)
     };
 
     [Inject] IIdpHandlerLogic m_Handler;
@@ -85,6 +96,7 @@ namespace Azos.AuthKit.Server
     //+   File: Azos.MogoDb.dll::/Security/MinIdp/MinIdpMongoDbStore.cs                              +
     //+==============================================================================================+
 
+    /// <inheritdoc/>
     public async Task<MinIdpUserData> GetByIdAsync(Atom realm, string id, AuthenticationRequestContext ctx)
     {
       if (id.IsNullOrWhiteSpace()) return null;//bad user
@@ -114,7 +126,7 @@ namespace Azos.AuthKit.Server
       return actx.MakeResult();
     }
 
-
+    /// <inheritdoc/>
     public async Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri, AuthenticationRequestContext ctx)
     {
       if (uri.IsNullOrWhiteSpace()) return null;//bad user
@@ -141,6 +153,7 @@ namespace Azos.AuthKit.Server
       return actx.MakeResult();
     }
 
+    /// <inheritdoc/>
     public async Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken, AuthenticationRequestContext ctx)
     {
       if (sysToken.IsNullOrWhiteSpace()) return null;//bad user
@@ -174,7 +187,7 @@ namespace Azos.AuthKit.Server
 
     public async Task<IEnumerable<UserInfo>> GetUserListAsync(UserListFilter filter)
     {
-      App.Authorize(SEC_USER_MGMT);
+      App.Authorize(SEC_USER_VIEW);
 
       var qry = new Query<UserInfo>("Admin.GetUserList")
       {
@@ -187,7 +200,7 @@ namespace Azos.AuthKit.Server
 
     public async Task<IEnumerable<LoginInfo>> GetLoginsAsync(GDID gUser)
     {
-      App.Authorize(SEC_USER_MGMT);
+      App.Authorize(SEC_USER_VIEW);
 
       var qry = new Query<LoginInfo>("Admin.GetLogins")
       {
@@ -208,9 +221,17 @@ namespace Azos.AuthKit.Server
       throw new NotImplementedException();
     }
 
-    public Task<ChangeResult> SaveUserAsync(UserEntity user)
+    public async Task<ChangeResult> SaveUserAsync(UserEntity user)
     {
-      throw new NotImplementedException();
+      App.Authorize(SEC_USER_CHANGE);
+
+      var qry = new Query<EntityChangeInfo>("Admin.SaveUser")
+      {
+        new Query.Param("u", user)
+      };
+
+      var change = await Data.IdpExecuteAsync(qry);
+      return new ChangeResult(ChangeResult.ChangeType.Processed, 1, "Saved", change);
     }
 
     public Task<ValidState> ValidateLoginAsync(LoginEntity login, ValidState state)
@@ -218,9 +239,17 @@ namespace Azos.AuthKit.Server
       throw new NotImplementedException();
     }
 
-    public Task<ChangeResult> SaveLoginAsync(LoginEntity login)
+    public async Task<ChangeResult> SaveLoginAsync(LoginEntity login)
     {
-      throw new NotImplementedException();
+      App.Authorize(SEC_USER_CHANGE);
+
+      var qry = new Query<EntityChangeInfo>("Admin.SaveLogin")
+      {
+        new Query.Param("l", login)
+      };
+
+      var change = await Data.IdpExecuteAsync(qry);
+      return new ChangeResult(ChangeResult.ChangeType.Processed, 1, "Saved", change);
     }
 
     public Task<ChangeResult> SetLockStatusAsync(LockStatus status)
