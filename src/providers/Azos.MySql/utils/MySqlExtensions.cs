@@ -50,6 +50,17 @@ namespace Azos.Data.Access.MySql
     public static VersionInfo MakeVersionInfo(this MySqlCrudQueryExecutionContext context, string gdidScopeName, string gdidSeqName, FormMode mode)
       => context.GetApp().MakeVersionInfo(gdidScopeName, gdidSeqName, mode);
 
+
+    /// <summary>
+    /// Creates new version stamp - an instance of VersionInfo object initialized with callers context
+    /// </summary>
+    /// <param name="context">Operation context</param>
+    /// <param name="gVersion">GDID allocated externally</param>
+    /// <param name="mode">Form model mode</param>
+    /// <returns>New instance of VersionInfo with generated GDID and other fields stamped from context</returns>
+    public static VersionInfo MakeVersionInfo(this MySqlCrudQueryExecutionContext context, GDID gVersion,  FormMode mode)
+      => context.GetApp().MakeVersionInfo(gVersion, mode);
+
     /// <summary>
     /// Executes the specified number of command steps by calling `ExecuteNonQuery` for each under a transaction
     /// committing it on success or rolling back on any failure.

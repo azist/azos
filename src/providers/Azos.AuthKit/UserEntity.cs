@@ -88,7 +88,21 @@ namespace Azos.AuthKit
            Description = "Free form text notes associated with the account")]
     public string Note { get; set; }
 
+    /// <inheritdoc/>
+    public override ValidState Validate(ValidState state, string scope = null)
+    {
+      state = base.Validate(state, scope);
 
+      if (state.ShouldContinue)
+      {
+        if (ValidSpanUtc.HasValue && (!ValidSpanUtc.Value.Start.HasValue || !ValidSpanUtc.Value.End.HasValue))
+          state = new ValidState(state, new FieldValidationException(nameof(ValidSpanUtc), "Both Start/End unassigned"));
+      }
+
+      return state;
+    }
+
+    /// <inheritdoc/>
     protected override async Task<ValidState> DoAfterValidateOnSaveAsync(ValidState state)
     {
       var result = await base.DoAfterValidateOnSaveAsync(state).ConfigureAwait(false);
@@ -99,6 +113,7 @@ namespace Azos.AuthKit
       return result;
     }
 
+    /// <inheritdoc/>
     protected override async Task<ChangeResult> SaveBody(IIdpUserCoreLogic logic)
      => await logic.SaveUserAsync(this).ConfigureAwait(false);
   }

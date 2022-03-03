@@ -74,7 +74,7 @@ namespace Azos.AuthKit
     /// When login privilege takes effect
     /// </summary>
     [Field(required: true, Description = "When login privilege takes effect")]
-    public DateRange ValidSpanUtc { get; set; }
+    public DateRange? ValidSpanUtc { get; set; }
 
     /// <summary>
     /// Properties such as tree connections (e.g. roles) and claims
@@ -92,6 +92,21 @@ namespace Azos.AuthKit
            Description = "Login-specific Rights override or null for default rights")]
     public ConfigVector Rights { get; set; }
 
+    /// <inheritdoc/>
+    public override ValidState Validate(ValidState state, string scope = null)
+    {
+      state = base.Validate(state, scope);
+
+      if (state.ShouldContinue)
+      {
+        if (ValidSpanUtc.HasValue && (!ValidSpanUtc.Value.Start.HasValue || !ValidSpanUtc.Value.End.HasValue))
+          state = new ValidState(state, new FieldValidationException(nameof(ValidSpanUtc), "Both Start/End unassigned"));
+      }
+
+      return state;
+    }
+
+    /// <inheritdoc/>
     protected override async Task<ValidState> DoAfterValidateOnSaveAsync(ValidState state)
     {
       var result = await base.DoAfterValidateOnSaveAsync(state).ConfigureAwait(false);
@@ -102,6 +117,7 @@ namespace Azos.AuthKit
       return result;
     }
 
+    /// <inheritdoc/>
     protected override async Task<ChangeResult> SaveBody(IIdpUserCoreLogic logic)
      => await logic.SaveLoginAsync(this).ConfigureAwait(false);
   }
