@@ -218,7 +218,10 @@ namespace Azos.AuthKit.Server
 
     public Task<ValidState> ValidateUserAsync(UserEntity user, ValidState state)
     {
-      throw new NotImplementedException();
+      // we will need to check user exists, that it is not locked, and is within active date ranges, props, right, org unit etc.
+
+      // return state
+      return Task.FromResult(state);
     }
 
     public async Task<ChangeResult> SaveUserAsync(UserEntity user)
@@ -236,7 +239,10 @@ namespace Azos.AuthKit.Server
 
     public Task<ValidState> ValidateLoginAsync(LoginEntity login, ValidState state)
     {
-      throw new NotImplementedException();
+      // we will need to check user exists, that it is not locked, and is within active date ranges, props, right, org unit etc.
+
+      // return state
+      return Task.FromResult(state);
     }
 
     public async Task<ChangeResult> SaveLoginAsync(LoginEntity login)
@@ -252,9 +258,17 @@ namespace Azos.AuthKit.Server
       return new ChangeResult(ChangeResult.ChangeType.Processed, 1, "Saved", change);
     }
 
-    public Task<ChangeResult> SetLockStatusAsync(LockStatus status)
+    public async Task<ChangeResult> SetLockStatusAsync(LockStatus status)
     {
-      throw new NotImplementedException();
+      App.Authorize(SEC_USER_CHANGE);
+
+      var qry = new Query<EntityChangeInfo>("Admin.SetLock")
+      {
+        new Query.Param("l", status)
+      };
+
+      var change = await Data.IdpExecuteAsync(qry);
+      return new ChangeResult(ChangeResult.ChangeType.Processed, 1, "Saved", change);
     }
 
     #endregion
