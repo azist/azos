@@ -218,6 +218,7 @@ namespace Azos.AuthKit.Server
 
     public Task<ValidState> ValidateUserAsync(UserEntity user, ValidState state)
     {
+      // we will need to check user exists, that it is not locked, and is within active date ranges, props, right, org unit etc.
 
       // return state
       return Task.FromResult(state);
@@ -238,6 +239,7 @@ namespace Azos.AuthKit.Server
 
     public Task<ValidState> ValidateLoginAsync(LoginEntity login, ValidState state)
     {
+      // we will need to check user exists, that it is not locked, and is within active date ranges, props, right, org unit etc.
 
       // return state
       return Task.FromResult(state);
