@@ -92,7 +92,7 @@ namespace Azos.AuthKit
     /// <summary>
     /// Returns entity GDID if the supplied EntityId points to a valid entity type, using GDID schema
     /// </summary>
-    public static GDID IsLockEntityIdValid(EntityId id)
+    public static GDID AsValidLockEntityId(EntityId id)
     {
       if (
            (!id.IsAssigned) ||

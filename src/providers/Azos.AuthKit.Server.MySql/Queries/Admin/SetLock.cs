@@ -29,45 +29,32 @@ namespace Azos.AuthKit.Server.MySql.Queries.Admin
       var result = new EntityChangeInfo
       {
         Id = lockStatus.TargetEntity,
-        Version = ctx.MakeVersionInfo(lockStatus.TargetEntity.Address.AsGDID(), lockStatus.FormMode)
+        Version = ctx.MakeVersionInfo(lockStatus.TargetEntityGdid, lockStatus.FormMode)
       };
 
       if (lockStatus.TargetEntity.Type == Constraints.ETP_USER)
       {
         await ctx.ExecuteCompoundCommand(CommandTimeoutSec, System.Data.IsolationLevel.ReadCommitted,
-          cmd => setUserLock(cmd, lockStatus)
+          cmd => setLock(true, cmd, lockStatus)
         ).ConfigureAwait(false);
       }
       else
       {
         await ctx.ExecuteCompoundCommand(CommandTimeoutSec, System.Data.IsolationLevel.ReadCommitted,
-          cmd => setLoginLock(cmd, lockStatus)
+          cmd => setLock(false, cmd, lockStatus)
         ).ConfigureAwait(false);
       }
 
       return result;
     }
 
-    private void setUserLock(MySqlCommand cmd, LockStatus lockStatus)
+    private void setLock(bool isUser, MySqlCommand cmd, LockStatus lockStatus)
     {
-      cmd.CommandText = GetType().GetText("SetUserLock.sql");
+      cmd.CommandText = GetType().GetText(isUser ? "SetUserLock.sql" : "SetLoginLock.sql");
 
       DateRange validSpan = lockStatus.LockSpanUtc.Value;
 
-      cmd.Parameters.AddWithValue("gdid", lockStatus.TargetEntity.Address.AsGDID());
-      cmd.Parameters.AddWithValue("start_utc", validSpan.Start);
-      cmd.Parameters.AddWithValue("end_utc", validSpan.End);
-      cmd.Parameters.AddWithValue("actor", lockStatus.LockActor);
-      cmd.Parameters.AddWithValue("note", lockStatus.LockNote);
-    }
-
-    private void setLoginLock(MySqlCommand cmd, LockStatus lockStatus)
-    {
-      cmd.CommandText = GetType().GetText("SetLoginLock.sql");
-
-      DateRange validSpan = lockStatus.LockSpanUtc.Value;
-
-      cmd.Parameters.AddWithValue("gdid", lockStatus.TargetEntity.Address.AsGDID());
+      cmd.Parameters.AddWithValue("gdid", lockStatus.TargetEntityGdid);
       cmd.Parameters.AddWithValue("start_utc", validSpan.Start);
       cmd.Parameters.AddWithValue("end_utc", validSpan.End);
       cmd.Parameters.AddWithValue("actor", lockStatus.LockActor);

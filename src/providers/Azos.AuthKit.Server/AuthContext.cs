@@ -14,6 +14,7 @@ using Azos.Data.Business;
 using Azos.Security;
 using Azos.Security.MinIdp;
 using Azos.Serialization.JSON;
+using Azos.Time;
 
 namespace Azos.AuthKit.Server
 {
@@ -59,12 +60,19 @@ namespace Azos.AuthKit.Server
     public string Description { get; set; }
     public string Note { get; set; }
 
+    public DateRange? LockSpanUtc { get; set; }
+    public EntityId? LockActor { get; set; }
+    public string LockNote { get; set; }
+
+    public DateRange? LoginLockSpanUtc { get; set; }
+    public EntityId? LoginLockActor { get; set; }
+    public string LoginLockNote { get; set; }
+
     public ConfigVector Props { get; set; }
     public ConfigVector LoginProps { get; set; }
 
     public ConfigVector Rights { get; set; }
     public ConfigVector LoginRights { get; set; }
-
 
     public string ResultRole { get; set; }
     public ConfigVector ResultRights { get; set; }
