@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-
+using System.Threading.Tasks;
 using Azos.Collections;
 using Azos.Data;
 using Azos.Data.Business;
@@ -91,6 +91,6 @@ namespace Azos.AuthKit.Server
     /// by the specific implementation of `IIdpHandlerLogic`.
     /// The data is supplied in the `AuthContext`-derived concretion
     /// </summary>
-    void ApplyEffectivePolicies(AuthContext context);
+    Task ApplyEffectivePoliciesAsync(AuthContext context);
   }
 }

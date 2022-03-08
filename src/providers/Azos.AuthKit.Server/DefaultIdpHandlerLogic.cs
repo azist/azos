@@ -8,10 +8,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
+using System.Threading.Tasks;
 using Azos.Apps;
+using Azos.Apps.Injection;
 using Azos.Collections;
 using Azos.Conf;
+using Azos.Conf.Forest;
 using Azos.Data;
 using Azos.Security;
 using Azos.Serialization.JSON;
@@ -24,6 +26,7 @@ namespace Azos.AuthKit.Server
     public DefaultIdpHandlerLogic(IModule parent) : base(parent) { }
 
     Registry<LoginProvider> m_Providers;
+    [Inject] private IForestLogic m_Forest;
 
     [Config] Atom m_DefaultLoginProvider;
 
@@ -221,8 +224,19 @@ namespace Azos.AuthKit.Server
       return pvd;
     }
 
-    public void ApplyEffectivePolicies(AuthContext context)
+    public async Task ApplyEffectivePoliciesAsync(AuthContext context)
     {
+      // Check for locked user/login account here
+
+      // see below for next steps
+
+      var node = await m_Forest.GetNodeInfoAsync(new EntityId(), App.GetUtcNow()).ConfigureAwait(false);
+
+      if(node == null)
+      {
+        // add default props
+      }
+
       //1. Assign PROPS =======================================
       var eProps = new MemoryConfiguration{ Application = App };
       eProps.CreateFromNode(context.Props.Node);
@@ -256,3 +270,25 @@ namespace Azos.AuthKit.Server
 
   }
 }
+
+
+/*
+
+We would first Calculate props
+
+Then take effective props take effective roles and traverse them for effective rights
+
+#1 Calculating effective props
+  1. Add default props to default handler
+  2. If Org Unit is specified navigate tree and fetch props
+  3. Override effective props with user props
+  4. Override effective props with login props
+  5. Effective props now contains a role/s / multiple roles listed as config sections merged by id
+
+#2 Calculating effective rights
+  1. Add default rights to default handler
+  2. In order iterate through roles
+  3. Override with user rights
+  4. Override with login rights
+
+*/
