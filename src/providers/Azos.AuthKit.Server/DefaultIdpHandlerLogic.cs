@@ -278,6 +278,9 @@ We would first Calculate props
 
 Then take effective props take effective roles and traverse them for effective rights
 
+The default handler-wide default props and rights must be somehow realm aware!!!!!!!!!!!!!
+The realm MUST be a part of ORG UNIT and role paths, so everywhere else we store a partial tree path!!!!!!!
+
 #1 Calculating effective props
   1. Add default props to default handler
   2. If Org Unit is specified navigate tree and fetch props
