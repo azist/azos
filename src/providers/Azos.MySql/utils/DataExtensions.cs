@@ -5,7 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
-
+using Azos.Time;
 using MySqlConnector;
 
 namespace Azos.Data.Access.MySql
@@ -82,6 +82,18 @@ namespace Azos.Data.Access.MySql
       }
 
       return val.AsNullableDateTime(dflt, handling, styles.Value);
+    }
+
+    public static DateRange? AsDateRangeFields(this MySqlDataReader reader,
+                                           string fldStart,
+                                           string fldEnd,
+                                           DateTime? dfltStart = null,
+                                           DateTime? dfltEnd = null,
+                                           ConvertErrorHandling handling = ConvertErrorHandling.ReturnDefault,
+                                           System.Globalization.DateTimeStyles? styles = null)
+    {
+      return new DateRange(reader.AsDateTimeField(fldStart, dfltStart, handling, styles),
+                           reader.AsDateTimeField(fldEnd, dfltEnd, handling, styles));
     }
 
     public static int? AsIntField(this MySqlDataReader reader, string fld, int? dflt = null, ConvertErrorHandling handling = ConvertErrorHandling.ReturnDefault)

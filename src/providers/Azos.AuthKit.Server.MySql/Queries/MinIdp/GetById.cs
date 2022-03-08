@@ -15,7 +15,7 @@ using Azos.Data.Access.MySql;
 using Azos.Data.Business;
 using Azos.Platform;
 using Azos.Security.MinIdp;
-
+using Azos.Time;
 using MySqlConnector;
 
 
@@ -74,6 +74,13 @@ namespace Azos.AuthKit.Server.MySql.Queries.MinIdp
       ctx.LoginProps = reader.AsStringField("LOGIN_PROPS");
       ctx.LoginRights = reader.AsStringField("LOGIN_RIGHTS");
 
+      ctx.LockSpanUtc = reader.AsDateRangeFields("LOCK_START_UTC", "LOCK_END_UTC");
+      ctx.LockActor = reader.AsStringField("LOCK_ACTOR");
+      ctx.LockNote = reader.AsStringField("LOCK_NOTE");
+
+      ctx.LoginLockSpanUtc = reader.AsDateRangeFields("LOGIN_LOCK_START_UTC", "LOGIN_LOCK_END_UTC");
+      ctx.LoginLockActor = reader.AsStringField("LOGIN_LOCK_ACTOR");
+      ctx.LoginLockNote = reader.AsStringField("LOGIN_LOCK_NOTE");
 
       //var result = new MinIdpUserData
       //{
