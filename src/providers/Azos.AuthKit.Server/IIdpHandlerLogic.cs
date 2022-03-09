@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using Azos.Collections;
+using Azos.Conf;
 using Azos.Data;
 using Azos.Data.Business;
 using Azos.Security;
@@ -22,6 +23,23 @@ namespace Azos.AuthKit.Server
   /// </summary>
   public interface IIdpHandlerLogic : IBusinessLogic
   {
+    /// <summary>
+    /// Provides the identity provider config forest. The system uses this value
+    /// as the system segment of EntityId for forest navigation. The requestor
+    /// realm is then used as Tree ID within this forest
+    /// </summary>
+    Atom IdpConfigForestId { get; }
+
+    /// <summary>
+    /// Provides the system global configuration node value from config forest
+    /// </summary>
+    IConfigSectionNode SysConfigNode { get; }
+
+    /// <summary>
+    /// Forms a full EntityId for the tree path of the config in the forest
+    /// </summary>
+    EntityId GetIdpConfigTreeNodePath(Atom realm, string address);
+
     /// <summary>
     /// Registry of login providers
     /// </summary>
