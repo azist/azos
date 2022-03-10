@@ -12,6 +12,7 @@ using Azos.Apps;
 using Azos.Apps.Injection;
 using Azos.AuthKit.Events;
 using Azos.Conf;
+using Azos.Conf.Forest;
 using Azos.Data;
 using Azos.Data.Access;
 using Azos.Data.Business;
@@ -48,6 +49,8 @@ namespace Azos.AuthKit.Server
 
     [Inject] IIdpHandlerLogic m_Handler;
     private ICrudDataStoreImplementation m_Data;
+
+    [Inject] private IForestLogic m_Forest;
 
     private ICrudDataStore Data => m_Data.NonDisposed(nameof(m_Data));
 
@@ -216,12 +219,19 @@ namespace Azos.AuthKit.Server
       throw new NotImplementedException();
     }
 
-    public Task<ValidState> ValidateUserAsync(UserEntity user, ValidState state)
+    public async Task<ValidState> ValidateUserAsync(UserEntity user, ValidState state)
     {
-      // we will need to check user exists, that it is not locked, and is within active date ranges, props, right, org unit etc.
+      // we will need to check user exists props, right, org unit etc.
+
+      if (user.OrgUnit.HasValue)
+      {
+        var idNode = m_Handler.GetIdpConfigTreeNodePath(user.Realm, user.OrgUnit);
+        var tNode = await m_Forest.GetNodeInfoAsync(idNode).ConfigureAwait(false);
+        if (tNode == null) state = new ValidState(state, new FieldValidationException(nameof(UserEntity), "OrgUnit was not found"));
+      }
 
       // return state
-      return Task.FromResult(state);
+      return state;
     }
 
     public async Task<ChangeResult> SaveUserAsync(UserEntity user)
@@ -239,7 +249,7 @@ namespace Azos.AuthKit.Server
 
     public Task<ValidState> ValidateLoginAsync(LoginEntity login, ValidState state)
     {
-      // we will need to check user exists, that it is not locked, and is within active date ranges, props, right, org unit etc.
+      // we will need to check user exists exists props, right, org unit etc.
 
       // return state
       return Task.FromResult(state);

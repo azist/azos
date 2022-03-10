@@ -96,7 +96,7 @@ namespace Azos.AuthKit
       if (state.ShouldContinue)
       {
         if (ValidSpanUtc.HasValue && (!ValidSpanUtc.Value.Start.HasValue || !ValidSpanUtc.Value.End.HasValue))
-          state = new ValidState(state, new FieldValidationException(nameof(ValidSpanUtc), "Both Start/End unassigned"));
+          state = new ValidState(state, new FieldValidationException(nameof(ValidSpanUtc), "Either Start/End unassigned"));
       }
 
       return state;
