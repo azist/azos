@@ -50,6 +50,7 @@ namespace Azos.AuthKit.Server.MySql.Queries.MinIdp
       ctx.HasResult = true;//FOUND!!!!!!!!!!!!
       ctx.G_User = reader.AsGdidField("GDID");
       ctx.SysId = ctx.G_User.ToHexString();
+      ctx.OrgUnit = reader.AsStringField("ORG_UNIT");
       ctx.Name = reader.AsStringField("NAME");
       ctx.ScreenName = ctx.Name;
       ctx.Description = reader.AsStringField("DESCRIPTION");
