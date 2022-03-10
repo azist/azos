@@ -32,6 +32,10 @@ namespace Azos.AuthKit
     public const string ID_SEQ_USER  = "user";
     public const string ID_SEQ_LOGIN = "login";
 
+    // Config Tree related constants
+    public static readonly Atom TREE_AUTHKIT = Atom.Encode("sky-akit");
+    public const string TREE_AUTHKIT_SYS_PATH = "/sys";
+
     //EntityIds
     public static readonly Atom SYS_AUTHKIT = Atom.Encode("sky-auth");
     public static readonly Atom SCH_GDID    = Atom.Encode("gdid");

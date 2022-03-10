@@ -8,10 +8,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
+using System.Threading.Tasks;
 using Azos.Apps;
+using Azos.Apps.Injection;
 using Azos.Collections;
 using Azos.Conf;
+using Azos.Conf.Forest;
 using Azos.Data;
 using Azos.Security;
 using Azos.Serialization.JSON;
@@ -24,8 +26,13 @@ namespace Azos.AuthKit.Server
     public DefaultIdpHandlerLogic(IModule parent) : base(parent) { }
 
     Registry<LoginProvider> m_Providers;
+    [Inject] private IForestLogic m_Forest;
+
+    private TreeNodeInfo m_TreeAuthKitSysNode;
 
     [Config] Atom m_DefaultLoginProvider;
+
+    [Config] Atom m_IdpConfigForestId;
 
     public bool IsServerImplementation => true;
     public override bool IsHardcodedModule => false;
@@ -34,6 +41,10 @@ namespace Azos.AuthKit.Server
     public IRegistry<LoginProvider> Providers => m_Providers;
 
     public Atom DefaultLoginProvider => m_DefaultLoginProvider;
+
+    public Atom IdpConfigForestId => m_IdpConfigForestId;
+
+    public IConfigSectionNode SysConfigNode => m_TreeAuthKitSysNode.EffectiveConfig.Node;
 
     [Config("$msg-algo;$msg-algorithm")]
     public string SysTokenCryptoAlgorithmName { get; set; }
@@ -79,6 +90,15 @@ namespace Azos.AuthKit.Server
     {
       m_Providers.NonNull("configured providers")[DefaultLoginProvider.Value]
                  .NonNull("default login provider `{0}`".Args(DefaultLoginProvider));
+      m_IdpConfigForestId.HasRequiredValue("configured `{0}`".Args(nameof(IdpConfigForestId)));
+
+      var idSys = GetIdpConfigTreeNodePath(Constraints.TREE_AUTHKIT, Constraints.TREE_AUTHKIT_SYS_PATH);
+
+      m_TreeAuthKitSysNode = m_Forest.GetNodeInfoAsync(idSys)
+                                      .GetAwaiter()
+                                      .GetResult()
+                                      .NonNull("configured `{0}`".Args(idSys));
+
       return base.DoApplicationAfterInit();
     }
 
@@ -88,6 +108,12 @@ namespace Azos.AuthKit.Server
       return base.DoApplicationBeforeCleanup();
     }
     #endregion
+
+    public EntityId GetIdpConfigTreeNodePath(Atom realm, string path)
+      => new EntityId(m_IdpConfigForestId,
+                      realm.HasRequiredValue(nameof(realm)),
+                      Azos.Conf.Forest.Constraints.SCH_PATH,
+                      path.NonBlank(nameof(path)));
 
     /// <summary>
     /// Parses the supplied login string expressed in EntityId format.
@@ -221,38 +247,105 @@ namespace Azos.AuthKit.Server
       return pvd;
     }
 
-    public void ApplyEffectivePolicies(AuthContext context)
+    public async Task ApplyEffectivePoliciesAsync(AuthContext context)
     {
+      // Check for locked user/login account here
+      checkLockStatus(context);
+      if(!context.HasResult) return; // User or Login is locked out!
+
+      // see below for next steps
+
+      var eProps = new MemoryConfiguration { Application = App };
+      var eRights = new MemoryConfiguration { Application = App };
+
+      if (context.OrgUnit.IsNotNullOrWhiteSpace())
+      {
+        var idNode = GetIdpConfigTreeNodePath(context.Realm, context.OrgUnit);
+        var tNode = await m_Forest.GetNodeInfoAsync(idNode).ConfigureAwait(false);
+        if(tNode == null)
+        {
+          throw new Exception("What do we do here?"); // WHAT DO??????????????
+        }
+        eProps.CreateFromNode(tNode.EffectiveConfig.Node);
+      }
+      else
+      {
+        eProps.Create("idp");
+      }
+
       //1. Assign PROPS =======================================
-      var eProps = new MemoryConfiguration{ Application = App };
-      eProps.CreateFromNode(context.Props.Node);
+      eProps.Root.OverrideBy(context.Props.Node);
       if (context.LoginProps != null)
       {
         eProps.Root.OverrideBy(context.LoginProps.Node);
       }
       context.ResultProps = new ConfigVector(eProps.Root);
 
-      //2. Assign RIGHTS =======================================
-      var eRights = new MemoryConfiguration { Application = App };
-      if (context.Rights != null)
+      //2. Assign minidp Primary role ================================================
+      context.ResultRole = context.ResultProps.Node.ValOf(Constraints.CONFIG_ROLE_ATTR);
+
+      //3. Assign RIGHTS =======================================
+
+      if (context.ResultRole.IsNotNullOrWhiteSpace())
       {
-        eRights.CreateFromNode(context.Rights.Node);
+        var idNode = GetIdpConfigTreeNodePath(context.Realm, context.ResultRole);
+        var tNode = await m_Forest.GetNodeInfoAsync(idNode).ConfigureAwait(false);
+        if (tNode == null)
+        {
+          throw new Exception("What do we do here?"); // WHAT DO??????????????
+        }
+        eRights.CreateFromNode(tNode.EffectiveConfig.Node);
       }
       else
       {
         eRights.Create(Rights.CONFIG_ROOT_SECTION);
       }
 
+      if (context.Rights != null)
+      {
+        eRights.Root.OverrideBy(context.Rights.Node);
+      }
+
       if (context.LoginRights != null)
       {
         eRights.Root.OverrideBy(context.LoginRights.Node);
       }
+
       context.ResultRights = new ConfigVector(eRights.Root);
+    }
 
+    private void checkLockStatus(AuthContext context)
+    {
+      var now = App.GetUtcNow();
 
-      //3. Assign minidp Primary role ================================================
-      context.ResultRole = context.ResultProps.Node.ValOf(Constraints.CONFIG_ROLE_ATTR);
+      if (context.LockSpanUtc.HasValue && context.LockSpanUtc.Value.Contains(now)) context.HasResult = false;
+      if (context.LoginLockSpanUtc.HasValue && context.LoginLockSpanUtc.Value.Contains(now)) context.HasResult = false;
     }
 
   }
 }
+
+
+/*
+
+We would first Calculate props
+
+Then take effective props take effective roles and traverse them for effective rights
+
+The default handler-wide default props and rights must be somehow realm aware!!!!!!!!!!!!!
+The realm MUST be a part of ORG UNIT and role paths, so everywhere else we store a partial tree path!!!!!!!
+
+#1 Calculating effective props
+  2. If Org Unit is specified navigate tree and fetch props
+  3. Override effective props with user props
+  4. Override effective props with login props
+  5. Effective props now contains a role/s / multiple roles listed as config sections merged by id
+
+#2 Calculating effective rights
+  2. In order iterate through roles
+  3. Override with user rights
+  4. Override with login rights
+
+EntityIds for AuthKit Tree are system = handler.IdpForestId, type = {realm}, schema = SCH_PATH, address = {roles|props}
+
+*/
