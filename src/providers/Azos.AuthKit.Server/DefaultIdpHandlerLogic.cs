@@ -250,6 +250,8 @@ namespace Azos.AuthKit.Server
     public async Task ApplyEffectivePoliciesAsync(AuthContext context)
     {
       // Check for locked user/login account here
+      checkLockStatus(context);
+      if(!context.HasResult) return; // User or Login is locked out!
 
       // see below for next steps
 
@@ -259,7 +261,7 @@ namespace Azos.AuthKit.Server
       if (context.OrgUnit.IsNotNullOrWhiteSpace())
       {
         var idNode = GetIdpConfigTreeNodePath(context.Realm, context.OrgUnit);
-        var tNode = await m_Forest.GetNodeInfoAsync(idNode, App.GetUtcNow()).ConfigureAwait(false);
+        var tNode = await m_Forest.GetNodeInfoAsync(idNode).ConfigureAwait(false);
         if(tNode == null)
         {
           throw new Exception("What do we do here?"); // WHAT DO??????????????
@@ -287,7 +289,7 @@ namespace Azos.AuthKit.Server
       if (context.ResultRole.IsNotNullOrWhiteSpace())
       {
         var idNode = GetIdpConfigTreeNodePath(context.Realm, context.ResultRole);
-        var tNode = await m_Forest.GetNodeInfoAsync(idNode, App.GetUtcNow()).ConfigureAwait(false);
+        var tNode = await m_Forest.GetNodeInfoAsync(idNode).ConfigureAwait(false);
         if (tNode == null)
         {
           throw new Exception("What do we do here?"); // WHAT DO??????????????
@@ -308,7 +310,16 @@ namespace Azos.AuthKit.Server
       {
         eRights.Root.OverrideBy(context.LoginRights.Node);
       }
+
       context.ResultRights = new ConfigVector(eRights.Root);
+    }
+
+    private void checkLockStatus(AuthContext context)
+    {
+      var now = App.GetUtcNow();
+
+      if (context.LockSpanUtc.HasValue && context.LockSpanUtc.Value.Contains(now)) context.HasResult = false;
+      if (context.LoginLockSpanUtc.HasValue && context.LoginLockSpanUtc.Value.Contains(now)) context.HasResult = false;
     }
 
   }
