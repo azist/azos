@@ -58,9 +58,20 @@ namespace Azos.AuthKit.Server
 
     public override bool IsHardcodedModule => false;
 
-    public override string ComponentLogTopic => throw new NotImplementedException();
+    public override string ComponentLogTopic => CoreConsts.SECURITY_TOPIC;
 
-    public ICryptoMessageAlgorithm MessageProtectionAlgorithm => throw new NotImplementedException();
+    [Config("$msg-algo;$msg-algorithm")]
+    public string MessageProtectionAlgorithmName { get; set; }
+
+    public ICryptoMessageAlgorithm MessageProtectionAlgorithm => MessageProtectionAlgorithmName.IsNullOrWhiteSpace() ? null :
+                                                                      App.SecurityManager
+                                                                         .Cryptography
+                                                                         .MessageProtectionAlgorithms[MessageProtectionAlgorithmName]
+                                                                         .NonNull("Algo `{0}`".Args(MessageProtectionAlgorithmName))
+                                                                         .IsTrue(a => a.Audience == CryptoMessageAlgorithmAudience.Internal &&
+                                                                                      a.Flags.HasFlag(CryptoMessageAlgorithmFlags.Cipher) &&
+                                                                                      a.Flags.HasFlag(CryptoMessageAlgorithmFlags.CanUnprotect),
+                                                                                      "Algo `{0}` !internal !cipher".Args(MessageProtectionAlgorithmName));
 
     #region Module Lifecycle
 

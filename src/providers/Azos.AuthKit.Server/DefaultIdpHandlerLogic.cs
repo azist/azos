@@ -58,7 +58,7 @@ namespace Azos.AuthKit.Server
                                                                     a.Flags.HasFlag(CryptoMessageAlgorithmFlags.CanUnprotect),
                                                                     "Algo `{0}` !internal !cipher".Args(SysTokenCryptoAlgorithmName));
 
-    public double SysTokenLifespanHours => throw new NotImplementedException();
+    [Config]public double SysTokenLifespanHours { get; set; }
 
 
     #region Protected/Lifecycle
