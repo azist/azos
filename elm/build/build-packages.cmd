@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.42.8.2
-set HEADLINE=#587 minidp caching
+set VER=1.42.8.3
+set HEADLINE=#587 AuthKit progresss
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
