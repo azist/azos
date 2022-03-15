@@ -7,7 +7,7 @@
 using Azos.AuthKit.Server;
 using Azos.Data.Access.MySql;
 
-namespace Azos.AuthKit.MySql
+namespace Azos.AuthKit.Server.MySql
 {
   /// <summary>
   /// Declares a MySql data store for AuthKit IDP data.
