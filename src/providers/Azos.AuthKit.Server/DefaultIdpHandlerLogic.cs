@@ -46,7 +46,7 @@ namespace Azos.AuthKit.Server
 
     public IConfigSectionNode SysConfigNode => m_TreeAuthKitSysNode.EffectiveConfig.Node;
 
-    [Config("$msg-algo;$msg-algorithm")]
+    [Config("$sys-token-algo;$sys-token-algorithm")]
     public string SysTokenCryptoAlgorithmName { get; set; }
 
     private ICryptoMessageAlgorithm SysTokenCryptoAlgorithm => App.SecurityManager
@@ -58,7 +58,8 @@ namespace Azos.AuthKit.Server
                                                                     a.Flags.HasFlag(CryptoMessageAlgorithmFlags.CanUnprotect),
                                                                     "Algo `{0}` !internal !cipher".Args(SysTokenCryptoAlgorithmName));
 
-    [Config]public double SysTokenLifespanHours { get; set; }
+    [Config("$sys-token-life-hrs")]
+    public double SysTokenLifespanHours { get; set; }
 
 
     #region Protected/Lifecycle
