@@ -18,6 +18,7 @@ using Azos.Data.Access;
 using Azos.Data.Business;
 using Azos.Security;
 using Azos.Security.Authkit;
+using Azos.Security.Config;
 using Azos.Security.MinIdp;
 
 namespace Azos.AuthKit.Server
@@ -236,9 +237,12 @@ namespace Azos.AuthKit.Server
 
       if (user.OrgUnit.HasValue)
       {
-        var idNode = m_Handler.GetIdpConfigTreeNodePath(user.Realm, user.OrgUnit);
-        var tNode = await m_Forest.GetNodeInfoAsync(idNode).ConfigureAwait(false);
-        if (tNode == null) state = new ValidState(state, new FieldValidationException(nameof(UserEntity), "OrgUnit was not found"));
+        using (var scope = new SecurityFlowScope(TreePermission.SYSTEM_USE_FLAG))
+        {
+          var idNode = m_Handler.GetIdpConfigTreeNodePath(user.Realm, user.OrgUnit);
+          var tNode = await m_Forest.GetNodeInfoAsync(idNode).ConfigureAwait(false);
+          if (tNode == null) state = new ValidState(state, new FieldValidationException(nameof(UserEntity), "OrgUnit was not found"));
+        }
       }
 
       // return state
