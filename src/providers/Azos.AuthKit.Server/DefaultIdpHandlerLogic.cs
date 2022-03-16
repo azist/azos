@@ -16,6 +16,7 @@ using Azos.Conf;
 using Azos.Conf.Forest;
 using Azos.Data;
 using Azos.Security;
+using Azos.Security.Config;
 using Azos.Serialization.JSON;
 
 namespace Azos.AuthKit.Server
@@ -96,10 +97,13 @@ namespace Azos.AuthKit.Server
 
       var idSys = GetIdpConfigTreeNodePath(Constraints.TREE_AUTHKIT, Constraints.TREE_AUTHKIT_SYS_PATH);
 
-      m_TreeAuthKitSysNode = m_Forest.GetNodeInfoAsync(idSys)
+      using (var scope = new SecurityFlowScope(TreePermission.SYSTEM_USE_FLAG))
+      {
+        m_TreeAuthKitSysNode = m_Forest.GetNodeInfoAsync(idSys)
                                       .GetAwaiter()
                                       .GetResult()
                                       .NonNull("configured `{0}`".Args(idSys));
+      }
 
       return base.DoApplicationAfterInit();
     }
@@ -250,6 +254,14 @@ namespace Azos.AuthKit.Server
     }
 
     public async Task ApplyEffectivePoliciesAsync(AuthContext context)
+    {
+      using (var scope = new SecurityFlowScope(TreePermission.SYSTEM_USE_FLAG))
+      {
+        await applyEffectivePoliciesAsync(context).ConfigureAwait(false);
+      }
+    }
+
+    private async Task applyEffectivePoliciesAsync(AuthContext context)
     {
       // Check for locked user/login account here
       checkLockStatus(context);
