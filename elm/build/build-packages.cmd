@@ -1,6 +1,6 @@
 @echo on
 
-set VER=1.42.8.4
+set VER=1.42.8.5
 set HEADLINE=#587 AuthKit fixes
 call vs2017-build-release %VER%
 
