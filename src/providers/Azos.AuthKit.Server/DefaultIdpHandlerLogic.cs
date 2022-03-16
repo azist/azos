@@ -83,6 +83,7 @@ namespace Azos.AuthKit.Server
 
     private void cleanup()
     {
+      if(m_Providers == null) return;
       m_Providers.ForEach( p => this.DontLeak( () => p.Dispose()) );
       m_Providers = null;
     }
