@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.42.8.5
-set HEADLINE=#587 AuthKit fixes
+set VER=1.42.8.6
+set HEADLINE=#587 AuthKit add security flow scope
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
