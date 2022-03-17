@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.42.8.2
-set HEADLINE=#587 minidp caching
+set VER=1.42.8.7
+set HEADLINE=Reserve forest ID count
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

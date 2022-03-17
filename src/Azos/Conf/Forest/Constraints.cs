@@ -14,6 +14,16 @@ namespace Azos.Conf.Forest
   /// </summary>
   public static class Constraints
   {
+    /// <summary>
+    /// Reserving X GDIDS in authority 0:  0:0:0..X
+    /// </summary>
+    public const int GDID_RESERVED_ID_AUTHORITY = 0;
+
+    /// <summary>
+    /// Reserving X GDIDS in authority 0:  0:0:0..X
+    /// </summary>
+    public const int GDID_RESERVED_ID_COUNT = 128;
+
     public const char PATH_SEPARATOR = '/';
     public const char PATH_ESCAPE = '%';
 
