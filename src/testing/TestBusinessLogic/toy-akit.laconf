@@ -98,7 +98,7 @@
             //type="may inject type"
             name="Default Gate"
             enabled = false
-
+        }
 
         dispatcher
         {
@@ -108,6 +108,7 @@
           filter
           {
             name="Errors" order=0 type="Azos.Wave.Filters.ErrorFilter, Azos.Wave"
+            show-dump { match{name=all} }
           }
 
 
@@ -168,7 +169,7 @@
   }
 //**************** AUTHKIT TESTING
 
-}
+
         }//dispatcher
     }//server
   }//wave
@@ -189,9 +190,9 @@ cryptography
     name="internal.idpmsg"
     audience=Internal // (Public | Internal) - this algorithm is only used inside of system perimeter
     type="Azos.Security.HMACAESCryptoMessageAlgorithm, Azos"
-    hmac{ key=$(/machine/security/cryptography/idpmsg/hmac512-0) }
-    aes{ key=$(/machine/security/cryptography/idpmsg/aes256-0) }
-    aes{ key=$(/machine/security/cryptography/idpmsg/aes256-1) }
+    hmac{ key="base64:TCh_K6Ih8DSCQjDiour9Kw46vUCNsRDhX8WlmrKIYvhAazp3H5s_CP4c_cYVtfPNp6hYSBG3xny3fDMOdMwozQ" }
+    aes{ key="base64:X-it7L9oTB-P2snTm5lyCL4UBttEt4hd0sfuJuPSgdE" }
+    aes{ key="base64:_XoYyy0ZrPuQ0HERlafMrbk1-8xC8UFVkfpHvDWDY-8" }
   }
 
   algorithm
@@ -201,12 +202,12 @@ cryptography
     audience=Public // (Public | Internal) - this is a public algorithm for generating tokens like Bearer OAuth etc..
     type="Azos.Security.HMACAESCryptoMessageAlgorithm, Azos"
 
-    hmac{ key=$(/machine/security/cryptography/aes1/hmac512-0) }
-    hmac{ key=$(/machine/security/cryptography/aes1/hmac512-1) }
+    hmac{ key="base64:Wj-57q4gob9eDhSR8wi9AGsLyEoI_8d9B9gGZnqOb6wo-Efz0P_jjL9gfVZGrOyKtjZocz07hzOnthMSaSba5Q" }
+    hmac{ key="base64:7JjEGVmobBWuOmbPM02iTlQubI_jFx6iBh-165AYW5L-FR0dJf_7pREnIsux8DJOlsqJ5EFw14IlXZXLpx7Gfg" }
 
-    aes{ key=$(/machine/security/cryptography/aes1/aes256-0) }
-    aes{ key=$(/machine/security/cryptography/aes1/aes256-1) }
-    aes{ key=$(/machine/security/cryptography/aes1/aes256-2) }
+    aes{ key="base64:zFdVSrHzy8xQvWIT39xH-OgSsZ4uIz2cPQ7sO4d6Xeo" }
+    aes{ key="base64:uP-ymZuNaYvo6YTsi3XV32K_PA0pgtjpc3vsWbnHP6Y" }
+    aes{ key="base64:b-8kmq7UwApkg5Hya5mhidN6dDGCOiSjgM325JkFdGY" }
   }
 
   algorithm
@@ -214,7 +215,7 @@ cryptography
     name="jwt1"
     default=true
     type="Azos.Security.JWTHS256CryptoMessageAlgorithm, Azos"
-    hmac{ key=$(/machine/security/cryptography/jwt1/hmac512) }
+    hmac{ key="base64:Q90VgcBobBA5UXjUe-x2AB349qzabIQHT0D9vEl5egHynoFlNmDTnC4N4VmtiuTuO0kfs73RDxaCJyKPbo6-pQ" }
   }
 
   // Oplog archive encryption key
@@ -223,8 +224,8 @@ cryptography
     name="internal.oplog.beta"
     audience=Internal
     type="Azos.Security.HMACAESCryptoMessageAlgorithm, Azos"
-    hmac{ key=$(/machine/security/cryptography/internal.oplog.beta/hmac512-0) }
-    aes{ key=$(/machine/security/cryptography/internal.oplog.beta/aes256-0) }
+    hmac{ key="base64:lJPVehQN781JIpcmOum3fX2ZfEcGKOyrYZhDDLeGB1OQQxmU6T8oVf0Iv0q5xlk0hJu8gWlTblKyAQLD3PqViQ" }
+    aes{ key="base64:TYiy6X9MTMd3PBvRZiQ_Bkmil7VmNThx_M-ih19c4Rk" }
   }
  }//cryptography
 
@@ -266,7 +267,7 @@ cryptography
     {
         name="gdidprovider"
         type="Azos.Sky.Identification.GdidProviderModule, Azos.Sky"
-        log-level=$(/machine/$log-level-comp)
+        log-level=Debug
 
         use-local-authority=true
         generator
@@ -274,7 +275,7 @@ cryptography
             //As a protection mechanism in case when various environments share the same
             //physical data store, we set era to some unrealistic number in future so
             //the ids never clash
-            era=0xff$(~SKY_NODE_DISCRIMINATOR)00//use unrealistic era for a very distant future
+            era=0xff0100//use unrealistic era for a very distant future
             authority=0
         }
     }
@@ -327,14 +328,14 @@ cryptography
       name="sky-akit"
       type="Azos.MySql.ConfForest.MySqlConfForestTreeDataStore, Azos.MySql"
 
-      data-log-level=$(/machine/connect-strings/config/forest-idp-kit/tree-sky-akit/$data-log-level)
-      default-timeout-ms=$(/machine/connect-strings/config/forest-idp-kit/tree-sky-akit/$default-timeout-ms)
+      data-log-level=Debug
+      default-timeout-ms=7000
 
       //Defines where query objects are resolved into
       script-assembly="Azos.MySql"
       handler-location{ns="Azos.MySql.ConfForest.Queries, Azos.MySql"}
-      connect-string=$(/machine/connect-strings/config/forest-idp-kit/tree-sky-akit)
-      schema-name=$(/machine/connect-strings/config/forest-idp-kit/tree-sky-akit/$schema-name)
+      connect-string="Server=localhost;Database=forest_idp_kit_sky_akit;Uid=localdev;Pwd=thejake;"
+      schema-name="forest_idp_kit_sky_akit"
     }
 
     tree//Auth kit "api" realm tree
@@ -342,14 +343,14 @@ cryptography
       name="gdi"
       type="Azos.MySql.ConfForest.MySqlConfForestTreeDataStore, Azos.MySql"
 
-      data-log-level=$(/machine/connect-strings/config/forest-idp-kit/tree-gdi/$data-log-level)
-      default-timeout-ms=$(/machine/connect-strings/config/forest-idp-kit/tree-gdi/$default-timeout-ms)
+      data-log-level=Debug
+      default-timeout-ms=7000
 
       //Defines where query objects are resolved into
       script-assembly="Azos.MySql"
       handler-location{ns="Azos.MySql.ConfForest.Queries, Azos.MySql"}
-      connect-string=$(/machine/connect-strings/config/forest-idp-kit/tree-gdi)
-      schema-name=$(/machine/connect-strings/config/forest-idp-kit/tree-gdi/$schema-name)
+      connect-string="Server=localhost;Database=forest_idp_kit_gdi;Uid=localdev;Pwd=thejake;"
+      schema-name="forest_idp_kit_gdi"
     }
   }
 
@@ -361,7 +362,7 @@ cryptography
   {
     name="authkit.server"
     type="Azos.AuthKit.Server.IdpUserCoreCrudDataLogic, Azos.AuthKit.Server"
-    log-level=$(/machine/$log-level-comp)
+    log-level=Debug
 
     //Protects internal IDP traffic with app-level message cryptography
     msg-algo="internal.idpmsg"
@@ -371,7 +372,7 @@ cryptography
       name="authkit"
       type="Azos.AuthKit.Server.MySql.MySqlUserStore, Azos.AuthKit.Server.MySql"
       instrumentation-eanbled=true
-      log-level=$(/machine/$log-level-comp)
+      log-level=Debug
 
       //todo: move to machine
       data-log-level=Debug
@@ -382,8 +383,8 @@ cryptography
       handler-location{ns="Azos.AuthKit.Server.MySql.Queries, Azos.AuthKit.Server.MySql"}
 
       //Databse connect string and SCHEMA prefix
-      connect-string=$(/machine/connect-strings/authkit-user-store)
-      schema-name=$(/machine/connect-strings/authkit-user-store/$schema-name)
+      connect-string="Server=localhost;Database=authkit_usr;Uid=localdev;Pwd=thejake;"
+      schema-name="authkit_usr"
     }
   }
 
