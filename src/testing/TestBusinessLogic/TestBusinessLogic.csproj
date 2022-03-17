@@ -45,6 +45,9 @@
     <None Update="toy-server.laconf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="toy-akit.laconf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="toy.laconf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
