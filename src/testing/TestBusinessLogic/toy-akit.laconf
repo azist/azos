@@ -227,6 +227,17 @@ cryptography
     hmac{ key="base64:lJPVehQN781JIpcmOum3fX2ZfEcGKOyrYZhDDLeGB1OQQxmU6T8oVf0Iv0q5xlk0hJu8gWlTblKyAQLD3PqViQ" }
     aes{ key="base64:TYiy6X9MTMd3PBvRZiQ_Bkmil7VmNThx_M-ih19c4Rk" }
   }
+
+  algorithm
+  {
+    name="internal.systoken"
+    audience=Internal // !!!! INTERNAL ONLY !!!!
+    type="Azos.Security.HMACAESCryptoMessageAlgorithm, Azos"
+    hmac{ key="base64:TCh_K6Ih8DSCQjDiour9Kw46vUCNsRDhX8WlmrKIYvhAazp3H5s_CP4c_cYVtfPNp6hYSBG3xny3fDMOdMwozQ" }
+    aes{ key="base64:X-it7L9oTB-P2snTm5lyCL4UBttEt4hd0sfuJuPSgdE" }
+    aes{ key="base64:_XoYyy0ZrPuQ0HERlafMrbk1-8xC8UFVkfpHvDWDY-8" }
+  }
+
  }//cryptography
 
 
