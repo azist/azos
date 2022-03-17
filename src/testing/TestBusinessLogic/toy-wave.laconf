@@ -283,6 +283,36 @@
                 match{ path="conf/forest/{type}/{mvc-action}" var{query-name="*"} }
             }
 
+//**************** AUTHKIT TESTING
+  handler
+  {
+    order=12
+    name="minidp.apis"
+    type="Azos.Wave.Handlers.MvcHandler, Azos.Wave"
+    type-location{ assembly="Azos.Wave.dll" ns{ name="Azos.Security.MinIdp*"}}
+
+    log-level=Debug
+
+    match{ order=1 path="/v1/minidp/{type}/{mvc-action}/{id}" var{query-name="*"} }
+    match{ order=2 path="/minidp/{type}/{mvc-action}/{id}"    var{query-name="*"} }
+  }
+
+
+  handler
+  {
+    order=15
+    name="idp.apis"
+    type="Azos.Wave.Handlers.MvcHandler, Azos.Wave"
+    type-location{ assembly="Azos.AuthKit.Server.dll" ns{ name="Azos.AuthKit.Server.Web"}}
+
+    log-level=Debug
+
+    match{ order=1 path="/v1/idp/{type}/{mvc-action}/{id}" var{query-name="*"} }
+    match{ order=2 path="/idp/{type}/{mvc-action}/{id}"    var{query-name="*"} }
+  }
+//**************** AUTHKIT TESTING
+
+
 
             handler
             {
