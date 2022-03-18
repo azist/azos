@@ -21,7 +21,10 @@ namespace Azos.AuthKit
   /// </summary>
   public sealed class MinIdpCoreStore : DaemonWithInstrumentation<IApplicationComponent>, IMinIdpStoreImplementation
   {
-    public MinIdpCoreStore(IApplicationComponent dir) : base(dir) { }
+    public MinIdpCoreStore(IApplicationComponent dir) : base(dir)
+    {
+      this.App.InjectInto(this);
+    }
 
     [Inject] IIdpUserCoreLogic m_Logic;
 

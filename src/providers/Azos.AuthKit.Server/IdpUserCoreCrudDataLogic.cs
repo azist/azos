@@ -301,7 +301,16 @@ namespace Azos.AuthKit.Server
     #region pvt
 
     // Since realm is an implicit security context we need to set it explicitly
-    private void setAmbientRealm(Atom realm) => Ambient.CurrentCallSession.DataContextName = realm.Value;
+    private void setAmbientRealm(Atom realm)
+    {
+      var session = Ambient.CurrentCallSession;
+      if(session is NOPSession)
+      {
+        session = new BaseSession(Guid.NewGuid(), App.Random.NextRandomUnsignedLong);
+        ExecutionContext.__SetThreadLevelSessionContext(session);
+      }
+      session.DataContextName = realm.Value;
+    }
 
     #endregion
   }

@@ -64,6 +64,18 @@
       <Project>{c2bf5275-c8c2-46cc-86c7-a83a75c2be0d}</Project>
       <Name>Azos</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\providers\Azos.AuthKit.Server.MySql\Azos.AuthKit.Server.MySql.csproj">
+      <Project>{49e9a358-fb4b-4e0c-8cf2-b618a0b7b312}</Project>
+      <Name>Azos.AuthKit.Server.MySql</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\providers\Azos.AuthKit.Server\Azos.AuthKit.Server.csproj">
+      <Project>{fcc9b471-5847-4efc-8167-9853b31df511}</Project>
+      <Name>Azos.AuthKit.Server</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\providers\Azos.AuthKit\Azos.AuthKit.csproj">
+      <Project>{c1ca5780-86b9-4a07-87a7-50c2306f6b58}</Project>
+      <Name>Azos.AuthKit</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\testing\Azos.Tests.Integration\Azos.Tests.Integration.csproj">
       <Project>{c6ec5d85-4a06-4e82-bdce-06ef013f349e}</Project>
       <Name>Azos.Tests.Integration</Name>
