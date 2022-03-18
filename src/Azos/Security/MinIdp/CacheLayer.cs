@@ -79,7 +79,7 @@ namespace Azos.Security.MinIdp
           if (m_IdxId.TryGetValue(new realmed(realm, id), out var existing)) return existing;
 
       var data = await m_Store.GetByIdAsync(realm, id, ctx).ConfigureAwait(false);
-      data.EnteredLoginId = id; //G8 bug #269  NullRefException In MinIdp Bug #269
+      if(data != null) data.EnteredLoginId = id; //G8 bug #269  NullRefException In MinIdp Bug #269
 
       updateIndexes(realm, data);
       return data;

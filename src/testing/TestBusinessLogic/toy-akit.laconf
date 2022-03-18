@@ -177,11 +177,6 @@
 
 security
 {
-  cryptography
-  {
-    _include{ file="./cfg/sec/cryptography.laconf" }
-    _include{ file="./cfg/app-idp/cryptography-authkit-server.laconf" }
-  }
 
 cryptography
 {
@@ -243,7 +238,7 @@ cryptography
 
   //use `MinIdp` Identity Provider Server
   type="Azos.Security.MinIdp.MinIdpSecurityManager, Azos"
-  realm=api //realm = catalog id in the security catalog
+  realm=gdi //realm = catalog id in the security catalog
 
   //This store acts as a caching server which "remembers" authentication outcome for
   //up to the specified period of time

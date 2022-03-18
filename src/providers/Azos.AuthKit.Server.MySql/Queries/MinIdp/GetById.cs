@@ -58,8 +58,8 @@ namespace Azos.AuthKit.Server.MySql.Queries.MinIdp
       ctx.Rights = reader.AsStringField("RIGHTS");
       ctx.Props = reader.AsStringField("PROPS");
 
-      var level = Constraints.MapUserStatus(reader.AsString("LEVEL")) ?? Security.UserStatus.Invalid;
-      var levelDown = Constraints.MapUserStatus(reader.AsString("LEVEL_DOWN"));
+      var level = Constraints.MapUserStatus(reader.AsStringField("LEVEL")) ?? Security.UserStatus.Invalid;
+      var levelDown = Constraints.MapUserStatus(reader.AsStringField("LEVEL_DOWN"));
       if (levelDown.HasValue && levelDown.Value < level) level = levelDown.Value;//the LEAST wins
 
       ctx.Status = level;
@@ -83,32 +83,8 @@ namespace Azos.AuthKit.Server.MySql.Queries.MinIdp
       ctx.LoginLockActor = reader.AsStringField("LOGIN_LOCK_ACTOR");
       ctx.LoginLockNote = reader.AsStringField("LOGIN_LOCK_NOTE");
 
-      //var result = new MinIdpUserData
-      //{
-      //  SysId = gUser.ToHexString(),
-      //  Realm = realm,
-      //  SysTokenData = sysToken,
-      //  Status = level,
-
-      //  CreateUtc = reader.AsDateTimeField("CREATE_UTC", DateTime.MinValue).Value,
-      //  StartUtc = reader.AsDateTimeField("START_UTC", DateTime.MinValue).Value,
-      //  EndUtc = reader.AsDateTimeField("END_UTC", DateTime.MaxValue).Value,
-      //  LoginId = id,
-      //  LoginPassword = reader.AsStringField("PWD"),
-      //  LoginStartUtc = reader.AsDateTimeField("LOGIN_START_UTC"),
-      //  LoginEndUtc = reader.AsDateTimeField("LOGIN_START_UTC"),
-      //  ScreenName = name,
-      //  Name = name,
-      //  Description = reader.AsStringField("DESCRIPTION"),
-      //  Note = reader.AsStringField("NOTE"),
-
-      //  Role = null, // TODO: extract role from PROPS column data
-      //  Rights = reader.AsStringField("RIGHTS"),
-      //  Props = reader.AsStringField("PROPS")
-      //};
-
-
-      return new RowsAffectedDoc(1);//we use this because we need a reader, but we read into INPUT parameter, hence we return affected dummy
+      return null;
+      //return new RowsAffectedDoc(1);//we use this because we need a reader, but we read into INPUT parameter, hence we return affected dummy
     }
   }
 }
