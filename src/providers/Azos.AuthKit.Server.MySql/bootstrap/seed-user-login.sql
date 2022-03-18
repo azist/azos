@@ -26,7 +26,7 @@ VALUES
 (
 0x000000000000000000000001,
 0xd1433bf1ed3c425ca9ad82a0e9e75512,
-0x676469, -- REALM hex version
+6906983, -- REALM hex version
 'root', -- NAME
 'S', -- LEVEL system
 'Root system account for GDI realm', -- Description
@@ -46,7 +46,7 @@ null, -- LOCK_NOTE
 '1000-01-01 00:00:00', -- VERSION_UTC
 7567731,          -- VERSION_ORIGIN - 0x737973 = `sys`
 'usrn@idp::root', -- VERSION_ACTOR
-'I' -- VERSION_STATE
+'C' -- VERSION_STATE
 );
 
 
@@ -80,12 +80,12 @@ INSERT INTO `tbl_login`
 VALUES
 (
 0x000000000000000000000001, -- GDID
-0x676469, -- GDI realm hex version
+6906983, -- GDI realm hex version
 0x000000000000000000000001, -- G_USER
 null, -- LEVEL_DOWN
 'root', -- ID
-0x6964, -- "ID" TID
-0x7379736C6F67696E, -- syslogin
+25705, -- "ID" TID
+7956003944985229683, -- syslogin
 '{"alg":"KDF","fam":"Text","h":"8kinx_bcL0xz9q0viOe0Ro0Gcly7WXJtjT117cplLRw","s":"SjsLUw1-d_7ya-YR12atOm0Tr0Sjezg1XhIRv9dNR9o"}', -- thejake
 null, --  PROVIDER_DATA
 '1000-01-01 00:00:00', -- START_UTC
@@ -102,5 +102,5 @@ null, -- LOCK_NOTE
 '1000-01-01 00:00:00', -- VERSION_UTC
 7567731,          -- VERSION_ORIGIN - 0x737973 = `sys`
 'usrn@idp::root', -- VERSION_ACTOR
-'I'
+'C'
 );
