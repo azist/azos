@@ -250,7 +250,7 @@ cryptography
     //caching significantly improves performance for chatty APIs e.g. when a customers make
     //API calls they typically use the same Bearer token which gets checked with EVERY call.
     //This cache is of much less help when different principals authenticate
-    max-cache-age-sec=30 // 0 disables cache altogether.
+    max-cache-age-sec=10 // 0 disables cache altogether.
 
     //Actual store which calls remote IDP server
     store

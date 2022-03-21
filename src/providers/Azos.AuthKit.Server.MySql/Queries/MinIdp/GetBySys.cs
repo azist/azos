@@ -57,8 +57,8 @@ namespace Azos.AuthKit.Server.MySql.Queries.MinIdp
       ctx.Props = reader.AsStringField("PROPS");
 
 
-      var level = Constraints.MapUserStatus(reader.AsString("LEVEL")) ?? Security.UserStatus.Invalid;
-      var levelDown = Constraints.MapUserStatus(reader.AsString("LEVEL_DOWN"));
+      var level = Constraints.MapUserStatus(reader.AsStringField("LEVEL")) ?? Security.UserStatus.Invalid;
+      var levelDown = Constraints.MapUserStatus(reader.AsStringField("LEVEL_DOWN"));
       if (levelDown.HasValue && levelDown.Value < level) level = levelDown.Value;//the LEAST wins
 
       ctx.Status = level;
@@ -82,7 +82,8 @@ namespace Azos.AuthKit.Server.MySql.Queries.MinIdp
       ctx.LoginLockActor = reader.AsStringField("LOGIN_LOCK_ACTOR");
       ctx.LoginLockNote = reader.AsStringField("LOGIN_LOCK_NOTE");
 
-      return new RowsAffectedDoc(1);//we use this because we need a reader, but we read into INPUT parameter, hence we return affected dummy
+      return null;
+      //return new RowsAffectedDoc(1);//we use this because we need a reader, but we read into INPUT parameter, hence we return affected dummy
     }
   }
 }
