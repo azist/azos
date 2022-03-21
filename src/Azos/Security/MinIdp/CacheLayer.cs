@@ -114,6 +114,7 @@ namespace Azos.Security.MinIdp
           if (m_IdxUri.TryGetValue(new realmed(realm, uri), out var existing)) return existing;
 
       var data = await m_Store.GetByUriAsync(realm, uri, ctx).ConfigureAwait(false);
+      if (data != null) data.EnteredUri = uri;
 
       updateIndexes(realm, data);
       return data;
@@ -134,7 +135,7 @@ namespace Azos.Security.MinIdp
           m_IdxId[new realmed(realm, data.EnteredLoginId)] = data;
         }
         m_IdxSysToken[new realmed(realm, data.SysToken.Data)] = entry;
-        m_IdxUri     [new realmed(realm, data.ScreenName)]    = data;
+        m_IdxUri     [new realmed(realm, data.EnteredUri)]    = data;
       }
     }
 
