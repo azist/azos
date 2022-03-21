@@ -50,8 +50,8 @@ namespace Azos.AuthKit.Server.MySql.Queries.Admin
         LoginId = reader.AsStringField("ID"),
         LoginType = reader.AsAtomField("TID").Value,
         Provider = reader.AsAtomField("PROVIDER").Value,
-        Password = disclosePasswords ? reader.AsString("PWD") : "*****",
-        ProviderData = reader.AsString("PROVIDER_DATA"),
+        Password = disclosePasswords ? reader.AsStringField("PWD") : "*****",
+        ProviderData = reader.AsStringField("PROVIDER_DATA"),
         ValidSpanUtc = new Time.DateRange(reader.AsDateTimeField("START_UTC"), reader.AsDateTimeField("END_UTC")),
         Props = reader.AsStringField("PROPS"),
         Rights = reader.AsStringField("RIGHTS"),
@@ -72,7 +72,7 @@ namespace Azos.AuthKit.Server.MySql.Queries.Admin
           Utc = reader.AsDateTimeField("VERSION_UTC").Value
         },
         LockSpanUtc = new Time.DateRange(reader.AsDateTimeField("LOCK_START_UTC"), reader.AsDateTimeField("LOCK_END_UTC")),
-        LockActor = reader.AsEntityIdField("LOCK_ACTOR").Value,
+        LockActor = reader.AsEntityIdField("LOCK_ACTOR"),
         LockNote = reader.AsStringField("LOCK_NOTE")
       };
 
