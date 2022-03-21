@@ -62,8 +62,7 @@ namespace Azos.AuthKit.Server.MySql.Queries.Admin
 
       cmd.MapVersionToSqlParameters(version);
 
-      cmd.Parameters.AddWithValue("gdid", user.Gdid);
-      cmd.Parameters.AddWithValue("guid", Guid.NewGuid().ToString());
+      cmd.Parameters.AddWithValue("guid", Guid.NewGuid().ToNetworkByteOrder());
       cmd.Parameters.AddWithValue("realm", user.Realm);
       cmd.Parameters.AddWithValue("name", user.Name);
       cmd.Parameters.AddWithValue("level", Constraints.MapUserStatus(user.Level));
@@ -72,7 +71,7 @@ namespace Azos.AuthKit.Server.MySql.Queries.Admin
       cmd.Parameters.AddWithValue("end_utc", validSpan.End);
       cmd.Parameters.AddWithValue("org_unit", user.OrgUnit.HasValue ? user.OrgUnit.Value.AsString() : null); // should we pass null here?
       cmd.Parameters.AddWithValue("props", user.Props.Content);
-      cmd.Parameters.AddWithValue("rights", user.Rights.Content);
+      cmd.Parameters.AddWithValue("rights", user.Rights?.Content);
       cmd.Parameters.AddWithValue("note", user.Note);
     }
 

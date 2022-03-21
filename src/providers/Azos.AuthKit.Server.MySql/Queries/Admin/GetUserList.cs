@@ -25,7 +25,30 @@ namespace Azos.AuthKit.Server.MySql.Queries.Admin
       {
         builder.Limit = 100; // qParams.PagingCount.LimitPagingCount()
 
-        builder.Select("T1.GDID");
+        builder.Select("T1.GDID")
+               .Select("T1.REALM")
+               .Select("T1.GUID")
+               .Select("T1.NAME")
+               .Select("T1.LEVEL")
+               .Select("T1.DESCRIPTION")
+               .Select("T1.START_UTC")
+               .Select("T1.END_UTC")
+               .Select("T1.ORG_UNIT")
+               .Select("T1.PROPS")
+               .Select("T1.RIGHTS")
+               .Select("T1.NOTE")
+               .Select("T1.CREATE_ACTOR")
+               .Select("T1.CREATE_ORIGIN")
+               .Select("T1.CREATE_UTC")
+               .Select("T1.VERSION_ACTOR")
+               .Select("T1.VERSION_ORIGIN")
+               .Select("T1.VERSION_UTC")
+               .Select("T1.VERSION_STATE")
+               .Select("T1.LOCK_START_UTC")
+               .Select("T1.LOCK_END_UTC")
+               .Select("T1.LOCK_ACTOR")
+               .Select("T1.LOCK_NOTE")
+               ;
 
         builder.AndWhere("T1.REALM = @realm", new MySqlParameter("realm", filter.Realm));
 
@@ -85,10 +108,10 @@ namespace Azos.AuthKit.Server.MySql.Queries.Admin
         Realm = reader.AsAtomField("REALM").Value,
         Guid = reader.AsGuidField("GUID").Value,
         Name = reader.AsStringField("NAME"),
-        Level = Constraints.MapUserStatus(reader.AsString("LEVEL")).Value,
+        Level = Constraints.MapUserStatus(reader.AsStringField("LEVEL")).Value,
         Description = reader.AsStringField("DESCRIPTION"),
         ValidSpanUtc = new Time.DateRange(reader.AsDateTimeField("START_UTC"), reader.AsDateTimeField("END_UTC")),
-        OrgUnit = reader.AsEntityIdField("ORG_UNIT").Value,
+        OrgUnit = reader.AsEntityIdField("ORG_UNIT"),
         Props = reader.AsStringField("PROPS"),
         Rights = reader.AsStringField("RIGHTS"),
         Note = reader.AsStringField("NOTE"),
@@ -109,7 +132,7 @@ namespace Azos.AuthKit.Server.MySql.Queries.Admin
           Utc = reader.AsDateTimeField("VERSION_UTC").Value
         },
         LockSpanUtc = new Time.DateRange(reader.AsDateTimeField("LOCK_START_UTC"), reader.AsDateTimeField("LOCK_END_UTC")),
-        LockActor = reader.AsEntityIdField("LOCK_ACTOR").Value,
+        LockActor = reader.AsEntityIdField("LOCK_ACTOR"),
         LockNote = reader.AsStringField("LOCK_NOTE")
       };
 
