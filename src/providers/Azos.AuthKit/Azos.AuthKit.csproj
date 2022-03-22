@@ -23,4 +23,9 @@
     <ProjectReference Include="..\..\Azos\Azos.csproj" />
   </ItemGroup>
 
+
+  <ItemGroup>
+    <Folder Include="rest\" />
+  </ItemGroup>
+
 </Project>
