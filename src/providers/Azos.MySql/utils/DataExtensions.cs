@@ -76,6 +76,12 @@ namespace Azos.Data.Access.MySql
       var val = reader[fld];
       if (val is DBNull) return null;
 
+      if(val is DateTime d) // 20220302 dkh
+      {
+        val = new DateTime(d.Ticks, DateTimeKind.Utc);
+      }
+
+
       if (!styles.HasValue)
       {
         styles = CoreConsts.UTC_TIMESTAMP_STYLES;

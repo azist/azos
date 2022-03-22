@@ -30,6 +30,7 @@ namespace Azos.AuthKit.Server.Web
     public const string ACT_USER = "user";
     public const string ACT_USER_LOGINS = "userlogins";
     public const string ACT_LOGIN = "login";
+    public const string ACT_LOCK_STATUS = "lock";
 
     [Inject] IIdpUserCoreLogic m_Logic;
 
@@ -112,5 +113,18 @@ namespace Azos.AuthKit.Server.Web
     [UserManagementPermission(UserManagementAccessLevel.Change)]
     public async Task<object> PutLoginEntity(LoginEntity login)
     => await SaveEditAsync(login).ConfigureAwait(false);
+
+
+    [ApiEndpointDoc(Title = "PUT - Updates LockStatus Entity",
+                    Description = "Updates a lock status for a user or login. " +
+                    "Must include `TargetEntity` for the user or login which is being updated",
+                    RequestBody = "JSON representation of {node: LockStatus}",
+                    ResponseContent = "JSON representation of {OK: bool, data: ChangeResult}",
+                    Methods = new[] { "PUT: Updates lock status for a user or login" },
+                    TypeSchemas = new[] { typeof(LockStatus), typeof(ChangeResult) })]
+    [ActionOnPut(Name = ACT_LOCK_STATUS)]
+    [UserManagementPermission(UserManagementAccessLevel.Change)]
+    public async Task<object> PutLockStatusEntity(LockStatus lockStatus)
+    => await SaveEditAsync(lockStatus).ConfigureAwait(false);
   }
 }
