@@ -138,6 +138,7 @@ namespace Azos.AuthKit.Server
 
       m_Handler.MakeSystemTokenData(actx);
       await m_Handler.ApplyEffectivePoliciesAsync(actx).ConfigureAwait(false);
+      if (!actx.HasResult) return null;
       return actx.MakeResult();
     }
 
@@ -165,6 +166,7 @@ namespace Azos.AuthKit.Server
 
       m_Handler.MakeSystemTokenData(actx);
       await m_Handler.ApplyEffectivePoliciesAsync(actx).ConfigureAwait(false);
+      if (!actx.HasResult) return null;
       return actx.MakeResult();
     }
 
@@ -193,6 +195,7 @@ namespace Azos.AuthKit.Server
 
       //notice: No MakeSystemTokenData because we must re-use EXISTING token as-is
       await m_Handler.ApplyEffectivePoliciesAsync(actx).ConfigureAwait(false);
+      if (!actx.HasResult) return null;
       return actx.MakeResult();
     }
 

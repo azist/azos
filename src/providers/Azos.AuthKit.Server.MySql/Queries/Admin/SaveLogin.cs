@@ -61,7 +61,6 @@ namespace Azos.AuthKit.Server.MySql.Queries.Admin
 
       cmd.MapVersionToSqlParameters(version);
 
-      cmd.Parameters.AddWithValue("gdid", login.Gdid);
       cmd.Parameters.AddWithValue("realm", login.Realm);
       cmd.Parameters.AddWithValue("g_user", login.G_User);
       cmd.Parameters.AddWithValue("level_down", Constraints.MapUserStatus(login.LevelDemotion));
@@ -72,8 +71,8 @@ namespace Azos.AuthKit.Server.MySql.Queries.Admin
       cmd.Parameters.AddWithValue("provider_data", login.ProviderData);
       cmd.Parameters.AddWithValue("start_utc", validSpan.Start);
       cmd.Parameters.AddWithValue("end_utc", validSpan.End);
-      cmd.Parameters.AddWithValue("props", login.Props.Content);
-      cmd.Parameters.AddWithValue("rights", login.Rights.Content);
+      cmd.Parameters.AddWithValue("props", login.Props?.Content);
+      cmd.Parameters.AddWithValue("rights", login.Rights?.Content);
     }
 
   }
