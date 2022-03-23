@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.42.8.7
-set HEADLINE=Reserve forest ID count
+set VER=1.42.9.1
+set HEADLINE=AuthKit Alpha 1
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
