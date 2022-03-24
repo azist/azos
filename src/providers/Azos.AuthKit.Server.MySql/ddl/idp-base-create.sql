@@ -47,6 +47,14 @@ delimiter ;.
 delimiter ;.
   create index `idx_tbl_user_org` on `tbl_user`(`REALM`, `ORG_UNIT`);.
 
+delimiter ;.
+  create index `idx_tbl_user_startend` on `tbl_user`(`REALM`, `START_UTC`, `END_UTC`);.
+
+delimiter ;.
+  create index `idx_tbl_user_lckstartend` on `tbl_user`(`REALM`, `LOCK_START_UTC`, `LOCK_END_UTC`);.
+
+
+
 
 -- delimiter ;.
 
@@ -107,6 +115,7 @@ create table tbl_login
 
 delimiter ;.
   create unique index `idx_tbl_login_uk1` on `tbl_login`(`REALM`, `ID`, `TID`, `PROVIDER`);.
+
 
 create table tbl_loginstatus
 (

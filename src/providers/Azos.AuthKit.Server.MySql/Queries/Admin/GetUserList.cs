@@ -57,15 +57,17 @@ namespace Azos.AuthKit.Server.MySql.Queries.Admin
           builder.AndWhere("T1.GDID = @g_user", new MySqlParameter("g_user", filter.Gdid));
         }
 
+        //FROM=======================================
         if (filter.LoginId.IsNotNullOrWhiteSpace())
         {
           builder.FromClause("tbl_user T1 INNER JOIN tbl_login T2 ON T1.GDID = T2.G_USER");
-          builder.AndWhere("T2.ID = @login_id", new MySqlParameter("login_id", filter.LoginId));
+          builder.AndWhere("((T2.REALM = @realm) AND (T2.ID = @login_id))", new MySqlParameter("login_id", filter.LoginId));
         }
         else
         {
           builder.From("tbl_user", "T1");
         }
+        //===========================================
 
         if (filter.Guid.HasValue)
         {
@@ -88,12 +90,29 @@ namespace Azos.AuthKit.Server.MySql.Queries.Admin
           builder.AndWhere("T1.ORG_UNIT = @org_unit", new MySqlParameter("org_unit", filter.OrgUnit));
         }
 
-        //TODO: add AsOfUtc, Active, Locked, TagFilter properties to filter logic
+        var asof = filter.AsOfUtc ?? context.GetUtcNow();
+        cmd.Parameters.Add(new MySqlParameter("asof", asof));
 
-      });
+        if (filter.Active.HasValue)
+        {
+          if (filter.Active.Value)
+            builder.AndWhere("((T1.START_UTC <= @asof) AND (@asof < T1.END_UTC))");
+          else
+            builder.AndWhere("((@asof < T1.START_UTC) OR (@asof > T1.END_UTC))");
+        }
 
+        if (filter.Locked.HasValue)
+        {
+          if (filter.Locked.Value)
+            builder.AndWhere("((T1.LOCK_START_UTC <= @asof) AND (@asof < T1.LOCK_END_UTC))");
+          else
+            builder.AndWhere("((T1.LOCK_START_UTC IS NULL) OR (@asof < T1.LOCK_START_UTC)) OR ((T1.LOCK_END_UTC IS NULL) OR (@asof > T1.LOCK_END_UTC))");
+        }
+
+        //TODO:  TagFilter properties to filter logic
+        builder.OrderByAsc("T1.NAME");
+      });//BuildSelect
       ////////////Console.WriteLine(cmd.CommandText);
-
     }
 
 
