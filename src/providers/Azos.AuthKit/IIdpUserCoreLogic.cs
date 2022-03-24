@@ -29,6 +29,9 @@ namespace Azos.AuthKit
     ///// </summary>
     //PII//Task<IEnumerable<UserTagInfo>> GetUserTagsAsync(GDID gUser);
 
+
+    //todo: Add Delete user login, delete user
+
     /// <summary>
     /// Returns a list of login info objects for the selected user account
     /// </summary>
