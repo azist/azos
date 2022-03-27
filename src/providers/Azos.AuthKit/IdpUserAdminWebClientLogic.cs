@@ -3,7 +3,6 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +14,6 @@ using Azos.Conf;
 using Azos.Data;
 using Azos.Serialization.JSON;
 using Azos.Web;
-
 
 namespace Azos.AuthKit
 {
@@ -47,7 +45,13 @@ namespace Azos.AuthKit
     [Config]
     public string IdpServiceAddress { get; set; }
 
-    public bool IsServerImplementation => throw new NotImplementedException();
+    /// <summary>
+    /// Name of data context header. If not specified then default session data context name is assumed
+    /// </summary>
+    [Config]
+    public string IdpRealmHeader { get; set; }
+
+    public bool IsServerImplementation => false;
 
     protected override void DoConfigure(IConfigSectionNode node)
     {
@@ -70,12 +74,22 @@ namespace Azos.AuthKit
       return base.DoApplicationAfterInit();
     }
 
+    private IEnumerable<KeyValuePair<string, string>> dataContextHeader
+    {
+      get
+      {
+        var hdr = IdpRealmHeader.Default(CoreConsts.DEFAULT_DATA_CONTEXT_HEADER);
+        var ctx = Ambient.CurrentCallSession.GetAtomDataContextName();
+        yield return new KeyValuePair<string, string>(hdr, ctx.Value);
+      }
+    }
+
     public async Task<IEnumerable<UserInfo>> GetUserListAsync(UserListFilter filter)
     {
       var response = await m_Server.Call(IdpServiceAddress,
                                           nameof(IIdpUserAdminLogic),
                                           new ShardKey(0u),
-                                          (http, ct) => http.Client.PostAndGetJsonMapAsync("filter", new { filter = filter })).ConfigureAwait(false);
+                                          (http, ct) => http.Client.PostAndGetJsonMapAsync("filter", new { filter = filter }, requestHeaders: dataContextHeader)).ConfigureAwait(false);
 
       var result = response.UnwrapPayloadArray()
                            .OfType<JsonDataMap>()
@@ -89,7 +103,7 @@ namespace Azos.AuthKit
       var response = await m_Server.Call(IdpServiceAddress,
                                           nameof(IIdpUserAdminLogic),
                                           new ShardKey(0u),
-                                          (http, ct) => http.Client.PostAndGetJsonMapAsync("userlogins", new { gUser = gUser })).ConfigureAwait(false);
+                                          (http, ct) => http.Client.PostAndGetJsonMapAsync("userlogins", new { gUser = gUser }, requestHeaders: dataContextHeader)).ConfigureAwait(false);
 
       var result = response.UnwrapPayloadArray()
                            .OfType<JsonDataMap>()
@@ -105,7 +119,7 @@ namespace Azos.AuthKit
       var response = await m_Server.Call(IdpServiceAddress,
                                           nameof(IIdpUserAdminLogic),
                                           new ShardKey(DateTime.UtcNow),
-                                          (http, ct) => http.Client.CallAndGetJsonMapAsync("user", method, new { user = user })).ConfigureAwait(false);
+                                          (http, ct) => http.Client.CallAndGetJsonMapAsync("user", method, new { user = user }, requestHeaders: dataContextHeader)).ConfigureAwait(false);
 
       var result = response.UnwrapChangeResult();
       return result;
@@ -118,7 +132,7 @@ namespace Azos.AuthKit
       var response = await m_Server.Call(IdpServiceAddress,
                                           nameof(IIdpUserAdminLogic),
                                           new ShardKey(DateTime.UtcNow),
-                                          (http, ct) => http.Client.CallAndGetJsonMapAsync("login", method, new { login = login })).ConfigureAwait(false);
+                                          (http, ct) => http.Client.CallAndGetJsonMapAsync("login", method, new { login = login }, requestHeaders: dataContextHeader)).ConfigureAwait(false);
 
       var result = response.UnwrapChangeResult();
       return result;
@@ -129,7 +143,7 @@ namespace Azos.AuthKit
       var response = await m_Server.Call(IdpServiceAddress,
                                           nameof(IIdpUserAdminLogic),
                                           new ShardKey(DateTime.UtcNow),
-                                          (http, ct) => http.Client.PutAndGetJsonMapAsync("lock", new { lockStatus = status })).ConfigureAwait(false);
+                                          (http, ct) => http.Client.PutAndGetJsonMapAsync("lock", new { lockStatus = status }, requestHeaders: dataContextHeader)).ConfigureAwait(false);
 
       var result = response.UnwrapChangeResult();
       return result;
