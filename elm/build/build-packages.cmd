@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.42.9.2
-set HEADLINE=AuthKit Alpha 2
+set VER=1.42.9.3
+set HEADLINE=AuthKit idp cl header fixes
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
