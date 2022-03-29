@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.42.9.3
-set HEADLINE=AuthKit idp cl header fixes
+set VER=1.42.9.4
+set HEADLINE=Add GetJsonMapAsync
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
