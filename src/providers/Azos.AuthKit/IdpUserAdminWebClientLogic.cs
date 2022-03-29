@@ -5,7 +5,6 @@
 </FILE_LICENSE>*/
 using System;
 using System.Collections.Generic;
-using System.Net.Http;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -104,7 +103,7 @@ namespace Azos.AuthKit
       var response = await m_Server.Call(IdpServiceAddress,
                                           nameof(IIdpUserAdminLogic),
                                           new ShardKey(0u),
-                                          (http, ct) => http.Client.CallAndGetJsonMapAsync("userlogins?guser={0}".Args(), HttpMethod.Get, null, requestHeaders: dataContextHeader)).ConfigureAwait(false);
+                                          (http, ct) => http.Client.PostAndGetJsonMapAsync("userlogins", new { gUser = gUser }, requestHeaders: dataContextHeader)).ConfigureAwait(false);
 
       var result = response.UnwrapPayloadArray()
                            .OfType<JsonDataMap>()
@@ -115,7 +114,7 @@ namespace Azos.AuthKit
 
     public async Task<ChangeResult> SaveUserAsync(UserEntity user)
     {
-      var method = user.NonNull(nameof(user)).FormMode == FormMode.Insert ? HttpMethod.Post : HttpMethod.Put;
+      var method = user.NonNull(nameof(user)).FormMode == FormMode.Insert ? System.Net.Http.HttpMethod.Post : System.Net.Http.HttpMethod.Put;
 
       var response = await m_Server.Call(IdpServiceAddress,
                                           nameof(IIdpUserAdminLogic),
@@ -128,7 +127,7 @@ namespace Azos.AuthKit
 
     public async Task<ChangeResult> SaveLoginAsync(LoginEntity login)
     {
-      var method = login.NonNull(nameof(login)).FormMode == FormMode.Insert ? HttpMethod.Post : HttpMethod.Put;
+      var method = login.NonNull(nameof(login)).FormMode == FormMode.Insert ? System.Net.Http.HttpMethod.Post : System.Net.Http.HttpMethod.Put;
 
       var response = await m_Server.Call(IdpServiceAddress,
                                           nameof(IIdpUserAdminLogic),
