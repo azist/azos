@@ -103,7 +103,7 @@ namespace Azos.AuthKit
       var response = await m_Server.Call(IdpServiceAddress,
                                           nameof(IIdpUserAdminLogic),
                                           new ShardKey(0u),
-                                          (http, ct) => http.Client.PostAndGetJsonMapAsync("userlogins", new { gUser = gUser }, requestHeaders: dataContextHeader)).ConfigureAwait(false);
+                                          (http, ct) => http.Client.GetJsonMapAsync("userlogins".ComposeUri("gUser", gUser), requestHeaders: dataContextHeader)).ConfigureAwait(false);
 
       var result = response.UnwrapPayloadArray()
                            .OfType<JsonDataMap>()

@@ -58,7 +58,7 @@ namespace Azos.Wave.Cms.Default
     {
       var (svc, adr) = ensureOperationalState();
       var result = await svc.Call(adr, nameof(ICmsSource), new ShardKey(0), async (http, ct) => {
-        var map = await http.Client.GetJsonMapAsync("languages").ConfigureAwait(false);
+        var map = await http.Client.GetJsonMapDirectAsync("languages").ConfigureAwait(false);
 
         var dict = map.Where(kvp => kvp.Value is IJsonDataObject)
            .ToDictionary(kvp => kvp.Key,
