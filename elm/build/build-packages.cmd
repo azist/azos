@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.42.9.4
-set HEADLINE=Add GetJsonMapAsync
+set VER=1.42.9.5
+set HEADLINE=AuthKit datacontext error
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

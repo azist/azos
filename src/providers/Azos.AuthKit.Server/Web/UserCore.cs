@@ -4,11 +4,14 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using System;
+using System.Reflection;
 using System.Threading.Tasks;
 
 using Azos.Apps.Injection;
 using Azos.Data;
 using Azos.Security.Authkit;
+using Azos.Wave;
 using Azos.Wave.Mvc;
 
 namespace Azos.AuthKit.Server.Web
@@ -33,6 +36,21 @@ namespace Azos.AuthKit.Server.Web
     public const string ACT_LOCK_STATUS = "lock";
 
     [Inject] IIdpUserCoreLogic m_Logic;
+
+    protected override bool BeforeActionInvocation(WorkContext work, string action, MethodInfo method, object[] args, ref object result)
+    {
+      try
+      {
+        Ambient.CurrentCallSession.GetAtomDataContextName();
+      }
+      catch(Exception cause)
+      {
+        throw new HTTPStatusException(400, "Missing REALM/DataContext", cause.ToMessageWithType(), cause);
+      }
+
+      return base.BeforeActionInvocation(work, action, method, args, ref result);
+    }
+
 
     [ApiEndpointDoc(Title = "Filter",
                     Uri = "filter",
