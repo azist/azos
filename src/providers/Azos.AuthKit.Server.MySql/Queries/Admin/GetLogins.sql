@@ -24,4 +24,5 @@
     VERSION_STATE
 from tbl_login TL
 where
-  TL.G_USER = @g_user
+  (TL.G_USER = @g_user)
+  AND (TL.REALM = @realm)
