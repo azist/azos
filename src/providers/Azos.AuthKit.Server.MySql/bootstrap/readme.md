@@ -45,7 +45,7 @@ Run DDL script from here [tree-create.sql](/src/providers/Azos.MySql/ConfForest/
 
 ### 1. Create User/Login tables ("authkit_usr")
 
-Run DDL script from here [akit-create-idp-tables.sql](src/providers/Azos.AuthKit.Server.MySql/bootstrap/akit-create-idp-tables.sql)
+Run DDL script from here [akit-create-idp-tables.sql](/src/providers/Azos.AuthKit.Server.MySql/bootstrap/akit-create-idp-tables.sql)
 
 
 ### 2. 
