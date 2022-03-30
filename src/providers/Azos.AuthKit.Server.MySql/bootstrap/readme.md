@@ -44,7 +44,7 @@ Run DDL script from here [idp-base-create.sql](/src/providers/Azos.AuthKit.Serve
 
 ### 3. SEED tables
 
-Run SEED script from here [seed-users-logins.sql](/src/providers/Azos.AuthKit.Server.MySql/bootstrap/seed-users-logins.sql)
+Run SEED script from here [akit-seed-users-logins.sql](/src/providers/Azos.AuthKit.Server.MySql/bootstrap/akit-seed-users-logins.sql)
 
 ---
 
