@@ -28,7 +28,9 @@ COLLATE 'utf8mb4_unicode_ci';
 
 ## I. User/Login Database and Table Create Steps
 
-Run DDL script from here [idp-base-create.sql](./ddl/idp-base-create.sql)
+Run DDL script from here [idp-base-create.sql](../ddl/idp-base-create.sql)
+
+[this](/src/providers/Azos.MySql/ConfForest/ddl/tree-create.sql)
 
 ### 1. Create the User/Login Database ("authkit_usr")
 
