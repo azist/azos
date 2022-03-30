@@ -1,4 +1,6 @@
-﻿INSERT INTO `tbl_user`
+﻿delimiter ;.
+
+INSERT INTO `tbl_user`
 (`GDID`,
 `GUID`,
 `REALM`,
@@ -47,10 +49,11 @@ null, -- LOCK_NOTE
 7567731,          -- VERSION_ORIGIN - 0x737973 = `sys`
 'usrn@idp::root', -- VERSION_ACTOR
 'C' -- VERSION_STATE
-);
+);.
 
 
 
+delimiter ;.
 
 INSERT INTO `tbl_login`
 (`GDID`,
@@ -103,4 +106,4 @@ null, -- LOCK_NOTE
 7567731,          -- VERSION_ORIGIN - 0x737973 = `sys`
 'usrn@idp::root', -- VERSION_ACTOR
 'C'
-);
+);.
