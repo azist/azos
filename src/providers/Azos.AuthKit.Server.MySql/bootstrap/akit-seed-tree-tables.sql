@@ -1,7 +1,9 @@
 ﻿
+delimiter ;.
+insert into `tbl_node` (`GDID`, `CREATE_UTC`) values (0x000000000000000000000002, utc_timestamp());.
 
-insert into `tbl_node` (`GDID`, `CREATE_UTC`) values (0x000000000000000000000002, utc_timestamp());
 
+delimiter ;.
 insert into `tbl_nodelog`
         (
           `GDID`,
@@ -29,4 +31,4 @@ insert into `tbl_nodelog`
           '1000-01-01 00:00:00', -- START_UTC
           '{"r": {}}', -- PROPERTIES
           '{"r": {}}'-- CONFIG
-        );
+        );.

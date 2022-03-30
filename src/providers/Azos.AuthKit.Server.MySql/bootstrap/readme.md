@@ -5,27 +5,31 @@ This document contains the current DDL and initial seed requirements for the und
 You will need at minimum 3 databases to run Authkit. For example the below script creates 1 database for Authkit users and login data, 1 database for AuthKit forest data, and one or more AuthKit instance-specific forest databases.
 
 ```sql
+delimiter ;.
 
 -- Authkit users and login data (for all REALMs)
 CREATE DATABASE `authkit_usr`
 CHARACTER SET 'utf8mb4'
-COLLATE 'utf8mb4_unicode_ci';
+COLLATE 'utf8mb4_unicode_ci';.
 
+delimiter ;.
 
 -- AuthKit system forest configuration data
 CREATE DATABASE `forest_idp_kit_sky_akit`
 CHARACTER SET 'utf8mb4'
-COLLATE 'utf8mb4_unicode_ci';
+COLLATE 'utf8mb4_unicode_ci';.
 
+delimiter ;.
 
 -- AuthKit instance-specific **REALM** forest configuration data (one or more DBs depending on you deployment needs)
 CREATE DATABASE `forest_idp_kit_gdi`
 CHARACTER SET 'utf8mb4'
-COLLATE 'utf8mb4_unicode_ci';
+COLLATE 'utf8mb4_unicode_ci';.
 
 -- Add additional **REALM** databases as needed
-
 ```
+
+---
 
 ## Create AuthKit Databases
 
@@ -67,9 +71,8 @@ Run SEED script from here [akit-seed-tree-tables.sql](/src/providers/Azos.AuthKi
 
 Run DDL script from here [tree-create.sql](/src/providers/Azos.MySql/ConfForest/ddl/tree-create.sql)
 
-
 ### 7. SEED tables
 
 Run SEED script from here [akit-seed-tree-tables.sql](/src/providers/Azos.AuthKit.Server.MySql/bootstrap/akit-seed-tree-tables.sql)
 
-
+---
