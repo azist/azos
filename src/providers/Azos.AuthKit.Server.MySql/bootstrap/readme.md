@@ -2,7 +2,7 @@
 
 This document contains the current DDL and initial seed requirements for the underlying data store implementation. It details the necessary database create scripts, the inititial table create scripts, and the minimum required seed values need to operate the API.
 
-You will need at minimum 3 databases to run Authkit. For example the below script creates 1 database for AuthKit forest data, 1 for Authkit users and login data, and one or more AuthKit instance-specific forest data.
+You will need at minimum 3 databases to run Authkit. For example the below script creates 1 database for Authkit users and login data, 1 database for AuthKit forest data, and one or more AuthKit instance-specific forest databases.
 
 ```sql
 
@@ -40,7 +40,7 @@ Run DDL script from here [akit-db-creates.sql](/src/providers/Azos.AuthKit.Serve
 
 ### 2. Create tables 
 
-Run DDL script from here [idp-base-create.sql](/src/providers/Azos.AuthKit.Server.MySql/ddl/idp-base-create.sql)
+Run DDL script from here [akit-table-creates.sql](/src/providers/Azos.AuthKit.Server.MySql/ddl/akit-table-creates.sql)
 
 ### 3. SEED tables
 
