@@ -30,13 +30,13 @@ COLLATE 'utf8mb4_unicode_ci';
 ## Create AuthKit Databases
 
 
-### 1. Create the databases ("authkit_usr", "forest_idp_kit_sky_akit", "forest_idp_kit_gdi", etc.)
+### 1. Create the databases (`authkit_usr`, `forest_idp_kit_sky_akit`, `forest_idp_kit_gdi`, etc.)
 
 Run DDL script from here [akit-db-creates.sql](/src/providers/Azos.AuthKit.Server.MySql/ddl/akit-db-creates.sql)
 
 ---
 
-## Create and Seed User/Login tables ("authkit_usr")
+## Create and Seed User/Login tables (`authkit_usr`)
 
 ### 2. Create tables 
 
@@ -48,7 +48,7 @@ Run SEED script from here [seed-users-logins.sql](/src/providers/Azos.AuthKit.Se
 
 ---
 
-## Create and Seed AuthKit system forest configuration data tables ("forest_idp_kit_sky_akit")
+## Create and Seed AuthKit system forest configuration data tables (`forest_idp_kit_sky_akit`)
 
 ### 4. Create tables 
 
@@ -61,7 +61,7 @@ Run SEED script from here [akit-seed-tree-tables.sql](/src/providers/Azos.AuthKi
 
 ---
 
-## Create and Seed instance-specific **REALM** forest configuration data tables ("forest_idp_kit_gdi", etc.)
+## Create and Seed instance-specific **REALM** forest configuration data tables (`forest_idp_kit_gdi`, etc.)
 
 ### 6. Create tables 
 
