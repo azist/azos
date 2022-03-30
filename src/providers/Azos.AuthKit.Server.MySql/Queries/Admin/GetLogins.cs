@@ -46,7 +46,7 @@ namespace Azos.AuthKit.Server.MySql.Queries.Admin
         Gdid = reader.AsGdidField("GDID"),
         Realm = reader.AsAtomField("REALM").Value,
         G_User = reader.AsGdidField("G_USER"),
-        LevelDemotion = Constraints.MapUserStatus(reader.AsString("LEVEL_DOWN")).Value,
+        LevelDemotion = Constraints.MapUserStatus(reader.AsStringField("LEVEL_DOWN")),
         LoginId = reader.AsStringField("ID"),
         LoginType = reader.AsAtomField("TID").Value,
         Provider = reader.AsAtomField("PROVIDER").Value,
