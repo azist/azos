@@ -8,13 +8,13 @@ You will need at minimum 3 databases to run Authkit. For example the below scrip
 
 -- AuthKit system forest configuration data
 
-CREATE DATABASE `forest_idp_kit_sky_akit`
+-- Authkit users and login data (for all REALMs)
+CREATE DATABASE `authkit_usr`
 CHARACTER SET 'utf8mb4'
 COLLATE 'utf8mb4_unicode_ci';
 
 
--- Authkit users and login data (for all REALMs)
-CREATE DATABASE `authkit_usr`
+CREATE DATABASE `forest_idp_kit_sky_akit`
 CHARACTER SET 'utf8mb4'
 COLLATE 'utf8mb4_unicode_ci';
 
@@ -26,23 +26,27 @@ COLLATE 'utf8mb4_unicode_ci';
 
 ```
 
-## I. User/Login Database and Table Create Steps
+## I. AuthKit Databases
 
-Run DDL script from here [idp-base-create.sql](../ddl/idp-base-create.sql)
+### 1. Create the User/Login database ("authkit_usr")
 
-[this](/src/providers/Azos.MySql/ConfForest/ddl/tree-create.sql)
+Run DDL script from here [idp-base-create.sql](/src/providers/Azos.MySql/ConfForest/ddl/idp-base-create.sql)
 
-### 1. Create the User/Login Database ("authkit_usr")
+### 2. Create AuthKit system forest configuration data database ("forest_idp_kit_sky_akit")
 
+Run DDL script from here [tree-create.sql](/src/providers/Azos.MySql/ConfForest/ddl/tree-create.sql)
 
+### 3. Create AuthKit instance-specific **REALM** forest configuration databases (e.g. "forest_idp_kit_gdi")
 
-### 2. Create the User/Login Tables ("authkit_usr")
-
-
-
-### 3. Seed the User/Login Tables ("authkit_usr")
+Run DDL script from here [tree-create.sql](/src/providers/Azos.MySql/ConfForest/ddl/tree-create.sql)
 
 
+## II. Table Create Steps
+
+### 1. Create User/Login tables ("authkit_usr")
+
+Run DDL script from here [akit-create-idp-tables.sql](src/providers/Azos.AuthKit.Server.MySql/bootstrap/akit-create-idp-tables.sql)
 
 
-## II. User/Login Database and Table Create Steps
+### 2. 
+
