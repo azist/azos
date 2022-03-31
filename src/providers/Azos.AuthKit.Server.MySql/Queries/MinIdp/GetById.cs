@@ -84,7 +84,6 @@ namespace Azos.AuthKit.Server.MySql.Queries.MinIdp
       ctx.LoginLockNote = reader.AsStringField("LOGIN_LOCK_NOTE");
 
       return null;
-      //return new RowsAffectedDoc(1);//we use this because we need a reader, but we read into INPUT parameter, hence we return affected dummy
     }
   }
 }
