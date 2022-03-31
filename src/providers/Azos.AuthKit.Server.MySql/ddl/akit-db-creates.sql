@@ -1,6 +1,7 @@
 ﻿delimiter ;.
 
 -- Authkit users and login data (for all REALMs)
+-- Name this database to meet your naming needs (this is for example only, `_gdi` is used as a specific instance name!)
 CREATE DATABASE `authkit_usr`
 CHARACTER SET 'utf8mb4'
 COLLATE 'utf8mb4_unicode_ci';.

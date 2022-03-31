@@ -22,6 +22,7 @@ COLLATE 'utf8mb4_unicode_ci';.
 delimiter ;.
 
 -- AuthKit instance-specific **REALM** forest configuration data (one or more DBs depending on you deployment needs)
+-- Name this database to meet your naming needs (this is for example only, `_gdi` is used as a specific instance name!)
 CREATE DATABASE `forest_idp_kit_gdi`
 CHARACTER SET 'utf8mb4'
 COLLATE 'utf8mb4_unicode_ci';.
@@ -66,6 +67,8 @@ Run SEED script from here [akit-seed-tree-tables.sql](/src/providers/Azos.AuthKi
 ---
 
 ## Create and Seed instance-specific **REALM** forest configuration data tables (`forest_idp_kit_gdi`, etc.)
+
+> Name this database to meet your naming needs (this is for example only, `_gdi` is used as a specific instance name!)
 
 ### 6. Create tables 
 
