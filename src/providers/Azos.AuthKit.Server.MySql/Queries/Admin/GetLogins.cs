@@ -29,6 +29,7 @@ namespace Azos.AuthKit.Server.MySql.Queries.Admin
 
       context.SetState(disclosePasswords);
       cmd.Parameters.AddWithValue("g_user", gUser);
+      cmd.Parameters.AddWithValue("realm", Ambient.CurrentCallSession.GetAtomDataContextName());
 
       cmd.CommandText = GetType().GetText("GetLogins.sql");
     }
