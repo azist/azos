@@ -31,4 +31,21 @@ namespace Azos.Scripting.Steps
     }
   }
 
+  /// <summary>
+  /// Emits a log message
+  /// </summary>
+  public sealed class See : Step
+  {
+    public See(StepRunner runner, IConfigSectionNode cfg, int idx) : base(runner, cfg, idx) { }
+
+    [Config] public string Text { get; set; }
+
+
+    protected override string DoRun(JsonDataMap state)
+    {
+      Conout.See(Text);
+      return null;
+    }
+  }
+
 }

@@ -23,27 +23,27 @@ namespace Azos.Scripting.Steps
       m_Config = cfg.NonEmpty(nameof(cfg));
       m_Order = order;
       ConfigAttribute.Apply(this, m_Config);
+      if (m_Name.IsNullOrWhiteSpace()) m_Name = Guid.NewGuid().ToString();
     }
 
+    private readonly string m_Name;
+    private readonly int m_Order;
     private readonly StepRunner m_Runner;
     private readonly IConfigSectionNode m_Config;
-    private readonly int m_Order;
 
     public StepRunner         Runner => m_Runner;
     public IApplication       App    => Runner.App;
     public IConfigSectionNode Config => m_Config;
 
     /// <summary>
+    /// Gives a mnemonic name for a step
+    /// </summary>
+    public string Name => m_Name;
+
+    /// <summary>
     /// Step ordinal index in parent script, a step number is zero-based
     /// </summary>
     public int                Order  => m_Order;
-
-
-    /// <summary>
-    /// Gives a mnemonic name for a step
-    /// </summary>
-    [Config] public string Name { get; set; }
-
 
     /// <summary>
     /// State is maintained between steps during a run instance as Step instances are not retained

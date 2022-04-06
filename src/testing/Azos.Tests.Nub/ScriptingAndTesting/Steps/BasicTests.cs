@@ -24,11 +24,8 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Steps
         //so we set it in the root of run step section for all child section down below
         type-path='Azos.Scripting.Steps, Azos'
 
-        step{ type='Log' text='Step number one'}
-        step{ type='Log' text='Step number two'}
-
-
-
+        step{ type='See' text='Step number one'}
+        step{ type='See' text='Step number two'}
       }
     ";
 
