@@ -18,7 +18,7 @@ namespace Azos.Scripting.Steps
   {
     public Log(StepRunner runner, IConfigSectionNode cfg, int idx) : base(runner, cfg, idx){ }
 
-    [Config] public Azos.Log.MessageType Type{ get; set;}
+    [Config] public Azos.Log.MessageType MsgType{ get; set;}
     [Config] public string From { get; set; }
     [Config] public string Text { get; set; }
     [Config] public string Pars { get; set; }
@@ -26,7 +26,7 @@ namespace Azos.Scripting.Steps
 
     protected override string DoRun(JsonDataMap state)
     {
-      WriteLog(Type, From, Text, null, null, Pars);
+      WriteLog(MsgType, From, Text, null, null, Pars);
       return null;
     }
   }
