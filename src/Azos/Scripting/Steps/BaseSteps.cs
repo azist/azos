@@ -22,7 +22,11 @@ namespace Azos.Scripting.Steps
       m_Runner.App.InjectInto(this);
       m_Config = cfg.NonEmpty(nameof(cfg));
       m_Name = cfg.ValOf(Configuration.CONFIG_NAME_ATTR);
-      if (m_Name.IsNullOrWhiteSpace()) m_Name = Guid.NewGuid().ToString();
+      if (m_Name.IsNullOrWhiteSpace())
+      {
+        if (this is EntryPoint) throw new RunnerException($"Missing a required declared name for an entry point at [{order}]");
+        m_Name = Guid.NewGuid().ToString();
+      }
       m_Order = order;
 
       ConfigAttribute.Apply(this, m_Config);

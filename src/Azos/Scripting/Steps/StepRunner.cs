@@ -25,6 +25,9 @@ namespace Azos.Scripting.Steps
     public const string CONFIG_STEP_SECTION = "step";
     public const double DEFAULT_TIMEOUT_SEC = 60.0d;
 
+
+    public sealed class HaltSignal : Exception { }
+
     public StepRunner(IApplication app, IConfigSectionNode rootSource)
     {
       m_App = app.NonNull(nameof(app));
@@ -56,10 +59,23 @@ namespace Azos.Scripting.Steps
     /// </summary>
     public JsonDataMap GlobalState => m_GlobalState;
 
+
     /// <summary>
-    /// Executes the whole script. The <see cref="GlobalState"/> is NOT cleared automatically
+    /// Executes the whole script. The <see cref="GlobalState"/> is NOT cleared automatically.
+    /// Returns local state JsonDataMap (private to this run invocation)
     /// </summary>
-    public virtual void Run()
+    /// <param name="ep">EntryPoint instance</param>
+    public virtual JsonDataMap Run(EntryPoint ep)
+    {
+      return this.Run(ep.NonNull(nameof(ep)).Name);
+    }
+
+    /// <summary>
+    /// Executes the whole script. The <see cref="GlobalState"/> is NOT cleared automatically.
+    /// Returns local state JsonDataMap (private to this run invocation)
+    /// </summary>
+    /// <param name="entryPointStep">Name of step to start execution at, null by default - starts from the very first step</param>
+    public virtual JsonDataMap Run(string entryPointStep = null)
     {
       Exception error = null;
       JsonDataMap state = null;
@@ -80,7 +96,16 @@ namespace Azos.Scripting.Steps
         var secTimeout = TimeoutSec;
         if (secTimeout <= 0.0) secTimeout = DEFAULT_TIMEOUT_SEC;
 
-        for(var ip=0; ip < script.Count;)
+        var ip = 0;
+        if (entryPointStep.IsNotNullOrWhiteSpace())
+        {
+          var ep = script[entryPointStep];
+          if (ep==null) throw new RunnerException($"Entry point step `{entryPointStep}` was not found");
+          if (!(ep is EntryPoint)) throw new RunnerException($"Entry point step `{entryPointStep}` is not of a valid EntryPoint type");
+          ip = ep.Order;
+        }
+
+        while(ip < script.Count)
         {
           if (time.ElapsedSec > secTimeout)
           {
@@ -107,11 +132,16 @@ namespace Azos.Scripting.Steps
       }
       catch(Exception cause)
       {
-        error = cause;
+        if (!(cause is HaltSignal))
+        {
+          error = cause;
+        }
       }
 
       var handled = DoAfterRun(error, state);
-      if (!handled && error!=null) throw error;
+      if (!handled && error != null) throw error;
+
+      return state;
     }
 
     /// <summary>
@@ -155,6 +185,11 @@ namespace Azos.Scripting.Steps
         }
       }
     }
+
+    /// <summary>
+    /// Returns explicit entry point names
+    /// </summary>
+    public IEnumerable<EntryPoint> EntryPoints => Steps.OfType<EntryPoint>();
 
     /// <summary>
     /// Writes a log message for this runner; returns the new log msg GDID for correlation, or GDID.Empty if no message was logged.

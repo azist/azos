@@ -44,7 +44,7 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Steps
 
         step{ type='See' text='Step number one' name='loop'} //loop label
         step{ type='See' text='Step number two'}
-        step{ type='Goto' goto-name='loop' name='goto1'} 
+        step{ type='Goto' goto-name='loop' name='goto1'}
       }
     ";
 
