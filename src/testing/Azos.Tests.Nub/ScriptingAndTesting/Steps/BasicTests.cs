@@ -35,5 +35,26 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Steps
        var runnable = new StepRunner(NOPApplication.Instance, S1.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
        runnable.Run();
     }
+
+    public const string S2 = @"
+      script
+      {
+        type-path='Azos.Scripting.Steps, Azos'
+        timeout-sec=0.25
+
+        step{ type='See' text='Step number one' name='loop'} //loop label
+        step{ type='See' text='Step number two'}
+        step{ type='Goto' goto-name='loop' name='goto1'} 
+      }
+    ";
+
+    [Run]
+    [Aver.Throws(typeof(RunnerException), Message = "Timeout")]
+    [Aver.RunTime(MaxSec = 0.634)]
+    public void Test2()
+    {
+      var runnable = new StepRunner(NOPApplication.Instance, S2.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+      runnable.Run();
+    }
   }
 }

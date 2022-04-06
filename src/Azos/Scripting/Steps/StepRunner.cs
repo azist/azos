@@ -11,6 +11,7 @@ using System.Text;
 using Azos.Collections;
 using Azos.Conf;
 using Azos.Serialization.JSON;
+using Azos.Time;
 
 namespace Azos.Scripting.Steps
 {
@@ -22,6 +23,7 @@ namespace Azos.Scripting.Steps
   public class StepRunner
   {
     public const string CONFIG_STEP_SECTION = "step";
+    public const double DEFAULT_TIMEOUT_SEC = 60.0d;
 
     public StepRunner(IApplication app, IConfigSectionNode rootSource)
     {
@@ -38,6 +40,10 @@ namespace Azos.Scripting.Steps
     /// Application context that this runner operates under
     /// </summary>
     public IApplication App => m_App;
+
+
+    [Config]
+    public virtual double TimeoutSec {  get; set; }
 
     /// <summary>
     /// Defines log Level
@@ -63,24 +69,41 @@ namespace Azos.Scripting.Steps
 
         OrderedRegistry<Step> script = new OrderedRegistry<Step>();
 
-        Steps.ForEach(s => script.Register(s).IsTrue($"Duplicate step `{s.Name}`"));
+        Steps.ForEach(s => {
+
+          var added = script.Register(s);
+
+          if (!added) throw new RunnerException($"Duplicate runnable script step `{s.Name}` at '{s.Config.RootPath}'");
+        });
+
+        var time = Timeter.StartNew();
+        var secTimeout = TimeoutSec;
+        if (secTimeout <= 0.0) secTimeout = DEFAULT_TIMEOUT_SEC;
 
         for(var ip=0; ip < script.Count;)
         {
+          if (time.ElapsedSec > secTimeout)
+          {
+            throw new RunnerException("Timeout at {0} sec on [{1}]".Args(time.ElapsedSec, ip));
+          }
+
           var step = script[ip];
-          var nextName = step.Run(state);
-          if (nextName.IsNullOrWhiteSpace())
+
+          //----------------------------
+          var nextStepName = step.Run(state); //<----------- RUN
+          //----------------------------
+
+          if (nextStepName.IsNullOrWhiteSpace())
           {
             ip++;
           }
           else
           {
-            var next = script[nextName];
-            next.NonNull($"Step not found: `{nextName}`");
+            var next = script[nextStepName];
+            if (next==null) throw new RunnerException($"Step not found: `{nextStepName}` by {step}");
             ip = next.Order;
           }
-        }
-
+        }//for
       }
       catch(Exception cause)
       {

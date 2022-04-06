@@ -21,9 +21,11 @@ namespace Azos.Scripting.Steps
       m_Runner = runner.NonNull(nameof(runner));
       m_Runner.App.InjectInto(this);
       m_Config = cfg.NonEmpty(nameof(cfg));
-      m_Order = order;
-      ConfigAttribute.Apply(this, m_Config);
+      m_Name = cfg.ValOf(Configuration.CONFIG_NAME_ATTR);
       if (m_Name.IsNullOrWhiteSpace()) m_Name = Guid.NewGuid().ToString();
+      m_Order = order;
+
+      ConfigAttribute.Apply(this, m_Config);
     }
 
     private readonly string m_Name;
@@ -82,38 +84,12 @@ namespace Azos.Scripting.Steps
                                                [System.Runtime.CompilerServices.CallerFilePath]string file = null,
                                                [System.Runtime.CompilerServices.CallerLineNumber]int src = 0)
     {
-      if (Name.IsNotNullOrWhiteSpace())
-      {
-        from = $"Step: `{Name}`[{Order}].{from}";
-      }
-      else
-      {
-        from = $"Step: [{Order}].{from}";
-      }
-
+      from = $"{this}.{from}";
       return Runner.WriteLog(type, from, text, error, related, pars, file, src);
     }
+
+    public override string ToString() => $"Step(`{Name}`, [{Order}], '{Config.RootPath}')";
   }
 
-
-  /// <summary>
-  /// Emits a log message
-  /// </summary>
-  public sealed class LogStep : Step
-  {
-    public LogStep(StepRunner runner, IConfigSectionNode cfg, int idx) : base(runner, cfg, idx){ }
-
-    [Config] public Azos.Log.MessageType Type{ get; set;}
-    [Config] public string From { get; set; }
-    [Config] public string Text { get; set; }
-    [Config] public string Pars { get; set; }
-
-
-    protected override string DoRun(JsonDataMap state)
-    {
-      WriteLog(Type, From, Text, null, null, Pars);
-      return null;
-    }
-  }
 
 }
