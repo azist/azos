@@ -8,11 +8,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
+using Azos.Collections;
 using Azos.Conf;
 using Azos.Serialization.JSON;
 
-namespace Azos.Scripting
+namespace Azos.Scripting.Steps
 {
   /// <summary>
   /// Facilitates invocation of C# Steps from a script file in sequence.
@@ -40,6 +40,12 @@ namespace Azos.Scripting
     public IApplication App => m_App;
 
     /// <summary>
+    /// Defines log Level
+    /// </summary>
+    [Config]
+    public virtual Azos.Log.MessageType LogLevel {  get; set; }
+
+    /// <summary>
     /// Runner global state, does not get reset between runs (unless you re-set it by step)
     /// </summary>
     public JsonDataMap GlobalState => m_GlobalState;
@@ -55,9 +61,24 @@ namespace Azos.Scripting
       {
         state = DoBeforeRun();
 
-        foreach(var step in Steps)
+        OrderedRegistry<Step> script = new OrderedRegistry<Step>();
+
+        Steps.ForEach(s => script.Register(s).IsTrue($"Duplicate step `{s.Name}`"));
+
+        for(var ip=0; ip < script.Count;)
         {
-          step.Run(state);
+          var step = script[ip];
+          var nextName = step.Run(state);
+          if (nextName.IsNullOrWhiteSpace())
+          {
+            ip++;
+          }
+          else
+          {
+            var next = script[nextName];
+            next.NonNull($"Step not found: `{nextName}`");
+            ip = next.Order;
+          }
         }
 
       }
@@ -99,6 +120,57 @@ namespace Azos.Scripting
     /// Returns materialized steps of <see cref="StepSections"/>
     /// </summary>
     public virtual IEnumerable<Step> Steps
-      => StepSections.Select(cn => FactoryUtils.Make<Step>(cn, null, new object[]{this, cn} ));
+    {
+      get
+      {
+        var i = 0;
+        foreach(var nstep in StepSections)
+        {
+          var step = FactoryUtils.Make<Step>(nstep, null, new object[] { this, nstep, i });
+          yield return step;
+          i++;
+        }
+      }
+    }
+
+    /// <summary>
+    /// Writes a log message for this runner; returns the new log msg GDID for correlation, or GDID.Empty if no message was logged.
+    /// The file/src are only used if `from` is null/blank
+    /// </summary>
+    protected internal virtual Guid WriteLog(Azos.Log.MessageType type,
+                                               string from,
+                                               string text,
+                                               Exception error = null,
+                                               Guid? related = null,
+                                               string pars = null,
+                                               [System.Runtime.CompilerServices.CallerFilePath]string file = null,
+                                               [System.Runtime.CompilerServices.CallerLineNumber]int src = 0)
+    {
+      if (type < LogLevel) return Guid.Empty;
+
+      if (from.IsNullOrWhiteSpace())
+        from = "{0}:{1}".Args(file.IsNotNullOrWhiteSpace() ? System.IO.Path.GetFileName(file) : "?", src);
+
+      var msg = new Azos.Log.Message
+      {
+        App = App.AppId,
+        Topic = CoreConsts.RUN_TOPIC,
+        From = "{0}.{1}".Args(GetType().DisplayNameWithExpandedGenericArgs(), from),
+        Type = type,
+        Text = text,
+        Exception = error,
+        Parameters = pars,
+        Source = src
+      };
+
+      msg.InitDefaultFields(App);
+
+      if (related.HasValue) msg.RelatedTo = related.Value;
+
+      App.Log.Write(msg);
+
+      return msg.Guid;
+    }
+
   }
 }
