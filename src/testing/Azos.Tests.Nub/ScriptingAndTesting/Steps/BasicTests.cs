@@ -105,7 +105,7 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Steps
 
         do{ type='Set' global='x' to='100'}
         do{ type='See' text='Step number one' expression='global.x'}
-        do{ type='Set' global='x' to='global.x * 5'}
+        do{ type='Set' global='x' to='global.x * 5 + 37'}
         do{ type='See' text='But now it is: ' expression='global.x'}
       }
     ";
