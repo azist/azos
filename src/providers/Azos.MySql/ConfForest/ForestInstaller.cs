@@ -18,36 +18,12 @@ namespace Azos.MySql.ConfForest
   /// Facilitates the config forest setup functionality, such as running DDL backend store script,
   /// inserting seed data etc.
   /// </summary>
-  public class ForestInstaller
+  public class ForestInstaller : Multisource<StepRunner>
   {
-    public static ForestInstaller FromFile(IApplication app, string rootFilePath)
-    {
-      var cfg = Configuration.ProviderLoadFromFile(rootFilePath);
+    public ForestInstaller(IApplication app, string rootFilePath) : base(app, rootFilePath){ }
+    public ForestInstaller(IApplication app, IConfigSectionNode rootSource) : base(app, rootSource){ }
 
-      var includePragma = cfg.Root.AttrByName(Apps.CommonApplicationLogic.CONFIG_PROCESS_INCLUDES).Value;
-      if (includePragma.IsNotNullOrWhiteSpace())
-      {
-        cfg.Root.ProcessAllExistingIncludes(nameof(ForestInstaller), includePragma);
-      }
-
-      return new ForestInstaller(app, cfg.Root);
-    }
-
-    public ForestInstaller(IApplication app, IConfigSectionNode rootSource)
-    {
-      m_App = app.NonNull(nameof(app));
-      m_Runner = new StepRunner(m_App, rootSource.NonEmpty(nameof(rootSource)));
-    }
-
-    private IApplication m_App;
-
-    //will be used on StepRunner form Azos.Scripting
-    private StepRunner m_Runner;
-
-    public IApplication App => m_App;
-
-    public IEnumerable<EntryPoint> EntryPoints => m_Runner.EntryPoints;
-
-    public JsonDataMap Run(EntryPoint ep = null) => ep == null ? m_Runner.Run() : m_Runner.Run(ep);
+    protected override StepRunner MakeRunner(IConfigSectionNode rootSource)
+     => new StepRunner(App, rootSource);
   }
 }
