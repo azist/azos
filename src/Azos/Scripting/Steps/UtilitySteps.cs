@@ -5,9 +5,11 @@
 </FILE_LICENSE>*/
 
 using System;
+using System.Threading;
 using Azos.Collections;
 using Azos.Conf;
 using Azos.Serialization.JSON;
+using Azos.Time;
 
 namespace Azos.Scripting.Steps
 {
@@ -44,6 +46,29 @@ namespace Azos.Scripting.Steps
     protected override string DoRun(JsonDataMap state)
     {
       Conout.See(Text);
+      return null;
+    }
+  }
+
+  /// <summary>
+  /// Runs a step with a delay in seconds
+  /// </summary>
+  public sealed class Delay : Step
+  {
+    public Delay(StepRunner runner, IConfigSectionNode cfg, int idx) : base(runner, cfg, idx) { }
+
+    [Config] public double Seconds { get; set; }
+
+    protected override string DoRun(JsonDataMap state)
+    {
+      var secTimeout = Seconds;
+      if (secTimeout <= 0.0) secTimeout = 1.0;
+
+      var time = Timeter.StartNew();
+
+      while (time.ElapsedSec < secTimeout && Runner.IsRunning)
+        Thread.Sleep(100);
+
       return null;
     }
   }

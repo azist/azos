@@ -36,7 +36,7 @@ namespace Azos.MySql.ConfForest
     public ForestInstaller(IApplication app, IConfigSectionNode rootSource)
     {
       m_App = app.NonNull(nameof(app));
-      m_Runner = new StepRunner(m_App, null);
+      m_Runner = new StepRunner(m_App, rootSource.NonEmpty(nameof(rootSource)));
     }
 
     private IApplication m_App;
