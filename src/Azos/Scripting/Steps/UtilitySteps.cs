@@ -41,11 +41,19 @@ namespace Azos.Scripting.Steps
     public See(StepRunner runner, IConfigSectionNode cfg, int idx) : base(runner, cfg, idx) { }
 
     [Config] public string Text { get; set; }
+    [Config] public string Expression { get; set; }
 
 
     protected override string DoRun(JsonDataMap state)
     {
       Conout.See(Text);
+      if (Expression.IsNotNullOrWhiteSpace())
+      {
+        var eval = new Text.Evaluator(Expression);
+        var got = eval.Evaluate(id => Set.GetResolver(Runner, id, state));
+        Conout.See(got);
+      }
+
       return null;
     }
   }

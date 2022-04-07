@@ -24,8 +24,8 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Steps
         //so we set it in the root of run step section for all child section down below
         type-path='Azos.Scripting.Steps, Azos'
 
-        step{ type='See' text='Step number one'}
-        step{ type='See' text='Step number two'}
+        do{ type='See' text='Step number one'}
+        do{ type='See' text='Step number two'}
       }
     ";
 
@@ -42,9 +42,9 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Steps
         type-path='Azos.Scripting.Steps, Azos'
         timeout-sec=0.25
 
-        step{ type='See' text='Step number one' name='loop'} //loop label
-        step{ type='See' text='Step number two'}
-        step{ type='Goto' label='loop' name='goto1'}
+        do{ type='See' text='Step number one' name='loop'} //loop label
+        do{ type='See' text='Step number two'}
+        do{ type='Goto' label='loop' name='goto1'}
       }
     ";
 
@@ -56,5 +56,66 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Steps
       var runnable = new StepRunner(NOPApplication.Instance, S2.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
       runnable.Run();
     }
+
+
+    public const string S3 = @"
+      script
+      {
+        type-path='Azos.Scripting.Steps, Azos'
+        timeout-sec=0.25
+
+       // do{ type='Set' global='x' to='global.x + 1'}
+
+       // do{ type='See' text='Step number one $(~Global.x)' }
+
+
+        do{ type='See' text='Step number one' }
+        do{ type='Call' sub='sub1'}
+        do{ type='See' text='Step number two'}
+        do{ type='Call' sub='sub1'}
+        do{ type='Halt'}
+
+        do
+        {
+          type='Sub' name='sub1'
+          source
+          {
+            do{ type='See' text='Sub 1 says 1' }
+            do{ type='See' text='Sub 1 says 2' }
+            do{ type='See' text='Sub 1 says 3' }
+            do{ type='Halt'}
+          }
+        }
+
+      }
+    ";
+
+    [Run]
+    public void Test3()
+    {
+      var runnable = new StepRunner(NOPApplication.Instance, S3.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+      runnable.Run("SUB1");
+    }
+
+
+    public const string S4 = @"
+      script
+      {
+        type-path='Azos.Scripting.Steps, Azos'
+
+        do{ type='Set' global='x' to='100'}
+        do{ type='See' text='Step number one' expression='global.x'}
+        do{ type='Set' global='x' to='global.x * 5'}
+        do{ type='See' text='But now it is: ' expression='global.x'}
+      }
+    ";
+
+    [Run]
+    public void Test4()
+    {
+      var runnable = new StepRunner(NOPApplication.Instance, S4.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+      runnable.Run();
+    }
+
   }
 }

@@ -27,7 +27,7 @@ namespace Azos.Scripting.Steps
   /// </summary>
   public class StepRunner
   {
-    public const string CONFIG_STEP_SECTION = "step";
+    public const string CONFIG_STEP_SECTION = "do";
     public const double DEFAULT_TIMEOUT_SEC = 60.0d;
 
 
@@ -168,23 +168,19 @@ namespace Azos.Scripting.Steps
         }
       }
 
+      var handled = false;
+      m_CrashError = error;
+
       try
       {
-        m_CrashError = error;
-
-        var handled = DoAfterRun(error, state);
-        if (!handled && error != null)
-        {
-          m_Status = RunStatus.Crashed;
-          throw error;
-        }
+        handled = DoAfterRun(error, state);
       }
       catch(Exception errorFromAfter)
       {
         m_Status = RunStatus.Crashed;
         if (error != null)
         {
-          m_CrashError =  new AggregateException($"{nameof(DoAfterRun)} leaked", error, errorFromAfter);
+          m_CrashError =  new AggregateException($"{nameof(DoAfterRun)} leaked:\n {error.ToMessageWithType()} \n and \n {errorFromAfter.ToMessageWithType()}", error, errorFromAfter);
           throw m_CrashError;
         }
         else
@@ -192,6 +188,12 @@ namespace Azos.Scripting.Steps
           m_CrashError = errorFromAfter;
           throw;
         }
+      }
+
+      if (!handled && error != null)
+      {
+        m_Status = RunStatus.Crashed;
+        throw error;
       }
 
       if (IsRunning) m_Status = RunStatus.Finished;
