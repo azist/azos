@@ -5,6 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
+
 using Azos.Collections;
 using Azos.Conf;
 using Azos.Serialization.JSON;
@@ -14,10 +15,33 @@ namespace Azos.Scripting.Steps
   /// <summary>
   /// Defines an entry point. Entry points need to be used as independently-addressable steps which execution can start from
   /// </summary>
-  public sealed class EntryPoint : Step
+  public class EntryPoint : Step
   {
     public EntryPoint(StepRunner runner, IConfigSectionNode cfg, int idx) : base(runner, cfg, idx) { }
     protected override string DoRun(JsonDataMap state) => null;
+  }
+
+  /// <summary>
+  /// Defines a subroutine which is a StepRunner tree
+  /// </summary>
+  public sealed class Sub : EntryPoint
+  {
+    public const string CONFIG_SOURCE_SECTION = "source";
+
+    public Sub(StepRunner runner, IConfigSectionNode cfg, int idx) : base(runner, cfg, idx)
+    {
+      var nSource = cfg[CONFIG_SOURCE_SECTION].NonEmpty($"child section `/{CONFIG_SOURCE_SECTION}`");
+      m_Body = FactoryUtils.Make<StepRunner>(nSource, typeof(StepRunner), new object[]{ runner.App, nSource, runner.GlobalState });
+    }
+
+    private StepRunner m_Body;
+
+    protected override string DoRun(JsonDataMap state)
+    {
+      var local = m_Body.Run();
+      state.Append(local, deep: true);
+      return null;
+    }
   }
 
 
@@ -37,11 +61,29 @@ namespace Azos.Scripting.Steps
   {
     public Goto(StepRunner runner, IConfigSectionNode cfg, int idx) : base(runner, cfg, idx) { }
 
-    [Config] public string GotoName { get; set; }
+    [Config] public string Label { get; set; }
 
     protected override string DoRun(JsonDataMap state)
     {
-      return GotoName;
+      return Label;
+    }
+  }
+
+  /// <summary>
+  /// Calls a subroutine
+  /// </summary>
+  public sealed class Call : Step
+  {
+    public Call(StepRunner runner, IConfigSectionNode cfg, int idx) : base(runner, cfg, idx) { }
+
+    [Config] public string Sub { get; set; }
+
+    protected override string DoRun(JsonDataMap state)
+    {
+      Sub.NonBlank("call sub name");
+      var inner = new StepRunner(App, Runner.RootSource, Runner.GlobalState);
+      inner.Run(Sub);
+      return null;
     }
   }
 

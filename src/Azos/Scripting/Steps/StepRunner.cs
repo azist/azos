@@ -33,16 +33,17 @@ namespace Azos.Scripting.Steps
 
     public sealed class HaltSignal : Exception { }
 
-    public StepRunner(IApplication app, IConfigSectionNode rootSource)
+    public StepRunner(IApplication app, IConfigSectionNode rootSource, JsonDataMap globalState = null)
     {
       m_App = app.NonNull(nameof(app));
       m_RootSource = rootSource.NonEmpty(nameof(rootSource));
+      m_GlobalState = globalState ?? new JsonDataMap(true);
       ConfigAttribute.Apply(this, m_RootSource);
     }
 
     private RunStatus m_Status = RunStatus.Init;
     private IApplication m_App;
-    private JsonDataMap m_GlobalState = new JsonDataMap(true);
+    private JsonDataMap m_GlobalState;
     private IConfigSectionNode m_RootSource;
     private Exception m_CrashError; protected void _SetCrashError(Exception ce) => m_CrashError = ce;
 
@@ -51,6 +52,11 @@ namespace Azos.Scripting.Steps
     /// </summary>
     public IApplication App => m_App;
 
+
+    /// <summary>
+    /// Root source of this script
+    /// </summary>
+    public IConfigSectionNode RootSource => m_RootSource;
 
     [Config]
     public virtual double TimeoutSec {  get; set; }
