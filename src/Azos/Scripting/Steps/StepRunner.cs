@@ -144,9 +144,18 @@ namespace Azos.Scripting.Steps
 
           var step = script[ip];
 
-          //----------------------------
-          var nextStepName = step.Run(state); //<----------- RUN
-          //----------------------------
+          string nextStepName = null;
+          try
+          {
+            //----------------------------
+            nextStepName = step.Run(state); //<----------- RUN
+            //----------------------------
+          }
+          catch(Exception inner)
+          {
+            if (inner is HaltSignal) throw;
+            throw new RunnerException($"Error on step {step}: {inner.ToMessageWithType()}", inner);
+          }
 
           if (nextStepName.IsNullOrWhiteSpace())
           {

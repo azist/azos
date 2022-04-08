@@ -18,7 +18,7 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Steps
   [Runnable]
   public class BasicTests
   {
-    public const string S1 = @"
+    public const string SEE = @"
       script
       {
         //We do not want to repeat this part in various type references down below,
@@ -31,13 +31,13 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Steps
     ";
 
     [Run]
-    public void Test1()
+    public void TestSee()
     {
-       var runnable = new StepRunner(NOPApplication.Instance, S1.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+       var runnable = new StepRunner(NOPApplication.Instance, SEE.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
        runnable.Run();
     }
 
-    public const string S2 = @"
+    public const string GOTO = @"
       script
       {
         type-path='Azos.Scripting.Steps, Azos'
@@ -52,14 +52,14 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Steps
     [Run]
     [Aver.Throws(typeof(RunnerException), Message = "Timeout")]
     [Aver.RunTime(MaxSec = 0.634)]
-    public void Test2()
+    public void TestGoto()
     {
-      var runnable = new StepRunner(NOPApplication.Instance, S2.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+      var runnable = new StepRunner(NOPApplication.Instance, GOTO.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
       runnable.Run();
     }
 
 
-    public const string S3 = @"
+    public const string SUBS = @"
       script
       {
         type-path='Azos.Scripting.Steps, Azos'
@@ -92,14 +92,14 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Steps
     ";
 
     [Run]
-    public void Test3()
+    public void TestSubs()
     {
-      var runnable = new StepRunner(NOPApplication.Instance, S3.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+      var runnable = new StepRunner(NOPApplication.Instance, SUBS.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
       runnable.Run("SUB1");
     }
 
 
-    public const string S4 = @"
+    public const string EXPR = @"
       script
       {
         type-path='Azos.Scripting.Steps, Azos'
@@ -112,31 +112,89 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Steps
     ";
 
     [Run]
-    public void Test4()
+    public void TestExpressions()
     {
-      var runnable = new StepRunner(NOPApplication.Instance, S4.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+      var runnable = new StepRunner(NOPApplication.Instance, EXPR.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
       runnable.Run();
       Aver.AreEqual(2_100, runnable.GlobalState["x"].AsInt());
     }
 
 
-    public const string S5 = @"
+    public const string STRCONCAT = @"
       script
       {
         type-path='Azos.Scripting.Steps, Azos'
 
-        do{ type='Set' global='who' to='Sonya'}
-        do{ type='Set' global='who' to='global.who + Mamzyan'}
+        do{ type='Set' global='who' to='\'Sonya\''}
+        do{ type='Set' global='who' to='global.who + \' Mamzyan\''}
         do{ type='See' format='Hello, {~global.who}'}
       }
     ";
 
     [Run]
-    public void Test5()
+    public void TestStringConcat()
     {
-      var runnable = new StepRunner(NOPApplication.Instance, S5.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+      var runnable = new StepRunner(NOPApplication.Instance, STRCONCAT.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
       runnable.Run();
       Aver.AreEqual("Sonya Mamzyan", runnable.GlobalState["who"].AsString());
+    }
+
+    public const string IF = @"
+      script
+      {
+        type-path='Azos.Scripting.Steps, Azos'
+
+        do{ type='Set' global='fuel' to='5.2'}
+        do
+        {
+           type='If' condition='global.fuel < 5'
+           then
+           {
+             do{ type='Set' global='capacity' to='\'low\''}
+           }
+           else
+           {
+             do{ type='Set' global='capacity' to='\'normal\''}
+           }
+
+        }
+        do{ type='See' format='Fuel capacity is {~global.fuel} is {~global.capacity}'}
+      }
+    ";
+
+    [Run]
+    public void TestIf()
+    {
+      var runnable = new StepRunner(NOPApplication.Instance, IF.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+      runnable.Run();
+      Aver.AreEqual("normal", runnable.GlobalState["capacity"].AsString());
+    }
+
+
+    public const string VARSCOPE = @"
+      script
+      {
+        type-path='Azos.Scripting.Steps, Azos'
+
+        do{ type='Set' global='x' to='1'}
+        do{ type='Set' global='y' to='2'}
+        do{ type='Set' local='x' to='-1'}
+        do{ type='Set' local='y' to='-2'}
+
+        do{ type='Set' global='z' local='z' to='global.y * local.x'}
+
+        do{ type='See' format='The global result is: {~global.z}'}
+        do{ type='See' format='The local result is: {~local.z}'}
+      }
+    ";
+
+    [Run]
+    public void TestVarScope()
+    {
+      var runnable = new StepRunner(NOPApplication.Instance, VARSCOPE.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+      var state = runnable.Run();
+      Aver.AreEqual(-2, runnable.GlobalState["z"].AsInt());
+      Aver.AreEqual(-2, state["z"].AsInt());
     }
 
   }

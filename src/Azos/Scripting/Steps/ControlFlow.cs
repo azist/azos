@@ -8,7 +8,9 @@ using System;
 
 using Azos.Collections;
 using Azos.Conf;
+using Azos.Data;
 using Azos.Serialization.JSON;
+using Azos.Text;
 
 namespace Azos.Scripting.Steps
 {
@@ -83,6 +85,41 @@ namespace Azos.Scripting.Steps
       Sub.NonBlank("call sub name");
       var inner = new StepRunner(App, Runner.RootSource, Runner.GlobalState);
       inner.Run(Sub);
+      return null;
+    }
+  }
+
+
+  /// <summary>
+  /// If statement
+  /// </summary>
+  public sealed class If : Step
+  {
+    public If(StepRunner runner, IConfigSectionNode cfg, int idx) : base(runner, cfg, idx) { }
+
+    [Config] public string Condition { get; set; }
+    [Config("then")] public IConfigSectionNode Then { get; set; }
+    [Config("else")] public IConfigSectionNode Else { get; set; }
+
+    protected override string DoRun(JsonDataMap state)
+    {
+      Condition.NonBlank("condition");
+      var eval = new Evaluator(Condition);
+      var got = eval.Evaluate(id => StepRunnerVarResolver.GetResolver(Runner, id, state)).AsBool();
+
+      if (got)
+      {
+        Then.NonEmpty(nameof(Then));
+        var then = new StepRunner(App, Then, Runner.GlobalState);
+        then.Run();
+      }
+      else
+      {
+        Else.NonEmpty(nameof(Else));
+        var @else = new StepRunner(App, Else, Runner.GlobalState);
+        @else.Run();
+      }
+
       return null;
     }
   }

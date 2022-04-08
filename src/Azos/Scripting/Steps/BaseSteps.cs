@@ -92,7 +92,7 @@ namespace Azos.Scripting.Steps
       return Runner.WriteLog(type, from, text, error, related, pars, file, src);
     }
 
-    public override string ToString() => $"Step(`{Name}`, [{Order}], '{Config.RootPath}')";
+    public override string ToString() => $"{GetType().Name}(`{Name}`, [{Order}], '{Config.RootPath}')";
   }
 
 

@@ -74,7 +74,7 @@ namespace Azos.Scripting.Steps
   public sealed class StepRunnerVarResolver : IEnvironmentVariableResolver
   {
     /// <summary>
-    /// Expands a format string of a form: "Hello {~global.name}, see you in {~x} minutes!"
+    /// Expands a format string of a form: "Hello {~global.name}, see you in {~local.x} minutes!"
     /// </summary>
     public static string FormatString(string fmt, StepRunner runner, JsonDataMap state)
     {
@@ -89,15 +89,13 @@ namespace Azos.Scripting.Steps
     public static string GetResolver(StepRunner runner, string ident, JsonDataMap state)
     {
       if (ident.IsNullOrWhiteSpace()) return ident;
-   Conout.SeeArgs("Ident: {0}", ident);
-   Conout.See(runner.GlobalState);
       if (double.TryParse(ident, out var _)) return ident;
 
       var pair = ident.SplitKVP('.');
       if (pair.Key == Set.GLOBAL)
         return runner.GlobalState[pair.Value.Default(Set.UNKNOWN)].AsString();
       else if (pair.Key == Set.LOCAL)
-        return state[ident].AsString();
+        return state[pair.Value.Default(Set.UNKNOWN)].AsString();
       else return ident;
     }
 
@@ -115,7 +113,6 @@ namespace Azos.Scripting.Steps
     {
       var eval = new Evaluator(name);
       value = eval.Evaluate(id => GetResolver(Runner, id, State));
-      //value = GetResolver(Runner, name, State);
       return true;
     }
   }
