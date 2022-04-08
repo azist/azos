@@ -119,5 +119,25 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Steps
       Aver.AreEqual(2_100, runnable.GlobalState["x"].AsInt());
     }
 
+
+    public const string S5 = @"
+      script
+      {
+        type-path='Azos.Scripting.Steps, Azos'
+
+        do{ type='Set' global='who' to='""Sonya""'}
+        do{ type='Set' global='who' to='global.who + "" Mamzyan""'}
+        do{ type='See' format='Hello, {~global.who}'}
+      }
+    ";
+
+    [Run]
+    public void Test5()
+    {
+      var runnable = new StepRunner(NOPApplication.Instance, S5.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+      runnable.Run();
+      Aver.AreEqual("Sonya Mamzyan", runnable.GlobalState["who"].AsString());
+    }
+
   }
 }
