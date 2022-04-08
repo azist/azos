@@ -28,6 +28,7 @@ namespace Azos.Scripting.Steps
     public const string CONFIG_LOCAL_ATTR = "local";
 
     public const string GLOBAL = "global";
+    public const string LOCAL = "local";
     public const string UNKNOWN = "unknown";
 
 
@@ -88,15 +89,16 @@ namespace Azos.Scripting.Steps
     public static string GetResolver(StepRunner runner, string ident, JsonDataMap state)
     {
       if (ident.IsNullOrWhiteSpace()) return ident;
-  // Conout.SeeArgs("Ident: {0}", ident);
-  // Conout.See(runner.GlobalState);
+   Conout.SeeArgs("Ident: {0}", ident);
+   Conout.See(runner.GlobalState);
       if (double.TryParse(ident, out var _)) return ident;
 
       var pair = ident.SplitKVP('.');
       if (pair.Key == Set.GLOBAL)
         return runner.GlobalState[pair.Value.Default(Set.UNKNOWN)].AsString();
-      else
+      else if (pair.Key == Set.LOCAL)
         return state[ident].AsString();
+      else return ident;
     }
 
 

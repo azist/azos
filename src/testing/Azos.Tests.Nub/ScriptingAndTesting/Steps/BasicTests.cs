@@ -125,8 +125,8 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Steps
       {
         type-path='Azos.Scripting.Steps, Azos'
 
-        do{ type='Set' global='who' to='""Sonya""'}
-        do{ type='Set' global='who' to='global.who + "" Mamzyan""'}
+        do{ type='Set' global='who' to='Sonya'}
+        do{ type='Set' global='who' to='global.who + Mamzyan'}
         do{ type='See' format='Hello, {~global.who}'}
       }
     ";
