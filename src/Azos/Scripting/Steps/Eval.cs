@@ -10,6 +10,7 @@ using Azos.Collections;
 using Azos.Conf;
 using Azos.Data;
 using Azos.Serialization.JSON;
+using Azos.Text;
 
 namespace Azos.Scripting.Steps
 {
@@ -50,7 +51,7 @@ namespace Azos.Scripting.Steps
 
     protected override string DoRun(JsonDataMap state)
     {
-      var got = m_Eval.Evaluate(id => GetResolver(Runner, id, state));
+      var got = m_Eval.Evaluate(id => StepRunnerVarResolver.GetResolver(Runner, id, state));
 
       if (m_Global.IsNotNullOrWhiteSpace())
       {
@@ -64,6 +65,22 @@ namespace Azos.Scripting.Steps
 
       return null;
     }
+  }
+
+  /// <summary>
+  /// Format:  Hello $(~x), my name is $(~global.y)!
+  /// </summary>
+  public sealed class StepRunnerVarResolver : IEnvironmentVariableResolver
+  {
+    /// <summary>
+    /// Expands a format string of a form: "Hello {~global.name}, see you in {~x} minutes!"
+    /// </summary>
+    public static string FormatString(string fmt, StepRunner runner, JsonDataMap state)
+    {
+      if (fmt.IsNullOrWhiteSpace()) return fmt;
+      return fmt.EvaluateVars(new StepRunnerVarResolver(runner, state), varStart: "{", varEnd: "}");
+    }
+
 
     /// <summary>
     /// Resolves `global.x` to `Runner.Globals[x]` otherwise to `state[x]`
@@ -71,16 +88,35 @@ namespace Azos.Scripting.Steps
     public static string GetResolver(StepRunner runner, string ident, JsonDataMap state)
     {
       if (ident.IsNullOrWhiteSpace()) return ident;
-     // Conout.SeeArgs("Ident: {0}", ident);
-     // Conout.See(runner.GlobalState);
+  // Conout.SeeArgs("Ident: {0}", ident);
+  // Conout.See(runner.GlobalState);
       if (double.TryParse(ident, out var _)) return ident;
 
       var pair = ident.SplitKVP('.');
-      if (pair.Key == GLOBAL)
-        return runner.GlobalState[pair.Value.Default(UNKNOWN)].AsString();
+      if (pair.Key == Set.GLOBAL)
+        return runner.GlobalState[pair.Value.Default(Set.UNKNOWN)].AsString();
       else
         return state[ident].AsString();
     }
+
+
+    public StepRunnerVarResolver(StepRunner runner, JsonDataMap state)
+    {
+      Runner = runner.NonNull(nameof(runner));
+      State = state.NonNull(nameof(state));
+    }
+
+    public readonly StepRunner Runner;
+    public readonly JsonDataMap State;
+
+    public bool ResolveEnvironmentVariable(string name, out string value)
+    {
+      var eval = new Evaluator(name);
+      value = eval.Evaluate(id => GetResolver(Runner, id, State));
+      //value = GetResolver(Runner, name, State);
+      return true;
+    }
   }
+
 
 }

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Text;
 
 using Azos.Apps;
+using Azos.Data;
 using Azos.Scripting;
 using Azos.Scripting.Steps;
 
@@ -104,9 +105,9 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Steps
         type-path='Azos.Scripting.Steps, Azos'
 
         do{ type='Set' global='x' to='100'}
-        do{ type='See' text='Step number one' expression='global.x'}
-        do{ type='Set' global='x' to='global.x * 5 + 37'}
-        do{ type='See' text='But now it is: ' expression='global.x'}
+        do{ type='See' format='Step number one says: {~global.x}'}
+        do{ type='Set' global='x' to='(global.x * (5 + 37)) / 2'}
+        do{ type='See' format='But now it is: {~global.x}, however times minus two it will be: {~-2*global.x}'}
       }
     ";
 
@@ -115,6 +116,7 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Steps
     {
       var runnable = new StepRunner(NOPApplication.Instance, S4.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
       runnable.Run();
+      Aver.AreEqual(2_100, runnable.GlobalState["x"].AsInt());
     }
 
   }
