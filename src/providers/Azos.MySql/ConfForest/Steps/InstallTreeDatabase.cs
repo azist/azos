@@ -15,7 +15,7 @@ using Azos.Serialization.JSON;
 
 using MySqlConnector;
 
-namespace Azos.MySql.ConfForest.Install
+namespace Azos.MySql.ConfForest.Steps
 {
   public sealed class InstallTreeDatabase : EntryPoint
   {

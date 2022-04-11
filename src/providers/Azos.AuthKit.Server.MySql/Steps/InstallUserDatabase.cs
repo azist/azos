@@ -15,7 +15,7 @@ using Azos.Serialization.JSON;
 
 using MySqlConnector;
 
-namespace Azos.AuthKit.Server.MySql.Install
+namespace Azos.AuthKit.Server.MySql.Steps
 {
   public sealed class InstallUserDatabase : EntryPoint
   {
