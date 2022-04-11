@@ -12,7 +12,7 @@ using Azos.Conf;
 using Azos.Scripting.Steps;
 using Azos.Serialization.JSON;
 
-namespace Azos.MySql.ConfForest
+namespace Azos.MySql.ConfForest.Install
 {
   /// <summary>
   /// Facilitates the config forest setup functionality, such as running DDL backend store script,
