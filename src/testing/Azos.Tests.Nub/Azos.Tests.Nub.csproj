@@ -38,6 +38,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Azos\Azos.csproj" />
+    <ProjectReference Include="..\..\providers\Azos.MySql\Azos.MySql.csproj" />
   </ItemGroup>
 
 </Project>
