@@ -5,7 +5,9 @@
 </FILE_LICENSE>*/
 
 using System;
+using System.Linq;
 using System.Threading;
+using Azos.Apps;
 using Azos.Collections;
 using Azos.Conf;
 using Azos.Serialization.JSON;
@@ -76,6 +78,46 @@ namespace Azos.Scripting.Steps
       while (time.ElapsedSec < secTimeout && Runner.IsRunning)
         Thread.Sleep(100);
 
+      return null;
+    }
+  }
+
+
+  /// <summary>
+  /// Loads a module and resolves dependencies
+  /// </summary>
+  public sealed class LoadModule : Step
+  {
+    public const string CONFIG_MODULE_SECTION = "module";
+
+    /// <summary>
+    /// Tries to find a module of a specified type with optional name on a call stack of frames.
+    /// Returns null if such module is not found
+    /// </summary>
+    public static TModule TryGet<TModule>(string name = null) where TModule : class, IModule
+     => StepRunner.Frame.Current?.All.FirstOrDefault(o => (o is TModule m) && (name.IsNullOrWhiteSpace() || m.Name.EqualsOrdIgnoreCase(name))) as TModule;
+
+    /// <summary>
+    /// Tries to find a module of a specified type with optional name on a call stack of frames.
+    /// Throws if such module is not found and dependency could not be satisfied
+    /// </summary>
+    public static TModule Get<TModule>(string name = null) where TModule : class, IModule
+     => TryGet<TModule>(name).NonNull("Satisfied dependency on `{0}('{1}')` loaded by `{2}` step".Args(
+                             typeof(TModule).DisplayNameWithExpandedGenericArgs(),
+                             name.Default("<null>"),
+                             nameof(LoadModule)));
+
+
+    public LoadModule(StepRunner runner, IConfigSectionNode cfg, int idx) : base(runner, cfg, idx) { }
+
+    [Config(CONFIG_MODULE_SECTION)] public IConfigSectionNode Module { get; set; }
+
+    protected override string DoRun(JsonDataMap state)
+    {
+      Module.NonEmpty(CONFIG_MODULE_SECTION);
+      var module = FactoryUtils.MakeAndConfigureComponent<IModuleImplementation>(App, Module);
+      module.ApplicationAfterInit();
+      StepRunner.Frame.Current.Owned.Add(module);
       return null;
     }
   }
