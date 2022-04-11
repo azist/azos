@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+
 using Azos.Collections;
 using Azos.Conf;
 using Azos.Serialization.JSON;
@@ -16,34 +16,47 @@ using Azos.Time;
 namespace Azos.Scripting.Steps
 {
   /// <summary>
+  /// Designates states of script execution
+  /// </summary>
+  public enum RunStatus { Init = 0, Running, Finished, Crashed, Terminated  }
+
+  /// <summary>
   /// Facilitates invocation of C# Steps from a script file in sequence.
   /// You can extend this class to supply extra use-case context-specific fields/props.
   /// This class is not thread-safe by design
   /// </summary>
   public class StepRunner
   {
-    public const string CONFIG_STEP_SECTION = "step";
+    public const string CONFIG_STEP_SECTION = "do";
     public const double DEFAULT_TIMEOUT_SEC = 60.0d;
 
 
     public sealed class HaltSignal : Exception { }
 
-    public StepRunner(IApplication app, IConfigSectionNode rootSource)
+    public StepRunner(IApplication app, IConfigSectionNode rootSource, JsonDataMap globalState = null)
     {
       m_App = app.NonNull(nameof(app));
       m_RootSource = rootSource.NonEmpty(nameof(rootSource));
+      m_GlobalState = globalState ?? new JsonDataMap(true);
       ConfigAttribute.Apply(this, m_RootSource);
     }
 
+    private RunStatus m_Status = RunStatus.Init;
     private IApplication m_App;
-    private JsonDataMap m_GlobalState = new JsonDataMap(true);
+    private JsonDataMap m_GlobalState;
     private IConfigSectionNode m_RootSource;
+    private Exception m_CrashError; protected void _SetCrashError(Exception ce) => m_CrashError = ce;
 
     /// <summary>
     /// Application context that this runner operates under
     /// </summary>
     public IApplication App => m_App;
 
+
+    /// <summary>
+    /// Root source of this script
+    /// </summary>
+    public IConfigSectionNode RootSource => m_RootSource;
 
     [Config]
     public virtual double TimeoutSec {  get; set; }
@@ -59,6 +72,21 @@ namespace Azos.Scripting.Steps
     /// </summary>
     public JsonDataMap GlobalState => m_GlobalState;
 
+    /// <summary>
+    /// Returns current run status
+    /// </summary>
+    public RunStatus Status => m_Status;
+
+    /// <summary>
+    /// True when Status is Running
+    /// </summary>
+    public bool IsRunning => m_Status == RunStatus.Running;
+
+
+    /// <summary>
+    /// Returns the last crash exception or null
+    /// </summary>
+    public Exception CrashError => m_CrashError;
 
     /// <summary>
     /// Executes the whole script. The <see cref="GlobalState"/> is NOT cleared automatically.
@@ -81,6 +109,8 @@ namespace Azos.Scripting.Steps
       JsonDataMap state = null;
       try
       {
+        m_Status = RunStatus.Running;
+
         state = DoBeforeRun();
 
         OrderedRegistry<Step> script = new OrderedRegistry<Step>();
@@ -105,7 +135,7 @@ namespace Azos.Scripting.Steps
           ip = ep.Order;
         }
 
-        while(ip < script.Count)
+        while(ip < script.Count && m_Status == RunStatus.Running)
         {
           if (time.ElapsedSec > secTimeout)
           {
@@ -114,9 +144,18 @@ namespace Azos.Scripting.Steps
 
           var step = script[ip];
 
-          //----------------------------
-          var nextStepName = step.Run(state); //<----------- RUN
-          //----------------------------
+          string nextStepName = null;
+          try
+          {
+            //----------------------------
+            nextStepName = step.Run(state); //<----------- RUN
+            //----------------------------
+          }
+          catch(Exception inner)
+          {
+            if (inner is HaltSignal) throw;
+            throw new RunnerException($"Error on step {step}: {inner.ToMessageWithType()}", inner);
+          }
 
           if (nextStepName.IsNullOrWhiteSpace())
           {
@@ -138,10 +177,47 @@ namespace Azos.Scripting.Steps
         }
       }
 
-      var handled = DoAfterRun(error, state);
-      if (!handled && error != null) throw error;
+      var handled = false;
+      m_CrashError = error;
+
+      try
+      {
+        handled = DoAfterRun(error, state);
+      }
+      catch(Exception errorFromAfter)
+      {
+        m_Status = RunStatus.Crashed;
+        if (error != null)
+        {
+          m_CrashError =  new AggregateException($"{nameof(DoAfterRun)} leaked:\n {error.ToMessageWithType()} \n and \n {errorFromAfter.ToMessageWithType()}", error, errorFromAfter);
+          throw m_CrashError;
+        }
+        else
+        {
+          m_CrashError = errorFromAfter;
+          throw;
+        }
+      }
+
+      if (!handled && error != null)
+      {
+        m_Status = RunStatus.Crashed;
+        throw error;
+      }
+
+      if (IsRunning) m_Status = RunStatus.Finished;
 
       return state;
+    }
+
+    /// <summary>
+    /// If the status is Running, sets it to Terminated and returns true
+    /// </summary>
+    public bool Terminate()
+    {
+      var was = m_Status == RunStatus.Running;
+      if (was) m_Status = RunStatus.Terminated;
+      return was;
     }
 
     /// <summary>

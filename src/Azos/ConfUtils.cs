@@ -112,9 +112,11 @@ namespace Azos
     /// <summary>
     ///  Evaluates variables in a context of optional variable resolver and macro runner
     /// </summary>
-    public static string EvaluateVars(this string line, IEnvironmentVariableResolver envResolver = null, IMacroRunner macroRunner = null)
+    public static string EvaluateVars(this string line, IEnvironmentVariableResolver envResolver = null, IMacroRunner macroRunner = null, string varStart = null, string varEnd = null)
     {
       var config = new MemoryConfiguration();
+      if (varStart.IsNotNullOrWhiteSpace()) config.Variable_START = varStart;
+      if (varEnd.IsNotNullOrWhiteSpace()) config.Variable_END = varEnd;
       config.Create();
       config.EnvironmentVarResolver = envResolver;
       config.MacroRunner = macroRunner;
