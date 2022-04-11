@@ -68,7 +68,7 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Steps
     [Run]
     public void Json()
     {
-      var runnable = new StepRunner(NOPApplication.Instance, JSON.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+      var runnable = new StepRunner(NOPApplication.Instance, JSON.AsJSONConfig(handling: Data.ConvertErrorHandling.Throw));
       runnable.Run();
     }
 
