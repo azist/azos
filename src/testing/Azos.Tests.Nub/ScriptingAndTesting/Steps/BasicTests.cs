@@ -12,6 +12,7 @@ using Azos.Apps;
 using Azos.Data;
 using Azos.Scripting;
 using Azos.Scripting.Steps;
+using Azos.MySql.ConfForest;
 
 namespace Azos.Tests.Nub.ScriptingAndTesting.Steps
 {
@@ -57,6 +58,7 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Steps
       var runnable = new StepRunner(NOPApplication.Instance, GOTO.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
       runnable.Run();
     }
+
 
 
     public const string SUBS = @"
@@ -196,6 +198,18 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Steps
       Aver.AreEqual(-2, runnable.GlobalState["z"].AsInt());
       Aver.AreEqual(-2, state["z"].AsInt());
     }
+
+
+    //[Run]
+    //[Aver.Throws(typeof(RunnerException), Message = "Timeout")]
+    //[Aver.RunTime(MaxSec = 1.634)]
+    //public void Test3()
+    //{
+    //  var runnable = ForestInstaller.FromFile(NOPApplication.Instance, @"D:\devhome\ghub\azos\src\testing\Azos.Tests.Nub\ScriptingAndTesting\Steps\step-sample-01.json");
+    //  var got = runnable.Run();
+
+    //  got.See();
+    //}
 
   }
 }

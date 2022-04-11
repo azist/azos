@@ -1,0 +1,26 @@
+{
+    "script": {
+      "type-path": "Azos.Scripting.Steps, Azos",
+      "timeout-sec": 1.25,
+      "step": [
+        {
+          "type": "See",
+          "text": "Step number one",
+          "name": "loop"
+        },
+        {
+          "type": "See",
+          "text": "Step number two"
+        },
+        {
+          "type": "Delay",
+          "seconds": 0.5
+        },
+        {
+          "type": "Goto",
+          "goto-name": "loop",
+          "name": "goto1"
+        }
+      ]
+    }
+}
