@@ -15,17 +15,17 @@ using Azos.Serialization.JSON;
 
 using MySqlConnector;
 
-namespace Azos.MySql.ConfForest.Install
+namespace Azos.AuthKit.Server.MySql.Install
 {
-  public sealed class InstallTreeDatabase : EntryPoint
+  public sealed class InstallUserDatabase : EntryPoint
   {
-    public InstallTreeDatabase(StepRunner runner, IConfigSectionNode cfg, int idx) : base(runner, cfg, idx) { }
+    public InstallUserDatabase(StepRunner runner, IConfigSectionNode cfg, int idx) : base(runner, cfg, idx) { }
 
     [Config]
     public string MySqlConnectString { get; set; }
 
     [Config]
-    public string TreeName { get; set; }
+    public string DbName { get; set; }
 
     [Config]
     public bool SkipDbCreation {  get ; set; }
@@ -70,8 +70,8 @@ namespace Azos.MySql.ConfForest.Install
 
     private void createDatabase(MySqlCommand cmd, Guid rel)
     {
-      var ddl = typeof(MySqlConfForestTreeDataStore).GetText("ddl.db_ddl.sql");
-      var dbn = TreeName.NonBlankMinMax(5, 32, nameof(TreeName));
+      var ddl = typeof(MySqlUserStore).GetText("ddl.db_ddl.sql");
+      var dbn = DbName.NonBlankMinMax(5, 32, nameof(DbName));
       WriteLog(Log.MessageType.Info, nameof(createDatabase), "Db is: {0}".Args(dbn), related: rel);
 
       ddl = ddl.Args(dbn);
@@ -83,7 +83,7 @@ namespace Azos.MySql.ConfForest.Install
 
     private void createDdl(MySqlCommand cmd, Guid rel)
     {
-      var dbn = TreeName.NonBlankMinMax(5, 32, nameof(TreeName));
+      var dbn = DbName.NonBlankMinMax(5, 32, nameof(DbName));
       WriteLog(Log.MessageType.Info, nameof(createDatabase), "Set db to: {0}".Args(dbn), related: rel);
       var ddl = "use `{0}`";
       WriteLog(Log.MessageType.Info, nameof(createDatabase), "Starting cmd exec...", related: rel, pars: ddl);
@@ -91,7 +91,7 @@ namespace Azos.MySql.ConfForest.Install
       sql(cmd, nameof(createDdl), rel);
 
 
-      ddl = typeof(MySqlConfForestTreeDataStore).GetText("ddl.tree_ddl.sql");
+      ddl = typeof(MySqlUserStore).GetText("ddl.user_ddl.sql");
       cmd.CommandText = ddl;
       sql(cmd, nameof(createDdl), rel);
     }
