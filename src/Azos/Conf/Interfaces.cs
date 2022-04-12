@@ -539,7 +539,7 @@ namespace Azos.Conf
     ///  with input as path string. "~" is used to qualify environment vars that get resolved through Configuration.EnvironmentVarResolver
     ///  Example: `....add key="Schema.$(/A/B/C/$attr)" value="$(@~HOME)bin\Transforms\"...`
     /// </summary>
-    string EvaluateValueVariables(string value);
+    string EvaluateValueVariables(string value, bool recurse = true);
 
     /// <summary>
     /// Returns true when this and another nodes both have attribute "name" and their values are equal per case-insensitive culture-neutral comparison

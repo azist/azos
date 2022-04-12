@@ -105,7 +105,7 @@ namespace Azos.Scripting.Steps
     public static string FormatString(string fmt, StepRunner runner, JsonDataMap state)
     {
       if (fmt.IsNullOrWhiteSpace()) return fmt;
-      return fmt.EvaluateVars(new StepRunnerVarResolver(runner, state), varStart: "{", varEnd: "}");
+      return fmt.EvaluateVars(new StepRunnerVarResolver(runner, state), varStart: "{", varEnd: "}", recurse: false);
     }
 
 
@@ -134,7 +134,6 @@ namespace Azos.Scripting.Steps
         var sp = path.SplitKVP('.');
 
         var elm = obj[sp.Key];
-
         if (sp.Value.IsNullOrWhiteSpace()) return get(elm);
 
         if (elm is IJsonDataObject d1) return nav(d1, sp.Value);
@@ -170,9 +169,9 @@ namespace Azos.Scripting.Steps
 
       var pair = ident.SplitKVP('.');
       if (pair.Key == Set.GLOBAL)
-        return get(runner.GlobalState[pair.Value.Default(Set.UNKNOWN)]);
+        return nav(runner.GlobalState, pair.Value);//.Default(Set.UNKNOWN));
       else if (pair.Key == Set.LOCAL)
-        return get(state[pair.Value.Default(Set.UNKNOWN)]);
+        return nav(state, pair.Value);//.Default(Set.UNKNOWN));
       else return ident;
     }
 

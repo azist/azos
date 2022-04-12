@@ -246,7 +246,7 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Steps
 
         do{ type='SetResult' to='\'Yes!\''}
 
-        do{ type='Set' global='y' to='runner.result+\'ok\''} 
+        do{ type='Set' global='y' to='runner.result+\'ok\''}
       }
     ";
 
@@ -258,6 +258,27 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Steps
       Aver.AreEqual(-123, runnable.GlobalState["x"].AsInt());
       Aver.AreEqual("Yes!ok", runnable.GlobalState["y"].AsString());
       Aver.AreEqual("Yes!", runnable.Result.AsString());
+    }
+
+
+    public const string NAV1 = @"
+      script
+      {
+        type-path='Azos.Scripting.Steps, Azos'
+
+        do{ type='Set' global='x' to='\'{a: 2, b: 3}\''}
+        do{ type='Set' global='y' to='global.x.a * global.x.b'}//6
+        do{ type='See' format='x = {~global.x + 1} and one more {~global.x + 2}, however y = {~global.y}'}
+
+      }
+    ";
+
+    [Run]
+    public void TestNav1()
+    {
+      var runnable = new StepRunner(NOPApplication.Instance, NAV1.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+      var state = runnable.Run();
+      Aver.AreEqual(6, runnable.GlobalState["y"].AsInt());
     }
 
   }
