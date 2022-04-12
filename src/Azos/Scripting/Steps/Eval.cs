@@ -132,9 +132,11 @@ namespace Azos.Scripting.Steps
         if (path.IsNullOrWhiteSpace()) return get(obj);
 
         var sp = path.SplitKVP('.');
-        if (sp.Value.IsNullOrWhiteSpace()) return get(obj);
 
         var elm = obj[sp.Key];
+
+        if (sp.Value.IsNullOrWhiteSpace()) return get(elm);
+
 
         if (elm is string str)
         {
@@ -142,7 +144,7 @@ namespace Azos.Scripting.Steps
 
           try
           {
-            JsonReader.DeserializeDataObject(str);
+            d2 = JsonReader.DeserializeDataObject(str);
           }
           catch
           {
