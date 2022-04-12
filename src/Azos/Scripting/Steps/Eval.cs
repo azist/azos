@@ -137,6 +137,7 @@ namespace Azos.Scripting.Steps
 
         if (sp.Value.IsNullOrWhiteSpace()) return get(elm);
 
+        if (elm is IJsonDataObject d1) return nav(d1, sp.Value);
 
         if (elm is string str)
         {
@@ -154,7 +155,7 @@ namespace Azos.Scripting.Steps
           return nav(d2, sp.Value);
         }
 
-        return get(elm);
+        return string.Empty;//invalid path expression
       }
 
 
