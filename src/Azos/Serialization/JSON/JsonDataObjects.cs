@@ -12,6 +12,7 @@ using System.IO;
 using System.Runtime.Serialization;
 
 using Azos.Conf;
+using Azos.Data;
 
 namespace Azos.Serialization.JSON
 {
@@ -20,6 +21,7 @@ namespace Azos.Serialization.JSON
   /// </summary>
   public interface IJsonDataObject
   {
+    object this[string key] {  get; }
   }
 
   /// <summary>
@@ -201,6 +203,11 @@ namespace Azos.Serialization.JSON
     public JsonDataArray() {}
     public JsonDataArray(IEnumerable<object> other) : base(other) {}
     public JsonDataArray(int capacity) : base(capacity) {}
+
+    /// <summary>
+    /// Supports indexing access, treating string keys as integer
+    /// </summary>
+    public object this[string key] => this[key.AsInt(-1)];
 
     public override string ToString()
     {

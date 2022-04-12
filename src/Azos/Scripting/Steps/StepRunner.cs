@@ -96,6 +96,7 @@ namespace Azos.Scripting.Steps
     private RunStatus m_Status = RunStatus.Init;
     private IApplication m_App;
     private JsonDataMap m_GlobalState;
+    private object m_Result;
     private IConfigSectionNode m_RootSource;
     private Exception m_CrashError; protected void _SetCrashError(Exception ce) => m_CrashError = ce;
 
@@ -112,6 +113,14 @@ namespace Azos.Scripting.Steps
 
     [Config]
     public virtual double TimeoutSec {  get; set; }
+
+
+    /// <summary>
+    /// Gets the runner execution result set by the <see cref="SetResult"/> method.
+    /// This is typically called from steps which set the runner-global execution result
+    /// which can later be captured into variables and used elsewhere
+    /// </summary>
+    public object Result => m_Result;
 
     /// <summary>
     /// Defines log Level
@@ -139,6 +148,14 @@ namespace Azos.Scripting.Steps
     /// Returns the last crash exception or null
     /// </summary>
     public Exception CrashError => m_CrashError;
+
+
+    /// <summary>
+    /// Sets the runner execution result accessible by the <see cref="Result"/> property.
+    /// This is typically called from steps which set the runner-global execution result
+    /// which can later be captured into variables and used elsewhere
+    /// </summary>
+    public void SetResult(object result) => m_Result = result;
 
     /// <summary>
     /// Executes the whole script. The <see cref="GlobalState"/> is NOT cleared automatically.
@@ -181,6 +198,7 @@ namespace Azos.Scripting.Steps
       try
       {
         m_Status = RunStatus.Running;
+        m_Result = null;
 
         state = DoBeforeRun();
 

@@ -37,8 +37,9 @@ namespace Azos.Conf.Forest.Steps
 
     protected override string DoRun(JsonDataMap state)
     {
-      var node = JsonReader.ToDoc<TreeNode>(TreeNodeJson);
-      Logic.SaveNodeAsync(node).GetAwaiter().GetResult();
+      var node = JsonReader.ToDoc<TreeNode>(TreeNodeJson.NonBlank(nameof(TreeNodeJson)));
+      var got = Logic.SaveNodeAsync(node).GetAwaiter().GetResult();
+      Runner.SetResult(got);
       return null;
     }
   }
@@ -58,7 +59,9 @@ namespace Azos.Conf.Forest.Steps
 
     protected override string DoRun(JsonDataMap state)
     {
-      Logic.DeleteNodeAsync(Id, StartUtc).GetAwaiter().GetResult();
+      Id.NonBlank(nameof(Id));
+      var got = Logic.DeleteNodeAsync(Id, StartUtc).GetAwaiter().GetResult();
+      Runner.SetResult(got);
       return null;
     }
   }

@@ -235,5 +235,30 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Steps
       Aver.AreEqual(-2, state["z"].AsInt());
     }
 
+
+    public const string SETRESULT = @"
+      script
+      {
+        type-path='Azos.Scripting.Steps, Azos'
+
+        do{ type='SetResult' to='123'}
+        do{ type='Set' global='x' to='-runner.result'} //-123
+
+        do{ type='SetResult' to='\'Yes!\''}
+
+        do{ type='Set' global='y' to='runner.result+\'ok\''} 
+      }
+    ";
+
+    [Run]
+    public void TestSETRESULT()
+    {
+      var runnable = new StepRunner(NOPApplication.Instance, SETRESULT.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+      var state = runnable.Run();
+      Aver.AreEqual(-123, runnable.GlobalState["x"].AsInt());
+      Aver.AreEqual("Yes!ok", runnable.GlobalState["y"].AsString());
+      Aver.AreEqual("Yes!", runnable.Result.AsString());
+    }
+
   }
 }
