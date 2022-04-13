@@ -10,6 +10,7 @@ using System.Threading;
 using Azos.Apps;
 using Azos.Collections;
 using Azos.Conf;
+using Azos.Security;
 using Azos.Serialization.JSON;
 using Azos.Time;
 
@@ -118,6 +119,67 @@ namespace Azos.Scripting.Steps
       var module = FactoryUtils.MakeAndConfigureComponent<IModuleImplementation>(App, Module);
       module.ApplicationAfterInit();
       StepRunner.Frame.Current.Owned.Add(module);
+      return null;
+    }
+  }
+
+  /// <summary>
+  /// Impersonates a session with credentials
+  /// </summary>
+  public class Impersonate : Step
+  {
+    public Impersonate(StepRunner runner, IConfigSectionNode cfg, int idx) : base(runner, cfg, idx) { }
+
+    [Config] public string Id { get; set; }
+    [Config] public string Pwd { get; set; }
+    [Config] public string Auth { get; set; }
+
+    /// <summary>
+    /// Override to create custom impersonation session type. By default BaseSession is used.
+    /// You can also override this to set specific session context before injecting it into ExecutionContext
+    /// </summary>
+    protected virtual ISession MakeImpersonationSession() => new BaseSession(Guid.NewGuid(), App.Random.NextRandomUnsignedLong);
+
+
+    protected override string DoRun(JsonDataMap state)
+    {
+      var credentials = Auth.IsNotNullOrWhiteSpace() ? IDPasswordCredentials.FromBasicAuth(Auth)
+                                                     : new IDPasswordCredentials(Id, Pwd);
+
+      var user = App.SecurityManager.Authenticate(credentials);
+      var session = MakeImpersonationSession();
+      session.User = user;
+      Azos.Apps.ExecutionContext.__SetThreadLevelSessionContext(session);
+      return null;
+    }
+  }
+
+  /// <summary>
+  /// Sets ambient session data context name
+  /// </summary>
+  public class SetDataContextName : Step
+  {
+    public SetDataContextName(StepRunner runner, IConfigSectionNode cfg, int idx) : base(runner, cfg, idx) { }
+
+    [Config] public string DataContext { get; set; }
+
+    /// <summary>
+    /// Override to create custom impersonation session type. By default BaseSession is used.
+    /// You can also override this to set specific session context before injecting it into ExecutionContext
+    /// </summary>
+    protected virtual ISession MakeImpersonationSession() => new BaseSession(Guid.NewGuid(), App.Random.NextRandomUnsignedLong);
+
+
+    protected override string DoRun(JsonDataMap state)
+    {
+      var session = Ambient.CurrentCallSession;
+      if (session is NOPSession)
+      {
+        session = MakeImpersonationSession();
+        Azos.Apps.ExecutionContext.__SetThreadLevelSessionContext(session);
+      }
+      session.DataContextName = DataContext;
+
       return null;
     }
   }
