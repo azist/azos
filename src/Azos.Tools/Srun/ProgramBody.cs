@@ -55,10 +55,13 @@ namespace Azos.Tools.Srun
         private static int run(AzosApplication app)
         {
           var config = app.CommandArgs;
-
-          ConsoleUtils.WriteMarkupContent( typeof(ProgramBody).GetText("Welcome.txt") );
-
           var silent = config["s", "silent"].Exists;
+
+          if (!silent)
+          {
+            ConsoleUtils.WriteMarkupContent( typeof(ProgramBody).GetText("Welcome.txt") );
+          }
+
 
           if (config["?"].Exists ||
               config["h"].Exists ||
@@ -95,7 +98,7 @@ namespace Azos.Tools.Srun
 
           var rnode = config["runner"];
 
-          var runner =  FactoryUtils.Make<ScriptSource>(rnode, typeof(TestRunnerConsoleHost), new object[]{app, rootFilePath});
+          var runner =  FactoryUtils.Make<ScriptSource>(rnode, typeof(ScriptSource), new object[]{app, rootFilePath});
 
           if(!silent)
           {
