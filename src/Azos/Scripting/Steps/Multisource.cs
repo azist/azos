@@ -22,7 +22,7 @@ namespace Azos.Scripting.Steps
     /// <summary>
     /// Builds a unified root source by including the referenced sources
     /// </summary>
-    public static IConfigSectionNode BuildSourcesFromFile(string rootFilePath)
+    public static IConfigSectionNode DefaultBuildSourcesFromFile(string rootFilePath)
     {
       rootFilePath.NonBlank(nameof(rootFilePath));
 
@@ -73,6 +73,11 @@ namespace Azos.Scripting.Steps
 
     public Multisource(IApplication app, IConfigSectionNode rootSource) : base(app) => m_Runner = MakeRunner(rootSource);
 
+
+    protected virtual IConfigSectionNode BuildSourcesFromFile(string rootFilePath)
+    {
+      return DefaultBuildSourcesFromFile(rootFilePath);
+    }
 
     protected abstract TRunner MakeRunner(IConfigSectionNode rootSource);
 

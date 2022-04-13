@@ -112,7 +112,7 @@ namespace Azos
     /// <summary>
     ///  Evaluates variables in a context of optional variable resolver and macro runner
     /// </summary>
-    public static string EvaluateVars(this string line, IEnvironmentVariableResolver envResolver = null, IMacroRunner macroRunner = null, string varStart = null, string varEnd = null)
+    public static string EvaluateVars(this string line, IEnvironmentVariableResolver envResolver = null, IMacroRunner macroRunner = null, string varStart = null, string varEnd = null, bool recurse = true)
     {
       var config = new MemoryConfiguration();
       if (varStart.IsNotNullOrWhiteSpace()) config.Variable_START = varStart;
@@ -120,13 +120,13 @@ namespace Azos
       config.Create();
       config.EnvironmentVarResolver = envResolver;
       config.MacroRunner = macroRunner;
-      return EvaluateVarsInConfigScope(line, config);
+      return EvaluateVarsInConfigScope(line, config, recurse);
     }
 
     /// <summary>
     ///  Evaluates variables in a context of optional configuration supplied as config object
     /// </summary>
-    public static string EvaluateVarsInConfigScope(this string line, Configuration scopeConfig = null)
+    public static string EvaluateVarsInConfigScope(this string line, Configuration scopeConfig = null, bool recurse = true)
     {
       if (scopeConfig == null)
       {
@@ -134,7 +134,7 @@ namespace Azos
         scopeConfig.Create();
       }
 
-      return scopeConfig.Root.EvaluateValueVariables(line);
+      return scopeConfig.Root.EvaluateValueVariables(line, recurse);
     }
 
     /// <summary>

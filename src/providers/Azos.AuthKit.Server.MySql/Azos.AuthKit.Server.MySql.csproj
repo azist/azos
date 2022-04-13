@@ -19,10 +19,12 @@
 
   <ItemGroup>
     <None Remove="Queries/**/*.sql" />
+    <None Remove="ddl/**/*.sql" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Queries/**/*.sql" />
+    <EmbeddedResource Include="ddl/**/*.sql" />
   </ItemGroup>
 
   <ItemGroup>

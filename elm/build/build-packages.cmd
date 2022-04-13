@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.42.9.6
-set HEADLINE=AuthKit latest
+set VER=1.42.9.7
+set HEADLINE=Installers
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

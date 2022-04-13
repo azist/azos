@@ -1267,7 +1267,7 @@ namespace Azos.Conf
     ///  with input as path string. "~" is used to qualify environment vars that get resolved through Configuration.EnvironmentVarResolver
     ///  Example: `....add key="Schema.$(/A/B/C/$attr)" value="$(@~HOME)bin\Transforms\"...`
     /// </summary>
-    public string EvaluateValueVariables(string value)
+    public string EvaluateValueVariables(string value, bool recurse = true)
     {
       if (value == null) return null;
 
@@ -1294,15 +1294,17 @@ namespace Azos.Conf
 
         const int MAX_ITERATIONS = 1_000;
         var iteration = 0;
-        while (true)
+        var idxsLatch = 0;
+        while(true)
         {
           if (iteration++ > MAX_ITERATIONS)
             throw new ConfigException(StringConsts.CONFIG_INFINITE_VARS_ERROR.Args(value.TakeFirstChars(32, "..."), MAX_ITERATIONS));
 
-          var idxs = value.IndexOf(VAR_START);
+          var idxs = recurse ? value.IndexOf(VAR_START) : value.IndexOf(VAR_START, idxsLatch);
           if (idxs < 0) break;
           var idxe = value.IndexOf(VAR_END, idxs);
           if (idxe <= idxs) break;
+
 
           var originalDecl = value.Substring(idxs, idxe - idxs + VAR_END.Length);
           var vname = value.Substring(idxs + VAR_START.Length, 1 + idxe - idxs - VAR_START.Length - VAR_END.Length).Trim();
@@ -1326,6 +1328,9 @@ namespace Azos.Conf
           {
             vlist.Remove(vname);
           }
+
+          idxsLatch = idxe + 1;
+          if (!recurse && idxsLatch >= value.Length) break;
         }
 
         return value;

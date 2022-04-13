@@ -6,13 +6,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 using Azos.Apps;
 using Azos.Data;
 using Azos.Scripting;
 using Azos.Scripting.Steps;
-using Azos.MySql.ConfForest;
 
 namespace Azos.Tests.Nub.ScriptingAndTesting.Steps
 {
@@ -37,6 +35,44 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Steps
        var runnable = new StepRunner(NOPApplication.Instance, SEE.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
        runnable.Run();
     }
+
+
+    public const string JSON = @"
+{
+  'script': {
+    'type-path': 'Azos.Scripting.Steps, Azos',
+    'timeout-sec': 1.25,
+    'step': [
+      {
+        'type': 'See',
+        'text': 'Step number one',
+        'name': 'loop'
+      },
+      {
+        'type': 'See',
+        'text': 'Step number two'
+      },
+      {
+        'type': 'Delay',
+        'seconds': 0.5
+      },
+      {
+        'type': 'Goto',
+        'goto-name': 'loop',
+        'name': 'goto1'
+      }
+    ]
+  }
+}";
+
+    [Run]
+    public void Json()
+    {
+      var runnable = new StepRunner(NOPApplication.Instance, JSON.AsJSONConfig(handling: Data.ConvertErrorHandling.Throw));
+      runnable.Run();
+    }
+
+
 
     public const string GOTO = @"
       script
@@ -200,16 +236,50 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Steps
     }
 
 
-    //[Run]
-    //[Aver.Throws(typeof(RunnerException), Message = "Timeout")]
-    //[Aver.RunTime(MaxSec = 1.634)]
-    //public void Test3()
-    //{
-    //  var runnable = ForestInstaller.FromFile(NOPApplication.Instance, @"D:\devhome\ghub\azos\src\testing\Azos.Tests.Nub\ScriptingAndTesting\Steps\step-sample-01.json");
-    //  var got = runnable.Run();
+    public const string SETRESULT = @"
+      script
+      {
+        type-path='Azos.Scripting.Steps, Azos'
 
-    //  got.See();
-    //}
+        do{ type='SetResult' to='123'}
+        do{ type='Set' global='x' to='-runner.result'} //-123
+
+        do{ type='SetResult' to='\'Yes!\''}
+
+        do{ type='Set' global='y' to='runner.result+\'ok\''}
+      }
+    ";
+
+    [Run]
+    public void TestSETRESULT()
+    {
+      var runnable = new StepRunner(NOPApplication.Instance, SETRESULT.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+      var state = runnable.Run();
+      Aver.AreEqual(-123, runnable.GlobalState["x"].AsInt());
+      Aver.AreEqual("Yes!ok", runnable.GlobalState["y"].AsString());
+      Aver.AreEqual("Yes!", runnable.Result.AsString());
+    }
+
+
+    public const string NAV1 = @"
+      script
+      {
+        type-path='Azos.Scripting.Steps, Azos'
+
+        do{ type='Set' global='x' to='\'{a: 2, b: 3}\''}
+        do{ type='Set' global='y' to='global.x.a * global.x.b'}//6
+        do{ type='See' format='x = {~global.x + 1} and one more {~global.x + 2}, however y = {~global.y}'}
+
+      }
+    ";
+
+    [Run]
+    public void TestNav1()
+    {
+      var runnable = new StepRunner(NOPApplication.Instance, NAV1.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+      var state = runnable.Run();
+      Aver.AreEqual(6, runnable.GlobalState["y"].AsInt());
+    }
 
   }
 }

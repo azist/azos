@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
+using Azos.Apps;
 using Azos.Collections;
 using Azos.Conf;
 using Azos.Serialization.JSON;
@@ -30,8 +30,60 @@ namespace Azos.Scripting.Steps
     public const string CONFIG_STEP_SECTION = "do";
     public const double DEFAULT_TIMEOUT_SEC = 60.0d;
 
-
     public sealed class HaltSignal : Exception { }
+
+    /// <summary>
+    /// Represents a frame of call stack/flow. The shallow Owned collection gets deleted/deallocated on exit
+    /// </summary>
+    public sealed class Frame : DisposableObject
+    {
+      [ThreadStatic] private static Frame s_Current;
+
+      /// <summary>
+      /// Returns a current frame in call chain or NULL if nothing was called
+      /// </summary>
+      public static Frame Current => s_Current;
+
+
+      internal Frame(StepRunner runner)
+      {
+        Runner = runner;
+        Owned = new List<object>();
+        Caller = s_Current;
+        s_Current = this;
+      }
+      protected override void Destructor()
+      {
+        s_Current = Caller;
+        base.Destructor();
+        Owned.ForEach(o =>
+        {
+          var v = o;
+          if (v is IModuleImplementation mi) mi.ApplicationBeforeCleanup();
+          DisposeIfDisposableAndNull(ref v);
+        });
+      }
+
+      /// <summary> Runner that created this call frame </summary>
+      public readonly StepRunner Runner;
+
+      /// <summary> Call frame that called this one or null if this is the top-most frame </summary>
+      public readonly Frame Caller;
+
+      /// <summary> List of owned resource by THIS frame. These resources get disposed on frame scope dispose </summary>
+      public readonly List<object> Owned;
+
+      /// <summary>
+      /// Returns all owned resources by all frames starting from the inner-most (entry point) frame first
+      /// </summary>
+      public IEnumerable<object> All => Caller?.All.Concat(Owned) ?? Owned;
+
+      /// <summary>
+      /// Returns a call stack, this frame is returned first
+      /// </summary>
+      public IEnumerable<Frame> Stack => Caller != null ? Caller.Stack.AddOneAtStart(this) : this.ToEnumerable();
+    }
+
 
     public StepRunner(IApplication app, IConfigSectionNode rootSource, JsonDataMap globalState = null)
     {
@@ -44,6 +96,7 @@ namespace Azos.Scripting.Steps
     private RunStatus m_Status = RunStatus.Init;
     private IApplication m_App;
     private JsonDataMap m_GlobalState;
+    private object m_Result;
     private IConfigSectionNode m_RootSource;
     private Exception m_CrashError; protected void _SetCrashError(Exception ce) => m_CrashError = ce;
 
@@ -60,6 +113,14 @@ namespace Azos.Scripting.Steps
 
     [Config]
     public virtual double TimeoutSec {  get; set; }
+
+
+    /// <summary>
+    /// Gets the runner execution result set by the <see cref="SetResult"/> method.
+    /// This is typically called from steps which set the runner-global execution result
+    /// which can later be captured into variables and used elsewhere
+    /// </summary>
+    public object Result => m_Result;
 
     /// <summary>
     /// Defines log Level
@@ -88,12 +149,20 @@ namespace Azos.Scripting.Steps
     /// </summary>
     public Exception CrashError => m_CrashError;
 
+
+    /// <summary>
+    /// Sets the runner execution result accessible by the <see cref="Result"/> property.
+    /// This is typically called from steps which set the runner-global execution result
+    /// which can later be captured into variables and used elsewhere
+    /// </summary>
+    public void SetResult(object result) => m_Result = result;
+
     /// <summary>
     /// Executes the whole script. The <see cref="GlobalState"/> is NOT cleared automatically.
     /// Returns local state JsonDataMap (private to this run invocation)
     /// </summary>
     /// <param name="ep">EntryPoint instance</param>
-    public virtual JsonDataMap Run(EntryPoint ep)
+    public JsonDataMap Run(EntryPoint ep)
     {
       return this.Run(ep.NonNull(nameof(ep)).Name);
     }
@@ -103,13 +172,33 @@ namespace Azos.Scripting.Steps
     /// Returns local state JsonDataMap (private to this run invocation)
     /// </summary>
     /// <param name="entryPointStep">Name of step to start execution at, null by default - starts from the very first step</param>
-    public virtual JsonDataMap Run(string entryPointStep = null)
+    public JsonDataMap Run(string entryPointStep = null)
+    {
+      Frame call = null;
+      try
+      {
+        call = new Frame(this);
+        return DoRun(entryPointStep);
+      }
+      finally
+      {
+        call.Dispose();
+      }
+    }
+
+    /// <summary>
+    /// Executes the whole script. The <see cref="GlobalState"/> is NOT cleared automatically.
+    /// Returns local state JsonDataMap (private to this run invocation)
+    /// </summary>
+    /// <param name="entryPointStep">Name of step to start execution at, null by default - starts from the very first step</param>
+    protected virtual JsonDataMap DoRun(string entryPointStep = null)
     {
       Exception error = null;
       JsonDataMap state = null;
       try
       {
         m_Status = RunStatus.Running;
+        m_Result = null;
 
         state = DoBeforeRun();
 
