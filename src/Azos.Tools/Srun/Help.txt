@@ -1,0 +1,34 @@
+﻿<push>
+<f color=magenta>
+ Usage:
+<f color=white>
+   srun <f color=green>script_file [entry_point_sub_name]<f color=darkCyan> [/h | /? | /help]
+              [/runner
+                  [<f color=darkRed>type<f color=darkCyan>=type_name]
+                  [... runner type-specific attributes]
+              ]
+              [-r|-result]
+              [-g|-global]
+              [-s|-silent]
+
+<f color=gray>
+Executes a script contained in a script_file. The system performs "_include" expansion.
+You can specify optional "entry_point_sub_name".
+
+
+<f color=magenta>
+ Specifiers:
+
+<f color=green>script_file<f color=gray> - fully qualified script source path
+<f color=green>entry_point_sub_name<f color=gray> - optional entry point of the script
+<f color=green>-r|result<f color=gray> - dumps step runner result object
+<f color=green>-g|global<f color=gray> - dumps global JSON object
+<f color=green>-s|silent<f color=gray> - suppresses info
+
+<f color=magenta>
+ Examples:
+
+<f color=yellow> srun d:\scr\devops\setup.laconf network<f color=gray>
+Runs a sub "network" from the specified script file
+
+<pop>

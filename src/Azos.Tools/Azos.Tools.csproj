@@ -27,6 +27,8 @@
     <None Remove="Phash\Welcome.txt" />
     <None Remove="Rsc\Help.txt" />
     <None Remove="Rsc\Welcome.txt" />
+    <None Remove="Srun\Help.txt" />
+    <None Remove="Srun\Welcome.txt" />
   </ItemGroup>
 
   <ItemGroup>
@@ -45,6 +47,8 @@
     <EmbeddedResource Include="Phash\Welcome.txt" />
     <EmbeddedResource Include="Rsc\Help.txt" />
     <EmbeddedResource Include="Rsc\Welcome.txt" />
+    <EmbeddedResource Include="Srun\Help.txt" />
+    <EmbeddedResource Include="Srun\Welcome.txt" />
     <EmbeddedResource Include="Trun\Help.txt" />
     <EmbeddedResource Include="Trun\Welcome.txt" />
   </ItemGroup>
