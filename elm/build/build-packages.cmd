@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.42.9.7
-set HEADLINE=Installers
+set VER=1.42.9.8
+set HEADLINE=#664 #665
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
