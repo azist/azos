@@ -95,7 +95,7 @@ namespace Azos.Tools.Srun
 
           var rnode = config["runner"];
 
-          var runner =  FactoryUtils.Make<ScriptSource>(rnode, typeof(TestRunnerConsoleHost), new object[]{app, rootFilePath});
+          var runner =  FactoryUtils.Make<ScriptSource>(rnode, typeof(ScriptSource), new object[]{app, rootFilePath});
 
           if(!silent)
           {
