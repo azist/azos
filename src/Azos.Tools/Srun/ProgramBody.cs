@@ -55,10 +55,13 @@ namespace Azos.Tools.Srun
         private static int run(AzosApplication app)
         {
           var config = app.CommandArgs;
-
-          ConsoleUtils.WriteMarkupContent( typeof(ProgramBody).GetText("Welcome.txt") );
-
           var silent = config["s", "silent"].Exists;
+
+          if (!silent)
+          {
+            ConsoleUtils.WriteMarkupContent( typeof(ProgramBody).GetText("Welcome.txt") );
+          }
+
 
           if (config["?"].Exists ||
               config["h"].Exists ||
