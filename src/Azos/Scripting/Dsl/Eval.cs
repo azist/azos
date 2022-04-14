@@ -12,7 +12,7 @@ using Azos.Data;
 using Azos.Serialization.JSON;
 using Azos.Text;
 
-namespace Azos.Scripting.Steps
+namespace Azos.Scripting.Dsl
 {
   /// <summary>
   /// Sets a global or local value to the specified expression
@@ -108,6 +108,23 @@ namespace Azos.Scripting.Steps
       return fmt.EvaluateVars(new StepRunnerVarResolver(runner, state), varStart: "{", varEnd: "}", recurse: false);
     }
 
+    /// <summary>
+    /// Evaluates a value that starts with a `~`. If a value does not start with `~` then keeps the value as-is.
+    /// You can escape a literal value with double tilde like so: `~~a` -> `~a`
+    /// </summary>
+    public static string Eval(string value, StepRunner runner, JsonDataMap state)
+    {
+      if (value.IsNullOrWhiteSpace()) return value;
+      if (value.StartsWith("~~")) return value.Substring(1);//skip escape
+      if (value.StartsWith("~"))
+      {
+        var evaluator = new Evaluator(value.Substring(1));
+        value = evaluator.Evaluate(id => GetResolver(runner, id, state));
+      }
+      return value;
+    }
+
+
 
     /// <summary>
     /// Resolves `global.x` to `Runner.Globals[x]` otherwise to `state[x]`
@@ -156,7 +173,6 @@ namespace Azos.Scripting.Steps
 
         return string.Empty;//invalid path expression
       }
-
 
 
       if (ident.IsNullOrWhiteSpace()) return ident;

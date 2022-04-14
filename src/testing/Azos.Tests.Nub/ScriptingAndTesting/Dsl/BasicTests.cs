@@ -10,9 +10,10 @@ using System.Collections.Generic;
 using Azos.Apps;
 using Azos.Data;
 using Azos.Scripting;
-using Azos.Scripting.Steps;
+using Azos.Scripting.Dsl;
+using Azos.Serialization.JSON;
 
-namespace Azos.Tests.Nub.ScriptingAndTesting.Steps
+namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
 {
   [Runnable]
   public class BasicTests
@@ -22,7 +23,7 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Steps
       {
         //We do not want to repeat this part in various type references down below,
         //so we set it in the root of run step section for all child section down below
-        type-path='Azos.Scripting.Steps, Azos'
+        type-path='Azos.Scripting.Dsl, Azos'
 
         do{ type='See' text='Step number one'}
         do{ type='See' text='Step number two'}
@@ -40,7 +41,7 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Steps
     public const string JSON = @"
 {
   'script': {
-    'type-path': 'Azos.Scripting.Steps, Azos',
+    'type-path': 'Azos.Scripting.Dsl, Azos',
     'timeout-sec': 1.25,
     'step': [
       {
@@ -77,7 +78,7 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Steps
     public const string GOTO = @"
       script
       {
-        type-path='Azos.Scripting.Steps, Azos'
+        type-path='Azos.Scripting.Dsl, Azos'
         timeout-sec=0.25
 
         do{ type='See' text='Step number one' name='loop'} //loop label
@@ -100,7 +101,7 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Steps
     public const string SUBS = @"
       script
       {
-        type-path='Azos.Scripting.Steps, Azos'
+        type-path='Azos.Scripting.Dsl, Azos'
         timeout-sec=0.25
 
        // do{ type='Set' global='x' to='global.x + 1'}
@@ -140,7 +141,7 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Steps
     public const string EXPR = @"
       script
       {
-        type-path='Azos.Scripting.Steps, Azos'
+        type-path='Azos.Scripting.Dsl, Azos'
 
         do{ type='Set' global='x' to='100'}
         do{ type='See' format='Step number one says: {~global.x}'}
@@ -155,13 +156,17 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Steps
       var runnable = new StepRunner(NOPApplication.Instance, EXPR.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
       runnable.Run();
       Aver.AreEqual(2_100, runnable.GlobalState["x"].AsInt());
+
+      Aver.AreEqual("~global.x", StepRunnerVarResolver.Eval("~~global.x", runnable, new JsonDataMap() ));
+      Aver.AreEqual("2100", StepRunnerVarResolver.Eval("~global.x", runnable, new JsonDataMap()));
+      Aver.AreEqual("-4200", StepRunnerVarResolver.Eval("~-2*global.x", runnable, new JsonDataMap()));
     }
 
 
     public const string STRCONCAT = @"
       script
       {
-        type-path='Azos.Scripting.Steps, Azos'
+        type-path='Azos.Scripting.Dsl, Azos'
 
         do{ type='Set' global='who' to='\'Sonya\''}
         do{ type='Set' global='who' to='global.who + \' Mamzyan\''}
@@ -180,7 +185,7 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Steps
     public const string IF = @"
       script
       {
-        type-path='Azos.Scripting.Steps, Azos'
+        type-path='Azos.Scripting.Dsl, Azos'
 
         do{ type='Set' global='fuel' to='5.2'}
         do
@@ -212,7 +217,7 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Steps
     public const string VARSCOPE = @"
       script
       {
-        type-path='Azos.Scripting.Steps, Azos'
+        type-path='Azos.Scripting.Dsl, Azos'
 
         do{ type='Set' global='x' to='1'}
         do{ type='Set' global='y' to='2'}
@@ -239,7 +244,7 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Steps
     public const string SETRESULT = @"
       script
       {
-        type-path='Azos.Scripting.Steps, Azos'
+        type-path='Azos.Scripting.Dsl, Azos'
 
         do{ type='SetResult' to='123'}
         do{ type='Set' global='x' to='-runner.result'} //-123
@@ -264,7 +269,7 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Steps
     public const string NAV1 = @"
       script
       {
-        type-path='Azos.Scripting.Steps, Azos'
+        type-path='Azos.Scripting.Dsl, Azos'
 
         do{ type='Set' global='x' to='\'{a: 2, b: 3}\''}
         do{ type='Set' global='y' to='global.x.a * global.x.b'}//6

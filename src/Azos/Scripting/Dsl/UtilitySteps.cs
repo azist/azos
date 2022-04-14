@@ -10,11 +10,12 @@ using System.Threading;
 using Azos.Apps;
 using Azos.Collections;
 using Azos.Conf;
+using Azos.Data;
 using Azos.Security;
 using Azos.Serialization.JSON;
 using Azos.Time;
 
-namespace Azos.Scripting.Steps
+namespace Azos.Scripting.Dsl
 {
   /// <summary>
   /// Emits a log message
@@ -31,7 +32,7 @@ namespace Azos.Scripting.Steps
 
     protected override string DoRun(JsonDataMap state)
     {
-      WriteLog(MsgType, From, Text, null, null, Pars);
+      WriteLog(MsgType, Eval(From, state), Eval(Text, state), null, null, Eval(Pars, state));
       return null;
     }
   }
@@ -49,11 +50,11 @@ namespace Azos.Scripting.Steps
 
     protected override string DoRun(JsonDataMap state)
     {
-      if (Text.IsNotNullOrWhiteSpace()) Conout.See(Text);
+      if (Text.IsNotNullOrWhiteSpace()) Conout.See(Eval(Text, state));
 
       if (Format.IsNotNullOrWhiteSpace())
       {
-        var got = StepRunnerVarResolver.FormatString(Format, Runner, state);
+        var got = StepRunnerVarResolver.FormatString(Eval(Format, state), Runner, state);
         Conout.See(got);
       }
       return null;
@@ -67,17 +68,17 @@ namespace Azos.Scripting.Steps
   {
     public Delay(StepRunner runner, IConfigSectionNode cfg, int idx) : base(runner, cfg, idx) { }
 
-    [Config] public double Seconds { get; set; }
+    [Config] public string Seconds { get; set; }
 
     protected override string DoRun(JsonDataMap state)
     {
-      var secTimeout = Seconds;
+      var secTimeout = Eval(Seconds, state).AsDouble(0.0);
       if (secTimeout <= 0.0) secTimeout = 1.0;
 
       var time = Timeter.StartNew();
 
       while (time.ElapsedSec < secTimeout && Runner.IsRunning)
-        Thread.Sleep(100);
+        Thread.Sleep(50);
 
       return null;
     }
@@ -143,8 +144,9 @@ namespace Azos.Scripting.Steps
 
     protected override string DoRun(JsonDataMap state)
     {
-      var credentials = Auth.IsNotNullOrWhiteSpace() ? IDPasswordCredentials.FromBasicAuth(Auth)
-                                                     : new IDPasswordCredentials(Id, Pwd);
+      var credentials = Auth.IsNotNullOrWhiteSpace() ? IDPasswordCredentials.FromBasicAuth(Eval(Auth, state))
+                                                     : new IDPasswordCredentials(Eval(Id, state),
+                                                                                 Eval(Pwd, state));
 
       var user = App.SecurityManager.Authenticate(credentials);
       var session = MakeImpersonationSession();
@@ -178,7 +180,7 @@ namespace Azos.Scripting.Steps
         session = MakeImpersonationSession();
         Azos.Apps.ExecutionContext.__SetThreadLevelSessionContext(session);
       }
-      session.DataContextName = DataContext;
+      session.DataContextName = Eval(DataContext, state);
 
       return null;
     }

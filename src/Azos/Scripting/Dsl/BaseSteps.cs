@@ -9,7 +9,7 @@ using Azos.Collections;
 using Azos.Conf;
 using Azos.Serialization.JSON;
 
-namespace Azos.Scripting.Steps
+namespace Azos.Scripting.Dsl
 {
   /// <summary>
   /// Custom steps get derived from this class
@@ -93,6 +93,13 @@ namespace Azos.Scripting.Steps
     }
 
     public override string ToString() => $"{GetType().Name}(`{Name}`, [{Order}], '{Config.RootPath}')";
+
+    /// <summary>
+    /// A shortcut to <see cref="StepRunnerVarResolver.Eval(string, StepRunner, JsonDataMap)"/>
+    /// </summary>
+    public string Eval(string value, JsonDataMap state)
+      => StepRunnerVarResolver.Eval(value, Runner, state);
+
   }
 
 

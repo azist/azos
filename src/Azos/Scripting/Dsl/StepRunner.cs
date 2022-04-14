@@ -13,7 +13,7 @@ using Azos.Conf;
 using Azos.Serialization.JSON;
 using Azos.Time;
 
-namespace Azos.Scripting.Steps
+namespace Azos.Scripting.Dsl
 {
   /// <summary>
   /// Designates states of script execution
