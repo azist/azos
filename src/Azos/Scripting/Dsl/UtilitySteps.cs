@@ -47,7 +47,6 @@ namespace Azos.Scripting.Dsl
     [Config] public string Text { get; set; }
     [Config] public string Format { get; set; }
 
-
     protected override string DoRun(JsonDataMap state)
     {
       if (Text.IsNotNullOrWhiteSpace()) Conout.See(Eval(Text, state));
@@ -57,6 +56,43 @@ namespace Azos.Scripting.Dsl
         var got = StepRunnerVarResolver.FormatString(Eval(Format, state), Runner, state);
         Conout.See(got);
       }
+      return null;
+    }
+  }
+
+  /// <summary>
+  /// Dumps global state
+  /// </summary>
+  public sealed class DumpGlobalState : Step
+  {
+    public DumpGlobalState(StepRunner runner, IConfigSectionNode cfg, int idx) : base(runner, cfg, idx) { }
+
+    [Config] public string FileName{  get; set;}
+
+    protected override string DoRun(JsonDataMap state)
+    {
+      var json = Runner.GlobalState.ToJson(JsonWritingOptions.PrettyPrintRowsAsMapASCII);
+      Conout.WriteLine(json);
+      if (FileName.IsNotNullOrWhiteSpace()) System.IO.File.WriteAllText(FileName, json);
+      return null;
+    }
+  }
+
+  /// <summary>
+  /// Dumps local state
+  /// </summary>
+  public sealed class DumpLocalState : Step
+  {
+    public DumpLocalState(StepRunner runner, IConfigSectionNode cfg, int idx) : base(runner, cfg, idx) { }
+
+
+    [Config] public string FileName { get; set; }
+
+    protected override string DoRun(JsonDataMap state)
+    {
+      var json = state.ToJson(JsonWritingOptions.PrettyPrintRowsAsMapASCII);
+      Conout.WriteLine(json);
+      if (FileName.IsNotNullOrWhiteSpace()) System.IO.File.WriteAllText(FileName, json);
       return null;
     }
   }

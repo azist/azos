@@ -228,6 +228,9 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
 
         do{ type='See' format='The global result is: {~global.z}'}
         do{ type='See' format='The local result is: {~local.z}'}
+
+        do{ type='DumpGlobalState'}
+        do{ type='DumpLocalState'}
       }
     ";
 
