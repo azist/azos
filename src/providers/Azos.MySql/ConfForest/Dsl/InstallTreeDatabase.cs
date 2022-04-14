@@ -26,7 +26,7 @@ namespace Azos.MySql.ConfForest.Dsl
     public string MySqlConnectString { get; set; }
 
     [Config]
-    public string TreeName { get; set; }
+    public string DbName { get; set; }
 
     [Config]
     public string SkipDbCreation {  get ; set; }
@@ -71,7 +71,7 @@ namespace Azos.MySql.ConfForest.Dsl
 
     private string getDbn(JsonDataMap state)
     {
-      return Eval(TreeName.NonBlank(nameof(TreeName)), state).NonBlankMinMax(5, 32, nameof(TreeName));
+      return Eval(DbName.NonBlank(nameof(DbName)), state).NonBlankMinMax(5, 32, nameof(DbName));
     }
 
     private void createDatabase(MySqlCommand cmd, Guid rel, JsonDataMap state)
