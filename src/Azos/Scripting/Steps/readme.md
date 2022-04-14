@@ -9,6 +9,8 @@ which will run each step's code execution in sequence until all steps have compl
 
 ## Step Configuration Examples:
 
+### 1. Simple Configuration:
+
 A simple [Laconic Format](/src/Azos/Conf/laconic-format.md) example:
 
 ```csharp
@@ -16,12 +18,12 @@ A simple [Laconic Format](/src/Azos/Conf/laconic-format.md) example:
   {
     //We do not want to repeat this part in various type references down below,
     //so we set it in the root of run step section for all child section down below
-    type-path='Azos.Scripting.Steps, Azos'
+    type-path='Azos.Scripting.Dsl, Azos'
 
-    step{ type='See' text='Step number one' name='loop'} //loop label
-    step{ type='See' text='Step number two'}
-    step{ type='Delay' seconds=0.5 }
-    step{ type='Goto' label='loop' name='goto1'}
+    do{ type='See' text='Step number one' name='loop'} //loop label
+    do{ type='See' text='Step number two'}
+    do{ type='Delay' seconds=0.5 }
+    do{ type='Goto' label='loop' name='goto1'}
   }
 ```
 
@@ -30,9 +32,9 @@ A simple [Json Format](/src/Azos/Conf/json-format.md) example:
 ```json
 {
     "script": {
-      "type-path": "Azos.Scripting.Steps, Azos",
+      "type-path": "Azos.Scripting.Dsl, Azos",
       "timeout-sec": 1.25,
-      "step": [
+      "do": [
         {
           "type": "See",
           "text": "Step number one",
@@ -56,3 +58,36 @@ A simple [Json Format](/src/Azos/Conf/json-format.md) example:
 }
 ```
 
+
+### 2. Configuration with Inclusion of Multiple `Sub` Routine Files:
+
+A [Laconic Format](/src/Azos/Conf/laconic-format.md) example including `sub-routine-one.laconf` and `sub-routine-two.laconf` steps:
+
+```csharp
+setup-auth-kit
+{
+  process-includes="_include"
+  type-path="Azos.Scripting.Dsl, Azos; Azos.MySql.ConfForest.Steps, Azos.MySql;"
+
+  do
+  {
+    type="Sub"
+    name="sub-routine-one"
+    source{ _include{ file="./scripts/tools/$(../../$name).laconf" } }
+  }
+
+  do
+  {
+    type="Sub"
+    name="sub-routine-two"
+    source{ _include{ file="./scripts/tools/$(../../$name).laconf" } }
+  }
+
+}
+```
+
+## Anatomy of a Step
+
+Steps are inherited from the abstract `Step` class that provides a C# stateful container of runnable logic that is run in order of within the executing script configuration. 
+Each step provides local and global state, `RunStatus` (e.g. Init, Running, Finished, Crashed, Terminated), 
+order within the containing script, timeout, exception, result, and optional name logic.
