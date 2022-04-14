@@ -18,7 +18,7 @@ using MySqlConnector;
 
 namespace Azos.AuthKit.Server.MySql.Dsl
 {
-  public sealed class InstallUserDatabase : EntryPoint
+  public sealed class InstallUserDatabase : Step
   {
     public InstallUserDatabase(StepRunner runner, IConfigSectionNode cfg, int idx) : base(runner, cfg, idx) { }
 

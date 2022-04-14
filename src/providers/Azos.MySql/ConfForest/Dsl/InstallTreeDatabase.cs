@@ -18,7 +18,7 @@ using MySqlConnector;
 
 namespace Azos.MySql.ConfForest.Dsl
 {
-  public sealed class InstallTreeDatabase : EntryPoint
+  public sealed class InstallTreeDatabase : Step
   {
     public InstallTreeDatabase(StepRunner runner, IConfigSectionNode cfg, int idx) : base(runner, cfg, idx) { }
 
