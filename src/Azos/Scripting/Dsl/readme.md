@@ -1,6 +1,6 @@
-﻿# Step Script Runner
+﻿# DSL Step Script Runner
 
-Facilitates execution of C# code snippets embodied id [`Step`](BaseSteps.cs)-derived classes.
+Facilitates execution of DOMAIN-SPECIFIC language C# code snippets embodied id [`Step`](BaseSteps.cs)-derived classes.
 
 Step Scripts are composed of series of configured steps that can be supplied as [Configuration](/src/Azos/Conf) with all of the scripting features of the 
 Azos Configuration Engine. Each `Step` is a C# coded concrete implementation of the [Azos.Scripting.Steps.Step] abstract class that you want to 

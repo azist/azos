@@ -11,7 +11,7 @@ using System.Text;
 using Azos.Conf;
 using Azos.Serialization.JSON;
 
-namespace Azos.Scripting.Steps
+namespace Azos.Scripting.Dsl
 {
   /// <summary>
   /// Handy base class for building various script harnesses which feed from multiple sources,

@@ -12,7 +12,7 @@ using Azos.Data;
 using Azos.Serialization.JSON;
 using Azos.Text;
 
-namespace Azos.Scripting.Steps
+namespace Azos.Scripting.Dsl
 {
   /// <summary>
   /// Defines an entry point. Entry points need to be used as independently-addressable steps which execution can start from
@@ -67,7 +67,7 @@ namespace Azos.Scripting.Steps
 
     protected override string DoRun(JsonDataMap state)
     {
-      return Label;
+      return Eval(Label, state);
     }
   }
 
@@ -84,7 +84,7 @@ namespace Azos.Scripting.Steps
     {
       Sub.NonBlank("call sub name");
       var inner = new StepRunner(App, Runner.RootSource, Runner.GlobalState);
-      inner.Run(Sub);
+      inner.Run(Eval(Sub, state));
       return null;
     }
   }
@@ -104,7 +104,7 @@ namespace Azos.Scripting.Steps
     protected override string DoRun(JsonDataMap state)
     {
       Condition.NonBlank("condition");
-      var eval = new Evaluator(Condition);
+      var eval = new Evaluator(Eval(Condition, state));
       var got = eval.Evaluate(id => StepRunnerVarResolver.GetResolver(Runner, id, state)).AsBool();
 
       if (got)

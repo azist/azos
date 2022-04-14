@@ -13,7 +13,7 @@ using Azos.Conf;
 using Azos.IO.Console;
 using Azos.Platform;
 using Azos.Scripting;
-using Azos.Scripting.Steps;
+using Azos.Scripting.Dsl;
 using Azos.Serialization.JSON;
 
 namespace Azos.Tools.Srun

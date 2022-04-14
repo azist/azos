@@ -6,10 +6,10 @@
 using System;
 
 using Azos.Data;
-using Azos.Scripting.Steps;
+using Azos.Scripting.Dsl;
 using Azos.Serialization.JSON;
 
-namespace Azos.Conf.Forest.Steps
+namespace Azos.Conf.Forest.Dsl
 {
 
   public abstract class TreeStepBase : Step
@@ -36,7 +36,7 @@ namespace Azos.Conf.Forest.Steps
 
     protected override string DoRun(JsonDataMap state)
     {
-      var node = JsonReader.ToDoc<TreeNode>(TreeNodeJson.NonBlank(nameof(TreeNodeJson)));
+      var node = JsonReader.ToDoc<TreeNode>(Eval(TreeNodeJson.NonBlank(nameof(TreeNodeJson)), state).NonBlank(nameof(TreeNodeJson)));
       var got = Logic.SaveNodeAsync(node).GetAwaiter().GetResult();
       Runner.SetResult(got);
       return null;
@@ -58,7 +58,7 @@ namespace Azos.Conf.Forest.Steps
 
     protected override string DoRun(JsonDataMap state)
     {
-      Id.NonBlank(nameof(Id));
+      var id = Eval(Id.NonBlank(nameof(Id)), state).NonBlank(nameof(Id));
       var got = Logic.DeleteNodeAsync(Id, StartUtc).GetAwaiter().GetResult();
       Runner.SetResult(got);
       return null;

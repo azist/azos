@@ -9,69 +9,75 @@ using System.Collections.Generic;
 using System.Text;
 
 using Azos.Conf;
+using Azos.Data;
 using Azos.Platform;
-using Azos.Scripting.Steps;
+using Azos.Scripting.Dsl;
 using Azos.Serialization.JSON;
 
 using MySqlConnector;
 
-namespace Azos.AuthKit.Server.MySql.Steps
+namespace Azos.MySql.ConfForest.Dsl
 {
-  public sealed class InstallUserDatabase : EntryPoint
+  public sealed class InstallTreeDatabase : EntryPoint
   {
-    public InstallUserDatabase(StepRunner runner, IConfigSectionNode cfg, int idx) : base(runner, cfg, idx) { }
+    public InstallTreeDatabase(StepRunner runner, IConfigSectionNode cfg, int idx) : base(runner, cfg, idx) { }
 
     [Config]
     public string MySqlConnectString { get; set; }
 
     [Config]
-    public string DbName { get; set; }
+    public string TreeName { get; set; }
 
     [Config]
-    public bool SkipDbCreation {  get ; set; }
+    public string SkipDbCreation {  get ; set; }
 
     [Config]
-    public bool SkipDdl { get; set; }
+    public string SkipDdl { get; set; }
 
     protected override string DoRun(JsonDataMap state)
     {
       var rel = Guid.NewGuid();
-      var cs = MySqlConnectString.NonBlank(nameof(MySqlConnectString));
+      var cs = Eval(MySqlConnectString.NonBlank(nameof(MySqlConnectString)), state);
       using(var cnn = new MySqlConnection(cs))
       {
         cnn.Open();
-        doConnectionWork(cnn, rel);
+        doConnectionWork(cnn, rel, state);
       }
 
       return null;
     }
 
-    private void doConnectionWork(MySqlConnection cnn, Guid rel)
+    private void doConnectionWork(MySqlConnection cnn, Guid rel, JsonDataMap state)
     {
       using(var cmd = cnn.CreateCommand())
       {
         //Step 1. Create database
-        if (!SkipDbCreation)
+        if (!Eval(SkipDbCreation, state).AsBool(false))
         {
           WriteLog(Log.MessageType.Info, nameof(doConnectionWork), "Will create database", related: rel);
-          createDatabase(cmd, rel);
+          createDatabase(cmd, rel, state);
           WriteLog(Log.MessageType.Info, nameof(doConnectionWork), "Db created", related: rel);
         }
 
         //Step 2. Create DDL
-        if (!SkipDdl)
+        if (!Eval(SkipDdl, state).AsBool(false))
         {
           WriteLog(Log.MessageType.Info, nameof(doConnectionWork), "Will run DDL", related: rel);
-          createDdl(cmd, rel);
+          createDdl(cmd, rel, state);
           WriteLog(Log.MessageType.Info, nameof(doConnectionWork), "DDL ran", related: rel);
         }
       }
     }
 
-    private void createDatabase(MySqlCommand cmd, Guid rel)
+    private string getDbn(JsonDataMap state)
     {
-      var ddl = typeof(MySqlUserStore).GetText("ddl.db_ddl.sql");
-      var dbn = DbName.NonBlankMinMax(5, 32, nameof(DbName));
+      return Eval(TreeName.NonBlank(nameof(TreeName)), state).NonBlankMinMax(5, 32, nameof(TreeName));
+    }
+
+    private void createDatabase(MySqlCommand cmd, Guid rel, JsonDataMap state)
+    {
+      var ddl = typeof(MySqlConfForestTreeDataStore).GetText("ddl.db_ddl.sql");
+      var dbn = getDbn(state);
       WriteLog(Log.MessageType.Info, nameof(createDatabase), "Db is: {0}".Args(dbn), related: rel);
 
       ddl = ddl.Args(dbn);
@@ -81,9 +87,9 @@ namespace Azos.AuthKit.Server.MySql.Steps
       sql(cmd, nameof(createDatabase), rel);
     }
 
-    private void createDdl(MySqlCommand cmd, Guid rel)
+    private void createDdl(MySqlCommand cmd, Guid rel, JsonDataMap state)
     {
-      var dbn = DbName.NonBlankMinMax(5, 32, nameof(DbName));
+      var dbn = getDbn(state);
       WriteLog(Log.MessageType.Info, nameof(createDatabase), "Set db to: {0}".Args(dbn), related: rel);
       var ddl = "use `{0}`";
       WriteLog(Log.MessageType.Info, nameof(createDatabase), "Starting cmd exec...", related: rel, pars: ddl);
@@ -91,7 +97,7 @@ namespace Azos.AuthKit.Server.MySql.Steps
       sql(cmd, nameof(createDdl), rel);
 
 
-      ddl = typeof(MySqlUserStore).GetText("ddl.user_ddl.sql");
+      ddl = typeof(MySqlConfForestTreeDataStore).GetText("ddl.tree_ddl.sql");
       cmd.CommandText = ddl;
       sql(cmd, nameof(createDdl), rel);
     }
@@ -109,8 +115,6 @@ namespace Azos.AuthKit.Server.MySql.Steps
         throw;
       }
     }
-
-
   }
 }
 

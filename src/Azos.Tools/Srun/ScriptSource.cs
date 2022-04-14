@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Azos.Conf;
-using Azos.Scripting.Steps;
+using Azos.Scripting.Dsl;
 
 namespace Azos.Tools.Srun
 {
