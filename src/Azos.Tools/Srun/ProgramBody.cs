@@ -109,10 +109,36 @@ namespace Azos.Tools.Srun
             Console.ForegroundColor =  ConsoleColor.Gray;
           }
 
-          var epn = config.AttrByIndex(1).Value;
-          var ep = runner.GenericRunner.EntryPoints.FirstOrDefault(i => i.Name.EqualsOrdIgnoreCase(epn));
+          if (config["state"].Exists)
+          {
+            var fn = config["state"].AttrByIndex(0).Value;
+            if (!System.IO.File.Exists(fn))
+            {
+              ConsoleUtils.Error("State JSON File does not exist");
+              return -3;
+            }
+            var json = JsonReader.DeserializeDataObjectFromFile(fn) as JsonDataMap;
+            if (json ==null)
+            {
+              ConsoleUtils.Error("State JSON File does not contain a valid JSON map");
+              return -3;
+            }
+            runner.GenericRunner.GlobalState.Append(json, true);
+          }
 
-          runner.Run(ep);
+          if (config["vars"].Exists)
+          {
+            foreach(var nvar in config["vars"].Attributes)
+            {
+              runner.GenericRunner.GlobalState[nvar.Name] = nvar.Value;
+            }
+          }
+
+
+          var entryPointName = config.AttrByIndex(1).Value;
+          var entryPoint = runner.GenericRunner.EntryPoints.FirstOrDefault(i => i.Name.EqualsOrdIgnoreCase(entryPointName));
+
+          runner.Run(entryPoint);
 
 
           if (config["r","result"].Exists)
