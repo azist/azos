@@ -138,6 +138,13 @@ namespace Azos.Tools.Srun
             }
           }
 
+          if (config["dump-source"].Exists)
+          {
+            var src = runner.GenericRunner.RootSource.ToLaconicString(CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint);
+            Console.WriteLine(src);
+            return 0;
+          }
+
 
           var entryPointName = config.AttrByIndex(1).Value;
           var entryPoint = runner.GenericRunner.EntryPoints.FirstOrDefault(i => i.Name.EqualsOrdIgnoreCase(entryPointName));

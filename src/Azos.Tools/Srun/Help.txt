@@ -12,6 +12,7 @@
               [-s|-silent]
               [-state json_file_name]
               [-vars var1=val1 [varX=valX]]
+              [-dump-source]
 
 <f color=gray>
 Executes a script contained in a script_file. The system performs "_include" expansion.
@@ -28,6 +29,7 @@ You can specify optional "entry_point_sub_name".
 <f color=green>-s|silent<f color=gray> - suppresses info
 <f color=green>-state json_file_name<f color=gray> - loads json data into runner globals
 <f color=green>-vars var1=val1 [varX=valX]<f color=gray> - sets global variables by name
+<f color=green>-dump-source<f color=gray> - if present dumps all source code into console
 
 <f color=magenta>
  Examples:
