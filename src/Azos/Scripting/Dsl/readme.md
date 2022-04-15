@@ -91,3 +91,53 @@ setup-auth-kit
 Steps are inherited from the abstract `Step` class that provides a C# stateful container of runnable logic that is run in order of within the executing script configuration. 
 Each step provides local and global state, `RunStatus` (e.g. Init, Running, Finished, Crashed, Terminated), 
 order within the containing script, timeout, exception, result, and optional name logic.
+
+### Creating your own `Step` implementations
+
+When creating your own steps you can simply provide a constructor that chains the values to base. 
+Add additional `[Config]` attributed public properties (you should declare properties as `string` if you intend to evaluate variable replacements from JSON input or command arguments).
+Then override the `DoRun` base abstract method with your concrete step logic.
+
+> **Note*** the `Eval(string value, JsonDataMap state)` method calls in the `DoRun` method, this is done to evaluate variable replacements from an external JSON input file or command arguments. 
+
+```csharp
+  /// <summary>
+  /// Emits a log message
+  /// </summary>
+  public sealed class Log : Step
+  {
+    public Log(StepRunner runner, IConfigSectionNode cfg, int idx) : base(runner, cfg, idx){ }
+
+    [Config] public Azos.Log.MessageType MsgType{ get; set;}
+    [Config] public string From { get; set; }
+    [Config] public string Text { get; set; }
+    [Config] public string Pars { get; set; }
+
+
+    protected override string DoRun(JsonDataMap state)
+    {
+      WriteLog(MsgType, Eval(From, state), Eval(Text, state), null, null, Eval(Pars, state));
+      return null;
+    }
+  }
+```
+
+### Azos Provided Steps
+
+The Azos framework includes several basic utility and evaluation steps that you can use in addition to your custom step implementations.
+
+#### Utility Steps:
+
+- **Log : Step** - Writes a log message for this run step; returns the new log msg GDID for correlation, or GDID.Empty if no message was logged.
+
+
+- **See : Step** - Writes to Console output the `Text` (evaluated for variables) or `Format` 
+(evaluated for variables and Expands a format string of a form: `"Hello {~global.name}, see you in {~local.x} minutes!"`).
+
+- **Delay : Step** - Runs a step with a delay in `Seconds`
+
+- **LoadModule : Step** - Loads a module and resolves dependencies.
+
+- **Impersonate : Step** - Impersonates a session with credentials using `Auth` (Basic Auth) or by `Id` and `Pwd`.
+
+- **SetDataContextName : Step** - 
