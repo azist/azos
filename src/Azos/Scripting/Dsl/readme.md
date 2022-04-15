@@ -265,11 +265,41 @@ namespace srunc
 
 ## Executing Step Scripts from you Console Application:
 
+Optionally create a `script_args.json` JSON file with your supplied argument mix-ins (`-vars`):
+
+```json
+{ 
+  "args": {
+    "a": 4,
+    "b": 3
+    }
+  }
+} 
+```
+
+Then use the arguments (`-vars`) in your script file:
+
+```csharp
+script
+{
+    do{ type='See' text='~global.args.a'}
+    do{ type='See' text='~global.args.b'}
+}
+```
+
+Then execute the script with the `script_args.json` arguments:
+
+```sh
+$ dotnet srunc.dll scripts/authkit/setup.laconf -state script_args.json
+```
+
+You can override arguments -vars during execution:
+
 ```sh
 $ dotnet srunc.dll scripts/authkit/setup.laconf -vars a=1 b=2
 ```
 
-or 
+or partial replacements.
 
 ```sh
 $ dotnet srunc.dll scripts/authkit/setup.laconf -state json_file_name -vars a=3
