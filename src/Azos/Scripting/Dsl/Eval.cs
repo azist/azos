@@ -104,8 +104,15 @@ namespace Azos.Scripting.Dsl
     /// </summary>
     public static string FormatString(string fmt, StepRunner runner, JsonDataMap state)
     {
-      if (fmt.IsNullOrWhiteSpace()) return fmt;
-      return fmt.EvaluateVars(new StepRunnerVarResolver(runner, state), varStart: "{", varEnd: "}", recurse: false);
+      try
+      {
+        if (fmt.IsNullOrWhiteSpace()) return fmt;
+        return fmt.EvaluateVars(new StepRunnerVarResolver(runner, state), varStart: "{", varEnd: "}", recurse: false);
+      }
+      catch (Exception cause)
+      {
+        throw new RunnerException("{0} error while processing `{1}`: {2}".Args(nameof(GetResolver), fmt.TakeFirstChars(64, "..."), cause.ToMessageWithType()), cause);
+      }
     }
 
     /// <summary>
@@ -114,14 +121,21 @@ namespace Azos.Scripting.Dsl
     /// </summary>
     public static string Eval(string value, StepRunner runner, JsonDataMap state)
     {
-      if (value.IsNullOrWhiteSpace()) return value;
-      if (value.StartsWith("~~")) return value.Substring(1);//skip escape
-      if (value.StartsWith("~"))
+      try
       {
-        var evaluator = new Evaluator(value.Substring(1));
-        value = evaluator.Evaluate(id => GetResolver(runner, id, state));
+        if (value.IsNullOrWhiteSpace()) return value;
+        if (value.StartsWith("~~")) return value.Substring(1);//skip escape
+        if (value.StartsWith("~"))
+        {
+          var evaluator = new Evaluator(value.Substring(1));
+          value = evaluator.Evaluate(id => GetResolver(runner, id, state));
+        }
+        return value;
       }
-      return value;
+      catch (Exception cause)
+      {
+        throw new RunnerException("{0} error while processing `{1}`: {2}".Args(nameof(GetResolver), value.TakeFirstChars(64, "..."), cause.ToMessageWithType()), cause);
+      }
     }
 
 
@@ -130,6 +144,18 @@ namespace Azos.Scripting.Dsl
     /// Resolves `global.x` to `Runner.Globals[x]` otherwise to `state[x]`
     /// </summary>
     public static string GetResolver(StepRunner runner, string ident, JsonDataMap state)
+    {
+      try
+      {
+        return getResolver(runner, ident, state);
+      }
+      catch(Exception cause)
+      {
+        throw new RunnerException("{0} error on expression clause `{1}`: {2}".Args(nameof(GetResolver), ident.TakeFirstChars(64, "..."), cause.ToMessageWithType()), cause);
+      }
+    }
+
+    private static string getResolver(StepRunner runner, string ident, JsonDataMap state)
     {
       string get(object v)
       {
@@ -203,9 +229,16 @@ namespace Azos.Scripting.Dsl
 
     public bool ResolveEnvironmentVariable(string name, out string value)
     {
-      var eval = new Evaluator(name);
-      value = eval.Evaluate(id => GetResolver(Runner, id, State));
-      return true;
+      try
+      {
+        var eval = new Evaluator(name);
+        value = eval.Evaluate(id => GetResolver(Runner, id, State));
+        return true;
+      }
+      catch (Exception cause)
+      {
+        throw new RunnerException("{0} error while processing `{1}`: {2}".Args(nameof(GetResolver), name.TakeFirstChars(64, "..."), cause.ToMessageWithType()), cause);
+      }
     }
   }
 

@@ -44,10 +44,14 @@ namespace Azos.Tools.Srun
           }
           catch(Exception error)
           {
-           ConsoleUtils.Error(error.ToMessageWithType());
-           ConsoleUtils.Warning(error.StackTrace);
-           Console.WriteLine();
-           System.Environment.ExitCode = -1;
+            ConsoleUtils.Error(error.ToMessageWithType());
+            Console.WriteLine();
+
+            var e = new WrappedExceptionData(error, true, true);
+            Console.WriteLine(e.ToJson(JsonWritingOptions.PrettyPrintRowsAsMapASCII));
+
+            Console.WriteLine();
+            System.Environment.ExitCode = -1;
           }
         }
 
@@ -132,6 +136,13 @@ namespace Azos.Tools.Srun
             {
               runner.GenericRunner.GlobalState[nvar.Name] = nvar.Value;
             }
+          }
+
+          if (config["dump-source"].Exists)
+          {
+            var src = runner.GenericRunner.RootSource.ToLaconicString(CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint);
+            Console.WriteLine(src);
+            return 0;
           }
 
 
