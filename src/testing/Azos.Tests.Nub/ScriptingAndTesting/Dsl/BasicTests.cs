@@ -83,7 +83,7 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
 
         do{ type='See' text='Step number one' name='loop'} //loop label
         do{ type='See' text='Step number two'}
-        do{ type='Goto' label='loop' name='goto1'}
+        do{ type='Goto' step='loop' name='goto1'}
       }
     ";
 
@@ -187,6 +187,19 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
       {
         type-path='Azos.Scripting.Dsl, Azos'
 
+        do
+        {
+            type='If' condition='2 + 2 == 4'
+            then
+            {
+                do{ type='See' text='Yessss'}
+            }
+            else
+            {
+                do{ type='See' text='Maybe Not?'}
+            }
+        }
+
         do{ type='Set' global='fuel' to='5.2'}
         do
         {
@@ -199,7 +212,6 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
            {
              do{ type='Set' global='capacity' to='\'normal\''}
            }
-
         }
         do{ type='See' format='Fuel capacity is {~global.fuel} is {~global.capacity}'}
       }

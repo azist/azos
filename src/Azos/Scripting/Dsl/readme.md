@@ -126,13 +126,16 @@ Then override the `DoRun` base abstract method with your concrete step logic.
 
 The Azos framework includes several basic utility and evaluation steps that you can use in addition to your custom step implementations.
 
-#### Utility Steps:
+#### Azos Utility Steps:
 
 - **Log : Step** - Writes a log message for this run step; returns the new log msg GDID for correlation, or GDID.Empty if no message was logged.
 
-
 - **See : Step** - Writes to Console output the `Text` (evaluated for variables) or `Format` 
 (evaluated for variables and Expands a format string of a form: `"Hello {~global.name}, see you in {~local.x} minutes!"`).
+
+- **DumpGlobalState : Step** - Dumps the global state to console (by default) and optionally writes to file if `FileName` is provided.
+
+- **DumpLocalState : Step** - Dumps the local state to console (by default) and optionally writes to file if `FileName` is provided.
 
 - **Delay : Step** - Runs a step with a delay in `Seconds`
 
@@ -140,4 +143,62 @@ The Azos framework includes several basic utility and evaluation steps that you 
 
 - **Impersonate : Step** - Impersonates a session with credentials using `Auth` (Basic Auth) or by `Id` and `Pwd`.
 
-- **SetDataContextName : Step** - 
+- **SetDataContextName : Step** - Sets the ambient session data context name.
+
+#### Azos Eval Steps:
+
+- **Set : Step** - Sets a global or local value to the specified expression.
+
+    - Example:
+    ```csharp
+    do{ type="Set" global=a to='((x * global.a) / global.b) + 23'}
+    do{ type="Set" local=x to='x+1' name="inc x"}
+    ```
+
+- **SetResult : Step** - Sets runner.Result to the specified expression.
+
+    - Example:
+    ```csharp
+    do{ type="SetResult" to='((x * global.a) / global.b) + 23'}
+    do{ type="SetResult" to='x+1' name="inc x"}
+    ```
+
+#### Azos Control Flow Steps:
+
+- **EntryPoint : Step** - Defines an entry point. Entry points need to be used as independently-addressable
+named steps which execution can start from **(Name property is Required!)**.
+
+- **Sub : EntryPoint** - Defines a subroutine which is a StepRunner tree **(the `source{ ... }` section is Required!)**.
+
+- **Halt : Step** - Signals that the underlying `StepRunner` should no longer contiue processing subsequent steps.
+Can be paired with the "If" step provide "Halt and catch fire" stop execution logic.
+
+- **Goto : Step** - Transfers control to another named step.
+
+    - Example:
+    ```csharp
+    do{ type="See" text='Beginning of the loop!' name='loopStart' }
+    ...
+    do{ type="GoTo" step='loopStart'}
+    ```
+
+- **Call : Step** - Calls a named subroutine **(Name property is Required!)**.
+
+- **If : Step** - Provides an If statement that evaluates a condition and 
+executes the `then` section (if **True**) or the `else` section (if **False**).
+
+    - Example:
+    ```csharp
+    do
+    {
+        type='If' condition='2 + 2 == 5'
+        then
+        {
+            do{ type='See' text='Yessss'}
+        }
+        else
+        {
+            do{ type='See' text='Maybe Not?'}
+        }
+    }
+    ```
