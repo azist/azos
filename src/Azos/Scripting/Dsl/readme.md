@@ -170,7 +170,7 @@ named steps which execution can start from **(Name property is Required!)**.
 
 - **Sub : EntryPoint** - Defines a subroutine which is a StepRunner tree **(the `source{ ... }` section is Required!)**.
 
-- **Halt : Step** - Signals that the underlying `StepRunner` should no longer contiue processing subsequent steps.
+- **Halt : Step** - Signals that the underlying `StepRunner` should no longer continue processing subsequent steps.
 Can be paired with the "If" step provide "Halt and catch fire" stop execution logic.
 
 - **Goto : Step** - Transfers control to another named step.
@@ -202,3 +202,64 @@ executes the `then` section (if **True**) or the `else` section (if **False**).
         }
     }
     ```
+
+## Executing Scripts
+
+Step scripts are executed by calling an instance of a `StepRunner` or through calling a concrete implementation 
+of a `Multisource<StepRunner>`. The Azos framework provides a `ScriptSource` concrete class implementation of `Multisource<StepRunner>`
+in `Azos.Tools.Srun` namespace that provides a wrapper for creating a `StepRunner` from either an `IConfigSectionNode` OR creating directly
+from a file. You can implement your own custom logic by inheriting and overriding the `StepRunner` and `Multisource<StepRunner>` as needed.
+
+Additionally included in the `Azos.Tools.Srun` namespace is a console application `ProgramBody` bootstrapper that can be wrapped in a console
+application. By using the `ProgramBody` bootstrapper you can expose a fully functioning console application that allows for JSON arguments to be
+loaded and evaluated, overriding or directly supplying arguments, loading the configuration script by file name, and much more. See the Srun 
+[Help.txt](/src/Azos.Tools/Srun/Help.txt), [ProgramBody.cs](/src/Azos.Tools/Srun/ProgramBody.cs), and 
+[ScriptSource.cs](/src/Azos.Tools/Srun/ScriptSource.cs) to review the bootstrap logic.
+
+#### StepRunner Laconic Example:
+
+```csharp
+
+    var steps = "script { do{ type='See' text='Yessss'} }";
+    
+    var runnable = new StepRunner(NOPApplication.Instance, steps.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+    runnable.Run();
+```
+
+#### StepRunner JSON Example:
+
+```csharp
+
+    var steps = "{ \"script\": { do{ \"type\":\"See\", \"text\":\"Yessss\"} }";
+    
+    var runnable = new StepRunner(NOPApplication.Instance, steps.AsJSONConfig(handling: Data.ConvertErrorHandling.Throw));
+    runnable.Run();
+```
+
+
+
+## Creating a Bootstrapped Console Application for .Net Core 2.0 Example:
+
+```csharp
+using System;
+using System.Reflection;
+using Azos;
+
+namespace srunc
+{
+  class Program
+  {
+    static void Main(string[] args)
+    {
+      System.Runtime.Loader.AssemblyLoadContext.Default.Resolving += refAssemblyResolver;
+
+      new Azos.Platform.Abstraction.NetCore.NetCore20Runtime();
+      Azos.Tools.Srun.ProgramBody.Main(args);
+    }
+
+    private static Assembly refAssemblyResolver(System.Runtime.Loader.AssemblyLoadContext loadContext, AssemblyName asmName)
+      => Assembly.LoadFrom("{0}.dll".Args(asmName.Name));
+  }
+}
+```
+
