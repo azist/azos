@@ -7,8 +7,8 @@
 using System;
 using System.Linq;
 using System.Threading;
+
 using Azos.Apps;
-using Azos.Collections;
 using Azos.Conf;
 using Azos.Data;
 using Azos.Security;
@@ -28,11 +28,13 @@ namespace Azos.Scripting.Dsl
     [Config] public string From { get; set; }
     [Config] public string Text { get; set; }
     [Config] public string Pars { get; set; }
+    [Config] public string Rel  { get; set; }
 
 
     protected override string DoRun(JsonDataMap state)
     {
-      WriteLog(MsgType, Eval(From, state), Eval(Text, state), null, null, Eval(Pars, state));
+      var guid = WriteLog(MsgType, Eval(From, state), Eval(Text, state), null, Eval(Rel, state).AsNullableGUID(), Eval(Pars, state));
+      Runner.SetResult(guid);
       return null;
     }
   }

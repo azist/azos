@@ -3,7 +3,7 @@
 Facilitates execution of DOMAIN-SPECIFIC language C# code snippets embodied id [`Step`](BaseSteps.cs)-derived classes.
 
 Step Scripts are composed of series of configured steps that can be supplied as [Configuration](/src/Azos/Conf) with all of the scripting features of the 
-Azos Configuration Engine. Each `Step` is a C# coded concrete implementation of the [Azos.Scripting.Steps.Step] abstract class that you want to 
+Azos Configuration Engine. Each `Step` is a C# coded concrete implementation of the `Azos.Scripting.Steps.Step` abstract class that you want to 
 create for logic encapsulation. Simply build your own library of steps for execution and then provide that as configuration to a [`StepRunner`](StepRunner.cs)
 which will run each step's code execution in sequence until all steps have completed (Control Flow steps such as `Goto` may change execution path).
 
@@ -112,11 +112,12 @@ Then override the `DoRun` base abstract method with your concrete step logic.
     [Config] public string From { get; set; }
     [Config] public string Text { get; set; }
     [Config] public string Pars { get; set; }
-
+    [Config] public string Rel  { get; set; }
 
     protected override string DoRun(JsonDataMap state)
     {
-      WriteLog(MsgType, Eval(From, state), Eval(Text, state), null, null, Eval(Pars, state));
+      var guid = WriteLog(MsgType, Eval(From, state), Eval(Text, state), null, Eval(Rel, state).AsNullableGUID(), Eval(Pars, state));
+      Runner.SetResult(guid);
       return null;
     }
   }
@@ -139,7 +140,7 @@ The Azos framework includes several basic utility and evaluation steps that you 
 
 - **Delay : Step** - Runs a step with a delay in `Seconds`
 
-- **LoadModule : Step** - Loads a module and resolves dependencies.
+- **LoadModule : Step** - Loads a module and resolves dependencies. The module gets registered with container scope context which will clean up all of the owned resources upon its exit
 
 - **Impersonate : Step** - Impersonates a session with credentials using `Auth` (Basic Auth) or by `Id` and `Pwd`.
 
@@ -155,7 +156,7 @@ The Azos framework includes several basic utility and evaluation steps that you 
     do{ type="Set" local=x to='x+1' name="inc x"}
     ```
 
-- **SetResult : Step** - Sets runner.Result to the specified expression.
+- **SetResult : Step** - Sets `runner.Result` to the specified expression. You can later retrieve it in C# as `Runner.Result: object` or in script expression using `runner.result`
 
     - Example:
     ```csharp
@@ -168,7 +169,7 @@ The Azos framework includes several basic utility and evaluation steps that you 
 - **EntryPoint : Step** - Defines an entry point. Entry points need to be used as independently-addressable
 named steps which execution can start from **(Name property is Required!)**.
 
-- **Sub : EntryPoint** - Defines a subroutine which is a StepRunner tree **(the `source{ ... }` section is Required!)**.
+- **Sub : EntryPoint** - Defines a subroutine which is a `StepRunner` sub-tree **(the `source{ ... }` section is Required!)**.
 
 - **Halt : Step** - Signals that the underlying `StepRunner` should no longer continue processing subsequent steps.
 Can be paired with the "If" step provide "Halt and catch fire" stop execution logic.
@@ -257,6 +258,7 @@ namespace srunc
       Azos.Tools.Srun.ProgramBody.Main(args);
     }
 
+    //so we can resolve ad-hoc assembly inclusions in scripting
     private static Assembly refAssemblyResolver(System.Runtime.Loader.AssemblyLoadContext loadContext, AssemblyName asmName)
       => Assembly.LoadFrom("{0}.dll".Args(asmName.Name));
   }
