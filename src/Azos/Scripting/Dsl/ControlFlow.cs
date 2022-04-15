@@ -48,7 +48,8 @@ namespace Azos.Scripting.Dsl
 
 
   /// <summary>
-  /// Transfers control to another step
+  /// Signals that the underlying `StepRunner` should no longer contiue processing subsequent steps.
+  /// Can be paired with the "If" step provide "Halt and catch fire" stop execution logic.
   /// </summary>
   public sealed class Halt : Step
   {
@@ -63,16 +64,16 @@ namespace Azos.Scripting.Dsl
   {
     public Goto(StepRunner runner, IConfigSectionNode cfg, int idx) : base(runner, cfg, idx) { }
 
-    [Config] public string Label { get; set; }
+    [Config] public string Step { get; set; }
 
     protected override string DoRun(JsonDataMap state)
     {
-      return Eval(Label, state);
+      return Eval(Step, state);
     }
   }
 
   /// <summary>
-  /// Calls a subroutine
+  /// Calls a named subroutine
   /// </summary>
   public sealed class Call : Step
   {
