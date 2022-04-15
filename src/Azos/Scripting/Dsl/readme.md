@@ -263,3 +263,67 @@ namespace srunc
 }
 ```
 
+## Executing Step Scripts from you Console Application:
+
+```sh
+$ dotnet srunc.dll scripts/authkit/setup.laconf -vars a=1 b=2
+```
+
+or 
+
+```sh
+$ dotnet srunc.dll scripts/authkit/setup.laconf -state json_file_name -vars a=3
+```
+
+or for **HELP** execute
+
+```sh
+dotnet srunc.dll /?
+```
+
+that prints the help details:
+```sh
+Azos Script Step Runner
+Copyright (c) 2022 Azist Group
+Version 1.0 / Azos as of April 2022
+
+ Usage:
+
+   srun script_file [entry_point_sub_name] [/h | /? | /help]
+              [/runner
+                  [type=type_name]
+                  [... runner type-specific attributes]
+              ]
+              [-r|-result]
+              [-g|-global]
+              [-s|-silent]
+              [-state json_file_name]
+              [-vars var1=val1 [varX=valX]]
+              [-dump-source]
+
+
+Executes a script contained in a script_file. The system performs "_include" expansion.
+You can specify optional "entry_point_sub_name".
+
+ Specifiers:
+
+script_file - fully qualified script source path
+entry_point_sub_name - optional entry point of the script
+-r|result - dumps step runner result object
+-g|global - dumps global JSON object
+-s|silent - suppresses info
+-state json_file_name - loads json data into runner globals
+-vars var1=val1 [varX=valX] - sets global variables by name
+-dump-source - if present dumps all source code into console
+
+ Examples:
+
+ srun d:\scr\devops\setup.laconf network
+Runs a sub "network" from the specified script file
+
+ srun d:\scr\devops\setup.laconf network -state data.json
+Runs a sub "network" from the specified script file loading json data into globals
+
+ srun d:\scr\devops\setup.laconf -vars port=123
+Runs the specified script file pre-setting global "port" to "123"
+```
