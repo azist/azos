@@ -1315,22 +1315,25 @@ namespace Azos.Conf
           vlist.Add(vname);
           try
           {
+            string replacement;
             if (vname.StartsWith(VAR_PATH_MOD))
             {
-              value = replacePaths(value, originalDecl, getValueFromMacroOrEnvVarOrNavigationWithCheck(vname.Replace(VAR_PATH_MOD, string.Empty)));
+              replacement = getValueFromMacroOrEnvVarOrNavigationWithCheck(vname.Replace(VAR_PATH_MOD, string.Empty));
+              value = replacePaths(recurse, value, originalDecl, replacement, recurse ? 0 : idxsLatch);
             }
             else
             {
-              value = value.Replace(originalDecl, getValueFromMacroOrEnvVarOrNavigationWithCheck(vname));
+              replacement = getValueFromMacroOrEnvVarOrNavigationWithCheck(vname);
+              value = replace(recurse, value, originalDecl, replacement, idxsLatch);
             }
+
+            idxsLatch = idxs + replacement.Length;
+            if (!recurse && idxsLatch >= value.Length) break;
           }
           finally
           {
             vlist.Remove(vname);
           }
-
-          idxsLatch = idxe + 1;
-          if (!recurse && idxsLatch >= value.Length) break;
         }
 
         return value;
@@ -1934,9 +1937,20 @@ namespace Azos.Conf
       return m_Configuration.RunMacro(this, value, macro.Name, config.Root);
     }
 
-    private string replacePaths(string line, string oldValue, string newValue)
+
+    private string replace(bool all, string line, string oldValue, string newValue, int idxStart)
     {
-      var start = 0;
+       if (all) return line.Replace(oldValue, newValue);
+       //replace first
+       var i = line.IndexOf(oldValue, idxStart);
+       if (i<0) return line;
+
+       return line.Substring(0, i) + newValue + line.Substring(i + oldValue.Length);
+    }
+
+    private string replacePaths(bool all, string line, string oldValue, string newValue, int idxStart)
+    {
+      var start = idxStart;
       while (true)
       {
         var idx = line.IndexOf(oldValue, start);
@@ -1946,6 +1960,7 @@ namespace Azos.Conf
         path = addPath(path, line.Substring(idx + oldValue.Length));
 
         line = path;
+        if (!all) break;
       }
 
       return line;
