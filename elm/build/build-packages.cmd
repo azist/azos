@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.42.9.11
-set HEADLINE=#663 recursive vars config
+set VER=1.42.9.12
+set HEADLINE=Fix install script setps for Forest and Akit
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
