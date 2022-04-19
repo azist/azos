@@ -91,14 +91,16 @@ namespace Azos.MySql.ConfForest.Dsl
     {
       var dbn = getDbn(state);
       WriteLog(Log.MessageType.Info, nameof(createDatabase), "Set db to: {0}".Args(dbn), related: rel);
-      var ddl = "use `{0}`";
+      var ddl = "use `{0}`".Args(dbn);
       WriteLog(Log.MessageType.Info, nameof(createDatabase), "Starting cmd exec...", related: rel, pars: ddl);
       cmd.CommandText = ddl;
       sql(cmd, nameof(createDdl), rel);
 
 
       ddl = typeof(MySqlConfForestTreeDataStore).GetText("ddl.tree_ddl.sql");
+      ddl = ddl.Replace("delimiter ;.", "  ").Replace(";.", ";");
       cmd.CommandText = ddl;
+//Azos.Scripting.Conout.WriteLine(ddl);
       sql(cmd, nameof(createDdl), rel);
     }
 
