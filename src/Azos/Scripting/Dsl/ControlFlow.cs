@@ -5,8 +5,9 @@
 </FILE_LICENSE>*/
 
 using System;
-
+using System.Threading.Tasks;
 using Azos.Collections;
+
 using Azos.Conf;
 using Azos.Data;
 using Azos.Serialization.JSON;
@@ -20,7 +21,7 @@ namespace Azos.Scripting.Dsl
   public class EntryPoint : Step
   {
     public EntryPoint(StepRunner runner, IConfigSectionNode cfg, int idx) : base(runner, cfg, idx) { }
-    protected override string DoRun(JsonDataMap state) => null;
+    protected override Task<string> DoRunAsync(JsonDataMap state) => null;
   }
 
   /// <summary>
@@ -38,9 +39,9 @@ namespace Azos.Scripting.Dsl
 
     private StepRunner m_Body;
 
-    protected override string DoRun(JsonDataMap state)
+    protected override async Task<string> DoRunAsync(JsonDataMap state)
     {
-      var local = m_Body.Run();
+      var local = await m_Body.RunAsync().ConfigureAwait(false);
       state.Append(local, deep: true);
       return null;
     }
@@ -54,7 +55,7 @@ namespace Azos.Scripting.Dsl
   public sealed class Halt : Step
   {
     public Halt(StepRunner runner, IConfigSectionNode cfg, int idx) : base(runner, cfg, idx) { }
-    protected override string DoRun(JsonDataMap state) => throw new StepRunner.HaltSignal();
+    protected override Task<string> DoRunAsync(JsonDataMap state) => throw new StepRunner.HaltSignal();
   }
 
   /// <summary>
@@ -66,9 +67,10 @@ namespace Azos.Scripting.Dsl
 
     [Config] public string Step { get; set; }
 
-    protected override string DoRun(JsonDataMap state)
+    protected override Task<string> DoRunAsync(JsonDataMap state)
     {
-      return Eval(Step, state);
+      var result = Eval(Step, state);
+      return Task.FromResult(result);
     }
   }
 
@@ -81,11 +83,11 @@ namespace Azos.Scripting.Dsl
 
     [Config] public string Sub { get; set; }
 
-    protected override string DoRun(JsonDataMap state)
+    protected override async Task<string> DoRunAsync(JsonDataMap state)
     {
       Sub.NonBlank("call sub name");
       var inner = new StepRunner(App, Runner.RootSource, Runner.GlobalState);
-      inner.Run(Eval(Sub, state));
+      await inner.RunAsync(Eval(Sub, state)).ConfigureAwait(false);;
       return null;
     }
   }
@@ -102,7 +104,7 @@ namespace Azos.Scripting.Dsl
     [Config("then")] public IConfigSectionNode Then { get; set; }
     [Config("else")] public IConfigSectionNode Else { get; set; }
 
-    protected override string DoRun(JsonDataMap state)
+    protected override async Task<string> DoRunAsync(JsonDataMap state)
     {
       Condition.NonBlank("condition");
       var eval = new Evaluator(Eval(Condition, state));
@@ -112,13 +114,13 @@ namespace Azos.Scripting.Dsl
       {
         Then.NonEmpty(nameof(Then));
         var then = new StepRunner(App, Then, Runner.GlobalState);
-        then.Run();
+        await then.RunAsync().ConfigureAwait(false);
       }
       else
       {
         Else.NonEmpty(nameof(Else));
         var @else = new StepRunner(App, Else, Runner.GlobalState);
-        @else.Run();
+        await @else.RunAsync().ConfigureAwait(false);
       }
 
       return null;

@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-
+using System.Threading.Tasks;
 using Azos.Conf;
 using Azos.Data;
 using Azos.Platform;
@@ -34,7 +34,7 @@ namespace Azos.MySql.ConfForest.Dsl
     [Config]
     public string SkipDdl { get; set; }
 
-    protected override string DoRun(JsonDataMap state)
+    protected override Task<string> DoRunAsync(JsonDataMap state)
     {
       var rel = Guid.NewGuid();
       var cs = Eval(MySqlConnectString.NonBlank(nameof(MySqlConnectString)), state);
@@ -44,7 +44,7 @@ namespace Azos.MySql.ConfForest.Dsl
         doConnectionWork(cnn, rel, state);
       }
 
-      return null;
+      return Task.FromResult<string>(null);
     }
 
     private void doConnectionWork(MySqlConnection cnn, Guid rel, JsonDataMap state)

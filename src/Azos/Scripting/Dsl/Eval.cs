@@ -5,7 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
-
+using System.Threading.Tasks;
 using Azos.Collections;
 using Azos.Conf;
 using Azos.Data;
@@ -36,7 +36,7 @@ namespace Azos.Scripting.Dsl
     public Set(StepRunner runner, IConfigSectionNode cfg, int idx) : base(runner, cfg, idx)
     {
       var toExpression = cfg.ValOf(CONFIG_TO_ATTR).NonBlank(CONFIG_TO_ATTR);
-      m_Eval = new Text.Evaluator(toExpression);
+      m_Eval = new Evaluator(toExpression);
 
       m_Local = cfg.ValOf(CONFIG_LOCAL_ATTR);
       m_Global = cfg.ValOf(CONFIG_GLOBAL_ATTR);
@@ -47,11 +47,11 @@ namespace Azos.Scripting.Dsl
       }
     }
 
-    private Text.Evaluator m_Eval;
+    private Evaluator m_Eval;
     private string m_Global;
     private string m_Local;
 
-    protected override string DoRun(JsonDataMap state)
+    protected override Task<string> DoRunAsync(JsonDataMap state)
     {
       var got = m_Eval.Evaluate(id => StepRunnerVarResolver.GetResolver(Runner, id, state));
 
@@ -65,7 +65,7 @@ namespace Azos.Scripting.Dsl
         state[m_Local] = got;
       }
 
-      return null;
+      return Task.FromResult<string>(null);
     }
   }
 
@@ -81,16 +81,16 @@ namespace Azos.Scripting.Dsl
     public SetResult(StepRunner runner, IConfigSectionNode cfg, int idx) : base(runner, cfg, idx)
     {
       var toExpression = cfg.ValOf(Set.CONFIG_TO_ATTR).NonBlank(Set.CONFIG_TO_ATTR);
-      m_Eval = new Text.Evaluator(toExpression);
+      m_Eval = new Evaluator(toExpression);
     }
 
-    private Text.Evaluator m_Eval;
+    private Evaluator m_Eval;
 
-    protected override string DoRun(JsonDataMap state)
+    protected override Task<string> DoRunAsync(JsonDataMap state)
     {
       var got = m_Eval.Evaluate(id => StepRunnerVarResolver.GetResolver(Runner, id, state));
       Runner.SetResult(got);
-      return null;
+      return Task.FromResult<string>(null);
     }
   }
 

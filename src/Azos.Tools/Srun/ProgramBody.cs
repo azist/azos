@@ -149,7 +149,7 @@ namespace Azos.Tools.Srun
           var entryPointName = config.AttrByIndex(1).Value;
           var entryPoint = runner.GenericRunner.EntryPoints.FirstOrDefault(i => i.Name.EqualsOrdIgnoreCase(entryPointName));
 
-          runner.Run(entryPoint);
+          runner.RunAsync(entryPoint).GetAwaiter().GetResult();
 
 
           if (config["r","result"].Exists)

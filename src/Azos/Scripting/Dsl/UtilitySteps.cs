@@ -7,7 +7,7 @@
 using System;
 using System.Linq;
 using System.Threading;
-
+using System.Threading.Tasks;
 using Azos.Apps;
 using Azos.Conf;
 using Azos.Data;
@@ -31,11 +31,11 @@ namespace Azos.Scripting.Dsl
     [Config] public string Rel  { get; set; }
 
 
-    protected override string DoRun(JsonDataMap state)
+    protected override Task<string> DoRunAsync(JsonDataMap state)
     {
       var guid = WriteLog(MsgType, Eval(From, state), Eval(Text, state), null, Eval(Rel, state).AsNullableGUID(), Eval(Pars, state));
       Runner.SetResult(guid);
-      return null;
+      return Task.FromResult<string>(null);
     }
   }
 
@@ -49,7 +49,7 @@ namespace Azos.Scripting.Dsl
     [Config] public string Text { get; set; }
     [Config] public string Format { get; set; }
 
-    protected override string DoRun(JsonDataMap state)
+    protected override Task<string> DoRunAsync(JsonDataMap state)
     {
       if (Text.IsNotNullOrWhiteSpace()) Conout.See(Eval(Text, state));
 
@@ -58,7 +58,7 @@ namespace Azos.Scripting.Dsl
         var got = StepRunnerVarResolver.FormatString(Eval(Format, state), Runner, state);
         Conout.See(got);
       }
-      return null;
+      return Task.FromResult<string>(null);
     }
   }
 
@@ -71,12 +71,12 @@ namespace Azos.Scripting.Dsl
 
     [Config] public string FileName{  get; set;}
 
-    protected override string DoRun(JsonDataMap state)
+    protected override Task<string> DoRunAsync(JsonDataMap state)
     {
       var json = Runner.GlobalState.ToJson(JsonWritingOptions.PrettyPrintRowsAsMapASCII);
       Conout.WriteLine(json);
       if (FileName.IsNotNullOrWhiteSpace()) System.IO.File.WriteAllText(FileName, json);
-      return null;
+      return Task.FromResult<string>(null);
     }
   }
 
@@ -90,12 +90,12 @@ namespace Azos.Scripting.Dsl
 
     [Config] public string FileName { get; set; }
 
-    protected override string DoRun(JsonDataMap state)
+    protected override Task<string> DoRunAsync(JsonDataMap state)
     {
       var json = state.ToJson(JsonWritingOptions.PrettyPrintRowsAsMapASCII);
       Conout.WriteLine(json);
       if (FileName.IsNotNullOrWhiteSpace()) System.IO.File.WriteAllText(FileName, json);
-      return null;
+      return Task.FromResult<string>(null);
     }
   }
 
@@ -108,7 +108,7 @@ namespace Azos.Scripting.Dsl
 
     [Config] public string Seconds { get; set; }
 
-    protected override string DoRun(JsonDataMap state)
+    protected override async Task<string> DoRunAsync(JsonDataMap state)
     {
       var secTimeout = Eval(Seconds, state).AsDouble(0.0);
       if (secTimeout <= 0.0) secTimeout = 1.0;
@@ -116,7 +116,9 @@ namespace Azos.Scripting.Dsl
       var time = Timeter.StartNew();
 
       while (time.ElapsedSec < secTimeout && Runner.IsRunning)
-        Thread.Sleep(50);
+      {
+        await Task.Delay(50).ConfigureAwait(false);
+      }
 
       return null;
     }
@@ -152,13 +154,13 @@ namespace Azos.Scripting.Dsl
 
     [Config(CONFIG_MODULE_SECTION)] public IConfigSectionNode Module { get; set; }
 
-    protected override string DoRun(JsonDataMap state)
+    protected override Task<string> DoRunAsync(JsonDataMap state)
     {
       Module.NonEmpty(CONFIG_MODULE_SECTION);
       var module = FactoryUtils.MakeAndConfigureComponent<IModuleImplementation>(App, Module);
       module.ApplicationAfterInit();
       StepRunner.Frame.Current.Owned.Add(module);
-      return null;
+      return Task.FromResult<string>(null);
     }
   }
 
@@ -180,13 +182,13 @@ namespace Azos.Scripting.Dsl
     protected virtual ISession MakeImpersonationSession() => new BaseSession(Guid.NewGuid(), App.Random.NextRandomUnsignedLong);
 
 
-    protected override string DoRun(JsonDataMap state)
+    protected override async Task<string> DoRunAsync(JsonDataMap state)
     {
       var credentials = Auth.IsNotNullOrWhiteSpace() ? IDPasswordCredentials.FromBasicAuth(Eval(Auth, state))
                                                      : new IDPasswordCredentials(Eval(Id, state),
                                                                                  Eval(Pwd, state));
 
-      var user = App.SecurityManager.Authenticate(credentials);
+      var user = await App.SecurityManager.AuthenticateAsync(credentials).ConfigureAwait(false);
       var session = MakeImpersonationSession();
       session.User = user;
       Azos.Apps.ExecutionContext.__SetThreadLevelSessionContext(session);
@@ -210,7 +212,7 @@ namespace Azos.Scripting.Dsl
     protected virtual ISession MakeImpersonationSession() => new BaseSession(Guid.NewGuid(), App.Random.NextRandomUnsignedLong);
 
 
-    protected override string DoRun(JsonDataMap state)
+    protected override Task<string> DoRunAsync(JsonDataMap state)
     {
       var session = Ambient.CurrentCallSession;
       if (session is NOPSession)
@@ -220,7 +222,7 @@ namespace Azos.Scripting.Dsl
       }
       session.DataContextName = Eval(DataContext, state);
 
-      return null;
+      return Task.FromResult<string>(null);
     }
   }
 

@@ -6,7 +6,7 @@
 
 using System;
 using System.Collections.Generic;
-
+using System.Threading.Tasks;
 using Azos.Apps;
 using Azos.Data;
 using Azos.Scripting;
@@ -31,10 +31,10 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
     ";
 
     [Run]
-    public void TestSee()
+    public async Task TestSee()
     {
        var runnable = new StepRunner(NOPApplication.Instance, SEE.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
-       runnable.Run();
+       await runnable.RunAsync();
     }
 
 
@@ -67,10 +67,10 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
 }";
 
     [Run]
-    public void Json()
+    public async Task Json()
     {
       var runnable = new StepRunner(NOPApplication.Instance, JSON.AsJSONConfig(handling: Data.ConvertErrorHandling.Throw));
-      runnable.Run();
+      await runnable.RunAsync();
     }
 
 
@@ -90,10 +90,10 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
     [Run]
     [Aver.Throws(typeof(RunnerException), Message = "Timeout")]
     [Aver.RunTime(MaxSec = 0.634)]
-    public void TestGoto()
+    public async Task TestGoto()
     {
       var runnable = new StepRunner(NOPApplication.Instance, GOTO.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
-      runnable.Run();
+      await runnable.RunAsync();
     }
 
 
@@ -131,10 +131,10 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
     ";
 
     [Run]
-    public void TestSubs()
+    public async Task TestSubs()
     {
       var runnable = new StepRunner(NOPApplication.Instance, SUBS.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
-      runnable.Run("SUB1");
+      await runnable.RunAsync("SUB1");
     }
 
 
@@ -151,10 +151,10 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
     ";
 
     [Run]
-    public void TestExpressions()
+    public async Task TestExpressions()
     {
       var runnable = new StepRunner(NOPApplication.Instance, EXPR.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
-      runnable.Run();
+      await runnable.RunAsync();
       Aver.AreEqual(2_100, runnable.GlobalState["x"].AsInt());
 
       Aver.AreEqual("~global.x", StepRunnerVarResolver.Eval("~~global.x", runnable, new JsonDataMap() ));
@@ -175,10 +175,10 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
     ";
 
     [Run]
-    public void TestStringConcat()
+    public async Task TestStringConcat()
     {
       var runnable = new StepRunner(NOPApplication.Instance, STRCONCAT.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
-      runnable.Run();
+      await runnable.RunAsync();
       Aver.AreEqual("Sonya Mamzyan", runnable.GlobalState["who"].AsString());
     }
 
@@ -218,10 +218,10 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
     ";
 
     [Run]
-    public void TestIf()
+    public async Task TestIf()
     {
       var runnable = new StepRunner(NOPApplication.Instance, IF.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
-      runnable.Run();
+      await runnable.RunAsync();
       Aver.AreEqual("normal", runnable.GlobalState["capacity"].AsString());
     }
 
@@ -247,10 +247,10 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
     ";
 
     [Run]
-    public void TestVarScope()
+    public async Task TestVarScope()
     {
       var runnable = new StepRunner(NOPApplication.Instance, VARSCOPE.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
-      var state = runnable.Run();
+      var state = await runnable.RunAsync();
       Aver.AreEqual(-2, runnable.GlobalState["z"].AsInt());
       Aver.AreEqual(-2, state["z"].AsInt());
     }
@@ -271,10 +271,10 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
     ";
 
     [Run]
-    public void TestSETRESULT()
+    public async Task TestSETRESULT()
     {
       var runnable = new StepRunner(NOPApplication.Instance, SETRESULT.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
-      var state = runnable.Run();
+      var state = await runnable.RunAsync();
       Aver.AreEqual(-123, runnable.GlobalState["x"].AsInt());
       Aver.AreEqual("Yes!ok", runnable.GlobalState["y"].AsString());
       Aver.AreEqual("Yes!", runnable.Result.AsString());
@@ -294,10 +294,10 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
     ";
 
     [Run]
-    public void TestNav1()
+    public async Task TestNav1()
     {
       var runnable = new StepRunner(NOPApplication.Instance, NAV1.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
-      var state = runnable.Run();
+      var state = await runnable.RunAsync();
       Aver.AreEqual(6, runnable.GlobalState["y"].AsInt());
     }
 

@@ -7,6 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Azos.Apps;
 using Azos.Collections;
 using Azos.Conf;
@@ -37,24 +39,24 @@ namespace Azos.Scripting.Dsl
     /// </summary>
     public sealed class Frame : DisposableObject
     {
-      [ThreadStatic] private static Frame s_Current;
+      private static AsyncLocal<Frame> ats_Current = new AsyncLocal<Frame>();
 
       /// <summary>
       /// Returns a current frame in call chain or NULL if nothing was called
       /// </summary>
-      public static Frame Current => s_Current;
+      public static Frame Current => ats_Current.Value;
 
 
       internal Frame(StepRunner runner)
       {
         Runner = runner;
         Owned = new List<object>();
-        Caller = s_Current;
-        s_Current = this;
+        Caller = ats_Current.Value;
+        ats_Current.Value = this;
       }
       protected override void Destructor()
       {
-        s_Current = Caller;
+        ats_Current.Value = Caller;
         base.Destructor();
         Owned.ForEach(o =>
         {
@@ -162,9 +164,9 @@ namespace Azos.Scripting.Dsl
     /// Returns local state JsonDataMap (private to this run invocation)
     /// </summary>
     /// <param name="ep">EntryPoint instance</param>
-    public JsonDataMap Run(EntryPoint ep)
+    public async Task<JsonDataMap> RunAsync(EntryPoint ep)
     {
-      return this.Run(ep.NonNull(nameof(ep)).Name);
+      return await this.RunAsync(ep.NonNull(nameof(ep)).Name).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -172,13 +174,13 @@ namespace Azos.Scripting.Dsl
     /// Returns local state JsonDataMap (private to this run invocation)
     /// </summary>
     /// <param name="entryPointStep">Name of step to start execution at, null by default - starts from the very first step</param>
-    public JsonDataMap Run(string entryPointStep = null)
+    public async Task<JsonDataMap> RunAsync(string entryPointStep = null)
     {
       Frame call = null;
       try
       {
         call = new Frame(this);
-        return DoRun(entryPointStep);
+        return await DoRunAsync(entryPointStep).ConfigureAwait(false);
       }
       finally
       {
@@ -191,7 +193,7 @@ namespace Azos.Scripting.Dsl
     /// Returns local state JsonDataMap (private to this run invocation)
     /// </summary>
     /// <param name="entryPointStep">Name of step to start execution at, null by default - starts from the very first step</param>
-    protected virtual JsonDataMap DoRun(string entryPointStep = null)
+    protected virtual async Task<JsonDataMap> DoRunAsync(string entryPointStep = null)
     {
       Exception error = null;
       JsonDataMap state = null;
@@ -237,7 +239,7 @@ namespace Azos.Scripting.Dsl
           try
           {
             //----------------------------
-            nextStepName = step.Run(state); //<----------- RUN
+            nextStepName = await step.RunAsync(state).ConfigureAwait(false); //<----------- RUN
             //----------------------------
           }
           catch(Exception inner)
