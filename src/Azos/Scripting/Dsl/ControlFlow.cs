@@ -41,8 +41,10 @@ namespace Azos.Scripting.Dsl
 
     protected override async Task<string> DoRunAsync(JsonDataMap state)
     {
+      m_Body.SetResult(Runner.Result);
       var local = await m_Body.RunAsync().ConfigureAwait(false);
       state.Append(local, deep: true);
+      Runner.SetResult(m_Body.Result);
       return null;
     }
   }
