@@ -60,7 +60,8 @@ namespace Azos.Scripting.Dsl
     {
       try
       {
-        return await DoRunAsync(state).ConfigureAwait(false);
+        var result = await DoRunAsync(state).ConfigureAwait(false);
+        return result;
       }
       catch(Exception error)
       {
