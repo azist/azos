@@ -4,7 +4,7 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 using System;
-
+using System.Threading.Tasks;
 using Azos.Data;
 using Azos.Scripting.Dsl;
 using Azos.Serialization.JSON;
@@ -34,10 +34,10 @@ namespace Azos.Conf.Forest.Dsl
     [Config]
     public string TreeNodeJson{ get; set; }
 
-    protected override string DoRun(JsonDataMap state)
+    protected override async Task<string> DoRunAsync(JsonDataMap state)
     {
       var node = JsonReader.ToDoc<TreeNode>(Eval(TreeNodeJson.NonBlank(nameof(TreeNodeJson)), state).NonBlank(nameof(TreeNodeJson)));
-      var got = Logic.SaveNodeAsync(node).GetAwaiter().GetResult();
+      var got = await Logic.SaveNodeAsync(node).ConfigureAwait(false);
       Runner.SetResult(got);
       return null;
     }
@@ -56,15 +56,13 @@ namespace Azos.Conf.Forest.Dsl
     [Config]
     public DateTime? StartUtc { get; set; }
 
-    protected override string DoRun(JsonDataMap state)
+    protected override async Task<string> DoRunAsync(JsonDataMap state)
     {
       var id = Eval(Id.NonBlank(nameof(Id)), state).NonBlank(nameof(Id));
-      var got = Logic.DeleteNodeAsync(Id, StartUtc).GetAwaiter().GetResult();
+      var got = await Logic.DeleteNodeAsync(Id, StartUtc).ConfigureAwait(false);
       Runner.SetResult(got);
       return null;
     }
   }
-
-
 
 }

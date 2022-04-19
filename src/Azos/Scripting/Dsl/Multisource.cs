@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-
+using System.Threading.Tasks;
 using Azos.Conf;
 using Azos.Serialization.JSON;
 
@@ -56,7 +56,8 @@ namespace Azos.Scripting.Dsl
     /// <summary>
     /// Runs the script
     /// </summary>
-    public JsonDataMap Run(EntryPoint ep = null) => ep == null ? GenericRunner.Run() : GenericRunner.Run(ep);
+    public async Task<JsonDataMap> RunAsync(EntryPoint ep = null) => ep == null ? await GenericRunner.RunAsync().ConfigureAwait(false)
+                                                                                : await GenericRunner.RunAsync(ep).ConfigureAwait(false);
   }
 
   /// <summary>

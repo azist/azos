@@ -5,6 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
+using System.Threading.Tasks;
 using Azos.Collections;
 using Azos.Conf;
 using Azos.Serialization.JSON;
@@ -55,11 +56,11 @@ namespace Azos.Scripting.Dsl
     /// State is maintained between steps during a run instance as Step instances are not retained
     /// You can also use "Runner.GlobalState" for global storage
     /// </summary>
-    public string Run(JsonDataMap state)
+    public async Task<string> RunAsync(JsonDataMap state)
     {
       try
       {
-        return DoRun(state);
+        return await DoRunAsync(state).ConfigureAwait(false);
       }
       catch(Exception error)
       {
@@ -72,7 +73,7 @@ namespace Azos.Scripting.Dsl
     /// <summary>
     /// Override to perform work. Return NULL for next step or other step name to change control flow
     /// </summary>
-    protected abstract string DoRun(JsonDataMap state);
+    protected abstract Task<string> DoRunAsync(JsonDataMap state);
     protected virtual bool DoError(JsonDataMap state, Exception error) => false;
 
     /// <summary>

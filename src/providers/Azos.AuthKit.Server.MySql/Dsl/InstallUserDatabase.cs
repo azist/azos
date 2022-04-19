@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-
+using System.Threading.Tasks;
 using Azos.Conf;
 using Azos.Data;
 using Azos.Platform;
@@ -34,7 +34,10 @@ namespace Azos.AuthKit.Server.MySql.Dsl
     [Config]
     public string SkipDdl { get; set; }
 
-    protected override string DoRun(JsonDataMap state)
+    [Config]
+    public string SkipSeed { get; set; }
+
+    protected override Task<string> DoRunAsync(JsonDataMap state)
     {
       var rel = Guid.NewGuid();
       var cs = Eval(MySqlConnectString.NonBlank(nameof(MySqlConnectString)), state);
@@ -44,7 +47,7 @@ namespace Azos.AuthKit.Server.MySql.Dsl
         doConnectionWork(cnn, rel, state);
       }
 
-      return null;
+      return Task.FromResult<string>(null);
     }
 
     private void doConnectionWork(MySqlConnection cnn, Guid rel, JsonDataMap state)
@@ -65,6 +68,14 @@ namespace Azos.AuthKit.Server.MySql.Dsl
           WriteLog(Log.MessageType.Info, nameof(doConnectionWork), "Will run DDL", related: rel);
           createDdl(cmd, rel, state);
           WriteLog(Log.MessageType.Info, nameof(doConnectionWork), "DDL ran", related: rel);
+        }
+
+        //Step 3. Seed root user
+        if (!Eval(SkipSeed, state).AsBool(false))
+        {
+          WriteLog(Log.MessageType.Info, nameof(doConnectionWork), "Will run Seed", related: rel);
+          createSeed(cmd, rel, state);
+          WriteLog(Log.MessageType.Info, nameof(doConnectionWork), "Seed ran", related: rel);
         }
       }
     }
@@ -90,16 +101,33 @@ namespace Azos.AuthKit.Server.MySql.Dsl
     private void createDdl(MySqlCommand cmd, Guid rel, JsonDataMap state)
     {
       var dbn = getDbn(state);
-      WriteLog(Log.MessageType.Info, nameof(createDatabase), "Set db to: {0}".Args(dbn), related: rel);
-      var ddl = "use `{0}`";
-      WriteLog(Log.MessageType.Info, nameof(createDatabase), "Starting cmd exec...", related: rel, pars: ddl);
+      WriteLog(Log.MessageType.Info, nameof(createDdl), "Set db to: {0}".Args(dbn), related: rel);
+      var ddl = "use `{0}`".Args(dbn);
+      WriteLog(Log.MessageType.Info, nameof(createDdl), "Starting cmd exec...", related: rel, pars: ddl);
       cmd.CommandText = ddl;
       sql(cmd, nameof(createDdl), rel);
 
 
       ddl = typeof(MySqlUserStore).GetText("ddl.idp_ddl.sql");
+      ddl = ddl.Replace("delimiter ;.", "  ").Replace(";.", ";");
       cmd.CommandText = ddl;
       sql(cmd, nameof(createDdl), rel);
+    }
+
+    private void createSeed(MySqlCommand cmd, Guid rel, JsonDataMap state)
+    {
+      var dbn = getDbn(state);
+      WriteLog(Log.MessageType.Info, nameof(createSeed), "Set db to: {0}".Args(dbn), related: rel);
+      var ddl = "use `{0}`".Args(dbn);
+      WriteLog(Log.MessageType.Info, nameof(createSeed), "Starting cmd exec...", related: rel, pars: ddl);
+      cmd.CommandText = ddl;
+      sql(cmd, nameof(createSeed), rel);
+
+
+      ddl = typeof(MySqlUserStore).GetText("bootstrap.akit_seed_users_logins.sql");
+      ddl = ddl.Replace("delimiter ;.", "  ").Replace(";.", ";");
+      cmd.CommandText = ddl;
+      sql(cmd, nameof(createSeed), rel);
     }
 
     private void sql(MySqlCommand cmd, string from, Guid rel)
