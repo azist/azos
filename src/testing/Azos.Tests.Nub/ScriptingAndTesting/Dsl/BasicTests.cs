@@ -314,7 +314,11 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
           data-source-name=d1
           body
           {
-            do{type='See' format='Text is: {~runner.result}'}
+            do{type='Set' global=obj to='runner.result'}
+            do{type='Set' global=a to='global.obj.a'}
+            do{type='Set' global=b to='global.obj.b'}
+            do{type='Set' global=c to='global.obj.c'}
+            do{type='See' format='Member is: {~global.obj} A = {~global.a} B = {~global.b} C = {~global.c}'}
           }
         }
       }
@@ -325,7 +329,9 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
     {
       var runnable = new StepRunner(NOPApplication.Instance, JSON_LOAD_ITERATE.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
       var state = await runnable.RunAsync();
-     // Aver.AreEqual(6, runnable.GlobalState["y"].AsInt());
+      Aver.AreEqual(1, runnable.GlobalState["a"].AsInt());
+      Aver.AreEqual(2, runnable.GlobalState["b"].AsInt());
+      Aver.AreEqual(-123, runnable.GlobalState["c"].AsString().JsonToDataObject()["z"].AsInt());
     }
 
 

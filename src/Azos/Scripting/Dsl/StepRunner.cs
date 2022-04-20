@@ -164,23 +164,25 @@ namespace Azos.Scripting.Dsl
     /// Returns local state JsonDataMap (private to this run invocation)
     /// </summary>
     /// <param name="ep">EntryPoint instance</param>
-    public async Task<JsonDataMap> RunAsync(EntryPoint ep)
+    /// <param name="state">Local state</param>
+    public async Task<JsonDataMap> RunAsync(EntryPoint ep, JsonDataMap state = null)
     {
-      return await this.RunAsync(ep.NonNull(nameof(ep)).Name).ConfigureAwait(false);
+      return await this.RunAsync(ep.NonNull(nameof(ep)).Name, state).ConfigureAwait(false);
     }
 
     /// <summary>
     /// Executes the whole script. The <see cref="GlobalState"/> is NOT cleared automatically.
     /// Returns local state JsonDataMap (private to this run invocation)
     /// </summary>
+    /// <param name="state">Local state</param>
     /// <param name="entryPointStep">Name of step to start execution at, null by default - starts from the very first step</param>
-    public async Task<JsonDataMap> RunAsync(string entryPointStep = null)
+    public async Task<JsonDataMap> RunAsync(string entryPointStep = null, JsonDataMap state = null)
     {
       Frame call = null;
       try
       {
         call = new Frame(this);
-        return await DoRunAsync(entryPointStep).ConfigureAwait(false);
+        return await DoRunAsync(entryPointStep, state).ConfigureAwait(false);
       }
       finally
       {
@@ -192,17 +194,18 @@ namespace Azos.Scripting.Dsl
     /// Executes the whole script. The <see cref="GlobalState"/> is NOT cleared automatically.
     /// Returns local state JsonDataMap (private to this run invocation)
     /// </summary>
+    /// <param name="state">Local state</param>
     /// <param name="entryPointStep">Name of step to start execution at, null by default - starts from the very first step</param>
-    protected virtual async Task<JsonDataMap> DoRunAsync(string entryPointStep = null)
+    protected virtual async Task<JsonDataMap> DoRunAsync(string entryPointStep = null, JsonDataMap state = null)
     {
       Exception error = null;
-      JsonDataMap state = null;
       try
       {
         m_Status = RunStatus.Running;
-        m_Result = null;
 
-        state = DoBeforeRun();
+        if (state == null) state = new JsonDataMap(true);
+
+        DoBeforeRun(state);
 
         OrderedRegistry<Step> script = new OrderedRegistry<Step>();
 
@@ -315,9 +318,9 @@ namespace Azos.Scripting.Dsl
     /// Invoked before steps, makes run state instance.
     /// Default implementation makes case-sensitive state bag
     /// </summary>
-    protected virtual JsonDataMap DoBeforeRun()
+    protected virtual void DoBeforeRun(JsonDataMap state)
     {
-      return new JsonDataMap(true);
+
     }
 
     /// <summary>
