@@ -211,9 +211,9 @@ namespace Azos.Scripting.Dsl
 
       var pair = ident.SplitKVP('.');
       if (pair.Key == Set.GLOBAL)
-        return nav(runner.GlobalState, pair.Value);//.Default(Set.UNKNOWN));
+        return nav(runner.GlobalState, pair.Value);
       else if (pair.Key == Set.LOCAL)
-        return nav(state, pair.Value);//.Default(Set.UNKNOWN));
+        return nav(state, pair.Value);
       else return ident;
     }
 

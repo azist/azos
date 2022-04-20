@@ -113,6 +113,7 @@ namespace Azos.Data.Dsl
       foreach(var o in enumerable)
       {
         m_Body.SetResult(o);
+Azos.Scripting.Conout.WriteLine("object: {0}".Args(o));
         var local = await m_Body.RunAsync().ConfigureAwait(false);
       }
       return null;
