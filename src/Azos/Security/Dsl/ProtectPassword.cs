@@ -64,7 +64,7 @@ namespace Azos.Security.Dsl
     protected override Task<string> DoRunAsync(JsonDataMap state)
     {
       var algName = Eval(Algorithm, state).Default("KDF");
-      var alg = App.SecurityManager.PasswordManager.Algorithms[Algorithm];
+      var alg = App.SecurityManager.PasswordManager.Algorithms[algName];
       alg.NonNull("existing algorithm `{0}`".Args(algName));
 
       var family = Eval(PasswordFamily, state).AsEnum(Security.PasswordFamily.Text);
