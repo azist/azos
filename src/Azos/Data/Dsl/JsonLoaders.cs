@@ -32,7 +32,7 @@ namespace Azos.Data.Dsl
     }
   }
 
-  public sealed class JsonObjectDataSource : DisposableObject, IDataSource
+  public sealed class JsonObjectDataSource : DisposableObject, IDataSource<IJsonDataObject>
   {
     public static JsonObjectDataSource FromFile(string name, string fileName)
      => new JsonObjectDataSource(name.NonBlank(nameof(name)), JsonReader.DeserializeDataObjectFromFile(fileName));
@@ -51,6 +51,7 @@ namespace Azos.Data.Dsl
 
     public string Name => m_Name;
     public IJsonDataObject Data => m_Data;
+    public object ObjectData => m_Data;
   }
 
 
