@@ -36,5 +36,26 @@ script
        var runner = new StepRunner(NOPApplication.Instance, INSTALL_DB.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
        await runner.RunAsync();
     }
+
+    public static string DCTX = @"
+script
+{
+  do
+  {
+    type='Azos.Scripting.Dsl.SetDataContextName, Azos'
+    data-context='MEDUZA-GARGONNA'
+  }
+}
+    ";
+
+    [Run]
+    public async Task SetDataContext()
+    {
+      var runner = new StepRunner(NOPApplication.Instance, DCTX.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+
+      await runner.RunAsync();
+      Ambient.CurrentCallSession.GetType().DisplayNameWithExpandedGenericArgs().See();
+      Aver.AreEqual("MEDUZA-GARGONNA", Ambient.CurrentCallSession.DataContextName);
+    }
   }
 }

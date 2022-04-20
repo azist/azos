@@ -242,7 +242,7 @@ namespace Azos.Scripting.Dsl
             nextStepName = await step.RunAsync(state).ConfigureAwait(false); //<----------- RUN
             //----------------------------
           }
-          catch(Exception inner)
+          catch (Exception inner)
           {
             if (inner is HaltSignal) throw;
             throw new RunnerException($"Error on step {step}: {inner.ToMessageWithType()}", inner);

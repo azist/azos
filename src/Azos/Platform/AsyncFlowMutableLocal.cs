@@ -41,10 +41,19 @@ namespace Azos.Platform
 
       set
       {
-        var v = m_Local.Value;
-        if (v==null) m_Local.Value = v = new wrap<T>();
-        v.Data = value;
+        __EnsureInit();
+        m_Local.Value.Data = value;
       }
+    }
+
+    /// <summary>
+    /// Low-level system code - app developers do not call, see AZ#676.
+    /// Ensures that local mutable slot is initialized.
+    /// This is called by framework at app entry point.
+    /// </summary>
+    public void __EnsureInit()
+    {
+      if (m_Local.Value == null) m_Local.Value = new wrap<T>();
     }
   }
 }
