@@ -156,8 +156,10 @@ namespace Azos.Scripting.Dsl
 
     protected override Task<string> DoRunAsync(JsonDataMap state)
     {
-      Module.NonEmpty(CONFIG_MODULE_SECTION);
-      var module = FactoryUtils.MakeAndConfigureComponent<IModuleImplementation>(App, Module);
+      var cfg = StepRunnerVarResolver.WrapConfigSnippet(Module.NonEmpty(CONFIG_MODULE_SECTION), Runner, state);
+
+      var module = FactoryUtils.MakeAndConfigureComponent<IModuleImplementation>(App, cfg);
+
       module.ApplicationAfterInit();
       StepRunner.Frame.Current.Owned.Add(module);
       return Task.FromResult<string>(null);
