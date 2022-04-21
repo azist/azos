@@ -25,33 +25,7 @@ namespace Azos.Scripting.Dsl
   }
 
   /// <summary>
-  /// Defines a subroutine which is a StepRunner tree
-  /// </summary>
-  public sealed class Sub : EntryPoint
-  {
-    public const string CONFIG_SOURCE_SECTION = "source";
-
-    public Sub(StepRunner runner, IConfigSectionNode cfg, int idx) : base(runner, cfg, idx)
-    {
-      var nSource = cfg[CONFIG_SOURCE_SECTION].NonEmpty($"child section `/{CONFIG_SOURCE_SECTION}`");
-      m_Body = FactoryUtils.Make<StepRunner>(nSource, typeof(StepRunner), new object[]{ runner.App, nSource, runner.GlobalState });
-    }
-
-    private StepRunner m_Body;
-
-    protected override async Task<string> DoRunAsync(JsonDataMap state)
-    {
-      m_Body.SetResult(Runner.Result);
-      var local = await m_Body.RunAsync().ConfigureAwait(false);
-      state.Append(local, deep: true);
-      Runner.SetResult(m_Body.Result);
-      return null;
-    }
-  }
-
-
-  /// <summary>
-  /// Signals that the underlying `StepRunner` should no longer contiue processing subsequent steps.
+  /// Signals that the underlying `StepRunner` should no longer continue processing subsequent steps.
   /// Can be paired with the "If" step provide "Halt and catch fire" stop execution logic.
   /// </summary>
   public sealed class Halt : Step
@@ -76,22 +50,54 @@ namespace Azos.Scripting.Dsl
     }
   }
 
+
+  /// <summary>
+  /// Defines a subroutine which is a StepRunner tree
+  /// </summary>
+  public sealed class Sub : EntryPoint
+  {
+    public const string CONFIG_SOURCE_SECTION = "source";
+
+    public Sub(StepRunner runner, IConfigSectionNode cfg, int idx) : base(runner, cfg, idx)
+    {
+      var nSource = cfg[CONFIG_SOURCE_SECTION].NonEmpty($"child section `/{CONFIG_SOURCE_SECTION}`");
+      Body = FactoryUtils.Make<StepRunner>(nSource, typeof(StepRunner), new object[] { runner.App, nSource, runner.GlobalState });
+    }
+
+    public readonly StepRunner Body;
+
+    protected override Task<string> DoRunAsync(JsonDataMap state) => Task.FromResult<string>(null);
+  }
+
   /// <summary>
   /// Calls a named subroutine
   /// </summary>
   public sealed class Call : Step
   {
+    public const string CONFIG_ARGS_SECT = "args";
+
     public Call(StepRunner runner, IConfigSectionNode cfg, int idx) : base(runner, cfg, idx) { }
 
     [Config] public string Sub { get; set; }
+    [Config(Path = CONFIG_ARGS_SECT)] public IConfigSectionNode Args { get; set; }
 
     protected override async Task<string> DoRunAsync(JsonDataMap state)
     {
       Sub.NonBlank("call sub name");
-      var inner = new StepRunner(App, Runner.RootSource, Runner.GlobalState);
-      inner.SetResult(Runner.Result);
-      await inner.RunAsync(Eval(Sub, state)).ConfigureAwait(false);
-      Runner.SetResult(inner.Result);
+      Sub sub = Runner.Source[Sub] as Sub;
+      sub.NonNull("ref sub `{0}`".Args(Sub));
+      var subRunner = sub.Body;
+      subRunner.SetResult(Runner.Result);
+
+
+      var subArgs = new JsonDataMap(true);
+      foreach(var atr in Args.Attributes)
+      {
+        subArgs[atr.Name] = Eval(atr.Value, state);
+      }
+
+      await subRunner.RunAsync(state: subArgs).ConfigureAwait(false);
+      Runner.SetResult(subRunner.Result);
       return null;
     }
   }
