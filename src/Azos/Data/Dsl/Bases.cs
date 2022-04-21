@@ -83,40 +83,4 @@ namespace Azos.Data.Dsl
     TData Data { get; }
   }
 
-
-  /// <summary>
-  /// Iterates through an enumerable object in named data source
-  /// </summary>
-  public sealed class ForEachData : Step
-  {
-    public const string CONFIG_BODY_SECTION = "body";
-
-    public ForEachData(StepRunner runner, IConfigSectionNode cfg, int idx) : base(runner, cfg, idx)
-    {
-      var nSource = cfg[CONFIG_BODY_SECTION].NonEmpty();
-      m_Body = FactoryUtils.Make<StepRunner>(nSource, typeof(StepRunner), new object[] { runner.App, nSource, runner.GlobalState });
-    }
-
-    private StepRunner m_Body;
-
-    [Config]
-    public string DataSourceName { get; set;}
-
-    protected override async Task<string> DoRunAsync(JsonDataMap state)
-    {
-      var dsn = Eval(DataSourceName, state);
-      var source = DataLoader.Get(dsn);
-      var enumerable = source.ObjectData as IEnumerable;
-
-      enumerable.NonNull("Enumerable data");
-
-      foreach(var o in enumerable)
-      {
-        m_Body.SetResult(o);
-        await m_Body.RunAsync().ConfigureAwait(false);
-      }
-      return null;
-    }
-  }
-
 }

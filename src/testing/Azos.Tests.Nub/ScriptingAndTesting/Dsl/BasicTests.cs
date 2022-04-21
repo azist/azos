@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+
 using Azos.Apps;
 using Azos.Data;
 using Azos.Scripting;
@@ -104,16 +105,12 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
         type-path='Azos.Scripting.Dsl, Azos'
         timeout-sec=0.25
 
-       // do{ type='Set' global='x' to='global.x + 1'}
-
-       // do{ type='See' text='Step number one $(~Global.x)' }
-
+        do{ type='Set' global='cc' to='0'}
 
         do{ type='See' text='Step number one' }
         do{ type='Call' sub='sub1'}
         do{ type='See' text='Step number two'}
         do{ type='Call' sub='sub1'}
-        do{ type='Halt'}
 
         do
         {
@@ -123,10 +120,9 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
             do{ type='See' text='Sub 1 says 1' }
             do{ type='See' text='Sub 1 says 2' }
             do{ type='See' text='Sub 1 says 3' }
-            do{ type='Halt'}
+            do{ type='Set' global='cc' to='global.cc + 1'}
           }
         }
-
       }
     ";
 
@@ -134,7 +130,55 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
     public async Task TestSubs()
     {
       var runnable = new StepRunner(NOPApplication.Instance, SUBS.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
-      await runnable.RunAsync("SUB1");
+      await runnable.RunAsync();
+      Aver.AreEqual(2, runnable.GlobalState["cc"].AsInt());
+    }
+
+    public const string SUB_ARGS = @"
+      script
+      {
+        type-path='Azos.Scripting.Dsl, Azos'
+        //timeout-sec=0.25
+
+        do{ type='Call' sub='add' args{x=19 y=7}}
+        do{ type='Set' global=ar to='runner.result'}
+
+        do{ type='Call' sub='subtract' args{x=100 y=25}}
+        do{ type='Set' global=sr to='runner.result'}
+
+        do{ type='DumpGlobalState'}
+
+        do
+        {
+          type='Sub' name='add'
+          source
+          {
+            do{ type='See' text='Entered ADD'}
+            do{ type='DumpLocalState'}
+            do{ type='SetResult' to='local.x + local.y' }
+          }
+        }
+
+        do
+        {
+          type='Sub' name='subtract'
+          source
+          {
+            do{ type='See' text='Entered Subtract'}
+            do{ type='DumpLocalState'}
+            do{ type='SetResult' to='local.x - local.y' }
+          }
+        }
+      }
+    ";
+
+    [Run]
+    public async Task TestSubArgs()
+    {
+      var runnable = new StepRunner(NOPApplication.Instance, SUB_ARGS.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+      await runnable.RunAsync();
+      Aver.AreEqual(26, runnable.GlobalState["ar"].AsInt());
+      Aver.AreEqual(75, runnable.GlobalState["sr"].AsInt());
     }
 
 
@@ -310,11 +354,12 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
         do{ type='JsonObjectLoader' name=d1 json='[1, 2, {a: 1, b: 2, c: {z: -123}}]'}
         do
         {
-          type='ForEachData'
-          data-source-name=d1
+          type='ForEachDatum'
+          from=d1
+          into='item'
           body
           {
-            do{type='Set' global=obj to='runner.result'}
+            do{type='Set' global=obj to='local.item'}
             do{type='Set' global=a to='global.obj.a'}
             do{type='Set' global=b to='global.obj.b'}
             do{type='Set' global=c to='global.obj.c'}

@@ -93,6 +93,14 @@ namespace Azos.Scripting.Dsl
       m_RootSource = rootSource.NonEmpty(nameof(rootSource));
       m_GlobalState = globalState ?? new JsonDataMap(true);
       ConfigAttribute.Apply(this, m_RootSource);
+
+      m_Source = new OrderedRegistry<Step>();
+
+      Steps.ForEach(s =>
+      {
+        var added = m_Source.Register(s);
+        if (!added) throw new RunnerException($"Duplicate runnable script step `{s.Name}` at '{s.Config.RootPath}'");
+      });
     }
 
     private RunStatus m_Status = RunStatus.Init;
@@ -100,6 +108,7 @@ namespace Azos.Scripting.Dsl
     private JsonDataMap m_GlobalState;
     private object m_Result;
     private IConfigSectionNode m_RootSource;
+    private OrderedRegistry<Step> m_Source;
     private Exception m_CrashError; protected void _SetCrashError(Exception ce) => m_CrashError = ce;
 
     /// <summary>
@@ -112,6 +121,12 @@ namespace Azos.Scripting.Dsl
     /// Root source of this script
     /// </summary>
     public IConfigSectionNode RootSource => m_RootSource;
+
+    /// <summary>
+    /// Parsed materialized steps made out of RootSource
+    /// </summary>
+    public IOrderedRegistry<Step> Source => m_Source;
+
 
     [Config]
     public virtual double TimeoutSec {  get; set; }
@@ -207,15 +222,6 @@ namespace Azos.Scripting.Dsl
 
         DoBeforeRun(state);
 
-        OrderedRegistry<Step> script = new OrderedRegistry<Step>();
-
-        Steps.ForEach(s => {
-
-          var added = script.Register(s);
-
-          if (!added) throw new RunnerException($"Duplicate runnable script step `{s.Name}` at '{s.Config.RootPath}'");
-        });
-
         var time = Timeter.StartNew();
         var secTimeout = TimeoutSec;
         if (secTimeout <= 0.0) secTimeout = DEFAULT_TIMEOUT_SEC;
@@ -223,20 +229,20 @@ namespace Azos.Scripting.Dsl
         var ip = 0;
         if (entryPointStep.IsNotNullOrWhiteSpace())
         {
-          var ep = script[entryPointStep];
+          var ep = m_Source[entryPointStep];
           if (ep==null) throw new RunnerException($"Entry point step `{entryPointStep}` was not found");
           if (!(ep is EntryPoint)) throw new RunnerException($"Entry point step `{entryPointStep}` is not of a valid EntryPoint type");
           ip = ep.Order;
         }
 
-        while(ip < script.Count && m_Status == RunStatus.Running)
+        while(ip < m_Source.Count && m_Status == RunStatus.Running)
         {
           if (time.ElapsedSec > secTimeout)
           {
             throw new RunnerException("Timeout at {0} sec on [{1}]".Args(time.ElapsedSec, ip));
           }
 
-          var step = script[ip];
+          var step = m_Source[ip];
 
           string nextStepName = null;
           try
@@ -257,7 +263,7 @@ namespace Azos.Scripting.Dsl
           }
           else
           {
-            var next = script[nextStepName];
+            var next = m_Source[nextStepName];
             if (next==null) throw new RunnerException($"Step not found: `{nextStepName}` by {step}");
             ip = next.Order;
           }
@@ -336,13 +342,13 @@ namespace Azos.Scripting.Dsl
     /// Returns all runnable steps, default implementation returns all sections named "STEP"
     /// in their declaration syntax
     /// </summary>
-    public virtual IEnumerable<IConfigSectionNode> StepSections
+    protected virtual IEnumerable<IConfigSectionNode> StepSections
       => m_RootSource.ChildrenNamed(CONFIG_STEP_SECTION);
 
     /// <summary>
     /// Returns materialized steps of <see cref="StepSections"/>
     /// </summary>
-    public virtual IEnumerable<Step> Steps
+    protected virtual IEnumerable<Step> Steps
     {
       get
       {
@@ -359,7 +365,7 @@ namespace Azos.Scripting.Dsl
     /// <summary>
     /// Returns explicit entry point names
     /// </summary>
-    public IEnumerable<EntryPoint> EntryPoints => Steps.OfType<EntryPoint>();
+    public IEnumerable<EntryPoint> EntryPoints => Source.OfType<EntryPoint>();
 
     /// <summary>
     /// Writes a log message for this runner; returns the new log msg GDID for correlation, or GDID.Empty if no message was logged.
