@@ -34,6 +34,23 @@ namespace Azos.Scripting.Dsl
     protected override Task<string> DoRunAsync(JsonDataMap state) => throw new StepRunner.HaltSignal();
   }
 
+
+  /// <summary>
+  /// Throws an exception with a message
+  /// </summary>
+  public sealed class Throw : Step
+  {
+    public Throw(StepRunner runner, IConfigSectionNode cfg, int idx) : base(runner, cfg, idx) { }
+
+    [Config]
+    public string Msg { get; set; }
+
+    protected override Task<string> DoRunAsync(JsonDataMap state)
+    {
+      throw new RunnerException(Eval(Msg, state));
+    }
+  }
+
   /// <summary>
   /// Transfers control to another step
   /// </summary>
