@@ -89,7 +89,9 @@ namespace Azos.Scripting.Dsl
     {
       Sub.NonBlank("call sub name");
       var inner = new StepRunner(App, Runner.RootSource, Runner.GlobalState);
-      await inner.RunAsync(Eval(Sub, state)).ConfigureAwait(false);;
+      inner.SetResult(Runner.Result);
+      await inner.RunAsync(Eval(Sub, state)).ConfigureAwait(false);
+      Runner.SetResult(inner.Result);
       return null;
     }
   }
