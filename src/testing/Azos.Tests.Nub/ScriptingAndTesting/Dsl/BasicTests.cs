@@ -380,5 +380,38 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
     }
 
 
+    //public const string SET_OBJECT = @"
+    //  script
+    //  {
+    //    type-path='Azos.Scripting.Dsl, Azos'
+
+    //    do
+    //    {
+    //      type='SetObject'
+    //      local=obj
+    //      structure
+    //      {
+    //        a=10
+    //        b=20
+    //        c{ z='tezt' flag=true}
+    //        [d]=true
+    //        [d]='another'
+    //        [d]=-9
+    //      }
+    //    }
+    //  }
+    //";
+
+    //[Run]
+    //public async Task SetObject()
+    //{
+    //  var runnable = new StepRunner(NOPApplication.Instance, SET_OBJECT.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+    //  var state = await runnable.RunAsync();
+    //  Aver.AreEqual(1, runnable.GlobalState["a"].AsInt());
+    //  Aver.AreEqual(2, runnable.GlobalState["b"].AsInt());
+    //  Aver.AreEqual(-123, runnable.GlobalState["c"].AsString().JsonToDataObject()["z"].AsInt());
+    //}
+
+
   }
 }
