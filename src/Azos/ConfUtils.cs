@@ -272,6 +272,10 @@ namespace Azos
           if (arri == null) obj[arr] = arri = new JsonDataArray();
           arri.Add(val);
         }
+        else
+        {
+          obj[composite.Name] = val;
+        }
       }
     }
   }

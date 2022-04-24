@@ -171,5 +171,69 @@ namespace Azos.Tests.Nub.Configuration
       Aver.AreEqual(-23, sub["q"].AsInt());
       Aver.AreEqual(true, arr[2].AsBool());
     }
+
+    [Run]
+    public void BuildJsonObjectFromConfigSnippet_4()
+    {
+      var cfg = @"struct{ a=1 b=2  c{ v=10 w=-100} }".AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw);
+      var obj = new JsonDataMap();
+      cfg.BuildJsonObjectFromConfigSnippet(obj, v => v);
+      obj.See();
+
+      Aver.AreEqual(3, obj.Count);
+
+      Aver.AreEqual(1, obj["a"].AsInt());
+      Aver.AreEqual(2, obj["b"].AsInt());
+
+      var c = obj["c"] as JsonDataMap;
+      Aver.IsNotNull(c);
+      Aver.AreEqual(2, c.Count);
+      Aver.AreEqual(10, c["v"].AsInt());
+      Aver.AreEqual(-100, c["w"].AsInt());
+    }
+
+
+    [Run]
+    public void BuildJsonObjectFromConfigSnippet_5()
+    {
+      //notice the use of {} to place all array elements as sections if you have array mix of attributes/sections
+      var c = @"struct{
+  z{text=isanobject [q]=1 [q]=-2 [q]=null [q]=true}
+ [a]=1000{}
+ [a]{q = -230}
+ [a]=true{}
+      }".AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw);
+      var obj = new JsonDataMap();
+      c.BuildJsonObjectFromConfigSnippet(obj, v => v);
+      c.See();
+      obj.See();
+
+      Aver.AreEqual(2, obj.Count);
+      var arr = obj["a"] as JsonDataArray;
+      Aver.IsNotNull(arr);
+      Aver.AreEqual(3, arr.Count);
+
+      Aver.AreEqual(1000, arr[0].AsInt());
+
+      var sub = arr[1] as JsonDataMap;
+      Aver.IsNotNull(sub);
+      Aver.AreEqual(-230, sub["q"].AsInt());
+      Aver.AreEqual(true, arr[2].AsBool());
+
+      var z = obj["z"] as JsonDataMap;
+      Aver.IsNotNull(z);
+      Aver.AreEqual("isanobject", z["text"].AsString());
+
+      arr = z["q"] as JsonDataArray;
+      Aver.IsNotNull(arr);
+      Aver.AreEqual(4, arr.Count);
+
+      Aver.AreEqual(1, arr[0].AsInt());
+      Aver.AreEqual(-2, arr[1].AsInt());
+      Aver.IsNull(arr[2]);
+      Aver.AreEqual(true, arr[3].AsBool());
+    }
+
+
   }
 }
