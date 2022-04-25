@@ -380,37 +380,58 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
     }
 
 
-    //public const string SET_OBJECT = @"
-    //  script
-    //  {
-    //    type-path='Azos.Scripting.Dsl, Azos'
+    public const string SET_OBJECT = @"
+      script
+      {
+        type-path='Azos.Scripting.Dsl, Azos'
 
-    //    do
-    //    {
-    //      type='SetObject'
-    //      local=obj
-    //      structure
-    //      {
-    //        a=10
-    //        b=20
-    //        c{ z='tezt' flag=true}
-    //        [d]=true
-    //        [d]='another'
-    //        [d]=-9
-    //      }
-    //    }
-    //  }
-    //";
+        do
+        {
+          type='SetObject'
+          global=obj
+          structure
+          {
+            a=10
+            b=20
+            c{ z='tezt' flag=true}
+            [d]=true
+            [d]='another'
+            [d]=-9
+          }
+        }
+      }
+    ";
 
-    //[Run]
-    //public async Task SetObject()
-    //{
-    //  var runnable = new StepRunner(NOPApplication.Instance, SET_OBJECT.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
-    //  var state = await runnable.RunAsync();
-    //  Aver.AreEqual(1, runnable.GlobalState["a"].AsInt());
-    //  Aver.AreEqual(2, runnable.GlobalState["b"].AsInt());
-    //  Aver.AreEqual(-123, runnable.GlobalState["c"].AsString().JsonToDataObject()["z"].AsInt());
-    //}
+    [Run]
+    public async Task SetObject()
+    {
+      var runnable = new StepRunner(NOPApplication.Instance, SET_OBJECT.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+      var state = await runnable.RunAsync();
+      var obj = runnable.GlobalState["obj"] as JsonDataMap;
+
+      obj.See();
+
+      Aver.IsNotNull(obj);
+
+      Aver.AreEqual(4, obj.Count);
+      Aver.AreEqual(10, obj["a"].AsInt());
+      Aver.AreEqual(20, obj["b"].AsInt());
+
+      var objc = obj["c"] as JsonDataMap;
+      Aver.IsNotNull(objc);
+
+      Aver.AreEqual(2, objc.Count);
+      Aver.AreEqual("tezt", objc["z"].AsString());
+      Aver.AreEqual(true, objc["flag"].AsBool());
+
+      var objd = obj["d"] as JsonDataArray;
+      Aver.IsNotNull(objd);
+
+      Aver.AreEqual(3, objd.Count);
+      Aver.AreEqual(true, objd[0].AsBool());
+      Aver.AreEqual("another", objd[1].AsString());
+      Aver.AreEqual(-9, objd[2].AsInt());
+    }
 
 
   }
