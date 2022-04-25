@@ -434,5 +434,80 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
     }
 
 
+
+    public const string SET_OBJECT_FROM = @"
+      script
+      {
+        type-path='Azos.Scripting.Dsl, Azos'
+
+        do
+        {
+          type='SetObject'
+          global=baze
+          structure
+          {
+            bazeA=-700
+            a=-1000
+            bazeB{f=9}
+          }
+        }
+
+        do
+        {
+          type='SetObject'
+          from='~global.baze'
+          global=obj
+          structure
+          {
+            a=10
+            b=20
+            c{ z='tezt' flag=true}
+            [d]=true
+            [d]='another'
+            [d]=-9
+          }
+        }
+      }
+    ";
+
+    [Run]
+    public async Task SetObjectFrom()
+    {
+      var runnable = new StepRunner(NOPApplication.Instance, SET_OBJECT_FROM.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+      var state = await runnable.RunAsync();
+      var obj = runnable.GlobalState["obj"] as JsonDataMap;
+
+      obj.See();
+
+      Aver.IsNotNull(obj);
+
+      Aver.AreEqual(-700, obj["bazeA"].AsInt());
+      Aver.AreEqual(10, obj["a"].AsInt());
+      Aver.AreEqual(20, obj["b"].AsInt());
+
+      var objbb = obj["bazeB"] as JsonDataMap;
+      Aver.IsNotNull(objbb);
+
+      Aver.AreEqual(1, objbb.Count);
+      Aver.AreEqual(9, objbb["f"].AsInt());
+
+
+      var objc = obj["c"] as JsonDataMap;
+      Aver.IsNotNull(objc);
+
+      Aver.AreEqual(2, objc.Count);
+      Aver.AreEqual("tezt", objc["z"].AsString());
+      Aver.AreEqual(true, objc["flag"].AsBool());
+
+      var objd = obj["d"] as JsonDataArray;
+      Aver.IsNotNull(objd);
+
+      Aver.AreEqual(3, objd.Count);
+      Aver.AreEqual(true, objd[0].AsBool());
+      Aver.AreEqual("another", objd[1].AsString());
+      Aver.AreEqual(-9, objd[2].AsInt());
+    }
+
+
   }
 }
