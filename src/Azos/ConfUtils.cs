@@ -214,6 +214,69 @@ namespace Azos
     /// </summary>
     public static string ValOf(this IConfigSectionNode node, string attrName1, string attrName2, string attrName3) => node.Of(attrName1, attrName2, attrName3).Value;
 
+    /// <summary>
+    /// Builds a JsonDataMap (json object suitable for wire serialization) from a config snippet
+    /// which sets JSON object keys to attribute/section names and values being transformed via fSet function.
+    /// Config attribute values get added to json map as scalar values, whereas section nodes get added as sub-objects.
+    /// Inclusion of config node name in a pair of square brackets`[n]` instructs the system to treat an item as an array element
+    /// </summary>
+    /// <param name="snippet">A configuration snippet which defines a template/structure of how to build a JSON object </param>
+    /// <param name="obj">An object instance, you may pre-load some keys before this call</param>
+    /// <param name="fSet">A field set function which transforms the values on set</param>
+    public static void BuildJsonObjectFromConfigSnippet(this IConfigSectionNode snippet, JsonDataMap obj, Func<object, object> fSet)
+    {
+      snippet.NonNull(nameof(snippet));
+      obj.NonNull(nameof(obj));
+      fSet.NonNull(nameof(fSet));
 
+      string asArray(string n) => (n.Length > 2 && n[0] == '[' && n[n.Length - 1] == ']') ? n.Substring(1, n.Length - 2) : null;
+
+      foreach (var scalar in snippet.Attributes)
+      {
+        var val = fSet(scalar.Value);
+        var arr = asArray(scalar.Name);
+        if (arr != null)//array
+        {
+          var arri = obj[arr] as JsonDataArray;
+          if (arri == null) obj[arr] = arri = new JsonDataArray();
+          arri.Add(val);
+        }
+        else
+        {
+          obj[scalar.Name] = val;
+        }
+      }
+
+      foreach (var composite in snippet.Children)
+      {
+        var arr = asArray(composite.Name);
+
+        var isScalarArrayElement = arr != null && composite.Value != null && !(composite.HasAttributes || composite.HasChildren);
+
+        object val = composite.Value;
+
+        if (isScalarArrayElement)
+        {
+          val = fSet(val);
+        }
+        else
+        {
+          var mapval = new JsonDataMap(true);
+          val = mapval;
+          BuildJsonObjectFromConfigSnippet(composite, mapval, fSet);
+        }
+
+        if (arr != null)//array
+        {
+          var arri = obj[arr] as JsonDataArray;
+          if (arri == null) obj[arr] = arri = new JsonDataArray();
+          arri.Add(val);
+        }
+        else
+        {
+          obj[composite.Name] = val;
+        }
+      }
+    }
   }
 }

@@ -138,6 +138,16 @@ namespace Azos.Scripting.Dsl
       }
     }
 
+    /// <summary>
+    /// Wraps a config snippet in a env var resolver scope for dynamic expression evaluation
+    /// </summary>
+    public static IConfigSectionNode WrapConfigSnippet(IConfigSectionNode source, StepRunner runner, JsonDataMap state)
+    {
+      var cfg = new MemoryConfiguration(){ Application = runner.NonNull(nameof(runner)).App };
+      cfg.CreateFromNode(source.NonEmpty(nameof(source)));
+      cfg.EnvironmentVarResolver = new StepRunnerVarResolver(runner, state);
+      return cfg.Root;
+    }
 
 
     /// <summary>

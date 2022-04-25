@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.42.9.17
-set HEADLINE=#677 and more DSL steps
+set VER=1.42.9.19
+set HEADLINE=Add SetObject
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
