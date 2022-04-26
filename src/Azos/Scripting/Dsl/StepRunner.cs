@@ -199,14 +199,17 @@ namespace Azos.Scripting.Dsl
     public async Task<JsonDataMap> RunAsync(string entryPointStep = null, JsonDataMap state = null)
     {
       Frame call = null;
+      bool wasEnabledHere = false;
       try
       {
         call = new Frame(this);
+        wasEnabledHere = DynamicModuleFlowScope.Begin();
         return await DoRunAsync(entryPointStep, state).ConfigureAwait(false);
       }
       finally
       {
         call.Dispose();
+        if (wasEnabledHere) DynamicModuleFlowScope.End();
       }
     }
 
