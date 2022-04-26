@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Azos.Apps;
+using Azos.Apps.Injection;
 using Azos.Collections;
 using Azos.Conf;
 using Azos.Serialization.JSON;
@@ -61,7 +62,11 @@ namespace Azos.Scripting.Dsl
         Owned.ForEach(o =>
         {
           var v = o;
-          if (v is IModuleImplementation mi) mi.ApplicationBeforeCleanup();
+          if (v is IModuleImplementation mi)
+          {
+            mi.ApplicationBeforeCleanup();
+            DynamicModuleFlowScope.Unregister(mi);
+          }
           DisposeIfDisposableAndNull(ref v);
         });
       }
