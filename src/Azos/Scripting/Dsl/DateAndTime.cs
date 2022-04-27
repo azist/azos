@@ -41,6 +41,37 @@ namespace Azos.Scripting.Dsl
     }
   }
 
+
+  /// <summary>
+  ///Adds timepsan to datetime
+  /// </summary>
+  public sealed class AddTimespan : Step
+  {
+    public AddTimespan(StepRunner runner, IConfigSectionNode cfg, int order) : base(runner, cfg, order)
+    {
+    }
+
+    [Config] public string From { get; set; }
+    [Config] public string Span { get; set; }
+    [Config] public string Into { get; set; }
+
+    protected override Task<string> DoRunAsync(JsonDataMap state)
+    {
+      var from = Eval(From, state).AsDateTime();
+      var into = Eval(Into, state);
+      var span = Eval(Span, state).AsTimeSpanOrThrow();
+
+      var result = from.Add(span);
+
+      if (into.IsNotNullOrWhiteSpace())
+        state[into] = result;
+      else
+        Runner.SetResult(result);
+
+      return Task.FromResult<string>(null);
+    }
+  }
+
   /// <summary>
   /// Converts a DateTime value represented in canonical form into a parsable tuple of (kind, ticks,....).
   /// If an input is a tuple then converts it back to DateTime.

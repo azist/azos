@@ -562,11 +562,12 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
         do{ type='Set' local=YEAR to='local.xtuple.year'}
 
         do{ type='Now' utc=true into='UTCNOW'}
+        do{ type='AddTimespan' from='~local.UTCNOW' into='UTCFUTURE' span='3:17:00'}
       }
     ";
 
     [Run]
-    public async Task ConvertDateTime()
+    public async Task ConvertDateTime_AddTimeSpan()
     {
       var runnable = new StepRunner(NOPApplication.Instance, DATETIME_CONVERT.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
       var local = new JsonDataMap();
@@ -587,6 +588,8 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
       Aver.AreEqual(1980, local["YEAR"].AsInt());
 
       Aver.IsTrue( (Ambient.UTCNow - local["UTCNOW"].AsDateTime(CoreConsts.UTC_TIMESTAMP_STYLES)).TotalSeconds < 10 );
+
+      Aver.IsTrue((local["UTCFUTURE"].AsDateTime(CoreConsts.UTC_TIMESTAMP_STYLES) - Ambient.UTCNow).TotalHours > 3.25d);
     }
 
 
