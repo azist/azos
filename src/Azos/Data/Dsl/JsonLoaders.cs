@@ -59,16 +59,14 @@ namespace Azos.Data.Dsl
   }
 
   /// <summary>
-  /// Sets a global or local value to the specified expression
+  /// Reads the whole json content supplied either as a literal text or loaded from a file directly into a
+  /// local or a global state var. A file name is evaluated using a template syntax e.g. `my_file{~local.number}.json`
   /// </summary>
-  /// <example><code>
-  ///  do{ type="Set" global=a to='((x * global.a) / global.b) + 23'}
-  ///  do{ type="Set" local=x to='x+1' name="inc x"}
-  /// </code></example>
-  public sealed class JsonStateLoader : Step
+  public sealed class ReadJson : Step
   {
-    public const string CONFIG_GLOBAL_ATTR = "global";
-    public const string CONFIG_LOCAL_ATTR = "local";
+    public ReadJson(StepRunner runner, IConfigSectionNode cfg, int idx) : base(runner, cfg, idx)
+    {
+    }
 
     [Config]
     public string FileName { get; set; }
@@ -76,32 +74,40 @@ namespace Azos.Data.Dsl
     [Config]
     public string Json { get; set; }
 
-    public JsonStateLoader(StepRunner runner, IConfigSectionNode cfg, int idx) : base(runner, cfg, idx)
-    {
-      m_Local = cfg.ValOf(CONFIG_LOCAL_ATTR);
-      m_Global = cfg.ValOf(CONFIG_GLOBAL_ATTR);
-      if (m_Local.IsNullOrWhiteSpace() && m_Global.IsNullOrWhiteSpace())
-      {
-        throw new RunnerException("JsonStateLoader step requires at least either global or local assignment");
-      }
-    }
+    [Config]
+    public string Global { get; set; }
 
-    private string m_Global;
-    private string m_Local;
+    [Config]
+    public string Local { get; set; }
+
 
     protected override Task<string> DoRunAsync(JsonDataMap state)
     {
+      if (Local.IsNullOrWhiteSpace() && Global.IsNullOrWhiteSpace())
+      {
+        throw new RunnerException("{0} step requires at least either global or local assignment".Args(nameof(ReadJson)));
+      }
+
       var fn = StepRunnerVarResolver.FormatString(Eval(FileName, state), Runner, state);
+      var json = Eval(Json, state);
+
+
+      if (fn.IsNotNullOrWhiteSpace() && json.IsNotNullOrWhiteSpace())
+      {
+        throw new RunnerException("{0} step has both literal json content and file name specified".Args(nameof(ReadJson)));
+      }
+
       if (fn.IsNotNullOrWhiteSpace())
       {
         if (!System.IO.File.Exists(fn)) throw new RunnerException("State JSON File does not exist");
-        Json = System.IO.File.ReadAllText(fn);
+        json = System.IO.File.ReadAllText(fn);
       }
 
-      var json = JsonReader.DeserializeDataObject(Json) as JsonDataMap;
-      if (json == null) throw new RunnerException("JSON State does not contain a valid JSON map");
-      if (m_Global.IsNotNullOrWhiteSpace()) Runner.GlobalState[m_Global] = json;
-      if (m_Local.IsNotNullOrWhiteSpace()) state[m_Local] = json;
+      var obj = JsonReader.DeserializeDataObject(json);
+
+      if (Global.IsNotNullOrWhiteSpace()) Runner.GlobalState[Global] = obj;
+
+      if (Local.IsNotNullOrWhiteSpace()) state[Local] = obj;
 
       return Task.FromResult<string>(null);
     }
