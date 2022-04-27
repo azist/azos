@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Azos.Apps;
+using Azos.Apps.Injection;
 using Azos.Conf;
 using Azos.Data;
 using Azos.Security;
@@ -154,6 +155,9 @@ namespace Azos.Scripting.Dsl
 
     [Config(CONFIG_MODULE_SECTION)] public IConfigSectionNode Module { get; set; }
 
+    [Config(Default = true)]
+    public bool SetScope { get; set; } = true;
+
     protected override Task<string> DoRunAsync(JsonDataMap state)
     {
       var cfg = StepRunnerVarResolver.WrapConfigSnippet(Module.NonEmpty(CONFIG_MODULE_SECTION), Runner, state);
@@ -162,6 +166,12 @@ namespace Azos.Scripting.Dsl
 
       module.ApplicationAfterInit();
       StepRunner.Frame.Current.Owned.Add(module);
+
+      if (SetScope)
+      {
+        DynamicModuleFlowScope.Register(module);
+      }
+
       return Task.FromResult<string>(null);
     }
   }

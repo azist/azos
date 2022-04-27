@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.42.9.19
-set HEADLINE=Add SetObject
+set VER=1.42.10.1
+set HEADLINE=Add DynamicModuleFlowScope dependency injection capability #680
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
