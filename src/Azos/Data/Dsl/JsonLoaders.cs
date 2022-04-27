@@ -92,24 +92,16 @@ namespace Azos.Data.Dsl
     protected override Task<string> DoRunAsync(JsonDataMap state)
     {
       var fn = StepRunnerVarResolver.FormatString(Eval(FileName, state), Runner, state);
-
       if (fn.IsNotNullOrWhiteSpace())
       {
         if (!System.IO.File.Exists(fn)) throw new RunnerException("State JSON File does not exist");
-
-        var json = JsonReader.DeserializeDataObject(System.IO.File.ReadAllText(fn)) as JsonDataMap;
-        if (json == null) throw new RunnerException("JSON State File does not contain a valid JSON map");
-        if (m_Global.IsNotNullOrWhiteSpace()) Runner.GlobalState[m_Global] = json;
-        if (m_Local.IsNotNullOrWhiteSpace()) state[m_Local] = json;
+        Json = System.IO.File.ReadAllText(fn);
       }
-      else
-      {
 
-        var json = JsonReader.DeserializeDataObject(Json) as JsonDataMap;
-        if (json == null) throw new RunnerException("JSON State does not contain a valid JSON map");
-        if (m_Global.IsNotNullOrWhiteSpace()) Runner.GlobalState[m_Global] = json;
-        if (m_Local.IsNotNullOrWhiteSpace()) state[m_Local] = json;
-      }
+      var json = JsonReader.DeserializeDataObject(Json) as JsonDataMap;
+      if (json == null) throw new RunnerException("JSON State does not contain a valid JSON map");
+      if (m_Global.IsNotNullOrWhiteSpace()) Runner.GlobalState[m_Global] = json;
+      if (m_Local.IsNotNullOrWhiteSpace()) state[m_Local] = json;
 
       return Task.FromResult<string>(null);
     }
