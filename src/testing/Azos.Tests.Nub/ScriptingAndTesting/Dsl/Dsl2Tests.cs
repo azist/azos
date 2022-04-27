@@ -88,6 +88,82 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
       Aver.AreEqual("Rinaldo", runnable.GlobalState["server"].AsString());
     }
 
+    public const string JSON_STATE_LOADER_FROM_JSON = @"
+      script
+      {
+        type-path='Azos.Scripting.Dsl, Azos;Azos.Data.Dsl, Azos'
+
+        do{ type='JsonStateLoader' global='global_tezt' json='{""name"":""Gurariy""}'}
+        do{ type='JsonStateLoader' local='local_tezt' json='{""name"":""Gurariy""}'}
+
+        do{ type='See' format='Global tezt name is: {~global.global_tezt.name}'}
+        do{ type='See' format='Local tezt name is: {~local.local_tezt.name}'}
+
+        do{ type='DumpGlobalState'}
+        do{ type='DumpLocalState'}
+
+      }
+    ";
+
+    [Run]
+    public async Task SetJsonStateLoader_FromJson()
+    {
+      var runnable = new StepRunner(NOPApplication.Instance, JSON_STATE_LOADER_FROM_JSON.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+      var state = await runnable.RunAsync();
+
+      var gotGlobal = runnable.GlobalState["global_tezt"] as JsonDataMap;
+      Aver.IsNotNull(gotGlobal);
+      Aver.AreEqual("Gurariy", gotGlobal["name"].AsString());
+
+      var gotLocal = state["local_tezt"] as JsonDataMap;
+      Aver.IsNotNull(gotLocal);
+      Aver.AreEqual("Gurariy", gotLocal["name"].AsString());
+
+    }
+
+
+    public const string JSON_STATE_LOADER_FROM_FILE = @"
+      script
+      {
+        type-path='Azos.Scripting.Dsl, Azos;Azos.Data.Dsl, Azos'
+
+        do{ type='Set' global='input_file_name' to='JSON_02' }
+
+        do{ type='JsonStateLoader' global='global_tezt' local='local_tezt' fileName='{~global.input_file_name}.json'}
+
+        do{ type='See' format='Global tezt name is: {~global.global_tezt.name}'}
+        do{ type='See' format='Local tezt name is: {~local.local_tezt.name}'}
+
+        do{ type='See' format='File name is: {~global.input_file_name}'}
+
+        do{ type='DumpGlobalState'}
+        do{ type='DumpLocalState'}
+
+      }
+    ";
+
+    [Run]
+    public async Task SetJsonStateLoader_FromFile()
+    {
+      var fn = "JSON_02.json";
+      saveJsonFile(fn, @"{""name"":""Gurariy""}"); // ********** SAVE FILE **********
+
+      var runnable = new StepRunner(NOPApplication.Instance, JSON_STATE_LOADER_FROM_FILE.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+      var state = await runnable.RunAsync();
+
+      delJsonFile(fn); // ********** DEL FILE **********
+
+      var gotGlobal = runnable.GlobalState["global_tezt"] as JsonDataMap;
+      Aver.IsNotNull(gotGlobal);
+      Aver.AreEqual("Gurariy", gotGlobal["name"].AsString());
+
+      var gotLocal = state["local_tezt"] as JsonDataMap;
+      Aver.IsNotNull(gotLocal);
+      Aver.AreEqual("Gurariy", gotLocal["name"].AsString());
+
+    }
+
+
     #region Private Utility Methods
 
     private void saveJsonFile(string fileName, string json)

@@ -4,9 +4,13 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using System.Threading.Tasks;
+
 using Azos.Conf;
+using Azos.Scripting;
 using Azos.Scripting.Dsl;
 using Azos.Serialization.JSON;
+using Azos.Text;
 
 namespace Azos.Data.Dsl
 {
@@ -54,5 +58,60 @@ namespace Azos.Data.Dsl
     public object ObjectData => m_Data;
   }
 
+  /// <summary>
+  /// Sets a global or local value to the specified expression
+  /// </summary>
+  /// <example><code>
+  ///  do{ type="Set" global=a to='((x * global.a) / global.b) + 23'}
+  ///  do{ type="Set" local=x to='x+1' name="inc x"}
+  /// </code></example>
+  public sealed class JsonStateLoader : Step
+  {
+    public const string CONFIG_GLOBAL_ATTR = "global";
+    public const string CONFIG_LOCAL_ATTR = "local";
 
+    [Config]
+    public string FileName { get; set; }
+
+    [Config]
+    public string Json { get; set; }
+
+    public JsonStateLoader(StepRunner runner, IConfigSectionNode cfg, int idx) : base(runner, cfg, idx)
+    {
+      m_Local = cfg.ValOf(CONFIG_LOCAL_ATTR);
+      m_Global = cfg.ValOf(CONFIG_GLOBAL_ATTR);
+      if (m_Local.IsNullOrWhiteSpace() && m_Global.IsNullOrWhiteSpace())
+      {
+        throw new RunnerException("JsonStateLoader step requires at least either global or local assignment");
+      }
+    }
+
+    private string m_Global;
+    private string m_Local;
+
+    protected override Task<string> DoRunAsync(JsonDataMap state)
+    {
+      var fn = StepRunnerVarResolver.FormatString(Eval(FileName, state), Runner, state);
+
+      if (fn.IsNotNullOrWhiteSpace())
+      {
+        if (!System.IO.File.Exists(fn)) throw new RunnerException("State JSON File does not exist");
+
+        var json = JsonReader.DeserializeDataObject(System.IO.File.ReadAllText(fn)) as JsonDataMap;
+        if (json == null) throw new RunnerException("JSON State File does not contain a valid JSON map");
+        if (m_Global.IsNotNullOrWhiteSpace()) Runner.GlobalState[m_Global] = json;
+        if (m_Local.IsNotNullOrWhiteSpace()) state[m_Local] = json;
+      }
+      else
+      {
+
+        var json = JsonReader.DeserializeDataObject(Json) as JsonDataMap;
+        if (json == null) throw new RunnerException("JSON State does not contain a valid JSON map");
+        if (m_Global.IsNotNullOrWhiteSpace()) Runner.GlobalState[m_Global] = json;
+        if (m_Local.IsNotNullOrWhiteSpace()) state[m_Local] = json;
+      }
+
+      return Task.FromResult<string>(null);
+    }
+  }
 }
