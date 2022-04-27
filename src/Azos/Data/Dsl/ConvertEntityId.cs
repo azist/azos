@@ -13,7 +13,7 @@ using Azos.Serialization.JSON;
 namespace Azos.Data.Dsl
 {
   /// <summary>
-  /// Converts and EntityId value represented in canonical form into parsable tuple of (sys, tp, sch, adr).
+  /// Converts an EntityId value represented in canonical form into a parsable tuple of (sys, tp, sch, adr).
   /// If an input is a tuple then converts it back to EntityId.
   /// </summary>
   public sealed class ConvertEntityId : Step
