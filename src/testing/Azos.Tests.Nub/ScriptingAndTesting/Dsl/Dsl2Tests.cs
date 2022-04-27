@@ -42,11 +42,11 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
         );
     }
 
-    [Run]
-    public async Task GetTeztJson01()
-    {
-      get_TEZT_JSON_01().See();
-    }
+    //////[Run]
+    //////public async Task GetTeztJson01See()
+    //////{
+    //////  get_TEZT_JSON_01().See();
+    //////}
 
     public const string JSON_LOAD_ITERATE = @"
       script
@@ -93,8 +93,8 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
       {
         type-path='Azos.Scripting.Dsl, Azos;Azos.Data.Dsl, Azos'
 
-        do{ type='JsonStateLoader' global='global_tezt' json='{""name"":""Gurariy""}'}
-        do{ type='JsonStateLoader' local='local_tezt' json='{""name"":""Gurariy""}'}
+        do{ type='ReadJson' global='global_tezt' json='{""name"":""Gurariy""}'}
+        do{ type='ReadJson' local='local_tezt' json='{""name"":""Gurariy""}'}
 
         do{ type='See' format='Global tezt name is: {~global.global_tezt.name}'}
         do{ type='See' format='Local tezt name is: {~local.local_tezt.name}'}
@@ -129,7 +129,7 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
 
         do{ type='Set' global='input_file_name' to='JSON_02' }
 
-        do{ type='JsonStateLoader' global='global_tezt' local='local_tezt' fileName='{~global.input_file_name}.json'}
+        do{ type='ReadJson' global='global_tezt' local='local_tezt' fileName='{~global.input_file_name}.json'}
 
         do{ type='See' format='Global tezt name is: {~global.global_tezt.name}'}
         do{ type='See' format='Local tezt name is: {~local.local_tezt.name}'}
