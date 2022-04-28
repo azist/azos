@@ -98,7 +98,8 @@ namespace Azos.Serialization.JSON
 
 
     public static IJsonDataObject ProcessJsonLocalFileIncludes(this IJsonDataObject root, IApplication app, string rootPath, string includePragma = null, bool recurse = true)
-      => ProcessJsonIncludes(root, cfg =>
+    {
+      var result = ProcessJsonIncludes(root, cfg =>
       {
          var fn = cfg.ValOf("file");
          var fullPath = rootPath.IsNullOrWhiteSpace() ? fn : Path.Combine(rootPath, fn);
@@ -127,14 +128,17 @@ namespace Azos.Serialization.JSON
 
       }, includePragma, recurse);
 
+      return result;
+    }
 
-      /// <summary>
-      /// Creates an object which is a deep copy of the specified IJsonDataObject with includePragmas processed
-      /// </summary>
-      /// <remarks>
-      ///   https://github.com/azist/azos/issues/684
-      /// </remarks>
-      public static IJsonDataObject ProcessJsonIncludes(this IJsonDataObject root, Func<IConfigSectionNode, object> fReplace, string includePragma = null, bool recurse = true)
+
+    /// <summary>
+    /// Creates an object which is a deep copy of the specified IJsonDataObject with includePragmas processed
+    /// </summary>
+    /// <remarks>
+    ///   https://github.com/azist/azos/issues/684
+    /// </remarks>
+    public static IJsonDataObject ProcessJsonIncludes(this IJsonDataObject root, Func<IConfigSectionNode, object> fReplace, string includePragma = null, bool recurse = true)
     {
       root.NonNull(nameof(root));
       fReplace.NonNull(nameof(fReplace));
