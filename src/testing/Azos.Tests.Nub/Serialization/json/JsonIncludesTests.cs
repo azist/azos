@@ -30,6 +30,22 @@ namespace Azos.Tests.Nub.Serialization
     }
 
     [Run]
+    public void Test_Map_2()
+    {
+      var input = "{a: 1, b: { x:'Appleseed', y:'@{ x=600 }' } , c: '@{ x=-900 }'}".JsonToDataObject() as JsonDataMap;
+
+      var got = input.ProcessJsonIncludes(cfg => cfg.ValOf("x")) as JsonDataMap;
+
+      var gotMap = got["b"] as JsonDataMap;
+
+      Aver.AreEqual(3, got.Count);
+      Aver.AreEqual(1, got["a"].AsInt());
+      Aver.AreEqual(600, gotMap["y"].AsInt());
+      Aver.AreEqual("Appleseed", gotMap["x"].AsString());
+      Aver.AreEqual(-900, got["c"].AsInt());
+    }
+
+    [Run]
     public void Test_Array_1()
     {
       var input = "[1,2, '@{ x=900 }']".JsonToDataObject() as JsonDataArray;

@@ -151,29 +151,38 @@ namespace Azos.Serialization.JSON
 
     public static IJsonDataObject processJsonIncludes(ref int depth, IJsonDataObject root, Func<IConfigSectionNode, object> fReplace, string includePragma = null, bool recurse = true)
     {
-      if (depth++ > 0) throw new JSONException("{0} circular reference".Args(nameof(ProcessJsonIncludes)));
+      const int MAX_GRAPH_DEPTH = 64;
 
-      if (root is JsonDataMap mapRoot)
+      try
       {
-        var result = new JsonDataMap(mapRoot.CaseSensitive);
-        foreach (var kvp in mapRoot)
+        if (depth++ > MAX_GRAPH_DEPTH) throw new JSONException("{0} possible circular reference".Args(nameof(ProcessJsonIncludes)));
+
+        if (root is JsonDataMap mapRoot)
         {
-          var val = kvp.Value;
-          val = processIncludeValue(ref depth, val, fReplace, includePragma, recurse);
-          result.Add(kvp.Key, val);
+          var result = new JsonDataMap(mapRoot.CaseSensitive);
+          foreach (var kvp in mapRoot)
+          {
+            var val = kvp.Value;
+            val = processIncludeValue(ref depth, val, fReplace, includePragma, recurse);
+            result.Add(kvp.Key, val);
+          }
+          return result;
         }
-        return result;
+        else if (root is JsonDataArray arrRoot)
+        {
+          var result = new JsonDataArray(arrRoot.Count);
+          for (var i = 0; i < arrRoot.Count; i++)
+          {
+            var val = arrRoot[i];
+            val = processIncludeValue(ref depth, val, fReplace, includePragma, recurse);
+            result.Add(val);
+          }
+          return result;
+        }
       }
-      else if (root is JsonDataArray arrRoot)
+      finally
       {
-        var result = new JsonDataArray(arrRoot.Count);
-        for(var i=0; i< arrRoot.Count; i++)
-        {
-          var val = arrRoot[i];
-          val = processIncludeValue(ref depth, val, fReplace, includePragma, recurse);
-          result.Add(val);
-        }
-        return result;
+        depth--;
       }
 
       return root;
