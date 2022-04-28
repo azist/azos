@@ -21,7 +21,7 @@ namespace Azos.Serialization.JSON
   /// </summary>
   public interface IJsonDataObject
   {
-    object this[string key] {  get; }
+    object this[string key] { get; }
   }
 
   /// <summary>
