@@ -509,5 +509,89 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
     }
 
 
+    public const string CONVERT_ENTITY_ID = @"
+      script
+      {
+        type-path='Azos.Scripting.Dsl, Azos; Azos.Data.Dsl, Azos'
+
+        do{ type='Set' local=x to='car.vin@dealer::1AW789478468576348654'}
+        do{ type='ConvertEntityId' from='~local.x' into='xtuple'}
+        do{ type='See' format='tuple is: {~local.xtuple}'}
+        do{ type='ConvertEntityId' from='~local.xtuple' into='y'}
+
+        do{ type='Set' local=ADDRESS to='local.xtuple.adr'}
+      }
+    ";
+
+    [Run]
+    public async Task ConvertEntityId()
+    {
+      var runnable = new StepRunner(NOPApplication.Instance, CONVERT_ENTITY_ID.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+      var local = new JsonDataMap();
+      await runnable.RunAsync(state: local);
+
+      local.See();
+
+      Aver.AreEqual("car.vin@dealer::1AW789478468576348654", local["x"].AsString());
+      Aver.AreEqual("car.vin@dealer::1AW789478468576348654", ((EntityId)local["y"]).AsString);
+
+      var tuple = local["xtuple"].AsString().JsonToDataObject() as JsonDataMap;
+
+      Aver.IsNotNull(tuple);
+
+      Aver.AreEqual("dealer", tuple["sys"].AsString());
+      Aver.AreEqual("car", tuple["tp"].AsString());
+      Aver.AreEqual("vin", tuple["sch"].AsString());
+      Aver.AreEqual("1AW789478468576348654", tuple["adr"].AsString());
+
+      Aver.AreEqual("1AW789478468576348654", local["ADDRESS"].AsString());
+    }
+
+
+
+    public const string DATETIME_CONVERT = @"
+      script
+      {
+        type-path='Azos.Scripting.Dsl, Azos'
+
+        do{ type='Set' local=x to='1 January 1980, 14:08'}
+        do{ type='ConvertDateTime' from='~local.x' into='xtuple'}
+        do{ type='See' format='tuple is: {~local.xtuple}'}
+        do{ type='ConvertDateTime' from='~local.xtuple' into='y'}
+
+        do{ type='Set' local=YEAR to='local.xtuple.year'}
+
+        do{ type='Now' utc=true into='UTCNOW'}
+        do{ type='AddTimespan' from='~local.UTCNOW' into='UTCFUTURE' span='3:17:00'}
+      }
+    ";
+
+    [Run]
+    public async Task ConvertDateTime_AddTimeSpan()
+    {
+      var runnable = new StepRunner(NOPApplication.Instance, DATETIME_CONVERT.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+      var local = new JsonDataMap();
+      await runnable.RunAsync(state: local);
+
+      local.See();
+
+      Aver.AreEqual("1 January 1980, 14:08", local["x"].AsString());
+      Aver.AreEqual(DateTime.Parse("1 January 1980, 14:08"), local["y"].AsDateTime());
+
+      var tuple = local["xtuple"].AsString().JsonToDataObject() as JsonDataMap;
+
+      Aver.IsNotNull(tuple);
+
+      Aver.AreEqual(1980, tuple["year"].AsInt());
+      Aver.AreEqual(14, tuple["hour"].AsInt());
+
+      Aver.AreEqual(1980, local["YEAR"].AsInt());
+
+      Aver.IsTrue( (Ambient.UTCNow - local["UTCNOW"].AsDateTime(CoreConsts.UTC_TIMESTAMP_STYLES)).TotalSeconds < 10 );
+
+      Aver.IsTrue((local["UTCFUTURE"].AsDateTime(CoreConsts.UTC_TIMESTAMP_STYLES) - Ambient.UTCNow).TotalHours > 3.25d);
+    }
+
+
   }
 }
