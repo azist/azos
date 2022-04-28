@@ -17,7 +17,7 @@ namespace Azos.Scripting.Dsl
   /// </summary>
   public abstract class Step : INamed, IOrdered
   {
-    public Step(StepRunner runner, IConfigSectionNode cfg, int order)
+    protected Step(StepRunner runner, IConfigSectionNode cfg, int order)
     {
       m_Runner = runner.NonNull(nameof(runner));
       m_Runner.App.InjectInto(this);
