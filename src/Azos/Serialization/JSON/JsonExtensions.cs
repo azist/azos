@@ -6,95 +6,189 @@
 
 using System;
 using System.IO;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 using Azos.CodeAnalysis.Source;
-
+using Azos.Conf;
+using Azos.Web;
 
 namespace Azos.Serialization.JSON
 {
+  /// <summary>
+  /// Provides JSON extension methods
+  /// </summary>
+  public static class JsonExtensions
+  {
     /// <summary>
-    /// Provides JSON extension methods
+    ///  Deserializes JSON content into dynamic JSON object
     /// </summary>
-    public static class JsonExtensions
+    public static dynamic JsonToDynamic(this string json, bool caseSensitiveMaps = true)
     {
-        /// <summary>
-        ///  Deserializes JSON content into dynamic JSON object
-        /// </summary>
-        public static dynamic JsonToDynamic(this string json, bool caseSensitiveMaps = true)
-        {
-            return JsonReader.DeserializeDynamic(json, caseSensitiveMaps);
-        }
-
-        /// <summary>
-        ///  Deserializes JSON content into dynamic JSON object
-        /// </summary>
-        public static dynamic JsonToDynamic(this Stream json, Encoding encoding = null, bool caseSensitiveMaps = true)
-        {
-            return JsonReader.DeserializeDynamic(json, encoding, caseSensitiveMaps);
-        }
-
-
-        /// <summary>
-        ///  Deserializes JSON content into dynamic JSON object
-        /// </summary>
-        public static dynamic JsonToDynamic(this ISourceText json, bool caseSensitiveMaps = true)
-        {
-            return JsonReader.DeserializeDynamic(json, caseSensitiveMaps);
-        }
-
-
-        /// <summary>
-        ///  Deserializes JSON content into IJSONDataObject
-        /// </summary>
-        public static IJsonDataObject JsonToDataObject(this string json, bool caseSensitiveMaps = true)
-        {
-            return JsonReader.DeserializeDataObject(json, caseSensitiveMaps);
-        }
-
-        /// <summary>
-        ///  Deserializes JSON content into IJSONDataObject
-        /// </summary>
-        public static IJsonDataObject JsonToDataObject(this Stream json, Encoding encoding = null, bool caseSensitiveMaps = true)
-        {
-            return JsonReader.DeserializeDataObject(json, encoding, caseSensitiveMaps);
-        }
-
-
-        /// <summary>
-        ///  Deserializes JSON content into IJSONDataObject
-        /// </summary>
-        public static IJsonDataObject JsonToDataObject(this ISourceText json, bool caseSensitiveMaps = true)
-        {
-            return JsonReader.DeserializeDataObject(json, caseSensitiveMaps);
-        }
-
-
-
-        /// <summary>
-        ///  Serializes object into JSON string
-        /// </summary>
-        public static string ToJson(this object root, JsonWritingOptions options = null)
-        {
-            return JsonWriter.Write(root, options);
-        }
-
-        /// <summary>
-        ///  Serializes object into JSON format using provided TextWriter
-        /// </summary>
-        public static void ToJson(this object root, TextWriter wri, JsonWritingOptions options = null)
-        {
-            JsonWriter.Write(root, wri, options);
-        }
-
-        /// <summary>
-        ///  Serializes object into JSON format using provided stream and optional encoding
-        /// </summary>
-        public static void ToJson(this object root, Stream stream, JsonWritingOptions options = null, Encoding encoding = null)
-        {
-            JsonWriter.Write(root, stream, options, encoding);
-        }
+        return JsonReader.DeserializeDynamic(json, caseSensitiveMaps);
     }
+
+    /// <summary>
+    ///  Deserializes JSON content into dynamic JSON object
+    /// </summary>
+    public static dynamic JsonToDynamic(this Stream json, Encoding encoding = null, bool caseSensitiveMaps = true)
+    {
+        return JsonReader.DeserializeDynamic(json, encoding, caseSensitiveMaps);
+    }
+
+
+    /// <summary>
+    ///  Deserializes JSON content into dynamic JSON object
+    /// </summary>
+    public static dynamic JsonToDynamic(this ISourceText json, bool caseSensitiveMaps = true)
+    {
+        return JsonReader.DeserializeDynamic(json, caseSensitiveMaps);
+    }
+
+
+    /// <summary>
+    ///  Deserializes JSON content into IJSONDataObject
+    /// </summary>
+    public static IJsonDataObject JsonToDataObject(this string json, bool caseSensitiveMaps = true)
+    {
+        return JsonReader.DeserializeDataObject(json, caseSensitiveMaps);
+    }
+
+    /// <summary>
+    ///  Deserializes JSON content into IJSONDataObject
+    /// </summary>
+    public static IJsonDataObject JsonToDataObject(this Stream json, Encoding encoding = null, bool caseSensitiveMaps = true)
+    {
+        return JsonReader.DeserializeDataObject(json, encoding, caseSensitiveMaps);
+    }
+
+    /// <summary>
+    ///  Deserializes JSON content into IJSONDataObject
+    /// </summary>
+    public static IJsonDataObject JsonToDataObject(this ISourceText json, bool caseSensitiveMaps = true)
+    {
+        return JsonReader.DeserializeDataObject(json, caseSensitiveMaps);
+    }
+
+    /// <summary>
+    ///  Serializes object into JSON string
+    /// </summary>
+    public static string ToJson(this object root, JsonWritingOptions options = null)
+    {
+        return JsonWriter.Write(root, options);
+    }
+
+    /// <summary>
+    ///  Serializes object into JSON format using provided TextWriter
+    /// </summary>
+    public static void ToJson(this object root, TextWriter wri, JsonWritingOptions options = null)
+    {
+        JsonWriter.Write(root, wri, options);
+    }
+
+    /// <summary>
+    ///  Serializes object into JSON format using provided stream and optional encoding
+    /// </summary>
+    public static void ToJson(this object root, Stream stream, JsonWritingOptions options = null, Encoding encoding = null)
+    {
+        JsonWriter.Write(root, stream, options, encoding);
+    }
+
+    public const string JSON_INCLUDE_PRAGMA = "@";
+
+
+    public static IJsonDataObject ProcessJsonLocalFileIncludes(this IJsonDataObject root, IApplication app, string rootPath, string includePragma = null, bool recurse = true)
+      => ProcessJsonIncludes(root, cfg =>
+      {
+         var fn = cfg.ValOf("file");
+         var fullPath = rootPath.IsNullOrWhiteSpace() ? fn : Path.Combine(rootPath, fn);
+         var fExt = Path.GetExtension(fn);
+         var ctp = cfg.ValOf("content-type");
+
+         var mappings = ContentType.GetContentTypeMappings(app.NonNull(nameof(app)));
+         var mapping = ctp.IsNotNullOrWhiteSpace() ? mappings.MapContentType(ctp).FirstOrDefault()
+                                                   : mappings.MapFileExtension(fExt);
+
+         if (mapping == null) mapping = ContentType.Mapping.GENERIC_BINARY;
+
+         if (mapping.IsText)
+         {
+           var text = File.ReadAllText(fullPath);
+           if (mapping.ContentType.EqualsOrdIgnoreCase(ContentType.JSON))
+             return JsonReader.DeserializeDataObject(text);
+           else
+             return text;
+         }
+         else
+         {
+           var bin = File.ReadAllBytes(fullPath);
+           return bin;
+         }
+
+      }, includePragma, recurse);
+
+
+      /// <summary>
+      /// Creates an object which is a deep copy of the specified IJsonDataObject with includePragmas processed
+      /// </summary>
+      /// <remarks>
+      ///   https://github.com/azist/azos/issues/684
+      /// </remarks>
+      public static IJsonDataObject ProcessJsonIncludes(this IJsonDataObject root, Func<IConfigSectionNode, object> fReplace, string includePragma = null, bool recurse = true)
+    {
+      root.NonNull(nameof(root));
+      fReplace.NonNull(nameof(fReplace));
+      includePragma = includePragma.Default(JSON_INCLUDE_PRAGMA);
+
+      var callDepth = 0;
+
+      return processJsonIncludes(ref callDepth, root, fReplace, includePragma, recurse);
+    }
+
+    public static IJsonDataObject processJsonIncludes(ref int depth, IJsonDataObject root, Func<IConfigSectionNode, object> fReplace, string includePragma = null, bool recurse = true)
+    {
+      if (depth++ > 0) throw new JSONException("{0} circular reference".Args(nameof(ProcessJsonIncludes)));
+
+      if (root is JsonDataMap mapRoot)
+      {
+        var result = new JsonDataMap(mapRoot.CaseSensitive);
+        foreach (var kvp in mapRoot)
+        {
+          var val = kvp.Value;
+          val = processIncludeValue(ref depth, val, fReplace, includePragma, recurse);
+          result.Add(kvp.Key, val);
+        }
+        return result;
+      }
+      else if (root is JsonDataArray arrRoot)
+      {
+        var result = new JsonDataArray(arrRoot.Count);
+        for(var i=0; i< arrRoot.Count; i++)
+        {
+          var val = arrRoot[i];
+          val = processIncludeValue(ref depth, val, fReplace, includePragma, recurse);
+          result.Add(val);
+        }
+        return result;
+      }
+
+      return root;
+    }//processJsonIncludes
+
+
+    private static object processIncludeValue(ref int depth, object val, Func<IConfigSectionNode, object> fReplace, string includePragma, bool recurse)
+    {
+      var result = val;
+      if (val is string sval && sval.StartsWith(includePragma))
+      {
+        var cfg = sval.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw);
+        result = fReplace(cfg);
+      }
+      if (result is IJsonDataObject jdo && recurse)
+      {
+        result = processJsonIncludes(ref depth, jdo, fReplace, includePragma, recurse);
+      }
+      return result;
+    }//processIncludeValue
+  }
 }
