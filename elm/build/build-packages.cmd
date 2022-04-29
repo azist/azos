@@ -1,6 +1,6 @@
 @echo on
 
-set VER=1.42.10.3
+set VER=1.42.10.4
 set HEADLINE=#684
 call vs2017-build-release %VER%
 
