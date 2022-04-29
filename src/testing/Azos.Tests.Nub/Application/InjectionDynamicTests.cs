@@ -60,6 +60,7 @@ namespace Azos.Tests.Nub.Application
       {
         using(var mod = new MyModule(app))
         {
+          DynamicModuleFlowScope.Begin();
           var target = new InjectionTarget();
           Aver.IsTrue(DynamicModuleFlowScope.Register(mod));
           app.DependencyInjector.InjectInto(target);
