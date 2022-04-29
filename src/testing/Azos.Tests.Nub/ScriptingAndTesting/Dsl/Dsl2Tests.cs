@@ -20,7 +20,9 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
   [Runnable]
   public class Dsl2Tests
   {
-
+    /// <summary>
+    /// Arranges some complex object JSON test input
+    /// </summary>
     private string get_TEZT_JSON_01()
     {
       return JsonWriter.Write(
@@ -48,7 +50,8 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
     //////  get_TEZT_JSON_01().See();
     //////}
 
-    public const string JSON_LOAD_ITERATE = @"
+    // ********** Call JsonObjectLoader with fileName='...' and call ForEachDatum **********
+    public const string JSON_LOAD_ITERATE_FROM_FILE = @"
       script
       {
         type-path='Azos.Scripting.Dsl, Azos;Azos.Data.Dsl, Azos'
@@ -75,12 +78,12 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
     ";
 
     [Run]
-    public async Task JsonLoadIterate()
+    public async Task JsonLoadIterate_FromFile()
     {
       var fn = "JSON_01.json";
       saveJsonFile(fn, get_TEZT_JSON_01()); // ********** SAVE FILE **********
 
-      var runnable = new StepRunner(NOPApplication.Instance, JSON_LOAD_ITERATE.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+      var runnable = new StepRunner(NOPApplication.Instance, JSON_LOAD_ITERATE_FROM_FILE.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
       var state = await runnable.RunAsync();
 
       delJsonFile(fn); // ********** DEL FILE **********
@@ -88,7 +91,10 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
       Aver.AreEqual("Rinaldo", runnable.GlobalState["server"].AsString());
     }
 
-    public const string JSON_STATE_LOADER_FROM_JSON = @"
+
+
+    // ********** READ JSON with json='...' **********
+    public const string READ_JSON_FROM_JSON = @"
       script
       {
         type-path='Azos.Scripting.Dsl, Azos;Azos.Data.Dsl, Azos'
@@ -106,9 +112,9 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
     ";
 
     [Run]
-    public async Task SetJsonStateLoader_FromJson()
+    public async Task ReadJson_FromJson()
     {
-      var runnable = new StepRunner(NOPApplication.Instance, JSON_STATE_LOADER_FROM_JSON.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+      var runnable = new StepRunner(NOPApplication.Instance, READ_JSON_FROM_JSON.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
       var state = await runnable.RunAsync();
 
       var gotGlobal = runnable.GlobalState["global_tezt"] as JsonDataMap;
@@ -118,11 +124,50 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
       var gotLocal = state["local_tezt"] as JsonDataMap;
       Aver.IsNotNull(gotLocal);
       Aver.AreEqual("Gurariy", gotLocal["name"].AsString());
-
     }
 
 
-    public const string JSON_STATE_LOADER_FROM_FILE = @"
+
+    // ********** READ JSON with json='...' (including args for Eval) **********
+    public const string READ_JSON_FROM_JSON_WITH_ARGS = @"
+      script
+      {
+        type-path='Azos.Scripting.Dsl, Azos;Azos.Data.Dsl, Azos'
+
+do{ type='Set' global='gname' to='Gurariy' }
+
+        do{ type='ReadJson' global='global_tezt' json='{""name"":""Gurariy""}'}
+        do{ type='ReadJson' local='local_tezt' json='{""name"":""~global.gname""}'}
+
+        do{ type='See' format='Global tezt name is: {~global.global_tezt.name}'}
+        do{ type='See' format='Local tezt name is: {~local.local_tezt.name}'}
+
+        do{ type='DumpGlobalState'}
+        do{ type='DumpLocalState'}
+
+      }
+    ";
+
+    //////// FAILS because we are not recursively evaluating values in ReadJson Step?
+    //////[Run]
+    //////public async Task ReadJson_FromJson_WithArgs()
+    //////{
+    //////  var runnable = new StepRunner(NOPApplication.Instance, READ_JSON_FROM_JSON_WITH_ARGS.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+    //////  var state = await runnable.RunAsync();
+
+    //////  var gotGlobal = runnable.GlobalState["global_tezt"] as JsonDataMap;
+    //////  Aver.IsNotNull(gotGlobal);
+    //////  Aver.AreEqual("Gurariy", gotGlobal["name"].AsString());
+
+    //////  var gotLocal = state["local_tezt"] as JsonDataMap;
+    //////  Aver.IsNotNull(gotLocal);
+    //////  Aver.AreEqual("Gurariy", gotLocal["name"].AsString());
+    //////}
+
+
+
+    // ********** READ JSON with fileName='...' **********
+    public const string READ_JSON_FROM_FILE = @"
       script
       {
         type-path='Azos.Scripting.Dsl, Azos;Azos.Data.Dsl, Azos'
@@ -143,12 +188,12 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
     ";
 
     [Run]
-    public async Task SetJsonStateLoader_FromFile()
+    public async Task ReadJson_FromFile()
     {
       var fn = "JSON_02.json";
       saveJsonFile(fn, @"{""name"":""Gurariy""}"); // ********** SAVE FILE **********
 
-      var runnable = new StepRunner(NOPApplication.Instance, JSON_STATE_LOADER_FROM_FILE.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+      var runnable = new StepRunner(NOPApplication.Instance, READ_JSON_FROM_FILE.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
       var state = await runnable.RunAsync();
 
       delJsonFile(fn); // ********** DEL FILE **********
@@ -162,6 +207,53 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
       Aver.AreEqual("Gurariy", gotLocal["name"].AsString());
 
     }
+
+
+
+    // ********** READ JSON with fileName='...' (including args for Eval) **********
+    public const string READ_JSON_FROM_FILE_WITH_ARGS = @"
+      script
+      {
+        type-path='Azos.Scripting.Dsl, Azos;Azos.Data.Dsl, Azos'
+
+        do{ type='Set' global='input_file_name' to='JSON_02' }
+
+do{ type='Set' global='gname' to='Gurariy' }
+
+        do{ type='ReadJson' global='global_tezt' local='local_tezt' fileName='{~global.input_file_name}.json'}
+
+        do{ type='See' format='Global tezt name is: {~global.global_tezt.name}'}
+        do{ type='See' format='Local tezt name is: {~local.local_tezt.name}'}
+
+        do{ type='See' format='File name is: {~global.input_file_name}'}
+
+        do{ type='DumpGlobalState'}
+        do{ type='DumpLocalState'}
+
+      }
+    ";
+
+    //////// FAILS because we are not recursively evaluating values in ReadJson Step?
+    //////[Run]
+    //////public async Task ReadJson_FromFile_WithArgs()
+    //////{
+    //////  var fn = "JSON_02.json";
+    //////  saveJsonFile(fn, @"{""name"":""{~global.gname}""}"); // ********** SAVE FILE **********
+
+    //////  var runnable = new StepRunner(NOPApplication.Instance, READ_JSON_FROM_FILE_WITH_ARGS.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+    //////  var state = await runnable.RunAsync();
+
+    //////  delJsonFile(fn); // ********** DEL FILE **********
+
+    //////  var gotGlobal = runnable.GlobalState["global_tezt"] as JsonDataMap;
+    //////  Aver.IsNotNull(gotGlobal);
+    //////  Aver.AreEqual("Gurariy", gotGlobal["name"].AsString());
+
+    //////  var gotLocal = state["local_tezt"] as JsonDataMap;
+    //////  Aver.IsNotNull(gotLocal);
+    //////  Aver.AreEqual("Gurariy", gotLocal["name"].AsString());
+
+    //////}
 
 
     #region Private Utility Methods
