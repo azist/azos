@@ -5,6 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Azos.Collections;
 using Azos.Conf;
@@ -165,6 +166,15 @@ namespace Azos.Scripting.Dsl
       }
     }
 
+    private static readonly HashSet<Type> PRIMITIVES = new HashSet<Type>
+    {
+      typeof(DateTime), typeof(DateTime?),
+      typeof(Decimal), typeof(Decimal?),
+      typeof(TimeSpan), typeof(TimeSpan?),
+      typeof(GDID), typeof(GDID?),
+      typeof(Atom), typeof(Atom?)
+    };
+
     private static string getResolver(StepRunner runner, string ident, JsonDataMap state)
     {
       string get(object v)
@@ -173,7 +183,7 @@ namespace Azos.Scripting.Dsl
         if (v is string s) return s;
 
         var t = v.GetType();
-        if (t.IsPrimitive) return v.AsString();
+        if (t.IsPrimitive || PRIMITIVES.Contains(t)) return v.AsString();
 
         var json = JsonWriter.Write(v, JsonWritingOptions.CompactRowsAsMap, System.Globalization.CultureInfo.InvariantCulture);
         return json;
