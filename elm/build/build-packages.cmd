@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.42.10.4
-set HEADLINE=#684
+set VER=1.42.10.5
+set HEADLINE=Add json file includes
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
