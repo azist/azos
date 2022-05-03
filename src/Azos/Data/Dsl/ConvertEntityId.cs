@@ -52,6 +52,10 @@ namespace Azos.Data.Dsl
       {
         state[into] = val;
       }
+      else
+      {
+        Runner.SetResult(val);
+      }
 
       return Task.FromResult<string>(null);
     }

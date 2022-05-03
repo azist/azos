@@ -37,21 +37,24 @@ namespace Azos.Data.Dsl
     [Config]
     public string Into { get; set; }
 
+    [Config]
+    public bool PrivateLoopState { get; set; }
+
     protected override async Task<string> DoRunAsync(JsonDataMap state)
     {
       var dsn = Eval(From, state);
+      var into = Eval(Into, state).NonBlank("into");
       var source = DataLoader.Get(dsn);
       var enumerable = source.ObjectData as IEnumerable;
 
       enumerable.NonNull("Enumerable data");
       Into.NonBlank(nameof(Into));
 
-      var bodyArgs = new JsonDataMap(true);
+      var loopState = PrivateLoopState ? new JsonDataMap(true).Append(state) : state;
       foreach(var o in enumerable)
       {
-        bodyArgs.Clear();
-        bodyArgs[Into] = o;
-        await m_Body.RunAsync(state: bodyArgs).ConfigureAwait(false);
+        loopState[into] = o;
+        await m_Body.RunAsync(state: loopState).ConfigureAwait(false);
       }
       return null;
     }

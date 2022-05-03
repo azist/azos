@@ -10,7 +10,6 @@ using Azos.Conf;
 using Azos.Scripting;
 using Azos.Scripting.Dsl;
 using Azos.Serialization.JSON;
-using Azos.Text;
 
 namespace Azos.Data.Dsl
 {
@@ -24,38 +23,51 @@ namespace Azos.Data.Dsl
     [Config]
     public string Json { get; set; }
 
+    [Config]
+    public string IncludeFilePragma { get; set; }
+
     protected override IDataSource MakeDataSource(JsonDataMap state)
     {
       var fn = Eval(FileName, state);
       var json = Eval(Json, state);
 
       if (fn.IsNotNullOrWhiteSpace())
-        return JsonObjectDataSource.FromFile(Name, fn);
+        return JsonObjectDataSource.FromFile(App, Name, fn, IncludeFilePragma);
       else
-        return JsonObjectDataSource.FromJson(Name, json);
+        return JsonObjectDataSource.FromJson(App, Name, json, IncludeFilePragma);
     }
   }
 
   public sealed class JsonObjectDataSource : DisposableObject, IDataSource<IJsonDataObject>
   {
-    public static JsonObjectDataSource FromFile(string name, string fileName)
-     => new JsonObjectDataSource(name.NonBlank(nameof(name)), JsonReader.DeserializeDataObjectFromFile(fileName));
+    public static JsonObjectDataSource FromFile(IApplication app, string name, string fileName, string includeFilePragma)
+     => new JsonObjectDataSource(app.NonNull(nameof(app)), name.NonBlank(nameof(name)), JsonReader.DeserializeDataObjectFromFile(fileName), includeFilePragma);
 
-    public static JsonObjectDataSource FromJson(string name, string json)
-     => new JsonObjectDataSource(name.NonBlank(nameof(name)), JsonReader.DeserializeDataObject(json));
+    public static JsonObjectDataSource FromJson(IApplication app, string name, string json, string includeFilePragma)
+     => new JsonObjectDataSource(app.NonNull(nameof(app)), name.NonBlank(nameof(name)), JsonReader.DeserializeDataObject(json), includeFilePragma);
 
-    private JsonObjectDataSource(string name, IJsonDataObject data)
+    private JsonObjectDataSource(IApplication app, string name, IJsonDataObject data, string includeFilePragma)
     {
+      m_App = app;
       m_Name = name;
       m_Data = data;
+      m_IncludeFilePragma = includeFilePragma;
+      if (includeFilePragma.IsNotNullOrWhiteSpace())
+      {
+        m_Data = m_Data.ProcessJsonLocalFileIncludes(App, null, IncludeFilePragma);
+      }
     }
 
+    private IApplication m_App;
     private string m_Name;
     private IJsonDataObject m_Data;
+    private string m_IncludeFilePragma;
 
+    public IApplication App => m_App;
     public string Name => m_Name;
     public IJsonDataObject Data => m_Data;
     public object ObjectData => m_Data;
+    public string IncludeFilePragma => m_IncludeFilePragma;
   }
 
   /// <summary>
@@ -79,6 +91,9 @@ namespace Azos.Data.Dsl
 
     [Config]
     public string Local { get; set; }
+
+    [Config]
+    public string IncludeFilePragma { get; set; }
 
 
     protected override Task<string> DoRunAsync(JsonDataMap state)
@@ -105,9 +120,16 @@ namespace Azos.Data.Dsl
 
       var obj = JsonReader.DeserializeDataObject(json);
 
+      if (IncludeFilePragma.IsNotNullOrWhiteSpace())
+      {
+        obj = obj.ProcessJsonLocalFileIncludes(App, null, IncludeFilePragma);
+      }
+
       if (Global.IsNotNullOrWhiteSpace()) Runner.GlobalState[Global] = obj;
 
       if (Local.IsNotNullOrWhiteSpace()) state[Local] = obj;
+
+      if (Global.IsNullOrWhiteSpace() && Local.IsNullOrWhiteSpace()) Runner.SetResult(obj);
 
       return Task.FromResult<string>(null);
     }
