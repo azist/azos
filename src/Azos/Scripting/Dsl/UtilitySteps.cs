@@ -164,7 +164,18 @@ namespace Azos.Scripting.Dsl
 
       var module = FactoryUtils.MakeAndConfigureComponent<IModuleImplementation>(App, cfg);
 
-      module.ApplicationAfterInit();
+      try
+      {
+        App.InjectInto(module);//#687
+        module.ApplicationAfterInit();
+      }
+      catch(Exception error)
+      {
+        throw new RunnerException("Module {0}`{1}` init leaked: {2}".Args(module.GetType().DisplayNameWithExpandedGenericArgs(),
+                                                                          module.Name,
+                                                                          error.ToMessageWithType()), error);
+      }
+
       StepRunner.Frame.Current.Owned.Add(module);
 
       if (SetScope)
