@@ -18,23 +18,20 @@ namespace Azos.Data.Adlib
   [Serializable]
   public sealed class Item : PersistedEntity<IAdlibLogic, ChangeResult>, IDistributedStableHashProvider
   {
-    public const int MAX_HEADERS_LENGTH = 8 * 1024;
-    public const int MAX_CONTENT_LENGTH = 4 * 1024 * 1024;
-    public const int MAX_TAG_COUNT = 128;
-    public const int MAX_SHARD_TOPIC_LEN = 128;
+
 
     internal Item() { }//serializer
 
     /// <summary>
-    /// Returns a space id (EntityId.System) which contains this node
+    /// Returns a space id (EntityId.System) which contains item collection
     /// </summary>
-    [Field(required: true, Description = "Returns a space id (EntityId.System) which contains this node")]
+    [Field(required: true, Description = "Returns a space id (EntityId.System) which contains item collection")]
     public Atom Space { get; set; }
 
     /// <summary>
-    /// Returns tree id which contains this node
+    /// Collection within a space
     /// </summary>
-    [Field(required: true, Description = "Returns collection which contains this node")]
+    [Field(required: true, Description = "Collection within a space")]
     public Atom Collection { get; set; }
 
     public override EntityId Id => !Space.IsZero && Space.IsValid
@@ -42,7 +39,7 @@ namespace Azos.Data.Adlib
                                      : EntityId.EMPTY;
 
 
-    [Field(required: true, maxLength: MAX_SHARD_TOPIC_LEN, Description = "Sharding topic")]
+    [Field(required: true, maxLength: Constraints.MAX_SHARD_TOPIC_LEN, Description = "Sharding topic")]
     public string ShardTopic { get; internal set; }
 
     /// <summary>
@@ -60,18 +57,18 @@ namespace Azos.Data.Adlib
     public Atom Origin { get; internal set; }
 
     /// <summary>Optional header content </summary>
-    [Field(maxLength: MAX_HEADERS_LENGTH, Description = "Optional header content")]
+    [Field(maxLength: Constraints.MAX_HEADERS_LENGTH, Description = "Optional header content")]
     public ConfigVector Headers { get; internal set; }
 
     /// <summary>Content type e.g. json</summary>
     [Field(Description = "Content type")]
     public Atom ContentType { get; internal set; }
 
-    [Field(required: true, maxLength: MAX_TAG_COUNT, Description = "Indexable tags")]
+    [Field(required: true, maxLength: Constraints.MAX_TAG_COUNT, Description = "Indexable tags")]
     public List<Tag> Tags { get; set; }
 
     /// <summary> Raw event content </summary>
-    [Field(required: true, maxLength: MAX_CONTENT_LENGTH, Description = "Raw event content")]
+    [Field(required: true, maxLength: Constraints.MAX_CONTENT_LENGTH, Description = "Raw event content")]
     public byte[] Content { get; internal set; }
 
 

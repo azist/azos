@@ -25,16 +25,17 @@ namespace Azos.Data.Adlib
   public sealed class ItemFilter : FilterModel<IEnumerable<Item>>
   {
     /// <summary>
-    /// Returns a space id (EntityId.System) which contains this node
+    /// Returns a space id (EntityId.System) which contains item collection
     /// </summary>
-    [Field(required: true, Description = "Returns a space id (EntityId.System) which contains this node")]
+    [Field(required: true, Description = "Returns a space id (EntityId.System) which contains item collection")]
     public Atom Space { get; set; }
 
     /// <summary>
-    /// Returns tree id which contains this node
+    /// Collection within a space
     /// </summary>
-    [Field(required: true, Description = "Returns collection which contains this node")]
+    [Field(required: true, Description = "Collection within a space")]
     public Atom Collection { get; set; }
+
 
     [Field(description: "Item GDID")]
     public GDID Gdid { get; set; }
