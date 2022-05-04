@@ -39,8 +39,11 @@ namespace Azos.Data.Adlib
                                      ? new EntityId(Space, Collection, Constraints.SCH_GITEM, this.Gdid.ToString())
                                      : EntityId.EMPTY;
 
-
-    [Field(required: true, maxLength: Constraints.MAX_SHARD_TOPIC_LEN, Description = "Sharding topic")]
+    /// <summary>
+    /// Optional Sharding topic which defines what shard within a space the item gets stored at.
+    /// An unset/null property is equivalent to item's GDID for sharding
+    /// </summary>
+    [Field(maxLength: Constraints.MAX_SHARD_TOPIC_LEN, Description = "Sharding topic")]
     public string ShardTopic { get; internal set; }
 
     /// <summary>

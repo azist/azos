@@ -13,7 +13,7 @@
 ////////using Azos.Collections;
 ////////using Azos.Conf;
 
-////////namespace Azos.Data.Adlib
+////////namespace Azos.Data.Adlib.Server
 ////////{
 ////////  public class Space : ApplicationComponent<IAdlibLogic>, INamed
 ////////  {

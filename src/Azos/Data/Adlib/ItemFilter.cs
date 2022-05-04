@@ -37,6 +37,12 @@ namespace Azos.Data.Adlib
     public Atom Collection { get; set; }
 
     /// <summary>
+    /// Optional Sharding topic which defines what shards the search is directed at
+    /// </summary>
+    [Field(maxLength: Constraints.MAX_SHARD_TOPIC_LEN, Description = "Optional Sharding topic which defines what shards the search is directed at")]
+    public string ShardTopic { get; internal set; }
+
+    /// <summary>
     /// Gets specific item by its GDID(within a space/collection)
     /// </summary>
     [Field(description: "Item GDID")]
