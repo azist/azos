@@ -21,7 +21,7 @@ using Azos.Time;
 namespace Azos.Data.Adlib
 {
   [Bix("5eadc54c-4637-40f3-9bb8-6266663bc525")]
-  [Schema(Description = "Provides model for filtering of adlib items")]
+  [Schema(Description = "Provides model for filtering of data items")]
   public sealed class ItemFilter : FilterModel<IEnumerable<Item>>
   {
     /// <summary>
@@ -36,13 +36,21 @@ namespace Azos.Data.Adlib
     [Field(required: true, Description = "Collection within a space")]
     public Atom Collection { get; set; }
 
-
+    /// <summary>
+    /// Gets specific item by its GDID(within a space/collection)
+    /// </summary>
     [Field(description: "Item GDID")]
     public GDID Gdid { get; set; }
 
+    [Field(description: "Fetches Item tags")]
+    public bool FetchTags { get; set; }
 
-    [Field(isArow: true, backendName: "af", description: "Advanced filter, which can be used for filter by archive dimensions")]
-    public Expression AdvancedFilter { get; set; }
+    [Field(description: "Fetches Item content")]
+    public bool FetchContent { get; set; }
+
+
+    [Field(description: "Tag filter expression tree")]
+    public Expression TagFilter { get; set; }
 
 
     [InjectModule] IAdlibLogic m_Logic;

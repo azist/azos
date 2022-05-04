@@ -10,16 +10,17 @@ using System.Threading.Tasks;
 using Azos.Data;
 using Azos.Data.Business;
 using Azos.Data.Idgen;
+using Azos.Serialization.Bix;
 
 namespace Azos.Data.Adlib
 {
   /// <summary>
+  /// Item entity stored in Amorphous Data Library server
   /// </summary>
-  [Serializable]
+  [Bix("a05d1e2d-e4b5-4fc7-a3bf-88356f9818dc")]
+  [Schema(Description = "Item entity stored in Amorphous Data Library server")]
   public sealed class Item : PersistedEntity<IAdlibLogic, ChangeResult>, IDistributedStableHashProvider
   {
-
-
     internal Item() { }//serializer
 
     /// <summary>
