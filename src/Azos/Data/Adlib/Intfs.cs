@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Azos.Apps;
 using Azos.Collections;
+using Azos.Data.Business;
 
 namespace Azos.Data.Adlib
 {
@@ -20,38 +21,33 @@ namespace Azos.Data.Adlib
   public interface IAdlib
   {
     /// <summary>
-    /// Gets a space by name or throws
+    /// Returns a list of all known data spaces on the server
     /// </summary>
-    Space this[string name] { get; }
-
-    /// <summary>
-    /// Gets all spaces, spaces define physical data storage layout in a system
-    /// </summary>
-    IRegistry<Space> Spaces { get; }
+    Task<IEnumerable<Atom>> GetSpaceNamesAsync();
 
     /// <summary>
     /// Returns a list of all known collections within the space on the server.
     /// Note: these are server collections that have any data in them
     /// </summary>
-    Task<IEnumerable<string>> GetCollectionNamesAsync(Space space);
+    Task<IEnumerable<string>> GetCollectionNamesAsync(string space);
 
     /// <summary>
     /// Returns a list of filtered items out of the specified server collection
     /// </summary>
-    Task<IEnumerable<Item>> GetListAsync(Collection collection, ItemFilter filter);
+    Task<IEnumerable<Item>> GetListAsync(ItemFilter filter);
 
     /// <summary>
     /// Saves an Item into the specified collection
     /// </summary>
-    Task<ChangeResult> SaveAsync(Collection collection, Item item);
+    Task<ChangeResult> SaveAsync(Item item);
 
     /// <summary>
     /// Deletes an item with the specified GDID primary key  from the specified collection
     /// </summary>
-    Task<ChangeResult> DeleteAsync(Collection collection, GDID gItem);
+    Task<ChangeResult> DeleteAsync(EntityId id);
   }
 
-  public interface IAdlibLogic : IAdlib, IModule
+  public interface IAdlibLogic : IAdlib, IBusinessLogic
   {
   }
 

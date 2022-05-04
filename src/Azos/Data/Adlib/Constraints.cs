@@ -11,5 +11,7 @@ namespace Azos.Data.Adlib
   {
     public const int SPACE_NAME_MIN_LEN = 1;
     public const int SPACE_NAME_MAX_LEN = 32;
+
+    public static readonly Atom SCH_GITEM = Atom.Encode("gi");
   }
 }

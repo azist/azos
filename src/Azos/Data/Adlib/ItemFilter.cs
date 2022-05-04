@@ -24,39 +24,29 @@ namespace Azos.Data.Adlib
   [Schema(Description = "Provides model for filtering of adlib items")]
   public sealed class ItemFilter : FilterModel<IEnumerable<Item>>
   {
-    [Field(isArow: true, backendName: "gdid", description: "Log message GDID")]
+    /// <summary>
+    /// Returns a space id (EntityId.System) which contains this node
+    /// </summary>
+    [Field(required: true, Description = "Returns a space id (EntityId.System) which contains this node")]
+    public Atom Space { get; set; }
+
+    /// <summary>
+    /// Returns tree id which contains this node
+    /// </summary>
+    [Field(required: true, Description = "Returns collection which contains this node")]
+    public Atom Collection { get; set; }
+
+    [Field(description: "Item GDID")]
     public GDID Gdid { get; set; }
 
-    [Field(isArow: true, backendName: "guid", description: "Log message GUID")]
-    public Guid? Id { get; set; }
-
-    [Field(isArow: true, backendName: "relguid", description: "Log message related to GUID")]
-    public Guid? RelId { get; set; }
-
-    [Field(isArow: true, backendName: "chn", description: "Log message channel")]
-    public Atom? Channel { get; set; }
-
-    [Field(isArow: true, backendName: "app", description: "Log emitter app id")]
-    public Atom? Application { get; set; }
-
-    [Field(isArow: true, backendName: "utcr", description: "Log message start/end date UTC time range")]
-    public DateRange? TimeRange { get; set; }
-
-    [Field(isArow: true, backendName: "mintp", description: "Log message min type")]
-    public MessageType? MinType { get; set; }
-
-    [Field(isArow: true, backendName: "maxtp", description: "Log message max type")]
-    public MessageType? MaxType { get; set; }
 
     [Field(isArow: true, backendName: "af", description: "Advanced filter, which can be used for filter by archive dimensions")]
     public Expression AdvancedFilter { get; set; }
 
-    [Field(isArow: true, backendName: "crsh", description: "Cross shard, if true then server gets results from all shards")]
-    public bool CrossShard { get; set; }
 
     [InjectModule] IAdlibLogic m_Logic;
 
     protected async override Task<SaveResult<IEnumerable<Item>>> DoSaveAsync()
-     => new SaveResult<IEnumerable<Item>>(await m_Logic.GetListAsync(null, this).ConfigureAwait(false));
+     => new SaveResult<IEnumerable<Item>>(await m_Logic.GetListAsync(this).ConfigureAwait(false));
   }
 }

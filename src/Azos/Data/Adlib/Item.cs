@@ -6,7 +6,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Azos.Data;
+using Azos.Data.Business;
 using Azos.Data.Idgen;
 
 namespace Azos.Data.Adlib
@@ -14,7 +16,7 @@ namespace Azos.Data.Adlib
   /// <summary>
   /// </summary>
   [Serializable]
-  public sealed class Item : TypedDoc, IDistributedStableHashProvider
+  public sealed class Item : PersistedEntity<IAdlibLogic, ChangeResult>, IDistributedStableHashProvider
   {
     public const int MAX_HEADERS_LENGTH = 8 * 1024;
     public const int MAX_CONTENT_LENGTH = 4 * 1024 * 1024;
@@ -24,10 +26,21 @@ namespace Azos.Data.Adlib
     internal Item() { }//serializer
 
     /// <summary>
-    /// Immutable item id, primary key, monotonically increasing.
+    /// Returns a space id (EntityId.System) which contains this node
     /// </summary>
-    [Field(key: true, required: true, Description = "Immutable item id, primary key")]
-    public GDID Gdid { get; internal set; }
+    [Field(required: true, Description = "Returns a space id (EntityId.System) which contains this node")]
+    public Atom Space { get; set; }
+
+    /// <summary>
+    /// Returns tree id which contains this node
+    /// </summary>
+    [Field(required: true, Description = "Returns collection which contains this node")]
+    public Atom Collection { get; set; }
+
+    public override EntityId Id => !Space.IsZero && Space.IsValid
+                                     ? new EntityId(Space, Collection, Constraints.SCH_GITEM, this.Gdid.ToString())
+                                     : EntityId.EMPTY;
+
 
     [Field(required: true, maxLength: MAX_SHARD_TOPIC_LEN, Description = "Sharding topic")]
     public string ShardTopic { get; internal set; }
@@ -61,8 +74,12 @@ namespace Azos.Data.Adlib
     [Field(required: true, maxLength: MAX_CONTENT_LENGTH, Description = "Raw event content")]
     public byte[] Content { get; internal set; }
 
+
     public override string ToString() => $"Item({Gdid})";
     public ulong GetDistributedStableHash() => ShardKey.ForString(ShardTopic);
+
+    protected override async Task<ChangeResult> SaveBody(IAdlibLogic logic)
+     => await logic.SaveAsync(this).ConfigureAwait(false);
   }
 
 }
