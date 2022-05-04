@@ -14,14 +14,14 @@ namespace Azos.Data.Adlib
   /// <summary>
   /// </summary>
   [Serializable]
-  public class ItemInfo : TypedDoc, IDistributedStableHashProvider
+  public sealed class Item : TypedDoc, IDistributedStableHashProvider
   {
     public const int MAX_HEADERS_LENGTH = 8 * 1024;
     public const int MAX_CONTENT_LENGTH = 4 * 1024 * 1024;
     public const int MAX_TAG_COUNT = 128;
     public const int MAX_SHARD_TOPIC_LEN = 128;
 
-    internal ItemInfo() { }//serializer
+    internal Item() { }//serializer
 
     /// <summary>
     /// Immutable item id, primary key, monotonically increasing.
@@ -30,7 +30,7 @@ namespace Azos.Data.Adlib
     public GDID Gdid { get; internal set; }
 
     [Field(required: true, maxLength: MAX_SHARD_TOPIC_LEN, Description = "Sharding topic")]
-    public string ShardTopic { get; set; }
+    public string ShardTopic { get; internal set; }
 
     /// <summary>
     /// Unix timestamp with ms resolution - when event was triggered at Origin
@@ -48,63 +48,22 @@ namespace Azos.Data.Adlib
 
     /// <summary>Optional header content </summary>
     [Field(maxLength: MAX_HEADERS_LENGTH, Description = "Optional header content")]
-    public string Headers { get; internal set; }
+    public ConfigVector Headers { get; internal set; }
 
     /// <summary>Content type e.g. json</summary>
     [Field(Description = "Content type")]
     public Atom ContentType { get; internal set; }
 
-    public override string ToString() => $"Item({Gdid})";
-    public ulong GetDistributedStableHash() => ShardKey.ForString(ShardTopic);
-
-   }
-
-  public sealed class Item : ItemInfo
-  {
-    public Item(ItemInfo info, List<Tag> tags, byte[] content) : base()
-    {
-      info.NonNull(nameof(info));
-      Gdid = info.Gdid;
-      ShardTopic = info.ShardTopic;
-      CreateUtc = info.CreateUtc;
-      Origin = info.Origin;
-      Headers = info.Headers;
-      ContentType = info.ContentType;
-      Tags = tags;
-      Content = content;
-    }
-
     [Field(required: true, maxLength: MAX_TAG_COUNT, Description = "Indexable tags")]
-    public List<Tag> Tags { get; set;}
+    public List<Tag> Tags { get; set; }
 
     /// <summary> Raw event content </summary>
     [Field(required: true, maxLength: MAX_CONTENT_LENGTH, Description = "Raw event content")]
     public byte[] Content { get; internal set; }
+
+    public override string ToString() => $"Item({Gdid})";
+    public ulong GetDistributedStableHash() => ShardKey.ForString(ShardTopic);
   }
-
-  public struct Tag
-  {
-    public Tag(Atom prop, string value)
-    {
-      Prop = prop;
-      SValue = value.NonBlankMax(64, nameof(value));
-      NValue = 0;
-    }
-
-    public Tag(Atom prop, long value)
-    {
-      Prop = prop;
-      SValue = null;
-      NValue = value;
-    }
-
-    public readonly Atom    Prop;
-    public readonly string  SValue;
-    public readonly long    NValue;
-
-    public bool IsText => SValue != null;
-  }
-
 
 }
 
