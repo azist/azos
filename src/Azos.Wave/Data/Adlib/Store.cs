@@ -68,7 +68,7 @@ namespace Azos.Data.Adlib.Server
 
     [ApiEndpointDoc(
       Uri = "item",
-      Title = "Saves a single `Item`",
+      Title = "POST - Saves a single `Item`",
       Description = "Persists a new `Item` by calling Save and returning a JSON result",
       Methods = new[] { "POST: post Json `Item`" },
       RequestHeaders = new[] { API_DOC_HDR_ACCEPT_JSON },
