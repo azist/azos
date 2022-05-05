@@ -15,7 +15,7 @@ using Azos.Wave.Mvc;
 namespace Azos.Data.Access.Rpc.Server
 {
   /// <summary>
-  /// Provides API controller service for configuration Tree management
+  /// Provides API controller service for data RPC
   /// </summary>
   [NoCache]
   [ApiControllerDoc(
