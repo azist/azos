@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.42.10.7
-set HEADLINE=#687 load module DI
+set VER=1.42.10.8
+set HEADLINE=#688 wip, add controller doc
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
