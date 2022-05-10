@@ -53,7 +53,7 @@ namespace Azos.Data.Adlib
     public ulong CreateUtc { get; internal set; }
 
     /// <summary>
-    /// The id of cluster origin region/zone where the event was first triggered, among other things
+    /// The id of cluster origin region/zone where the item was first triggered, among other things
     /// this value is used to prevent circular traffic - in multi-master situations so the
     /// same event does not get replicated multiple times across regions (data centers)
     /// </summary>
