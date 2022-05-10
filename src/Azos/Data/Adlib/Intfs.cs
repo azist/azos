@@ -29,7 +29,7 @@ namespace Azos.Data.Adlib
     /// Returns a list of all known collections within the space on the server.
     /// Note: these are server collections that have any data in them
     /// </summary>
-    Task<IEnumerable<string>> GetCollectionNamesAsync(string space);
+    Task<IEnumerable<Atom>> GetCollectionNamesAsync(Atom space);
 
     /// <summary>
     /// Returns a list of filtered items out of the specified server collection
@@ -44,7 +44,7 @@ namespace Azos.Data.Adlib
     /// <summary>
     /// Deletes an item with the specified GDID primary key  from the specified collection
     /// </summary>
-    Task<ChangeResult> DeleteAsync(EntityId id);
+    Task<ChangeResult> DeleteAsync(EntityId id, string shardTopic = null);
   }
 
   public interface IAdlibLogic : IAdlib, IBusinessLogic
