@@ -45,7 +45,7 @@ namespace Azos.Data.Adlib.Server
     public static BSONDocument CreateIndex(Atom cname) //https://www.mongodb.com/docs/manual/reference/command/createIndexes/
      => new BSONDocument(@"{
           createIndexes: '##CNAME##',
-          indexes: [{key: {tags.p: 1, tags.v: 1}, name: 'idx_##CNAME##_tags', unique: false}]
+          indexes: [{key: {tags.v: 1, tags.p: 1}, name: 'idx_##CNAME##_tags', unique: false}]
         }".Replace("##CNAME##", CanonicalCollectionNameToMongo(cname)), false);
 
 
