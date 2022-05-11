@@ -153,7 +153,15 @@ namespace Azos.Data.Adlib.Server
     private Collection getCollection(Atom space, Atom collection)
     {
       var db = getDb(space);
-      var result = db[BsonConvert.CanonicalCollectionNameToMongo(collection)];
+      var result = db.GetOrRegister(BsonConvert.CanonicalCollectionNameToMongo(collection), out var wasAdded);
+      if (wasAdded)
+      {
+        //Create index on tags
+        this.DontLeak(
+          () => db.RunCommand(BsonConvert.CreateIndex(collection)),
+          errorLogType: Log.MessageType.CriticalAlert
+        );
+      }
       return result;
     }
   }

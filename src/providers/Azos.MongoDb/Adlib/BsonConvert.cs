@@ -42,6 +42,13 @@ namespace Azos.Data.Adlib.Server
     public static string CanonicalCollectionNameToMongo(Atom collection) => REF_POOL.Get(collection);
 
 
+    public static BSONDocument CreateIndex(Atom cname) //https://www.mongodb.com/docs/manual/reference/command/createIndexes/
+     => new BSONDocument(@"{
+          createIndexes: '##CNAME##',
+          indexes: [{key: {tags.p: 1, tags.v: 1}, name: 'idx_##CNAME##_tags', unique: false}]
+        }".Replace("##CNAME##", CanonicalCollectionNameToMongo(cname)), false);
+
+
     public static BSONDocument ToBson(Item item)
     {
       var doc = new BSONDocument();
