@@ -9,6 +9,8 @@ namespace Azos.Data.Adlib
   /// </summary>
   public static class Constraints
   {
+    public const string ID_NS_CONFIG_ADLIB_PREFIX = "az-adlib-";
+
     public const int MAX_HEADERS_LENGTH = 8 * 1024;
     public const int MAX_CONTENT_LENGTH = 4 * 1024 * 1024;
     public const int MAX_TAG_COUNT = 128;

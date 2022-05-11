@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Azos.Apps;
 using Azos.Conf;
 using Azos.Data.Access.MongoDb.Connector;
+using Azos.Serialization.BSON;
 
 namespace Azos.Data.Adlib.Server
 {
@@ -46,17 +47,55 @@ namespace Azos.Data.Adlib.Server
 
     public Task<IEnumerable<Item>> GetListAsync(ItemFilter filter)
     {
-      throw new NotImplementedException();
+      var col = getCollection(filter.Space, filter.Collection);
+
+      return null;
     }
 
-    public Task<ChangeResult> SaveAsync(Item item)
+    private void checkCrud(CRUDResult crud)
     {
-      throw new NotImplementedException();
+      if (crud.WriteErrors != null)
+      {
+        throw new AdlibException("Save failed", new MongoDbConnectorServerException());
+      }
+    }
+
+    public async Task<ChangeResult> SaveAsync(Item item)
+    {
+      var col = getCollection(item.Space, item.Collection);
+
+      var bson = BsonConvert.ToBson(item);
+
+      ChangeResult result;
+      if (item.FormMode == FormMode.Insert)
+      {
+        var crud = col.Insert(bson);
+        checkCrud(crud);
+        result = new ChangeResult(ChangeResult.ChangeType.Inserted, 1, "Inserted", crud, 200);
+      }
+      else if(item.FormMode == FormMode.Update)
+      {
+        var crud = col.Save(bson);
+        checkCrud(crud);
+        result = new ChangeResult(ChangeResult.ChangeType.Updated, 1, "Updated", crud, 200);
+
+      }
+      else if (item.FormMode == FormMode.Delete)
+      {
+        return await DeleteAsync(item.Id).ConfigureAwait(false);
+      }
+      else throw new FieldValidationException(item, nameof(item.FormMode), "Invalid form mode: "+item.FormMode);
+
+      return result;
     }
 
     public Task<ChangeResult> DeleteAsync(EntityId id, string shardTopic = null)
     {
-      throw new NotImplementedException();
+      var col = getCollection(id.System, id.Type);
+
+      //checkCrud(crud);
+
+      return null;
     }
 
 
@@ -109,6 +148,13 @@ namespace Azos.Data.Adlib.Server
         "Space(`{0}`)".Args(space).IsNotFound();
       }
       return mapping.db;
+    }
+
+    private Collection getCollection(Atom space, Atom collection)
+    {
+      var db = getDb(space);
+      var result = db[BsonConvert.CanonicalCollectionNameToMongo(collection)];
+      return result;
     }
   }
 }

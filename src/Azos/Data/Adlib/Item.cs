@@ -20,7 +20,7 @@ namespace Azos.Data.Adlib
   [Schema(Description = "Item entity stored in Amorphous Data Library server")]
   public sealed class Item : PersistedEntity<IAdlibLogic, ChangeResult>, IDistributedStableHashProvider
   {
-    internal Item() { }//serializer
+    public Item() { }//serializer
 
     /// <summary>
     /// Returns a space id (EntityId.System) which contains item collection
@@ -74,6 +74,20 @@ namespace Azos.Data.Adlib
     [Field(required: true, maxLength: Constraints.MAX_CONTENT_LENGTH, Description = "Raw event content")]
     public byte[] Content { get; internal set; }
 
+    protected override Task DoBeforeSaveAsync()
+    {
+      // Not needed as we override the logic below because we generate gdid differently here using forest ns
+      ////await base.DoBeforeSaveAsync().ConfigureAwait(false);
+
+      //Generate new GDID only AFTER all checks are passed not to waste gdid instance
+      //in case of validation errors
+      if (FormMode == FormMode.Insert && m_GdidGenerator != null)
+      {
+        Gdid = m_GdidGenerator.Provider.GenerateOneGdid(Constraints.ID_NS_CONFIG_ADLIB_PREFIX + Space.Value, Collection.Value);
+      }
+
+      return Task.CompletedTask;
+    }
 
     public override string ToString() => $"Item({Gdid})";
     public ulong GetDistributedStableHash() => ShardKey.ForString(ShardTopic);
