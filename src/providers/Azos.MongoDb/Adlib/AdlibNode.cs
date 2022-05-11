@@ -88,7 +88,6 @@ namespace Azos.Data.Adlib.Server
         }
         m_Spaces.Add(space, (cs, null));
       }//foreach
-
     }
 
     protected override bool DoApplicationAfterInit()
@@ -103,7 +102,6 @@ namespace Azos.Data.Adlib.Server
       return base.DoApplicationAfterInit();
     }
 
-
     private Database getDb(Atom space)
     {
       if (!m_Spaces.TryGetValue(space, out var mapping))
@@ -112,6 +110,5 @@ namespace Azos.Data.Adlib.Server
       }
       return mapping.db;
     }
-
   }
 }
