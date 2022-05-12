@@ -89,5 +89,37 @@ namespace Azos.Data.Adlib.Server
 
       return item;
     }
+
+    public static (Query qry, BSONDocument selector) GetFilterQuery(ItemFilter filter)
+    {
+      BSONDocument selector = null;//all
+      if (!filter.FetchContent || !filter.FetchTags)
+      {
+        selector = new BSONDocument();
+        selector.Set(new BSONInt32Element(FLD_GDID, 1));
+        selector.Set(new BSONInt32Element(FLD_CREATEUTC, 1));
+        selector.Set(new BSONInt32Element(FLD_ORIGIN, 1));
+        selector.Set(new BSONInt32Element(FLD_HEADERS, 1));
+        selector.Set(new BSONInt32Element(FLD_CONTENT_TYPE, 1));
+        if (filter.FetchContent) selector.Set(new BSONInt32Element(FLD_CONTENT, 1));
+        if (filter.FetchTags)    selector.Set(new BSONInt32Element(FLD_TAGS, 1));
+      }
+
+      var qry =  buildQueryDoc(filter);
+
+      return (qry, selector);
+    }
+
+    private static TagXlat s_TagXlat = new TagXlat();
+
+    private static Query buildQueryDoc(ItemFilter filter)
+    {
+      if (!filter.Gdid.IsZero) Query.ID_EQ_GDID(filter.Gdid);
+      if (filter.TagFilter==null) return new Query();
+
+      var ctx = s_TagXlat.TranslateInContext(filter.TagFilter);
+      return ctx.Query;
+    }
+
   }
 }

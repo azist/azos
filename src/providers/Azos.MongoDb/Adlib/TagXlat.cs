@@ -6,8 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Text;
 using System.Linq;
 using System.Collections;
 
@@ -16,17 +14,14 @@ using QDoc = Azos.Data.Access.MongoDb.Connector.Query;
 using Azos.Serialization.BSON;
 using Azos.Data.Access.MongoDb;
 using Azos.Serialization.JSON;
+using Azos.Data.AST;
 
-namespace Azos.Data.AST
+namespace Azos.Data.Adlib.Server
 {
-  /// <summary>
-  /// Implements expression translation for Mongo database by
-  /// generating Mongo Query BSON document
-  /// </summary>
-  public class MongoDbXlat : Xlat<MongoDbXlatContext>
+  public class TagXlat : Xlat<TagXlatContext>
   {
-    public MongoDbXlat(string name = null) : base(name) { }
-    public MongoDbXlat(IConfigSectionNode conf) : base(conf) { }
+    public TagXlat(string name = null) : base(name) { }
+    public TagXlat(IConfigSectionNode conf) : base(conf) { }
 
     [Config] private bool m_IsCaseSensitive;
 
@@ -43,9 +38,9 @@ namespace Azos.Data.AST
     /// <summary>
     /// Translates root AST expression for Mongo Db
     /// </summary>
-    public override MongoDbXlatContext TranslateInContext(Expression expression)
+    public override TagXlatContext TranslateInContext(Expression expression)
     {
-      var result = new MongoDbXlatContext(this);
+      var result = new TagXlatContext(this);
       var root = expression.Accept(result) as BSONElement;
       result.Query.Set(root);
       return result;
@@ -97,14 +92,9 @@ namespace Azos.Data.AST
 
   }
 
-
-
-  /// <summary>
-  /// Provides abstraction for Mongo Db translation contexts
-  /// </summary>
-  public class MongoDbXlatContext : XlatContext<MongoDbXlat>
+  public class TagXlatContext : XlatContext<TagXlat>
   {
-    public MongoDbXlatContext(MongoDbXlat xlat) : base(xlat)
+    public TagXlatContext(TagXlat xlat) : base(xlat)
     {
       m_Query = new QDoc();
     }
@@ -188,9 +178,9 @@ namespace Azos.Data.AST
         var right = new BSONDocument();
         if (value is IEnumerable vie)
         {
-        //todo: need to handle array
-       //   var arr = vie.Cast<object>().Select( e => new BSONElement(e));
-       //   right.Set(new BSONArrayElement(op, arr));
+          //todo: need to handle array
+          //   var arr = vie.Cast<object>().Select( e => new BSONElement(e));
+          //   right.Set(new BSONArrayElement(op, arr));
         }
         else
         {

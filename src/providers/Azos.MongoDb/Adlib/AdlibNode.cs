@@ -25,6 +25,9 @@ namespace Azos.Data.Adlib.Server
     public const string CONFIG_ID_ATTR = "id";
     public const string CONFIG_CS_ATTR = "cs";
 
+    public const int FETCH_BY_MAX = 255;
+    public const int FETCH_BY_DEFAULT = 8;
+
     public AdlibNode(IApplication application) : base(application) { }
     public AdlibNode(IModule parent) : base(parent) { }
 
@@ -49,7 +52,24 @@ namespace Azos.Data.Adlib.Server
     {
       var col = getCollection(filter.Space, filter.Collection);
 
-      return null;
+      var (qry, selector) = BsonConvert.GetFilterQuery(filter);
+
+      IEnumerable<Item> result = null;
+
+      var skip = filter.PagingStartIndex;
+      var count = filter.PagingCount;
+
+      if (skip < 0) skip = 0;
+      count = count.KeepBetween(1, FETCH_BY_MAX);
+      var fetchBy = Math.Min(count, FETCH_BY_MAX);
+
+      using (var cursor = col.Find(qry, skip, fetchBy, selector))
+      {
+        result = cursor.Take(count)
+                       .Select(doc => BsonConvert.ItemFromBson(doc)).ToArray();
+      }
+
+      return Task.FromResult(result);
     }
 
     private void checkCrud(CRUDResult crud)
