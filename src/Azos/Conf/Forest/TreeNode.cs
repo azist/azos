@@ -127,7 +127,7 @@ namespace Azos.Conf.Forest
 
     protected override Task DoBeforeSaveAsync()
     {
-      // Not needed as we overide the logic below because we generate gdid differently here using forest ns
+      // Not needed as we override the logic below because we generate gdid differently here using forest ns
       ////await base.DoBeforeSaveAsync().ConfigureAwait(false);
 
       //Generate new GDID only AFTER all checks are passed not to waste gdid instance

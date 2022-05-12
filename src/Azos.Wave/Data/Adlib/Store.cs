@@ -36,7 +36,7 @@ namespace Azos.Data.Adlib.Server
       Methods = new[] { "GET = gets all spaces on the server" },
       RequestHeaders = new[] { API_DOC_HDR_ACCEPT_JSON },
       ResponseHeaders = new[] { API_DOC_HDR_NO_CACHE },
-      ResponseContent = "JSON result - {OK: true, data: IEnumerable<string>}`")]
+      ResponseContent = "JSON result - {OK: true, data: IEnumerable<Atom>}`")]
     [ActionOnGet(Name = "spaces"), AcceptsJson]
     [AdlibPermission(AdlibAccessLevel.Read)]
     public async Task<object> GetSpaceNames() => GetLogicResult(await m_Logic.GetSpaceNamesAsync().ConfigureAwait(false));
@@ -48,10 +48,10 @@ namespace Azos.Data.Adlib.Server
       RequestHeaders = new[] { API_DOC_HDR_ACCEPT_JSON },
       ResponseHeaders = new[] { API_DOC_HDR_NO_CACHE },
       RequestQueryParameters = new[] {"space = string, space name"},
-      ResponseContent = "JSON result - {OK: true, data: IEnumerable<string>}`")]
+      ResponseContent = "JSON result - {OK: true, data: IEnumerable<Atom>}`")]
     [ActionOnGet(Name = "collections"), AcceptsJson]
     [AdlibPermission(AdlibAccessLevel.Read)]
-    public async Task<object> GetCollectionNames(string space) => GetLogicResult(await m_Logic.GetCollectionNamesAsync(space).ConfigureAwait(false));
+    public async Task<object> GetCollectionNames(Atom space) => GetLogicResult(await m_Logic.GetCollectionNamesAsync(space).ConfigureAwait(false));
 
     [ApiEndpointDoc(Title = "Filter",
       Uri = "filter",

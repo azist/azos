@@ -75,7 +75,7 @@ namespace Azos.Data.Adlib
       throw new NotImplementedException();
     }
 
-    public Task<IEnumerable<string>> GetCollectionNamesAsync(string space)
+    public Task<IEnumerable<Atom>> GetCollectionNamesAsync(Atom space)
     {
       throw new NotImplementedException();
     }
@@ -90,7 +90,7 @@ namespace Azos.Data.Adlib
       throw new NotImplementedException();
     }
 
-    public Task<ChangeResult> DeleteAsync(EntityId id)
+    public Task<ChangeResult> DeleteAsync(EntityId id, string shardTopic = null)
     {
       throw new NotImplementedException();
     }
