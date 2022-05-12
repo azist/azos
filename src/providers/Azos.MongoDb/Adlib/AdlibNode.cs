@@ -77,7 +77,7 @@ namespace Azos.Data.Adlib.Server
       {
         var crud = col.Save(bson);
         checkCrud(crud);
-        result = new ChangeResult(ChangeResult.ChangeType.Updated, 1, "Updated", crud, 200);
+        result = new ChangeResult(ChangeResult.ChangeType.Updated, crud.TotalDocumentsAffected, "Updated", crud, 200);
 
       }
       else if (item.FormMode == FormMode.Delete)
@@ -91,11 +91,17 @@ namespace Azos.Data.Adlib.Server
 
     public Task<ChangeResult> DeleteAsync(EntityId id, string shardTopic = null)
     {
-      var col = getCollection(id.System, id.Type);
+      var idt = Constraints.DecodeItemId(id);
 
-      //checkCrud(crud);
+      var col = getCollection(idt.space, idt.collection);
 
-      return null;
+      var what = Query.ID_EQ_GDID(idt.gdid);
+
+      var crud = col.DeleteOne(what);
+      checkCrud(crud);
+      var result = new ChangeResult(ChangeResult.ChangeType.Deleted, crud.TotalDocumentsAffected, "Deleted", crud, 200);
+
+      return Task.FromResult(result);
     }
 
 

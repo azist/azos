@@ -20,5 +20,20 @@ namespace Azos.Data.Adlib
     public const int SPACE_NAME_MAX_LEN = 32;
 
     public static readonly Atom SCH_GITEM = Atom.Encode("gi");
+
+    public static EntityId EncodeItemId(Atom space, Atom collection, GDID gdid)
+      => !space.IsZero && space.IsValid
+           ? new EntityId(space, collection, Constraints.SCH_GITEM, gdid.ToString())
+           : EntityId.EMPTY;
+
+
+    public static (Atom space, Atom collection, GDID gdid) DecodeItemId(EntityId id)
+    {
+      (id.Schema == SCH_GITEM).IsTrue("Schema "+ SCH_GITEM);
+      var gdid = id.Address.AsGDID();
+      gdid.HasRequiredValue("Gdid");
+      return (id.System, id.Type, gdid);
+    }
+
   }
 }

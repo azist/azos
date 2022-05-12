@@ -34,9 +34,7 @@ namespace Azos.Data.Adlib
     [Field(required: true, Description = "Collection within a space")]
     public Atom Collection { get; set; }
 
-    public override EntityId Id => !Space.IsZero && Space.IsValid
-                                     ? new EntityId(Space, Collection, Constraints.SCH_GITEM, this.Gdid.ToString())
-                                     : EntityId.EMPTY;
+    public override EntityId Id => Constraints.EncodeItemId(Space, Collection, Gdid);
 
     /// <summary>
     /// Optional Sharding topic which defines what shard within a space the item gets stored at.
