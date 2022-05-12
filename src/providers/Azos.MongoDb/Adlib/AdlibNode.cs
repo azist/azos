@@ -66,7 +66,11 @@ namespace Azos.Data.Adlib.Server
       using (var cursor = col.Find(qry, skip, fetchBy, selector))
       {
         result = cursor.Take(count)
-                       .Select(doc => BsonConvert.ItemFromBson(doc)).ToArray();
+                       .Select(doc => BsonConvert.ItemFromBson(filter.Space,
+                                                               filter.Collection,
+                                                               doc,
+                                                               msg => WriteLogFromHere(Log.MessageType.Warning, msg)))
+                       .ToArray();
       }
 
       return Task.FromResult(result);

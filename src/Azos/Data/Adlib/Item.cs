@@ -41,13 +41,13 @@ namespace Azos.Data.Adlib
     /// An unset/null property is equivalent to item's GDID for sharding
     /// </summary>
     [Field(maxLength: Constraints.MAX_SHARD_TOPIC_LEN, Description = "Sharding topic")]
-    public string ShardTopic { get; internal set; }
+    public string ShardTopic { get; set; }
 
     /// <summary>
     /// Unix timestamp with ms resolution - when event was triggered at Origin
     /// </summary>
     [Field(required: true, Description = "Unix timestamp with ms resolution - when event was triggered at Origin")]
-    public ulong CreateUtc { get; internal set; }
+    public ulong CreateUtc { get; set; }
 
     /// <summary>
     /// The id of cluster origin region/zone where the item was first triggered, among other things
@@ -55,22 +55,22 @@ namespace Azos.Data.Adlib
     /// same event does not get replicated multiple times across regions (data centers)
     /// </summary>
     [Field(required: true, Description = "Id of cluster origin zone/region")]
-    public Atom Origin { get; internal set; }
+    public Atom Origin { get; set; }
 
     /// <summary>Optional header content </summary>
     [Field(maxLength: Constraints.MAX_HEADERS_LENGTH, Description = "Optional header content")]
-    public ConfigVector Headers { get; internal set; }
+    public ConfigVector Headers { get; set; }
 
     /// <summary>Content type e.g. json</summary>
     [Field(Description = "Content type")]
-    public Atom ContentType { get; internal set; }
+    public Atom ContentType { get; set; }
 
     [Field(required: true, maxLength: Constraints.MAX_TAG_COUNT, Description = "Indexable tags")]
     public List<Tag> Tags { get; set; }
 
     /// <summary> Raw event content </summary>
     [Field(required: true, maxLength: Constraints.MAX_CONTENT_LENGTH, Description = "Raw event content")]
-    public byte[] Content { get; internal set; }
+    public byte[] Content { get; set; }
 
     protected override Task DoBeforeSaveAsync()
     {
