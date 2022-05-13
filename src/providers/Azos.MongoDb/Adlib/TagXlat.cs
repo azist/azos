@@ -6,8 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Text;
 using System.Linq;
 using System.Collections;
 
@@ -16,49 +14,28 @@ using QDoc = Azos.Data.Access.MongoDb.Connector.Query;
 using Azos.Serialization.BSON;
 using Azos.Data.Access.MongoDb;
 using Azos.Serialization.JSON;
+using Azos.Data.AST;
 
-namespace Azos.Data.AST
+namespace Azos.Data.Adlib.Server
 {
-  /// <summary>
-  /// Implements expression translation for Mongo database by
-  /// generating Mongo Query BSON document
-  /// </summary>
-  public class MongoDbXlat : Xlat<MongoDbXlatContext>
+  public class TagXlat : Xlat<TagXlatContext>
   {
-    public MongoDbXlat(string name = null) : base(name) { }
-    public MongoDbXlat(IConfigSectionNode conf) : base(conf) { }
+    public TagXlat(string name = null) : base(name) { }
+    public TagXlat(IConfigSectionNode conf) : base(conf) { }
 
     [Config] private bool m_IsCaseSensitive;
 
     public override bool IsCaseSensitive => m_IsCaseSensitive;
 
-    /// <summary>
-    /// Assigns an optional functor which gets called during identifier validation,
-    /// this is handy in many business-specific cases to
-    /// limit the column names without having to override this class
-    /// </summary>
-    public Func<IdentifierExpression, bool> IdentifierFilter { get; set; }
-
-
-    /// <summary>
-    /// Translates root AST expression for Mongo Db
-    /// </summary>
-    public override MongoDbXlatContext TranslateInContext(Expression expression)
+    public override TagXlatContext TranslateInContext(Expression expression)
     {
-      var result = new MongoDbXlatContext(this);
+      var result = new TagXlatContext(this);
       var root = expression.Accept(result) as BSONElement;
       result.Query.Set(root);
       return result;
     }
 
-    /// <summary>
-    /// Returns a stream of supported unary operators
-    /// </summary>
     public override IEnumerable<string> UnaryOperators => UNARY_OPS.Keys;
-
-    /// <summary>
-    /// Returns a stream of supported binary operators
-    /// </summary>
     public override IEnumerable<string> BinaryOperators => BINARY_OPS.Keys;
 
 
@@ -68,52 +45,40 @@ namespace Azos.Data.AST
 
     public static readonly Dictionary<string, string> BINARY_OPS = new Dictionary<string, string>(StringComparer.Ordinal)
     {
-       {"=", "$eq"},
+       {"=", "$eq"},   //{ Name: { $eq: 'Jack' } }
        {"==", "$eq"},
 
-       {"!=", "$ne"},
+       {"!=", "$ne"},  //{ Age: { $ne: 10 } }
        {"<>", "$ne"},
 
-       {"<", "$lt"},
+       {"<", "$lt"},  //{ Age: { $lt: 10 } }
        {">", "$gt"},
 
-       {"<=", "$lte"},
+       {"<=", "$lte"}, //{ Age: { $lte: 10 } }
        {">=", "$gte"},
 
-       {"and", "$and"},
+       {"and", "$and"}, // { $and: [{ Name: { $ne: 'Jack' } }, { Name: { $ne: 'Jim' } }] }
        {"&", "$and"},
        {"&&", "$and"},
 
-       {"or", "$or"},
+       {"or", "$or"},  // { $or: [{ Name: 'Jack' }, { Age: 10 }] }
        {"|", "$or"},
        {"||", "$or"},
 
-       {"not", "$not"},//is a binary logical disjunction {field: {$not: { <operator-expression> }}}
-       {"in", "$in"}, //{ field: { $in: [<value1>, <value2>, ... <valueN> ] } }
-       {"nin", "$nin"},//{ field: { $nin: [ <value1>, <value2> ... <valueN> ]} }
-       {"exists", "$exists"}//{ field: { $exists: <boolean> } }
+       {"not", "$not"}//is a binary logical disjunction {field: {$not: { <operator-expression> }}}
     };
 
 
   }
 
-
-
-  /// <summary>
-  /// Provides abstraction for Mongo Db translation contexts
-  /// </summary>
-  public class MongoDbXlatContext : XlatContext<MongoDbXlat>
+  public class TagXlatContext : XlatContext<TagXlat>
   {
-    public MongoDbXlatContext(MongoDbXlat xlat) : base(xlat)
+    public TagXlatContext(TagXlat xlat) : base(xlat)
     {
       m_Query = new QDoc();
     }
 
     protected QDoc m_Query;
-
-    /// <summary>
-    /// Returns built Mongo DB Query Document
-    /// </summary>
     public QDoc Query => m_Query;
 
 
@@ -131,24 +96,31 @@ namespace Azos.Data.AST
     public override object Visit(ValueExpression value)
     {
       value.NonNull(nameof(value));
-      return value.Value;
+
+      var v = value.Value;
+      var t = v.GetType();
+
+      var supported = t == typeof(string) ||
+                      t == typeof(ulong)  ||  t == typeof(long) ||
+                      t == typeof(int)    ||  t == typeof(uint);
+      supported.IsTrue("ValueExpression of supported types: string|long|ulong|int|uint");
+      return v;
     }
 
     public override object Visit(ArrayValueExpression array)
     {
-      return array.NonNull(nameof(array))
-                  .ArrayValue.NonNull(nameof(array))
-                  .Select(v => v.Accept(this) as BSONElement);
+      throw new ASTException(StringConsts.AST_UNSUPPORTED_ERROR.Args(nameof(ArrayValueExpression)));
     }
 
     public override object Visit(IdentifierExpression id)
     {
-      id.NonNull(nameof(id)).Identifier.NonBlank(nameof(id.Identifier));
+      id.NonNull(nameof(id))
+        .Identifier
+        .NonBlank(nameof(id.Identifier));
 
-      //check that id is accepted
-      var f = Translator.IdentifierFilter;
-      if (f != null && !f(id)) throw new ASTException(StringConsts.AST_BAD_IDENTIFIER_ERROR.Args(id.Identifier));
-      return id.Identifier;
+      //check that id is accepted: encodable as an Atom
+      Atom.TryEncode(id.Identifier, out var atom).IsTrue("Atom identifier");
+      return atom;
     }
 
     public override object Visit(UnaryExpression unary)
@@ -163,6 +135,36 @@ namespace Azos.Data.AST
       return null;
     }
 
+    //{p: {$eq: #color}, v: {$eq: 'green'}},
+    private BSONDocument propPair(Atom prop, string op, object v)
+    {
+      var doc = new BSONDocument();
+      //1
+      doc.Set(new BSONDocumentElement("p", new BSONDocument().Set(new BSONInt64Element("$eq", (long)prop.ID))));
+
+          BSONElement ev;
+          if (v == null) ev = new BSONNullElement(op);
+          else if (v is string sv) ev = new BSONStringElement(op, sv);
+          else
+          {
+            try
+            {
+              var ul = Convert.ToUInt64(v);
+              ev = new BSONInt64Element(op, (long)ul);
+            }
+            catch
+            {
+              throw new ASTException(StringConsts.AST_BAD_SYNTAX_ERROR.Args("value must be string or ulong-convertible", "{0} {1} {2}".Args(prop, op, v)).TakeFirstChars(48));
+            }
+          }
+
+      //2
+      doc.Set(new BSONDocumentElement("v", new BSONDocument().Set(ev)));
+
+      return doc;
+    }
+
+
     public override object Visit(BinaryExpression binary)
     {
       binary.NonNull(nameof(binary));
@@ -170,7 +172,7 @@ namespace Azos.Data.AST
       if (!binary.Operator.NonBlank(nameof(binary.Operator)).IsOneOf(Translator.BinaryOperators))
         throw new ASTException(StringConsts.AST_UNSUPPORTED_BINARY_OPERATOR_ERROR.Args(binary.Operator));
 
-      var op = MapBinaryOperator(binary.Operator);
+      var op = MapBinaryOperator(binary.Operator); // '!=' -> '$ne'
 
       var left = binary.LeftOperand
                        .NonNull(nameof(binary.LeftOperand))
@@ -178,32 +180,18 @@ namespace Azos.Data.AST
 
       var isNull = (binary.RightOperand == null || binary.RightOperand is ValueExpression ve && ve.Value == null);
 
-      if (left is string identifier) //{identifier: {$lt: value} }
+//"color" == 'green' and "age" < 100
+//==================================
+//{$and: [
+//  {p: {$eq: #color}, v: {$eq: 'green'}},
+//  {p: {$eq: #age"}, v: {$lt: 100}}
+//]}
+
+      if (left is Atom identifier) //{identifier: {$lt: value} }
       {
-        if (isNull)
-          return new BSONDocumentElement(identifier, new BSONDocument().Set(new BSONNullElement(op)));
-
+        if (isNull) return propPair(identifier, op, null);
         var value = binary.RightOperand.Accept(this);
-
-        var right = new BSONDocument();
-        if (value is IEnumerable vie)
-        {
-        //todo: need to handle array
-       //   var arr = vie.Cast<object>().Select( e => new BSONElement(e));
-       //   right.Set(new BSONArrayElement(op, arr));
-        }
-        else
-        {
-          try
-          {
-            right.Add(op, value, false, true);
-          }
-          catch
-          {
-            throwSyntaxErrorNear(binary, "unsupported RightOperand value `{0}`".Args(value == null ? "<null>" : value.GetType().Name));
-          }
-        }
-        return new BSONDocumentElement(identifier, right);
+        return propPair(identifier, op, value);
       }
 
       if (left is BSONElement complex)

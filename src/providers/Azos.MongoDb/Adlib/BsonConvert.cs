@@ -19,6 +19,7 @@ namespace Azos.Data.Adlib.Server
     public const string ADLIB_COLLECTION_PREFIX = "adl_";
 
     public const string FLD_GDID = Query._ID;
+    public const string FLD_SHARDTOPIC = "shrd";
     public const string FLD_CREATEUTC = "cutc";
     public const string FLD_ORIGIN = "org";
     public const string FLD_HEADERS = "hdr";
@@ -55,6 +56,11 @@ namespace Azos.Data.Adlib.Server
 
       doc.Set(DataDocConverter.GDID_CLRtoBSON(FLD_GDID, item.Gdid));
 
+      if (item.ShardTopic != null)
+        doc.Set(new BSONStringElement(FLD_SHARDTOPIC, item.ShardTopic));
+      else
+        doc.Set(new BSONNullElement(FLD_SHARDTOPIC));
+
       doc.Set(new BSONInt64Element(FLD_CREATEUTC, (long)item.CreateUtc));
       doc.Set(new BSONInt64Element(FLD_ORIGIN, (long)item.Origin.ID));
 
@@ -83,11 +89,86 @@ namespace Azos.Data.Adlib.Server
       return doc;
     }
 
-    public static Item ItemFromBson(BSONDocument bson)
+    public static Item ItemFromBson(Atom space, Atom collection, BSONDocument bson, Action<string> log)
     {
-      var item = new Item();
+      var item = new Item
+      {
+        Space = space,
+        Collection = collection
+      };
+
+      item.Gdid = bson[FLD_GDID] is BSONBinaryElement binGdid ? DataDocConverter.GDID_BSONtoCLR(binGdid) : GDID.ZERO;
+      item.ShardTopic = bson[FLD_SHARDTOPIC] is BSONStringElement stopic ? stopic.Value : null;
+      item.CreateUtc = bson[FLD_CREATEUTC] is BSONInt64Element cutc ? (ulong)cutc.Value : 0ul;
+      item.Origin = bson[FLD_ORIGIN] is BSONInt64Element orig ? new Atom((ulong)orig.Value) : Atom.ZERO;
+      item.Headers = bson[FLD_HEADERS] is BSONStringElement hdrs ? hdrs.Value : null;
+      item.ContentType = bson[FLD_CONTENT_TYPE] is BSONInt64Element ctp ? new Atom((ulong)ctp.Value) : Atom.ZERO;
+      item.Content = bson[FLD_CONTENT] is BSONBinaryElement bin ? bin.Value.Data : null;
+
+      var tags = bson[FLD_TAGS] as BSONArrayElement;
+      if (tags != null)
+      {
+        item.Tags = new List<Tag>();
+        foreach(var tagDoc in tags.Value.OfType<BSONDocumentElement>())
+        {
+          Tag tag;
+          var prop = bson[FLD_ORIGIN] is BSONInt64Element pelm ? new Atom((ulong)pelm.Value) : Atom.ZERO;
+          if (prop.IsZero || !prop.IsValid)
+          {
+            log("Corrupted tag data for GDID='{0}': prop id".Args(item.Gdid));
+            continue;
+          }
+          if (bson[FLD_TAG_VAL] is BSONStringElement selm)
+          {
+            tag = new Tag(prop, selm.Value);
+          }
+          else if (bson[FLD_TAG_VAL] is BSONInt64Element lelm)
+          {
+            tag = new Tag(prop, lelm.Value);
+          }
+          else
+          {
+            log("Corrupted tag '{1}' data for GDID='{0}': !sval | !nval".Args(item.Gdid, prop));
+            continue;
+          }
+
+          item.Tags.Add(tag);
+        }
+      }
 
       return item;
     }
+
+    public static (Query qry, BSONDocument selector) GetFilterQuery(ItemFilter filter)
+    {
+      BSONDocument selector = null;//all
+      if (!filter.FetchContent || !filter.FetchTags)
+      {
+        selector = new BSONDocument();
+        selector.Set(new BSONInt32Element(FLD_GDID, 1));
+        selector.Set(new BSONInt32Element(FLD_CREATEUTC, 1));
+        selector.Set(new BSONInt32Element(FLD_ORIGIN, 1));
+        selector.Set(new BSONInt32Element(FLD_HEADERS, 1));
+        selector.Set(new BSONInt32Element(FLD_CONTENT_TYPE, 1));
+        if (filter.FetchContent) selector.Set(new BSONInt32Element(FLD_CONTENT, 1));
+        if (filter.FetchTags)    selector.Set(new BSONInt32Element(FLD_TAGS, 1));
+      }
+
+      var qry =  buildQueryDoc(filter);
+
+      return (qry, selector);
+    }
+
+    private static TagXlat s_TagXlat = new TagXlat();
+
+    private static Query buildQueryDoc(ItemFilter filter)
+    {
+      if (!filter.Gdid.IsZero) Query.ID_EQ_GDID(filter.Gdid);
+      if (filter.TagFilter==null) return new Query();
+
+      var ctx = s_TagXlat.TranslateInContext(filter.TagFilter);
+      return ctx.Query;
+    }
+
   }
 }
