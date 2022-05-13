@@ -30,8 +30,20 @@ namespace Azos.Data.Adlib.Server
     public override TagXlatContext TranslateInContext(Expression expression)
     {
       var result = new TagXlatContext(this);
-      var root = expression.Accept(result) as BSONElement;
-      result.Query.Set(root);
+      var root = expression.Accept(result);
+      if (root is BSONElement elm)
+      {
+        result.Query.Set(elm);
+      }
+      else if (root is BSONDocument doc)
+      {
+        foreach(var docelm in doc)
+        {
+          result.Query.Set(docelm);
+        }
+      }
+      else throw new ASTException("Bad Xlat root: {0}".Args((root?.GetType().DisplayNameWithExpandedGenericArgs()) ?? "<null>"));
+
       return result;
     }
 
@@ -140,7 +152,7 @@ namespace Azos.Data.Adlib.Server
     {
       var doc = new BSONDocument();
       //1
-      doc.Set(new BSONDocumentElement("p", new BSONDocument().Set(new BSONInt64Element("$eq", (long)prop.ID))));
+      doc.Set(new BSONDocumentElement("tags.p", new BSONDocument().Set(new BSONInt64Element("$eq", (long)prop.ID))));
 
           BSONElement ev;
           if (v == null) ev = new BSONNullElement(op);
@@ -159,7 +171,7 @@ namespace Azos.Data.Adlib.Server
           }
 
       //2
-      doc.Set(new BSONDocumentElement("v", new BSONDocument().Set(ev)));
+      doc.Set(new BSONDocumentElement("tags.v", new BSONDocument().Set(ev)));
 
       return doc;
     }

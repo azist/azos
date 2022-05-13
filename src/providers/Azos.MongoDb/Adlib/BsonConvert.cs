@@ -11,6 +11,7 @@ using System.Text;
 
 using Azos.Data.Access.MongoDb.Connector;
 using Azos.Serialization.BSON;
+using Azos.Serialization.JSON;
 
 namespace Azos.Data.Adlib.Server
 {
@@ -109,20 +110,24 @@ namespace Azos.Data.Adlib.Server
       if (tags != null)
       {
         item.Tags = new List<Tag>();
-        foreach(var tagDoc in tags.Value.OfType<BSONDocumentElement>())
+        foreach(var tagDocElm in tags.Value.OfType<BSONDocumentElement>())
         {
           Tag tag;
-          var prop = bson[FLD_ORIGIN] is BSONInt64Element pelm ? new Atom((ulong)pelm.Value) : Atom.ZERO;
+          BSONDocument tagDoc = tagDocElm.Value;
+          var prop = tagDoc[FLD_TAG_PROP] is BSONInt64Element pelm ? new Atom((ulong)pelm.Value) : Atom.ZERO;
           if (prop.IsZero || !prop.IsValid)
           {
             log("Corrupted tag data for GDID='{0}': prop id".Args(item.Gdid));
             continue;
           }
-          if (bson[FLD_TAG_VAL] is BSONStringElement selm)
+
+          var val = tagDoc[FLD_TAG_VAL];
+
+          if (val is BSONStringElement selm)
           {
             tag = new Tag(prop, selm.Value);
           }
-          else if (bson[FLD_TAG_VAL] is BSONInt64Element lelm)
+          else if (val is BSONInt64Element lelm)
           {
             tag = new Tag(prop, lelm.Value);
           }
