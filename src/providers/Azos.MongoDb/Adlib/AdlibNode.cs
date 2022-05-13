@@ -52,7 +52,7 @@ namespace Azos.Data.Adlib.Server
     {
       var col = getCollection(filter.Space, filter.Collection);
 
-      var (qry, selector) = BsonConvert.GetFilterQuery(filter);
+      var qry = BsonConvert.GetFilterQuery(filter);
 
       IEnumerable<Item> result = null;
 
@@ -63,7 +63,7 @@ namespace Azos.Data.Adlib.Server
       count = count.KeepBetween(1, FETCH_BY_MAX);
       var fetchBy = Math.Min(count, FETCH_BY_MAX);
 
-      using (var cursor = col.Find(qry, skip, fetchBy, selector))
+      using (var cursor = col.Find(qry, skip, fetchBy, qry.ProjectionSelector))
       {
         result = cursor.Take(count)
                        .Select(doc => BsonConvert.ItemFromBson(filter.Space,

@@ -47,7 +47,7 @@ namespace Azos.Data.Adlib.Server
     public static BSONDocument CreateIndex(Atom cname) //https://www.mongodb.com/docs/manual/reference/command/createIndexes/
      => new BSONDocument(@"{
           createIndexes: '##CNAME##',
-          indexes: [{key: {tags.v: 1, tags.p: 1}, name: 'idx_##CNAME##_tags', unique: false}]
+          indexes: [{key: {'tags.v': 1, 'tags.p': 1}, name: 'idx_##CNAME##_tags', unique: false}]
         }".Replace("##CNAME##", CanonicalCollectionNameToMongo(cname)), false);
 
 
@@ -144,7 +144,7 @@ namespace Azos.Data.Adlib.Server
       return item;
     }
 
-    public static (Query qry, BSONDocument selector) GetFilterQuery(ItemFilter filter)
+    public static Query GetFilterQuery(ItemFilter filter)
     {
       BSONDocument selector = null;//all
       if (!filter.FetchContent || !filter.FetchTags)
@@ -160,8 +160,8 @@ namespace Azos.Data.Adlib.Server
       }
 
       var qry =  buildQueryDoc(filter);
-
-      return (qry, selector);
+      qry.ProjectionSelector = selector;
+      return qry;
     }
 
     private static TagXlat s_TagXlat = new TagXlat();
