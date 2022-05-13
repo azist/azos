@@ -95,13 +95,13 @@ namespace Azos.Data.Adlib.Server
       {
         var crud = col.Insert(bson);
         checkCrud(crud);
-        result = new ChangeResult(ChangeResult.ChangeType.Inserted, 1, "Inserted", crud, 200);
+        result = new ChangeResult(ChangeResult.ChangeType.Inserted, 1, "Inserted", new {id = item.Id, gdid = item.Gdid, crud}, 200);
       }
       else if(item.FormMode == FormMode.Update)
       {
         var crud = col.Save(bson);
         checkCrud(crud);
-        result = new ChangeResult(ChangeResult.ChangeType.Updated, crud.TotalDocumentsAffected, "Updated", crud, 200);
+        result = new ChangeResult(ChangeResult.ChangeType.Updated, crud.TotalDocumentsAffected, "Updated", new { id = item.Id, gdid = item.Gdid, crud }, 200);
 
       }
       else if (item.FormMode == FormMode.Delete)
@@ -123,7 +123,7 @@ namespace Azos.Data.Adlib.Server
 
       var crud = col.DeleteOne(what);
       checkCrud(crud);
-      var result = new ChangeResult(ChangeResult.ChangeType.Deleted, crud.TotalDocumentsAffected, "Deleted", crud, 200);
+      var result = new ChangeResult(ChangeResult.ChangeType.Deleted, crud.TotalDocumentsAffected, "Deleted", new { id = id, gdid = idt.gdid, crud }, 200);
 
       return Task.FromResult(result);
     }
@@ -163,7 +163,7 @@ namespace Azos.Data.Adlib.Server
     {
       m_Spaces.NonNull("configures spaces");
       //resolve DB cs
-      foreach(var kvp in m_Spaces)
+      foreach(var kvp in m_Spaces.ToArray())
       {
         var db = App.GetMongoDatabaseFromConnectString(kvp.Value.cs);
         m_Spaces[kvp.Key] = (kvp.Value.cs, db);
@@ -177,7 +177,9 @@ namespace Azos.Data.Adlib.Server
       {
         "Space(`{0}`)".Args(space).IsNotFound();
       }
-      return mapping.db;
+      var db = mapping.db;
+      if (db==null) throw $"Db space `{space}`".IsNotFound();
+      return db;
     }
 
     private Collection getCollection(Atom space, Atom collection)
