@@ -168,7 +168,7 @@ namespace Azos.Data.Adlib.Server
 
     private static Query buildQueryDoc(ItemFilter filter)
     {
-      if (!filter.Gdid.IsZero) Query.ID_EQ_GDID(filter.Gdid);
+      if (!filter.Gdid.IsZero) return Query.ID_EQ_GDID(filter.Gdid);
       if (filter.TagFilter==null) return new Query();
 
       var ctx = s_TagXlat.TranslateInContext(filter.TagFilter);
