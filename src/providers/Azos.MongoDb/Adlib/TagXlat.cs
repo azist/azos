@@ -206,6 +206,11 @@ namespace Azos.Data.Adlib.Server
         return propPair(identifier, op, value);
       }
 
+      if (left is BSONDocument doc)
+      {
+        left = new BSONDocumentElement(doc);
+      }
+
       if (left is BSONElement complex)
       {
         BSONElement right = null;
@@ -215,7 +220,16 @@ namespace Azos.Data.Adlib.Server
         }
         else
         {
-          right = binary.RightOperand.Accept(this) as BSONElement;
+          var oright = binary.RightOperand.Accept(this);
+          if (oright is BSONDocument rdoc)
+          {
+            right = new BSONDocumentElement(rdoc);
+          }
+          else
+          {
+            right = oright as BSONElement;
+          }
+
           if (right == null) throwSyntaxErrorNear(binary, "unsupported RightOperand value");
         }
 
