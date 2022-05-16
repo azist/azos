@@ -7,12 +7,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+
 using Azos.Apps;
 using Azos.Conf;
 using Azos.Data.Access.MongoDb.Connector;
-using Azos.Serialization.BSON;
+using Azos.Security.Adlib;
 
 namespace Azos.Data.Adlib.Server
 {
@@ -50,6 +50,8 @@ namespace Azos.Data.Adlib.Server
 
     public Task<IEnumerable<Item>> GetListAsync(ItemFilter filter)
     {
+      filter.NonNull(nameof(filter));
+      App.Authorize(new AdlibPermission(AdlibAccessLevel.Read));
       var col = getCollection(filter.Space, filter.Collection);
 
       var qry = BsonConvert.GetFilterQuery(filter);
@@ -86,6 +88,9 @@ namespace Azos.Data.Adlib.Server
 
     public async Task<ChangeResult> SaveAsync(Item item)
     {
+      item.NonNull(nameof(item));
+      App.Authorize(new AdlibPermission(AdlibAccessLevel.Change, item.Id));
+
       var col = getCollection(item.Space, item.Collection);
 
       var bson = BsonConvert.ToBson(item);
@@ -115,6 +120,10 @@ namespace Azos.Data.Adlib.Server
 
     public Task<ChangeResult> DeleteAsync(EntityId id, string shardTopic = null)
     {
+      id.HasRequiredValue(nameof(id));
+
+      App.Authorize(new AdlibPermission(AdlibAccessLevel.Delete, id));
+
       var idt = Constraints.DecodeItemId(id);
 
       var col = getCollection(idt.space, idt.collection);
