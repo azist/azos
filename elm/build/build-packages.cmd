@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.42.10.8
-set HEADLINE=#688 wip, add controller doc
+set VER=1.42.11.1
+set HEADLINE=#688 rtm ADLIB server
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
