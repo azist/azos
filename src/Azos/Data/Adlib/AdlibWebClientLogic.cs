@@ -70,29 +70,74 @@ namespace Azos.Data.Adlib
       return base.DoApplicationAfterInit();
     }
 
-    public Task<IEnumerable<Atom>> GetSpaceNamesAsync()
+    public async Task<IEnumerable<Atom>> GetSpaceNamesAsync()
     {
-      throw new NotImplementedException();
+      var response = await m_Server.Call(AdlibServiceAddress,
+                                          nameof(IAdlibLogic),
+                                          new ShardKey(DateTime.UtcNow),
+                                          async (http, ct) => await http.Client.GetJsonMapAsync("spaces").ConfigureAwait(false));
+      var result = response.UnwrapPayloadArray()
+              .OfType<string>()
+              .Select(sn => Atom.Encode(sn));
+
+      return result;
     }
 
-    public Task<IEnumerable<Atom>> GetCollectionNamesAsync(Atom space)
+    public async Task<IEnumerable<Atom>> GetCollectionNamesAsync(Atom space)
     {
-      throw new NotImplementedException();
+      var uri = new UriQueryBuilder("collections")
+               .Add("space", space)
+               .ToString();
+
+      var response = await m_Server.Call(AdlibServiceAddress,
+                                         nameof(IAdlibLogic),
+                                         new ShardKey(DateTime.UtcNow),
+                                         async (http, ct) => await http.Client.GetJsonMapAsync(uri).ConfigureAwait(false));
+      var result = response.UnwrapPayloadArray()
+              .OfType<string>()
+              .Select(sn => Atom.Encode(sn));
+
+      return result;
     }
 
-    public Task<IEnumerable<Item>> GetListAsync(ItemFilter filter)
+    public async Task<IEnumerable<Item>> GetListAsync(ItemFilter filter)
     {
-      throw new NotImplementedException();
+      var response = await m_Server.Call(AdlibServiceAddress,
+                                         nameof(IAdlibLogic),
+                                         new ShardKey(filter.ShardTopic),
+                                         (http, ct) => http.Client.PostAndGetJsonMapAsync("filter", new { filter = filter })).ConfigureAwait(false);
+
+      var result = response.UnwrapPayloadArray()
+              .OfType<JsonDataMap>()
+              .Select(imap => JsonReader.ToDoc<Item>(imap));
+
+      return result;
     }
 
-    public Task<ChangeResult> SaveAsync(Item item)
+    public async Task<ChangeResult> SaveAsync(Item item)
     {
-      throw new NotImplementedException();
+      var method = item.NonNull(nameof(item)).FormMode == FormMode.Insert ? System.Net.Http.HttpMethod.Post : System.Net.Http.HttpMethod.Put;
+
+      var response = await m_Server.Call(AdlibServiceAddress,
+                                         nameof(IAdlibLogic),
+                                         new ShardKey(item.ShardTopic),
+                                         (http, ct) => http.Client.CallAndGetJsonMapAsync("item", method, new { item = item })).ConfigureAwait(false);
+
+      var result = response.UnwrapChangeResult();
+
+      return result;
     }
 
-    public Task<ChangeResult> DeleteAsync(EntityId id, string shardTopic = null)
+    public async Task<ChangeResult> DeleteAsync(EntityId id, string shardTopic = null)
     {
-      throw new NotImplementedException();
+      var response = await m_Server.Call(AdlibServiceAddress,
+                                         nameof(IAdlibLogic),
+                                         new ShardKey(shardTopic),
+                                         (http, ct) => http.Client.DeleteAndGetJsonMapAsync("item", new { id = id })).ConfigureAwait(false);
+
+      var result = response.UnwrapChangeResult();
+
+      return result;
     }
   }
 }
