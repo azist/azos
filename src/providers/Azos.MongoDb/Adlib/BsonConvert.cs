@@ -11,6 +11,7 @@ using System.Text;
 
 using Azos.Data.Access.MongoDb.Connector;
 using Azos.Serialization.BSON;
+using Azos.Serialization.JSON;
 
 namespace Azos.Data.Adlib.Server
 {
@@ -46,7 +47,7 @@ namespace Azos.Data.Adlib.Server
     public static BSONDocument CreateIndex(Atom cname) //https://www.mongodb.com/docs/manual/reference/command/createIndexes/
      => new BSONDocument(@"{
           createIndexes: '##CNAME##',
-          indexes: [{key: {tags.v: 1, tags.p: 1}, name: 'idx_##CNAME##_tags', unique: false}]
+          indexes: [{key: {'tags.v': 1, 'tags.p': 1}, name: 'idx_##CNAME##_tags', unique: false}]
         }".Replace("##CNAME##", CanonicalCollectionNameToMongo(cname)), false);
 
 
@@ -109,20 +110,24 @@ namespace Azos.Data.Adlib.Server
       if (tags != null)
       {
         item.Tags = new List<Tag>();
-        foreach(var tagDoc in tags.Value.OfType<BSONDocumentElement>())
+        foreach(var tagDocElm in tags.Value.OfType<BSONDocumentElement>())
         {
           Tag tag;
-          var prop = bson[FLD_ORIGIN] is BSONInt64Element pelm ? new Atom((ulong)pelm.Value) : Atom.ZERO;
+          BSONDocument tagDoc = tagDocElm.Value;
+          var prop = tagDoc[FLD_TAG_PROP] is BSONInt64Element pelm ? new Atom((ulong)pelm.Value) : Atom.ZERO;
           if (prop.IsZero || !prop.IsValid)
           {
             log("Corrupted tag data for GDID='{0}': prop id".Args(item.Gdid));
             continue;
           }
-          if (bson[FLD_TAG_VAL] is BSONStringElement selm)
+
+          var val = tagDoc[FLD_TAG_VAL];
+
+          if (val is BSONStringElement selm)
           {
             tag = new Tag(prop, selm.Value);
           }
-          else if (bson[FLD_TAG_VAL] is BSONInt64Element lelm)
+          else if (val is BSONInt64Element lelm)
           {
             tag = new Tag(prop, lelm.Value);
           }
@@ -139,7 +144,7 @@ namespace Azos.Data.Adlib.Server
       return item;
     }
 
-    public static (Query qry, BSONDocument selector) GetFilterQuery(ItemFilter filter)
+    public static Query GetFilterQuery(ItemFilter filter)
     {
       BSONDocument selector = null;//all
       if (!filter.FetchContent || !filter.FetchTags)
@@ -155,15 +160,15 @@ namespace Azos.Data.Adlib.Server
       }
 
       var qry =  buildQueryDoc(filter);
-
-      return (qry, selector);
+      qry.ProjectionSelector = selector;
+      return qry;
     }
 
     private static TagXlat s_TagXlat = new TagXlat();
 
     private static Query buildQueryDoc(ItemFilter filter)
     {
-      if (!filter.Gdid.IsZero) Query.ID_EQ_GDID(filter.Gdid);
+      if (!filter.Gdid.IsZero) return Query.ID_EQ_GDID(filter.Gdid);
       if (filter.TagFilter==null) return new Query();
 
       var ctx = s_TagXlat.TranslateInContext(filter.TagFilter);

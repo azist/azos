@@ -39,6 +39,9 @@
 
 
   <ItemGroup>
+    <None Update="toy-adlib.laconf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="toy-mixin.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

@@ -7,12 +7,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+
 using Azos.Apps;
 using Azos.Conf;
 using Azos.Data.Access.MongoDb.Connector;
-using Azos.Serialization.BSON;
+using Azos.Security.Adlib;
 
 namespace Azos.Data.Adlib.Server
 {
@@ -50,9 +50,11 @@ namespace Azos.Data.Adlib.Server
 
     public Task<IEnumerable<Item>> GetListAsync(ItemFilter filter)
     {
+      filter.NonNull(nameof(filter));
+      App.Authorize(new AdlibPermission(AdlibAccessLevel.Read));
       var col = getCollection(filter.Space, filter.Collection);
 
-      var (qry, selector) = BsonConvert.GetFilterQuery(filter);
+      var qry = BsonConvert.GetFilterQuery(filter);
 
       IEnumerable<Item> result = null;
 
@@ -63,7 +65,7 @@ namespace Azos.Data.Adlib.Server
       count = count.KeepBetween(1, FETCH_BY_MAX);
       var fetchBy = Math.Min(count, FETCH_BY_MAX);
 
-      using (var cursor = col.Find(qry, skip, fetchBy, selector))
+      using (var cursor = col.Find(qry, skip, fetchBy, qry.ProjectionSelector))
       {
         result = cursor.Take(count)
                        .Select(doc => BsonConvert.ItemFromBson(filter.Space,
@@ -86,6 +88,9 @@ namespace Azos.Data.Adlib.Server
 
     public async Task<ChangeResult> SaveAsync(Item item)
     {
+      item.NonNull(nameof(item));
+      App.Authorize(new AdlibPermission(AdlibAccessLevel.Change, item.Id));
+
       var col = getCollection(item.Space, item.Collection);
 
       var bson = BsonConvert.ToBson(item);
@@ -95,13 +100,13 @@ namespace Azos.Data.Adlib.Server
       {
         var crud = col.Insert(bson);
         checkCrud(crud);
-        result = new ChangeResult(ChangeResult.ChangeType.Inserted, 1, "Inserted", crud, 200);
+        result = new ChangeResult(ChangeResult.ChangeType.Inserted, 1, "Inserted", new {id = item.Id, gdid = item.Gdid, crud}, 200);
       }
       else if(item.FormMode == FormMode.Update)
       {
         var crud = col.Save(bson);
         checkCrud(crud);
-        result = new ChangeResult(ChangeResult.ChangeType.Updated, crud.TotalDocumentsAffected, "Updated", crud, 200);
+        result = new ChangeResult(ChangeResult.ChangeType.Updated, crud.TotalDocumentsAffected, "Updated", new { id = item.Id, gdid = item.Gdid, crud }, 200);
 
       }
       else if (item.FormMode == FormMode.Delete)
@@ -115,6 +120,10 @@ namespace Azos.Data.Adlib.Server
 
     public Task<ChangeResult> DeleteAsync(EntityId id, string shardTopic = null)
     {
+      id.HasRequiredValue(nameof(id));
+
+      App.Authorize(new AdlibPermission(AdlibAccessLevel.Delete, id));
+
       var idt = Constraints.DecodeItemId(id);
 
       var col = getCollection(idt.space, idt.collection);
@@ -123,7 +132,7 @@ namespace Azos.Data.Adlib.Server
 
       var crud = col.DeleteOne(what);
       checkCrud(crud);
-      var result = new ChangeResult(ChangeResult.ChangeType.Deleted, crud.TotalDocumentsAffected, "Deleted", crud, 200);
+      var result = new ChangeResult(ChangeResult.ChangeType.Deleted, crud.TotalDocumentsAffected, "Deleted", new { id = id, gdid = idt.gdid, crud }, 200);
 
       return Task.FromResult(result);
     }
@@ -163,7 +172,7 @@ namespace Azos.Data.Adlib.Server
     {
       m_Spaces.NonNull("configures spaces");
       //resolve DB cs
-      foreach(var kvp in m_Spaces)
+      foreach(var kvp in m_Spaces.ToArray())
       {
         var db = App.GetMongoDatabaseFromConnectString(kvp.Value.cs);
         m_Spaces[kvp.Key] = (kvp.Value.cs, db);
@@ -177,7 +186,9 @@ namespace Azos.Data.Adlib.Server
       {
         "Space(`{0}`)".Args(space).IsNotFound();
       }
-      return mapping.db;
+      var db = mapping.db;
+      if (db==null) throw $"Db space `{space}`".IsNotFound();
+      return db;
     }
 
     private Collection getCollection(Atom space, Atom collection)
