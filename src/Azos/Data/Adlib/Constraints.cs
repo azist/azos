@@ -12,12 +12,11 @@ namespace Azos.Data.Adlib
     public const string ID_NS_CONFIG_ADLIB_PREFIX = "az-adlib-";
 
     public const int MAX_HEADERS_LENGTH = 8 * 1024;
-    public const int MAX_CONTENT_LENGTH = 4 * 1024 * 1024;
+    public const int MAX_CONTENT_LENGTH = 10 * 1024 * 1024;
     public const int MAX_TAG_COUNT = 128;
     public const int MAX_SHARD_TOPIC_LEN = 128;
 
-    public const int SPACE_NAME_MIN_LEN = 1;
-    public const int SPACE_NAME_MAX_LEN = 32;
+    public const int MAX_TAG_SVAL_LENGTH = 250;
 
     public static readonly Atom SCH_GITEM = Atom.Encode("gi");
 

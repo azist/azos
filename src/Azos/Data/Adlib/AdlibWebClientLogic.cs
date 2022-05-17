@@ -85,6 +85,7 @@ namespace Azos.Data.Adlib
 
     public async Task<IEnumerable<Atom>> GetCollectionNamesAsync(Atom space)
     {
+      space.HasRequiredValue(nameof(space));
       var uri = new UriQueryBuilder("collections")
                .Add("space", space)
                .ToString();
@@ -102,6 +103,7 @@ namespace Azos.Data.Adlib
 
     public async Task<IEnumerable<Item>> GetListAsync(ItemFilter filter)
     {
+      filter.NonNull(nameof(filter));
       var response = await m_Server.Call(AdlibServiceAddress,
                                          nameof(IAdlibLogic),
                                          new ShardKey(filter.ShardTopic),
@@ -124,19 +126,18 @@ namespace Azos.Data.Adlib
                                          (http, ct) => http.Client.CallAndGetJsonMapAsync("item", method, new { item = item })).ConfigureAwait(false);
 
       var result = response.UnwrapChangeResult();
-
       return result;
     }
 
     public async Task<ChangeResult> DeleteAsync(EntityId id, string shardTopic = null)
     {
+      id.HasRequiredValue(nameof(id));
       var response = await m_Server.Call(AdlibServiceAddress,
                                          nameof(IAdlibLogic),
                                          new ShardKey(shardTopic),
                                          (http, ct) => http.Client.DeleteAndGetJsonMapAsync("item", new { id = id })).ConfigureAwait(false);
 
       var result = response.UnwrapChangeResult();
-
       return result;
     }
   }
