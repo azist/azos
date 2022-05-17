@@ -18,7 +18,7 @@ namespace Azos.Data.Adlib
   /// Tags get added to items for indexing.
   /// A tag can have either a string or numeric value
   /// </summary>
-  public struct Tag : IEquatable<Tag>, IJsonReadable, IJsonWritable
+  public struct Tag : IEquatable<Tag>, IJsonReadable, IJsonWritable, IRequiredCheck, IValidatable
   {
     public Tag(Atom prop, string value)
     {
@@ -39,11 +39,28 @@ namespace Azos.Data.Adlib
     public readonly long    NValue;
 
     public bool IsText => SValue != null;
+    public bool IsAssigned => !Prop.IsZero;
+
+    public bool CheckRequired(string targetName) => IsAssigned;
+
+
+    public ValidState Validate(ValidState state, string scope = null)
+    {
+      if (SValue != null && SValue.Length > Constraints.MAX_TAG_SVAL_LENGTH)
+      {
+        state = new ValidState(state,
+                                new FieldValidationException(nameof(Tag),
+                                                             nameof(SValue),
+                                                             "SValue len exceeds max of {0}".Args(Azos.IOUtils.FormatByteSizeWithPrefix(Constraints.MAX_TAG_SVAL_LENGTH))
+                                                            )
+                              );
+      }
+      return state;
+    }
 
     public bool Equals(Tag other) => this.Prop == other.Prop && this.SValue.EqualsOrdSenseCase(other.SValue) && this.NValue == other.NValue;
     public override bool Equals(object obj) => obj is Tag tag ? this.Equals(tag) : false;
     public override int GetHashCode() => Prop.GetHashCode() ^ ((SValue != null) ? SValue.GetHashCode() : NValue.GetHashCode());
-
 
     public void WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
     {
@@ -65,6 +82,7 @@ namespace Azos.Data.Adlib
 
       return (false, null);
     }
+
 
     public static bool operator ==(Tag left, Tag right) => left.Equals(right);
     public static bool operator !=(Tag left, Tag right) => !left.Equals(right);
