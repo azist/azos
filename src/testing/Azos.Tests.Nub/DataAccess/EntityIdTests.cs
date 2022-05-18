@@ -394,5 +394,21 @@ namespace Azos.Tests.Nub.DataAccess
       Aver.IsTrue( got.V2 == null);
     }
 
+
+    [Run]
+    public void Composite01()
+    {
+      var id1 = new EntityId(Atom.Encode("sys1"), Atom.Encode("t1"), new { z = 1, a = 2 });
+      var id2 = new EntityId(Atom.Encode("sys1"), Atom.Encode("t1"), new { a = 2, z = 1 });
+
+      Aver.IsTrue(id1 == id2);
+      Aver.IsTrue(id1.IsCompositeAddress);
+      Aver.IsTrue(id2.IsCompositeAddress);
+
+      var map = id1.CompositeAddress;
+
+      Aver.AreEqual(1, map["z"].AsInt());
+      Aver.AreEqual(2, map["a"].AsInt());
+    }
   }
 }
