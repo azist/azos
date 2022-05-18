@@ -44,6 +44,12 @@ namespace Azos.Data.Adlib
     public string ShardTopic { get; set; }
 
     /// <summary>
+    /// Returns an effective ShardKey based on either ShardTopic or string representation of a Gdid key
+    /// </summary>
+    public ShardKey EffectiveShardKey => ShardTopic.IsNotNullOrWhiteSpace() ? new ShardKey(ShardTopic) : new ShardKey(Constraints.GdidToShardKey(Gdid));
+
+
+    /// <summary>
     /// Unix timestamp with ms resolution - when event was triggered at Origin
     /// </summary>
     [Field(required: true, Description = "Unix timestamp with ms resolution - when event was triggered at Origin")]

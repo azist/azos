@@ -34,5 +34,11 @@ namespace Azos.Data.Adlib
       return (id.System, id.Type, gdid);
     }
 
+    /// <summary>
+    /// Returns a stable predictable string representation of GDID which can be used as a shard key
+    /// </summary>
+    public static string GdidToShardKey(GDID id) => id.ToString();
+
+
   }
 }
