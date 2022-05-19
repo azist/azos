@@ -7,6 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+
+using Azos.Apps.Injection;
 using Azos.Data.Business;
 using Azos.Data.Idgen;
 using Azos.Serialization.Bix;
@@ -18,7 +20,7 @@ namespace Azos.Data.Adlib
   /// </summary>
   [Bix("a05d1e2d-e4b5-4fc7-a3bf-88356f9818dc")]
   [Schema(Description = "Item entity stored in Amorphous Data Library server")]
-  public sealed class Item : PersistedEntity<IAdlibLogic, ChangeResult>, IDistributedStableHashProvider
+  public sealed class Item : PersistedModel<ChangeResult>, IDistributedStableHashProvider
   {
     public Item() { }//serializer
 
@@ -34,7 +36,17 @@ namespace Azos.Data.Adlib
     [Field(required: true, Description = "Collection within a space")]
     public Atom Collection { get; set; }
 
-    public override EntityId Id => Constraints.EncodeItemId(Space, Collection, Gdid);
+    /// <summary>
+    /// Item GDID Primary Key which is unique per space/collection
+    /// </summary>
+    [Field(required: true, Description = "Item GDID Primary Key which is unique per space/collection")]
+    public GDID Gdid { get; set; }
+
+    /// <summary>
+    /// Item EntityId using Gdid schema
+    /// </summary>
+    [Field(required: true, Description = "Item EntityId using Gdid schema")]
+    public EntityId Id => Constraints.EncodeItemId(Space, Collection, Gdid);
 
     /// <summary>
     /// Optional Sharding topic which defines what shard within a space the item gets stored at.
@@ -78,26 +90,31 @@ namespace Azos.Data.Adlib
     [Field(required: true, maxLength: Constraints.MAX_CONTENT_LENGTH, Description = "Raw event content")]
     public byte[] Content { get; set; }
 
+
+    public override string ToString() => $"Item({Gdid})";
+    public ulong GetDistributedStableHash() => EffectiveShardKey.GetDistributedStableHash();
+
+    [Inject] IAdlibLogic m_Logic;
+    [Inject(Optional = true)] IGdidProviderModule m_GdidModule;
+
+    /// <summary>
+    /// Excuses GDID from required validation until later, as it is generated on server on insert only
+    /// </summary>
+    public override ValidState ValidateField(ValidState state, Schema.FieldDef fdef, string scope = null)
+      => (fdef.Name == nameof(Gdid) && FormMode == FormMode.Insert) ? state : base.ValidateField(state, fdef, scope);
+
     protected override Task DoBeforeSaveAsync()
     {
-      // Not needed as we override the logic below because we generate gdid differently here using forest ns
-      ////await base.DoBeforeSaveAsync().ConfigureAwait(false);
-
-      //Generate new GDID only AFTER all checks are passed not to waste gdid instance
-      //in case of validation errors
-      if (FormMode == FormMode.Insert && m_GdidGenerator != null)
+      if (FormMode == FormMode.Insert && Gdid.IsZero && m_GdidModule != null)
       {
-        Gdid = m_GdidGenerator.Provider.GenerateOneGdid(Constraints.ID_NS_CONFIG_ADLIB_PREFIX + Space.Value, Collection.Value);
+        Gdid = Constraints.GenerateItemGdid(m_GdidModule.Provider, Space, Collection);
       }
 
       return Task.CompletedTask;
     }
 
-    public override string ToString() => $"Item({Gdid})";
-    public ulong GetDistributedStableHash() => ShardKey.ForString(ShardTopic);
-
-    protected override async Task<ChangeResult> SaveBody(IAdlibLogic logic)
-     => await logic.SaveAsync(this).ConfigureAwait(false);
+    protected override async Task<SaveResult<ChangeResult>> DoSaveAsync()
+     => new SaveResult<ChangeResult>(await m_Logic.SaveAsync(this).ConfigureAwait(false));
   }
 
 }
