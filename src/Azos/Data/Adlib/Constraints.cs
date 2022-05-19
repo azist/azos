@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Azos.Data.Idgen;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -34,5 +35,20 @@ namespace Azos.Data.Adlib
       return (id.System, id.Type, gdid);
     }
 
+    /// <summary>
+    /// Returns a stable predictable string representation of GDID which can be used as a shard key
+    /// </summary>
+    public static string GdidToShardKey(GDID id) => id.ToString();
+
+    /// <summary>
+    /// Generates GDID for an item using appropriate gdid sequence names
+    /// </summary>
+    public static GDID GenerateItemGdid(IGdidProvider provider, Atom space, Atom collection)
+    {
+      var result = provider.NonNull(nameof(provider))
+                           .GenerateOneGdid(ID_NS_CONFIG_ADLIB_PREFIX + space.HasRequiredValue(nameof(space)).Value,
+                                                                        collection.HasRequiredValue(nameof(collection)).Value);
+      return result;
+    }
   }
 }

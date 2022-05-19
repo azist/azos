@@ -410,5 +410,52 @@ namespace Azos.Tests.Nub.DataAccess
       Aver.AreEqual(1, map["z"].AsInt());
       Aver.AreEqual(2, map["a"].AsInt());
     }
+
+    [Run]
+    public void Composite02()
+    {
+      var doc = new Doc1
+      {
+        V1 = new EntityId(Atom.Encode("sys1"), Atom.Encode("t1"), new { z = 1, a = "abcdef", b = -2 })
+      };
+
+      Aver.IsNull(doc.Validate());
+
+      var json = doc.ToJson();
+
+      json.See();
+
+      var doc2 = JsonReader.ToDoc<Doc1>(json);
+
+      Aver.AreEqual(doc.V1, doc2.V1);
+      Aver.IsNull(doc2.Validate());
+      Aver.IsTrue(doc2.V1.IsCompositeAddress);
+    }
+
+    [Run]
+    public void Composite03()
+    {
+      var doc = new Doc1
+      {
+        V1 = new EntityId(Atom.Encode("sys1"), Atom.Encode("t1"), Atom.ZERO, "{ bad }")
+      };
+
+      var err = doc.Validate() as  FieldValidationException;
+      Aver.IsTrue(doc.V1.IsCompositeAddress);
+      Aver.IsNotNull(err);
+      Aver.AreEqual("V1", err.FieldName);
+
+      new WrappedExceptionData(err).See();
+
+      var json = doc.ToJson();
+
+      json.See();
+
+      var doc2 = JsonReader.ToDoc<Doc1>(json);
+
+      Aver.AreEqual(doc.V1, doc2.V1);
+      Aver.IsNotNull(doc2.Validate());
+      Aver.IsTrue(doc2.V1.IsCompositeAddress);
+    }
   }
 }

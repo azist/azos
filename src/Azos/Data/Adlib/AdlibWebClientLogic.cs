@@ -104,6 +104,7 @@ namespace Azos.Data.Adlib
     public async Task<IEnumerable<Item>> GetListAsync(ItemFilter filter)
     {
       filter.NonNull(nameof(filter));
+
       var response = await m_Server.Call(AdlibServiceAddress,
                                          nameof(IAdlibLogic),
                                          new ShardKey(filter.ShardTopic),
@@ -122,7 +123,7 @@ namespace Azos.Data.Adlib
 
       var response = await m_Server.Call(AdlibServiceAddress,
                                          nameof(IAdlibLogic),
-                                         new ShardKey(item.ShardTopic),
+                                         item.EffectiveShardKey,
                                          (http, ct) => http.Client.CallAndGetJsonMapAsync("item", method, new { item = item })).ConfigureAwait(false);
 
       var result = response.UnwrapChangeResult();
@@ -132,9 +133,19 @@ namespace Azos.Data.Adlib
     public async Task<ChangeResult> DeleteAsync(EntityId id, string shardTopic = null)
     {
       id.HasRequiredValue(nameof(id));
+      id.Schema.IsTrue(v => v.IsZero || v == Constraints.SCH_GITEM, "Schema");
+
+      var gItem = id.Address.NonBlank(nameof(id.Address)).AsGDID();
+
+      var sk = new ShardKey(shardTopic);
+      if (shardTopic == null)
+      {
+        sk = new ShardKey(Constraints.GdidToShardKey(gItem));
+      }
+
       var response = await m_Server.Call(AdlibServiceAddress,
                                          nameof(IAdlibLogic),
-                                         new ShardKey(shardTopic),
+                                         sk,
                                          (http, ct) => http.Client.DeleteAndGetJsonMapAsync("item", new { id = id })).ConfigureAwait(false);
 
       var result = response.UnwrapChangeResult();

@@ -37,7 +37,7 @@ namespace Azos.Data.Adlib
     /// Optional Sharding topic which defines what shards the search is directed at
     /// </summary>
     [Field(maxLength: Constraints.MAX_SHARD_TOPIC_LEN, Description = "Optional Sharding topic which defines what shards the search is directed at")]
-    public string ShardTopic { get; internal set; }
+    public string ShardTopic { get; set; }
 
     /// <summary>
     /// Gets specific item by its GDID(within a space/collection)

@@ -13,6 +13,7 @@ using Azos.Apps;
 using Azos.Conf;
 using Azos.Data.Access.MongoDb.Connector;
 using Azos.Security.Adlib;
+using Azos.Serialization.JSON;
 
 namespace Azos.Data.Adlib.Server
 {
@@ -80,9 +81,16 @@ namespace Azos.Data.Adlib.Server
 
     private void checkCrud(CRUDResult crud)
     {
+      const int EKEYVIOLATION = 11000;
+
       if (crud.WriteErrors != null)
       {
-        throw new AdlibException("Save failed", new MongoDbConnectorServerException());
+        if (crud.WriteErrors[0].Code == EKEYVIOLATION)
+        {
+          throw new Access.DataAccessException("Duplicate key", Access.KeyViolationKind.Primary, "Gdid");
+        }
+        var dump = crud.WriteErrors.ToJson();
+        throw new CallGuardException("Mongo", "crudResult", "Save failed: \n" + dump);
       }
     }
 
