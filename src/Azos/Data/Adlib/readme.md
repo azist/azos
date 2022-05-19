@@ -16,3 +16,66 @@ endpoint
 
 [`AdlibWebClientLogic.cs`](AdlibWebClientLogic.cs) is an implementation of `IAdlibLogic` which
 delegates execution to a remote Http server via the circuit breaker/balancer circuitry.
+
+## Sample API Use Cases
+
+```
+GET http://localhost:8080/adlib/store/spaces
+
+{
+	"data": [
+		"s1",
+		"s2"
+	],
+	"OK": true
+}
+```
+
+```
+GET http://localhost:8080/adlib/store/collections?space=s1
+
+{
+	"data": [
+		"tezta"
+	],
+	"OK": true
+}
+```
+
+```
+POST http://localhost:8080/adlib/store/item
+{
+	item: {
+		gdid: "0:2:300",
+		space: "s1",
+		collection: "dima1",
+		shardtopic: null,
+		createutc: 0,
+		origin: "a",
+		headers: "",
+		contenttype: "bin",
+		content: "another",
+		tags: [{p: "lname", s: "Gurariy"}]
+	}
+}
+
+//got:
+{
+	"OK": true,
+	"change": "Inserted",
+	"status": 200,
+	"affected": 1,
+	"message": "Inserted",
+	"data": {
+		"crud": {
+			"TotalDocumentsAffected": 1,
+			"TotalDocumentsUpdatedAffected": 0,
+			"Upserted": null,
+			"WriteErrors": null
+		},
+		"gdid": "0:2:500",
+		"id": "dima1.gi@s1::0:2:500"
+	}
+}
+
+```
