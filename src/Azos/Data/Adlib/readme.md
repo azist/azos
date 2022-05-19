@@ -124,7 +124,9 @@ POST http://localhost:8080/adlib/store/item
 		"id": "dima1.gi@s1::0:9:2101"
 	}
 }
- 
+```
+
+
 ```
 DELETE http://localhost:8080/adlib/store/item?id=tezta.gi%40s1%3A%3A16711936%3A0%3A20031883161108500
 
