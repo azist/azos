@@ -20,6 +20,7 @@ namespace Azos.Data.Adlib.Server
     public const string ADLIB_COLLECTION_PREFIX = "adl_";
 
     public const string FLD_GDID = Query._ID;
+    public const string FLD_SEGMENT = "seg";
     public const string FLD_SHARDTOPIC = "shrd";
     public const string FLD_CREATEUTC = "cutc";
     public const string FLD_ORIGIN = "org";
@@ -56,6 +57,7 @@ namespace Azos.Data.Adlib.Server
       var doc = new BSONDocument();
 
       doc.Set(DataDocConverter.GDID_CLRtoBSON(FLD_GDID, item.Gdid));
+      doc.Set(new BSONInt32Element(FLD_SEGMENT, item.Segment));
 
       if (item.ShardTopic != null)
         doc.Set(new BSONStringElement(FLD_SHARDTOPIC, item.ShardTopic));
@@ -99,6 +101,7 @@ namespace Azos.Data.Adlib.Server
       };
 
       item.Gdid = bson[FLD_GDID] is BSONBinaryElement binGdid ? DataDocConverter.GDID_BSONtoCLR(binGdid) : GDID.ZERO;
+      item.Segment = bson[FLD_SEGMENT] is BSONInt32Element seg ? seg.Value : 0;
       item.ShardTopic = bson[FLD_SHARDTOPIC] is BSONStringElement stopic ? stopic.Value : null;
       item.CreateUtc = bson[FLD_CREATEUTC] is BSONInt64Element cutc ? (ulong)cutc.Value : 0ul;
       item.Origin = bson[FLD_ORIGIN] is BSONInt64Element orig ? new Atom((ulong)orig.Value) : Atom.ZERO;
@@ -160,6 +163,13 @@ namespace Azos.Data.Adlib.Server
       }
 
       var qry =  buildQueryDoc(filter);
+
+      if (filter.Segment.HasValue)
+      {
+        var wq = new Query();
+        wq.Set(new BSONArrayElement("$and", new[]{ new BSONDocumentElement(qry), new BSONDocumentElement(new BSONDocument().Set(new BSONInt32Element(FLD_SEGMENT, filter.Segment.Value)))} ));
+      }
+
       qry.ProjectionSelector = selector;
       return qry;
     }

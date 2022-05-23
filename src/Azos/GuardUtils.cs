@@ -596,14 +596,14 @@ namespace Azos
     /// Ensures that the Validation is passing.
     /// Performs DI.
     /// </summary>
-    public static T AsValid<T>(this T value,
-                               IApplication app,
-                               string name = null,
-                               ValidState state = new ValidState(),
-                               string scope = null,
-                               [CallerFilePath]   string callFile = null,
-                               [CallerLineNumber] int callLine = 0,
-                               [CallerMemberName] string callMember = null) where T : class, IValidatable
+    public static T AsValidIn<T>(this T value,
+                                 IApplication app,
+                                 string name = null,
+                                 ValidState state = new ValidState(),
+                                 string scope = null,
+                                 [CallerFilePath]   string callFile = null,
+                                 [CallerLineNumber] int callLine = 0,
+                                 [CallerMemberName] string callMember = null) where T : class, IValidatable
     {
       app.NonNull(nameof(app), callFile, callLine, callMember)
          .InjectInto(value.NonNull(name, callFile, callLine, callMember));

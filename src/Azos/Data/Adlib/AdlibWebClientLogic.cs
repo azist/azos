@@ -101,18 +101,57 @@ namespace Azos.Data.Adlib
       return result;
     }
 
+
     public async Task<IEnumerable<Item>> GetListAsync(ItemFilter filter)
     {
-      filter.NonNull(nameof(filter));
+      filter.AsValidIn(App, nameof(filter));
 
+      ShardKey skey;
+      if (filter.ShardTopic.IsNotNullOrWhiteSpace()) skey = new ShardKey(filter.ShardTopic);
+      else if (!filter.Gdid.IsZero) skey = new ShardKey(Constraints.GdidToShardKey(filter.Gdid));
+      else skey = new ShardKey();
+
+      var result = await (skey.Assigned ? getOneShard(filter, skey)
+                                        : getCrossShard(filter)).ConfigureAwait(false);
+      return result;
+    }
+
+    private async Task<IEnumerable<Item>> getOneShard(ItemFilter filter, ShardKey skey)
+    {
       var response = await m_Server.Call(AdlibServiceAddress,
                                          nameof(IAdlibLogic),
-                                         new ShardKey(filter.ShardTopic),
+                                         skey,
                                          (http, ct) => http.Client.PostAndGetJsonMapAsync("filter", new { filter = filter })).ConfigureAwait(false);
 
       var result = response.UnwrapPayloadArray()
               .OfType<JsonDataMap>()
               .Select(imap => JsonReader.ToDoc<Item>(imap));
+
+      return result;
+    }
+
+    private async Task<IEnumerable<Item>> getCrossShard(ItemFilter filter)
+    {
+      var shards = m_Server.GetEndpointsForAllShards(AdlibServiceAddress, nameof(IAdlibLogic));
+
+      var calls = shards.Select(shard => shard.Call((http, ct) => http.Client.PostAndGetJsonMapAsync("filter", new { filter = filter })));
+
+      var responses = await Task.WhenAll(calls.Select(async call => {
+        try
+        {
+          return await call.ConfigureAwait(false);
+        }
+        catch (Exception error)
+        {
+          WriteLog(MessageType.Warning, nameof(getCrossShard), "Shard fetch error: " + error.ToMessageWithType(), error);
+          return null;
+        }
+      })).ConfigureAwait(false);
+
+      var result = responses.SelectMany(response => response.UnwrapPayloadArray()
+                                                            .OfType<JsonDataMap>()
+                                                            .Select(imap => JsonReader.ToDoc<Item>(imap)))
+                            .ToArray();
 
       return result;
     }
