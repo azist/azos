@@ -168,6 +168,7 @@ namespace Azos.Data.Adlib.Server
       {
         var wq = new Query();
         wq.Set(new BSONArrayElement("$and", new[]{ new BSONDocumentElement(qry), new BSONDocumentElement(new BSONDocument().Set(new BSONInt32Element(FLD_SEGMENT, filter.Segment.Value)))} ));
+        qry  = wq;
       }
 
       qry.ProjectionSelector = selector;
