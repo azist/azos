@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.42.12.2
-set HEADLINE=#696 Ability to pass pre-generated GDID on insert to Adlib item
+set VER=1.42.12.3
+set HEADLINE=AsValid()
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
