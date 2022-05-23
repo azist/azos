@@ -605,7 +605,9 @@ namespace Azos
                                [CallerLineNumber] int callLine = 0,
                                [CallerMemberName] string callMember = null) where T : class, IValidatable
     {
-      app.NonNull(nameof(app)).InjectInto(value);
+      app.NonNull(nameof(app), callFile, callLine, callMember)
+         .InjectInto(value.NonNull(name, callFile, callLine, callMember));
+
       return value.AsValid(name, state, scope, callFile, callLine, callMember);
     }
   }
