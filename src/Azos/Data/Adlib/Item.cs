@@ -37,6 +37,12 @@ namespace Azos.Data.Adlib
     public Atom Collection { get; set; }
 
     /// <summary>
+    /// Optional data segment designator which you can use to sub-divide data whiting a collection
+    /// </summary>
+    [Field(required: false, Description = "Optional data segment designator which you can use to sub-divide data whiting a collection")]
+    public int Segment {  get ; set; }
+
+    /// <summary>
     /// Item GDID Primary Key which is unique per space/collection
     /// </summary>
     [Field(required: true, Description = "Item GDID Primary Key which is unique per space/collection")]

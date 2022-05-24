@@ -40,6 +40,13 @@ namespace Azos.Data.Adlib
     public string ShardTopic { get; set; }
 
     /// <summary>
+    /// Optional data segment designator which you can use to sub-divide data whiting a collection
+    /// </summary>
+    [Field(required: false, Description = "Optional data segment designator which you can use to sub-divide data whiting a collection")]
+    public int? Segment { get; set; }
+
+
+    /// <summary>
     /// Gets specific item by its GDID(within a space/collection)
     /// </summary>
     [Field(description: "Item GDID")]
