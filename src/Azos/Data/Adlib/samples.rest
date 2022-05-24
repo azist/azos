@@ -1,0 +1,288 @@
+﻿
+
+# ==================== Host Parameters =========================
+
+@HOST = localhost 
+@AUTH = Basic cm9vdDp0aGVqYWtl
+
+
+
+### GET Spaces
+GET http://{{HOST}}:8080/adlib/store/spaces HTTP/1.2
+Authorization: {{AUTH}}
+Accept: application/json
+
+### Response
+{
+	"data": [
+		"s1",
+		"s2"
+	],
+	"OK": true
+}
+
+
+### GET Collections by space
+GET http://{{HOST}}:8080/adlib/store/collections?space=s1 HTTP/1.2
+Authorization: {{AUTH}}
+Accept: application/json
+
+### Response
+
+{
+    "data": [
+        "dima1"
+    ],
+    "OK": true
+}
+
+
+### POST Item
+
+POST http://localhost:8080/adlib/store/item HTTP/1.2
+Authorization: {{AUTH}}
+Accept: application/json
+Content-Type: application/json 
+
+{
+	"item": {
+		"gdid": "0:2:303",
+		"space": "s1",
+		"collection": "dima1",
+		"shardtopic": null,
+		"createutc": 0,
+		"origin": "a",
+		"headers": "",
+		"contenttype": "bin",
+		"content": "another",
+		"tags": [{"p": "lname", "s": "Gurariy"}]
+	}
+}
+
+### Response
+
+{
+  "OK": true,
+  "change": "Inserted",
+  "status": 200,
+  "affected": 1,
+  "message": "Inserted",
+  "data": {
+    "crud": {
+      "TotalDocumentsAffected": 1,
+      "TotalDocumentsUpdatedAffected": 0,
+      "Upserted": null,
+      "WriteErrors": null
+    },
+    "gdid": "0:2:303",
+    "id": "dima1.gi@s1::0:2:303"
+  }
+}
+
+### PUT Item
+
+PUT http://localhost:8080/adlib/store/item HTTP/1.2
+Authorization: {{AUTH}}
+Accept: application/json
+Content-Type: application/json 
+
+{
+	"item": {
+		"gdid": "0:2:303",
+		"space": "s1",
+		"collection": "dima1",
+		"shardtopic": null,
+		"createutc": 0,
+		"origin": "a",
+		"headers": "",
+		"contenttype": "bin",
+		"content": "AP8BAABHKuRAAAAU",
+		"tags": [{"p": "lname", "s": "Lenin"},{"p": "nick", "s": "Mushroooomz"}]
+	}
+}
+
+### Response 
+{
+  "OK": true,
+  "change": "Updated",
+  "status": 200,
+  "affected": 1,
+  "message": "Updated",
+  "data": {
+    "crud": {
+      "TotalDocumentsAffected": 1,
+      "TotalDocumentsUpdatedAffected": 1,
+      "Upserted": null,
+      "WriteErrors": null
+    },
+    "gdid": "0:2:303",
+    "id": "dima1.gi@s1::0:2:303"
+  }
+}
+
+
+
+### POST ItemFilter
+
+POST http://localhost:8080/adlib/store/filter HTTP/1.2
+Authorization: {{AUTH}}
+Accept: application/json
+Content-Type: application/json 
+
+{
+    "filter": {
+        "space": "s1",
+        "collection": "dima1",
+        "fetchtags": true,
+        "fetchcontent": true,
+        "tagfilter": {
+            "Operator": "or",
+            "LeftOperand": {
+                "Operator": "=",
+                "LeftOperand": {
+                    "Identifier": "nick"
+                },
+                "RightOperand": {
+                    "Value": "Mushroooomz"
+                }
+            },
+            "RightOperand": {
+                "Operator": "=",
+                "LeftOperand": {
+                    "Identifier": "lname"
+                },
+                "RightOperand": {
+                    "Value": "Lenin"
+                }
+            }
+        },
+        "pagingStartIndex": 0,
+        "pagingCount": 20
+    }
+}	
+
+### Response
+
+{
+  "data": [
+    {
+      "Space": "s1",
+      "Collection": "dima1",
+      "Gdid": "0:2:301",
+      "Id": "dima1.gi@s1::0:2:301",
+      "ShardTopic": null,
+      "CreateUtc": "0",
+      "Origin": "a",
+      "Headers": "",
+      "ContentType": "bin",
+      "Tags": [
+        {
+          "p": "lname",
+          "s": "Lenin"
+        },
+        {
+          "p": "nick",
+          "s": "Mushroooomz"
+        }
+      ],
+      "Content": "AP8BAABHKuRAAAAU"
+    },
+    {
+      "Space": "s1",
+      "Collection": "dima1",
+      "Gdid": "0:2:303",
+      "Id": "dima1.gi@s1::0:2:303",
+      "ShardTopic": null,
+      "CreateUtc": "0",
+      "Origin": "a",
+      "Headers": "",
+      "ContentType": "bin",
+      "Tags": [
+        {
+          "p": "lname",
+          "s": "Lenin"
+        },
+        {
+          "p": "nick",
+          "s": "Mushroooomz"
+        }
+      ],
+      "Content": "AP8BAABHKuRAAAAU"
+    }
+  ],
+  "OK": true
+}
+
+
+### POST ItemFilter #2 (by GDID)
+
+POST http://localhost:8080/adlib/store/filter HTTP/1.2
+Authorization: {{AUTH}}
+Accept: application/json
+Content-Type: application/json 
+
+{
+    "filter": {
+        "gdid": "0:2:303",
+        "space": "s1",
+        "collection": "dima1",
+        "fetchtags": true,
+        "fetchcontent": true
+    }
+}	
+
+### Response
+
+{
+  "data": [
+    {
+      "Space": "s1",
+      "Collection": "dima1",
+      "Gdid": "0:2:303",
+      "Id": "dima1.gi@s1::0:2:303",
+      "ShardTopic": null,
+      "CreateUtc": "0",
+      "Origin": "a",
+      "Headers": "",
+      "ContentType": "bin",
+      "Tags": [
+        {
+          "p": "lname",
+          "s": "Lenin"
+        },
+        {
+          "p": "nick",
+          "s": "Mushroooomz"
+        }
+      ],
+      "Content": "AP8BAABHKuRAAAAU"
+    }
+  ],
+  "OK": true
+}
+
+### DELETE Item
+
+DELETE http://{{HOST}}:8080/adlib/store/item?id=dima1.gi%40s1%3A%3A0%3A2%3A303 HTTP/1.2
+Authorization: {{AUTH}}
+Accept: application/json
+
+### Response
+
+{
+  "OK": true,
+  "change": "Deleted",
+  "status": 200,
+  "affected": 1,
+  "message": "Deleted",
+  "data": {
+    "crud": {
+      "TotalDocumentsAffected": 1,
+      "TotalDocumentsUpdatedAffected": 0,
+      "Upserted": null,
+      "WriteErrors": null
+    },
+    "gdid": "0:2:303",
+    "id": "dima1.gi@s1::0:2:303"
+  }
+}
