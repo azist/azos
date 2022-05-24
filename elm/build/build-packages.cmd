@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.42.12.3
-set HEADLINE=AsValid()
+set VER=1.42.12.4
+set HEADLINE=Adlib add Segment #698
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
