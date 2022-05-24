@@ -25,7 +25,7 @@ namespace Azos.Tests.Nub.DataAccess
       {
         Tags = new List<Tag>
         {
-          new Tag(Atom.Encode("p1"), -123),
+          new Tag(Atom.Encode("p1"), -9_777_333_000L),
           new Tag(Atom.Encode("p2"), "Hello"),
           new Tag(Atom.Encode("p3"), "Dolly"),
           new Tag(Atom.Encode("age"), 129)
@@ -39,8 +39,8 @@ namespace Azos.Tests.Nub.DataAccess
       var got = JsonReader.ToDoc<Item>(json);
       Aver.IsNotNull(got);
       Aver.IsNotNull(got.Tags);
-      Aver.AreEqual(3, got.Tags.Count);
-      Aver.AreEqual(-123, got.Tags[0].NValue);
+      Aver.AreEqual(4, got.Tags.Count);
+      Aver.AreEqual(-9_777_333_000L, got.Tags[0].NValue);
       Aver.AreEqual("p1", got.Tags[0].Prop.Value);
 
       Aver.AreEqual("Hello", got.Tags[1].SValue);

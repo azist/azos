@@ -23,7 +23,7 @@ namespace Azos.Data.Adlib
     public Tag(Atom prop, string value)
     {
       Prop = prop;
-      SValue = value.NonBlankMax(64, nameof(value));
+      SValue = value.NonBlankMax(Constraints.MAX_TAG_SVAL_LENGTH, nameof(value));
       NValue = 0;
     }
 
@@ -77,7 +77,10 @@ namespace Azos.Data.Adlib
 
         var sv = map["s"].AsString();
         if (sv.IsNotNullOrWhiteSpace()) return (true, new Tag(prop, sv));
-        if (map["n"] is long lv) return (true, new Tag(prop, lv));
+
+        var nv = map["n"];
+        if (nv is int iv) return (true, new Tag(prop, iv));
+        if (nv is long lv) return (true, new Tag(prop, lv));
       }
 
       return (false, null);
