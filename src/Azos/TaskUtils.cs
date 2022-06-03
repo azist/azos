@@ -432,6 +432,10 @@ namespace Azos
         Parallel.For(1, 1000, i => Text.NaturalTextGenerator.GenerateFullName());
     }
 
+    /// <summary>
+    /// A shortcut to task.GetAwaiter().GetResult()
+    /// </summary>
+    public static T SyncRun<T>(this Task<T> task) => task.GetAwaiter().GetResult();
   }
 
   /// <summary>
