@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.42.12.5
-set HEADLINE=Tag ser error #699, #700
+set VER=1.42.12.6
+set HEADLINE=Various issues SyncRun etc.
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
