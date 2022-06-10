@@ -103,7 +103,7 @@ namespace Azos.Apps.Strategies
 
       bool any = false;
       Type bestMatch = null;
-      double bestScore = 0d;
+      double bestScore = 0d;//ZERO is the LOWEST bound = NON MATCH
 
       foreach(var t in types)
       {
