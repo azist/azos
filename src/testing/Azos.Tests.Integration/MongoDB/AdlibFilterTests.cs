@@ -58,3 +58,24 @@ namespace Azos.Tests.Integration.MongoDb
     }
   }
 }
+
+/*
+
+{
+  "$and":
+  [
+       { "tags.p":  { "$eq": { "$numberLong": 76 } },
+         "tags.v":  { "$eq": { "$numberLong": 100} }
+       },
+       [
+          { "tags.p": { "$eq": { "$numberLong": 4992338 } },
+            "tags.v":  { "$eq": { "$numberLong": 2000 } }
+          },
+          { "tags.p": {"$eq": { "$numberLong": 5385554 } },
+            "tags.v": {"$eq": { "$numberLong": 3000    } }
+          }
+       ]
+  ]
+}
+
+*/
