@@ -11,6 +11,7 @@ using System.Text;
 using Azos.Scripting;
 using Azos.Data.Adlib;
 using Azos.Data.Adlib.Server;
+using Azos.Serialization.JSON;
 
 namespace Azos.Tests.Integration.MongoDb
 {
@@ -20,10 +21,35 @@ namespace Azos.Tests.Integration.MongoDb
     [Run]
     public void Test01()
     {
-      var filter = new ItemFilter
+      var JSON = @"
       {
+      'tagfilter': {
+        'Operator': 'and',
 
-      };
+        'LeftOperand': {
+            'Operator': '=',
+            'LeftOperand': { 'Identifier': 'LEFTER'  },
+            'RightOperand': { 'Value': -123    }
+        },
+
+        'RightOperand': {
+            'Operator': 'and',
+            'LeftOperand': {
+              'Operator': '=',
+              'LeftOperand': { 'Identifier': 'RIGHT.LEFTER' },
+              'RightOperand': { 'Value': -234}
+             },
+            'RightOperand': {
+              'Operator': '=',
+              'LeftOperand': { 'Identifier': 'RIGHT.RIGHTER' },
+              'RightOperand': { 'Value': 345 }
+          }
+        }
+      }
+  }
+  ";
+
+      var filter = JsonReader.ToDoc<ItemFilter>(JSON);
 
       var qry = BsonConvert.GetFilterQuery(filter);
 
