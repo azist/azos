@@ -28,21 +28,21 @@ namespace Azos.Tests.Integration.MongoDb
 
         'LeftOperand': {
             'Operator': '=',
-            'LeftOperand': { 'Identifier': 'LEFTER'  },
-            'RightOperand': { 'Value': -123    }
+            'LeftOperand': { 'Identifier': 'L'  },
+            'RightOperand': { 'Value': 100    }
         },
 
         'RightOperand': {
             'Operator': 'and',
             'LeftOperand': {
               'Operator': '=',
-              'LeftOperand': { 'Identifier': 'RIGHT.LEFTER' },
-              'RightOperand': { 'Value': -234}
+              'LeftOperand': { 'Identifier': 'R-L' },
+              'RightOperand': { 'Value': 2000}
              },
             'RightOperand': {
               'Operator': '=',
-              'LeftOperand': { 'Identifier': 'RIGHT.RIGHTER' },
-              'RightOperand': { 'Value': 345 }
+              'LeftOperand': { 'Identifier': 'R-R' },
+              'RightOperand': { 'Value': 3000 }
           }
         }
       }
