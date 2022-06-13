@@ -213,6 +213,11 @@ namespace Azos.Data.Adlib.Server
 
       if (left is BSONElement complex)
       {
+
+//Azos.Scripting.Conout.Info("COMPLEX: {0}", complex.GetType().DisplayNameWithExpandedGenericArgs());
+//Azos.Scripting.Conout.Info(" {0}", complex is BSONElement belm ? belm.Name : "");
+//Azos.Scripting.Conout.Info(" {0}", complex.ToJson());
+
         BSONElement right = null;
         if (isNull)
         {
@@ -221,6 +226,9 @@ namespace Azos.Data.Adlib.Server
         else
         {
           var oright = binary.RightOperand.Accept(this);
+//Azos.Scripting.Conout.Info("ORIGHT: {0}", oright.GetType().DisplayNameWithExpandedGenericArgs());
+//Azos.Scripting.Conout.Info(" {0}", oright is BSONElement belm1 ? belm1.Name : "");
+//Azos.Scripting.Conout.Info(" {0}", oright.ToJson());
           if (oright is BSONDocument rdoc)
           {
             right = new BSONDocumentElement(rdoc);
@@ -232,6 +240,9 @@ namespace Azos.Data.Adlib.Server
 
           if (right == null) throwSyntaxErrorNear(binary, "unsupported RightOperand value");
         }
+
+        if (complex is BSONArrayElement bae1 && !bae1.IsArrayElement) complex = new BSONDocumentElement(new BSONDocument().Set(complex));
+        if (right is BSONArrayElement bae2 && !bae2.IsArrayElement) right = new BSONDocumentElement(new BSONDocument().Set(right));
 
         return new BSONArrayElement(op, new[] { complex, right });
       }
