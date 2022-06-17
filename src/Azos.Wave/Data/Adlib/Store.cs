@@ -102,5 +102,18 @@ namespace Azos.Data.Adlib.Server
     [ActionOnDelete(Name = "item"), AcceptsJson]
     [AdlibPermission(AdlibAccessLevel.Delete)]
     public async Task<object> Delete(EntityId id) => GetLogicChangeResult(await m_Logic.DeleteAsync(id).ConfigureAwait(false));
+
+
+    [ApiEndpointDoc(
+     Title = "DROP - Drops a collection",
+     Description = "Drops collection with all its data from all shards and returns an Api Change Result",
+     Methods = new[] { "DELETE: Drops a collection" },
+     RequestQueryParameters = new[] { "space=Space atom to delete", "id=Collection atom to delete" },
+     ResponseContent = "JSON representation of {OK: bool, data: ChangeResult}",
+     TypeSchemas = new[] { typeof(ChangeResult) })]
+    [ActionOnDelete(Name = "collection"), AcceptsJson]
+    [AdlibPermission(AdlibAccessLevel.Drop)]
+    public async Task<object> DropCollection(Atom space, Atom id) => GetLogicChangeResult(await m_Logic.DropCollectionAsync(space, id).ConfigureAwait(false));
+
   }
 }

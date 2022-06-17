@@ -146,6 +146,29 @@ namespace Azos.Data.Adlib.Server
     }
 
 
+    public Task<ChangeResult> DropCollectionAsync(Atom space, Atom collection)
+    {
+      space.HasRequiredValue(nameof(space));
+      collection.HasRequiredValue(nameof(collection));
+
+      App.Authorize(new AdlibPermission(AdlibAccessLevel.Drop, Constraints.EncodeItemId(space, collection, GDID.ZERO)));
+
+      var col = getCollection(space, collection);
+      ChangeResult result;
+      try
+      {
+        col.Drop();
+        result = new ChangeResult(ChangeResult.ChangeType.Deleted, 1, "Collection dropped", null);
+      }
+      catch(Exception error)
+      {
+        result = new ChangeResult("Collection drop failed", 500, new { ex = new WrappedExceptionData(error)});
+      }
+
+      return Task.FromResult(result);
+    }
+
+
     protected override void DoConfigure(IConfigSectionNode node)
     {
       node.NonNull(nameof(node));
