@@ -197,7 +197,7 @@ namespace Azos.Data.Adlib
       collection.HasRequiredValue(nameof(collection));
       var shards = m_Server.GetEndpointsForAllShards(AdlibServiceAddress, nameof(IAdlibLogic));
 
-      var calls = shards.Select(shard => shard.Call((http, ct) => http.Client.DeleteAndGetJsonMapAsync("collection", new { space = space, collection = collection })));
+      var calls = shards.Select(shard => shard.Call((http, ct) => http.Client.DeleteAndGetJsonMapAsync("collection", new { space = space, id = collection })));
 
 
       var responses = await Task.WhenAll(calls.Select(async call => {
