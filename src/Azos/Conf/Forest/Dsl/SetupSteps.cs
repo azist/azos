@@ -44,7 +44,7 @@ namespace Azos.Conf.Forest.Dsl
   }
 
   /// <summary>
-  /// Saves tree node
+  /// Deletes tree node
   /// </summary>
   public sealed class DeleteNode : TreeStepBase
   {

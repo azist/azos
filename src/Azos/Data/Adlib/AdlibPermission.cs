@@ -21,7 +21,9 @@ namespace Azos.Security.Adlib
     Denied  = AccessLevel.DENIED,
     Read    = AccessLevel.VIEW,
     Change  = AccessLevel.VIEW_CHANGE,
-    Delete  = AccessLevel.VIEW_CHANGE_DELETE
+    Delete  = AccessLevel.VIEW_CHANGE_DELETE,
+    Drop    = AccessLevel.VIEW_CHANGE_DELETE + 1,
+    Admin   = AccessLevel.VIEW_CHANGE_DELETE + 1000
   }
 
 

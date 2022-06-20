@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.42.12.7
-set HEADLINE=Fix #702
+set VER=1.42.12.8
+set HEADLINE=Fix #705, #706
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

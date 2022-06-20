@@ -10,7 +10,7 @@ namespace Azos.Data.Access
 {
   /// <summary>
   /// Provides higher-order data store hosting services.
-  /// This entity unifies data access to various named da
+  /// This entity unifies data access to various named data
   /// </summary>
   public interface IDataStoreHub : IDataStore
   {

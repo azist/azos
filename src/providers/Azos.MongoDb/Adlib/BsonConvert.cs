@@ -67,7 +67,11 @@ namespace Azos.Data.Adlib.Server
       doc.Set(new BSONInt64Element(FLD_CREATEUTC, (long)item.CreateUtc));
       doc.Set(new BSONInt64Element(FLD_ORIGIN, (long)item.Origin.ID));
 
-      doc.Set(new BSONStringElement(FLD_HEADERS, item.Headers));
+      if (item.Headers != null)
+        doc.Set(new BSONStringElement(FLD_HEADERS, item.Headers));
+      else
+        doc.Set(new BSONNullElement(FLD_HEADERS)); //#705
+
       doc.Set(new BSONInt64Element(FLD_CONTENT_TYPE, (long)item.ContentType.ID));
 
       if (item.Content != null)

@@ -190,5 +190,49 @@ namespace Azos.Data.Adlib
       var result = response.UnwrapChangeResult();
       return result;
     }
+
+    public async Task<ChangeResult> DropCollectionAsync(Atom space, Atom collection)
+    {
+      space.HasRequiredValue(nameof(space));
+      collection.HasRequiredValue(nameof(collection));
+      var shards = m_Server.GetEndpointsForAllShards(AdlibServiceAddress, nameof(IAdlibLogic));
+
+      var calls = shards.Select(shard => shard.Call((http, ct) => http.Client.DeleteAndGetJsonMapAsync("collection", new { space = space, id = collection })));
+
+
+      var responses = await Task.WhenAll(calls.Select(async call => {
+        try
+        {
+          return await call.ConfigureAwait(false);
+        }
+        catch (Exception error)
+        {
+          WriteLog(MessageType.Warning, nameof(DropCollectionAsync), "Drop collection shard error: " + error.ToMessageWithType(), error);
+          return null;
+        }
+      })).ConfigureAwait(false);
+
+      var countOk = 0;
+      var countError = 0;
+
+      responses.ForEach(one => {
+        try
+        {
+          var cr = one.UnwrapChangeResult();
+          Aver.IsTrue(cr.Change == ChangeResult.ChangeType.Deleted, "deleted change");
+          countOk++;
+        }
+        catch (Exception error)
+        {
+          WriteLog(MessageType.Warning, nameof(DropCollectionAsync), "Drop collection shard error: " + error.ToMessageWithType(), error);
+          countError++;
+        }
+      });
+
+      return new ChangeResult(countError < 1 ? ChangeResult.ChangeType.Deleted : ChangeResult.ChangeType.Undefined,
+                              countOk,
+                              "Deleted: {0} Errors: {1}".Args(countOk, countError),
+                              new{ shards = new {ok = countOk, errors = countError} });
+    }
   }
 }

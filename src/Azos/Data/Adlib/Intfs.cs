@@ -42,6 +42,11 @@ namespace Azos.Data.Adlib
     /// Deletes an item with the specified GDID primary key  from the specified collection
     /// </summary>
     Task<ChangeResult> DeleteAsync(EntityId id, string shardTopic = null);
+
+    /// <summary>
+    /// Drops a collection from all known shards/hosts
+    /// </summary>
+    Task<ChangeResult> DropCollectionAsync(Atom space, Atom collection);
   }
 
   public interface IAdlibLogic : IAdlib, IBusinessLogic
