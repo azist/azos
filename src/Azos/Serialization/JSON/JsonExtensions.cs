@@ -113,16 +113,28 @@ namespace Azos.Serialization.JSON
     {
       var scope = commonFilePathPragma.IsNotNullOrWhiteSpace() ? new List<string>() : null;
 
+      bool iscd(string p) => p.IsNotNullOrWhiteSpace() && (p.StartsWith("./") || p.StartsWith(".\\"));
+
       var result = ProcessJsonIncludes(root, cfg =>
       {
-         var fn = cfg.ValOf("file");
+         var fn = cfg.ValOf("file").NonBlank("$file");
 
          if (scope != null)
          {
-           var usecd = fn.StartsWith("./") || fn.StartsWith(".\\");
-           if (!usecd)
+           if (!iscd(fn))
            {
-              fn = Path.Combine(scope.Where(s => s.IsNotNullOrWhiteSpace()).ToArray());
+              var path = "";
+              foreach(var seg in scope)
+              {
+                if (seg.IsNullOrWhiteSpace()) continue;
+                if (iscd(seg))
+                {
+                  path = seg;
+                  continue;
+                }
+                path = Path.Combine(path, seg);
+              }
+              fn = Path.Combine(path, fn);
            }
          }
 
