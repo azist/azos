@@ -153,7 +153,7 @@ The API method inserts one or more entries into the Chronicle logging systems.
 
 **Request:**
 
-```json
+```
 POST http://{host}:{port}/chronicle/log/batch HTTP/1.2
 Authorization: {Base64 username:pwd}
 Accept: application/json
@@ -202,7 +202,7 @@ The API method returns a filtered collection of log messages based on the provid
 
 **Request:**
 
-```json
+```
 POST http://{host}:{port}/chronicle/log/filter  HTTP/1.2
 Authorization: Basic {Base64 username:pwd}
 Accept: application/json

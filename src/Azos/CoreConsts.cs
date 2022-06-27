@@ -32,6 +32,8 @@ namespace Azos
     public const string ENVIRONMENT_DEV = "dev";
     public const string ENVIRONMENT_PROD = "prod";
 
+    public const string DEFAULT_DATA_CONTEXT_HEADER = "wv-data-ctx";
+
     public static readonly string[] ENVIRONMENTS_DEVELOPER = {ENVIRONMENT_DEV, ENVIRONMENT_LOCAL, "devel", "development", "localhost", "loc"};
 
     public static readonly Geometry.LatLng DEFAULT_GEO_LOCATION = new Geometry.LatLng("41.4996374,-81.6936649", "Cleveland, OH, USA");
@@ -140,7 +142,6 @@ namespace Azos
       public const string GLUE_TOPIC = "Glue";
       public const string CLIENT_TOPIC = "Client";
       public const string PAY_TOPIC = "Pay";
-      public const string ERLANG_TOPIC = "Erl";
       public const string CACHE_TOPIC = "Cache";
       public const string LOCALIZATION_TOPIC = "Lcl";
       public const string SOCIAL_TOPIC = "Social";

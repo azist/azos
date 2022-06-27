@@ -281,7 +281,7 @@ namespace Azos
     /// Returns true if there was no error on action success, or false if error leaked from action and was logged by component.
     /// The actual logging depends on the component log level
     /// </summary>
-    public static bool DontLeak(this IApplicationComponent cmp, Action action, string errorText = null, [CallerMemberName]string errorFrom = null, Log.MessageType errorLogType = Log.MessageType.Error)
+    public static bool DontLeak(this IApplicationComponent cmp, Action action, string errorText = null, [CallerMemberName]string errorFrom = null, Log.MessageType errorLogType = Log.MessageType.Error, Guid? rel = null)
     {
       var ac = (cmp.NonNull(nameof(cmp)) as ApplicationComponent).NonNull("Internal error: not a AC");
       action.NonNull(nameof(action));
@@ -295,7 +295,7 @@ namespace Azos
         if (errorText.IsNullOrWhiteSpace()) errorText = "Error leaked: ";
         errorText += error.ToMessageWithType();
 
-        ac.WriteLog(errorLogType, errorFrom, errorText, error);
+        ac.WriteLog(errorLogType, errorFrom, errorText, error, related: rel);
       }
 
       return false;
@@ -306,7 +306,7 @@ namespace Azos
     /// Returns true if there was no error on action success, or false if error leaked from action and was logged by component.
     /// The actual logging depends on the component log level
     /// </summary>
-    public static async Task<bool> DontLeakAsync(this IApplicationComponent cmp, Func<Task> action, string errorText = null, [CallerMemberName]string errorFrom = null, Log.MessageType errorLogType = Log.MessageType.Error)
+    public static async Task<bool> DontLeakAsync(this IApplicationComponent cmp, Func<Task> action, string errorText = null, [CallerMemberName]string errorFrom = null, Log.MessageType errorLogType = Log.MessageType.Error, Guid? rel = null)
     {
       var ac = (cmp.NonNull(nameof(cmp)) as ApplicationComponent).NonNull("Internal error: not a AC");
       action.NonNull(nameof(action));
@@ -320,7 +320,7 @@ namespace Azos
         if (errorText.IsNullOrWhiteSpace()) errorText = "Error leaked: ";
         errorText += error.ToMessageWithType();
 
-        ac.WriteLog(errorLogType, errorFrom, errorText, error);
+        ac.WriteLog(errorLogType, errorFrom, errorText, error, related: rel);
       }
 
       return false;
@@ -332,7 +332,7 @@ namespace Azos
     /// Returns true if there was no error on action success, or false if error leaked from action and was logged by component.
     /// The actual logging depends on the component log level
     /// </summary>
-    public static TResult DontLeak<TResult>(this IApplicationComponent cmp, Func<TResult> func, string errorText = null, [CallerMemberName]string errorFrom = null, Log.MessageType errorLogType = Log.MessageType.Error)
+    public static TResult DontLeak<TResult>(this IApplicationComponent cmp, Func<TResult> func, string errorText = null, [CallerMemberName]string errorFrom = null, Log.MessageType errorLogType = Log.MessageType.Error, Guid? rel = null)
     {
       var ac = (cmp.NonNull(nameof(cmp)) as ApplicationComponent).NonNull("Internal error: not a AC");
       func.NonNull(nameof(func));
@@ -345,7 +345,7 @@ namespace Azos
         if (errorText.IsNullOrWhiteSpace()) errorText = "Error leaked: ";
         errorText += error.ToMessageWithType();
 
-        ac.WriteLog(errorLogType, errorFrom, errorText, error);
+        ac.WriteLog(errorLogType, errorFrom, errorText, error, related: rel);
       }
 
       return default(TResult);
@@ -357,7 +357,7 @@ namespace Azos
     /// Returns true if there was no error on action success, or false if error leaked from action and was logged by component.
     /// The actual logging depends on the component log level
     /// </summary>
-    public static async Task<TResult> DontLeakAsync<TResult>(this IApplicationComponent cmp, Func<Task<TResult>> func, string errorText = null, [CallerMemberName]string errorFrom = null, Log.MessageType errorLogType = Log.MessageType.Error)
+    public static async Task<TResult> DontLeakAsync<TResult>(this IApplicationComponent cmp, Func<Task<TResult>> func, string errorText = null, [CallerMemberName]string errorFrom = null, Log.MessageType errorLogType = Log.MessageType.Error, Guid? rel = null)
     {
       var ac = (cmp.NonNull(nameof(cmp)) as ApplicationComponent).NonNull("Internal error: not a AC");
       func.NonNull(nameof(func));
@@ -370,7 +370,7 @@ namespace Azos
         if (errorText.IsNullOrWhiteSpace()) errorText = "Error leaked: ";
         errorText += error.ToMessageWithType();
 
-        ac.WriteLog(errorLogType, errorFrom, errorText, error);
+        ac.WriteLog(errorLogType, errorFrom, errorText, error, related: rel);
       }
 
       return default(TResult);

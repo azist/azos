@@ -225,6 +225,103 @@ namespace Azos.Security.Services
       return RespondWithAuthorizeResult(flow["sd"].AsLong(), loginFlow, error: null);
     }
 
+
+    [ApiEndpointDoc(
+      Title = "OAuth Authorize Cancel",
+      Description = "Provides ability to redirect back to the calling app without an authorization token effectively canceling the OAuth flow",
+      RequestQueryParameters = new[]{"roundtrip: the roundtrip content produced by authorization/get"},
+      ResponseContent = "302 without client access code or 401 for bad requested parameters. 403 for unauthorized client URI"
+    )]
+    [ActionOnGet(Name = "cancel")]
+    public async virtual Task<object> Cancel_Get(string roundtrip)
+    {
+      var flow = App.SecurityManager.PublicUnprotectMap(roundtrip);
+      if (flow == null) return GateError(new Http401Unauthorized("Bad Request X1"));//we don't have ACL yet, hence can't check redirect_uri
+
+      //1. check token age
+      var utcNow = App.TimeSource.UTCNow;
+      var age = utcNow - flow["sd"].AsLong(0).FromSecondsSinceUnixEpochStart();
+      if (age.TotalSeconds > OAuth.MaxAuthorizeRoundtripAgeSec) return GateError(new Http401Unauthorized("Bad Request X2"));
+
+      //2. Lookup client app, just by client_id (w/o password)
+      var clid = flow["id"].AsString();
+      var clcred = new EntityUriCredentials(clid);
+      var cluser = await OAuth.ClientSecurity.AuthenticateAsync(clcred).ConfigureAwait(false);
+      if (!cluser.IsAuthenticated) return GateError(new Http401Unauthorized("Unknown client"));//we don't have ACL yet, hence can't check redirect_uri
+
+      //3. Check client ACL for allowed redirect URIs
+      var uri = flow["uri"].AsString();
+      var redirectPermission = new OAuthClientAppPermission(uri);//this call comes from front channel, hence we don't check for address
+      var uriAllowed = await redirectPermission.CheckAsync(OAuth.ClientSecurity, cluser).ConfigureAwait(false);
+      if (!uriAllowed) return GateError(new Http403Forbidden("Unauthorized redirect Uri"));
+
+      return new Redirect(uri);
+    }
+
+    [ApiEndpointDoc(
+      Title = "OAuth SSO Logout",
+      Description = "Provides ability to logout user from single-sign-on IDP",
+      RequestQueryParameters = new[]{
+        "client_id: Client Id issued by your IDP during Client/App registration",
+        "redirect_uri: Where the service redirects the user-agent after logout. Must be authorized for client_id",
+        "state: Arbitrary String specific to client application"
+      },
+      ResponseContent = "302 redirect or 401 for bad requested parameters or logout is not supported. 403 for unauthenticated caller or unauthorized client URI"
+    )]
+    [ActionOnGet(Name = "sso-logout")]
+    public async virtual Task<object> SsoLogout_Get(string client_id, string redirect_uri, string state)
+    {
+      var sso = OAuth.SsoSessionName;
+      if (sso.IsNullOrWhiteSpace()) return new Http401Unauthorized("Logout not supported");
+
+      if (client_id.IsNullOrWhiteSpace() || redirect_uri.IsNullOrWhiteSpace())
+        return new Http401Unauthorized("Malformed request");//we can not redirect because redirect_uri has not been checked yet for inclusion in client ACL
+
+      //1. Lookup client app, just by client_id (w/o password)
+      var clcred = new EntityUriCredentials(client_id);
+      var cluser = await OAuth.ClientSecurity.AuthenticateAsync(clcred).ConfigureAwait(false);
+      if (!cluser.IsAuthenticated) return GateError(new Http401Unauthorized("Unknown client"));//we don't have ACL yet, hence can't check redirect_uri
+
+      //2. Check client ACL for allowed redirect URIs
+      var redirectPermission = new OAuthClientAppPermission(redirect_uri);//this call comes from front channel, hence we don't check for address
+      var uriAllowed = await redirectPermission.CheckAsync(OAuth.ClientSecurity, cluser).ConfigureAwait(false);
+      if (!uriAllowed) return GateError(new Http403Forbidden("Unauthorized redirect Uri"));
+
+
+      //3. Establish a login flow instance of appropriate type (factory method)
+      var loginFlow = MakeLoginFlow();
+      loginFlow.ClientId = client_id;
+      loginFlow.ClientResponseType = "code";
+      loginFlow.ClientUser = cluser;
+      loginFlow.ClientScope = "openidc";
+      loginFlow.ClientRedirectUri = redirect_uri;
+      loginFlow.ClientState = state;
+
+      //4. SSO: See if the subject user is already logged-in and if so check it and log him out
+      TryExtractSsoSessionId(loginFlow);
+      if (loginFlow.HasSsoSessionId)
+      {
+        await TryGetSsoSubjectAsync(loginFlow).ConfigureAwait(false);
+        if (loginFlow.IsValidSsoUser)
+        {
+          DeleteSsoSessionId(sso);
+
+          //4A. Redirect to URI
+          var redirect = new UriQueryBuilder(redirect_uri)
+          {
+            {"state", state}
+          }.ToString();
+
+          var suppressAutoRedirect = WebOptions.Of("suppress-auto-sso-redirect").ValueAsBool(false);
+          return new Wave.Templatization.StockContent.OAuthSsoRedirect(redirect, suppressAutoRedirect);
+        }//ssoSubjectUser
+      }//idSsoSession
+
+      //a derived handler can return an error page or another redirect
+      return ReturnSsoLogout403(loginFlow);
+    }
+
+
     /// <summary>
     /// Obtains the TOKEN based on the {Authorization Code} received in authorize step
     /// </summary>

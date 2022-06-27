@@ -13,11 +13,18 @@ using Azos.Serialization.JSON;
 using Azos.Wave;
 using Azos.Data;
 using System.Net;
+using Azos.Conf;
 
 namespace Azos.Security.Services
 {
   partial class OAuthControllerBase
   {
+    public const string CONFIG_WEB_SECTION = "web";
+
+    /// <summary>
+    /// Shortcut accessor to OAuth.Options["web"]
+    /// </summary>
+    protected IConfigSectionNode WebOptions => OAuth.Options[CONFIG_WEB_SECTION];
 
     protected T GateError<T>(T response) => gate(response, false);
     protected T GateUser<T>(T response) => gate(response, true);
@@ -51,13 +58,38 @@ namespace Azos.Security.Services
       loginFlow.SsoSessionId = result;
     }
 
+    /// <summary>
+    /// Sets SSO token. Default implementation sets browser cookie
+    /// </summary>
     protected virtual void SetSsoSessionId(LoginFlow loginFlow, string ssoSessionName)
     {
       var cookie = new Cookie(ssoSessionName, loginFlow.SsoSessionId);
       cookie.HttpOnly = true;
-      cookie.Secure = true;
+      cookie.Secure = true ^ WebOptions.Of("cookie-not-secure").ValueAsBool(false);
+      cookie.Expires = App.TimeSource.UTCNow.AddMinutes(WebOptions.Of("cookie-expire-in-minutes").ValueAsDouble(2 * 24 * 60));
       WorkContext.Response.AppendCookie(cookie);
     }
+
+    /// <summary>
+    /// Erases SSO token. Default implementation un-sets cookie
+    /// </summary>
+    protected virtual void DeleteSsoSessionId(string ssoSessionName)
+    {
+      var cookie = new Cookie(ssoSessionName, "");
+      cookie.HttpOnly = true;
+      cookie.Secure = true ^ WebOptions.Of("cookie-not-secure").ValueAsBool(false);
+      cookie.Expires = App.TimeSource.UTCNow.AddDays(-2);
+      WorkContext.Response.AppendCookie(cookie);
+    }
+
+    /// <summary>
+    /// Override to return a 403 (unauthorized result) of user logout
+    /// </summary>
+    protected virtual object ReturnSsoLogout403(LoginFlow flow)
+    {
+      return new Http403Forbidden();
+    }
+
 
     /// <summary>
     /// Tries to get SSO subject user by examining the supplied idSsoSession.
@@ -154,7 +186,10 @@ namespace Azos.Security.Services
       }.ToString();
 
       if (usePageRedirect)
-        return new Wave.Templatization.StockContent.OAuthSsoRedirect(redirect);
+      {
+        var suppressAutoRedirect = WebOptions.Of("suppress-auto-sso-redirect").ValueAsBool(false);
+        return new Wave.Templatization.StockContent.OAuthSsoRedirect(redirect, suppressAutoRedirect);
+      }
       else
         return new Redirect(redirect);
     }

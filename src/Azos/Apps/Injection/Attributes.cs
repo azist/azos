@@ -102,6 +102,27 @@ namespace Azos.Apps.Injection
     }
 
 
+    protected virtual IModule TryFindModuleInApp(Type needType, IApplicationDependencyInjector injector)
+    {
+      IModule module = null;
+      if (Name.IsNotNullOrWhiteSpace())
+      {
+        module = injector.App.ModuleRoot.ChildModules[Name];
+        if (module == null) return null;
+        if (!needType.IsAssignableFrom(module.GetType())) return null;//type mismatch
+      }
+      else
+      {
+        //todo: Optimize linear search with a trie
+        module = injector.App.ModuleRoot.ChildModules
+                                 .OrderedValues
+                                 .FirstOrDefault(m => needType.IsAssignableFrom(m.GetType()));
+        if (module == null) return null;
+      }
+
+      return module;
+    }
+
     /// <summary>
     /// Tries to perform module injection by name or type, returning true if assignment was made
     /// </summary>
@@ -109,20 +130,14 @@ namespace Azos.Apps.Injection
     {
       var needType = Type==null ? fInfo.FieldType : Type;
 
-      IModule module = null;
-      if (Name.IsNotNullOrWhiteSpace())
+      var module = TryFindModuleInApp(needType, injector);
+
+      if (module == null)
       {
-        module = injector.App.ModuleRoot.ChildModules[Name];
-        if (module==null) return false;
-        if (!needType.IsAssignableFrom(module.GetType())) return false;//type mismatch
+        module = DynamicModuleFlowScope.Find(needType, Name);
       }
-      else
-      {
-        module = injector.App.ModuleRoot.ChildModules
-                                 .OrderedValues
-                                 .FirstOrDefault( m => needType.IsAssignableFrom(m.GetType()) );
-        if (module == null) return false;
-      }
+
+      if (module == null) return false;
 
       fInfo.SetValue(target, module);
       return true;

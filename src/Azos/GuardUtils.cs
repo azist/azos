@@ -7,6 +7,7 @@ using System;
 using System.Runtime.Serialization;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Azos.Data;
 
 namespace Azos
 {
@@ -561,6 +562,53 @@ namespace Azos
       }
     }
 
+    /// <summary>
+    /// Ensures that the Validation is passing.
+    /// Note: in case of use on complex models, you need to perform DI before this call
+    /// </summary>
+    public static T AsValid<T>(this T value,
+                               string name = null,
+                               ValidState state = new ValidState(),
+                               string scope = null,
+                               [CallerFilePath]   string callFile = null,
+                               [CallerLineNumber] int callLine = 0,
+                               [CallerMemberName] string callMember = null) where T : IValidatable
+    {
+      if (!state.IsAssigned) state = new ValidState(TargetedAttribute.ANY_TARGET, ValidErrorMode.FastBatch);
 
+      state = value.Validate(state, scope);
+
+      if (state.HasErrors)
+      {
+        var callSite = callSiteOf(callFile, callLine, callMember);
+        throw new CallGuardException(callSite,
+                                 name,
+                                 StringConsts.GUARDED_CLAUSE_VALIDATION_ERROR
+                                             .Args(callSite ?? CoreConsts.UNKNOWN,
+                                                   name ?? CoreConsts.UNKNOWN,
+                                                   state.Error.Message), state.Error);
+      }
+
+      return value;
+    }
+
+    /// <summary>
+    /// Ensures that the Validation is passing.
+    /// Performs DI.
+    /// </summary>
+    public static T AsValidIn<T>(this T value,
+                                 IApplication app,
+                                 string name = null,
+                                 ValidState state = new ValidState(),
+                                 string scope = null,
+                                 [CallerFilePath]   string callFile = null,
+                                 [CallerLineNumber] int callLine = 0,
+                                 [CallerMemberName] string callMember = null) where T : class, IValidatable
+    {
+      app.NonNull(nameof(app), callFile, callLine, callMember)
+         .InjectInto(value.NonNull(name, callFile, callLine, callMember));
+
+      return value.AsValid(name, state, scope, callFile, callLine, callMember);
+    }
   }
 }

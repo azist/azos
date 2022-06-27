@@ -10,7 +10,7 @@ using Azos.Apps;
 using Azos.Data;
 using Azos.Text;
 
-namespace Azos.Security.ConfigForest
+namespace Azos.Security.Config
 {
   /// <summary>
   /// Defines access levels for conf forest tree access
@@ -39,13 +39,16 @@ namespace Azos.Security.ConfigForest
     public const string DENY_SECT = "deny";
     public const string PATH_ATTR = "path";
 
+
+    public TreePermission(TreeAccessLevel level) : base((int)level){ }
+
     public TreePermission(TreeAccessLevel level, EntityId target) : base((int)level)
     {
-      Target = target;
+      Target = target.HasRequiredValue(nameof(target));
     }
 
     /// <summary>
-    /// Target subject path protected by permission
+    /// Optional target subject path protected by permission
     /// </summary>
     public readonly EntityId Target;
 
@@ -55,8 +58,9 @@ namespace Azos.Security.ConfigForest
     {
       //Bypass security checks if the data is needed for system use
       if (SecurityFlowScope.CheckFlag(SYSTEM_USE_FLAG)) return true;
-
       if (!base.DoCheckAccessLevel(secman, session, access)) return false;
+
+      if (!Target.IsAssigned) return true;
 
       var id = Target.AsString();
 

@@ -44,8 +44,8 @@ namespace Azos.Security.MinIdp
     private IMinIdpStoreImplementation m_Store;
 
     private object m_DataLock = new object();
-    private Dictionary<realmed, (DateTime ts, MinIdpUserData d)> m_IdxId = new Dictionary<realmed, (DateTime ts, MinIdpUserData d)>();
-    private Dictionary<realmed, MinIdpUserData> m_IdxSysToken = new Dictionary<realmed, MinIdpUserData>();
+    private Dictionary<realmed, MinIdpUserData> m_IdxId = new Dictionary<realmed, MinIdpUserData>();
+    private Dictionary<realmed, (DateTime ts, MinIdpUserData d)> m_IdxSysToken = new Dictionary<realmed, (DateTime ts, MinIdpUserData d)>();
     private Dictionary<realmed, MinIdpUserData> m_IdxUri = new Dictionary<realmed, MinIdpUserData>();
 
 
@@ -72,13 +72,14 @@ namespace Azos.Security.MinIdp
       if (!Running) return null;
 
       if (id.IsNullOrWhiteSpace()) return null;
-      id = id.ToLowerInvariant();
+      id = id.Trim();  // alex123, alex.123@something.com,  bearer@fbk::h2uIkosifds8Hw_83JIisqap
 
       if (MaxCacheAgeSec>0)
         lock(m_DataLock)
-          if (m_IdxId.TryGetValue(new realmed(realm, id), out var existing)) return existing.d;
+          if (m_IdxId.TryGetValue(new realmed(realm, id), out var existing)) return existing;
 
       var data = await m_Store.GetByIdAsync(realm, id, ctx).ConfigureAwait(false);
+      if(data != null) data.EnteredLoginId = id; //G8 bug #269  NullRefException In MinIdp Bug #269
 
       updateIndexes(realm, data);
       return data;
@@ -89,10 +90,11 @@ namespace Azos.Security.MinIdp
       if (!Running) return null;
 
       if (sysToken.IsNullOrWhiteSpace()) return null;
+      sysToken = sysToken.Trim();
 
       if (MaxCacheAgeSec > 0)
         lock (m_DataLock)
-          if (m_IdxSysToken.TryGetValue(new realmed(realm, sysToken), out var existing)) return existing;
+          if (m_IdxSysToken.TryGetValue(new realmed(realm, sysToken), out var existing)) return existing.d;
 
       var data = await m_Store.GetBySysAsync(realm, sysToken, ctx).ConfigureAwait(false);
 
@@ -105,12 +107,14 @@ namespace Azos.Security.MinIdp
       if (!Running) return null;
 
       if (uri.IsNullOrWhiteSpace()) return null;
+      uri = uri.Trim();
 
       if (MaxCacheAgeSec > 0)
         lock (m_DataLock)
           if (m_IdxUri.TryGetValue(new realmed(realm, uri), out var existing)) return existing;
 
       var data = await m_Store.GetByUriAsync(realm, uri, ctx).ConfigureAwait(false);
+      if (data != null) data.EnteredUri = uri;
 
       updateIndexes(realm, data);
       return data;
@@ -126,9 +130,12 @@ namespace Azos.Security.MinIdp
       var entry = (DateTime.UtcNow.AddSeconds(maxAge), data);
       lock (m_DataLock)
       {
-        m_IdxId      [new realmed(realm, data.LoginId)]       = entry;
-        m_IdxSysToken[new realmed(realm, data.SysToken.Data)] = data;
-        m_IdxUri     [new realmed(realm, data.ScreenName)]    = data;
+        if (data.EnteredLoginId.IsNotNullOrWhiteSpace())
+        {
+          m_IdxId[new realmed(realm, data.EnteredLoginId)] = data;
+        }
+        m_IdxSysToken[new realmed(realm, data.SysToken.Data)] = entry;
+        m_IdxUri     [new realmed(realm, data.EnteredUri)]    = data;
       }
     }
 
@@ -156,17 +163,20 @@ namespace Azos.Security.MinIdp
       var now = DateTime.UtcNow;
       lock(m_DataLock)
       {
-        foreach(var kvp in m_IdxId)
+        foreach(var kvp in m_IdxSysToken)
         {
           if (kvp.Value.ts > now) continue;
           toKill.Add(kvp.Value.d);
         }
 
-        if (toKill.Count>0)
+        if (toKill.Count > 0)
         {
           foreach(var item in toKill)
           {
-            m_IdxId.Remove(new realmed(item.Realm, item.LoginId));
+            if (item.EnteredLoginId.IsNotNullOrWhiteSpace())
+            {
+              m_IdxId.Remove(new realmed(item.Realm, item.EnteredLoginId));
+            }
             m_IdxSysToken.Remove(new realmed(item.Realm, item.SysToken.Data));
             m_IdxUri.Remove(new realmed(item.Realm, item.ScreenName));
           }

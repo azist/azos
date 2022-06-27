@@ -108,6 +108,13 @@ content-type-mappings
 
   map
   {
+    extensions='laconf,sky'
+    content-type='laconic'
+    name{eng{n='Laconic' d='Laconic Configuration Format'}}
+  }
+
+  map
+  {
     extensions='pdf'
     content-type='application/pdf'
     binary=true

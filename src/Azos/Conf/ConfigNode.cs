@@ -1267,7 +1267,7 @@ namespace Azos.Conf
     ///  with input as path string. "~" is used to qualify environment vars that get resolved through Configuration.EnvironmentVarResolver
     ///  Example: `....add key="Schema.$(/A/B/C/$attr)" value="$(@~HOME)bin\Transforms\"...`
     /// </summary>
-    public string EvaluateValueVariables(string value)
+    public string EvaluateValueVariables(string value, bool recurse = true)
     {
       if (value == null) return null;
 
@@ -1294,15 +1294,17 @@ namespace Azos.Conf
 
         const int MAX_ITERATIONS = 1_000;
         var iteration = 0;
-        while (true)
+        var idxsLatch = 0;
+        while(true)
         {
           if (iteration++ > MAX_ITERATIONS)
             throw new ConfigException(StringConsts.CONFIG_INFINITE_VARS_ERROR.Args(value.TakeFirstChars(32, "..."), MAX_ITERATIONS));
 
-          var idxs = value.IndexOf(VAR_START);
+          var idxs = recurse ? value.IndexOf(VAR_START) : value.IndexOf(VAR_START, idxsLatch);
           if (idxs < 0) break;
           var idxe = value.IndexOf(VAR_END, idxs);
           if (idxe <= idxs) break;
+
 
           var originalDecl = value.Substring(idxs, idxe - idxs + VAR_END.Length);
           var vname = value.Substring(idxs + VAR_START.Length, 1 + idxe - idxs - VAR_START.Length - VAR_END.Length).Trim();
@@ -1313,14 +1315,20 @@ namespace Azos.Conf
           vlist.Add(vname);
           try
           {
+            string replacement;
             if (vname.StartsWith(VAR_PATH_MOD))
             {
-              value = replacePaths(value, originalDecl, getValueFromMacroOrEnvVarOrNavigationWithCheck(vname.Replace(VAR_PATH_MOD, string.Empty)));
+              replacement = getValueFromMacroOrEnvVarOrNavigationWithCheck(vname.Replace(VAR_PATH_MOD, string.Empty));
+              value = replacePaths(recurse, value, originalDecl, replacement, recurse ? 0 : idxsLatch);
             }
             else
             {
-              value = value.Replace(originalDecl, getValueFromMacroOrEnvVarOrNavigationWithCheck(vname));
+              replacement = getValueFromMacroOrEnvVarOrNavigationWithCheck(vname);
+              value = replace(recurse, value, originalDecl, replacement, idxsLatch);
             }
+
+            idxsLatch = idxs + replacement.Length;
+            if (!recurse && idxsLatch >= value.Length) break;
           }
           finally
           {
@@ -1929,9 +1937,20 @@ namespace Azos.Conf
       return m_Configuration.RunMacro(this, value, macro.Name, config.Root);
     }
 
-    private string replacePaths(string line, string oldValue, string newValue)
+
+    private string replace(bool all, string line, string oldValue, string newValue, int idxStart)
     {
-      var start = 0;
+       if (all) return line.Replace(oldValue, newValue);
+       //replace first
+       var i = line.IndexOf(oldValue, idxStart);
+       if (i<0) return line;
+
+       return line.Substring(0, i) + newValue + line.Substring(i + oldValue.Length);
+    }
+
+    private string replacePaths(bool all, string line, string oldValue, string newValue, int idxStart)
+    {
+      var start = idxStart;
       while (true)
       {
         var idx = line.IndexOf(oldValue, start);
@@ -1941,6 +1960,7 @@ namespace Azos.Conf
         path = addPath(path, line.Substring(idx + oldValue.Length));
 
         line = path;
+        if (!all) break;
       }
 
       return line;

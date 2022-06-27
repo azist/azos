@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Azos.Apps;
 using Azos.Collections;
+using Azos.Data;
 using Azos.Data.Access;
 using Azos.Instrumentation;
 using Azos.Pile;
@@ -45,8 +46,8 @@ namespace Azos.Conf.Forest.Server
 
     protected override void Destructor()
     {
+      base.Destructor(); //AZ#638 fix
       cleanup();
-      base.Destructor();
     }
 
     private Registry<_forest> m_Forests = new Registry<_forest>();
@@ -80,7 +81,8 @@ namespace Azos.Conf.Forest.Server
     {
       if (!Running) return Task.FromResult<IEnumerable<Atom>>(null);
       var forest = m_Forests[idForest.Value];
-      if (forest == null) return null;
+      if (forest == null)
+        throw new ValidationException("Forest not found"){ HttpStatusCode = 404, HttpStatusDescription = "Forest not found"};
       return Task.FromResult(forest.Trees.Select( t => Atom.Encode(t.Name) ));
     }
 
@@ -109,7 +111,7 @@ namespace Azos.Conf.Forest.Server
       {
         var idForest = nforest.Of(Configuration.CONFIG_NAME_ATTR, "id").ValueAsAtom(Atom.ZERO);
         if (idForest.IsZero || !idForest.IsValid)
-          throw new ConfigException($"{nameof(ForestDataSource)} config `forest` section is missing `$id`");
+          throw new ConfigException($"{nameof(ForestDataSource)} config `forest` section is missing a valid atom `$id`");
 
         var trees = new Registry<IDataStoreImplementation>();
         var forest = new _forest(idForest, trees);
@@ -122,7 +124,7 @@ namespace Azos.Conf.Forest.Server
         {
           var idTree = ntree.Of(Configuration.CONFIG_NAME_ATTR).ValueAsAtom(Atom.ZERO);
           if (idTree.IsZero || !idTree.IsValid)
-            throw new ConfigException($"{nameof(ForestDataSource)} config `tree` section is missing `$id`");
+            throw new ConfigException($"{nameof(ForestDataSource)} config `tree` section is missing a valid atom `$id`");
 
           var tree = FactoryUtils.MakeAndConfigureDirectedComponent<IDataStoreImplementation>(this, ntree);
 
@@ -154,7 +156,11 @@ namespace Azos.Conf.Forest.Server
 
       m_Pile.NonNull("pile");
       m_Cache.NonNull("cache");
-      (m_Forests.Count > 0).IsTrue("Forest > 0");
+
+      if (m_Forests.Count == 0)
+      {
+        WriteLogFromHere(Log.MessageType.Warning, "No config forests configured");
+      }
 
       if (m_Pile is Daemon dp) dp.Start();
       if (m_Cache is Daemon d) d.Start();
@@ -165,16 +171,16 @@ namespace Azos.Conf.Forest.Server
     protected override void DoSignalStop()
     {
       base.DoSignalStop();
-      this.DontLeak(() => m_Cache.SignalStop());
-      this.DontLeak(() => m_Pile.SignalStop());
+      this.DontLeak(() => m_Cache?.SignalStop());
+      this.DontLeak(() => m_Pile?.SignalStop());
       allStores.OfType<Daemon>().ForEach(c => this.DontLeak(() => c.SignalStop()));
     }
 
     protected override void DoWaitForCompleteStop()
     {
       base.DoWaitForCompleteStop();
-      this.DontLeak(() => m_Cache.SignalStop());
-      this.DontLeak(() => m_Pile.SignalStop());
+      this.DontLeak(() => m_Cache?.SignalStop());
+      this.DontLeak(() => m_Pile?.SignalStop());
       allStores.OfType<Daemon>().ForEach(c => this.DontLeak(() => c.WaitForCompleteStop()));
     }
 

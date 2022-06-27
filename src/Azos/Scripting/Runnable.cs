@@ -38,12 +38,12 @@ namespace Azos.Scripting
     /// <summary>
     /// Category name of the runnable
     /// </summary>
-    public readonly string Category;
+    public string Category { get; set; }
 
     /// <summary>
     /// Order of execution
     /// </summary>
-    public readonly int    Order;
+    public int    Order  { get; set; }
 
     /// <summary>
     /// Configuration content in Laconic format

@@ -22,8 +22,15 @@ namespace Azos.Data
   /// The optional schema sub-qualifier defines the "schema" of addressing used per type, this way you can identify the same entity types within a system with
   /// different addressing schemas
   /// </summary>
-  public struct EntityId : IEquatable<EntityId>, IDistributedStableHashProvider, IJsonReadable, IJsonWritable, IRequiredCheck
+  public struct EntityId : IEquatable<EntityId>, IDistributedStableHashProvider, IJsonReadable, IJsonWritable, IRequiredCheck, IValidatable
   {
+    private static readonly JsonWritingOptions COMPOSITE_ADDRESS_JSON_FORMAT = new JsonWritingOptions(JsonWritingOptions.CompactRowsAsMap)
+    {
+      MapSkipNulls = true,
+      MapSortKeys = true,
+      ISODates = true
+    };
+
     public const string TP_PREFIX = "@";
     public const char   SCHEMA_DIV = '.';
     public const string SYS_PREFIX = "::";
@@ -48,6 +55,23 @@ namespace Azos.Data
     }
 
     /// <summary>
+    /// Initializes an instance
+    /// </summary>
+    /// <param name="sys">System is required</param>
+    /// <param name="type">Type is optional, so you can pass Atom.ZERO</param>
+    /// <param name="compositeAddress">Required composite entity address - will be converted to ordered JSON string</param>
+    /// <param name="schema">Optional address schema(or Atom.ZERO) </param>
+    public EntityId(Atom sys, Atom type, object compositeAddress, Atom schema = new Atom())
+    {
+      if (sys.IsZero) throw new CallGuardException(nameof(EntityId), nameof(sys), "Required sys.isZero");
+      System = sys;
+      Type = type;
+      Schema = schema;
+      Address = compositeAddress.NonNull(nameof(compositeAddress)).ToJson(COMPOSITE_ADDRESS_JSON_FORMAT);
+      IsCompositeAddress.IsTrue(nameof(IsCompositeAddress));
+    }
+
+    /// <summary>
     /// System id, non zero for assigned values
     /// </summary>
     public readonly Atom System;
@@ -68,11 +92,56 @@ namespace Azos.Data
     public readonly string Address;
 
     /// <summary>
+    /// Returns true if an address is assigned a composite json object - starts with '{' and ends with '}'
+    /// without any leading/trailing spaces
+    /// </summary>
+    public bool IsCompositeAddress
+    {
+      get
+      {
+        if (Address.IsNullOrWhiteSpace()) return false;
+        if (Address.StartsWith("{") && Address.EndsWith("}")) return true;
+        return false;
+      }
+    }
+
+    /// <summary>
+    /// Returns a composite address as JsonDataMap. No value caching is performed.
+    /// Null for empty/null address. Throws for non-composite address. <see cref="IsCompositeAddress"/>
+    /// </summary>
+    public JsonDataMap CompositeAddress //  type.sch@sys::{"a": 1,"b": "value"}
+    {
+      get
+      {
+        if (Address.IsNullOrWhiteSpace()) return null;
+        IsCompositeAddress.IsTrue(nameof(IsCompositeAddress));
+        var result = Address.JsonToDataObject() as JsonDataMap;//may throw on invalid
+        return result;
+      }
+    }
+
+    /// <summary>
     /// True if the EntityId value is assigned
     /// </summary>
     public bool IsAssigned => !System.IsZero;
 
     public bool CheckRequired(string targetName) => IsAssigned;
+
+    public ValidState Validate(ValidState state, string scope = null)
+    {
+      if (IsCompositeAddress)
+      {
+        try
+        {
+          var map = CompositeAddress;
+        }
+        catch
+        {
+          state = new ValidState(state, new FieldValidationException(nameof(EntityId), scope.Default("<entityId>"), "Invalid composite value"));
+        }
+      }
+      return state;
+    }
 
     /// <summary>
     /// Returns a string representation which can be used with Parse()/TryParse() calls
@@ -161,6 +230,8 @@ namespace Azos.Data
       result = new EntityId(sys, type, schema, sadr);
       return true;
     }
+
+
 
     public static bool operator ==(EntityId a, EntityId b) => a.Equals(b);
     public static bool operator !=(EntityId a, EntityId b) => !a.Equals(b);

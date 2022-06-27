@@ -1,0 +1,44 @@
+﻿insert into tbl_user
+(
+  GDID,
+  GUID,
+  REALM,
+  NAME,
+  LEVEL,
+  DESCRIPTION,
+  START_UTC,
+  END_UTC,
+  ORG_UNIT,
+  PROPS,
+  RIGHTS,
+  NOTE,
+  CREATE_UTC,
+  CREATE_ORIGIN,
+  CREATE_ACTOR,
+  VERSION_UTC,
+  VERSION_ORIGIN,
+  VERSION_ACTOR,
+  VERSION_STATE
+)
+values
+(
+  @gdid,
+  @guid,
+  @realm,
+  @name,
+  @level,
+  @description,
+  @start_utc,
+  @end_utc,
+  @org_unit,
+  @props,
+  @rights,
+  @note,
+  @version_utc,
+  @version_origin,
+  @version_actor,
+  @version_utc,
+  @version_origin,
+  @version_actor,
+  @version_state
+)

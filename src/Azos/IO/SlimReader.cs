@@ -590,6 +590,21 @@ namespace Azos.IO
     }
 
 
+    public override DateTimeOffset ReadDateTimeOffset()
+    {
+      var dateTime = ReadDateTime();
+      var offset = ReadTimeSpan();
+      return new DateTimeOffset(dateTime, offset);
+    }
+
+    public override DateTimeOffset? ReadNullableDateTimeOffset()
+    {
+      var has = ReadBool();
+      if (has) return ReadDateTimeOffset();
+      return null;
+    }
+
+
     public override TimeSpan ReadTimeSpan()
     {
       var ticks = this.ReadLong();

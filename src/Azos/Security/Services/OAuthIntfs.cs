@@ -5,6 +5,7 @@
 </FILE_LICENSE>*/
 
 using Azos.Apps;
+using Azos.Conf;
 
 namespace Azos.Security.Services
 {
@@ -71,6 +72,14 @@ namespace Azos.Security.Services
     /// scopes delimited by spaces or commas
     /// </summary>
     bool CheckScope(string scope);
+
+    /// <summary>
+    /// Provides config options related to OAuth.
+    /// The node is copied from config 'options' sub section.
+    /// For example, this section is used to get OAuth controller config options,
+    /// such as e.g. SSO cookie HTTPS policy, expiration etc.
+    /// </summary>
+    IConfigSectionNode Options { get; }
   }
 
   /// <summary>

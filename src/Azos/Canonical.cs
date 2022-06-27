@@ -9,7 +9,7 @@ using Azos.Data;
 namespace Azos
 {
   /// <summary>
-  /// Handles various canonical aspects like EntityIds
+  /// Handles various canonical system aspects like EntityIds
   /// </summary>
   public static class Canonical
   {

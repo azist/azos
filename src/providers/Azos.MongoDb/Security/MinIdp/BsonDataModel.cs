@@ -20,6 +20,7 @@ namespace Azos.Security.MinIdp
 
     public const int MAX_ID_LEN = 64;
     public const int MAX_NOTE_LEN = 4 * 1024;
+    public const int MAX_PROPS_LEN = 2 * 1024;
     public const int MAX_DESCR_LEN = 256;
     public const int MAX_NAME_LEN  = 64;
     public const int MAX_PWD_LEN = 4 * 1024;
@@ -31,6 +32,7 @@ namespace Azos.Security.MinIdp
     public const string FLD_SYSID = "sysid";
     public const string FLD_STATUS = "status";
     public const string FLD_RIGHTS = "rights";
+    public const string FLD_PROPS = "props";
     public const string FLD_PASSWORD = "pwd";
 
     public const string FLD_CREATEUTC = "cutc";
@@ -54,7 +56,7 @@ namespace Azos.Security.MinIdp
         data.ScreenName = id.Value;
       }
 
-      if (bson[FLD_SYSID] is BSONInt64Element sysid) data.SysId = (ulong)sysid.Value;
+      if (bson[FLD_SYSID] is BSONInt64Element sysid) data.SysId = ((ulong)sysid.Value).ToString(System.Globalization.CultureInfo.InvariantCulture);
       if (bson[FLD_PASSWORD] is BSONStringElement pwd) data.LoginPassword = pwd.Value;
 
       if (bson[FLD_STARTUTC] is BSONDateTimeElement sdt) data.LoginStartUtc = sdt.Value;
@@ -63,7 +65,7 @@ namespace Azos.Security.MinIdp
 
     public static void ReadUser(BSONDocument bson, MinIdpUserData data)
     {
-      if (bson[_ID] is BSONInt64Element sysid) data.SysId = (ulong)sysid.Value;
+      if (bson[_ID] is BSONInt64Element sysid) data.SysId = ((ulong)sysid.Value).ToString(System.Globalization.CultureInfo.InvariantCulture);
       if (bson[FLD_STATUS] is BSONInt32Element status) data.Status = (UserStatus)status.Value;
       if (bson[FLD_ROLE] is BSONStringElement role) data.Role = role.Value;
 
@@ -75,6 +77,10 @@ namespace Azos.Security.MinIdp
       if (bson[FLD_DESCRIPTION] is BSONStringElement descr) data.Description = descr.Value;
       if (bson[FLD_NOTE] is BSONStringElement note) data.Note = note.Value;
 
+      if (bson[FLD_PROPS] is BSONStringElement props)
+      {
+        data.Props = new Data.ConfigVector(props.Value);
+      }
     }
 
     public static void ReadRole(BSONDocument bson, MinIdpUserData data)

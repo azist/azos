@@ -160,7 +160,7 @@ namespace Azos.Security.MinIdp
       if (Realm.Value.EqualsOrdSenseCase(token.Realm))
       {
         var data = await m_Store.GetBySysAsync(Realm, token.Data, ctx).ConfigureAwait(false);
-        if (data!=null)
+        if (data != null)
         {
           var user = TryAuthenticateUser(data);
           if (user != null) return user;
@@ -218,14 +218,35 @@ namespace Azos.Security.MinIdp
       var rights = Rights.None;
       if (credentials == null) credentials = BlankCredentials.Instance;
 
-      if (data.Rights.IsNotNullOrWhiteSpace())
+      if (data.Rights != null)
       {
-        var cfg = data.Rights.AsLaconicConfig(handling: ConvertErrorHandling.ReturnDefault);
-        if (cfg == null)
-          WriteLog(MessageType.Warning, nameof(MakeOkUser), "Rights could not be read for `{0}`@`{1}`".Args(credentials, Realm));
-        else
-          rights = new Rights(cfg.Configuration);
+        try
+        {
+          rights = new Rights(data.Rights.Node.Configuration);
+        }
+        catch (Exception error)
+        {
+          WriteLog(MessageType.Error, nameof(MakeOkUser), "Rights could not be read for `{0}`@`{1}`".Args(credentials, Realm), error);
+        }
       }
+
+      var props = data.Props?.Content;
+
+      //making a copy of ConfigProps
+      ConfigVector userProps = null;
+      if (props.IsNotNullOrWhiteSpace())
+      {
+        try
+        {
+          userProps = new ConfigVector(props);
+          var _ = userProps.Node;
+        }
+        catch (Exception error)
+        {
+          WriteLog(MessageType.Error, nameof(MakeOkUser), "User properties could not be read for `{0}`@`{1}`".Args(credentials, Realm), error);
+        }
+      }
+
 
       return new User(credentials,
                       data.SysToken,
@@ -233,7 +254,8 @@ namespace Azos.Security.MinIdp
                       data.Name,
                       data.Description,
                       rights,
-                      App.TimeSource.UTCNow);
+                      App.TimeSource.UTCNow,
+                      props: userProps);
     }
 
 
@@ -258,11 +280,17 @@ namespace Azos.Security.MinIdp
       if (data.Realm != Realm) return null;
       if (!CheckDates(data)) return null;
 
-      using (var password = cred.SecurePassword)
+      //The provider password is optional, e.g. for token-based providers like:  `fbk::6Hw9_90jnHjskxCtwuwru2k804Op`
+      if (data.LoginPassword.IsNotNullOrWhiteSpace())
       {
-        cred.Forget();
-        var pass = m_PasswordManager.Verify(password, HashedPassword.FromString(data.LoginPassword), out var needRehash);
-        if (!pass) return null;
+        if (cred.Password.IsNullOrWhiteSpace()) return null;
+
+        using (var password = cred.SecurePassword)
+        {
+          cred.Forget();
+          var pass = m_PasswordManager.Verify(password, HashedPassword.FromString(data.LoginPassword), out var needRehash);
+          if (!pass) return null;
+        }
       }
 
       return MakeOkUser(cred, data);

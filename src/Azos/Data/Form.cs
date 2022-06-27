@@ -130,11 +130,11 @@ namespace Azos.Data
     /// <summary>
     /// Override to perform pre-validate step on Save(). This can be used to default required field values among other things.
     /// Returns a ValidState initialized to DataStoreTargetName and ValidErrorMode as desired in a specific case.
-    /// Default implementation sets `ValidErrorMode.Single` meaning: the system will stop validation on a first validation error
+    /// Default implementation sets `ValidErrorMode.FastBatch` meaning: the system will stop validation on a first validation error
     /// and return it. Override to use other modes such as `ValidErrorMode.Batch`
     /// Note: this is called after amorphous data save, so the validation can assume that the state of AmorphousData is initialized
     /// </summary>
-    protected virtual ValidState DoBeforeValidateOnSave() => new ValidState(DataStoreTargetName, ValidErrorMode.Single);
+    protected virtual ValidState DoBeforeValidateOnSave() => new ValidState(DataStoreTargetName, ValidErrorMode.FastBatch);
 
     /// <summary>
     /// Override to perform post-validate step on Save(). For example, you can mask/disregard validation error

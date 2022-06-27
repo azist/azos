@@ -19,8 +19,7 @@ using Azos.Data.Idgen;
 using Azos.Instrumentation;
 using Azos.Log;
 using Azos.Serialization.JSON;
-using Azos.Sky.Identification;
-using Azos.Sky.Security.Permissions.EventHub;
+using Azos.Security.EventHub;
 using Azos.Web;
 
 namespace Azos.Sky.EventHub

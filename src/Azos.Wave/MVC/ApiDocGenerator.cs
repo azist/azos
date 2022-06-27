@@ -85,6 +85,7 @@ namespace Azos.Wave.Mvc
           var asm = Assembly.LoadFrom(AssemblyName);
           return asm.GetTypes().Where(t => !t.IsAbstract &&
                                             t.IsSubclassOf(typeof(Controller)) &&
+                                            t.GetCustomAttribute<NoApiDoc>(false) == null &&
                                             t.Namespace.MatchPattern(Namespace)).ToArray();
         }
       }
@@ -281,12 +282,15 @@ namespace Azos.Wave.Mvc
     }
 
     public virtual ConfigSectionNode MakeConfig() => Configuration.NewEmptyRoot(GetType().Name);
-    public virtual bool FilterControllerType(Type tController, ApiControllerDocAttribute attr) => !tController.IsAbstract && attr != null;
+
+    public virtual bool FilterControllerType(Type tController, ApiControllerDocAttribute attr)
+      => !tController.IsAbstract && attr != null && tController.GetCustomAttribute<NoApiDoc>(false) == null;
+
     public virtual object OrderControllerType(Type tController, ApiControllerDocAttribute attr) => attr.BaseUri;
 
     public virtual IEnumerable<EndpointContext> GetApiMethods(Type tController, ApiControllerDocAttribute attr)
      => tController.GetMethods(BindingFlags.Instance | BindingFlags.Public)
-                   .Where(mi => mi.GetCustomAttribute<ApiEndpointDocAttribute>()!=null)
+                   .Where(mi => mi.GetCustomAttribute<ApiEndpointDocAttribute>() != null && mi.GetCustomAttribute<NoApiDoc>(false) == null)
                    .Select(mi => new EndpointContext(this, tController, attr, mi.GetCustomAttribute<ApiEndpointDocAttribute>(), mi));
 
     public virtual void PopulateController(ConfigSectionNode data, Type ctlType, ApiControllerDocAttribute ctlAttr)

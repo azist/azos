@@ -9,6 +9,11 @@ using Azos.Data.Business;
 
 namespace Azos.Wave.Mvc
 {
+  /// <summary>
+  /// Establishes a base protocol for API controllers: filters yielding Info objects on post, saving models returning JSON with OK flags.
+  /// The controller works in conjunction with `UnwrapPayloadObject()`, `UnwrapPayloadArray()`, `UnwrapChangeResult()` Http response helpers
+  /// on the client side
+  /// </summary>
   [ApiControllerDoc(
     Connection = "default/keep alive",
     Title = "ApiProtocolController",
@@ -94,7 +99,7 @@ namespace Azos.Wave.Mvc
 
 
     /// <summary>
-    /// Maps ChangeResult returned by logic into HTTP status codes
+    /// Maps ChangeResult returned by logic into HTTP status codes with proper API protocol {OK: true/false, change: ...}
     /// </summary>
     public object GetLogicChangeResult(ChangeResult result)
     {
@@ -104,9 +109,23 @@ namespace Azos.Wave.Mvc
     }
 
     /// <summary>
+    /// Returns JSON response explicitly categorized as OK or non Ok not depending on the result data object.
+    /// `{OK=ok, data: object}` with the specified HTTP status.
+    /// You should call this when you want to specifically return either an OK or an error regardless of result object.
+    /// For example, an object may represent a non-null "good data" but sometimes you might need to return specific HTTP
+    /// status code with accompanying description
+    /// </summary>
+    public object GetExplicitResult(bool ok, object result, int httpStatus, string httpStatusDescription)
+    {
+      WorkContext.Response.StatusCode = httpStatus;
+      WorkContext.Response.StatusDescription = httpStatusDescription;
+      return new { OK = ok, data = result };
+    }
+
+    /// <summary>
     /// Analyzes the result of a logic call and returns JSON {OK=true|false, data: object} with HTTP status 404 when nothing was returned
     /// </summary>
-    public object GetLogicResult<T>(T result)
+    public object GetLogicResult(object result)
     {
       if (result is IHttpStatusProvider hsp)
       {
