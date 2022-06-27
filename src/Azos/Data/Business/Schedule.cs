@@ -52,7 +52,8 @@ namespace Azos.Data.Business
       //{
       //  base.Configure(node);
       //  Name = new NLSMap(node["name"]);
-      //  Range = new DateRange(node["range"]);
+      //  Range = new DateRange(node["range-sd"].Value.AsNullableDateTime(styles: CoreConsts.UTC_TIMESTAMP_STYLES),
+      //                        node["range-ed"].Value.AsNullableDateTime(styles: CoreConsts.UTC_TIMESTAMP_STYLES));
       //}
 
     }

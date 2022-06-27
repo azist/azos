@@ -133,5 +133,38 @@ root
       Aver.AreEqual("pub2", obj.PublicProp);
     }
 
+    public class EntityZ
+    {
+      [Config] public TZaza Zaza1;
+      [Config] public TZaza Zaza2;//{get; set;}
+      [Config] public string Another;
+    }
+
+    public struct TZaza
+    {
+      public TZaza(string msg) => Msg = msg;
+
+      [ConfigCtor]  public TZaza(IConfigSectionNode cs) => Msg = cs.ValOf("msg");
+
+      [ConfigCtor]  public TZaza(IConfigAttrNode ca) => Msg = ca.Value;
+
+      public readonly string Msg;
+    }
+
+    [Run]
+    public void CustomTypeWithConfigCtor()
+    {
+      var cfg = "a{zaza1='message1' Another='cool' zaza2{msg='2message'}}".AsLaconicConfig();
+      var obj = new EntityZ();
+      ConfigAttribute.Apply(obj, cfg);
+
+      obj.See();
+
+      Aver.AreEqual("message1", obj.Zaza1.Msg);
+      Aver.AreEqual("cool", obj.Another);
+      Aver.AreEqual("2message", obj.Zaza2.Msg);
+    }
+
+
   }
 }
