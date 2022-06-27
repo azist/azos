@@ -136,7 +136,7 @@ root
     public class EntityZ
     {
       [Config] public TZaza Zaza1;
-      [Config] public TZaza Zaza2;//{get; set;}
+      [Config] public TZaza Zaza2{get; set;}
       [Config] public string Another;
     }
 
