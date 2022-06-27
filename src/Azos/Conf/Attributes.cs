@@ -201,7 +201,7 @@ namespace Azos.Conf
 
     /// <summary>
     /// Generates 2 attribute paths for named member. This first path is just the member name converted to lower case.
-    /// The seconfd path is "OR"ed with the first one and is taken from member name where all case transitions are prefixed with "-".
+    /// The second path is "OR"ed with the first one and is taken from member name where all case transitions are prefixed with "-".
     /// For private fields 'm_' and 's_' prefixes are removed
     /// </summary>
     public static string GetConfigPathsForMember(MemberInfo member)
