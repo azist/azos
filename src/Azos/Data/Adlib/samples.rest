@@ -120,6 +120,33 @@ Content-Type: application/json
   }
 }
 
+### POST ItemFilter
+
+POST http://localhost:8080/adlib/store/filter HTTP/1.2
+Authorization: {{AUTH}}
+Accept: application/json
+Content-Type: application/json 
+
+{
+    "filter": {
+        "space": "s1",
+        "collection": "dima1",
+        "fetchtags": true,
+        "fetchcontent": true,
+        "tagfilter": {
+            "Operator": "=",
+                "LeftOperand": {
+                    "Identifier": "nick"
+                },
+                "RightOperand": {
+                    "Value": "Mushroooomz"
+                }
+        },
+        "pagingStartIndex": 0,
+        "pagingCount": 20
+    }
+}	
+
 
 
 ### POST ItemFilter
@@ -136,7 +163,7 @@ Content-Type: application/json
         "fetchtags": true,
         "fetchcontent": true,
         "tagfilter": {
-            "Operator": "or",
+            "Operator": "and",
             "LeftOperand": {
                 "Operator": "=",
                 "LeftOperand": {
@@ -161,57 +188,208 @@ Content-Type: application/json
     }
 }	
 
-### Response
+
+
+### POST ItemFilter ****BROKEN****
+
+POST http://localhost:8080/adlib/store/filter HTTP/1.2
+Authorization: {{AUTH}}
+Accept: application/json
+Content-Type: application/json 
 
 {
-  "data": [
-    {
-      "Space": "s1",
-      "Collection": "dima1",
-      "Gdid": "0:2:301",
-      "Id": "dima1.gi@s1::0:2:301",
-      "ShardTopic": null,
-      "CreateUtc": "0",
-      "Origin": "a",
-      "Headers": "",
-      "ContentType": "bin",
-      "Tags": [
-        {
-          "p": "lname",
-          "s": "Lenin"
+    "filter": {
+        "space": "s1",
+        "collection": "dima1",
+        "fetchtags": true,
+        //"segment":123,
+        "fetchcontent": true,
+        "tagfilter": {
+            "Operator": "and",
+            "RightOperand": {
+                "Operator": "=",
+                "LeftOperand": {
+                    "Identifier": "nick"
+                },
+                "RightOperand": {
+                    "Value": "Mushroooomz"
+                }
+            },
+            "LeftOperand": {
+                  "Operator": "and",
+                  "LeftOperand": {
+                      "Operator": "=",
+                      "LeftOperand": {
+                          "Identifier": "lname"
+                      },
+                      "RightOperand": {
+                          "Value": "Lenin"
+                      }
+                  },
+                  "RightOperand": {
+                     "Operator": "and",
+                      "LeftOperand": {
+                          "Operator": "=",
+                          "LeftOperand": {
+                              "Identifier": "lname"
+                          },
+                          "RightOperand": {
+                              "Value": "Lenin"
+                          }
+                      },
+                      "RightOperand": {
+                                "Operator": "and",
+                                "LeftOperand": {
+                                    "Operator": "=",
+                                    "LeftOperand": {
+                                        "Identifier": "lname"
+                                    },
+                                    "RightOperand": {
+                                        "Value": "Lenin"
+                                    }
+                                },
+                                "RightOperand": {
+                                    "Operator": "!=",
+                                    "LeftOperand": {
+                                        "Identifier": "lname"
+                                    },
+                                    "RightOperand": {
+                                        "Value": "Gurariy"
+                                    }
+                                }
+                      }
+                  }
+            }
         },
-        {
-          "p": "nick",
-          "s": "Mushroooomz"
-        }
-      ],
-      "Content": "AP8BAABHKuRAAAAU"
-    },
-    {
-      "Space": "s1",
-      "Collection": "dima1",
-      "Gdid": "0:2:303",
-      "Id": "dima1.gi@s1::0:2:303",
-      "ShardTopic": null,
-      "CreateUtc": "0",
-      "Origin": "a",
-      "Headers": "",
-      "ContentType": "bin",
-      "Tags": [
-        {
-          "p": "lname",
-          "s": "Lenin"
-        },
-        {
-          "p": "nick",
-          "s": "Mushroooomz"
-        }
-      ],
-      "Content": "AP8BAABHKuRAAAAU"
+        "pagingStartIndex": 0,
+        "pagingCount": 20
     }
-  ],
-  "OK": true
-}
+}	
+
+
+### POST ItemFilter ****BROKEN****
+
+POST http://localhost:8080/adlib/store/filter HTTP/1.2
+Authorization: {{AUTH}}
+Accept: application/json
+Content-Type: application/json 
+
+{
+    "filter": {
+        "space": "s1",
+        "collection": "dima1",
+        "fetchtags": true,
+        //"segment":123,
+        "fetchcontent": true,
+        "tagfilter": {
+            "Operator": "or",
+            "RightOperand": {
+                "Operator": "=",
+                "LeftOperand": {
+                    "Identifier": "nick"
+                },
+                "RightOperand": {
+                    "Value": "Mushroooomz"
+                }
+            },
+            "LeftOperand": {
+                  "Operator": "and",
+                  "LeftOperand": {
+                      "Operator": "=",
+                      "LeftOperand": {
+                          "Identifier": "lname"
+                      },
+                      "RightOperand": {
+                          "Value": "Lenin"
+                      }
+                  },
+                  "RightOperand": {
+                      "Operator": "=",
+                      "LeftOperand": {
+                          "Identifier": "lname"
+                      },
+                      "RightOperand": {
+                          "Value": "Lenin"
+                      }
+                  }
+            }
+        },
+        "pagingStartIndex": 0,
+        "pagingCount": 20
+    }
+}	
+
+
+
+
+
+
+### POST ItemFilter ****BROKEN****
+
+POST http://localhost:8080/adlib/store/filter HTTP/1.2
+Authorization: {{AUTH}}
+Accept: application/json
+Content-Type: application/json 
+
+{
+    "filter": {
+        "space": "s1",
+        "collection": "dima1",
+        "fetchtags": true,
+        //"segment":123,
+        "fetchcontent": true,
+        "tagfilter": {
+            "Operator": "or",
+            "RightOperand": {
+                  "Operator": "and",
+                  "LeftOperand": {
+                      "Operator": "=",
+                      "LeftOperand": {
+                          "Identifier": "lname"
+                      },
+                      "RightOperand": {
+                          "Value": "Lenin"
+                      }
+                  },
+                  "RightOperand": {
+                      "Operator": "=",
+                      "LeftOperand": {
+                          "Identifier": "lname"
+                      },
+                      "RightOperand": {
+                          "Value": "Lenin"
+                      }
+                  }
+            },
+            "LeftOperand": {
+                  "Operator": "and",
+                  "LeftOperand": {
+                      "Operator": "=",
+                      "LeftOperand": {
+                          "Identifier": "lname"
+                      },
+                      "RightOperand": {
+                          "Value": "Lenin"
+                      }
+                  },
+                  "RightOperand": {
+                      "Operator": "=",
+                      "LeftOperand": {
+                          "Identifier": "lname"
+                      },
+                      "RightOperand": {
+                          "Value": "Lenin"
+                      }
+                  }
+            }
+        },
+        "pagingStartIndex": 0,
+        "pagingCount": 20
+    }
+}	
+
+
+
 
 
 ### POST ItemFilter #2 (by GDID)
