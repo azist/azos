@@ -5,6 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -97,11 +98,46 @@ namespace Azos.Serialization.JSON
     public const string JSON_INCLUDE_PRAGMA = "@";
 
 
-    public static IJsonDataObject ProcessJsonLocalFileIncludes(this IJsonDataObject root, IApplication app, string rootPath, string includePragma = null, bool recurse = true)
+    /// <summary>
+    /// Creates an object which is a deep copy of the specified IJsonDataObject with includePragmas processed from a local file system
+    /// </summary>
+    /// <remarks>
+    ///   https://github.com/azist/azos/issues/684
+    /// </remarks>
+    public static IJsonDataObject ProcessJsonLocalFileIncludes(this IJsonDataObject root,
+                                                               IApplication app,
+                                                               string rootPath,
+                                                               string includePragma = null,
+                                                               bool recurse = true,
+                                                               string commonFilePathPragma = null)
     {
+      var scope = commonFilePathPragma.IsNotNullOrWhiteSpace() ? new List<string>() : null;
+
+      bool iscd(string p) => p.IsNotNullOrWhiteSpace() && (p.StartsWith("./") || p.StartsWith(".\\"));
+
       var result = ProcessJsonIncludes(root, cfg =>
       {
-         var fn = cfg.ValOf("file");
+         var fn = cfg.ValOf("file").NonBlank("$file");
+
+         if (scope != null)
+         {
+           if (!iscd(fn))
+           {
+              var path = "";
+              foreach(var seg in scope)
+              {
+                if (seg.IsNullOrWhiteSpace()) continue;
+                if (iscd(seg))
+                {
+                  path = seg;
+                  continue;
+                }
+                path = Path.Combine(path, seg);
+              }
+              fn = Path.Combine(path, fn);
+           }
+         }
+
          var fullPath = rootPath.IsNullOrWhiteSpace() ? fn : Path.Combine(rootPath, fn);
          var fExt = Path.GetExtension(fn);
          var ctp = cfg.ValOf("content-type");
@@ -126,7 +162,21 @@ namespace Azos.Serialization.JSON
            return bin;
          }
 
-      }, includePragma, recurse);
+      }, includePragma, recurse,
+      (isSet, map) =>
+      {
+        if (scope == null) return;
+
+        if (isSet)
+        {
+          var cpath = map[commonFilePathPragma] as string;
+          scope.Add(cpath);
+        }
+        else
+        {
+          scope.RemoveAt(scope.Count - 1);
+        }
+      });
 
       return result;
     }
@@ -138,7 +188,11 @@ namespace Azos.Serialization.JSON
     /// <remarks>
     ///   https://github.com/azist/azos/issues/684
     /// </remarks>
-    public static IJsonDataObject ProcessJsonIncludes(this IJsonDataObject root, Func<IConfigSectionNode, object> fReplace, string includePragma = null, bool recurse = true)
+    public static IJsonDataObject ProcessJsonIncludes(this IJsonDataObject root,
+                                                      Func<IConfigSectionNode, object> fReplace,
+                                                      string includePragma = null,
+                                                      bool recurse = true,
+                                                      Action<bool, JsonDataMap> fScope = null)
     {
       root.NonNull(nameof(root));
       fReplace.NonNull(nameof(fReplace));
@@ -146,10 +200,15 @@ namespace Azos.Serialization.JSON
 
       var callDepth = 0;
 
-      return processJsonIncludes(ref callDepth, root, fReplace, includePragma, recurse);
+      return processJsonIncludes(ref callDepth, root, fReplace, fScope, includePragma, recurse);
     }
 
-    public static IJsonDataObject processJsonIncludes(ref int depth, IJsonDataObject root, Func<IConfigSectionNode, object> fReplace, string includePragma = null, bool recurse = true)
+    private static IJsonDataObject processJsonIncludes(ref int depth,
+                                                      IJsonDataObject root,
+                                                      Func<IConfigSectionNode, object> fReplace,
+                                                      Action<bool, JsonDataMap> fScope,
+                                                      string includePragma,
+                                                      bool recurse)
     {
       const int MAX_GRAPH_DEPTH = 64;
 
@@ -159,14 +218,24 @@ namespace Azos.Serialization.JSON
 
         if (root is JsonDataMap mapRoot)
         {
-          var result = new JsonDataMap(mapRoot.CaseSensitive);
-          foreach (var kvp in mapRoot)
+          if (fScope != null) fScope(true, mapRoot);
+          try
           {
-            var val = kvp.Value;
-            val = processIncludeValue(ref depth, val, fReplace, includePragma, recurse);
-            result.Add(kvp.Key, val);
+            var result = new JsonDataMap(mapRoot.CaseSensitive);
+
+            foreach (var kvp in mapRoot)
+            {
+              var val = kvp.Value;
+              val = processIncludeValue(ref depth, val, fReplace, fScope, includePragma, recurse);
+              result.Add(kvp.Key, val);
+            }
+
+            return result;
           }
-          return result;
+          finally
+          {
+            if (fScope != null) fScope(false, mapRoot);
+          }
         }
         else if (root is JsonDataArray arrRoot)
         {
@@ -174,7 +243,7 @@ namespace Azos.Serialization.JSON
           for (var i = 0; i < arrRoot.Count; i++)
           {
             var val = arrRoot[i];
-            val = processIncludeValue(ref depth, val, fReplace, includePragma, recurse);
+            val = processIncludeValue(ref depth, val, fReplace, fScope, includePragma, recurse);
             result.Add(val);
           }
           return result;
@@ -189,7 +258,12 @@ namespace Azos.Serialization.JSON
     }//processJsonIncludes
 
 
-    private static object processIncludeValue(ref int depth, object val, Func<IConfigSectionNode, object> fReplace, string includePragma, bool recurse)
+    private static object processIncludeValue(ref int depth,
+                                              object val,
+                                              Func<IConfigSectionNode, object> fReplace,
+                                              Action<bool, JsonDataMap> fScope,
+                                              string includePragma,
+                                              bool recurse)
     {
       var result = val;
       if (val is string sval && sval.StartsWith(includePragma))
@@ -199,7 +273,7 @@ namespace Azos.Serialization.JSON
       }
       if (result is IJsonDataObject jdo && recurse)
       {
-        result = processJsonIncludes(ref depth, jdo, fReplace, includePragma, recurse);
+        result = processJsonIncludes(ref depth, jdo, fReplace, fScope, includePragma, recurse);
       }
       return result;
     }//processIncludeValue
