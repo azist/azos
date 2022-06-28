@@ -115,6 +115,7 @@ namespace Azos.Serialization.JSON
       /// <summary>
       /// Makes NLSMap out of conf node: eng{n='Cucumber' d='It is green'} deu{n='Gurke' d='Es ist grün'}
       /// </summary>
+      [ConfigCtor]
       public NLSMap(IConfigSectionNode nlsNode)
       {
         m_Data = null;

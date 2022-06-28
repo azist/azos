@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using Azos.Conf;
 using Azos.Data;
 using Azos.Serialization.JSON;
 
@@ -97,6 +98,13 @@ namespace Azos.Time
     public HourList(string data)
     {
       Data = data;
+      m_Spans = null;
+    }
+
+    [ConfigCtor]
+    public HourList(IConfigAttrNode node)
+    {
+      Data = node.Value;
       m_Spans = null;
     }
 

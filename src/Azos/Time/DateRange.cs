@@ -11,6 +11,7 @@ using System.Globalization;
 
 using Azos.Data;
 using Azos.Serialization.JSON;
+using Azos.Conf;
 
 namespace Azos.Time
 {
@@ -27,6 +28,18 @@ namespace Azos.Time
     {
       Start = start;
       End = end;
+    }
+
+    /// <summary>
+    /// Create a range, at least one component is required. If both are specified both need to be in the same timezone and
+    /// end should be greater than the start
+    /// </summary>
+    [ConfigCtor]
+    public DateRange(IConfigSectionNode node)
+    {
+      node.NonNull(nameof(node));
+      Start = node.Of("start", "s", "from").Value.AsNullableDateTime(styles: CoreConsts.UTC_TIMESTAMP_STYLES);
+      End = node.Of("end", "e", "to").Value.AsNullableDateTime(styles: CoreConsts.UTC_TIMESTAMP_STYLES);
     }
 
     /// <summary>

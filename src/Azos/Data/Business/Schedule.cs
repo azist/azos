@@ -34,40 +34,33 @@ namespace Azos.Data.Business
       [Config, Field(description: "The date range of this span")]
       public DateRange Range { get; set; }
 
-      [Field] public HourList Monday    { get; set; }
-      [Field] public HourList Tuesday   { get; set; }
-      [Field] public HourList Wednesday { get; set; }
-      [Field] public HourList Thursday  { get; set; }
-      [Field] public HourList Friday    { get; set; }
-      [Field] public HourList Saturday  { get; set; }
-      [Field] public HourList Sunday    { get; set; }
+      [Config, Field] public HourList Monday    { get; set; }
+      [Config, Field] public HourList Tuesday   { get; set; }
+      [Config, Field] public HourList Wednesday { get; set; }
+      [Config, Field] public HourList Thursday  { get; set; }
+      [Config, Field] public HourList Friday    { get; set; }
+      [Config, Field] public HourList Saturday  { get; set; }
+      [Config, Field] public HourList Sunday    { get; set; }
 
       public HourList this[DayOfWeek day]
       {
         get => (HourList)this[day.ToString()];
         set => this[day.ToString()] = value;
       }
-
-      //public override void Configure(IConfigSectionNode node)
-      //{
-      //  base.Configure(node);
-      //  Name = new NLSMap(node["name"]);
-      //  Range = new DateRange(node["range-sd"].Value.AsNullableDateTime(styles: CoreConsts.UTC_TIMESTAMP_STYLES),
-      //                        node["range-ed"].Value.AsNullableDateTime(styles: CoreConsts.UTC_TIMESTAMP_STYLES));
-      //}
-
     }
 
     [Bix("342963e7-ad57-4e62-ab21-4267c6d1bc4a")]
     [Schema(Description = "Provides an overridden schedule for a specific day")]
     public sealed class DayOverride : FragmentModel
     {
-      [Field(description: "Nls name of the day")]
+      [Config, Field(description: "Nls name of the day")]
       public NLSMap Name { get; set; }
 
-      [Field(description: "The date of the day")]
+      [Config, Field(description: "The date of the day")]
       public DateTime Date { get; set; }
-      [Field] public HourList Hours { get; set; }
+
+      [Config, Field(description: "Hours during the day")]
+      public HourList Hours { get; set; }
     }
 
     [Field(description: "List of schedules spans")]
@@ -75,5 +68,12 @@ namespace Azos.Data.Business
 
     [Field(description: "Override days, such as holidays")]
     public List<DayOverride> Overrides { get; set; }
+
+    public override void Configure(IConfigSectionNode node)
+    {
+      base.Configure(node);
+      Spans = new List<Span>(node.MakeAndConfigureChildrenOfSpecific<Span>());
+      Overrides = new List<DayOverride>(node.MakeAndConfigureChildrenOfSpecific<DayOverride>("override"));
+    }
   }
 }

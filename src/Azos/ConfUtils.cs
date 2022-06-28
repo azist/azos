@@ -52,6 +52,43 @@ namespace Azos
     }
 
     /// <summary>
+    /// Iterates through all child nodes of the section and invokes MakeAndConfigure on each talking
+    /// into consideration their polymorphic sub-type
+    /// </summary>
+    public static IEnumerable<T> MakeAndConfigureChildren<T>(this IConfigSectionNode node, string sectionName = null, Type defaultType = null) where T : IConfigurable
+    {
+      if (node == null) yield break;
+
+      if (sectionName.IsNullOrWhiteSpace())
+      {
+        sectionName = typeof(T).Name.ToLowerInvariant();
+      }
+
+      foreach (var cnode in node.ChildrenNamed(sectionName))
+        yield return FactoryUtils.MakeAndConfigure<T>(cnode, defaultType);
+    }
+
+    /// <summary>
+    /// Iterates through all child nodes of the section and invokes T.ctor on each
+    /// </summary>
+    public static IEnumerable<T> MakeAndConfigureChildrenOfSpecific<T>(this IConfigSectionNode node, string sectionName = null) where T : IConfigurable, new()
+    {
+      if (node == null) yield break;
+
+      if (sectionName.IsNullOrWhiteSpace())
+      {
+        sectionName = typeof(T).Name.ToLowerInvariant();
+      }
+
+      foreach (var cnode in node.ChildrenNamed(sectionName))
+      {
+        var one = new T();
+        one.Configure(cnode);
+        yield return one;
+      }
+    }
+
+    /// <summary>
     /// Converts dictionary into configuration where every original node gets represented as a sub-section of config's root
     /// </summary>
     public static Configuration ToConfigSections(this IDictionary<string, object> dict)
