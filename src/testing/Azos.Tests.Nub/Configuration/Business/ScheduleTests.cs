@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Azos.Data.Business;
 using Azos.Scripting;
@@ -76,6 +77,33 @@ namespace Azos.Tests.Nub.Configuration.Business
       Aver.AreEqual(10, sut.Overrides[1].Date.Day);
 
       //more cases
+      Aver.AreEqual("9am-12pm; 12:30pm-6pm", sut.Spans[0].Monday.Data);
+      Aver.IsTrue(sut.Spans[0].Monday.Data == sut.Spans[0].Tuesday.Data);
+      Aver.IsTrue(sut.Spans[0].Saturday.Data != sut.Spans[0].Sunday.Data);
+
+      Aver.AreEqual("10am-2pm", sut.Spans[0].Saturday.Data);
+      Aver.IsNull(sut.Spans[0].Sunday.Data);
+
+      var satHrList = sut.Spans[0].Saturday;
+      var satHr = satHrList.Spans.FirstOrDefault();
+
+      Aver.AreEqual("10:00", satHr.Start);
+      Aver.AreEqual("14:00", satHr.Finish);
+
+      var satHrUtcTrue = new DateTime(2010, 7, 3, 11, 0, 5);
+      Aver.IsTrue(satHrList.IsCovered(satHrUtcTrue));
+
+      var satHrUtcFalse = new DateTime(2010, 7, 3, 14, 1, 5);
+      Aver.IsFalse(satHrList.IsCovered(satHrUtcFalse));
+
+      var friHrList = sut.Spans[0].Friday;
+      var friHr = satHrList.Spans.FirstOrDefault();
+
+      var friHrUtcTrue = new DateTime(2010, 7, 2, 18, 0, 5);
+      Aver.IsTrue(friHrList.IsCovered(friHrUtcTrue));
+
+      var friHrUtcFalse = new DateTime(2010, 7, 2, 12, 15, 5);
+      Aver.IsFalse(friHrList.IsCovered(friHrUtcFalse));
     }
   }
 }
