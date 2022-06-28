@@ -22,6 +22,7 @@ namespace Azos.Time
   public struct HourList : IEquatable<HourList>, IJsonWritable, IJsonReadable, IValidatable, IRequiredCheck
   {
     public const int MINUTES_PER_DAY = 24 * 60;
+    public const int MINUTES_PER_HALFDAY = 12 * 60;
 
     public struct Span : IEquatable<Span>, IComparable<Span>
     {
@@ -268,7 +269,10 @@ namespace Azos.Time
       {
         str = str.Substring(0, str.Length - 2);
         result = parseMinutes(str);
-        if (result>=0) result += (12 * 60);
+
+        if (result>=MINUTES_PER_HALFDAY) result -= MINUTES_PER_HALFDAY;//#713 20220628 JPK
+
+        if (result>=0) result += MINUTES_PER_HALFDAY;
       }
       else result = parseMinutes(str);
 

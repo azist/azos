@@ -90,19 +90,19 @@ namespace Azos.Tests.Nub.Configuration.Business
       Aver.AreEqual("10:00", satHr.Start);
       Aver.AreEqual("14:00", satHr.Finish);
 
-      var satHrUtcTrue = new DateTime(2010, 7, 3, 11, 0, 5);
+      var satHrUtcTrue = new DateTime(2010, 7, 3, 11, 0, 5, DateTimeKind.Utc);
       Aver.IsTrue(satHrList.IsCovered(satHrUtcTrue));
 
-      var satHrUtcFalse = new DateTime(2010, 7, 3, 14, 1, 5);
+      var satHrUtcFalse = new DateTime(2010, 7, 3, 14, 1, 5, DateTimeKind.Utc);
       Aver.IsFalse(satHrList.IsCovered(satHrUtcFalse));
 
       var friHrList = sut.Spans[0].Friday;
       var friHr = satHrList.Spans.FirstOrDefault();
 
-      var friHrUtcTrue = new DateTime(2010, 7, 2, 18, 0, 5);
+      var friHrUtcTrue = new DateTime(2010, 7, 2, 18, 0, 5, DateTimeKind.Utc);
       Aver.IsTrue(friHrList.IsCovered(friHrUtcTrue));
 
-      var friHrUtcFalse = new DateTime(2010, 7, 2, 12, 15, 5);
+      var friHrUtcFalse = new DateTime(2010, 7, 2, 12, 15, 5, DateTimeKind.Utc);
       Aver.IsFalse(friHrList.IsCovered(friHrUtcFalse));
     }
   }
