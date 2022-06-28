@@ -93,6 +93,67 @@ namespace Azos.Conf
     }
 
     /// <summary>
+    /// Builds config section node by taking entity object fields/prop values marked with this attribute
+    /// </summary>
+    /// <remarks>
+    /// Note: members with [Config(Path..)] are not a subject to automatic serialization and need to be serialized by code
+    /// </remarks>
+    public static ConfigSectionNode BuildNode(object entity, ConfigSectionNode parentNode, string name)
+    {
+      ConfigSectionNode result;
+
+      void doOneValue(MemberInfo mi, object v)
+      {
+        if (v == null) return;
+
+        var n = GetConfigPathsForMember(mi, justSingleMemberName: true);
+
+        if (v is IConfigurationPersistent vPersistent)
+        {
+          vPersistent.PersistConfiguration(result, n);
+          return;
+        }
+
+        if (v is IConfigSectionNode vNode)
+        {
+          result.AddChildNode(vNode);
+          return;
+        }
+
+        result.AddAttributeNode(n, v);
+      }
+
+
+      if (entity == null || parentNode == null || !parentNode.Exists) return parentNode;
+
+      result = parentNode.AddChildNode(name);
+
+      var etp = entity.GetType();
+
+      var members = getAllFieldsOrProps(etp);
+      foreach (var mem in members)
+      {
+        var mattr = mem.GetCustomAttributes(typeof(ConfigAttribute), true).FirstOrDefault() as ConfigAttribute;
+        if (mattr == null) continue;
+        if (mattr.Path.IsNotNullOrWhiteSpace()) continue;//can not serialize by explicit path - you need to serialize that by hand
+
+        if (mem.MemberType == MemberTypes.Field)
+        {
+          var finf = (FieldInfo)mem;
+          var v = finf.GetValue(entity);
+          doOneValue(finf, v);
+        } else if (mem.MemberType == MemberTypes.Property)
+        {
+          var pinf = (PropertyInfo)mem;
+          var v = pinf.GetValue(entity, null);
+          doOneValue(pinf, v);
+        }
+      }//foreach
+
+      return result;
+    }
+
+    /// <summary>
     /// Applies config values to fields/properties as specified by config attributes
     /// </summary>
     public static object Apply(object entity, IConfigSectionNode node)
@@ -217,7 +278,7 @@ namespace Azos.Conf
     /// The second path is "OR"ed with the first one and is taken from member name where all case transitions are prefixed with "-".
     /// For private fields 'm_' and 's_' prefixes are removed
     /// </summary>
-    public static string GetConfigPathsForMember(MemberInfo member)
+    public static string GetConfigPathsForMember(MemberInfo member, bool justSingleMemberName = false)
     {
       var mn = member.Name;
 
@@ -228,6 +289,8 @@ namespace Azos.Conf
                             mn.StartsWith("s_", StringComparison.InvariantCulture))
            ) mn = mn.Remove(0, 2);
       }
+
+      if (justSingleMemberName) return mn;
 
       var sb = new StringBuilder();
       var first = true;

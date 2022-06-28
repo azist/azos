@@ -18,7 +18,7 @@ namespace Azos.Time
   /// <summary>
   /// Represents a range of dates denoted by start/end date/times
   /// </summary>
-  public struct DateRange : IEquatable<DateRange>, IJsonWritable, IJsonReadable, IFormattable, IRequiredCheck, IValidatable
+  public struct DateRange : IEquatable<DateRange>, IJsonWritable, IJsonReadable, IFormattable, IRequiredCheck, IValidatable, IConfigurationPersistent
   {
     /// <summary>
     /// Create a range, at least one component is required. If both are specified both need to be in the same timezone and
@@ -40,6 +40,15 @@ namespace Azos.Time
       node.NonNull(nameof(node));
       Start = node.Of("start", "s", "from").Value.AsNullableDateTime(styles: CoreConsts.UTC_TIMESTAMP_STYLES);
       End = node.Of("end", "e", "to").Value.AsNullableDateTime(styles: CoreConsts.UTC_TIMESTAMP_STYLES);
+    }
+
+
+    public ConfigSectionNode PersistConfiguration(ConfigSectionNode parentNode, string name)
+    {
+      var node = parentNode.NonNull(nameof(parentNode)).AddChildNode(name.NonBlank(nameof(name)));
+      if (Start.HasValue) node.AddAttributeNode("start", Start.Value);
+      if (End.HasValue) node.AddAttributeNode("end", End.Value);
+      return node;
     }
 
     /// <summary>
@@ -177,6 +186,7 @@ namespace Azos.Time
 
       return state;
     }
+
   }
 
 

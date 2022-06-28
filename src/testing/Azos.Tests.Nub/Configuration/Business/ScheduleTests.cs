@@ -18,10 +18,12 @@ namespace Azos.Tests.Nub.Configuration.Business
   public class ScheduleTests
   {
     [Run]
-    public void Read010()
+    public void FullLaconicRoundtrip()
     {
       var CFG =
  @"
+ r
+ {
    schedule
    {
      span
@@ -54,12 +56,38 @@ namespace Azos.Tests.Nub.Configuration.Business
        hours=''
      }
    }
+ }
  ".AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw);
       var sut = new Schedule();
-      sut.Configure(CFG);
+      sut.Configure(CFG["schedule"]);
 
       sut.See();
 
+      ensureInvariants(sut);
+
+      var root = Azos.Conf.Configuration.NewEmptyRoot("TOad");
+      sut.PersistConfiguration(root, "schedule");
+
+      var cfgContent2 = root.ToLaconicString();
+      cfgContent2.See();
+
+      var cfg2 = cfgContent2.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw);
+
+      var sut2 = new Schedule();
+      sut2.Configure(cfg2["schedule"]);
+
+      sut2.See();
+      ensureInvariants(sut2);
+
+      var comparer = new DocLogicalComparer();
+      var result = comparer.Compare(sut, sut2);
+      //result.See();
+      Aver.IsTrue(result.AreSame);
+    }
+
+
+    private void ensureInvariants(Schedule sut)
+    {
       Aver.IsNotNull(sut.Spans);
       Aver.IsNotNull(sut.Overrides);
 

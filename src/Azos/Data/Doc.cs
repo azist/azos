@@ -224,11 +224,11 @@ namespace Azos.Data
     }
 
     /// <summary>
-    /// The base class does not implement this method. Override to persist row fields into config node
+    /// The base class does not implement this method. Override to persist doc fields into config node
     /// </summary>
-    public virtual void PersistConfiguration(ConfigSectionNode node)
+    public virtual ConfigSectionNode PersistConfiguration(ConfigSectionNode parentNode, string name)
     {
-      throw new NotImplementedException();
+      return ConfigAttribute.BuildNode(this, parentNode, name);
     }
 
     /// <summary>

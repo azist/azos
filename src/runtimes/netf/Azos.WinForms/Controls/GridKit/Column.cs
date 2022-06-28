@@ -326,7 +326,7 @@ namespace Azos.WinForms.Controls.GridKit
         }
 
         // IConfigurationPersistent Members
-        public void PersistConfiguration(ConfigSectionNode node)
+        public ConfigSectionNode PersistConfiguration(ConfigSectionNode node, string name)
         {
           var cn = node.AddChildNode(Grid.CONFIG_COLUMN_SECTION);
           cn.AddAttributeNode(Grid.CONFIG_ID_ATTR, m_ID);
@@ -335,6 +335,7 @@ namespace Azos.WinForms.Controls.GridKit
 
           if (SortingAllowed)
             cn.AddAttributeNode(CONFIG_SORT_ATTR, m_SortDirection);
+          return cn;
         }
 
 

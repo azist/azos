@@ -19,7 +19,7 @@ namespace Azos.Time
   /// Efficiently represents a list of minute-aligned time spans within a day
   /// which is typically used for operation hours/schedules
   /// </summary>
-  public struct HourList : IEquatable<HourList>, IJsonWritable, IJsonReadable, IValidatable, IRequiredCheck
+  public struct HourList : IEquatable<HourList>, IJsonWritable, IJsonReadable, IValidatable, IRequiredCheck, IConfigurationPersistent
   {
     public const int MINUTES_PER_DAY = 24 * 60;
     public const int MINUTES_PER_HALFDAY = 12 * 60;
@@ -107,6 +107,12 @@ namespace Azos.Time
     {
       Data = node.Value;
       m_Spans = null;
+    }
+
+    public ConfigSectionNode PersistConfiguration(ConfigSectionNode parentNode, string name)
+    {
+      parentNode.NonNull(nameof(parentNode)).AddAttributeNode(name.NonBlank(nameof(name)), Data);
+      return parentNode;
     }
 
     private Span[] m_Spans;

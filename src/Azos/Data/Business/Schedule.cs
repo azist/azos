@@ -75,5 +75,13 @@ namespace Azos.Data.Business
       Spans = new List<Span>(node.MakeAndConfigureChildrenOfSpecific<Span>());
       Overrides = new List<DayOverride>(node.MakeAndConfigureChildrenOfSpecific<DayOverride>("override"));
     }
+
+    public override ConfigSectionNode PersistConfiguration(ConfigSectionNode parentNode, string name)
+    {
+      var result = base.PersistConfiguration(parentNode, name);
+      Spans?.ForEach(span => span.PersistConfiguration(result, "span"));
+      Overrides?.ForEach(over => over.PersistConfiguration(result, "override"));
+      return result;
+    }
   }
 }
