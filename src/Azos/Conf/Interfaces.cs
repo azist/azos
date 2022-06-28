@@ -32,7 +32,7 @@ namespace Azos.Conf
     /// <summary>
     /// Persists relevant entities parameters/state into the specified configuration node
     /// </summary>
-    void PersistConfiguration(ConfigSectionNode node);
+    ConfigSectionNode PersistConfiguration(ConfigSectionNode parentNode, string name);
   }
 
 

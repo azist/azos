@@ -418,8 +418,9 @@ namespace Azos.WinForms.Controls.ChartKit.Temporal
     /// <summary>
     /// Persists column configuration to config node. [grid] subnode will be created under specified node pr reused if one already exists
     /// </summary>
-    public void PersistConfiguration(ConfigSectionNode node)
+    public ConfigSectionNode PersistConfiguration(ConfigSectionNode node, string name)
     {
+      return node;
       //  if (node==null) return;
 
       //  ConfigSectionNode gnode = findSubNodeForThisGrid(node) as ConfigSectionNode; //see if node for this grid already exists

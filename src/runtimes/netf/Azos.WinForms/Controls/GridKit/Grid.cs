@@ -611,9 +611,9 @@ namespace Azos.WinForms.Controls.GridKit
       /// <summary>
       /// Persists column configuration to config node. [grid] subnode will be created under specified node pr reused if one already exists
       /// </summary>
-      public void PersistConfiguration(ConfigSectionNode node)
+      public ConfigSectionNode PersistConfiguration(ConfigSectionNode node, string name)
       {
-         if (node==null) return;
+         if (node==null) return null;
 
          ConfigSectionNode gnode = findSubNodeForThisGrid(node) as ConfigSectionNode; //see if node for this grid already exists
 
@@ -627,7 +627,9 @@ namespace Azos.WinForms.Controls.GridKit
            gnode.AddAttributeNode(CONFIG_ID_ATTR, ID);
 
          foreach(var col in m_Columns)
-           col.PersistConfiguration(gnode);
+           col.PersistConfiguration(gnode, col.ID);
+
+         return gnode;
       }
 
 
