@@ -186,9 +186,9 @@ namespace Azos.Tests.Nub.Time
     }
 
     [Run]
-    public void TwelvePM()
+    public void TwelveAM()
     {
-      var got = new HourList("23-12pm");
+      var got = new HourList("23-12am");
       Aver.AreEqual(1, got.Spans.Count());
       Aver.AreEqual(60*23, got.Spans.First().StartMinute);
       Aver.AreEqual(60, got.Spans.First().DurationMinutes);
