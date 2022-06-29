@@ -1,8 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
+
 using Azos.Data;
-using Azos.Data.Business;
 using Azos.Scripting;
 using Azos.Serialization.JSON;
 
@@ -32,17 +34,22 @@ namespace Azos.Tests.Nub.DataAccess
     }
 
     [Run]
-    public void HasCodeEquals()
+    public void HashCodeEquals()
     {
-      var v1 = new EntityId(Atom.Encode("sys"), Atom.Encode("tp1"), "address");
-      var v2 = new EntityId(Atom.Encode("sys"), Atom.Encode("tp2"), "address");
-      var v3 = new EntityId(Atom.Encode("sys"), Atom.Encode("tp1"), "address2");
-      var v4 = new EntityId(Atom.Encode("sYs"), Atom.Encode("tp1"), "address");
-      var v5 = new EntityId(Atom.Encode("sys"), Atom.Encode("tp1"), "address");
+      var v1 = new EntityId(Atom.Encode("sys"), Atom.Encode("tp1"), Atom.ZERO, "address");
+      var v2 = new EntityId(Atom.Encode("sys"), Atom.Encode("tp2"), Atom.ZERO, "address");
+      var v3 = new EntityId(Atom.Encode("sys"), Atom.Encode("tp1"), Atom.ZERO, "address2");
+      var v4 = new EntityId(Atom.Encode("sYs"), Atom.Encode("tp1"), Atom.ZERO, "address");
+      var v5 = new EntityId(Atom.Encode("sys"), Atom.Encode("tp1"), Atom.ZERO, "address");
 
-      var v6 = new EntityId(Atom.Encode("sys"), Atom.ZERO, "address");
-      var v7 = new EntityId(Atom.Encode("sys"), Atom.ZERO, "address");
-      var v8 = new EntityId(Atom.Encode("sys"), Atom.ZERO, "address-1");
+      var v6 = new EntityId(Atom.Encode("sys"), Atom.ZERO, Atom.ZERO, "address");
+      var v7 = new EntityId(Atom.Encode("sys"), Atom.ZERO, Atom.ZERO, "address");
+      var v8 = new EntityId(Atom.Encode("sys"), Atom.ZERO, Atom.ZERO, "address-1");
+
+
+      var v9 = new EntityId(Atom.Encode("sys"), Atom.Encode("tp1"), Atom.Encode("sch1"), "address-1");
+      var v10 = new EntityId(Atom.Encode("sys"), Atom.Encode("tp1"), Atom.Encode("sch1"), "address-1");
+      var v11 = new EntityId(Atom.Encode("sys"), Atom.Encode("tp1"), Atom.Encode("sch2"), "address-1");
 
 
       Aver.AreObjectsEqual(v1, v5);
@@ -65,14 +72,33 @@ namespace Azos.Tests.Nub.DataAccess
       Aver.AreEqual(v6.GetHashCode(), v7.GetHashCode());
       Aver.AreNotEqual(v7.GetHashCode(), v8.GetHashCode());
 
-      Aver.AreEqual   (v1.GetDistributedStableHash(), v5.GetDistributedStableHash());
-      Aver.AreEqual   (v5.GetDistributedStableHash(), v1.GetDistributedStableHash());
+      Aver.AreEqual(v1.GetDistributedStableHash(), v5.GetDistributedStableHash());
+      Aver.AreEqual(v5.GetDistributedStableHash(), v1.GetDistributedStableHash());
       Aver.AreNotEqual(v1.GetDistributedStableHash(), v2.GetDistributedStableHash());
       Aver.AreNotEqual(v1.GetDistributedStableHash(), v3.GetDistributedStableHash());
       Aver.AreNotEqual(v1.GetDistributedStableHash(), v4.GetDistributedStableHash());
       Aver.AreNotEqual(v4.GetDistributedStableHash(), v5.GetDistributedStableHash());
-      Aver.AreEqual   (v6.GetDistributedStableHash(), v7.GetDistributedStableHash());
+      Aver.AreEqual(v6.GetDistributedStableHash(), v7.GetDistributedStableHash());
       Aver.AreNotEqual(v7.GetDistributedStableHash(), v8.GetDistributedStableHash());
+
+      Aver.AreObjectsEqual(v9, v10);
+      Aver.AreObjectsNotEqual(v9, v11);
+
+      Aver.IsTrue(v9 == v10);
+      Aver.IsFalse(v9 != v10);
+
+      Aver.IsFalse(v9 == v11);
+      Aver.IsTrue(v9 != v11);
+
+      Aver.AreObjectsEqual(v9, v10);
+      Aver.AreObjectsNotEqual(v9, v11);
+
+      Aver.AreEqual(v9.GetHashCode(), v10.GetHashCode());
+      Aver.AreNotEqual(v9.GetHashCode(), v11.GetHashCode());
+
+      Aver.AreEqual(v9.GetDistributedStableHash(), v10.GetDistributedStableHash());
+      Aver.AreNotEqual(v9.GetDistributedStableHash(), v11.GetDistributedStableHash());
+
     }
 
     [Run]
@@ -202,29 +228,104 @@ namespace Azos.Tests.Nub.DataAccess
       Aver.IsFalse(v.IsAssigned);
     }
 
+
+    [Run]
+    public void TryParse16()
+    {
+      Aver.IsTrue(EntityId.TryParse("vendor.gdid@ecom::1234", out var v));
+      Aver.IsTrue(v.IsAssigned);
+
+      Aver.AreEqual("vendor", v.Type.Value);
+      Aver.AreEqual("gdid", v.Schema.Value);
+      Aver.AreEqual("ecom", v.System.Value);
+      Aver.AreEqual("1234", v.Address);
+    }
+
+    [Run]
+    public void TryParse17()
+    {
+      Aver.IsTrue(EntityId.TryParse("vendor.@ecom::1234", out var v));
+      Aver.IsTrue(v.IsAssigned);
+
+      Aver.AreEqual("vendor", v.Type.Value);
+      Aver.IsTrue(v.Schema.IsZero);
+      Aver.AreEqual("ecom", v.System.Value);
+      Aver.AreEqual("1234", v.Address);
+    }
+
+    [Run]
+    public void TryParse17_1()
+    {
+      Aver.IsFalse(EntityId.TryParse("vendor. @ecom::1234", out var v));
+      Aver.IsFalse(v.IsAssigned);
+    }
+
+    [Run]
+    public void TryParse18()
+    {
+      Aver.IsFalse(EntityId.TryParse("vendor.gdiddddddddddddddddddddddddddddd@ecom::1234", out var v));
+      Aver.IsFalse(v.IsAssigned);
+    }
+
+    [Run]
+    public void TryParse19()
+    {
+      Aver.IsFalse(EntityId.TryParse(".@ecom::1234", out var v));
+      Aver.IsFalse(v.IsAssigned);
+    }
+
+    [Run]
+    public void TryParse20()
+    {
+      Aver.IsFalse(EntityId.TryParse(" . @ecom::1234", out var v));
+      Aver.IsFalse(v.IsAssigned);
+    }
+
+    [Run]
+    public void TryParse21()
+    {
+      Aver.IsFalse(EntityId.TryParse(" . . @ecom::1234", out var v));
+      Aver.IsFalse(v.IsAssigned);
+    }
+
+    [Run]
+    public void TryParse22()
+    {
+      Aver.IsFalse(EntityId.TryParse(".gdid@ecom::1234", out var v));
+      Aver.IsFalse(v.IsAssigned);
+    }
+
+    [Run]
+    public void TryParse23()
+    {
+      Aver.IsFalse(EntityId.TryParse(" .gdid@ecom::1234", out var v));
+      Aver.IsFalse(v.IsAssigned);
+    }
+
+
     [Run]
     public void JSON01()
     {
       var v = EntityId.Parse("abc@def::12:15:178");
-      var obj = new {a =  v};
+      var obj = new { a = v };
       var json = obj.ToJson();
       json.See();
       var map = json.JsonToDataObject() as JsonDataMap;
-      var got = EntityId.Parse( map["a"].ToString() );
+      var got = EntityId.Parse(map["a"].ToString());
 
       Aver.AreEqual(v, got);
     }
 
     public class Doc1 : TypedDoc
     {
-      [Field] public EntityId V1{  get; set;}
+      [Field] public EntityId V1 { get; set; }
       [Field] public EntityId? V2 { get; set; }
     }
 
     [Run]
     public void JSON02()
     {
-      var d1 = new  Doc1{ V1 = EntityId.Parse("abc@def::12:15:178") };
+      var d1 = new Doc1 { V1 = EntityId.Parse("abc@def::12:15:178") };
       var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
       json.See();
       var got = JsonReader.ToDoc<Doc1>(json);
@@ -258,6 +359,103 @@ namespace Azos.Tests.Nub.DataAccess
 
       Aver.AreEqual("abc@def::456", got.V1.Address);
       Aver.AreEqual(":::", got.V2.Value.Address);
+    }
+
+    [Run]
+    public void JSON05()
+    {
+      var d1 = new Doc1 { V1 = EntityId.Parse("abc.int@sys1::address1"), V2 = EntityId.Parse("sys2::address2") };
+      var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
+      json.See();
+      var got = JsonReader.ToDoc<Doc1>(json);
+      got.See();
+
+      Aver.AreEqual("sys1", got.V1.System.Value);
+      Aver.AreEqual("int", got.V1.Schema.Value);
+      Aver.AreEqual("address1", got.V1.Address);
+
+      Aver.AreEqual("sys2", got.V2.Value.System.Value);
+      Aver.AreEqual("address2", got.V2.Value.Address);
+    }
+
+    [Run]
+    public void JSON06()
+    {
+      var d1 = new Doc1 { V1 = EntityId.Parse("abc.int@sys1::address1"), V2 = null };
+      var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
+      json.See();
+      var got = JsonReader.ToDoc<Doc1>(json);
+      got.See();
+
+      Aver.AreEqual("sys1", got.V1.System.Value);
+      Aver.AreEqual("int", got.V1.Schema.Value);
+      Aver.AreEqual("address1", got.V1.Address);
+
+      Aver.IsTrue( got.V2 == null);
+    }
+
+
+    [Run]
+    public void Composite01()
+    {
+      var id1 = new EntityId(Atom.Encode("sys1"), Atom.Encode("t1"), new { z = 1, a = 2 });
+      var id2 = new EntityId(Atom.Encode("sys1"), Atom.Encode("t1"), new { a = 2, z = 1 });
+
+      Aver.IsTrue(id1 == id2);
+      Aver.IsTrue(id1.IsCompositeAddress);
+      Aver.IsTrue(id2.IsCompositeAddress);
+
+      var map = id1.CompositeAddress;
+
+      Aver.AreEqual(1, map["z"].AsInt());
+      Aver.AreEqual(2, map["a"].AsInt());
+    }
+
+    [Run]
+    public void Composite02()
+    {
+      var doc = new Doc1
+      {
+        V1 = new EntityId(Atom.Encode("sys1"), Atom.Encode("t1"), new { z = 1, a = "abcdef", b = -2 })
+      };
+
+      Aver.IsNull(doc.Validate());
+
+      var json = doc.ToJson();
+
+      json.See();
+
+      var doc2 = JsonReader.ToDoc<Doc1>(json);
+
+      Aver.AreEqual(doc.V1, doc2.V1);
+      Aver.IsNull(doc2.Validate());
+      Aver.IsTrue(doc2.V1.IsCompositeAddress);
+    }
+
+    [Run]
+    public void Composite03()
+    {
+      var doc = new Doc1
+      {
+        V1 = new EntityId(Atom.Encode("sys1"), Atom.Encode("t1"), Atom.ZERO, "{ bad }")
+      };
+
+      var err = doc.Validate() as  FieldValidationException;
+      Aver.IsTrue(doc.V1.IsCompositeAddress);
+      Aver.IsNotNull(err);
+      Aver.AreEqual("V1", err.FieldName);
+
+      new WrappedExceptionData(err).See();
+
+      var json = doc.ToJson();
+
+      json.See();
+
+      var doc2 = JsonReader.ToDoc<Doc1>(json);
+
+      Aver.AreEqual(doc.V1, doc2.V1);
+      Aver.IsNotNull(doc2.Validate());
+      Aver.IsTrue(doc2.V1.IsCompositeAddress);
     }
   }
 }

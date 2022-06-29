@@ -4,6 +4,8 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using System.Globalization;
+
 namespace Azos
 {
   /// <summary>
@@ -15,6 +17,11 @@ namespace Azos
 
     public const int ABS_HASH_MASK = 0x7FFFFFFF;
 
+    /// <summary>
+    /// DatTime conversion styles: Assumes universal | Adjust to universal
+    /// </summary>
+    public const DateTimeStyles UTC_TIMESTAMP_STYLES = DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal;
+
     public const int MAX_BYTE_BUFFER_SIZE = 2147483647 - 256 - 15; // 2 Gbyte - 256 (reserved for object headers etc.) - 15 bytes (16-aligned)
 
     public const string CSRF_TOKEN_NAME = "__CSRFToken";
@@ -24,6 +31,8 @@ namespace Azos
     public const string ENVIRONMENT_LOCAL = "local";
     public const string ENVIRONMENT_DEV = "dev";
     public const string ENVIRONMENT_PROD = "prod";
+
+    public const string DEFAULT_DATA_CONTEXT_HEADER = "wv-data-ctx";
 
     public static readonly string[] ENVIRONMENTS_DEVELOPER = {ENVIRONMENT_DEV, ENVIRONMENT_LOCAL, "devel", "development", "localhost", "loc"};
 
@@ -64,6 +73,7 @@ namespace Azos
     public const string EXT_PARAM_CONTENT_LACONIC = "laconic://";
     public const string EXT_PARAM_CONTENT_JSON = "json://";
 
+    public const string EXT_PARAM_GROUP_APP = "app";
     public const string EXT_PARAM_GROUP_PILE = "pile";
     public const string EXT_PARAM_GROUP_GLUE = "glue";
     public const string EXT_PARAM_GROUP_LOCKING = "locking";
@@ -73,6 +83,7 @@ namespace Azos
     public const string EXT_PARAM_GROUP_INSTRUMENTATION = "instrumentation";
     public const string EXT_PARAM_GROUP_CACHE = "cache";
     public const string EXT_PARAM_GROUP_DATA = "data";
+    public const string EXT_PARAM_GROUP_QUEUE = "queue";
     public const string EXT_PARAM_GROUP_LOG = "log";
     public const string EXT_PARAM_GROUP_TIME = "time";
     public const string EXT_PARAM_GROUP_PAY = "pay";
@@ -113,6 +124,8 @@ namespace Azos
       public const string PLATFROM_TOPIC = "Pltfrm";
       public const string DATA_TOPIC = "Data";
       public const string LOG_TOPIC = "Log";
+      public const string CONF_TOPIC = "Conf";
+      public const string QUEUE_TOPIC = "Queue";
       public const string LOG_NET_TOPIC = "Net";
       public const string COLLECTIONS_TOPIC = "Coll";
       public const string INSTRUMENTATION_TIMEFRAME_TOPIC = "inst.timeframe";
@@ -129,7 +142,6 @@ namespace Azos
       public const string GLUE_TOPIC = "Glue";
       public const string CLIENT_TOPIC = "Client";
       public const string PAY_TOPIC = "Pay";
-      public const string ERLANG_TOPIC = "Erl";
       public const string CACHE_TOPIC = "Cache";
       public const string LOCALIZATION_TOPIC = "Lcl";
       public const string SOCIAL_TOPIC = "Social";

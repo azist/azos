@@ -46,7 +46,6 @@ namespace Azos.Tests.Nub.Serialization
       }
     }
 
-
     [Run]
     public void Circular2()
     {
@@ -86,7 +85,6 @@ namespace Azos.Tests.Nub.Serialization
 
       }
     }
-
 
 
     private class cA

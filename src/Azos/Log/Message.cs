@@ -25,8 +25,7 @@ namespace Azos.Log
     public Message(){ }
 
     /// <summary>
-    /// Initializes log message populating Guid, Host, UTCTimeStamp, App if they are unassigned,
-    /// defaulting from Message.DefaultHostName and UTCTime.
+    /// Initializes log message populating Guid, Host, UTCTimeStamp, App if they are unassigned.
     /// Calling this method multiple time has the same effect
     /// </summary>
     public Message InitDefaultFields(IApplication app = null)

@@ -44,9 +44,9 @@ root
 
     public class EntityA : IConfigurable
     {
-      [Config]private int m_A;//a private field
+      [Config] private int m_A;//a private field
       public int A => m_A;
-      [Config]public bool B{ get; set;}//a prop
+      [Config] public bool B { get; set; }//a prop
 
       public void Configure(IConfigSectionNode node) => ConfigAttribute.Apply(this, node);
     }
@@ -65,17 +65,17 @@ root
 
     public class EntityC
     {
-      [Config]private   string  m_Private;
-      [Config]protected string  m_Protected;
-      [Config]public    string  m_Public;
+      [Config] private string m_Private;
+      [Config] protected string m_Protected;
+      [Config] public string m_Public;
 
       public string Private => m_Private;
       public string Protected => m_Protected;
       public string Public => m_Public;
 
-      [Config]private   string PrivateProp { get; set; }
-      [Config]protected string ProtectedProp { get; set; }
-      [Config]public    string PublicProp { get; set; }
+      [Config] private string PrivateProp { get; set; }
+      [Config] protected string ProtectedProp { get; set; }
+      [Config] public string PublicProp { get; set; }
 
       public string GetPrivateProp() => PrivateProp;
       public string GetProtectedProp() => ProtectedProp;
@@ -132,6 +132,39 @@ root
       Aver.AreEqual("prot2", obj.GetProtectedProp());
       Aver.AreEqual("pub2", obj.PublicProp);
     }
+
+    public class EntityZ
+    {
+      [Config] public TZaza Zaza1;
+      [Config] public TZaza Zaza2{get; set;}
+      [Config] public string Another;
+    }
+
+    public struct TZaza
+    {
+      public TZaza(string msg) => Msg = msg;
+
+      [ConfigCtor]  public TZaza(IConfigSectionNode cs) => Msg = cs.ValOf("msg");
+
+      [ConfigCtor]  public TZaza(IConfigAttrNode ca) => Msg = ca.Value;
+
+      public readonly string Msg;
+    }
+
+    [Run]
+    public void CustomTypeWithConfigCtor()
+    {
+      var cfg = "a{zaza1='message1' Another='cool' zaza2{msg='2message'}}".AsLaconicConfig();
+      var obj = new EntityZ();
+      ConfigAttribute.Apply(obj, cfg);
+
+      obj.See();
+
+      Aver.AreEqual("message1", obj.Zaza1.Msg);
+      Aver.AreEqual("cool", obj.Another);
+      Aver.AreEqual("2message", obj.Zaza2.Msg);
+    }
+
 
   }
 }

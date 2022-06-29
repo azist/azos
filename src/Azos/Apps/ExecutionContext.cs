@@ -3,9 +3,10 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
+
 using System;
 using System.Collections.Generic;
-
+using System.Threading;
 using Azos.Platform;
 
 namespace Azos.Apps
@@ -23,17 +24,13 @@ namespace Azos.Apps
     private static volatile IApplication s_Application;
     private static Stack<IApplication> s_AppStack = new Stack<IApplication>();
     private static AsyncFlowMutableLocal<ISession> ats_Session = new AsyncFlowMutableLocal<ISession>();
-    private static AsyncFlowMutableLocal<ICallFlow> ats_CallFlow = new AsyncFlowMutableLocal<ICallFlow>();
-
+    private static AsyncLocal<ICallFlow> ats_CallFlow = new AsyncLocal<ICallFlow>();
 
     /// <summary>
     /// Returns global application context. The value is never null, the NOPApplication is returned
     /// had the specific app container not been allocated
     /// </summary>
-    public static IApplication Application
-    {
-      get { return s_Application ?? NOPApplication.Instance; }
-    }
+    public static IApplication Application => s_Application ?? NOPApplication.Instance;
 
     /// <summary>
     /// Returns Session object for current call thread or async flow context, or if it is null NOPSession object is returned
@@ -60,7 +57,9 @@ namespace Azos.Apps
     }
 
     /// <summary>
-    /// Returns a current call flow if any, or null if none is used
+    /// Returns a current call flow if any, or null if none is used.
+    /// The callflow state flows down the async call chain, but does not flow up: if you
+    /// set it to a different value in an inner async call, the original parent caller would still retain the original value
     /// </summary>
     public static ICallFlow CallFlow => ats_CallFlow.Value;
 
@@ -88,7 +87,6 @@ namespace Azos.Apps
       }
     }
 
-
     /// <summary>
     /// Framework internal app bootstrapping method.
     /// Sets root application context
@@ -106,10 +104,15 @@ namespace Azos.Apps
         if (s_Application!=null && !s_Application.AllowNesting)
           throw new AzosException(StringConsts.APP_CONTAINER_NESTING_ERROR.Args(application.GetType().FullName, s_Application.GetType().FullName));
 
-        if (s_Application!=null)
+        if (s_Application != null)
+        {
           s_AppStack.Push( s_Application );
+        }
 
         s_Application = application;
+
+        //root app AZ#676
+        ats_Session.__EnsureInit();//explicitly initialize the root-most call flow AZ#676
       }
     }
 
@@ -137,7 +140,9 @@ namespace Azos.Apps
     }
 
     /// <summary>
-    /// Internal framework-only method to bind thread-level/async flow context
+    /// Internal framework-only method to bind thread-level/async flow context.
+    /// The context is down-flow only: if you change it in the inner async method, the original parent
+    /// caller method will not "see" the change due to copy-on-write semantics
     /// </summary>
     public static void __SetThreadLevelCallContext(ICallFlow call)
     {

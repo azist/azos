@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.IO;
 using System.Threading.Tasks;
 using System.Linq;
@@ -14,7 +13,6 @@ using System.Linq;
 using Azos.Apps;
 using Azos.Scripting;
 using Azos.IO.Archiving;
-using Azos.Security;
 using Azos.Serialization.JSON;
 
 namespace Azos.Tests.Nub.IO.Archiving

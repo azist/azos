@@ -173,15 +173,15 @@ namespace Azos.Sky.Coordination
     /// If key is null then a random member is assigned.
     /// Returns null if there is no host available for assignment
     /// </summary>
-    public virtual HostPair AssignHost(object shardingKey)
+    public virtual HostPair AssignHost(ShardKey shardingKey)
     {
       var hosts = m_Hosts;//thread-safe copy, as during execution another may swap
 
       if (hosts == null || hosts.Length == 0) return new HostPair();
 
-      if (shardingKey == null) shardingKey = App.Random.NextRandomInteger;
+      if (!shardingKey.Assigned) shardingKey = new ShardKey(App.Random.NextRandomUnsignedLong);
 
-      var idx = (uint)ShardingUtils.ObjectToShardingID(shardingKey) % hosts.Length;
+      var idx = (uint)(shardingKey.GetDistributedStableHash()) % hosts.Length;
 
       var idx1 = -1L;
       for (var c = 0; c < hosts.Length; c++)

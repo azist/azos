@@ -13,7 +13,7 @@ using Azos.Instrumentation;
 namespace Azos.Log.Sinks
 {
   /// <summary>
-  /// Implements a destination that caches up to specified number of latest log messages in memory
+  /// Implements a sink that caches up to the specified number of latest log messages in memory
   /// </summary>
   public sealed class MemoryBufferSink : Sink
   {

@@ -237,10 +237,17 @@ namespace Azos
     }
 
 
+    /// <summary>
+    /// Creates new UriQueryBuilder using the first parameter as URI stem.
+    /// You can then daisy-chain .Add(key, value) afterwards indefinitely.
+    /// </summary>
+    public static UriQueryBuilder ComposeUri(this string uriStem, string key, object value)
+     => new UriQueryBuilder(uriStem).Add(key, value);
   }
 
   /// <summary>
-  /// Facilitates construction of URI queries escaping all values as needed
+  /// Facilitates construction of URI queries escaping all values as needed.
+  /// You can use <see cref="WebUtils.ComposeUri(string, string, object)"/>
   /// </summary>
   public sealed class UriQueryBuilder : IEnumerable<KeyValuePair<string, object>>
   {
@@ -251,7 +258,11 @@ namespace Azos
     public readonly string Uri;
     public readonly Dictionary<string, object> Data = new Dictionary<string, object>();
 
-    public void Add(string key, object value) => Data.Add(key, value);
+    public UriQueryBuilder Add(string key, object value)
+    {
+      Data.Add(key, value);
+      return this;
+    }
 
     public IEnumerator<KeyValuePair<string, object>> GetEnumerator() => Data.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => Data.GetEnumerator();
@@ -261,6 +272,10 @@ namespace Azos
       var query = WebUtils.ComposeURLQueryString(Data);
       return Uri.IsNotNullOrEmpty() ? Uri + (query.IsNotNullOrWhiteSpace()? "?" : "") + query : query;
     }
+
+    public string ComposedUri => ToString();
+
+    public static implicit operator string(UriQueryBuilder builder) => builder?.ComposedUri;
   }
 
 

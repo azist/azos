@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 using Azos.Apps;
 using Azos.Conf;
@@ -21,29 +20,37 @@ namespace Azos.Data.Access
   /// Resolves Query objects into query handlers. Query names are case-insensitive.
   /// This class is thread-safe
   /// </summary>
-  public sealed class QueryResolver : ApplicationComponent<ICRUDDataStoreImplementation>, ICRUDQueryResolver, IConfigurable
+  public sealed class QueryResolver : ApplicationComponent<ICrudDataStoreImplementation>, ICrudQueryResolver, IConfigurable
   {
     #region CONSTS
+
     public const string CONFIG_QUERY_RESOLVER_SECTION = "query-resolver";
     public const string CONFIG_HANDLER_LOCATION_SECTION = "handler-location";
     public const string CONFIG_SCRIPT_ASM_ATTR = "script-assembly";
     public const string CONFIG_NS_ATTR = "ns";
+
     #endregion
 
-    public QueryResolver(ICRUDDataStoreImplementation director) : base(director)
+    #region .ctor
+
+    public QueryResolver(ICrudDataStoreImplementation director) : base(director)
     {
     }
 
+    #endregion
+
     #region Fields
+
     private volatile bool m_Started;
 
     private string m_ScriptAssembly;
     private List<string> m_Locations = new List<string>();
-    private Collections.Registry<CRUDQueryHandler> m_Handlers = new Collections.Registry<CRUDQueryHandler>();
+    private Collections.Registry<CrudQueryHandler> m_Handlers = new Collections.Registry<CrudQueryHandler>();
+
     #endregion
 
-
     #region Properties
+
     public override string ComponentLogTopic => CoreConsts.DATA_TOPIC;
 
     /// <summary>
@@ -51,26 +58,25 @@ namespace Azos.Data.Access
     /// </summary>
     public string ScriptAssembly
     {
-        get { return m_ScriptAssembly;}
-        set
-        {
-          checkNotStarted();
-          m_ScriptAssembly = value;
-        }
+      get { return m_ScriptAssembly; }
+      set
+      {
+        checkNotStarted();
+        m_ScriptAssembly = value;
+      }
     }
 
     public IList<string> HandlerLocations
     {
-        get { return m_Locations;}
+      get { return m_Locations; }
     }
 
-    public Collections.IRegistry<CRUDQueryHandler> Handlers
+    public Collections.IRegistry<CrudQueryHandler> Handlers
     {
-        get { return m_Handlers;}
+      get { return m_Handlers; }
     }
 
     #endregion
-
 
     #region Public
 
@@ -80,7 +86,7 @@ namespace Azos.Data.Access
     public void RegisterHandlerLocation(string location)
     {
       checkNotStarted();
-      if (location.IsNullOrWhiteSpace() || m_Locations.Contains(location, StringComparer.InvariantCultureIgnoreCase )) return;
+      if (location.IsNullOrWhiteSpace() || m_Locations.Contains(location, StringComparer.InvariantCultureIgnoreCase)) return;
       m_Locations.Add(location);
     }
 
@@ -94,46 +100,45 @@ namespace Azos.Data.Access
       return m_Locations.RemoveAll((s) => s.EqualsIgnoreCase(location)) > 0;
     }
 
-
-    public CRUDQueryHandler Resolve(Query query)
+    public CrudQueryHandler Resolve(Query query)
     {
-        m_Started = true;
-        var name = query.Name;
-        try
-        {
-            var result = m_Handlers[name];
-            if (result!=null) return result;
+      m_Started = true;
+      var name = query.Name;
+      try
+      {
+        var result = m_Handlers[name];
+        if (result != null) return result;
 
-            result = searchForType(name);
+        result = searchForType(name);
 
-            if (result==null)//did not find handler yet
-                result = searchForScript(name);
+        if (result == null)//did not find handler yet
+          result = searchForScript(name);
 
-            if (result==null)//did not find handler yet
-                throw new DataAccessException(StringConsts.CRUD_QUERY_RESOLUTION_NO_HANDLER_ERROR);
+        if (result == null)//did not find handler yet
+          throw new DataAccessException(StringConsts.CRUD_QUERY_RESOLUTION_NO_HANDLER_ERROR);
 
-            m_Handlers.Register(result);
-            return result;
-        }
-        catch(Exception error)
-        {
-            throw new DataAccessException(StringConsts.CRUD_QUERY_RESOLUTION_ERROR.Args(name, error.ToMessageWithType()), error);
-        }
+        m_Handlers.Register(result);
+        return result;
+      }
+      catch (Exception error)
+      {
+        throw new DataAccessException(StringConsts.CRUD_QUERY_RESOLUTION_ERROR.Args(name, error.ToMessageWithType()), error);
+      }
     }
 
     public void Configure(IConfigSectionNode node)
     {
-        checkNotStarted();
+      checkNotStarted();
 
-        m_ScriptAssembly = node.AttrByName(CONFIG_SCRIPT_ASM_ATTR).ValueAsString( Assembly.GetCallingAssembly().FullName );
-        foreach(var lnode in node.Children.Where(cn => cn.IsSameName(CONFIG_HANDLER_LOCATION_SECTION)))
-        {
-          var loc = lnode.AttrByName(CONFIG_NS_ATTR).Value;
-          if (loc.IsNotNullOrWhiteSpace())
-            m_Locations.Add( loc );
-          else
-            WriteLog(Log.MessageType.Warning, nameof(Configure), StringConsts.CRUD_CONFIG_EMPTY_LOCATIONS_WARNING);
-        }
+      m_ScriptAssembly = node.AttrByName(CONFIG_SCRIPT_ASM_ATTR).ValueAsString(Assembly.GetCallingAssembly().FullName);
+      foreach (var lnode in node.Children.Where(cn => cn.IsSameName(CONFIG_HANDLER_LOCATION_SECTION)))
+      {
+        var loc = lnode.AttrByName(CONFIG_NS_ATTR).Value;
+        if (loc.IsNotNullOrWhiteSpace())
+          m_Locations.Add(loc);
+        else
+          WriteLog(Log.MessageType.Warning, nameof(Configure), StringConsts.CRUD_CONFIG_EMPTY_LOCATIONS_WARNING);
+      }
     }
 
     #endregion
@@ -142,61 +147,60 @@ namespace Azos.Data.Access
 
     private void checkNotStarted()
     {
-        if (m_Started)
-          throw new DataAccessException(StringConsts.CRUD_QUERY_RESOLVER_ALREADY_STARTED_ERROR);
+      if (m_Started)
+        throw new DataAccessException(StringConsts.CRUD_QUERY_RESOLVER_ALREADY_STARTED_ERROR);
     }
 
-
-    private CRUDQueryHandler searchForType(string name)
+    private CrudQueryHandler searchForType(string name)
     {
-        foreach(var loc in m_Locations)
+      foreach (var loc in m_Locations)
+      {
+        var ns = loc;
+        var asm = string.Empty;
+        var ic = loc.IndexOf(',');
+        if (ic > 0)
         {
-            var ns = loc;
-            var asm = string.Empty;
-            var ic = loc.IndexOf(',');
-            if(ic>0)
-            {
-                ns = loc.Substring(0, ic);
-                asm = loc.Substring(ic+1);
-            }
-
-            var tname = asm.IsNullOrWhiteSpace() ? "{0}.{1}".Args(ns, name) : "{0}.{1}, {2}".Args(ns, name, asm);
-            var t = Type.GetType(tname, false, true);
-            if (t!=null)
-            {
-                if (typeof(CRUDQueryHandler).IsAssignableFrom(t))
-                {
-                    return Activator.CreateInstance(t, ComponentDirector, name) as CRUDQueryHandler;
-                }
-            }
+          ns = loc.Substring(0, ic);
+          asm = loc.Substring(ic + 1);
         }
-        return null;
+
+        var tname = asm.IsNullOrWhiteSpace() ? "{0}.{1}".Args(ns, name) : "{0}.{1}, {2}".Args(ns, name, asm);
+        var t = Type.GetType(tname, false, true);
+        if (t != null)
+        {
+          if (typeof(CrudQueryHandler).IsAssignableFrom(t))
+          {
+            return Activator.CreateInstance(t, ComponentDirector, name) as CrudQueryHandler;
+          }
+        }
+      }
+      return null;
     }
 
-    private CRUDQueryHandler searchForScript(string name)
+    private CrudQueryHandler searchForScript(string name)
     {
-        var asm = Assembly.Load(m_ScriptAssembly);
-        var asmname = asm.FullName;
-        var ic = asmname.IndexOf(',');
-        if (ic>0)
-          asmname = asmname.Substring(0, ic);
-        var resources = asm.GetManifestResourceNames();
+      var asm = Assembly.Load(m_ScriptAssembly);
+      var asmname = asm.FullName;
+      var ic = asmname.IndexOf(',');
+      if (ic > 0)
+        asmname = asmname.Substring(0, ic);
+      var resources = asm.GetManifestResourceNames();
 
-        var resName = name + ComponentDirector.ScriptFileSuffix;
+      var resName = name + ComponentDirector.ScriptFileSuffix;
 
-        var res = resources.FirstOrDefault(r => r.EqualsIgnoreCase(resName) || r.EqualsIgnoreCase(asmname+"."+resName));
+      var res = resources.FirstOrDefault(r => r.EqualsIgnoreCase(resName) || r.EqualsIgnoreCase(asmname + "." + resName));
 
-        if (res!=null)
+      if (res != null)
+      {
+        using (var stream = asm.GetManifestResourceStream(res))
+        using (var reader = new StreamReader(stream))
         {
-            using (var stream = asm.GetManifestResourceStream(res))
-              using (var reader = new StreamReader(stream))
-              {
-                  var script = reader.ReadToEnd();
-                  var qsource = new QuerySource(name, script);
-                  return ComponentDirector.MakeScriptQueryHandler(qsource);
-              }
+          var script = reader.ReadToEnd();
+          var qsource = new QuerySource(name, script);
+          return ComponentDirector.MakeScriptQueryHandler(qsource);
         }
-        return null;
+      }
+      return null;
     }
 
     #endregion

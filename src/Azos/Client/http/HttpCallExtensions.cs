@@ -35,7 +35,7 @@ namespace Azos.Client
     public static async Task<TResult> Call<TResult>(this IHttpService service,
                                                     string remoteAddress,
                                                     string contract,
-                                                    object shardKey,
+                                                    ShardKey shardKey,
                                                     Func<IHttpTransport, CancellationToken?, Task<TResult>> body,
                                                     CancellationToken? cancellation = null,
                                                     Atom? network = null,
@@ -47,6 +47,7 @@ namespace Azos.Client
 
       return await assignments.Call(body, cancellation).ConfigureAwait(false);
     }
+
 
     /// <summary>
     /// Orchestrates an Http/s call to a remote service pointed to by a set of EndpointAssigment objects.
@@ -137,5 +138,85 @@ namespace Azos.Client
 
       throw toThrow;
     }
+
+
+    /// <summary>
+    /// Performs a Http/s call to a remote service pointed to by a EndpointAssigment object.
+    /// An actual call is performed in a passed-in call body functor.
+    /// </summary>
+    /// <typeparam name="TResult">The resulting type of the call, as obtained from call body</typeparam>
+    /// <param name="assignment">An endpoint assignment to call</param>
+    /// <param name="body">Call body functor. May not be null</param>
+    /// <param name="cancellation">Optional CancellationToken</param>
+    /// <returns>TResult call result or throws `ClientException` if call failed </returns>
+    public static async Task<TResult> CallOne<TResult>(this EndpointAssignment assignment,
+                                                    Func<IHttpTransport, CancellationToken?, Task<TResult>> body,
+                                                    CancellationToken? cancellation = null)
+    {
+      body.NonNull(nameof(body));
+      if (!assignment.IsAssigned) throw new ClientException(StringConsts.HTTP_CLIENT_CALL_ASSIGMENT_ERROR.Args("No assignments provided"));
+
+      var service = assignment.Endpoint.Service as IHttpService;
+      if (service == null) throw new ClientException(StringConsts.HTTP_CLIENT_CALL_ASSIGMENT_ERROR.Args("Wrong service type assignments"));
+
+      Exception cause = null;
+      if (assignment.Endpoint.IsAvailable)
+      {
+        var ep = assignment.Endpoint as IEndpointImplementation;
+        var transport = service.AcquireTransport(assignment);
+        try
+        {
+          var http = (transport as IHttpTransport).NonNull("Implementation error: cast to IHttpTransport");
+          var result = await body(http, cancellation).ConfigureAwait(false);
+          CallGuardException.Protect(ep, _ => _.NotifyCallSuccess(transport));
+          return result;
+        }
+        catch (Exception error)
+        {
+          //Implementation error
+          if (error is CallGuardException) throw;
+
+          //TaskCanceledException gets thrown on simple timeout even when cancellation was NOT requested
+          if (error is TaskCanceledException && cancellation.HasValue && cancellation.Value.IsCancellationRequested) throw;
+
+          var errorClass = ep.NotifyCallError(transport, error);
+          //todo instrument
+
+          if (errorClass == CallErrorClass.ServiceLogic) throw;//throw logical errors
+
+          cause = error;
+        }
+        finally
+        {
+          service.ReleaseTransport(transport);
+        }
+      }
+      else
+      {
+        cause = new ClientException("Endpoint !Available");
+      }
+
+      var toThrow = new ClientException(StringConsts.HTTP_CLIENT_CALL_FAILED
+                                                    .Args(service.GetType().Name,
+                                                          assignment.MappedRemoteAddress.TakeLastChars(32, "..."),
+                                                          1),
+                                        cause);
+
+      if (service.ComponentEffectiveLogLevel <= Log.MessageType.Error)
+      {
+        service.App.Log.Write(
+          new Log.Message
+          {
+            Topic = service.ComponentLogTopic,
+            Type = Log.MessageType.Error,
+            From = "{0}{1}.{2}".Args(service.ComponentLogFromPrefix, nameof(HttpCallExtensions), nameof(Call)),
+            Text = "Service `{0}` call error: {1}".Args(service.Name, toThrow.ToMessageWithType()),
+            Exception = toThrow,
+            RelatedTo = (Ambient.CurrentCallFlow?.ID) ?? Guid.Empty
+          });
+      }
+
+      throw toThrow;
+    }//CallOne
   }
 }

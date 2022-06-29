@@ -15,7 +15,6 @@ namespace Azos.Data.Access.MongoDb.Connector
   /// </summary>
   public class Update : BSONDocument
   {
-
     public Update() : base() { }
     public Update(Stream stream) : base(stream) { }
 
@@ -25,9 +24,7 @@ namespace Azos.Data.Access.MongoDb.Connector
     /// </summary>
     public Update(string template, bool cacheTemplate, params TemplateArg[] args):base(template, cacheTemplate, args)
     {
-
     }
-
   }
 
 }

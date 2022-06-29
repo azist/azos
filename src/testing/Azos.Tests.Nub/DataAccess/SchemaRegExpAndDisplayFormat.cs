@@ -3,158 +3,148 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
- 
-  
+
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
+
 using Azos.Scripting;
-
 using Azos.Data;
-
 
 namespace Azos.Tests.Nub.DataAccess
 {
-    [Runnable]
-    public class SchemaRegExpAndDisplayFormat
+  [Runnable]
+  public class SchemaRegExpAndDisplayFormat
+  {
+    [Run]
+    public void ValidateRegexp()
     {
-        [Run]
-        public void ValidateRegexp()
-        {
-            var row = new MyCar
-            {
-               Code = "adsd"
-            };
+      var row = new MyCar
+      {
+        Code = "adsd"
+      };
 
-            var ve = row.Validate();
-            Aver.IsNotNull(ve);
-            Aver.IsTrue( ve.Message.Contains("Allowed characters: A-Z,0-9,-"));
-            Console.WriteLine( ve.ToMessageWithType());
+      var ve = row.Validate();
+      Aver.IsNotNull(ve);
+      Aver.IsTrue(ve.Message.Contains("Allowed characters: A-Z,0-9,-"));
+      ve.ToMessageWithType().See();
 
-            row.Code = "AZ-90";
-            ve = row.Validate();
-            Aver.IsNull(ve);
-        }
-
-
-        [Run]
-        public void DisplayFormat()
-        {
-            var row = new MyCar
-            {
-               Code = "ABZ-01", 
-               Milage = 150000
-            };
-
-            Aver.AreEqual("150000", row["Milage"].ToString());
-            Aver.AreEqual("Milage: 150,000 miles", row.GetDisplayFieldValue("Milage"));
-        }
-
-        [Run]
-        public void FieldValueDescription()
-        {
-            var row = new MyCar();
-
-            row.Sex = "F";
-            Aver.AreEqual("Female", row.GetFieldValueDescription("Sex"));
-            
-            row.Sex = "M";
-            Aver.AreEqual("Male", row.GetFieldValueDescription("Sex"));
-            
-            row.Sex = "U";
-            Aver.AreEqual("Unknown", row.GetFieldValueDescription("Sex"));
-        }
-
-        [Run]
-        public void SchemaEquivalence()
-        {
-            Aver.IsTrue( Schema.GetForTypedDoc(typeof(MyCar)).IsEquivalentTo(Schema.GetForTypedDoc(typeof(MyCar2)), false ));
-            Aver.IsFalse( Schema.GetForTypedDoc(typeof(MyCar)).IsEquivalentTo(Schema.GetForTypedDoc(typeof(MyCarDiffOrder)), false ));
-
-            Aver.IsFalse( Schema.GetForTypedDoc(typeof(MyCar)).IsEquivalentTo(Schema.GetForTypedDoc(typeof(MyCar3)), false ));
-            Aver.IsFalse( Schema.GetForTypedDoc(typeof(MyCar)).IsEquivalentTo(Schema.GetForTypedDoc(typeof(MyCar4)), false ));
-            Aver.IsFalse( Schema.GetForTypedDoc(typeof(MyCar)).IsEquivalentTo(Schema.GetForTypedDoc(typeof(MyCar5)), false ));
-        }
+      row.Code = "AZ-90";
+      ve = row.Validate();
+      Aver.IsNull(ve);
     }
 
-
-    public class MyCar : TypedDoc
+    [Run]
+    public void DisplayFormat()
     {
-      
-      [Field(formatRegExp: @"^[A-Z0-9\-]+$",
-             formatDescr: @"Allowed characters: A-Z,0-9,-")]
-      public string Code{ get; set;}
+      var row = new MyCar
+      {
+        Code = "ABZ-01",
+        Milage = 150000
+      };
 
-      [Field(displayFormat: "Milage: {0:n0} miles")]
-      public int Milage{ get; set;}
-
-      [Field(valueList:"M: Male, F: Female, U: Unknown")]
-      public string Sex{ get; set;}
+      Aver.AreEqual("150000", row["Milage"].ToString());
+      Aver.AreEqual("Milage: 150,000 miles", row.GetDisplayFieldValue("Milage"));
     }
 
-    public class MyCar2 : TypedDoc
+    [Run]
+    public void FieldValueDescription()
     {
-      
-      [Field(formatRegExp: @"^[A-Z0-9\-]+$",
-             formatDescr: @"Allowed characters: A-Z,0-9,-")]
-      public string Code{ get; set;}
+      var row = new MyCar();
 
-      [Field(displayFormat: "Milage: {0:n0} miles")]
-      public int Milage{ get; set;}
+      row.Sex = "F";
+      Aver.AreEqual("Female", row.GetFieldValueDescription("Sex"));
 
-      [Field(valueList:"M: Male, F: Female, U: Unknown")]
-      public string Sex{ get; set;}
+      row.Sex = "M";
+      Aver.AreEqual("Male", row.GetFieldValueDescription("Sex"));
+
+      row.Sex = "U";
+      Aver.AreEqual("Unknown", row.GetFieldValueDescription("Sex"));
     }
 
-    public class MyCarDiffOrder : TypedDoc
+    [Run]
+    public void SchemaEquivalence()
     {
-      
-      [Field(formatRegExp: @"^[A-Z0-9\-]+$",
-             formatDescr: @"Allowed characters: A-Z,0-9,-")]
-      public string Code{ get; set;}
+      Aver.IsTrue(Schema.GetForTypedDoc(typeof(MyCar)).IsEquivalentTo(Schema.GetForTypedDoc(typeof(MyCar2)), false));
+      Aver.IsFalse(Schema.GetForTypedDoc(typeof(MyCar)).IsEquivalentTo(Schema.GetForTypedDoc(typeof(MyCarDiffOrder)), false));
 
-      [Field(displayFormat: "Milage: {0:n0} miles")]
-      public int Milage{ get; set;}
-
-      [Field(valueList:"M: Male, U: Unknown, F: Female")]
-      public string Sex{ get; set;}
+      Aver.IsFalse(Schema.GetForTypedDoc(typeof(MyCar)).IsEquivalentTo(Schema.GetForTypedDoc(typeof(MyCar3)), false));
+      Aver.IsFalse(Schema.GetForTypedDoc(typeof(MyCar)).IsEquivalentTo(Schema.GetForTypedDoc(typeof(MyCar4)), false));
+      Aver.IsFalse(Schema.GetForTypedDoc(typeof(MyCar)).IsEquivalentTo(Schema.GetForTypedDoc(typeof(MyCar5)), false));
     }
-
-    public class MyCar3 : TypedDoc
-    {
-      
-      [Field(formatRegExp: @"^[A-Z0-8\-]+$",  //difference in regexp
-             formatDescr: @"Allowed characters: A-Z,0-9,-")]
-      public string Code{ get; set;}
-
-      [Field(displayFormat: "Milage: {0:n0} miles")]
-      public int Milage{ get; set;}
-    }
-
-    public class MyCar4 : TypedDoc
-    {
-      
-      [Field(formatRegExp: @"^[A-Z0-9\-]+$",
-             formatDescr: @"Allowed DIFFERENT characters: A-Z,0-9,-")]
-      public string Code{ get; set;}
-
-      [Field(displayFormat: "Milage: {0:n0} miles")]
-      public int Milage{ get; set;}
-    }
+  }
 
 
-    public class MyCar5 : TypedDoc
-    {
-      
-      [Field(formatRegExp: @"^[A-Z0-9\-]+$",
-             formatDescr: @"Allowed characters: A-Z,0-9,-")]
-      public string Code{ get; set;}
+  public class MyCar : TypedDoc
+  {
+    [Field(formatRegExp: @"^[A-Z0-9\-]+$",
+           formatDescr: @"Allowed characters: A-Z,0-9,-")]
+    public string Code { get; set; }
 
-      [Field(displayFormat: "Milage: {0:n0} kilometers")]
-      public int Milage{ get; set;}
-    }
+    [Field(displayFormat: "Milage: {0:n0} miles")]
+    public int Milage { get; set; }
 
+    [Field(valueList: "M: Male, F: Female, U: Unknown")]
+    public string Sex { get; set; }
+  }
+
+
+  public class MyCar2 : TypedDoc
+  {
+    [Field(formatRegExp: @"^[A-Z0-9\-]+$",
+           formatDescr: @"Allowed characters: A-Z,0-9,-")]
+    public string Code { get; set; }
+
+    [Field(displayFormat: "Milage: {0:n0} miles")]
+    public int Milage { get; set; }
+
+    [Field(valueList: "M: Male, F: Female, U: Unknown")]
+    public string Sex { get; set; }
+  }
+
+
+  public class MyCarDiffOrder : TypedDoc
+  {
+    [Field(formatRegExp: @"^[A-Z0-9\-]+$",
+           formatDescr: @"Allowed characters: A-Z,0-9,-")]
+    public string Code { get; set; }
+
+    [Field(displayFormat: "Milage: {0:n0} miles")]
+    public int Milage { get; set; }
+
+    [Field(valueList: "M: Male, U: Unknown, F: Female")]
+    public string Sex { get; set; }
+  }
+
+
+  public class MyCar3 : TypedDoc
+  {
+    [Field(formatRegExp: @"^[A-Z0-8\-]+$",  //difference in regexp
+           formatDescr: @"Allowed characters: A-Z,0-9,-")]
+    public string Code { get; set; }
+
+    [Field(displayFormat: "Milage: {0:n0} miles")]
+    public int Milage { get; set; }
+  }
+
+
+  public class MyCar4 : TypedDoc
+  {
+    [Field(formatRegExp: @"^[A-Z0-9\-]+$",
+           formatDescr: @"Allowed DIFFERENT characters: A-Z,0-9,-")]
+    public string Code { get; set; }
+
+    [Field(displayFormat: "Milage: {0:n0} miles")]
+    public int Milage { get; set; }
+  }
+
+
+  public class MyCar5 : TypedDoc
+  {
+    [Field(formatRegExp: @"^[A-Z0-9\-]+$",
+           formatDescr: @"Allowed characters: A-Z,0-9,-")]
+    public string Code { get; set; }
+
+    [Field(displayFormat: "Milage: {0:n0} kilometers")]
+    public int Milage { get; set; }
+  }
 
 }

@@ -22,7 +22,6 @@ namespace Azos.Data.Access.MongoDb.Connector
   public sealed class ServerNode : ApplicationComponent<MongoClient>, INamed, IInstrumentable
   {
     #region CONSTS
-
     public const string CONFIG_SERVER_SECTION = "server";
 
     public const int DEFAULT_RCV_TIMEOUT = 12_100;

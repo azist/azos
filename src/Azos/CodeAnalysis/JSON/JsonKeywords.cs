@@ -4,11 +4,8 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-
 using System;
 using System.Collections.Generic;
-using System.Collections;
-using System.Text;
 
 namespace Azos.CodeAnalysis.JSON
 {
@@ -41,16 +38,12 @@ namespace Azos.CodeAnalysis.JSON
     /// </summary>
     public static JsonTokenType Resolve(string str)
     {
-      JsonTokenType tt;
 
-      if (s_KeywordList.TryGetValue(str, out tt)) return tt;
+      if (s_KeywordList.TryGetValue(str, out JsonTokenType tt)) return tt;
 
       return JsonTokenType.tIdentifier;
     }
 
   }
-
-
-
 }
 

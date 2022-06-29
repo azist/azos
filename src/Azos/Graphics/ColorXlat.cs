@@ -4,10 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 using System.Drawing;
 
 namespace Azos.Graphics
@@ -17,7 +13,6 @@ namespace Azos.Graphics
   /// </summary>
   public static class ColorXlat
   {
-
     public static Color FromHTML(string html)
     {
       if (html.IsNullOrWhiteSpace()) return Color.Empty;
@@ -66,7 +61,6 @@ namespace Azos.Graphics
       return "#" + (clr.ToArgb() & 0x00ffffff).ToString("X6");
     }
 
-
     private static int readH1(string s, ref int i)
     {
       int c = s[i++];
@@ -78,7 +72,6 @@ namespace Azos.Graphics
     {
       return (readH1(s, ref i) << 4) | readH1(s, ref i);
     }
-
 
   }
 }

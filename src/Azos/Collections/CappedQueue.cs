@@ -1,34 +1,40 @@
-﻿using System;
+﻿/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
+
+using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 
 using Azos.Conf;
 
 namespace Azos.Collections
 {
+  /// <summary>
+  /// Designates modes of operation when queue exceeds the set limit
+  /// </summary>
+  public enum QueueLimitHandling
+  {
     /// <summary>
-    /// Designates modes of operation when queue exceeds the set limit
+    /// Dequeue and discard the old data at the head to make enough space for the new data which is being inserted at the tail
     /// </summary>
-    public enum QueueLimitHandling
-    {
-      /// <summary>
-      /// Dequeue and discard the old data at the head to make enough space for the new data which is being inserted at the tail
-      /// </summary>
-      DiscardOld = 0,
+    DiscardOld = 0,
 
-      /// <summary>
-      /// Discard the new data which is being inserted at the tail, keep the already queued head as-is
-      /// </summary>
-      DiscardNew,
+    /// <summary>
+    /// Discard the new data which is being inserted at the tail, keep the already queued head as-is
+    /// </summary>
+    DiscardNew,
 
-      /// <summary>
-      /// Throw an error when the new data does not fit into the queue
-      /// </summary>
-      Throw
-    }
+    /// <summary>
+    /// Throw an error when the new data does not fit into the queue
+    /// </summary>
+    Throw
+  }
+
 
   /// <summary>
   /// Represents a thread-safe concurrent queue of T with limits imposed on the total count and
@@ -46,6 +52,7 @@ namespace Azos.Collections
   /// </remarks>
   public sealed class CappedQueue<T> : IEnumerable<T>
   {
+    #region .ctor
 
     /// <summary>
     /// Creates an instance of a thread-safe concurrent queue of T with limits imposed on the total count and
@@ -60,6 +67,9 @@ namespace Azos.Collections
       m_DiscardedItem = discardedItem;
     }
 
+    #endregion
+
+    #region Fields
 
     private Func<T, long> m_GetItemSize;
     private Action<T> m_DiscardedItem;
@@ -67,9 +77,14 @@ namespace Azos.Collections
     private int m_EnqueuedCount;
     private long m_EnqueuedSize;
 
+    //this is needed to prevent thread stall
+    //if one thread gets to trimOldExcess and another one keeps adding, the first thread may never exit the delete loop
+    //it will exit the loop after MAX iterations
+    private static readonly int MAX_ITERATIONS = Math.Max(10, System.Environment.ProcessorCount);
 
-    public IEnumerator<T> GetEnumerator()   => m_Data.GetEnumerator();
-    IEnumerator IEnumerable.GetEnumerator() => m_Data.GetEnumerator();
+    #endregion
+
+    #region Properties
 
     /// <summary>
     /// Returns the a total count of enqueued items
@@ -81,7 +96,6 @@ namespace Azos.Collections
     /// </summary>
     public long EnqueuedSize => m_EnqueuedSize;
 
-
     /// <summary>
     /// Specifies how to handle the case when limit is reached: Lose old data, lose new (over the limit) data, or throw
     /// </summary>
@@ -90,19 +104,26 @@ namespace Azos.Collections
     /// <summary>
     /// When set to a number &gt;0 imposes a limit on the count of items in this queue
     /// </summary>
-    [Config] public int CountLimit{  get; set; }
+    [Config] public int CountLimit { get; set; }
 
     /// <summary>
     /// When set to a value &gt;0 imposes a limit on the total size of all items in this queue.
     /// The size is measured in relative units (see GetSize(T) override)
     /// </summary>
-    [Config] public long SizeLimit{  get; set; }
-
+    [Config] public long SizeLimit { get; set; }
 
     /// <summary>
     /// Gets total count directly from the queue
     /// </summary>
     public int Count => m_Data.Count;
+
+    #endregion
+
+    #region Public
+
+    public IEnumerator<T> GetEnumerator() => m_Data.GetEnumerator();
+
+    IEnumerator IEnumerable.GetEnumerator() => m_Data.GetEnumerator();
 
     /// <summary>
     ///  Tries to enqueue an item in the queue, depending on the set limits and the Handling property,
@@ -118,12 +139,12 @@ namespace Azos.Collections
 
       if (
            (maxCount > 0 && Thread.VolatileRead(ref m_EnqueuedCount) >= maxCount) ||
-           (maxSize  > 0 && Thread.VolatileRead(ref m_EnqueuedSize)  >= maxSize)
+           (maxSize > 0 && Thread.VolatileRead(ref m_EnqueuedSize) >= maxSize)
          )
       {
-        if (Handling==QueueLimitHandling.DiscardOld)
+        if (Handling == QueueLimitHandling.DiscardOld)
           trimOldExcess();
-        else if (Handling==QueueLimitHandling.Throw)
+        else if (Handling == QueueLimitHandling.Throw)
           throw new AzosException(StringConsts.COLLECTION_CAPPED_QUEUE_LIMIT_ERROR.Args(nameof(CappedQueue<T>), Handling));
         else return false;//DiscardNew
       }
@@ -135,7 +156,6 @@ namespace Azos.Collections
       m_Data.Enqueue(item);
       return true;
     }
-
 
     public bool TryDequeue(out T item)
     {
@@ -151,10 +171,9 @@ namespace Azos.Collections
 
     public bool TryPeek(out T item) => m_Data.TryPeek(out item);
 
-    //this is needed to prevent thread stall
-    //if one thread gets to trimOldExcess and another one keeps adding, the first thread may never exit the delete loop
-    //it will exit the loop after MAX iterations
-    private static readonly int MAX_ITERATIONS = Math.Max(10, System.Environment.ProcessorCount);
+    #endregion
+
+    #region Private
 
     private void trimOldExcess()
     {
@@ -177,6 +196,8 @@ namespace Azos.Collections
         m_DiscardedItem?.Invoke(discarded);
       }
     }
+
+    #endregion
 
   }
 }

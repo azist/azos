@@ -1,8 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
+
 using System.Data;
 using System.Linq;
-using System.Text;
 
 using Azos.Data;
 using Azos.Data.AST;
@@ -34,7 +37,6 @@ namespace Azos.Tests.Nub.DataAccess
       Aver.AreEqual("P0", ctx.Parameters.First().ParameterName);
       Aver.AreEqual("Kozlovich", ctx.Parameters.First().Value.AsString());
     }
-
 
     [Run]
     public void SimpleBinaryWithUnary()
@@ -90,6 +92,7 @@ namespace Azos.Tests.Nub.DataAccess
       }
     }
 
+
     public class TeztContext : SqlXlatContext
     {
       public TeztContext(TeztXlat xlat) : base(xlat)
@@ -107,6 +110,7 @@ namespace Azos.Tests.Nub.DataAccess
       }
     }
 
+
     public class TeztParam : IDataParameter
     {
       public DbType DbType { get; set;}
@@ -121,6 +125,4 @@ namespace Azos.Tests.Nub.DataAccess
     }
 
   }
-
-
 }

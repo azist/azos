@@ -173,7 +173,7 @@ manc
         if (ComponentEffectiveLogLevel < MessageType.Trace)
           WriteLog(MessageType.DebugA, nameof(guardedIdpAccess), "#001 IDP.Call", related: rel);
 
-        var result = await body(rel);
+        var result = await body(rel).ConfigureAwait(false);
 
         if (ComponentEffectiveLogLevel < MessageType.Trace)
           WriteLog(MessageType.DebugA, nameof(guardedIdpAccess), "#002 IDP.Call result. User name: `{0}`".Args(result?.Name), related: rel);
@@ -249,41 +249,44 @@ manc
       return JsonReader.ToDoc<MinIdpUserData>(dataMap);
     }
 
-    public async Task<MinIdpUserData> GetByIdAsync(Atom realm, string id)
+    public async Task<MinIdpUserData> GetByIdAsync(Atom realm, string id, AuthenticationRequestContext ctx = null)
       => await guardedIdpAccess(async (rel) =>
           {
               var response = await m_Server.Call(IdpServerAddress,
                                             nameof(IMinIdpStore),
-                                            id,
+                                            new ShardKey(id),
                                             (tx, c) => tx.Client
-                                                         .PostAndGetJsonMapAsync("byid", new { realm = realm, id = id}));//do NOT del prop names
+                                                         .PostAndGetJsonMapAsync("byid", new { realm = realm, id = id, ctx = ctx }))//do NOT del prop names
+                                           .ConfigureAwait(false);
 
               return processResponse(rel, response);
-          });
+          }).ConfigureAwait(false);
 
-    public async Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken)
+    public async Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken, AuthenticationRequestContext ctx = null)
       => await guardedIdpAccess(async (rel) =>
           {
             var response = await m_Server.Call(IdpServerAddress,
                                           nameof(IMinIdpStore),
-                                          sysToken,
+                                          new ShardKey(sysToken),
                                           (tx, c) => tx.Client
-                                                       .PostAndGetJsonMapAsync("bysys", new { realm = realm, sysToken = sysToken }));//do NOT del prop names
+                                                       .PostAndGetJsonMapAsync("bysys", new { realm = realm, sysToken = sysToken, ctx = ctx }))//do NOT del prop names
+                                         .ConfigureAwait(false);
 
             return processResponse(rel, response);
-          });
+          }).ConfigureAwait(false);
 
-    public async Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri)
+    public async Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri, AuthenticationRequestContext ctx = null)
       => await guardedIdpAccess(async (rel) =>
           {
             var response = await m_Server.Call(IdpServerAddress,
                                           nameof(IMinIdpStore),
-                                          uri,
+                                          new ShardKey(uri),
                                           (tx, c) => tx.Client
-                                                       .PostAndGetJsonMapAsync("byuri", new { realm = realm, uri =  uri }));//do NOT del prop names
+                                                       .PostAndGetJsonMapAsync("byuri", new { realm = realm, uri =  uri, ctx = ctx }))//do NOT del prop names
+                                         .ConfigureAwait(false);
 
             return processResponse(rel, response);
-          });
+          }).ConfigureAwait(false);
 
 
     public async Task<IEnumerable<object>> ExecCommandAsync(IConfigSectionNode step)
@@ -321,7 +324,7 @@ manc
                                  new { source = stepSrc },
                                  requestHeaders: impersonationAuthHeader.ToEnumerable()//Auth on remote server using this call flow identity
                                )
-          );
+          ).ConfigureAwait(false);
 
           //try to convert JSON from string representation to object, to avoid extra padding
           if (got["data"] is string sdata && got["ctype"].AsString().IndexOf("json", StringComparison.InvariantCultureIgnoreCase)>=0)

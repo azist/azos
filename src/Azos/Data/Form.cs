@@ -6,59 +6,15 @@
 
 using System;
 using System.Threading.Tasks;
+
 using Azos.Serialization.JSON;
 
 namespace Azos.Data
 {
-
   /// <summary>
   /// Denotes form modes: unspecified | insert | update | delete
   /// </summary>
   public enum FormMode { Unspecified = 0, Insert, Update, Delete}
-
-  /// <summary>
-  /// Struct returned from Form.Save(): it is either an error (IsSuccess==false), or TResult
-  /// </summary>
-  public struct SaveResult<TResult>
-  {
-    /// <summary>
-    /// Creates error result
-    /// </summary>
-    public SaveResult(Exception error)
-    {
-      Error = error;
-      Result = default(TResult);
-    }
-
-    /// <summary>
-    /// Creates successful result
-    /// </summary>
-    public SaveResult(TResult result)
-    {
-      Error = null;
-      Result = result;
-    }
-
-    /// <summary>
-    /// Null on success or Error which prevented successful Save
-    /// </summary>
-    public readonly Exception Error;
-
-    /// <summary>
-    /// Returns the result of the form save, e.g. for filters this returns a resulting rowset
-    /// </summary>
-    public readonly TResult   Result;
-
-    /// <summary>
-    /// True if there is no error
-    /// </summary>
-    public bool IsSuccess => Error==null;
-
-    /// <summary>
-    /// Returns SaveResult&lt;object&gt; representation
-    /// </summary>
-    public SaveResult<object> ToObject() => IsSuccess ? new SaveResult<object>(Result) : new SaveResult<object>(Error);
-  }
 
   /// <summary>
   /// Represents a "model" (in MVC terms) of a data-entry form.
@@ -70,11 +26,8 @@ namespace Azos.Data
       public const string JSON_MODE_PROPERTY = "__FormMode";
       public const string JSON_CSRF_PROPERTY = CoreConsts.CSRF_TOKEN_NAME;
       public const string JSON_ROUNDTRIP_PROPERTY = "__Roundtrip";
-      public const string JSON_TYPE_PROPERTY = "__FormType";
 
-
-      protected Form() {}
-
+      protected Form(){ }
 
       /// <summary>
       /// Gets/sets form mode - unspecified|insert|edit. This field may be queried by validate and save, i.e. Validate may perform extra cross checks on Insert - i.e. check whether
@@ -87,13 +40,12 @@ namespace Azos.Data
       /// </summary>
       public string CSRFToken;
 
-
       private JsonDataMap m_RoundtripBag;
 
       /// <summary>
       /// True if RoundtripBag is allocated
       /// </summary>
-      public bool HasRoundtripBag{ get{ return m_RoundtripBag!=null;}}
+      public bool HasRoundtripBag => m_RoundtripBag != null;
 
       /// <summary>
       /// Returns lazily-allocated RoundtripBag.
@@ -103,8 +55,7 @@ namespace Azos.Data
       {
         get
         {
-          if (m_RoundtripBag==null)
-            m_RoundtripBag = new JsonDataMap();
+          if (m_RoundtripBag == null) m_RoundtripBag = new JsonDataMap();
 
           return m_RoundtripBag;
         }
@@ -113,7 +64,7 @@ namespace Azos.Data
       /// <summary>
       /// False by default for forms, safer for web. For example, no injection of unexpected fields can be done via web form post
       /// </summary>
-      public override bool AmorphousDataEnabled { get{return false;}}
+      public override bool AmorphousDataEnabled => false;
 
       /// <summary>
       /// If non null or empty parses JSON content and sets the RoundtripBag
@@ -134,13 +85,11 @@ namespace Azos.Data
       /// </summary>
       public abstract Task<SaveResult<object>> SaveReturningObjectAsync();
 
-
       /// <summary>
       /// Override to supply target name used for validation
       /// </summary>
       public abstract string DataStoreTargetName { get; }
   }
-
 
 
   /// <summary>
@@ -164,14 +113,15 @@ namespace Azos.Data
 
       validationState = this.Validate(validationState);
 
-      validationState = DoAfterValidateOnSave(validationState);
+      validationState = await DoAfterValidateOnSaveAsync(validationState).ConfigureAwait(false);
 
       if (validationState.HasErrors)
         return new SaveResult<TSaveResult>(validationState.Error);
 
-      DoBeforeSave();
+      await DoBeforeSaveAsync().ConfigureAwait(false);
 
-      return await DoSaveAsync();
+      var result = await DoSaveAsync().ConfigureAwait(false);
+      return result;
     }
 
     public sealed async override Task<SaveResult<object>> SaveReturningObjectAsync()
@@ -180,19 +130,18 @@ namespace Azos.Data
     /// <summary>
     /// Override to perform pre-validate step on Save(). This can be used to default required field values among other things.
     /// Returns a ValidState initialized to DataStoreTargetName and ValidErrorMode as desired in a specific case.
-    /// Default implementation sets `ValidErrorMode.Single` meaning: the system will stop validation on a first validation error
+    /// Default implementation sets `ValidErrorMode.FastBatch` meaning: the system will stop validation on a first validation error
     /// and return it. Override to use other modes such as `ValidErrorMode.Batch`
     /// Note: this is called after amorphous data save, so the validation can assume that the state of AmorphousData is initialized
     /// </summary>
-    protected virtual ValidState DoBeforeValidateOnSave() => new ValidState(DataStoreTargetName, ValidErrorMode.Single);
+    protected virtual ValidState DoBeforeValidateOnSave() => new ValidState(DataStoreTargetName, ValidErrorMode.FastBatch);
 
     /// <summary>
     /// Override to perform post-validate step on Save(). For example, you can mask/disregard validation error
     /// by returning a clean ValidState instance
     /// </summary>
     /// <param name="state">Validation state instance which you can disregard by returning a new ValidState without an error</param>
-    protected virtual ValidState DoAfterValidateOnSave(ValidState state) => state;
-
+    protected virtual Task<ValidState> DoAfterValidateOnSaveAsync(ValidState state) => Task.FromResult(state);
 
     /// <summary>
     /// Override to perform post-successful-validate pre-save step on Save().
@@ -200,8 +149,7 @@ namespace Azos.Data
     /// in the absence of validation errors so the ID does NOT get generated and wasted when there is/are validation errors.
     /// This method is NOT called if validation finds errors in prior steps of Save() flow
     /// </summary>
-    protected virtual void DoBeforeSave() { }
-
+    protected virtual Task DoBeforeSaveAsync() => Task.CompletedTask;
 
     /// <summary>
     /// Override to save model into data store. Return "predictable" exception (such as key violation) as a value instead of throwing.
@@ -211,5 +159,4 @@ namespace Azos.Data
     protected abstract Task<SaveResult<TSaveResult>> DoSaveAsync();
 
   }
-
 }

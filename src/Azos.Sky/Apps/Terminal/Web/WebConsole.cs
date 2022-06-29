@@ -7,7 +7,7 @@
 using System;
 
 using Azos.Wave.Mvc;
-using Azos.Sky.Security.Permissions.Admin;
+using Azos.Security.Admin;
 using Azos.Data;
 using Azos.Wave;
 using Azos.Platform;

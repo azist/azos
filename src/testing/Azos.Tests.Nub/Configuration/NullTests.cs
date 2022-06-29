@@ -155,7 +155,7 @@ namespace Azos.Tests.Nub.Configuration
     {
       var conf = "root{ a{ b=null } }".AsLaconicConfig();
 
-      Aver.Throws<ConfigException>( () => conf.Navigate("!/a/$doesnotexist"));
+      Aver.Throws<ConfigException>(() => conf.Navigate("!/a/$doesnotexist"));
       Aver.IsNull(conf.Navigate("!/a/$b").Value);
     }
 
@@ -166,7 +166,7 @@ namespace Azos.Tests.Nub.Configuration
 
 
       Aver.AreEqual(null, conf.Of("a").ValueAsNullableInt());
-      Aver.AreEqual(2,  conf.Of("b").ValueAsNullableInt());
+      Aver.AreEqual(2, conf.Of("b").ValueAsNullableInt());
       Aver.AreEqual(32, conf.Of("c").ValueAsNullableInt());
       Aver.AreEqual(-9, conf.Of("d").ValueAsNullableInt(-9));
     }

@@ -3,6 +3,7 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
+
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -48,9 +49,7 @@ namespace Azos.Apps.Injection
 
 
     public override string ToString()
-    {
-      return "{0}(Type: {1}, Name: {2})".Args(GetType().Name, Type?.Name ?? CoreConsts.NULL_STRING, Name ?? CoreConsts.NULL_STRING);
-    }
+      => "{0}(Type: {1}, Name: {2})".Args(GetType().Name, Type?.Name ?? CoreConsts.NULL_STRING, Name ?? CoreConsts.NULL_STRING);
 
 
     /// <summary>
@@ -103,6 +102,27 @@ namespace Azos.Apps.Injection
     }
 
 
+    protected virtual IModule TryFindModuleInApp(Type needType, IApplicationDependencyInjector injector)
+    {
+      IModule module = null;
+      if (Name.IsNotNullOrWhiteSpace())
+      {
+        module = injector.App.ModuleRoot.ChildModules[Name];
+        if (module == null) return null;
+        if (!needType.IsAssignableFrom(module.GetType())) return null;//type mismatch
+      }
+      else
+      {
+        //todo: Optimize linear search with a trie
+        module = injector.App.ModuleRoot.ChildModules
+                                 .OrderedValues
+                                 .FirstOrDefault(m => needType.IsAssignableFrom(m.GetType()));
+        if (module == null) return null;
+      }
+
+      return module;
+    }
+
     /// <summary>
     /// Tries to perform module injection by name or type, returning true if assignment was made
     /// </summary>
@@ -110,20 +130,14 @@ namespace Azos.Apps.Injection
     {
       var needType = Type==null ? fInfo.FieldType : Type;
 
-      IModule module = null;
-      if (Name.IsNotNullOrWhiteSpace())
+      var module = TryFindModuleInApp(needType, injector);
+
+      if (module == null)
       {
-        module = injector.App.ModuleRoot.ChildModules[Name];
-        if (module==null) return false;
-        if (!needType.IsAssignableFrom(module.GetType())) return false;//type mismatch
+        module = DynamicModuleFlowScope.Find(needType, Name);
       }
-      else
-      {
-        module = injector.App.ModuleRoot.ChildModules
-                                 .OrderedValues
-                                 .FirstOrDefault( m => needType.IsAssignableFrom(m.GetType()) );
-        if (module == null) return false;
-      }
+
+      if (module == null) return false;
 
       fInfo.SetValue(target, module);
       return true;
@@ -167,9 +181,7 @@ namespace Azos.Apps.Injection
   public class InjectModuleAttribute : InjectAttribute
   {
     protected override bool DoApply(object target, FieldInfo fInfo, IApplicationDependencyInjector injector)
-    {
-      return TryInjectModule(target, fInfo, injector);
-    }
+      => TryInjectModule(target, fInfo, injector);
   }
 
   /// <summary>
@@ -179,9 +191,7 @@ namespace Azos.Apps.Injection
   public class InjectSingletonAttribute : InjectAttribute
   {
     protected override bool DoApply(object target, FieldInfo fInfo, IApplicationDependencyInjector injector)
-    {
-      return TryInjectAppRootObjects(target, fInfo, injector);
-    }
+      => TryInjectAppRootObjects(target, fInfo, injector);
 
     protected override IEnumerable<object> GetApplicationRoots(IApplicationDependencyInjector injector)
     {

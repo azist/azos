@@ -4,9 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-
-using System;
-
 using Azos.Scripting;
 
 namespace Azos.Tests.Nub
@@ -14,11 +11,10 @@ namespace Azos.Tests.Nub
   [Runnable]
   public class CustomMetadataTests_MethodAttributes_Conf
   {
-
     public class Car
     {
       [CustomMetadata("a=123 b=789 score=100 description='Generic car' origin{_override=all country=world} z=0")]
-      public virtual void Draw() {  }
+      public virtual void Draw() { }
     }
 
     public class AmericanCar : Car
@@ -41,7 +37,7 @@ namespace Azos.Tests.Nub
 
     public class JapaneseCar : Car
     {
-     [CustomMetadata("score=110 description='Cars built in Japan' origin{_override=stop country=jap} z=1")]
+      [CustomMetadata("score=110 description='Cars built in Japan' origin{_override=stop country=jap} z=1")]
       public override void Draw() { }
     }
 
@@ -60,7 +56,7 @@ namespace Azos.Tests.Nub
     //no attribute
     public class EuropeanCar : Car
     {
-     //nothing to override
+      //nothing to override
     }
 
     public class BMW : EuropeanCar
@@ -70,14 +66,13 @@ namespace Azos.Tests.Nub
     }
 
 
-
     [Run]
     public void Car_1()
     {
       var data = Conf.Configuration.NewEmptyRoot();
       CustomMetadataAttribute.Apply(typeof(Car).GetMethod("Draw"), null, null, data);
 
-      Console.WriteLine(data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint));
+      data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint).See();
 
       Aver.AreEqual(123, data.AttrByName("a").ValueAsInt());
       Aver.AreEqual(789, data.AttrByName("b").ValueAsInt());
@@ -93,7 +88,7 @@ namespace Azos.Tests.Nub
       var data = Conf.Configuration.NewEmptyRoot();
       CustomMetadataAttribute.Apply(typeof(AmericanCar).GetMethod("Draw"), null, null, data);
 
-      Console.WriteLine(data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint));
+      data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint).See();
 
       Aver.AreEqual(123, data.AttrByName("a").ValueAsInt());
       Aver.AreEqual(789, data.AttrByName("b").ValueAsInt());
@@ -109,7 +104,7 @@ namespace Azos.Tests.Nub
       var data = Conf.Configuration.NewEmptyRoot();
       CustomMetadataAttribute.Apply(typeof(Buick).GetMethod("Draw"), null, null, data);
 
-      Console.WriteLine(data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint));
+      data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint).See();
 
       Aver.AreEqual(-900, data.AttrByName("a").ValueAsInt());
       Aver.AreEqual(789, data.AttrByName("b").ValueAsInt());
@@ -125,7 +120,7 @@ namespace Azos.Tests.Nub
       var data = Conf.Configuration.NewEmptyRoot();
       CustomMetadataAttribute.Apply(typeof(Cadillac).GetMethod("Draw"), null, null, data);
 
-      Console.WriteLine(data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint));
+      data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint).See();
 
       Aver.AreEqual(123, data.AttrByName("a").ValueAsInt());
       Aver.AreEqual(789, data.AttrByName("b").ValueAsInt());
@@ -141,7 +136,7 @@ namespace Azos.Tests.Nub
       var data = Conf.Configuration.NewEmptyRoot();
       CustomMetadataAttribute.Apply(typeof(Honda).GetMethod("Draw"), null, null, data);
 
-      Console.WriteLine(data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint));
+      data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint).See();
 
       Aver.AreEqual(123, data.AttrByName("a").ValueAsInt());
       Aver.AreEqual(789, data.AttrByName("b").ValueAsInt());
@@ -157,7 +152,7 @@ namespace Azos.Tests.Nub
       var data = Conf.Configuration.NewEmptyRoot();
       CustomMetadataAttribute.Apply(typeof(Toyota).GetMethod("Draw"), null, null, data);
 
-      Console.WriteLine(data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint));
+      data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint).See();
 
       Aver.AreEqual(123, data.AttrByName("a").ValueAsInt());
       Aver.AreEqual(-1, data.AttrByName("b").ValueAsInt());
@@ -167,14 +162,13 @@ namespace Azos.Tests.Nub
       Aver.AreEqual("jap", data.Navigate("origin/$country").Value);
     }
 
-
     [Run]
     public void EuropeanCar_1()
     {
       var data = Conf.Configuration.NewEmptyRoot();
       CustomMetadataAttribute.Apply(typeof(EuropeanCar).GetMethod("Draw"), null, null, data);
 
-      Console.WriteLine(data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint));
+      data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint).See();
 
       Aver.AreEqual(123, data.AttrByName("a").ValueAsInt());
       Aver.AreEqual(789, data.AttrByName("b").ValueAsInt());
@@ -190,7 +184,7 @@ namespace Azos.Tests.Nub
       var data = Conf.Configuration.NewEmptyRoot();
       CustomMetadataAttribute.Apply(typeof(BMW).GetMethod("Draw"), null, null, data);
 
-      Console.WriteLine(data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint));
+      data.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint).See();
 
       Aver.AreEqual(123, data.AttrByName("a").ValueAsInt());
       Aver.AreEqual(789, data.AttrByName("b").ValueAsInt());

@@ -111,7 +111,7 @@ namespace Azos.Wave.Cms.Default
     /// </summary>
     public async Task<IEnumerable<string>> GetAllPortalsAsync()
     {
-      await needLangData();
+      await needLangData().ConfigureAwait(false);
 
       if (InstrumentationEnabled)
       {
@@ -129,7 +129,7 @@ namespace Azos.Wave.Cms.Default
     {
       portal.NonBlank(nameof(portal));
 
-      await needLangData();
+      await needLangData().ConfigureAwait(false);
 
       if (InstrumentationEnabled)
         m_stat_RequestCount.IncrementLong(portal);
@@ -180,7 +180,7 @@ namespace Azos.Wave.Cms.Default
         Interlocked.Increment(ref m_stat_CacheMissCount);
       }
 
-      var fetched = await fetchAndCacheContent(id, isoLang.Value, now, caching);
+      var fetched = await fetchAndCacheContent(id, isoLang.Value, now, caching).ConfigureAwait(false);
 
       if (InstrumentationEnabled && fetched!=null)
       {
@@ -231,13 +231,13 @@ namespace Azos.Wave.Cms.Default
       async Task fetch()
       {
         await Task.Yield();
-        m_LangData = await m_Source.FetchAllLangDataAsync();
+        m_LangData = await m_Source.FetchAllLangDataAsync().ConfigureAwait(false);
       }
 
       if (m_PendingLangDataFetch==null)
          m_PendingLangDataFetch = fetch();
 
-      await m_PendingLangDataFetch;
+      await m_PendingLangDataFetch.ConfigureAwait(false);
       return;
     }
 
@@ -321,7 +321,7 @@ namespace Azos.Wave.Cms.Default
             added = true;
           }
         }
-        return await task;//await either existing or just created I/O task
+        return await task.ConfigureAwait(false);//await either existing or just created I/O task
       }
       finally
       {
@@ -338,7 +338,7 @@ namespace Azos.Wave.Cms.Default
 
       var chronometer = System.Diagnostics.Stopwatch.StartNew();
 
-      content = await m_Source.FetchContentAsync(id, isoLang, now, caching);//this is an I/O bound, possibly long operation
+      content = await m_Source.FetchContentAsync(id, isoLang, now, caching).ConfigureAwait(false);//this is an I/O bound, possibly long operation
 
       //apply EMA smoothing
       m_stat_ContentFetchLatencyMs = (FETCH_LATENCY_EMA_FILTER * chronometer.ElapsedMilliseconds) +

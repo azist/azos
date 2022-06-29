@@ -146,7 +146,7 @@ namespace Azos.Wave.Handlers
             return;
           }
 
-          Security.Permission.AuthorizeAndGuardAction(App, tt, work.Session, () => work.NeedsSession() );
+          Security.Permission.AuthorizeAndGuardAction(App.SecurityManager, tt, work.Session, () => work.NeedsSession() );
 
           target = CreateTargetInstance(work, tt);
 

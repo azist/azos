@@ -5,6 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
+using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -18,6 +19,8 @@ namespace Azos.Wave.Cms
   [Serializable]
   public sealed class Content
   {
+    public const byte BINARY_FORMAT_VER = 1;
+
     private Content() { }//used by serializer to speed-up the factory lambda call
 
     /// <summary>
@@ -110,35 +113,78 @@ namespace Azos.Wave.Cms
       m_ModifyUser = modifyUser;
     }
 
-    private static readonly Encoding UTF8NOBOM = new UTF8Encoding(false);
-
-    private static string getETag(string ctp, string scontent, byte[] bcontent)
+    /// <summary>
+    /// Creates content from binary stream.
+    /// The design is optimized for in-memory processing and does not use async model
+    /// </summary>
+    public Content(Stream stream)
     {
-      using (var md5 = IncrementalHash.CreateHash(HashAlgorithmName.MD5))
-      {
-        if (ctp.IsNotNullOrWhiteSpace())
-          md5.AppendData(UTF8NOBOM.GetBytes(ctp));
+      var reader = new Serialization.Bix.BixReader(stream.NonNull(nameof(stream)));
 
-        if (scontent.IsNotNullOrWhiteSpace())
-          md5.AppendData(UTF8NOBOM.GetBytes(scontent));
+      var ver = reader.ReadByte();
+      if (ver != BINARY_FORMAT_VER) throw new CmsException("Bad bin version: {0} Expected: {1}".Args(ver, BINARY_FORMAT_VER));
 
-        if (bcontent!=null)
-          md5.AppendData(bcontent);
+      var portal = reader.ReadString();
+      var ns     = reader.ReadString();
+      var block  = reader.ReadString();
+      m_Id       = new ContentId(portal, ns, block);
 
-        return md5.GetHashAndReset().ToWebSafeBase64();
-      }
+      m_Name     = reader.ReadNLSMap();
+
+      var iso = reader.ReadAtom();
+      var isoName = reader.ReadString();
+      m_Language = new LangInfo(iso, isoName);
+
+      m_AttachmentFileName = reader.ReadString();
+      m_ETag       = reader.ReadString();
+      m_CreateUser = reader.ReadString();
+      m_ModifyUser = reader.ReadString();
+      m_CreateDate = reader.ReadNullableDateTime();
+      m_ModifyDate = reader.ReadNullableDateTime();
+      m_ContentType   = reader.ReadString();
+      m_StringContent = reader.ReadString();
+      m_BinaryContent = reader.ReadByteArray();
+    }
+
+    /// <summary>
+    /// Writes instance state to binary stream
+    /// </summary>
+    public void WriteToStream(Stream stream)
+    {
+      var writer = new Serialization.Bix.BixWriter(stream.NonNull(nameof(stream)));
+
+      writer.Write(BINARY_FORMAT_VER);
+
+      writer.Write(m_Id.Portal);
+      writer.Write(m_Id.Namespace);
+      writer.Write(m_Id.Block);
+
+      writer.Write(m_Name);
+
+      writer.Write(m_Language.ISO);
+      writer.Write(m_Language.Name);
+
+      writer.Write(m_AttachmentFileName);
+      writer.Write(m_ETag);
+      writer.Write(m_CreateUser);
+      writer.Write(m_ModifyUser);
+      writer.Write(m_CreateDate);
+      writer.Write(m_ModifyDate);
+      writer.Write(m_ContentType);
+      writer.Write(m_StringContent);
+      writer.Write(m_BinaryContent);
     }
 
     private readonly ContentId m_Id;
-    private NLSMap m_Name;
+    private readonly NLSMap m_Name;
     private readonly LangInfo m_Language;
     private readonly string m_AttachmentFileName;
 
     private readonly string m_ETag;
-    private string m_CreateUser;
-    private string m_ModifyUser;
-    private DateTime? m_CreateDate;
-    private DateTime? m_ModifyDate;
+    private readonly string m_CreateUser;
+    private readonly string m_ModifyUser;
+    private readonly DateTime? m_CreateDate;
+    private readonly DateTime? m_ModifyDate;
     private readonly string m_ContentType;
     private readonly string m_StringContent;
     private readonly byte[] m_BinaryContent;
@@ -234,6 +280,26 @@ namespace Azos.Wave.Cms
     /// True if the content has a binary representation
     /// </summary>
     public bool IsBinary => m_BinaryContent != null;
+
+
+    private static readonly Encoding UTF8NOBOM = new UTF8Encoding(false);
+
+    private static string getETag(string ctp, string scontent, byte[] bcontent)
+    {
+      using (var md5 = IncrementalHash.CreateHash(HashAlgorithmName.MD5))
+      {
+        if (ctp.IsNotNullOrWhiteSpace())
+          md5.AppendData(UTF8NOBOM.GetBytes(ctp));
+
+        if (scontent.IsNotNullOrWhiteSpace())
+          md5.AppendData(UTF8NOBOM.GetBytes(scontent));
+
+        if (bcontent != null)
+          md5.AppendData(bcontent);
+
+        return md5.GetHashAndReset().ToWebSafeBase64();
+      }
+    }
 
   }
 }

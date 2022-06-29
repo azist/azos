@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
-
+using System.Threading.Tasks;
 using Azos.Security;
 using Azos.Serialization.JSON;
 
@@ -48,7 +48,7 @@ namespace Azos
     /// </code>
     /// </remarks>
     public static void Authorize(this IApplication app, Permission permission, [CallerMemberName] string caller = null, Apps.ISession session = null)
-     => Permission.AuthorizeAndGuardAction(app.NonNull(nameof(app)), permission, caller, session ?? Ambient.CurrentCallSession);
+     => Permission.AuthorizeAndGuardAction(app.NonNull(nameof(app)).SecurityManager, permission, caller, session ?? Ambient.CurrentCallSession);
 
     /// <summary>
     /// Checks the specified permissions in the calling scope security context
@@ -65,6 +65,18 @@ namespace Azos
     /// </code>
     /// </remarks>
     public static void Authorize(this IApplication app, IEnumerable<Permission> permissions, [CallerMemberName] string caller = null, Apps.ISession session = null)
-     => Permission.AuthorizeAndGuardAction(app.NonNull(nameof(app)), permissions, caller, session ?? Ambient.CurrentCallSession);
+     => Permission.AuthorizeAndGuardAction(app.NonNull(nameof(app)).SecurityManager, permissions, caller, session ?? Ambient.CurrentCallSession);
+
+    /// <summary>
+    /// Get authorization <see cref="AccessLevel"/> for specified permission in the scope of the app
+    /// </summary>
+    public static AccessLevel GetAccessLevel(this IApplication app, Permission permission, User user = null)
+     => app.NonNull(nameof(app)).SecurityManager.Authorize(user ?? Ambient.CurrentCallUser, permission);
+
+    /// <summary>
+    /// Get authorization <see cref="AccessLevel"/> for specified permission in the scope of the app
+    /// </summary>
+    public static async Task<AccessLevel> GetAccessLevelAsync(this IApplication app, Permission permission, User user = null)
+     => await app.NonNull(nameof(app)).SecurityManager.AuthorizeAsync(user ?? Ambient.CurrentCallUser, permission).ConfigureAwait(false);
   }
 }

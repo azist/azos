@@ -5,9 +5,6 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Azos.Conf
 {
@@ -17,18 +14,19 @@ namespace Azos.Conf
   [Serializable]
   public sealed class MemoryConfiguration : Configuration
   {
-
     /// <summary>
     /// Creates an instance of a new configuration in memory
     /// </summary>
-    public MemoryConfiguration() : base()
-    {
-    }
+    public MemoryConfiguration() : base() { }
 
     private bool m_IsReadOnly;
 
+    /// <inheritdoc/>
     public override bool IsReadOnly => m_IsReadOnly;
 
+    /// <summary>
+    /// Sets the configuration read only backing property
+    /// </summary>
     public void SetReadOnly(bool val)
     {
       m_IsReadOnly = val;

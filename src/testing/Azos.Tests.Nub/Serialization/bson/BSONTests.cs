@@ -1770,8 +1770,8 @@ namespace Azos.Tests.Nub.Serialization
         var now1 = ((BSONDateTimeElement)bson1["now"]).Value;
         var now2 = ((BSONDateTimeElement)bson2["now"]).Value;
 
-        Console.WriteLine("{0} {1}", now1, now1.Kind);
-        Console.WriteLine("{0} {1}", now2, now2.Kind);
+        "{0} {1}".SeeArgs(now1, now1.Kind);
+        "{0} {1}".SeeArgs(now2, now2.Kind);
 
         Aver.AreEqual(now1.ToUniversalTime(), now2);
       }

@@ -4,10 +4,7 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 using Azos.CodeAnalysis.Source;
 
@@ -20,31 +17,30 @@ namespace Azos.CodeAnalysis.Laconfig
   {
     public static readonly LaconfigLanguage Instance = new LaconfigLanguage();
 
-    private LaconfigLanguage() : base() {}
-
+    private LaconfigLanguage() : base() { }
 
     public override LanguageFamily Family
     {
-        get { return LanguageFamily.StructuredConfig; }
+      get { return LanguageFamily.StructuredConfig; }
     }
 
     public override IEnumerable<string> FileExtensions
     {
-        get
-        {
-            //move most commonly used names to the top for faster search
-            yield return "laconf";
-            yield return "sky";
-            yield return "rschema";
-            yield return "laconfig";
-            yield return "laconic";
-            yield return "lcf";
-        }
+      get
+      {
+        //move most commonly used names to the top for faster search
+        yield return "laconf";
+        yield return "sky";
+        yield return "rschema";
+        yield return "laconfig";
+        yield return "laconic";
+        yield return "lcf";
+      }
     }
 
     public override ILexer MakeLexer(IAnalysisContext context, SourceCodeRef srcRef, ISourceText source, MessageList messages = null, bool throwErrors = false)
     {
-        return new LaconfigLexer(context, srcRef, source, messages, throwErrors);
+      return new LaconfigLexer(context, srcRef, source, messages, throwErrors);
     }
   }
 }

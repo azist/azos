@@ -4,9 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-
-using System.Collections.Generic;
-
 using Azos.Apps;
 using Azos.Apps.Injection;
 using Azos.Apps.Strategies;
@@ -60,20 +57,24 @@ namespace Azos.Tests.Nub.Application
       }
     }
 
+
     interface IMyStratContext : IStrategyContext
     {
       string Value{ get; set;}
     }
+
 
     public class MyStartContext : IMyStratContext
     {
       public string Value{ get; set;}
     }
 
+
     interface IMyStrat1 : IStrategy<IMyStratContext>
     {
       string Something();
     }
+
 
     interface IMyStrat2 : IStrategy<IMyStratContext>
     {
@@ -89,6 +90,7 @@ namespace Azos.Tests.Nub.Application
       }
     }
 
+
     class MyStrat2Impl : Strategy<IMyStratContext>, IMyStrat2
     {
       [Inject] IStrategyBinder m_Binder;//dependency
@@ -99,7 +101,6 @@ namespace Azos.Tests.Nub.Application
         return "SomethingElse {0}.{1}".Args(GetType().Name, Context.Value);
       }
     }
-
 
   }
 }

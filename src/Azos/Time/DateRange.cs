@@ -11,13 +11,14 @@ using System.Globalization;
 
 using Azos.Data;
 using Azos.Serialization.JSON;
+using Azos.Conf;
 
 namespace Azos.Time
 {
   /// <summary>
   /// Represents a range of dates denoted by start/end date/times
   /// </summary>
-  public struct DateRange : IEquatable<DateRange>, IJsonWritable, IJsonReadable, IFormattable, IRequired, IValidatable
+  public struct DateRange : IEquatable<DateRange>, IJsonWritable, IJsonReadable, IFormattable, IRequiredCheck, IValidatable, IConfigurationPersistent
   {
     /// <summary>
     /// Create a range, at least one component is required. If both are specified both need to be in the same timezone and
@@ -27,6 +28,27 @@ namespace Azos.Time
     {
       Start = start;
       End = end;
+    }
+
+    /// <summary>
+    /// Create a range, at least one component is required. If both are specified both need to be in the same timezone and
+    /// end should be greater than the start
+    /// </summary>
+    [ConfigCtor]
+    public DateRange(IConfigSectionNode node)
+    {
+      node.NonNull(nameof(node));
+      Start = node.Of("start", "s", "from").Value.AsNullableDateTime(styles: CoreConsts.UTC_TIMESTAMP_STYLES);
+      End = node.Of("end", "e", "to").Value.AsNullableDateTime(styles: CoreConsts.UTC_TIMESTAMP_STYLES);
+    }
+
+
+    public ConfigSectionNode PersistConfiguration(ConfigSectionNode parentNode, string name)
+    {
+      var node = parentNode.NonNull(nameof(parentNode)).AddChildNode(name.NonBlank(nameof(name)));
+      if (Start.HasValue) node.AddAttributeNode("start", Start.Value);
+      if (End.HasValue) node.AddAttributeNode("end", End.Value);
+      return node;
     }
 
     /// <summary>
@@ -149,21 +171,22 @@ namespace Azos.Time
     public ValidState Validate(ValidState state, string scope = null)
     {
       if (!Start.HasValue && !End.HasValue)
-        state = new ValidState(state, new DocValidationException(nameof(DateRange), "Both Start/End unassigned"));
+        state = new ValidState(state, new FieldValidationException(nameof(DateRange), scope.Default($"<{nameof(DateRange)}>"), "Both Start/End unassigned"));
 
       if (state.ShouldStop) return state;
 
 
       if (Start.HasValue && End.HasValue && Start.Value.Kind != End.Value.Kind)
-        state = new ValidState(state, new DocValidationException(nameof(DateRange), "Different Start/End date kinds"));
+        state = new ValidState(state, new FieldValidationException(nameof(DateRange), scope.Default($"<{nameof(DateRange)}>"), "Different Start/End date kinds"));
 
       if (state.ShouldStop) return state;
 
       if (End < Start)
-        state = new ValidState(state, new DocValidationException(nameof(DateRange), "End < Start"));
+        state = new ValidState(state, new FieldValidationException(nameof(DateRange), scope.Default($"<{nameof(DateRange)}>"), "End < Start"));
 
       return state;
     }
+
   }
 
 

@@ -4,6 +4,7 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using Azos.Apps;
 using System;
 using System.Collections.Generic;
 
@@ -54,25 +55,24 @@ namespace Azos.Data.Idgen
   {
     public ConsecutiveUniqueSequenceIds(ulong startInclusive, int count)
     {
-      this.StartInclusive = startInclusive;
-      this.Count = count;
+      StartInclusive = startInclusive;
+      Count = count;
     }
 
     public readonly ulong StartInclusive;
     public readonly int Count;
   }
 
+
   /// <summary>
   /// Represents an entity that provides unique identifiers via named sequences
   /// </summary>
   public interface IUniqueSequenceProvider : Collections.INamed
   {
-
     /// <summary>
     /// Returns the list of all scope names in the instance
     /// </summary>
     IEnumerable<string> SequenceScopeNames { get; }
-
 
     /// <summary>
     /// Returns sequence information enumerable for all sequences in the named scope
@@ -121,6 +121,7 @@ namespace Azos.Data.Idgen
                                                                         bool noLWM = false);
   }
 
+
   /// <summary>
   /// Represents an entity that provides unique Global Distributed IDs (GDIDs) via named sequences.
   /// Note: GDID.Zero is never returned as it indicates the absence of a value
@@ -148,7 +149,6 @@ namespace Azos.Data.Idgen
                                       ulong? vicinity = GDID.COUNTER_MAX,
                                       bool noLWM = false);
 
-
     /// <summary>
     /// Tries to generate many consecutive Globally-Unique distributed ID (GDID) from the same authority for the supplied sequence name.
     /// If the reserved block gets exhausted, then the returned ID array length may be less than requested
@@ -175,5 +175,27 @@ namespace Azos.Data.Idgen
     ///  completely bypassed during block allocation
     /// </summary>
     string TestingAuthorityNode { get; set;}
+  }
+
+
+  /// <summary>
+  /// Sets contract for hosting IGdidProvider as an app module
+  /// </summary>
+  public interface IGdidProviderModule : IModule
+  {
+    /// <summary>
+    /// Returns provider that generates GDIDs
+    /// </summary>
+    IGdidProvider Provider { get; }
+
+    /// <summary>
+    /// Returns ScopePrefix that gets appended  before the scope name. In most cases this property is null
+    /// </summary>
+    string ScopePrefix { get; }
+
+    /// <summary>
+    /// Returns SequencePrefix that gets appended  before the sequence name. In most cases this property is null
+    /// </summary>
+    string SequencePrefix { get; }
   }
 }

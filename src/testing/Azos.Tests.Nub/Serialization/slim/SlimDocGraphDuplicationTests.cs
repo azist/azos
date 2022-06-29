@@ -7,7 +7,6 @@
 using System.IO;
 
 using Azos.Scripting;
-
 using Azos.IO;
 using Azos.Serialization.Slim;
 using System.Collections.Generic;
@@ -21,25 +20,25 @@ namespace Azos.Tests.Nub.Serialization
 
     public class ObjectA : TypedDoc
     {
-      public List<ObjectB> Values{  get; set;}
+      public List<ObjectB> Values { get; set; }
     }
 
     public class ObjectB : TypedDoc  //it only fails WHEN this is inherited from TypedDoc
     {
-        public int BField;
+      public int BField;
     }
-
-
 
 
     [Run]
     public void T01()
     {
-      using(var ms = new MemoryStream())
+      using (var ms = new MemoryStream())
       {
         var s = new SlimSerializer(SlimFormat.Instance);
 
-        var root = new ObjectA(){ Values = new List<ObjectB>{   //error shows when more than 3 items is added
+        var root = new ObjectA()
+        {
+          Values = new List<ObjectB>{   //error shows when more than 3 items is added
           new ObjectB{ BField =10000000},
           new ObjectB{ BField =21},
           new ObjectB{ BField =31},
@@ -59,12 +58,11 @@ namespace Azos.Tests.Nub.Serialization
 
         var deser = s.Deserialize(ms) as ObjectA;
 
-        Aver.IsNotNull( deser );
+        Aver.IsNotNull(deser);
         Aver.AreEqual(root.Values.Count, deser.Values.Count);
         deser.See();
       }
     }
-
 
   }
 }

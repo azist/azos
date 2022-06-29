@@ -4,9 +4,7 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using Azos.Security;
-
-namespace Azos.Sky.Security.Permissions.Chronicle
+namespace Azos.Security.Chronicle
 {
   /// <summary>
   /// Controls the access level to chronicle service
@@ -43,6 +41,6 @@ namespace Azos.Sky.Security.Permissions.Chronicle
 
     public ChroniclePermission(ChronicleAccessLevel level) : base((int)level) { }
 
-    public override string Description => StringConsts.PERMISSION_DESCRIPTION_ChroniclePermission;
+    public override string Description => Sky.StringConsts.PERMISSION_DESCRIPTION_ChroniclePermission;
   }
 }

@@ -19,9 +19,11 @@ namespace Azos.Instrumentation
     protected InstrumentationProvider(InstrumentationDaemon director) : base(director) {}
 
     protected internal virtual object BeforeBatch() { return null; }
+
     protected internal virtual void AfterBatch(object batchContext) { }
 
     protected internal virtual object BeforeType(Type type, object batchContext) { return null; }
+
     protected internal virtual void AfterType(Type type, object batchContext, object typeContext) { }
 
     protected internal abstract void Write(Datum aggregatedDatum, object batchContext, object typeContext);

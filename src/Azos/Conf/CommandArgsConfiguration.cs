@@ -5,10 +5,6 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml;
 
 namespace Azos.Conf
 {
@@ -52,79 +48,66 @@ namespace Azos.Conf
   {
     #region CONSTS
 
-        public const string ARG_PREFIX_SLASH = "/";
-        public const string ARG_PREFIX_DASH  = "-";
-        public const char OPTION_EQ = '=';
-        public const string ROOT_NODE_NAME = "args";
+    public const string ARG_PREFIX_SLASH = "/";
+    public const string ARG_PREFIX_DASH = "-";
+    public const char OPTION_EQ = '=';
+    public const string ROOT_NODE_NAME = "args";
 
     #endregion
 
     #region .ctor
 
-      /// <summary>
-      /// Creates an instance of the new configuration parsed from command line arguments
-      /// </summary>
-      public CommandArgsConfiguration(string[] args) : this(args, Platform.Computer.OSFamily != Platform.OSFamily.Windows)
-      {
-      }
+    /// <summary>
+    /// Creates an instance of the new configuration parsed from command line arguments
+    /// </summary>
+    public CommandArgsConfiguration(string[] args) : this(args, Platform.Computer.OSFamily != Platform.OSFamily.Windows)
+    {
+    }
 
-
-      /// <summary>
-      /// Creates an instance of the new configuration parsed from command line arguments
-      /// </summary>
-      public CommandArgsConfiguration(string[] args, bool inhibitSlashArg) : base()
-      {
-        m_Args = args;
-        m_InhibitSlashArg = inhibitSlashArg;
-        parseArgs();
-        m_Loaded = true;
-      }
+    /// <summary>
+    /// Creates an instance of the new configuration parsed from command line arguments
+    /// </summary>
+    public CommandArgsConfiguration(string[] args, bool inhibitSlashArg) : base()
+    {
+      m_Args = args;
+      m_InhibitSlashArg = inhibitSlashArg;
+      parseArgs();
+      m_Loaded = true;
+    }
 
     #endregion
 
 
     #region Private Fields
 
-      private bool m_InhibitSlashArg;
-      private bool m_Loaded = false;
-      private string[] m_Args;
+    private bool m_InhibitSlashArg;
+    private bool m_Loaded = false;
+    private string[] m_Args;
 
     #endregion
 
+
     #region Public Properties
 
-        /// <summary>
-        /// Indicates whether configuration is readonly or may be modified and saved
-        /// </summary>
-        public override bool IsReadOnly
-        {
-            get { return m_Loaded; }
-        }
+    /// <summary>
+    /// Indicates whether configuration is readonly or may be modified and saved
+    /// </summary>
+    public override bool IsReadOnly => m_Loaded;
 
+    /// <summary>
+    /// When true, disregards '/' as an argument delimiter
+    /// </summary>
+    public bool InhibitSlashArg => m_InhibitSlashArg;
 
-        /// <summary>
-        /// When true, disregards '/' as an argument delimiter
-        /// </summary>
-        public bool InhibitSlashArg
-        {
-           get{  return m_InhibitSlashArg;}
-        }
-
-
-        /// <summary>
-        /// Returns arguments array that this configuration was parsed from
-        /// </summary>
-        public string[] Arguments
-        {
-            get { return m_Args; }
-        }
-
+    /// <summary>
+    /// Returns arguments array that this configuration was parsed from
+    /// </summary>
+    public string[] Arguments => m_Args;
 
     #endregion
 
 
     #region .pvt .impl
-
 
     // -arg1 -arg2 -arg3 opt1 opt2 -arg4 optA=v1 optB=v2
     private void parseArgs()
@@ -133,7 +116,7 @@ namespace Azos.Conf
       m_Root = new ConfigSectionNode(this, null, ROOT_NODE_NAME, string.Empty);
 
       var uargcnt = 1; //unknown arg length
-      for (int i = 0; i < m_Args.Length; )
+      for (int i = 0; i < m_Args.Length;)
       {
         var argument = m_Args[i];
 
@@ -143,7 +126,7 @@ namespace Azos.Conf
           var argNode = m_Root.AddChildNode(argument, null);
 
           var uopcnt = 1;//unknown option length
-          for (i++; i < m_Args.Length; )//read args's options
+          for (i++; i < m_Args.Length;)//read args's options
           {
             var option = m_Args[i];
             if ((!m_InhibitSlashArg && option.StartsWith(ARG_PREFIX_SLASH)) || option.StartsWith(ARG_PREFIX_DASH)) break;
@@ -180,7 +163,6 @@ namespace Azos.Conf
 
       m_Root.ResetModified();
     }
-
 
     #endregion
   }

@@ -35,7 +35,6 @@ namespace Azos.Data
        {typeof(DateTime), "datetime"}
     };
 
-
     private static readonly Dictionary<string, Type> s_JSON = new Dictionary<string, Type>(StringComparer.InvariantCultureIgnoreCase)
     {
       {JTP_ARRAY, typeof(List<object>)},
@@ -60,11 +59,10 @@ namespace Azos.Data
       {"date", typeof(DateTime)}, {"datetime", typeof(DateTime)}, {"time", typeof(DateTime)}, {"timestamp", typeof(DateTime)}
     };
 
-
     public static string MapCLRTypeToJSON(Type type, out bool isNullable)
     {
       isNullable = false;
-      if (type==null) return JTP_OBJECT;
+      if (type == null) return JTP_OBJECT;
 
       if (typeof(string).IsAssignableFrom(type))
       {
@@ -88,18 +86,16 @@ namespace Azos.Data
 
       if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
       {
-         isNullable = true;
-         type = type.GetGenericArguments()[0];
+        isNullable = true;
+        type = type.GetGenericArguments()[0];
       }
 
       //dictionary lookup
-      string name;
-      if (!s_CLR.TryGetValue(type, out name))
+      if (!s_CLR.TryGetValue(type, out string name))
         name = JTP_OBJECT;
 
       return name;
     }
-
 
     public static Type MapJSONTypeToCLR(string type, bool isNullable)
     {
@@ -109,14 +105,13 @@ namespace Azos.Data
       if (s_JSON.TryGetValue(type, out t))
       {
         if (t.IsValueType && isNullable)
-         return typeof(Nullable<>).MakeGenericType(t);
+          return typeof(Nullable<>).MakeGenericType(t);
 
         return t;
       }
 
       return typeof(object);
     }
-
 
   }
 }

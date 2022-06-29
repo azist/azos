@@ -1,4 +1,4 @@
-# Azos - A to Z Sky Operating System
+# Azos - A to Z Business Operating System
 
 <img src="/elm/design/logo/azos.png" alt="Logo" >
 
@@ -13,18 +13,23 @@ Azos is a **full stack** framework for distributed data-driven business applicat
 of any size. Unique feature of Azos is its self-sufficiency as it includes all of the components
 necessary for creation of **typical business** to **Facebook-scale** applications.
 
+**NEW!!!** [ (Under Construction) Azos Step-by-Step Tutorial](https://github.com/azist/tutorial-steps)
+
 [Azos Documentation Index](/src/documentation-index.md)
 
 Azos includes:
 - Application chassis (component hierarchy container)
 - Configuration (supports external cluster configuration)
 - DI
-- Logging 
+- Logging
+- Single instance or cross-sharded **cloud deployable log chronicle** client/server API services and log repository framework 
 - Instrumentation (custom gauges/events/counters)
 - Serialization: Binary, Bson, Json
+- **Binary archiving stream** management for data persistence, instrumentation, and log archival (opt-in compression and encryption)
 - Security: role based, permissions, annotations, inheritance etc.
 - **Contract-based RPC** (Glue)
 - **Mvc Web Stack** based on web server abstraction (may use Asp Core, HttpListener or any other server/stack)
+- **Distributed cloud messaging and event hub** queue based pipeline services
 - **Data documents** - model data for RDBMS/NoSQL/Service stores. Full **auto CRUD**/metadata/validation
 - Hybrid Data Access Layer - **virtual queries** (e.g. query service instead of table)
 - Pile: In memory pile of objects store 100s of millions of instances in-process

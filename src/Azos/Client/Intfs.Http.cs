@@ -5,12 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
 using System.Net.Http;
-
-using Azos.Apps;
-using Azos.Collections;
-using Azos.Instrumentation;
 
 namespace Azos.Client
 {
@@ -22,6 +17,7 @@ namespace Azos.Client
 
   }
 
+
   /// <summary>
   /// Marks endpoints that have HTTP semantics - the ones based on HttpClient-like operations, REST, RPC, JSON etc...
   /// </summary>
@@ -31,7 +27,6 @@ namespace Azos.Client
     /// Uri of the Http call destination
     /// </summary>
     Uri Uri { get; }
-
 
     /// <summary>
     /// When true, enables attaching an HTTP header containing DistributedCallFlow object (if available) to outgoing calls
@@ -43,6 +38,7 @@ namespace Azos.Client
     /// </summary>
     string DistributedCallFlowHeader { get; }
   }
+
 
   /// <summary>
   /// Marks transports that have HTTP semantics - the ones based on HttpClient-like operations, REST, RPC, JSON etc...

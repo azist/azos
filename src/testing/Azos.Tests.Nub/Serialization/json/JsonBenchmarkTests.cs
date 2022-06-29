@@ -4,7 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
 using System.Threading.Tasks;
 
 using Azos.Scripting;
@@ -48,9 +47,7 @@ namespace Azos.Tests.Nub.Serialization
       time.Stop();
 
       "Did {0:n0} in {1:n1} sec at {2:n0} ops/sec".SeeArgs(cnt, time.ElapsedSec, cnt / time.ElapsedSec);
-
     }
-
 
     //[Run("cnt=250000 par=false")]
     //[Run("cnt=250000 par=true")]
@@ -76,7 +73,6 @@ namespace Azos.Tests.Nub.Serialization
       time.Stop();
 
       "Did {0:n0} in {1:n1} sec at {2:n0} ops/sec".SeeArgs(cnt, time.ElapsedSec, cnt / time.ElapsedSec);
-
     }
 
     //[Run("cnt=150000 par=false")]
@@ -103,7 +99,6 @@ namespace Azos.Tests.Nub.Serialization
       time.Stop();
 
       "Did {0:n0} in {1:n1} sec at {2:n0} ops/sec".SeeArgs(cnt, time.ElapsedSec, cnt / time.ElapsedSec);
-
     }
 
     //[Run("cnt=95000 par=false")]
@@ -151,7 +146,6 @@ namespace Azos.Tests.Nub.Serialization
       time.Stop();
 
       "Did {0:n0} in {1:n1} sec at {2:n0} ops/sec".SeeArgs(cnt, time.ElapsedSec, cnt / time.ElapsedSec);
-
     }
   }
 }

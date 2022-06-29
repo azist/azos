@@ -5,9 +5,6 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 using Azos.Conf;
 using Azos.Time;
@@ -35,13 +32,11 @@ namespace Azos.Apps.Volatile
     /// </summary>
     object Fetch(Guid key, bool touch = false);
 
-
     /// <summary>
     /// Retrieves an object reference from the store identified by the "key" or returns null if such object does not exist.
     /// Object is not going to be persisted until it is checked back in the store.
     /// </summary>
     object CheckOut(Guid key);
-
 
     /// <summary>
     /// Reverts object state to Normal after the call to Checkout. This way the changes (if any) are not going to be persisted.
@@ -56,7 +51,6 @@ namespace Azos.Apps.Volatile
     /// </summary>
     bool CheckIn(Guid key, int msTimeout = 0);
 
-
     /// <summary>
     /// Puts an object reference "value" into store identified by the "key"
     /// </summary>
@@ -67,7 +61,6 @@ namespace Azos.Apps.Volatile
     /// If oldKey was not checked in, then checks-in under new key as normally would
     /// </summary>
     void CheckInUnderNewKey(Guid oldKey, Guid newKey, object value, int msTimeout = 0);
-
 
     /// <summary>
     /// Deletes object identified by key. Returns true when object was found and marked for deletion

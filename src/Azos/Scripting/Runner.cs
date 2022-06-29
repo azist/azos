@@ -7,11 +7,11 @@ using System;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 using Azos.Apps;
 using Azos.Conf;
 using Azos.Text;
-using System.Threading.Tasks;
 
 namespace Azos.Scripting
 {
@@ -356,13 +356,15 @@ namespace Azos.Scripting
       var hook = runnable as IRunHook;
       Exception error = null;
       //setup Console redirect
-      var wasOut = Console.Out;
-      var wasError = Console.Error;
+//#576
+////      var wasOut = Console.Out;
+////      var wasError = Console.Error;
       var alreadyHandled = false;
       try
       {
- //       Console.SetOut( Host.ConsoleOut );
-//        Console.SetError( Host.ConsoleError );
+//commented when Conout was introduced in 2019-2020
+ ////       Console.SetOut( Host.ConsoleOut );
+////        Console.SetError( Host.ConsoleError );
 
         var args = MakeMethodParameters(method);
         try
@@ -402,8 +404,9 @@ namespace Azos.Scripting
       }
       finally
       {
-        Console.SetOut(wasOut);
-        Console.SetOut(wasError);
+//#576
+////        Console.SetOut(wasOut);
+////        Console.SetOut(wasError);
       }
 
       Host.AfterMethodRun(this, fid, method.mi, method.attr, error);

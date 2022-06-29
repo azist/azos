@@ -4,7 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
 using System.Runtime.Serialization;
 using System.IO;
 
@@ -16,7 +15,6 @@ namespace Azos.Tests.Nub.Serialization
   [Runnable]
   public class Slim4Tests
   {
-
     [Run]
     public void T01()
     {
@@ -36,9 +34,9 @@ namespace Azos.Tests.Nub.Serialization
 
         var dOut = (customClassB)s.Deserialize(ms);
 
-        Aver.AreEqual( 190, dOut.A );
-        Aver.AreEqual( 3232, dOut.B );
-        Aver.IsNull( dOut.Child );
+        Aver.AreEqual(190, dOut.A);
+        Aver.AreEqual(3232, dOut.B);
+        Aver.IsNull(dOut.Child);
       }
     }
 
@@ -53,7 +51,7 @@ namespace Azos.Tests.Nub.Serialization
         {
           A = 2190,
           B = 23232,
-          Child = new customClassA{ A = -100, B=-900}
+          Child = new customClassA { A = -100, B = -900 }
         };
 
         s.Serialize(ms, dIn);
@@ -61,14 +59,13 @@ namespace Azos.Tests.Nub.Serialization
 
         var dOut = (customClassB)s.Deserialize(ms);
 
-        Aver.AreEqual( 2190, dOut.A );
-        Aver.AreEqual( 23232, dOut.B );
-        Aver.IsNotNull( dOut.Child );
-        Aver.AreEqual( -100, dOut.Child.A );
-        Aver.AreEqual( -900, dOut.Child.B );
+        Aver.AreEqual(2190, dOut.A);
+        Aver.AreEqual(23232, dOut.B);
+        Aver.IsNotNull(dOut.Child);
+        Aver.AreEqual(-100, dOut.Child.A);
+        Aver.AreEqual(-900, dOut.Child.B);
       }
     }
-
 
     [Run]
     public void T03()
@@ -88,20 +85,18 @@ namespace Azos.Tests.Nub.Serialization
         ////dIn[1].Child = dIn[0];
         ////dIn[2].Child = dIn[1];
 
-
         s.Serialize(ms, dIn);
         ms.Seek(0, SeekOrigin.Begin);
 
         var dOut = (customClassB[])s.Deserialize(ms);
 
-        Aver.AreEqual( 3, dOut.Length );
-        Aver.AreEqual( 1, dOut[0].A);
-        Aver.AreEqual( 100, dOut[0].B);
-
+        Aver.AreEqual(3, dOut.Length);
+        Aver.AreEqual(1, dOut[0].A);
+        Aver.AreEqual(100, dOut[0].B);
       }
     }
 
-    [Run("!slim-stack","")]
+    [Run("!slim-stack", "")]
     public void T04()
     {
       using (var ms = new MemoryStream())
@@ -119,20 +114,17 @@ namespace Azos.Tests.Nub.Serialization
         dIn[1].Child = dIn[0];
         dIn[2].Child = dIn[1];
 
-
         s.Serialize(ms, dIn);
-        Console.WriteLine("Written {0} bytes".Args(ms.Length));
+        "Written {0} bytes".Args(ms.Length).See();
         ms.Seek(0, SeekOrigin.Begin);
 
         var dOut = (customClassB[])s.Deserialize(ms);
 
-        Aver.AreEqual( 3, dOut.Length );
-        Aver.AreEqual( 1, dOut[0].A);
-        Aver.AreEqual( 100, dOut[0].B);
-
+        Aver.AreEqual(3, dOut.Length);
+        Aver.AreEqual(1, dOut[0].A);
+        Aver.AreEqual(100, dOut[0].B);
       }
     }
-
 
 
     private class customClassA : ISerializable
@@ -141,9 +133,9 @@ namespace Azos.Tests.Nub.Serialization
       protected int m_B;
       protected customClassA m_Child;
 
-      public int A{ get{ return m_A; } set{ m_A = value; }}
-      public int B{ get{ return m_B; } set{ m_B = value; }}
-      public customClassA Child{ get{ return m_Child;} set{ m_Child = value; }}
+      public int A { get { return m_A; } set { m_A = value; } }
+      public int B { get { return m_B; } set { m_B = value; } }
+      public customClassA Child { get { return m_Child; } set { m_Child = value; } }
 
       public void GetObjectData(SerializationInfo info, StreamingContext context)
       {
@@ -154,9 +146,10 @@ namespace Azos.Tests.Nub.Serialization
       }
     }
 
+
     private class customClassB : customClassA
     {
-      public customClassB(){}
+      public customClassB() { }
       public customClassB(SerializationInfo info, StreamingContext context)
       {
         m_A = info.GetInt32("a");

@@ -12,8 +12,8 @@ using System.Text;
 namespace Azos.Data.Access
 {
   /// <summary>
-  /// Defines a query sent into ICRUDDataStore implementor to retrieve data.
-  /// A Query is a named bag of parameters where every parameter has a name and a value.
+  ///  Defines a query sent into ICRUDDataStore implementor to retrieve data.
+  ///  A Query is a named bag of parameters where every parameter has a name and a value.
   /// </summary>
   /// <remarks>
   ///  Keep in mind that a particular datastore implementation may have to deal with hybrid distributed backends where different tables get stored
@@ -22,18 +22,19 @@ namespace Azos.Data.Access
   ///  this into provider implementation.
   ///  Architectural note: unlike Hibernate, LinqTo* and the like, the Azos.DataAccess architecture purposely does not allow developers
   ///  to write query scripts in higher-language like C#. This is because translation of such a high-level language abstraction into
-  ///   highly optimized SQL/(and or other script) per particular backend is impossible because such language can not encapsulate
+  ///  highly optimized SQL/(and or other script) per particular backend is impossible because such language can not encapsulate
   ///  the optimization features of all possible data backends (i.e. ORACLE vs MongoDB vs Redis vs Files in HDFS).
-  /// CRUD queries need to support selects from tables with millions of rows, or reads from collections with millions of documents,
-  /// or parse millions of lines from files stored in Hadooop servers, thus every particular provider for every particular business app
-  /// must expose custom-written queries by name. Those queries are usually highly optimized for particular platform
-  /// (i.e. using db-specific hints, common table subexpressions, grouping sets etc.).
-  /// Also, a provider may elect to SELECT * from a table named like Query object, when a hand-written script with such name is not found
+  ///  CRUD queries need to support selects from tables with millions of rows, or reads from collections with millions of documents,
+  ///  or parse millions of lines from files stored in Hadooop servers, thus every particular provider for every particular business app
+  ///  must expose custom-written queries by name. Those queries are usually highly optimized for particular platform
+  ///  (i.e. using db-specific hints, common table subexpressions, grouping sets etc.).
+  ///  Also, a provider may elect to SELECT * from a table named like Query object, when a hand-written script with such name is not found
   /// </remarks>
   [Serializable]
   public class Query : List<Query.Param>, Collections.INamed, ICacheParams
   {
     #region Inner Classes
+
     /// <summary>
     /// Represents a CRUD query parameter
     /// </summary>
@@ -47,13 +48,17 @@ namespace Azos.Data.Access
         HasValue = hasValue;
       }
 
-      public string Name     { get; }
-      public object Value    { get; }
-      public bool   HasValue { get; }
+      public string Name { get; }
+
+      public object Value { get; }
+
+      public bool HasValue { get; }
     }
+
     #endregion
 
     #region .ctor
+
     public Query(string name, Type resultRowType = null, Dictionary<string, object> extra = null) : this(null, name, resultRowType, extra)
     {
 
@@ -61,11 +66,11 @@ namespace Azos.Data.Access
 
     public Query(Guid? identity, string name, Type resultRowType = null, Dictionary<string, object> extra = null)
     {
-        m_Identity = identity ?? Guid.NewGuid();
-        m_Name = name;
-        m_Extra = extra;
-        m_ResultDocType = resultRowType;
-        checkResultRowType();
+      m_Identity = identity ?? Guid.NewGuid();
+      m_Name = name;
+      m_Extra = extra;
+      m_ResultDocType = resultRowType;
+      checkResultRowType();
     }
 
     public Query(string name, IDataStoreKey key, Type resultRowType = null) : this(null, name, key, resultRowType)
@@ -75,24 +80,24 @@ namespace Azos.Data.Access
 
     public Query(Guid? identity, string name, IDataStoreKey key, Type resultDocType = null)
     {
-        m_Identity = identity ?? Guid.NewGuid();
-        m_Name = name;
-        m_DataStoreKey = key;
-        m_ResultDocType = resultDocType;
-        checkResultRowType();
+      m_Identity = identity ?? Guid.NewGuid();
+      m_Name = name;
+      m_DataStoreKey = key;
+      m_ResultDocType = resultDocType;
+      checkResultRowType();
     }
+
     #endregion
 
     #region Fields
 
-        private Guid m_Identity;
-        private string m_Name;
-        private Dictionary<string, object> m_Extra;
-        private IDataStoreKey m_DataStoreKey;
-        private Type m_ResultDocType;
+    private Guid m_Identity;
+    private string m_Name;
+    private Dictionary<string, object> m_Extra;
+    private IDataStoreKey m_DataStoreKey;
+    private Type m_ResultDocType;
 
     #endregion
-
 
     #region Properties
 
@@ -102,7 +107,6 @@ namespace Azos.Data.Access
     /// The identity is either generated by .ctor or supplied to it if it is cached (i.e. in a user session)
     /// </summary>
     public Guid Identity => m_Identity;
-
 
     /// <summary>
     /// Returns Query name, providers use it to locate SQL/scripts particular to backend implementation that they represent.
@@ -121,11 +125,10 @@ namespace Azos.Data.Access
     /// </summary>
     public Type ResultDocType => m_ResultDocType;
 
-
     /// <summary>
     /// Returns extra parameters that provider may need to render the query. May be null
     /// </summary>
-    public Dictionary<string, object>  Extra => m_Extra;
+    public Dictionary<string, object> Extra => m_Extra;
 
     /// <summary>
     /// Returns parameter by its name or null
@@ -137,25 +140,24 @@ namespace Azos.Data.Access
     /// If =0 uses cache's default span.
     /// Less than 0 does not try to read from cache
     /// </summary>
-    public int ReadCacheMaxAgeSec{ get; set;}
+    public int ReadCacheMaxAgeSec { get; set; }
 
     /// <summary>
     /// If greater than 0 then writes to cache with the expiration.
     /// If =0 uses cache's default life span.
     /// Less than 0 does not write to cache
     /// </summary>
-    public int WriteCacheMaxAgeSec{ get; set;}
+    public int WriteCacheMaxAgeSec { get; set; }
 
     /// <summary>
     /// Relative cache priority which is used when WriteCacheMaxAgeSec>=0
     /// </summary>
-    public int WriteCachePriority{ get; set;}
+    public int WriteCachePriority { get; set; }
 
     /// <summary>
     /// When true would cache the instance of AbsentData to signify the absence of data in the backend for key
     /// </summary>
-    public bool CacheAbsentData{ get; set; }
-
+    public bool CacheAbsentData { get; set; }
 
     #endregion
 
@@ -166,21 +168,21 @@ namespace Azos.Data.Access
     /// </summary>
     public void AssignCaching(ICacheParams cache)
     {
-      if (cache==null) return;
-      ReadCacheMaxAgeSec  = cache.ReadCacheMaxAgeSec;
+      if (cache == null) return;
+      ReadCacheMaxAgeSec = cache.ReadCacheMaxAgeSec;
       WriteCacheMaxAgeSec = cache.WriteCacheMaxAgeSec;
-      WriteCachePriority  = cache.WriteCachePriority;
-      CacheAbsentData     = cache.CacheAbsentData;
+      WriteCachePriority = cache.WriteCachePriority;
+      CacheAbsentData = cache.CacheAbsentData;
     }
 
-    public override string ToString()  => "Query[{0}]('{1}')`{1}".Args(m_Identity, Name, this.Count());
+    public override string ToString() => "Query[{0}]('{1}')`{1}".Args(m_Identity, Name, this.Count());
 
     public override bool Equals(object obj)
     {
       var other = obj as Query;
-      if (other==null) return false;
+      if (other == null) return false;
 
-      return this.m_Identity == other.Identity;
+      return m_Identity == other.Identity;
     }
 
     public override int GetHashCode() => m_Identity.GetHashCode();
@@ -191,12 +193,11 @@ namespace Azos.Data.Access
 
     private void checkResultRowType()
     {
-        if (m_ResultDocType==null) return;
-        if (!typeof(Doc).IsAssignableFrom(m_ResultDocType))
-            throw new DataAccessException(StringConsts.CRUD_TYPE_IS_NOT_DERIVED_FROM_ROW_ERROR.Args(m_ResultDocType.FullName));
+      if (m_ResultDocType == null) return;
+      if (!typeof(Doc).IsAssignableFrom(m_ResultDocType))
+        throw new DataAccessException(StringConsts.CRUD_TYPE_IS_NOT_DERIVED_FROM_ROW_ERROR.Args(m_ResultDocType.FullName));
     }
   }
-
 
 
   /// <summary>
@@ -206,17 +207,17 @@ namespace Azos.Data.Access
   [Serializable]
   public sealed class Query<TResultDoc> : Query where TResultDoc : Doc
   {
-      public Query(string name, Dictionary<string, object> extra = null)
-        : base(name, typeof(TResultDoc), extra) { }
+    public Query(string name, Dictionary<string, object> extra = null)
+      : base(name, typeof(TResultDoc), extra) { }
 
-      public Query(Guid? identity, string name, Dictionary<string, object> extra = null)
-        : base(identity, name, typeof(TResultDoc), extra) { }
+    public Query(Guid? identity, string name, Dictionary<string, object> extra = null)
+      : base(identity, name, typeof(TResultDoc), extra) { }
 
-      public Query(string name, IDataStoreKey key)
-        : base(name, key, typeof(TResultDoc))  { }
+    public Query(string name, IDataStoreKey key)
+      : base(name, key, typeof(TResultDoc)) { }
 
-      public Query(Guid? identity, string name, IDataStoreKey key)
-        : base(identity, name, key, typeof(TResultDoc)) { }
+    public Query(Guid? identity, string name, IDataStoreKey key)
+      : base(identity, name, key, typeof(TResultDoc)) { }
   }
 
 }

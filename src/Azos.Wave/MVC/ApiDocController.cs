@@ -271,6 +271,8 @@ namespace Azos.Wave.Mvc
 
       var scopeContent = data.ValOf("doc-content");
       var excision = MarkdownUtils.ExciseSection(scopeContent, "## Endpoints");
+      var hasEndpointsBlock = excision.iexcision >= 0;
+      var finalMarkdown = scopeContent;
 
       var epContent = new StringBuilder();
       epContent.AppendLine("## Endpoints");
@@ -327,12 +329,17 @@ namespace Azos.Wave.Mvc
 
       }//foreach endpoint
 
-
-
-      //eval variables
-      var finalMarkdown = "{0}\n{1}\n{2}".Args(excision.content?.Substring(0, excision.iexcision),
-                                               epContent.ToString(),
-                                               excision.content?.Substring(excision.iexcision));
+      if (hasEndpointsBlock)
+      {
+          //stitch endpoint content back together
+          finalMarkdown = "{0}\n{1}\n{2}".Args(excision.content?.Substring(0, excision.iexcision),
+                                             epContent.ToString(),
+                                             excision.content?.Substring(excision.iexcision));
+      }//if hasEndpointBlock
+      else
+      {
+         finalMarkdown = epContent.ToString();
+      }
 
       //eval type references
       finalMarkdown = MarkdownUtils.EvaluateVariables(finalMarkdown, v =>
@@ -340,7 +347,7 @@ namespace Azos.Wave.Mvc
         if (v.IsNotNullOrWhiteSpace() && v.StartsWith("@"))
         {
           v = v.Substring(1);
-          return "<a href=\"{0}\">{1} Schema</a>".Args("schema?id={0}".Args(v), v);
+          return "<a href=\"{0}\">{1}</a>".Args("schema?id={0}".Args(v), v);
         }
         return v;
       });

@@ -8,7 +8,6 @@ using System;
 
 using Azos.Instrumentation;
 using Azos.Serialization.Arow;
-using Azos.Serialization.BSON;
 
 namespace Azos.Data.Access.Cache.Instrumentation
 {
@@ -21,6 +20,7 @@ namespace Azos.Data.Access.Cache.Instrumentation
     protected CacheLongGauge(string src, long value) : base(src, value) { }
   }
 
+
   /// <summary>
   /// Provides base for cache double gauges
   /// </summary>
@@ -29,6 +29,7 @@ namespace Azos.Data.Access.Cache.Instrumentation
   {
     protected CacheDoubleGauge(string src, double value) : base(src, value) { }
   }
+
 
   /// <summary>
   /// Provides record count in the instance
@@ -39,11 +40,11 @@ namespace Azos.Data.Access.Cache.Instrumentation
   {
     internal RecordCount(string src, long value) : base(src, value) { }
 
-    public override string Description { get { return "Provides record count in the instance"; } }
+    public override string Description => "Provides record count in the instance";
 
-    public override string ValueUnitName { get { return CoreConsts.UNIT_NAME_RECORD; } }
+    public override string ValueUnitName => CoreConsts.UNIT_NAME_RECORD;
 
-    protected override Datum MakeAggregateInstance() { return new RecordCount(this.Source, 0); }
+    protected override Datum MakeAggregateInstance() => new RecordCount(this.Source, 0);
   }
 
 
@@ -56,11 +57,11 @@ namespace Azos.Data.Access.Cache.Instrumentation
   {
     internal PageCount(string src, long value) : base(src, value) { }
 
-    public override string Description { get { return "Provides page count in the instance"; } }
+    public override string Description => "Provides page count in the instance";
 
-    public override string ValueUnitName { get { return CoreConsts.UNIT_NAME_PAGE; } }
+    public override string ValueUnitName => CoreConsts.UNIT_NAME_PAGE;
 
-    protected override Datum MakeAggregateInstance() { return new PageCount(this.Source, 0); }
+    protected override Datum MakeAggregateInstance() => new PageCount(this.Source, 0);
   }
 
 
@@ -73,11 +74,11 @@ namespace Azos.Data.Access.Cache.Instrumentation
   {
     internal BucketPageLoadFactor(string src, double value) : base(src, value) { }
 
-    public override string Description { get { return "Provides the ratio of how many buckets are loaded with pages vs. bucket count"; } }
+    public override string Description => "Provides the ratio of how many buckets are loaded with pages vs. bucket count";
 
-    public override string ValueUnitName { get { return CoreConsts.UNIT_NAME_PAGE_PER_BUCKET; } }
+    public override string ValueUnitName => CoreConsts.UNIT_NAME_PAGE_PER_BUCKET;
 
-    protected override Datum MakeAggregateInstance() { return new BucketPageLoadFactor(this.Source, 0); }
+    protected override Datum MakeAggregateInstance() => new BucketPageLoadFactor(this.Source, 0);
   }
 
 
@@ -90,12 +91,13 @@ namespace Azos.Data.Access.Cache.Instrumentation
   {
     internal HitCount(string src, long value) : base(src, value) { }
 
-    public override string Description { get { return "How many times Get() resulted in cache hit"; } }
+    public override string Description => "How many times Get() resulted in cache hit";
 
-    public override string ValueUnitName { get { return CoreConsts.UNIT_NAME_TIME; } }
+    public override string ValueUnitName => CoreConsts.UNIT_NAME_TIME;
 
-    protected override Datum MakeAggregateInstance() { return new HitCount(this.Source, 0); }
+    protected override Datum MakeAggregateInstance() => new HitCount(this.Source, 0);
   }
+
 
   /// <summary>
   /// How many times Get() resulted in cache miss
@@ -106,12 +108,13 @@ namespace Azos.Data.Access.Cache.Instrumentation
   {
     internal MissCount(string src, long value) : base(src, value) { }
 
-    public override string Description { get { return "How many times Get() resulted in cache miss"; } }
+    public override string Description => "How many times Get() resulted in cache miss";
 
-    public override string ValueUnitName { get { return CoreConsts.UNIT_NAME_TIME; } }
+    public override string ValueUnitName => CoreConsts.UNIT_NAME_TIME;
 
-    protected override Datum MakeAggregateInstance() { return new MissCount(this.Source, 0); }
+    protected override Datum MakeAggregateInstance() => new MissCount(this.Source, 0);
   }
+
 
   /// <summary>
   /// How many times factory func was called from GetOrPut()
@@ -122,11 +125,11 @@ namespace Azos.Data.Access.Cache.Instrumentation
   {
     internal ValueFactoryCount(string src, long value) : base(src, value) { }
 
-    public override string Description { get { return "How many times factory func was called from GetOrPut()"; } }
+    public override string Description => "How many times factory func was called from GetOrPut()";
 
-    public override string ValueUnitName { get { return CoreConsts.UNIT_NAME_CALL; } }
+    public override string ValueUnitName => CoreConsts.UNIT_NAME_CALL;
 
-    protected override Datum MakeAggregateInstance() { return new ValueFactoryCount(this.Source, 0); }
+    protected override Datum MakeAggregateInstance() => new ValueFactoryCount(this.Source, 0);
   }
 
 
@@ -139,12 +142,13 @@ namespace Azos.Data.Access.Cache.Instrumentation
   {
     internal SweepTableCount(string src, long value) : base(src, value) { }
 
-    public override string Description { get { return "How many times tables were swept"; } }
+    public override string Description => "How many times tables were swept";
 
-    public override string ValueUnitName { get { return CoreConsts.UNIT_NAME_SWEEP; } }
+    public override string ValueUnitName => CoreConsts.UNIT_NAME_SWEEP;
 
-    protected override Datum MakeAggregateInstance() { return new SweepTableCount(this.Source, 0); }
+    protected override Datum MakeAggregateInstance() => new SweepTableCount(this.Source, 0);
   }
+
 
   /// <summary>
   /// How many pages swept
@@ -155,12 +159,13 @@ namespace Azos.Data.Access.Cache.Instrumentation
   {
     internal SweepPageCount(string src, long value) : base(src, value) { }
 
-    public override string Description { get { return "How many pages swept"; } }
+    public override string Description => "How many pages swept";
 
-    public override string ValueUnitName { get { return CoreConsts.UNIT_NAME_SWEEP; } }
+    public override string ValueUnitName => CoreConsts.UNIT_NAME_SWEEP;
 
-    protected override Datum MakeAggregateInstance() { return new SweepPageCount(this.Source, 0); }
+    protected override Datum MakeAggregateInstance() => new SweepPageCount(this.Source, 0);
   }
+
 
   /// <summary>
   /// How many records removed by sweep
@@ -171,12 +176,13 @@ namespace Azos.Data.Access.Cache.Instrumentation
   {
     internal SweepRemoveCount(string src, long value) : base(src, value) { }
 
-    public override string Description { get { return "How many records removed by sweep"; } }
+    public override string Description => "How many records removed by sweep";
 
-    public override string ValueUnitName { get { return CoreConsts.UNIT_NAME_RECORD; } }
+    public override string ValueUnitName => CoreConsts.UNIT_NAME_RECORD;
 
-    protected override Datum MakeAggregateInstance() { return new SweepRemoveCount(this.Source, 0); }
+    protected override Datum MakeAggregateInstance() => new SweepRemoveCount(this.Source, 0);
   }
+
 
   /// <summary>
   /// How many times Put() was called
@@ -187,12 +193,13 @@ namespace Azos.Data.Access.Cache.Instrumentation
   {
     internal PutCount(string src, long value) : base(src, value) { }
 
-    public override string Description { get { return "How many times Put() was called"; } }
+    public override string Description => "How many times Put() was called";
 
-    public override string ValueUnitName { get { return CoreConsts.UNIT_NAME_TIME; } }
+    public override string ValueUnitName => CoreConsts.UNIT_NAME_TIME;
 
-    protected override Datum MakeAggregateInstance() { return new PutCount(this.Source, 0); }
+    protected override Datum MakeAggregateInstance() => new PutCount(this.Source, 0);
   }
+
 
   /// <summary>
   /// How many times a call to Put() resulted in insert
@@ -203,12 +210,13 @@ namespace Azos.Data.Access.Cache.Instrumentation
   {
     internal PutInsertCount(string src, long value) : base(src, value) { }
 
-    public override string Description { get { return "How many times a call to Put() resulted in insert"; } }
+    public override string Description => "How many times a call to Put() resulted in insert";
 
-    public override string ValueUnitName { get { return CoreConsts.UNIT_NAME_TIME; } }
+    public override string ValueUnitName => CoreConsts.UNIT_NAME_TIME;
 
-    protected override Datum MakeAggregateInstance() { return new PutInsertCount(this.Source, 0); }
+    protected override Datum MakeAggregateInstance() => new PutInsertCount(this.Source, 0);
   }
+
 
   /// <summary>
   /// How many times a call to Put() resulted in relacement of existing item by key without collision
@@ -219,12 +227,13 @@ namespace Azos.Data.Access.Cache.Instrumentation
   {
     internal PutReplaceCount(string src, long value) : base(src, value) { }
 
-    public override string Description { get { return "How many times a call to Put() resulted in relacement of existing item by key without collision"; } }
+    public override string Description => "How many times a call to Put() resulted in relacement of existing item by key without collision";
 
-    public override string ValueUnitName { get { return CoreConsts.UNIT_NAME_TIME; } }
+    public override string ValueUnitName => CoreConsts.UNIT_NAME_TIME;
 
-    protected override Datum MakeAggregateInstance() { return new PutReplaceCount(this.Source, 0); }
+    protected override Datum MakeAggregateInstance() => new PutReplaceCount(this.Source, 0);
   }
+
 
   /// <summary>
   /// How many times a call to Put() resulted in bucket collision that created a page
@@ -235,12 +244,13 @@ namespace Azos.Data.Access.Cache.Instrumentation
   {
     internal PutPageCreateCount(string src, long value) : base(src, value) { }
 
-    public override string Description { get { return "How many times a call to Put() resulted in bucket collision that created a page"; } }
+    public override string Description => "How many times a call to Put() resulted in bucket collision that created a page";
 
-    public override string ValueUnitName { get { return CoreConsts.UNIT_NAME_PAGE; } }
+    public override string ValueUnitName => CoreConsts.UNIT_NAME_PAGE;
 
-    protected override Datum MakeAggregateInstance() { return new PutPageCreateCount(this.Source, 0); }
+    protected override Datum MakeAggregateInstance() => new PutPageCreateCount(this.Source, 0);
   }
+
 
   /// <summary>
   /// How many times a call to Put() resulted in new value overriding existing because of collision (old value lost)
@@ -251,11 +261,11 @@ namespace Azos.Data.Access.Cache.Instrumentation
   {
     internal PutCollisionCount(string src, long value) : base(src, value) { }
 
-    public override string Description { get { return "How many times a call to Put() resulted in new value overriding existing because of collision (old value lost)"; } }
+    public override string Description => "How many times a call to Put() resulted in new value overriding existing because of collision (old value lost)";
 
-    public override string ValueUnitName { get { return CoreConsts.UNIT_NAME_TIME; } }
+    public override string ValueUnitName => CoreConsts.UNIT_NAME_TIME;
 
-    protected override Datum MakeAggregateInstance() { return new PutCollisionCount(this.Source, 0); }
+    protected override Datum MakeAggregateInstance() => new PutCollisionCount(this.Source, 0);
   }
 
 
@@ -279,10 +289,11 @@ namespace Azos.Data.Access.Cache.Instrumentation
       }
     }
 
-    public override string ValueUnitName { get { return CoreConsts.UNIT_NAME_TIME; } }
+    public override string ValueUnitName => CoreConsts.UNIT_NAME_TIME;
 
-    protected override Datum MakeAggregateInstance() { return new PutPriorityPreventedCollisionCount(this.Source, 0); }
+    protected override Datum MakeAggregateInstance() => new PutPriorityPreventedCollisionCount(this.Source, 0);
   }
+
 
   /// <summary>
   /// How many pages have been deleted, a page gets deleted when there are no records stored in it
@@ -293,12 +304,13 @@ namespace Azos.Data.Access.Cache.Instrumentation
   {
     internal RemovePageCount(string src, long value) : base(src, value) { }
 
-    public override string Description { get { return "How many pages have been deleted, a page gets deleted when there are no records stored in it"; } }
+    public override string Description => "How many pages have been deleted, a page gets deleted when there are no records stored in it";
 
-    public override string ValueUnitName { get { return CoreConsts.UNIT_NAME_PAGE; } }
+    public override string ValueUnitName => CoreConsts.UNIT_NAME_PAGE;
 
-    protected override Datum MakeAggregateInstance() { return new RemovePageCount(this.Source, 0); }
+    protected override Datum MakeAggregateInstance() => new RemovePageCount(this.Source, 0);
   }
+
 
   /// <summary>
   /// How many records have been found and removed
@@ -309,12 +321,13 @@ namespace Azos.Data.Access.Cache.Instrumentation
   {
     internal RemoveHitCount(string src, long value) : base(src, value) { }
 
-    public override string Description { get { return "How many records have been found and removed"; } }
+    public override string Description => "How many records have been found and removed";
 
-    public override string ValueUnitName { get { return CoreConsts.UNIT_NAME_RECORD; } }
+    public override string ValueUnitName => CoreConsts.UNIT_NAME_RECORD;
 
-    protected override Datum MakeAggregateInstance() { return new RemoveHitCount(this.Source, 0); }
+    protected override Datum MakeAggregateInstance() => new RemoveHitCount(this.Source, 0);
   }
+
 
   /// <summary>
   /// How many records have been sought to be removed but were not found
@@ -325,10 +338,10 @@ namespace Azos.Data.Access.Cache.Instrumentation
   {
     internal RemoveMissCount(string src, long value) : base(src, value) { }
 
-    public override string Description { get { return "How many records have been sought to be removed but were not found"; } }
+    public override string Description => "How many records have been sought to be removed but were not found";
 
-    public override string ValueUnitName { get { return CoreConsts.UNIT_NAME_TIME; } }
+    public override string ValueUnitName => CoreConsts.UNIT_NAME_TIME;
 
-    protected override Datum MakeAggregateInstance() { return new RemoveMissCount(this.Source, 0); }
+    protected override Datum MakeAggregateInstance() => new RemoveMissCount(this.Source, 0);
   }
 }

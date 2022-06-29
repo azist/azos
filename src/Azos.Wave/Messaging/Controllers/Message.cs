@@ -17,7 +17,7 @@ namespace Azos.Web.Messaging.Services.Server
   /// </summary>
   [NoCache]
   [ApiControllerDoc(
-    BaseUri = "/message",
+    BaseUri = "/messaging",
     Title = "Message management",
     Description = @"Sends messages (e.g. email, text, fax) to recipient/s via any of the configured messaging channels",
     ResponseHeaders = new[] { API_DOC_HDR_NO_CACHE }
@@ -41,11 +41,11 @@ namespace Azos.Web.Messaging.Services.Server
       )]
     [MessagingPermission(MessagingAccessLevel.QueryOwn)]
     [ActionOnPost(Name = "list"), AcceptsJson]
-    public async Task<object> ListMessages(MessageListFilter filter) => await ApplyFilterAsync(filter);
+    public async Task<object> ListMessages(MessageListFilter filter) => await ApplyFilterAsync(filter).ConfigureAwait(false);
 
 
     [ApiEndpointDoc(
-      Uri = "send",
+      Uri = "sender",
       Title = "Sends a single message envelope",
       Description = "Sends a single message envelope returning unique ID for the sent message; the ID can be later used for querying",
       Methods = new[] { "POST: post Json message envelope, get Json with unique message id" },
@@ -55,8 +55,8 @@ namespace Azos.Web.Messaging.Services.Server
       TypeSchemas = new[] { typeof(MessageEnvelope) }
     )]
     [MessagingPermission(MessagingAccessLevel.Send)]
-    [ActionOnPost(Name = "send"), AcceptsJson]
-    public async Task<object> SendMessage(MessageEnvelope envelope) => await SaveNewAsync(envelope);
+    [ActionOnPost(Name = "sender"), AcceptsJson]
+    public async Task<object> SendMessage(MessageEnvelope envelope) => await SaveNewAsync(envelope).ConfigureAwait(false);
 
 
     [ApiEndpointDoc(
@@ -71,7 +71,7 @@ namespace Azos.Web.Messaging.Services.Server
     )]
     [MessagingPermission(MessagingAccessLevel.QueryOwn)]
     [ActionOnGet(Name = "message"), AcceptsJson]
-    public async Task<object> GetMessage(string msgId) => GetLogicResult(await m_ArchiveLogic.GetMessageAsync(msgId));
+    public async Task<object> GetMessage(string msgId) => GetLogicResult(await m_ArchiveLogic.GetMessageAsync(msgId).ConfigureAwait(false));
 
     [ApiEndpointDoc(
       Uri = "attachment",
@@ -86,7 +86,7 @@ namespace Azos.Web.Messaging.Services.Server
     )]
     [MessagingPermission(MessagingAccessLevel.QueryOwn)]
     [ActionOnGet(Name = "attachment"), AcceptsJson]
-    public async Task<object> GetAttachment(string msgId, int attId) => GetLogicResult(await m_ArchiveLogic.GetMessageAttachmentAsync(msgId, attId));
+    public async Task<object> GetAttachment(string msgId, int attId) => GetLogicResult(await m_ArchiveLogic.GetMessageAttachmentAsync(msgId, attId).ConfigureAwait(false));
 
     [ApiEndpointDoc(
       Uri = "status",
@@ -100,6 +100,6 @@ namespace Azos.Web.Messaging.Services.Server
     )]
     [MessagingPermission(MessagingAccessLevel.QueryOwn)]
     [ActionOnGet(Name = "status"), AcceptsJson]
-    public async Task<object> GetStatusLog(string msgId) => GetLogicResult(await m_ArchiveLogic.GetMessageStatusLogAsync(msgId));
+    public async Task<object> GetStatusLog(string msgId) => GetLogicResult(await m_ArchiveLogic.GetMessageStatusLogAsync(msgId).ConfigureAwait(false));
   }
 }

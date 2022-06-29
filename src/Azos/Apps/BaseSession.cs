@@ -3,6 +3,7 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
@@ -30,6 +31,7 @@ namespace Azos.Apps
     }
 
     #region Fields
+
     private Guid m_ID;
     private ulong m_IDSecret;
 
@@ -45,16 +47,15 @@ namespace Azos.Apps
     [NonSerialized]
     internal bool m_IsJustLoggedIn;
 
-
     private DateTime? m_LastLoginUTC;
     private SessionLoginType m_LastLoginType;
     private User m_User;
-
 
     [NonSerialized]
     private object m_ItemsLock = new object();
 
     private volatile ConcurrentDictionary<object, object> m_Items;
+
     #endregion
 
     #region Properties
@@ -110,7 +111,6 @@ namespace Azos.Apps
         set { m_User = value;}
     }
 
-
     /// <summary>
     /// Returns user language preference or Atom.Zero
     /// </summary>
@@ -151,7 +151,6 @@ namespace Azos.Apps
       set { Items[key] = value;}
     }
 
-
     /// <summary>
     /// Establishes an optional name(or names, using space or comma delimiters) for target data context that the session operates under.
     /// For example, this may be used to store target database instance name.
@@ -162,7 +161,6 @@ namespace Azos.Apps
     /// Usage of this property is way more efficient than using Items[key] pattern
     /// </remarks>
     public virtual string DataContextName { get; set; }
-
 
     public virtual void Acquire()
     {

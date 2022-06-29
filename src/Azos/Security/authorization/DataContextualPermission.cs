@@ -38,9 +38,9 @@ namespace Azos.Security
 
     protected DataContextualPermission(int level) : base(level) { }
 
-    protected sealed override bool DoCheckAccessLevel(IApplication app, ISession session, AccessLevel access)
+    protected sealed override bool DoCheckAccessLevel(ISecurityManager secman, ISession session, AccessLevel access)
     {
-      if (!base.DoCheckAccessLevel(app, session, access)) return false;
+      if (!base.DoCheckAccessLevel(secman, session, access)) return false;
 
       var dataContextName = session.NonNull(nameof(session)).DataContextName;
       if (dataContextName.IsNullOrWhiteSpace()) return false; // false;//deny for unspecified stores
@@ -62,7 +62,7 @@ namespace Azos.Security
 
         if (!nds.Exists) return false;//no data-specific or ANY override found - denied
 
-        var passed = DoCheckDataStoreAccessLevel(app, session, dataContextName, nds, access);
+        var passed = DoCheckDataStoreAccessLevel(secman, session, dataContextName, nds, access);
         if (!passed) return false;
       }
 
@@ -73,13 +73,13 @@ namespace Azos.Security
     /// Override to perform additional detailed checks in the scope of dataContextName.
     /// The base implementation just checks if the required level is sufficient on the node
     /// </summary>
-    /// <param name="app">App scope</param>
+    /// <param name="secman">Securitymanager scope</param>
     /// <param name="session">Non-null session scope under which permission is checked</param>
     /// <param name="dataContextName">String data context name as supplied from session. Non null/blank</param>
     /// <param name="dsRights">Existing rights/ACL node from  permission's ACL</param>
     /// <param name="access">Permission's root access grant+ACL</param>
     /// <returns>True if action is authorized to be performed</returns>
-    protected virtual bool DoCheckDataStoreAccessLevel(IApplication app,
+    protected virtual bool DoCheckDataStoreAccessLevel(ISecurityManager secman,
                                                        ISession session,
                                                        string dataContextName,
                                                        IConfigSectionNode dsRights,

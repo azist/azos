@@ -7,7 +7,6 @@
 using Azos.Scripting;
 using System.Threading;
 
-
 namespace Azos.Tests.Nub
 {
   [Runnable]

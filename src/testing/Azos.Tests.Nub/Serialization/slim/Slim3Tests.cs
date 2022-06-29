@@ -4,11 +4,9 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
 using System.IO;
 
 using Azos.Scripting;
-
 using Azos.Collections;
 using Azos.Serialization.Slim;
 using Azos.Serialization.JSON;
@@ -33,19 +31,21 @@ namespace Azos.Tests.Nub.Serialization
 
         var dOut = (NLSMap)s.Deserialize(ms);
 
-        Aver.AreEqual( 2, dOut.Count);
-        Aver.AreEqual( "name", dOut.Get(NLSMap.GetParts.Name, "eng"));
-        Aver.AreEqual( "имя", dOut.Get(NLSMap.GetParts.Name, "rus"));
+        Aver.AreEqual(2, dOut.Count);
+        Aver.AreEqual("name", dOut.Get(NLSMap.GetParts.Name, "eng"));
+        Aver.AreEqual("имя", dOut.Get(NLSMap.GetParts.Name, "rus"));
 
-        Aver.AreEqual( "description", dOut.Get(NLSMap.GetParts.Description, "eng"));
-        Aver.AreEqual( "описание", dOut.Get(NLSMap.GetParts.Description, "rus"));
+        Aver.AreEqual("description", dOut.Get(NLSMap.GetParts.Description, "eng"));
+        Aver.AreEqual("описание", dOut.Get(NLSMap.GetParts.Description, "rus"));
       }
     }
 
-        internal class nlsCls
-        {
-          public NLSMap Map;
-        }
+
+    internal class nlsCls
+    {
+      public NLSMap Map;
+    }
+
 
     [Run]
     public void NLS_InClass()
@@ -54,7 +54,7 @@ namespace Azos.Tests.Nub.Serialization
       {
         var s = new SlimSerializer();
 
-        var dIn = new nlsCls{ Map = new NLSMap("eng{n='name' d='description'} rus{n='имя' d='описание'}".AsLaconicConfig())};
+        var dIn = new nlsCls { Map = new NLSMap("eng{n='name' d='description'} rus{n='имя' d='описание'}".AsLaconicConfig()) };
 
         s.Serialize(ms, dIn);
         ms.Seek(0, SeekOrigin.Begin);
@@ -63,20 +63,21 @@ namespace Azos.Tests.Nub.Serialization
 
         Aver.IsNotNull(dOut);
 
-        Aver.AreEqual( 2, dOut.Map.Count);
-        Aver.AreEqual( "name", dOut.Map.Get(NLSMap.GetParts.Name, "eng"));
-        Aver.AreEqual( "имя", dOut.Map.Get(NLSMap.GetParts.Name, "rus"));
+        Aver.AreEqual(2, dOut.Map.Count);
+        Aver.AreEqual("name", dOut.Map.Get(NLSMap.GetParts.Name, "eng"));
+        Aver.AreEqual("имя", dOut.Map.Get(NLSMap.GetParts.Name, "rus"));
 
-        Aver.AreEqual( "description", dOut.Map.Get(NLSMap.GetParts.Description, "eng"));
-        Aver.AreEqual( "описание", dOut.Map.Get(NLSMap.GetParts.Description, "rus"));
+        Aver.AreEqual("description", dOut.Map.Get(NLSMap.GetParts.Description, "eng"));
+        Aver.AreEqual("описание", dOut.Map.Get(NLSMap.GetParts.Description, "rus"));
       }
     }
 
 
-        internal struct nlsStruct
-        {
-          public NLSMap Map;
-        }
+    internal struct nlsStruct
+    {
+      public NLSMap Map;
+    }
+
 
     [Run]
     public void NLS_InStruct()
@@ -85,22 +86,21 @@ namespace Azos.Tests.Nub.Serialization
       {
         var s = new SlimSerializer();
 
-        var dIn = new nlsStruct{ Map = new NLSMap("eng{n='name' d='description'} rus{n='имя' d='описание'}".AsLaconicConfig())};
+        var dIn = new nlsStruct { Map = new NLSMap("eng{n='name' d='description'} rus{n='имя' d='описание'}".AsLaconicConfig()) };
 
         s.Serialize(ms, dIn);
         ms.Seek(0, SeekOrigin.Begin);
 
         var dOut = (nlsStruct)s.Deserialize(ms);
 
-        Aver.AreEqual( 2, dOut.Map.Count);
-        Aver.AreEqual( "name", dOut.Map.Get(NLSMap.GetParts.Name, "eng"));
-        Aver.AreEqual( "имя", dOut.Map.Get(NLSMap.GetParts.Name, "rus"));
+        Aver.AreEqual(2, dOut.Map.Count);
+        Aver.AreEqual("name", dOut.Map.Get(NLSMap.GetParts.Name, "eng"));
+        Aver.AreEqual("имя", dOut.Map.Get(NLSMap.GetParts.Name, "rus"));
 
-        Aver.AreEqual( "description", dOut.Map.Get(NLSMap.GetParts.Description, "eng"));
-        Aver.AreEqual( "описание", dOut.Map.Get(NLSMap.GetParts.Description, "rus"));
+        Aver.AreEqual("description", dOut.Map.Get(NLSMap.GetParts.Description, "eng"));
+        Aver.AreEqual("описание", dOut.Map.Get(NLSMap.GetParts.Description, "rus"));
       }
     }
-
 
     [Run]
     public void NLS_Array()
@@ -123,26 +123,24 @@ namespace Azos.Tests.Nub.Serialization
 
         Aver.IsNotNull(dOut);
 
-        Aver.AreEqual( 3, dOut.Length);
+        Aver.AreEqual(3, dOut.Length);
 
-        Aver.AreEqual( "name",        dOut[0].Get(NLSMap.GetParts.Name, "eng"));
-        Aver.AreEqual( "имя",         dOut[0].Get(NLSMap.GetParts.Name, "rus"));
-        Aver.AreEqual( "description", dOut[0].Get(NLSMap.GetParts.Description, "eng"));
-        Aver.AreEqual( "описание",    dOut[0].Get(NLSMap.GetParts.Description, "rus"));
+        Aver.AreEqual("name", dOut[0].Get(NLSMap.GetParts.Name, "eng"));
+        Aver.AreEqual("имя", dOut[0].Get(NLSMap.GetParts.Name, "rus"));
+        Aver.AreEqual("description", dOut[0].Get(NLSMap.GetParts.Description, "eng"));
+        Aver.AreEqual("описание", dOut[0].Get(NLSMap.GetParts.Description, "rus"));
 
-        Aver.AreEqual( "color",      dOut[1].Get(NLSMap.GetParts.Name, "eng"));
-        Aver.AreEqual( "zvet",       dOut[1].Get(NLSMap.GetParts.Name, "rus"));
-        Aver.AreEqual( "of product", dOut[1].Get(NLSMap.GetParts.Description, "eng"));
-        Aver.AreEqual( "producta",   dOut[1].Get(NLSMap.GetParts.Description, "rus"));
+        Aver.AreEqual("color", dOut[1].Get(NLSMap.GetParts.Name, "eng"));
+        Aver.AreEqual("zvet", dOut[1].Get(NLSMap.GetParts.Name, "rus"));
+        Aver.AreEqual("of product", dOut[1].Get(NLSMap.GetParts.Description, "eng"));
+        Aver.AreEqual("producta", dOut[1].Get(NLSMap.GetParts.Description, "rus"));
 
-        Aver.AreEqual( "size",    dOut[2].Get(NLSMap.GetParts.Name, "eng"));
-        Aver.AreEqual( "razmer",  dOut[2].Get(NLSMap.GetParts.Name, "rus"));
-        Aver.AreEqual( "of item", dOut[2].Get(NLSMap.GetParts.Description, "eng"));
-        Aver.AreEqual( "tovara",  dOut[2].Get(NLSMap.GetParts.Description, "rus"));
+        Aver.AreEqual("size", dOut[2].Get(NLSMap.GetParts.Name, "eng"));
+        Aver.AreEqual("razmer", dOut[2].Get(NLSMap.GetParts.Name, "rus"));
+        Aver.AreEqual("of item", dOut[2].Get(NLSMap.GetParts.Description, "eng"));
+        Aver.AreEqual("tovara", dOut[2].Get(NLSMap.GetParts.Description, "rus"));
       }
     }
-
-
 
     [Run]
     public void StringMap_Sensitive()
@@ -164,13 +162,13 @@ namespace Azos.Tests.Nub.Serialization
 
         Aver.IsNotNull(dOut);
 
-        Aver.IsTrue( dOut.CaseSensitive );
-        Aver.AreEqual( 2, dOut.Count);
-        Aver.AreEqual( "Alex", dOut["a"]);
-        Aver.AreEqual( null, dOut["A"]);
+        Aver.IsTrue(dOut.CaseSensitive);
+        Aver.AreEqual(2, dOut.Count);
+        Aver.AreEqual("Alex", dOut["a"]);
+        Aver.AreEqual(null, dOut["A"]);
 
-        Aver.AreEqual( "Boris", dOut["b"]);
-        Aver.AreEqual( null, dOut["B"]);
+        Aver.AreEqual("Boris", dOut["b"]);
+        Aver.AreEqual(null, dOut["B"]);
       }
     }
 
@@ -194,22 +192,22 @@ namespace Azos.Tests.Nub.Serialization
 
         Aver.IsNotNull(dOut);
 
-        Aver.IsFalse( dOut.CaseSensitive );
-        Aver.AreEqual( 2, dOut.Count);
-        Aver.AreEqual( "Alex", dOut["a"]);
-        Aver.AreEqual( "Alex", dOut["A"]);
+        Aver.IsFalse(dOut.CaseSensitive);
+        Aver.AreEqual(2, dOut.Count);
+        Aver.AreEqual("Alex", dOut["a"]);
+        Aver.AreEqual("Alex", dOut["A"]);
 
-        Aver.AreEqual( "Boris", dOut["b"]);
-        Aver.AreEqual( "Boris", dOut["B"]);
+        Aver.AreEqual("Boris", dOut["b"]);
+        Aver.AreEqual("Boris", dOut["B"]);
       }
     }
 
 
-        internal class stringMapCls
-        {
-          public StringMap Map1;
-          public StringMap Map2;
-        }
+    internal class stringMapCls
+    {
+      public StringMap Map1;
+      public StringMap Map2;
+    }
 
 
     [Run]
@@ -237,16 +235,15 @@ namespace Azos.Tests.Nub.Serialization
         Aver.IsNotNull(dOut.Map1);
         Aver.IsNull(dOut.Map2);
 
-        Aver.IsFalse( dOut.Map1.CaseSensitive );
-        Aver.AreEqual( 2, dOut.Map1.Count);
-        Aver.AreEqual( "Alex", dOut.Map1["a"]);
-        Aver.AreEqual( "Alex", dOut.Map1["A"]);
+        Aver.IsFalse(dOut.Map1.CaseSensitive);
+        Aver.AreEqual(2, dOut.Map1.Count);
+        Aver.AreEqual("Alex", dOut.Map1["a"]);
+        Aver.AreEqual("Alex", dOut.Map1["A"]);
 
-        Aver.AreEqual( "Boris", dOut.Map1["b"]);
-        Aver.AreEqual( "Boris", dOut.Map1["B"]);
+        Aver.AreEqual("Boris", dOut.Map1["b"]);
+        Aver.AreEqual("Boris", dOut.Map1["B"]);
       }
     }
-
 
     [Run]
     public void StringMap_TwoRefOne_InClass()
@@ -274,18 +271,17 @@ namespace Azos.Tests.Nub.Serialization
         Aver.IsNotNull(dOut.Map1);
         Aver.IsNotNull(dOut.Map2);
 
-        Aver.IsTrue( object.ReferenceEquals( dOut.Map1, dOut.Map2 ));//IMPORTANT!
+        Aver.IsTrue(object.ReferenceEquals(dOut.Map1, dOut.Map2));//IMPORTANT!
 
-        Aver.IsFalse( dOut.Map1.CaseSensitive );
-        Aver.AreEqual( 2, dOut.Map1.Count);
-        Aver.AreEqual( "Alex", dOut.Map1["a"]);
-        Aver.AreEqual( "Alex", dOut.Map1["A"]);
+        Aver.IsFalse(dOut.Map1.CaseSensitive);
+        Aver.AreEqual(2, dOut.Map1.Count);
+        Aver.AreEqual("Alex", dOut.Map1["a"]);
+        Aver.AreEqual("Alex", dOut.Map1["A"]);
 
-        Aver.AreEqual( "Boris", dOut.Map1["b"]);
-        Aver.AreEqual( "Boris", dOut.Map1["B"]);
+        Aver.AreEqual("Boris", dOut.Map1["b"]);
+        Aver.AreEqual("Boris", dOut.Map1["B"]);
       }
     }
-
 
     [Run("cnt=10")]
     [Run("cnt=210")]
@@ -320,15 +316,15 @@ namespace Azos.Tests.Nub.Serialization
         Aver.IsNotNull(dOut.Map1);
         Aver.IsNull(dOut.Map2);
 
-        Aver.IsFalse( dOut.Map1.CaseSensitive );
-        Aver.AreEqual( 2, dOut.Map1.Count);
+        Aver.IsFalse(dOut.Map1.CaseSensitive);
+        Aver.AreEqual(2, dOut.Map1.Count);
 
 
-        Aver.AreEqual( original1, dOut.Map1["a"]);
-        Aver.AreEqual( original1, dOut.Map1["A"]);
+        Aver.AreEqual(original1, dOut.Map1["a"]);
+        Aver.AreEqual(original1, dOut.Map1["A"]);
 
-        Aver.AreEqual( original2, dOut.Map1["b"]);
-        Aver.AreEqual( original2, dOut.Map1["B"]);
+        Aver.AreEqual(original2, dOut.Map1["b"]);
+        Aver.AreEqual(original2, dOut.Map1["B"]);
       }
     }
 
@@ -339,7 +335,7 @@ namespace Azos.Tests.Nub.Serialization
       {
         var s = new SlimSerializer();
 
-        var original =@"
+        var original = @"
         外国語の学習と教授
 
 Language Learning and Teaching
@@ -387,10 +383,9 @@ Sprachlernen und -lehren
         var got = s.Deserialize(ms) as string;
 
         Aver.IsNotNull(got);
-        Aver.AreEqual( original, got);
+        Aver.AreEqual(original, got);
       }
     }
-
 
     [Run]
     public void ASCII8_Root()
@@ -439,14 +434,14 @@ Sprachlernen und -lehren
 
     private class withASCII8
     {
-      public string Name{ get;set;}
+      public string Name { get; set; }
       public int Int { get; set; }
 
-      public Atom A1{ get;set;}
-      public Atom? A2 { get; set;}
+      public Atom A1 { get; set; }
+      public Atom? A2 { get; set; }
       public Atom? A3 { get; set; }
-      public Atom[] A4 { get; set;}
-      public Atom?[] A5 { get; set;}
+      public Atom[] A4 { get; set; }
+      public Atom?[] A5 { get; set; }
     }
 
 
@@ -464,7 +459,7 @@ Sprachlernen und -lehren
           A1 = new Atom(123),
           A2 = null,
           A3 = Atom.Encode("abc"),
-          A4 = new []{Atom.Encode("a"), Atom.Encode("b") },
+          A4 = new[] { Atom.Encode("a"), Atom.Encode("b") },
           A5 = new Atom?[] { null, Atom.Encode("b"), null, null, Atom.Encode("zzz") }
         };
 
@@ -484,8 +479,6 @@ Sprachlernen und -lehren
         Aver.AreArraysEquivalent(dIn.A5, dOut.A5);
       }
     }
-
-
 
   }
 }

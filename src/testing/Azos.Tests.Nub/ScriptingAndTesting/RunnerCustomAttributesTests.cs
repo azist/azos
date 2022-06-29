@@ -95,6 +95,5 @@ namespace Azos.Tests.Nub.ScriptingAndTesting
       System.Threading.Thread.Sleep(1000);
     }
 
-
   }
 }

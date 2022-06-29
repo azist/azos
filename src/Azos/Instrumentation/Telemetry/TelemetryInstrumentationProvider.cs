@@ -5,9 +5,6 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 using Azos.Log;
 using Azos.Conf;
@@ -20,6 +17,7 @@ namespace Azos.Instrumentation.Telemetry
   public class TelemetryInstrumentationProvider : LogInstrumentationProvider
   {
     #region .ctor
+
     public TelemetryInstrumentationProvider(InstrumentationDaemon director) : base(director) { }
 
     protected override void Destructor()
@@ -27,13 +25,17 @@ namespace Azos.Instrumentation.Telemetry
       cleanupClient();
       base.Destructor();
     }
+
     #endregion
 
     #region Fields
+
     private TelemetryReceiverClient m_Client;
+
     #endregion
 
     #region Properties
+
     /// <summary>
     /// Determines whether to write to log as well
     /// </summary>
@@ -51,9 +53,11 @@ namespace Azos.Instrumentation.Telemetry
     /// </summary>
     [Config]
     public string SiteName { get; set; }
+
     #endregion
 
     #region Public
+
     protected internal override void Write(Datum aggregatedDatum, object batchContext, object typeContext)
     {
       if (!App.Active) return;
@@ -64,7 +68,6 @@ namespace Azos.Instrumentation.Telemetry
       var node = ReceiverNode;
 
       if (node.IsNullOrWhiteSpace()) return;
-
 
       string site;
       if (SiteName.IsNotNullOrWhiteSpace())
@@ -85,9 +88,11 @@ namespace Azos.Instrumentation.Telemetry
         WriteLog(MessageType.Error, nameof(Write), error.ToMessageWithType(), error);
       }
     }
+
     #endregion
 
     #region Private
+
     private void cleanupClient()
     {
       var cl = m_Client;
@@ -103,6 +108,7 @@ namespace Azos.Instrumentation.Telemetry
         WriteLog(MessageType.Error, nameof(cleanupClient), error.ToMessageWithType(), error);
       }
     }
+
     #endregion
   }
 }

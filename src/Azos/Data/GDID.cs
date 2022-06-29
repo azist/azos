@@ -9,7 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-
+using System.Text;
 using Azos.Serialization.JSON;
 
 namespace Azos.Data
@@ -37,7 +37,7 @@ namespace Azos.Data
                        IComparable,
                        IJsonWritable,
                        IJsonReadable,
-                       IRequired
+                       IRequiredCheck
   {
     private static readonly IFormatProvider INVARIANT = CultureInfo.InvariantCulture;
     private static readonly string[] SAUTHORITIES = new []{"0", "1" , "2" , "3" , "4" , "5" , "6" , "7" , "8" , "9" , "10" , "11" , "12" , "13" , "14" , "15"};
@@ -45,7 +45,6 @@ namespace Azos.Data
     public const UInt64 AUTHORITY_MASK = 0xf000000000000000;
     public const UInt64 COUNTER_MASK   = 0x0fffffffffffffff;//0x 0f  ff  ff  ff  ff  ff  ff  ff
                                                             //    1   2   3   4   5   6   7   8
-
     /// <summary>
     /// Provides maximum value for counter segment
     /// </summary>
@@ -60,7 +59,6 @@ namespace Azos.Data
     /// Zero GDID constant which is equivalent to an uninitialized structure with zero era and zero authority and zero counter
     /// </summary>
     public static readonly GDID ZERO = new GDID(0, 0ul);
-
 
     public GDID(UInt32 era, UInt64 id)
     {
@@ -82,8 +80,8 @@ namespace Azos.Data
       if (bytes==null || startIdx <0 || (bytes.Length-startIdx)<sizeof(uint)+sizeof(ulong))
         throw new DataException(StringConsts.ARGUMENT_ERROR+"GDID.ctor(bytes==null<minsz)");
 
-      Era = bytes.ReadBEUInt32();
-      ID =  bytes.ReadBEUInt64(4);
+      Era = bytes.ReadBEUInt32(ref startIdx);
+      ID =  bytes.ReadBEUInt64(ref startIdx);
     }
 
     public unsafe GDID(byte* ptr)
@@ -138,7 +136,6 @@ namespace Azos.Data
       buff.WriteBEUInt64(startIndex + 4, ID);
     }
 
-
     /// <summary>
     /// True is this instance is invalid/Zero - represents 0:0:0
     /// </summary>
@@ -155,7 +152,37 @@ namespace Azos.Data
       return Era.ToString(INVARIANT) + ":" + SAUTHORITIES[Authority] + ":" + Counter.ToString(INVARIANT);
     }
 
-    public string ToHexString() => Era.ToString("X8") + ID.ToString("X16");
+
+    [ThreadStatic] private static StringBuilder ts_HexCache;
+
+    //20210803 #524 speed up with string builder and explicit conversion
+    /// <summary>
+    /// Returns a hexadecimal representation of GDID which is guaranteed to be parsable by Parse()/TryParse()
+    /// </summary>
+    public string ToHexString() // #524 => Era.ToString("X8") + ID.ToString("X16");
+    {
+      const int NIBBLE = 4; //size of 1 hex digit = 1/2 byte
+      const int HEX_SZ = 24;//Era(4)+ID(8)=12 bytes * 2 symbols per byte
+
+      var sb = ts_HexCache;
+      if (sb == null)
+      {
+        sb = new StringBuilder(HEX_SZ, HEX_SZ);
+        ts_HexCache = sb;
+      }
+      else
+      {
+        sb.Clear();
+      }
+
+      for(var i = 32 - NIBBLE; i >= 0; i -= NIBBLE)
+        sb.Append(hexDigit(Era >> i));
+
+      for (var i = 64 - NIBBLE; i >= 0; i -= NIBBLE)
+        sb.Append(hexDigit(ID >> i));
+
+      return sb.ToString();
+    }
 
     public override int GetHashCode() => (int)Era ^ (int)ID ^ (int)(ID >> 32);
 
@@ -244,6 +271,12 @@ namespace Azos.Data
       return -1;
     }
 
+    private static char hexDigit(ulong i)
+    {
+      i &= 0xf;
+      if (i > 9) return (char)('a' + (i - 10));
+      return (char)('0' + i);
+    }
 
     public static bool TryParse(string str, out GDID? gdid)
     {
@@ -282,7 +315,6 @@ namespace Azos.Data
         sau = str.Substring(i1+1, i2-i1-1);
 
         sctr = str.Substring(i2+1);
-
 
         const NumberStyles ISTYLES = NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite;
 
@@ -402,7 +434,6 @@ namespace Azos.Data
 
     private GDIDRangeComparer() {}
 
-
     public int Compare(GDID x, GDID y)
     {
       var result = x.Era.CompareTo(y.Era);
@@ -410,6 +441,5 @@ namespace Azos.Data
       return x.Counter.CompareTo(y.Counter);//Authority is disregarded
     }
   }
-
 
 }

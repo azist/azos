@@ -20,6 +20,7 @@ namespace Azos.Data.AST
     public abstract object Accept(XlatContext ctx);
   }
 
+
   /// <summary>
   /// Provides abstraction for operators
   /// </summary>
@@ -45,6 +46,7 @@ namespace Azos.Data.AST
      => ctx.Visit(this);
   }
 
+
   /// <summary>
   /// Represents an array of values, such as the one used with IN operator in SQL
   /// </summary>
@@ -56,6 +58,7 @@ namespace Azos.Data.AST
     public override object Accept(XlatContext ctx)
      => ctx.Visit(this);
   }
+
 
   /// <summary>
   /// Represents an identifier such as column/field name
@@ -81,6 +84,7 @@ namespace Azos.Data.AST
     public override object Accept(XlatContext ctx) => ctx.Visit(this);
   }
 
+
   /// <summary>
   /// Represents an operator that has two operands: left and right
   /// </summary>
@@ -94,6 +98,5 @@ namespace Azos.Data.AST
 
     public override object Accept(XlatContext ctx) => ctx.Visit(this);
   }
-
 
 }

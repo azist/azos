@@ -60,10 +60,6 @@ namespace Azos.Web.Messaging
     [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION, CoreConsts.EXT_PARAM_GROUP_MESSAGING)]
     public override bool InstrumentationEnabled { get; set; }
 
-    [Config(Default = DEFAULT_LOG_LEVEL)]
-    [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_MESSAGING)]
-    public MessageType LogLevel { get; set; }
-
     /// <summary>
     /// Gets/sets sink that performs sending
     /// </summary>

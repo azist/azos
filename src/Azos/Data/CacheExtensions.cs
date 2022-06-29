@@ -139,7 +139,6 @@ namespace Azos.Data
       return result;
     }
 
-
     /// <summary>
     /// Asynchronously fetches an item through cache - if the item exists and satisfies the `ICacheParams` (and optional `fFilter` functor) then it is
     /// immediately (synchronously) returned to the caller. Otherwise, calls the `fFetch` async functor to perform the actual fetch of a value by key,
@@ -189,7 +188,7 @@ namespace Azos.Data
 
       if (result != null) return result;
 
-      result = await fFetch.NonNull(nameof(fFetch))(key);//<-- only fFetch is IO-bound hence asynchronous
+      result = await fFetch.NonNull(nameof(fFetch))(key).ConfigureAwait(false);//<-- only fFetch is IO-bound hence asynchronous
 
       if (result == null && !caching.CacheAbsentData) return null;
 
@@ -205,7 +204,6 @@ namespace Azos.Data
 
       return result;
     }
-
 
     /// <summary>
     /// Deletes an item from cache and underlying store by calling the supplied functor
@@ -258,7 +256,7 @@ namespace Azos.Data
       else
         tbl.Remove(key);
 
-      return await fDelete.NonNull(nameof(fDelete))(key);
+      return await fDelete.NonNull(nameof(fDelete))(key).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -335,7 +333,7 @@ namespace Azos.Data
 
       if (caching == null) caching = CacheParams.DefaultCache;
 
-      var result = await fSave.NonNull(nameof(fSave))(key, data);
+      var result = await fSave.NonNull(nameof(fSave))(key, data).ConfigureAwait(false);
 
       var wAge = caching.WriteCacheMaxAgeSec;
       if (wAge >= 0)

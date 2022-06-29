@@ -7,125 +7,123 @@
 using System;
 using System.Reflection;
 
-using Azos.Apps;
 using Azos.Scripting;
 
 namespace Azos.Tests.Nub.ScriptingAndTesting
 {
-    [Runnable]
-    public class RunnerHookTests : IRunnableHook, IRunHook
+  [Runnable]
+  public class RunnerHookTests : IRunnableHook, IRunHook
+  {
+    [Run] public void M01() { }
+    [Run] public void M02() { }
+    [Run] public void M03() { }
+    [Run] public void M04() { }
+    [Run, Run, Run] public void M05() { }
+
+    private int m_RunnableState;
+    private int m_RunPrologueCount;
+    private int m_RunEpilogueCount;
+
+    void IRunnableHook.Prologue(Runner runner, FID id)
     {
-        [Run] public void M01(){ }
-        [Run] public void M02(){ }
-        [Run] public void M03(){ }
-        [Run] public void M04(){ }
-        [Run, Run, Run] public void M05(){ }
-
-        private int m_RunnableState;
-        private int m_RunPrologueCount;
-        private int m_RunEpilogueCount;
-
-        void IRunnableHook.Prologue(Runner runner, FID id)
-        {
-          Aver.AreEqual(0, m_RunnableState);
-          m_RunnableState++;
-          "Runnable prologue".See();
-        }
-
-        bool IRunnableHook.Epilogue(Runner runner, FID id, Exception error)
-        {
-          Aver.AreEqual(1, m_RunnableState);
-          Aver.AreEqual(7, m_RunPrologueCount);
-          Aver.AreEqual(7, m_RunEpilogueCount);
-          "Runnable epilogue".See();
-          return false;
-        }
-
-        bool IRunHook.Prologue(Runner runner, FID id, MethodInfo method, RunAttribute attr, ref object[] args)
-        {
-          Aver.AreEqual(1, m_RunnableState);
-          m_RunPrologueCount++;
-          "Method prologue: {0}".SeeArgs(method.Name);
-          return false;
-        }
-
-        bool IRunHook.Epilogue(Runner runner, FID id, MethodInfo method, RunAttribute attr, Exception error)
-        {
-          m_RunEpilogueCount++;
-          "Method epilogue: {0}".SeeArgs(method.Name);
-          return false;
-        }
+      Aver.AreEqual(0, m_RunnableState);
+      m_RunnableState++;
+      "Runnable prologue".See();
     }
 
-    [Runnable(category: "runner", order: -5999)]
-    public class RunnerHookExceptions_RunnableProlog : IRunnableHook
+    bool IRunnableHook.Epilogue(Runner runner, FID id, Exception error)
     {
-        [Run("!crash-runnable-prologue", "")]
-        public void BadMethod(){ }
-
-        void IRunnableHook.Prologue(Runner runner, FID id)
-        {
-          Aver.Fail("I crashed in Runnable prologue");
-        }
-
-        bool IRunnableHook.Epilogue(Runner runner, FID id, Exception error)
-        {
-          return false;
-        }
+      Aver.AreEqual(1, m_RunnableState);
+      Aver.AreEqual(7, m_RunPrologueCount);
+      Aver.AreEqual(7, m_RunEpilogueCount);
+      "Runnable epilogue".See();
+      return false;
     }
 
-    [Runnable(category: "runner", order: -5000)]
-    public class RunnerHookExceptions_RunnableEpilogue : IRunnableHook
+    bool IRunHook.Prologue(Runner runner, FID id, MethodInfo method, RunAttribute attr, ref object[] args)
     {
-        [Run("!crash-runnable-epilogue", "")]
-        public void BadMethod(){ }
-
-        void IRunnableHook.Prologue(Runner runner, FID id)
-        {
-        }
-
-        bool IRunnableHook.Epilogue(Runner runner, FID id, Exception error)
-        {
-          Aver.Fail("I crashed in Runnable epilogue");
-          return false;
-        }
+      Aver.AreEqual(1, m_RunnableState);
+      m_RunPrologueCount++;
+      "Method prologue: {0}".SeeArgs(method.Name);
+      return false;
     }
 
-    [Runnable(category: "runner", order: -1999)]
-    public class RunnerHookExceptions_RunPrologue : IRunHook
+    bool IRunHook.Epilogue(Runner runner, FID id, MethodInfo method, RunAttribute attr, Exception error)
     {
-        [Run("!crash-run-prologue", "")]
-        public void BadMethod(){ }
+      m_RunEpilogueCount++;
+      "Method epilogue: {0}".SeeArgs(method.Name);
+      return false;
+    }
+  }
 
-        bool IRunHook.Prologue(Runner runner, FID id, MethodInfo method, RunAttribute attr, ref object[] args)
-        {
-          Aver.Fail("I crashed in Run prologue");
-          return false;
-        }
+  [Runnable(category: "runner", order: -5999)]
+  public class RunnerHookExceptions_RunnableProlog : IRunnableHook
+  {
+    [Run("!crash-runnable-prologue", "")]
+    public void BadMethod() { }
 
-        bool IRunHook.Epilogue(Runner runner, FID id, MethodInfo method, RunAttribute attr, Exception error)
-        {
-          return false;
-        }
+    void IRunnableHook.Prologue(Runner runner, FID id)
+    {
+      Aver.Fail("I crashed in Runnable prologue");
     }
 
-    [Runnable(category: "runner", order: -1000)]
-    public class RunnerHookExceptions_RunEpilogue : IRunHook
+    bool IRunnableHook.Epilogue(Runner runner, FID id, Exception error)
     {
-        [Run("!crash-run-epilogue", "")]
-        public void BadMethod(){ }
+      return false;
+    }
+  }
 
-        bool IRunHook.Prologue(Runner runner, FID id, MethodInfo method, RunAttribute attr, ref object[] args)
-        {
-          return false;
-        }
+  [Runnable(category: "runner", order: -5000)]
+  public class RunnerHookExceptions_RunnableEpilogue : IRunnableHook
+  {
+    [Run("!crash-runnable-epilogue", "")]
+    public void BadMethod() { }
 
-        bool IRunHook.Epilogue(Runner runner, FID id, MethodInfo method, RunAttribute attr, Exception error)
-        {
-          Aver.Fail("I crashed in Run epilogue");
-          return false;
-        }
+    void IRunnableHook.Prologue(Runner runner, FID id)
+    {
     }
 
+    bool IRunnableHook.Epilogue(Runner runner, FID id, Exception error)
+    {
+      Aver.Fail("I crashed in Runnable epilogue");
+      return false;
+    }
+  }
+
+  [Runnable(category: "runner", order: -1999)]
+  public class RunnerHookExceptions_RunPrologue : IRunHook
+  {
+    [Run("!crash-run-prologue", "")]
+    public void BadMethod() { }
+
+    bool IRunHook.Prologue(Runner runner, FID id, MethodInfo method, RunAttribute attr, ref object[] args)
+    {
+      Aver.Fail("I crashed in Run prologue");
+      return false;
+    }
+
+    bool IRunHook.Epilogue(Runner runner, FID id, MethodInfo method, RunAttribute attr, Exception error)
+    {
+      return false;
+    }
+  }
+
+  [Runnable(category: "runner", order: -1000)]
+  public class RunnerHookExceptions_RunEpilogue : IRunHook
+  {
+    [Run("!crash-run-epilogue", "")]
+    public void BadMethod() { }
+
+    bool IRunHook.Prologue(Runner runner, FID id, MethodInfo method, RunAttribute attr, ref object[] args)
+    {
+      return false;
+    }
+
+    bool IRunHook.Epilogue(Runner runner, FID id, MethodInfo method, RunAttribute attr, Exception error)
+    {
+      Aver.Fail("I crashed in Run epilogue");
+      return false;
+    }
+  }
 
 }

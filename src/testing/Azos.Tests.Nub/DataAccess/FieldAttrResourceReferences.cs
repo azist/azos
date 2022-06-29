@@ -4,17 +4,10 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.IO;
+
 using Azos.Scripting;
-
-
 using Azos.Data;
-
 
 namespace Azos.Tests.Nub.DataAccess
 {
@@ -43,7 +36,6 @@ namespace Azos.Tests.Nub.DataAccess
       Aver.AreEqual("My longest description", schema["Name"].Attrs.First().Description);
       Aver.AreEqual("Adam", schema["Name"].Attrs.First().ParseValueList()["A"].AsString());
       Aver.AreEqual("Buba", schema["Name"].Attrs.First().ParseValueList()["B"].AsString());
-
     }
 
     [Run]
@@ -54,9 +46,7 @@ namespace Azos.Tests.Nub.DataAccess
       Aver.AreEqual("My long description", schema["Name"].Attrs.First().Description);
       Aver.AreEqual("Apple", schema["Name"].Attrs.First().ParseValueList()["A"].AsString());
       Aver.AreEqual("Book", schema["Name"].Attrs.First().ParseValueList()["B"].AsString());
-
     }
-
   }
 
 
@@ -64,17 +54,19 @@ namespace Azos.Tests.Nub.DataAccess
   public class TestDataDocA : TypedDoc
   {
     [Field(description: "./", valueList: "./")]
-    public string Name{ get; set; }
+    public string Name { get; set; }
 
     [Field(description: "./")]
     public int Field { get; set; }
   }
+
 
   public class TestDataDocB : TypedDoc
   {
     [Field(description: "./custom.aaa", valueList: "./custom.aaa")]
     public string Name { get; set; }
   }
+
 
   public class TestDataDocC : TypedDoc
   {

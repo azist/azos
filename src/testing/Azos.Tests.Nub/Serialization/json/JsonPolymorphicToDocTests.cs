@@ -4,10 +4,8 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 using Azos.Data;
 using Azos.Scripting;
@@ -122,7 +120,6 @@ namespace Azos.Tests.Nub.Serialization
       Aver.AreEqual(100.234, got.AA);
     }
 
-
     [Run]
     public void Case08_complex_array()
     {
@@ -218,7 +215,6 @@ namespace Azos.Tests.Nub.Serialization
 
       got.See();
     }
-
 
     [Run]
     public void Case10_logical_diff_basic()

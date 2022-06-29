@@ -36,7 +36,7 @@ namespace Azos.Data.Access.MongoDb.Client
     public static TResult CallSync<TResult>(this IMongoDbService service,
                                               string remoteAddress,
                                               string contract,
-                                              object shardKey,
+                                              ShardKey shardKey,
                                               Func<IMongoDbTransport, CancellationToken?, TResult> body,
                                               CancellationToken? cancellation = null,
                                               Atom? network = null,

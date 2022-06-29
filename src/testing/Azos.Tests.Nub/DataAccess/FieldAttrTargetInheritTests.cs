@@ -4,11 +4,8 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 using Azos.Data;
 using Azos.Scripting;
@@ -18,7 +15,6 @@ namespace Azos.Tests.Nub.DataAccess
   [Runnable]
   public class FieldAttrTargetInheritTests
   {
-
     public class BasicDoc : TypedDoc
     {
       [Field(description: "Common description")]
@@ -28,6 +24,7 @@ namespace Azos.Tests.Nub.DataAccess
       [Field("ALT", null, Description = "Description override")]//same as ANY_TARGET
       public string Data { get; set; }
     }
+
 
     [Run]
     public void Basic()
@@ -78,7 +75,6 @@ namespace Azos.Tests.Nub.DataAccess
       Aver.IsFalse(atrALT.Required);
       Aver.AreEqual(0, atrALT.MaxLength);
       Aver.AreEqual(0, atrALT.MinLength);
-
     }
 
     public class ValListDoc : TypedDoc
@@ -199,6 +195,7 @@ namespace Azos.Tests.Nub.DataAccess
       public string Data { get; set; }
     }
 
+
     [Run]
     public void MetadataMerge()
     {
@@ -233,6 +230,7 @@ namespace Azos.Tests.Nub.DataAccess
       public string Data { get; set; }
     }
 
+
     public class Bad_RefNotExistsDoc : TypedDoc
     {
       [Field(description: "Common description", metadata: "a=1 b=2 sub{ z=100 }")]
@@ -255,7 +253,7 @@ namespace Azos.Tests.Nub.DataAccess
         Aver.IsTrue(error.InnerException.Message.Contains("Cyclical"));
         return;
       }
-      Aver.Fail("Did not get expected exception");
+      Aver.Fail(Constants.ERR_NOT_THROWN);
     }
 
     [Run]
@@ -272,9 +270,8 @@ namespace Azos.Tests.Nub.DataAccess
         Aver.IsTrue(error.InnerException.Message.Contains("no matching"));
         return;
       }
-      Aver.Fail("Did not get expected exception");
+      Aver.Fail(Constants.ERR_NOT_THROWN);
     }
-
 
   }
 }

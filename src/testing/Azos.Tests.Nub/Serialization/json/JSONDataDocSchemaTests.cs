@@ -4,17 +4,10 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
-using System.Diagnostics;
-
 using Azos.Scripting;
 
 using Azos.Serialization.JSON;
-using Azos.Collections;
-using System.IO;
 using Azos.Data;
-using Azos.Time;
-using Azos.Financial;
 using System.Collections.Generic;
 
 namespace Azos.Tests.Nub.Serialization
@@ -33,13 +26,13 @@ namespace Azos.Tests.Nub.Serialization
     public class Doc1 : AmorphousTypedDoc
     {
       [Field]
-      public long? ID{ get;set;}
+      public long? ID { get; set; }
 
       [Field]
       public string CustomerName { get; set; }
 
       [Field]
-      public AddressDoc Address{ get;set;}
+      public AddressDoc Address { get; set; }
 
       [Field]
       public Doc1 Relative { get; set; }
@@ -54,10 +47,10 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void FlatTest()
     {
-      var d1 = new Doc1{ ID =1234, CustomerName="Snake Lam"};
+      var d1 = new Doc1 { ID = 1234, CustomerName = "Snake Lam" };
       var json = d1.Schema.ToJson(JsonWritingOptions.PrettyPrint);
-      Console.WriteLine(json);
-//todo This needs to be redesigned per Schema JSOn writable re-design
+      json.See();
+      //todo This needs to be redesigned per Schema JSOn writable re-design
     }
 
   }//class

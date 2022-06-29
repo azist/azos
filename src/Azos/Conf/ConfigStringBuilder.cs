@@ -4,15 +4,8 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Azos.Conf
 {
-
   /// <summary>
   /// Denotes objects that can build a string (i.e. a database connection string) from the configured
   /// state/properties. This is used for example to build DB connect strings from host names that need
@@ -25,7 +18,6 @@ namespace Azos.Conf
     /// </summary>
     string BuildString();
   }
-
 
   /// <summary>
   /// Facilitates the creation/building of strings from existing strings or configuration vectors.

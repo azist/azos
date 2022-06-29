@@ -4,7 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-
 using System;
 using System.Runtime.Serialization;
 
@@ -17,9 +16,12 @@ namespace Azos.Graphics
   public class GraphicsException : AzosException
   {
     public GraphicsException() {}
-    public GraphicsException(string message) : base(message) {}
-    public GraphicsException(string message, Exception inner) : base(message, inner) {}
-    protected GraphicsException(SerializationInfo info, StreamingContext context) : base(info, context) {}
-  }
 
+    public GraphicsException(string message) : base(message) {}
+
+    public GraphicsException(string message, Exception inner) : base(message, inner) {}
+
+    protected GraphicsException(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
+  }
 }

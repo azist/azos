@@ -4,7 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-
 using System;
 
 using Azos.Scripting;
@@ -33,26 +32,25 @@ namespace Azos.Tests.Nub
       try
       {
         x.NonNull();
-        Aver.Fail("ShouldNever be here");
+        Aver.Fail(Constants.ERR_NOT_THROWN);
       }
       catch(CallGuardException error)
       {
-        Console.WriteLine(error.ToMessageWithType());
+        error.ToMessageWithType().See();
         Aver.IsTrue(  error.Message.Contains("'<unknown>' may not be null") );
       }
 
       try
       {
         x.NonNull(nameof(x));
-        Aver.Fail("ShouldNever be here");
+        Aver.Fail(Constants.ERR_NOT_THROWN);
       }
       catch (CallGuardException error)
       {
-        Console.WriteLine(error.ToMessageWithType());
+        error.ToMessageWithType().See();
         Aver.IsTrue(error.Message.Contains("'x' may not be null"));
       }
     }
-
 
     [Run]
     public void Nullable_NonNull()
@@ -64,7 +62,6 @@ namespace Azos.Tests.Nub
       x = null;
       Aver.Throws<CallGuardException>(() => x.NonNull());
     }
-
 
     [Run]
     public void IsOfType()
@@ -94,11 +91,11 @@ namespace Azos.Tests.Nub
       try
       {
         x.IsOfType<Exception>();
-        Aver.Fail("ShouldNever be here");
+        Aver.Fail(Constants.ERR_NOT_THROWN);
       }
       catch (CallGuardException error)
       {
-        Console.WriteLine(error.ToMessageWithType());
+        error.ToMessageWithType().See();
         Aver.IsTrue(error.Message.Contains("must be of 'Exception' type"));
       }
     }
@@ -129,8 +126,6 @@ namespace Azos.Tests.Nub
       Aver.Throws<CallGuardException>(() => x.ValueIsOfType(typeof(GuardTests)));
     }
 
-
-
     [Run]
     public void NonBlank()
     {
@@ -142,7 +137,6 @@ namespace Azos.Tests.Nub
       Aver.Throws<CallGuardException>(() => x.NonBlank());
     }
 
-
     [Run]
     public void NonBlank_2()
     {
@@ -151,22 +145,22 @@ namespace Azos.Tests.Nub
       try
       {
         x.NonBlank();
-        Aver.Fail("ShouldNever be here");
+        Aver.Fail(Constants.ERR_NOT_THROWN);
       }
       catch (CallGuardException error)
       {
-        Console.WriteLine(error.ToMessageWithType());
+        error.ToMessageWithType().See();
         Aver.IsTrue(error.Message.Contains("'<unknown>' may not be null or blank"));
       }
 
       try
       {
         x.NonBlank(nameof(x));
-        Aver.Fail("ShouldNever be here");
+        Aver.Fail(Constants.ERR_NOT_THROWN);
       }
       catch (CallGuardException error)
       {
-        Console.WriteLine(error.ToMessageWithType());
+        error.ToMessageWithType().See();
         Aver.IsTrue(error.Message.Contains("'x' may not be null or blank"));
       }
     }
@@ -191,11 +185,11 @@ namespace Azos.Tests.Nub
       try
       {
         x.NonBlankMax(2, nameof(x));
-        Aver.Fail("ShouldNever be here");
+        Aver.Fail(Constants.ERR_NOT_THROWN);
       }
       catch (CallGuardException error)
       {
-        Console.WriteLine(error.ToMessageWithType());
+        error.ToMessageWithType().See();
       }
     }
 
@@ -219,11 +213,11 @@ namespace Azos.Tests.Nub
       try
       {
         x.NonBlankMin(22, nameof(x));
-        Aver.Fail("ShouldNever be here");
+        Aver.Fail(Constants.ERR_NOT_THROWN);
       }
       catch (CallGuardException error)
       {
-        Console.WriteLine(error.ToMessageWithType());
+        error.ToMessageWithType().See();
       }
     }
 
@@ -248,11 +242,11 @@ namespace Azos.Tests.Nub
       try
       {
         x.NonBlankMinMax(48, 64, nameof(x));
-        Aver.Fail("ShouldNever be here");
+        Aver.Fail(Constants.ERR_NOT_THROWN);
       }
       catch (CallGuardException error)
       {
-        Console.WriteLine(error.ToMessageWithType());
+        error.ToMessageWithType().See();
       }
     }
 

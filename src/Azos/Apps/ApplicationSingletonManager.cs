@@ -3,6 +3,7 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -57,7 +58,6 @@ namespace Azos.Apps
   }
 
 
-
   /// <summary>
   /// Implements a disposable IApplicationSingletonManager
   /// </summary>
@@ -69,7 +69,6 @@ namespace Azos.Apps
     {
       this.ForEach( s => { if (s is IDisposable d) d.Dispose(); } );
     }
-
 
     private object m_Lock = new object();
     private volatile Dictionary<Type, object> m_Instances = new Dictionary<Type, object>();
@@ -137,12 +136,14 @@ namespace Azos.Apps
   public sealed class NOPApplicationSingletonManager : DisposableObject, IApplicationSingletonManager
   {
     public T Get<T>() where T : class => null;
+
     public (T instance, bool created) GetOrCreate<T>(Func<T> factory) where T : class => (null, false);
+
     public bool Remove<T>() where T : class => false;
 
     public IEnumerator<object> GetEnumerator() => Enumerable.Empty<object>().GetEnumerator();
+
     IEnumerator IEnumerable.GetEnumerator() => Enumerable.Empty<object>().GetEnumerator();
   }
-
 
 }

@@ -27,7 +27,7 @@ modify=MyPerzon
     { }
 
 
-    public override RowsetBase Execute(ICRUDQueryExecutionContext context, Query query, bool oneRow = false)
+    public override RowsetBase Execute(ICrudQueryExecutionContext context, Query query, bool oneRow = false)
     {
       var ctx = (MongoDbCRUDQueryExecutionContext)context;
 

@@ -1,6 +1,12 @@
-﻿using System;
+﻿/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
+
+using System;
 using System.Collections.Generic;
-using System.Text;
+
 using Azos.Data;
 using Azos.Scripting;
 using Azos.Serialization.JSON;
@@ -69,7 +75,6 @@ namespace Azos.Tests.Nub.ScriptingAndTesting
       Aver.IsFalse(diff.AreSame);
       Aver.IsTrue(diff.AreDifferent);
     }
-
 
     [Run]
     public void FullCycle_doc1()
@@ -180,7 +185,6 @@ namespace Azos.Tests.Nub.ScriptingAndTesting
       Aver.IsTrue(diff.AreSame);
     }
 
-
     [Run]
     public void FullCycle_doc5_into_doc4()
     {
@@ -206,14 +210,12 @@ namespace Azos.Tests.Nub.ScriptingAndTesting
     }
 
 
-
-
-
     public class Doc1 : TypedDoc
     {
       [Field]
       public string S1{ get; set;}
     }
+
 
     public class Doc2 : TypedDoc
     {
@@ -227,11 +229,13 @@ namespace Azos.Tests.Nub.ScriptingAndTesting
       [Field] public DateTime? NDT1 { get; set; }
     }
 
+
     public class Doc3 : TypedDoc//composite
     {
       [Field] public Doc1 D1 { get; set; }
       [Field] public Doc2 D2 { get; set; }
     }
+
 
     public class Doc4 : TypedDoc//composite
     {
@@ -245,8 +249,6 @@ namespace Azos.Tests.Nub.ScriptingAndTesting
       [Field] public List<Doc1> COL1 { get; set; }
       [Field] public List<Doc2> COL2 { get; set; }
     }
-
-
 
   }
 }

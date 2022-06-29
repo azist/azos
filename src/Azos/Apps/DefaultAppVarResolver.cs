@@ -1,5 +1,4 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
 
 using Azos.Collections;
 
@@ -47,7 +46,6 @@ namespace Azos.Apps
       app.NonNull(nameof(app));
       value = "";
       if (name.IsNullOrWhiteSpace()) return false;
-
 
       if (name.EqualsOrdIgnoreCase(HOST))
       {

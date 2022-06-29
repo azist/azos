@@ -30,6 +30,9 @@
 #[override renderBody()]
 <h1>"?[Data.ValOf("sku")]" Schema</h1>
 This section describes a complex (non-scalar) data type "?[Data.ValOf("sku")]" used by API operations.
+
+Type BIX id is <strong>"?[Data.NavigateSection("data-doc/schema").ValOf("bix-id")]"</strong>.
+
 <p>
 Go back to <a href="./toc">Api Table of Contents.</a>
 </p>

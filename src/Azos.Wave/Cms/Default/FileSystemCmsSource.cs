@@ -98,24 +98,26 @@ namespace Azos.Wave.Cms.Default
       var result = new Dictionary<string, IEnumerable<LangInfo>>();
       using (var session = m_FS.StartSession(m_FSConnectParams))
       {
-        var rootDir = await session.GetItemAsync(m_FSRootPath) as FileSystemDirectory;
+        var rootDir = (await session.GetItemAsync(m_FSRootPath).ConfigureAwait(false)) as FileSystemDirectory;
         if (rootDir==null)
           throw new CmsException($"Error in configuration of `{nameof(FileSystemCmsSource)}`. The root fs path `{m_FSRootPath}` does not land at the existing directory");
 
-        foreach (var portalDirName in await rootDir.GetSubDirectoryNamesAsync())
+        foreach (var portalDirName in await rootDir.GetSubDirectoryNamesAsync().ConfigureAwait(false))
         {
-          var dir = await rootDir.GetItemAsync(portalDirName) as FileSystemDirectory;
+          if (portalDirName.StartsWith(".")) continue;//#573 - must skip hidden folder names
+
+          var dir = (await rootDir.GetItemAsync(portalDirName).ConfigureAwait(false)) as FileSystemDirectory;
           if (dir == null) continue;
 
           //portal directory found, try to read config file
-          var cfile = await dir.GetFileAsync(PORTAL_CONFIG_FILE);
+          var cfile = await dir.GetFileAsync(PORTAL_CONFIG_FILE).ConfigureAwait(false);
           if (cfile==null)
           {
             result.Add(dir.Name, new[] { ComponentDirector.DefaultGlobalLanguage });
             continue;
           }
 
-          var cfgContent = await cfile.ReadAllTextAsync();
+          var cfgContent = await cfile.ReadAllTextAsync().ConfigureAwait(false);
           try
           {
             var cfg = cfgContent.AsLaconicConfig(handling: ConvertErrorHandling.Throw);
@@ -145,7 +147,7 @@ namespace Azos.Wave.Cms.Default
 
       using (var session = m_FS.StartSession(m_FSConnectParams))
       {
-        var dir = await session.GetItemAsync(dirPath) as FileSystemDirectory;
+        var dir = await session.GetItemAsync(dirPath).ConfigureAwait(false) as FileSystemDirectory;
 
         if (dir == null) return null;//directory not found
 
@@ -153,12 +155,12 @@ namespace Azos.Wave.Cms.Default
         var (fname, fext) = getFileNameWithLangIso(id.Block, isoLang);
         var actualIsoLang = isoLang;
 
-        var file = await dir.GetFileAsync(fname);
+        var file = await dir.GetFileAsync(fname).ConfigureAwait(false);
         //2nd try to get language-agnostic file
         if (file == null)
         {
           fname = id.Block;//without the language
-          file = await dir.GetFileAsync(fname);
+          file = await dir.GetFileAsync(fname).ConfigureAwait(false);
         }
         else
           appliedIsoLang = isoLang;
@@ -175,13 +177,13 @@ namespace Azos.Wave.Cms.Default
           using (var ms = new MemoryStream())
             using (var stream = file.FileStream)
             {
-              await stream.CopyToAsync(ms);
+              await stream.CopyToAsync(ms).ConfigureAwait(false);
               binContent = ms.ToArray();
             }
         }
         else
         {
-          txtContent = await file.ReadAllTextAsync();
+          txtContent = await file.ReadAllTextAsync().ConfigureAwait(false);
         }
 
         var createUser = m_FS.InstanceCapabilities.SupportsCreationUserNames      ? file.CreationUser.Name     : null;

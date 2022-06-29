@@ -13,7 +13,6 @@ using Azos.Security;
 
 namespace Azos.Instrumentation
 {
-
   /// <summary>
   /// Describes an entity which handles external calls in a specified context.
   /// The typical use pattern is based on ExternalCallHandler&lt;TContext&gt; implementation
@@ -104,9 +103,9 @@ namespace Azos.Instrumentation
     public virtual ExternalCallResponse DescribeRequest(Type request)
       => DescribeRequest((request.NonNull(nameof(request)).Name + "{ }").AsLaconicConfig());
 
-     /// <summary>
-     /// Describes request vector
-     /// </summary>
+    /// <summary>
+    /// Describes request vector
+    /// </summary>
     public virtual ExternalCallResponse DescribeRequest(IConfigSectionNode request)
     {
       var result = DoProcessRequest(request, false);
@@ -147,7 +146,7 @@ namespace Azos.Instrumentation
       //Execution MANDATES handler authorization of the calling principal
       if (execute)
       {
-        Permission.AuthorizeAndGuardAction(App, tr);
+        Permission.AuthorizeAndGuardAction(App.SecurityManager, tr);
       }
 
       //Create instance of the appropriate handler
@@ -168,6 +167,7 @@ namespace Azos.Instrumentation
       return response;
     }
   }
+
 
   /// <summary>
   /// Provides general base for individual call handlers dispatched by ExternalCallHandler
@@ -201,6 +201,7 @@ namespace Azos.Instrumentation
     public virtual void Configure(IConfigSectionNode node) => ConfigAttribute.Apply(this, node);
   }
 
+
   /// <summary>
   /// Embodies a response for ExternalCall. This is purposely a sealed class for simplicity.
   /// Keep in mind that external calls should NOT be used as implementation technique of business domain logic.
@@ -233,7 +234,7 @@ namespace Azos.Instrumentation
     /// <summary>
     /// Although this mechanism is not built specifically for web, it uses HTTP return codes by convention
     /// </summary>
-    public int    StatusCode        { get; private set; }
+    public int StatusCode { get; private set; }
 
     /// <summary>
     /// Status description similar to Http status phrase
@@ -244,13 +245,12 @@ namespace Azos.Instrumentation
     /// Content of ContentType. By convention this is string. If it is not a string then most implementations
     /// represent the object as JSON
     /// </summary>
-    public object Content           { get; private set; }
+    public object Content { get; private set; }
 
     /// <summary>
     /// Content type uses MIME types by convention
     /// </summary>
-    public string ContentType       { get; private set; }
+    public string ContentType { get; private set; }
+
   }
-
-
 }

@@ -63,7 +63,7 @@ For example:
 - `Test_?3` matches on any single character before "3" at the end
 
 You can apply pattern search to the following properties of runnable classes/methods:
-- Categories - defined via `[Runnable(category: "mycategory1"]` attribute decoration
+- Categories - defined via `[Runnable(category: "mycategory1"]` attribute decoration (see categories note below)
 - Namespace names - pattern applied to namespace names which contain `[Runnable]` classes
 - Method names - pattern applied to class/method names
 - Names - named test cases
@@ -105,9 +105,13 @@ $ dotnet trun.dll MyTests.dll -r categories=hub,draw
 # but not i/o tests
 $ dotnet trun.dll MyTests.dll -r categories=hub,draw,~io
 
-# hub category, namespace "Serialization", any method by for the ones called "_Fail"
+# hub category, namespace "Serialization", any method but for the ones called "_Fail"
 $ dotnet trun.dll MyTests.dll -r categories=hub namespaces=*Serialization* methods=~*_Fail
 ```
+
+> If categories filter is specified then it expects that category on the `[Runnable]` declaration, then if there is at least one method with `[Run]` spcifying the category then 
+> the rest of method declarations must also specify category. In other words: **if none of the runnable methods have category set**, then the **category specification cascades down from 
+> runnable class level to its individual methods**
 
 Use `names` parameter to invoke **explicitly-named test cases**:
 ```bash

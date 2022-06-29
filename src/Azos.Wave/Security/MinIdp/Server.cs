@@ -72,39 +72,39 @@ namespace Azos.Security.MinIdp
       Title = "MinIdp query ById",
       Description = "Executed MinIdp authentication query by id",
       RequestBody = "{realm: atom, id: string}",
-      RequestQueryParameters = new[]{"realm: atom", "id: string", "plain: bool"},
+      RequestQueryParameters = new[]{"realm: atom", "id: string", "plain: bool", "ctx: AuthenticationRequestContext" },
       Methods = new[]{"POST: json body", "GET: query params"})]
     [Action(Name = "byid")]
-    public async Task<object> GetById(Atom realm, string id, bool plain)
+    public async Task<object> GetById(Atom realm, string id, bool plain, AuthenticationRequestContext ctx)
     {
       var store = Store;
-      return secure(store, await store.GetByIdAsync(realm, id), plain);
+      return secure(store, await store.GetByIdAsync(realm, id, ctx).ConfigureAwait(false), plain);
     }
 
     [ApiEndpointDoc(
       Title = "MinIdp query BySys",
       Description = "Executed MinIdp authentication query by system auth token",
       RequestBody = "{realm: atom, sysToken: string}",
-      RequestQueryParameters = new[] { "realm: atom", "sysToken: string", "plain: bool" },
+      RequestQueryParameters = new[] { "realm: atom", "sysToken: string", "plain: bool", "ctx: AuthenticationRequestContext" },
       Methods = new[] { "POST: json body", "GET: query params" })]
     [Action(Name = "bysys")]
-    public async Task<object> GetBySys(Atom realm, string sysToken, bool plain)
+    public async Task<object> GetBySys(Atom realm, string sysToken, bool plain, AuthenticationRequestContext ctx)
     {
       var store = Store;
-      return secure(store, await store.GetBySysAsync(realm, sysToken), plain);
+      return secure(store, await store.GetBySysAsync(realm, sysToken, ctx).ConfigureAwait(false), plain);
     }
 
     [ApiEndpointDoc(
       Title = "MinIdp query ByUri",
       Description = "Executed MinIdp authentication query by entity Uri",
       RequestBody = "{realm: atom, uri: string}",
-      RequestQueryParameters = new[] { "realm: atom", "uri: string", "plain: bool" },
+      RequestQueryParameters = new[] { "realm: atom", "uri: string", "plain: bool", "ctx: AuthenticationRequestContext" },
       Methods = new[] { "POST: json body", "GET: query params" })]
     [Action(Name = "byuri")]
-    public async Task<object> GetByUri(Atom realm, string uri, bool plain)
+    public async Task<object> GetByUri(Atom realm, string uri, bool plain, AuthenticationRequestContext ctx = null)
     {
       var store = Store;
-      return secure(store, await store.GetByUriAsync(realm, uri), plain);
+      return secure(store, await store.GetByUriAsync(realm, uri, ctx).ConfigureAwait(false), plain);
     }
 
     [ApiEndpointDoc(

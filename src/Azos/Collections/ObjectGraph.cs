@@ -117,7 +117,6 @@ namespace Azos.Collections
 
     internal readonly state Machine;
 
-
     /// <summary>
     /// Returns true if the call flow already contains an instance. This is distinct from `Visited(instance)`, as call flow works as a stack
     /// while visited works as an add-only bag
@@ -147,16 +146,13 @@ namespace Azos.Collections
       return Machine.m_Visited.Add(instance);
     }
 
-
     [ThreadStatic]
     private static state ts_Machine; //implicit ambient reference to call flow state machine
-
 
     /* NOTE:
      * The copious code below is needed for performance not to allocate extra closure instances,
      * because the versions differ in their signatures which are needed not to create arg closures
      */
-
 
     /// <summary>
     /// Implements a sync-only thread-bound reference cycle suppression state machine
@@ -357,7 +353,6 @@ namespace Azos.Collections
         }
       }
     }
-
 
   }
 }

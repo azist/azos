@@ -48,25 +48,37 @@ namespace Azos.Sky.Kdb
     #endregion
 
     #region Fields
-      private ShardSet m_RootShardSet;
-      internal DataDocConverter m_Converter;
-      private bool m_InstrumentationEnabled;
-      private Time.Event m_InstrumentationEvent;
+    private ShardSet m_RootShardSet;
+    internal DataDocConverter m_Converter;
+    private bool m_InstrumentationEnabled;
+    private Time.Event m_InstrumentationEvent;
+    private int m_DefaultTimeoutMs;
 
-      private NamedInterlocked m_stat_GetHitCount = new NamedInterlocked();
-      private NamedInterlocked m_stat_GetFallbackHitCount = new NamedInterlocked();
-      private NamedInterlocked m_stat_GetMissCount = new NamedInterlocked();
-      private NamedInterlocked m_stat_GetTouchCount = new NamedInterlocked();
-      private NamedInterlocked m_stat_PutCount = new NamedInterlocked();
-      private NamedInterlocked m_stat_DeleteHitCount = new NamedInterlocked();
-      private NamedInterlocked m_stat_DeleteMissCount = new NamedInterlocked();
-      private NamedInterlocked m_stat_DeleteFallbackCount = new NamedInterlocked();
-      private NamedInterlocked m_stat_ErrorCount = new NamedInterlocked();
-      private NamedInterlocked m_stat_MigrationCount = new NamedInterlocked();
+    private NamedInterlocked m_stat_GetHitCount = new NamedInterlocked();
+    private NamedInterlocked m_stat_GetFallbackHitCount = new NamedInterlocked();
+    private NamedInterlocked m_stat_GetMissCount = new NamedInterlocked();
+    private NamedInterlocked m_stat_GetTouchCount = new NamedInterlocked();
+    private NamedInterlocked m_stat_PutCount = new NamedInterlocked();
+    private NamedInterlocked m_stat_DeleteHitCount = new NamedInterlocked();
+    private NamedInterlocked m_stat_DeleteMissCount = new NamedInterlocked();
+    private NamedInterlocked m_stat_DeleteFallbackCount = new NamedInterlocked();
+    private NamedInterlocked m_stat_ErrorCount = new NamedInterlocked();
+    private NamedInterlocked m_stat_MigrationCount = new NamedInterlocked();
     #endregion
 
     #region Props
     public override string ComponentLogTopic => SysConsts.LOG_TOPIC_KDB;
+
+    /// <summary>
+    /// Provides default timeout imposed on execution of commands/calls. Expressed in milliseconds.
+    /// A value less or equal to zero indicates no timeout
+    /// </summary>
+    [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_DATA)]
+    public int DefaultTimeoutMs
+    {
+      get => m_DefaultTimeoutMs;
+      set => m_DefaultTimeoutMs = value.KeepBetween(0, (15 * 60) * 1000);
+    }
 
     /// <summary>
     /// Implements IInstrumentable

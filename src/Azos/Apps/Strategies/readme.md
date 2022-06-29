@@ -10,7 +10,7 @@ For example, you may need to
 calculate shipping costs. The costs are dependent on shipping source/destination combinations
 and on the shipping type (such as "2nd day air") used by a specific shipping provider (such as FedEx, UPS etc..).
 
-## Strategies are form of Business-Driven DI
+## Strategies are a form of Business-Driven DI
 Azos strategy functionality is a form of business-driven DI (dependency injection). Unlike the typical
 DI which is set uniformly at the application-level, the strategy DI is more business context-based as the
 system provides you with a type of strategy implementation, possibly configured with parameters which best suit

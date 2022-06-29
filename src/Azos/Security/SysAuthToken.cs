@@ -5,6 +5,7 @@
 </FILE_LICENSE>*/
 using System;
 using System.IO;
+
 using Azos.Data;
 using Azos.Serialization.JSON;
 
@@ -17,7 +18,7 @@ namespace Azos.Security
   /// perimeter (e.g. corporate intranet, data center network etc.)
   /// </summary>
   [Serializable]
-  public struct SysAuthToken : IEquatable<SysAuthToken>, IJsonWritable, IJsonReadable, IRequired
+  public struct SysAuthToken : IEquatable<SysAuthToken>, IJsonWritable, IJsonReadable, IRequiredCheck
   {
     public const string DELIMIT = "::";
 

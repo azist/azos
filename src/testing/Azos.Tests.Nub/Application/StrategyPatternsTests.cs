@@ -4,8 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-
-
 using Azos.Apps;
 using Azos.Apps.Strategies;
 using Azos.Conf;
@@ -41,13 +39,13 @@ namespace Azos.Tests.Nub.Application
     [Run]
     public void TestGeoStrategy_Proximity()
     {
-      using( var app = new AzosApplication(null, BASE_CONF))
+      using (var app = new AzosApplication(null, BASE_CONF))
       {
         //Get the binder which will make and bind strategy instances for the requested contract and context data
         var binder = app.ModuleRoot.Get<IStrategyBinder>();
 
         //The first case runs in the context of Cleveland, OHIO customers
-        var ctx = new GeoProximityContext{  Location = new LatLng("41.500136,-81.7005492", "Cleveland")};
+        var ctx = new GeoProximityContext { Location = new LatLng("41.500136,-81.7005492", "Cleveland") };
         var got = binder.Bind<IGeoStrat, IGeoStratContext>(ctx);
 
         //We get NY strategy implementation, because NY is closer to Cleveland than others (in California)
@@ -106,9 +104,10 @@ namespace Azos.Tests.Nub.Application
         //Now Sacramento is going to throw because you cant bind it using this matching (no sister exists for it)
         ctx.Location = new LatLng("38.5755851,-121.4925168", "Sacramento");
         //can't bind it
-        Aver.Throws<AzosException>(()=> binder.Bind<IGeoStrat, IGeoStratContext>(ctx));
+        Aver.Throws<AzosException>(() => binder.Bind<IGeoStrat, IGeoStratContext>(ctx));
       }
     }
+
 
     /// <summary>
     /// Our context has a location Lat/LNG coordinates which represent the point of interest per call.
@@ -116,15 +115,16 @@ namespace Azos.Tests.Nub.Application
     /// </summary>
     interface IGeoStratContext : IStrategyContext, IPatternStrategyTrait
     {
-      LatLng Location{ get; set;}
+      LatLng Location { get; set; }
     }
+
 
     /// <summary>
     /// We could implement many different context with various pattern matching logic
     /// </summary>
     public class GeoProximityContext : IGeoStratContext
     {
-      public LatLng Location{ get; set;}
+      public LatLng Location { get; set; }
 
       /// <summary>
       /// Here we implement pattern matching score logic. The higher = the better the match.
@@ -145,6 +145,7 @@ namespace Azos.Tests.Nub.Application
         return ratio;//is the score for this case
       }
     }
+
 
     /// <summary>
     /// This one matches by twin/sister city name
@@ -170,6 +171,7 @@ namespace Azos.Tests.Nub.Application
       string RunStrategyWork();
     }
 
+
     /// <summary>
     /// Our pattern matching may use any logic, including the geo-proximity one.
     /// This class would serve customers near NY
@@ -183,6 +185,7 @@ namespace Azos.Tests.Nub.Application
       }
     }
 
+
     /// <summary>
     /// This class would serve customers near LA
     /// </summary>
@@ -194,6 +197,7 @@ namespace Azos.Tests.Nub.Application
         return "LA California customers in {0}".Args(Context.Location.Name);
       }
     }
+
 
     /// <summary>
     /// This class would serve customers near Frisco
@@ -207,7 +211,6 @@ namespace Azos.Tests.Nub.Application
         return "San Francisco California customers in {0}".Args(Context.Location.Name);
       }
     }
-
 
   }
 }

@@ -59,11 +59,13 @@ namespace Azos.Data.Idgen
     public static readonly DateTime START = new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc);
     public const int MAX_BATCH = 1024;
 
+
     internal class scope : INamed
     {
       public string Name { get; set; }
       public Registry<sequence> Sequences = new Registry<sequence>();
     }
+
 
     internal class sequence : INamed, ISequenceInfo
     {
@@ -72,7 +74,6 @@ namespace Azos.Data.Idgen
       public volatile int Counter;
       public ulong Timestamp;
 
-
       public uint Era => 0;
       public ulong ApproximateCurrentValue => (ulong)Counter;
       public int TotalPreallocation => 0;
@@ -80,6 +81,7 @@ namespace Azos.Data.Idgen
       public string IssuerName => nameof(LocalGdidGenerator);
       public DateTime IssueUTCDate => DateTime.UtcNow;
     }
+
 
     public LocalGdidGenerator(IApplication application) : base(application) => ctor();
     public LocalGdidGenerator(IApplicationComponent director) : base(director) => ctor();
@@ -92,7 +94,6 @@ namespace Azos.Data.Idgen
     private string m_Name;
     private int m_Authority;
     private Registry<scope> m_Scopes = new Registry<scope>();
-
 
     public string Name => m_Name;
 
@@ -120,14 +121,11 @@ namespace Azos.Data.Idgen
       }
     }
 
-
     public override string ComponentLogTopic => CoreConsts.TOPIC_ID_GEN;
-
 
     public string TestingAuthorityNode { get => null; set {} }
 
     public IEnumerable<string> SequenceScopeNames => m_Scopes.Names;
-
 
     public void Configure(IConfigSectionNode node)
     {

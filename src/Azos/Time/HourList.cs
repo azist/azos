@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using Azos.Conf;
 using Azos.Data;
 using Azos.Serialization.JSON;
 
@@ -18,9 +19,10 @@ namespace Azos.Time
   /// Efficiently represents a list of minute-aligned time spans within a day
   /// which is typically used for operation hours/schedules
   /// </summary>
-  public struct HourList : IEquatable<HourList>, IJsonWritable, IJsonReadable, IValidatable, IRequired
+  public struct HourList : IEquatable<HourList>, IJsonWritable, IJsonReadable, IValidatable, IRequiredCheck, IConfigurationPersistent
   {
     public const int MINUTES_PER_DAY = 24 * 60;
+    public const int MINUTES_PER_HALFDAY = 12 * 60;
 
     public struct Span : IEquatable<Span>, IComparable<Span>
     {
@@ -98,6 +100,19 @@ namespace Azos.Time
     {
       Data = data;
       m_Spans = null;
+    }
+
+    [ConfigCtor]
+    public HourList(IConfigAttrNode node)
+    {
+      Data = node.Value;
+      m_Spans = null;
+    }
+
+    public ConfigSectionNode PersistConfiguration(ConfigSectionNode parentNode, string name)
+    {
+      parentNode.NonNull(nameof(parentNode)).AddAttributeNode(name.NonBlank(nameof(name)), Data);
+      return parentNode;
     }
 
     private Span[] m_Spans;
@@ -260,7 +275,10 @@ namespace Azos.Time
       {
         str = str.Substring(0, str.Length - 2);
         result = parseMinutes(str);
-        if (result>=0) result += (12 * 60);
+
+        if (result>=MINUTES_PER_HALFDAY) result -= MINUTES_PER_HALFDAY;//#713 20220628 JPK
+
+        if (result>=0) result += MINUTES_PER_HALFDAY;
       }
       else result = parseMinutes(str);
 

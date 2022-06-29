@@ -21,11 +21,21 @@ namespace Azos.Data
   /// </summary>
   public enum StoreFlag
   {
-     LoadAndStore = 0,
-     OnlyLoad,
-     OnlyStore,
-     None
+    LoadAndStore = 0,
+    OnlyLoad,
+    OnlyStore,
+    None
   }
+
+  /// <summary>
+  /// Specifies SQL Where clause types: AND|OR
+  /// </summary>
+  public enum WhereClauseType { And, Or }
+
+  /// <summary>
+  /// Specifies SQL ASC|DESC sorting direction
+  /// </summary>
+  public enum OrderClauseType { Asc, Desc }
 
   /// <summary>
   /// Types of char casing
@@ -109,7 +119,6 @@ namespace Azos.Data
     /// Address postal code
     /// </summary>
     AddresPostalCode,
-
 
     Search,
 

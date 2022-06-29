@@ -15,7 +15,7 @@ namespace Azos.Wave.Cms
   /// a block represents a concrete piece of content on a page/document/interface
   /// </summary>
   [Serializable]
-  public struct ContentId : IEquatable<ContentId>, IRequired
+  public struct ContentId : IEquatable<ContentId>, IRequiredCheck
   {
     /// <summary>
     /// Imposes a limit on the content id segment identifier
@@ -33,9 +33,9 @@ namespace Azos.Wave.Cms
                      string ns,
                      string block)
     {
-      if (!validate(portal)) throw new CmsException(StringConsts.CMS_ID_ERROR.Args(nameof(portal), portal, MAX_ID_LEN));
-      if (!validate(ns))     throw new CmsException(StringConsts.CMS_ID_ERROR.Args(nameof(ns), ns, MAX_ID_LEN));
-      if (!validate(block))  throw new CmsException(StringConsts.CMS_ID_ERROR.Args(nameof(block), block, MAX_ID_LEN));
+      if (!ValidateIdentifier(portal)) throw new CmsException(StringConsts.CMS_ID_ERROR.Args(nameof(portal), portal, MAX_ID_LEN));
+      if (!ValidateIdentifier(ns))     throw new CmsException(StringConsts.CMS_ID_ERROR.Args(nameof(ns), ns, MAX_ID_LEN));
+      if (!ValidateIdentifier(block))  throw new CmsException(StringConsts.CMS_ID_ERROR.Args(nameof(block), block, MAX_ID_LEN));
       Portal =  portal;
       Namespace = ns;
       Block = block;
@@ -81,7 +81,12 @@ namespace Azos.Wave.Cms
     public static bool operator ==(ContentId lhs, ContentId rhs) =>  lhs.Equals(rhs);
     public static bool operator !=(ContentId lhs, ContentId rhs) => !lhs.Equals(rhs);
 
-    private static bool validate(string id)
+    /// <summary>
+    /// Returns true if the specified string represents a valid identifier segment for portal content identification,
+    /// that is: is only contains `0`..`9`|`A`..`Z`|`a`..`z`|`-`|`_`|`.` characters and does NOT start with `.`.
+    /// The length must be between 1 and MAX_ID_LEN = 64 aforementioned characters
+    /// </summary>
+    public static bool ValidateIdentifier(string id)
     {
       if (id == null) return false;
       if (id.Length < 1 || id.Length > MAX_ID_LEN) return false;
@@ -94,7 +99,7 @@ namespace Azos.Wave.Cms
         if (c >= 'A' && c <= 'Z') continue;
         if (c == '-') continue;
         if (c == '_') continue;
-        if (c == '.') continue;
+        if (c == '.' && i > 0) continue;
         return false;
       }
       return true;

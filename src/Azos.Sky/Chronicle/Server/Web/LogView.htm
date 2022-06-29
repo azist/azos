@@ -11,7 +11,7 @@
   <script>
     const ABOUT_SESSION = "[:USER:]@[:APP:] on `[:HOST:]`/`[:ENV:]`";
 
-
+    /*
     const TEZT_RESPONSE = {
       "data": [
         {
@@ -28,123 +28,11 @@
           "Topic": "blogic",
           "Text": "Got Rtpb request",
           "Parameters": "{a: 1, b:2, c: true}"
-        },
-        {
-          "Gdid": "0:10:1",
-          "Guid": "4ce97f15-0ff4-4589-b674-3b8c876f5cf1",
-          "RelatedTo": "5a7643e8-7d26-478a-a5fe-1fa132068721",
-          "App": "rtpb",
-          "Channel": "oplog",
-          "Type": "Warning",
-          "Source": 0,
-          "UTCTimeStamp": "2020-08-14T16:28:09.571Z",
-          "Host": "/us/east/cle/BIZMIX-WU001",
-          "From": "TeztLogic.Check",
-          "Topic": "blogic",
-          "Text": "Rtpb route",
-          "Parameters": "{\"a\": 1, \"b\":2, \"c\": true, \"sub\": {\"a\": [null, 1, \"string\", true, null, null, 0, 45e3, 2, null, false], \"flag\": false}, \"msg\": \"this is a <b> string msg\", \"k\": null}",
-          "ArchiveDimensions": "#!ad\n{\"bin\":\"12121212\",\"chn\":\"--any--\",\"dctx\":\"roma\",\"pcn\":\"ROMAX\"}"
-        },
-        {
-          "Gdid": "0:10:2",
-          "Guid": "5ff7d72a-b4bb-4241-b512-20dd1eb1f4c8",
-          "RelatedTo": "5a7643e8-7d26-478a-a5fe-1fa132068721",
-          "App": "rtpb",
-          "Channel": "oplog",
-          "Type": "TraceA",
-          "Source": 0,
-          "UTCTimeStamp": "2020-08-14T16:28:11.274Z",
-          "Host": "/us/east/cle/BIZMIX-WU001",
-          "From": "TeztLogic.Check",
-          "Topic": "blogic",
-          "Text": "[0] DZ req and hese is a good example of a long line of text that goes and goes but does not have any line breaks characters in it",
-          "Parameters": "{a: 1, b:2, c: true}",
-          "ArchiveDimensions": "#!ad\n{\"bin\":\"12121212\",\"chn\":\"--any--\",\"dctx\":\"roma\",\"mbr\":\"mbr@pbm::FAKE03TEST2018\\\/01\",\"pcn\":\"ROMAX\"}"
-        },
-        {
-          "Gdid": "0:10:3",
-          "Guid": "2c03060b-f2e7-4d21-9e14-89d834d5bf8b",
-          "RelatedTo": "5a7643e8-7d26-478a-a5fe-1fa132068721",
-          "App": "rtpb",
-          "Channel": "oplog",
-          "Type": "Warning",
-          "Source": 0,
-          "UTCTimeStamp": "2020-08-14T16:28:12.450Z",
-          "Host": "/us/east/cle/BIZMIX-WU001",
-          "From": "TeztLogic.Check",
-          "Topic": "blogic",
-          "Text": "[0] DZ rsp",
-          "Parameters": "{a: 1, b:2, c: true}",
-          "ArchiveDimensions": "#!ad\n{\"bin\":\"12121212\",\"chn\":\"--any--\",\"dctx\":\"roma\",\"mbr\":\"mbr@pbm::FAKE03TEST2018\\\/01\",\"pcn\":\"ROMAX\"}"
-        },
-        {
-          "Gdid": "0:10:4",
-          "Guid": "c5c50bd5-39c7-4cd7-8371-9a35ae296d72",
-          "RelatedTo": "5a7643e8-7d26-478a-a5fe-1fa132068721",
-          "App": "rtpb",
-          "Channel": "oplog",
-          "Type": "TraceA",
-          "Source": 0,
-          "UTCTimeStamp": "2020-08-14T16:28:12.450Z",
-          "Host": "/us/east/cle/BIZMIX-WU001",
-          "From": "TeztLogic.Check",
-          "Topic": "blogic",
-          "Text": "[1] DZ req another line which is very very long on its own and probably does not ven fit by itself on the first line of text in this div \n has multiple lines \n and yet another \n looks like script \n\n\n\n\n\n\n\n\n very many line breaks before this line",
-          "Parameters": "{a: 1, b:2, c: true}",
-          "ArchiveDimensions": "#!ad\n{\"bin\":\"12121212\",\"chn\":\"--any--\",\"dctx\":\"roma\",\"mbr\":\"mbr@pbm::FAKE03TEST2018\\\/01\",\"pcn\":\"ROMAX\"}"
-        },
-        {
-          "Gdid": "0:10:5",
-          "Guid": "d858814c-ca5c-45bd-9651-0ed697b0e94e",
-          "RelatedTo": "5a7643e8-7d26-478a-a5fe-1fa132068721",
-          "App": "rtpb",
-          "Channel": "oplog",
-          "Type": "Error",
-          "Source": 0,
-          "UTCTimeStamp": "2020-08-14T16:28:13.091Z",
-          "Host": "/us/east/cle/BIZMIX-WU001",
-          "From": "TeztLogic.Check",
-          "Topic": "blogic",
-          "Text": "[1] DZ rsp",
-          "Parameters": "{a: 1, b:2, c: true}",
-          "ArchiveDimensions": "#!ad\n{\"bin\":\"12121212\",\"chn\":\"--any--\",\"dctx\":\"roma\",\"mbr\":\"mbr@pbm::FAKE03TEST2018\\\/01\",\"pcn\":\"ROMAX\"}"
-        },
-        {
-          "Gdid": "0:10:6",
-          "Guid": "d1b5da03-f66d-4fc3-8e6b-2637f745f2fb",
-          "RelatedTo": "5a7643e8-7d26-478a-a5fe-1fa132068721",
-          "App": "rtpb",
-          "Channel": "oplog",
-          "Type": "Emergency",
-          "Source": 0,
-          "UTCTimeStamp": "2020-08-14T16:28:13.091Z",
-          "Host": "/us/east/cle/BIZMIX-WU001",
-          "From": "TeztLogic.Check",
-          "Topic": "blogic",
-          "Text": "[2] DZ req",
-          "Parameters": "{a: 1, b:2, c: true}",
-          "ArchiveDimensions": "#!ad\n{\"bin\":\"12121212\",\"chn\":\"--any--\",\"dctx\":\"roma\",\"mbr\":\"mbr@pbm::FAKE03TEST2018\\\/01\",\"pcn\":\"ROMAX\"}"
-        },
-        {
-          "Gdid": "0:10:7",
-          "Guid": "df2d2c8d-a92a-47b2-bdaa-aeccbf2be44f",
-          "RelatedTo": "5a7643e8-7d26-478a-a5fe-1fa132068721",
-          "App": "rtpb",
-          "Channel": "oplog",
-          "Type": "TraceA",
-          "Source": 0,
-          "UTCTimeStamp": "2020-08-14T16:28:13.278Z",
-          "Host": "/us/east/cle/BIZMIX-WU001",
-          "From": "TeztLogic.Check",
-          "Topic": "blogic",
-          "Text": "[2] DZ rsp",
-          "Parameters": "{a: 1, b:2, c: true}",
-          "ArchiveDimensions": "#!ad\n{\"bin\":\"12121212\",\"chn\":\"--any--\",\"dctx\":\"roma\",\"mbr\":\"mbr@pbm::FAKE03TEST2018\\\/01\",\"pcn\":\"ROMAX\"}"
         }
-
       ],
       "OK": true
     };
+    */
 
   </script>
 
@@ -762,7 +650,7 @@
 
     async function apply() {
      //// buildGrid(TEZT_RESPONSE.data); return;
-      const filter = buildFilter();
+      const callBody = { filter: buildFilter() };
       //alert(JSON.stringify(filter));
 
       try {
@@ -772,7 +660,7 @@
           cache: 'no-cache',
           credentials: 'same-origin',
           headers: { 'Content-Type': 'application/json' , 'Accept': 'application/json'},
-          body: JSON.stringify(filter)
+          body: JSON.stringify(callBody)
         });
 
         if (!response.ok) throw ` --> !OK Status [${response.status}] / '${response.statusText}'`

@@ -48,6 +48,8 @@ namespace Azos.Data.Access.Oracle
 
     private NameCaseSensitivity m_CaseSensitivity = NameCaseSensitivity.ToUpper;
 
+    private int m_DefaultTimeoutMs;
+
     private bool m_StringBool = true;
 
     private string m_StringForTrue = STR_FOR_TRUE;
@@ -113,6 +115,17 @@ namespace Azos.Data.Access.Oracle
     }
 
     public override string ComponentLogTopic => OracleConsts.ORACLE_TOPIC;
+
+    /// <summary>
+    /// Provides default timeout imposed on execution of commands/calls. Expressed in milliseconds.
+    /// A value less or equal to zero indicates no timeout
+    /// </summary>
+    [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_DATA)]
+    public int DefaultTimeoutMs
+    {
+      get => m_DefaultTimeoutMs;
+      set => m_DefaultTimeoutMs = value.KeepBetween(0, (15 * 60) * 1000);
+    }
 
     /// <summary>
     /// Get/Sets Oracle database connection string
@@ -230,7 +243,7 @@ namespace Azos.Data.Access.Oracle
       var connectString = this.ConnectString;
 
       //Try to override from the context
-      var ctx = CRUDOperationCallContext.Current;
+      var ctx = CrudOperationCallContext.Current;
       if (ctx!=null && ctx.ConnectString.IsNotNullOrWhiteSpace())
         connectString = ctx.ConnectString;
 
@@ -238,7 +251,7 @@ namespace Azos.Data.Access.Oracle
 
       var cnn = new OracleConnection(effectiveConnectString);
 
-      await cnn.OpenAsync();
+      await cnn.OpenAsync().ConfigureAwait(false);
 
       return cnn;
     }

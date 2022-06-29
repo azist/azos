@@ -1,0 +1,268 @@
+
+# ==================== Host Parameters =========================
+
+@HOST = localhost 
+@AUTH = Basic cm9vdDp0aGVqYWtl
+
+
+
+# Minipd GetByID sample
+
+
+### with plain=false (default)
+GET http://{{HOST}}:8080/minidp/server/byid?realm=gdi&id=tezter1&plain=true HTTP/1.2
+Authorization: {{AUTH}}
+Accept: application/json
+
+
+###
+GET http://{{HOST}}:8080/minidp/server/byid?realm=gdi&id=root&plain=true HTTP/1.2
+Authorization: {{AUTH}}
+Accept: application/json
+
+
+###
+GET http://{{HOST}}:8080/minidp/server/bysys?realm=gdi&systoken=hucRnP3BskedD6Yop4vXzL8uwwI9bKJnoZja5gVoKe3Lrmdh4vlTqn9BmIH42dYmUqD4BDjp9Qcd3KBjZ_vr4fl1DxIeDQYsVpnkIO5xvhQHT414r-zIuQnuXQyZndbcxqftwO1GEmuo5pwOFoWghp0StV8G9iyOd8o5a9Js-nU&plain=true HTTP/1.2
+Authorization: {{AUTH}}
+Accept: application/json
+
+# hucRnP3BskedD6Yop4vXzL8uwwI9bKJnoZja5gVoKe3Lrmdh4vlTqn9BmIH42dYmUqD4BDjp9Qcd3KBjZ_vr4fl1DxIeDQYsVpnkIO5xvhQHT414r-zIuQnuXQyZndbcxqftwO1GEmuo5pwOFoWghp0StV8G9iyOd8o5a9Js-nU
+
+###
+
+
+GET http://{{HOST}}:8080/minidp/server/byuri?realm=gdi&uri=root&plain=true HTTP/1.2
+Authorization: {{AUTH}}
+Accept: application/json
+
+
+###
+
+POST http://{{HOST}}:8080/idp/usercore/filter  HTTP/1.2
+Authorization: {{AUTH}}
+Accept: application/json
+Content-Type: application/json 
+wv-data-ctx: gdi
+
+{
+    "filter": {
+        "Name": "tezt",
+
+        "PagingCount": 2,
+        "CrossShard": true
+    }
+}
+
+
+
+
+###
+GET http://{{HOST}}:8080/idp/usercore/userlogins?guser=0:0:1 HTTP/1.2
+Authorization: {{AUTH}}
+Accept: application/json
+wv-data-ctx: gdi
+
+
+###
+GET http://{{HOST}}:8080/idp/usercore/userlogins?guser=16711936:0:18806359877222401 HTTP/1.2
+Authorization: {{AUTH}}
+Accept: application/json
+wv-data-ctx: gdi
+
+
+
+
+###
+
+POST http://{{HOST}}:8080/idp/usercore/user  HTTP/1.2
+Authorization: {{AUTH}}
+Accept: application/json
+Content-Type: application/json 
+wv-data-ctx: gdi
+
+{
+    "user":{
+        "Name": "tezt",
+        "Level": "User",
+        "Description": "tezt user user",
+        "ValidSpanUtc": {"start":"1000-01-01T00:00:00", "end":"2021-01-01T00:00:00"},
+        "OrgUnit": null,
+        "Props": "{ p: { } }",
+        "Rights": null,
+        "Note": "first tezt user"
+    }
+}
+
+
+
+
+### PUT
+
+PUT http://{{HOST}}:8080/idp/usercore/user  HTTP/1.2
+Authorization: {{AUTH}}
+Accept: application/json
+Content-Type: application/json 
+wv-data-ctx: gdi
+
+{
+    "user":{
+        "Gdid": "16711936:0:18806359877222401",
+        "Name": "tezt",
+        "Level": "User",
+        "Description": "tezt user user update",
+        "ValidSpanUtc": {"start":"1000-01-01T00:00:00", "end":"2021-01-01T00:00:00"},
+        "OrgUnit": null,
+        "Props": "{ p: { } }",
+        "Rights": null,
+        "Note": "first tezt user"
+    }
+}
+
+
+
+
+
+### POST Login
+
+POST http://{{HOST}}:8080/idp/usercore/login  HTTP/1.2
+Authorization: {{AUTH}}
+Accept: application/json
+Content-Type: application/json 
+wv-data-ctx: gdi
+
+{
+    "login":{
+        "G_User": "16711936:0:18806359877222401",
+        "LevelDemotion": null,
+        "LoginId": "tezter1",
+        "LoginType": "id",
+        "Provider": "syslogin",
+        "Password": "{\"alg\":\"KDF\",\"fam\":\"Text\",\"h\":\"8kinx_bcL0xz9q0viOe0Ro0Gcly7WXJtjT117cplLRw\",\"s\":\"SjsLUw1-d_7ya-YR12atOm0Tr0Sjezg1XhIRv9dNR9o\"}",
+        "ProviderData": null,
+        "ValidSpanUtc": {
+                "start": "1000-01-01T00:00:00-05:00",
+                "end": "2100-01-01T00:00:00-05:00"
+            },
+        "Props": null,
+        "Rights": null
+    }
+}
+
+
+
+### PUT Login
+
+PUT http://{{HOST}}:8080/idp/usercore/login  HTTP/1.2
+Authorization: {{AUTH}}
+Accept: application/json
+Content-Type: application/json 
+wv-data-ctx: gdi
+
+{
+    "login":{
+        "Gdid": "16711936:0:18827027259850753",
+        "G_User": "16711936:0:18806359877222401",
+        "LevelDemotion": null,
+        "LoginId": "tezter1",
+        "LoginType": "id",
+        "Provider": "syslogin",
+        "Password": "{\"alg\":\"KDF\",\"fam\":\"Text\",\"h\":\"8kinx_bcL0xz9q0viOe0Ro0Gcly7WXJtjT117cplLRw\",\"s\":\"SjsLUw1-d_7ya-YR12atOm0Tr0Sjezg1XhIRv9dNR9o\"}",
+        "ProviderData": null,
+        "ValidSpanUtc": {
+                "start": "1000-01-01T00:00:00-05:00",
+                "end": "2100-01-01T00:00:00-05:00"
+            },
+        "Props": null,
+        "Rights": null
+    }
+}
+
+
+
+
+### PUT LockStatus LOGIN
+
+PUT http://{{HOST}}:8080/idp/usercore/lock  HTTP/1.2
+Authorization: {{AUTH}}
+Accept: application/json
+Content-Type: application/json 
+wv-data-ctx: gdi
+
+{
+    "lockstatus":{
+        "TargetEntity": "login.gdid@sky-auth::16711936:0:18827027259850753",
+        "LockSpanUtc": {
+                "start": "2022-03-01T00:00:00-05:00",
+                "end": "2022-03-24T00:00:00-05:00"
+            },
+        "LockActor": "usrn@idp::root",
+        "LockNote": "login lock tezt 1"
+    }
+}
+
+
+
+### PUT LockStatus LOGIN (Unlock)
+
+PUT http://{{HOST}}:8080/idp/usercore/lock  HTTP/1.2
+Authorization: {{AUTH}}
+Accept: application/json
+Content-Type: application/json 
+wv-data-ctx: gdi
+
+{
+    "lockstatus":{
+        "TargetEntity": "login.gdid@sky-auth::16711936:0:18827027259850753",
+        "LockSpanUtc": {
+                "start": null,
+                "end": null
+            },
+        "LockActor": "usrn@idp::root",
+        "LockNote": "login lock tezt 1"
+    }
+}
+
+
+
+### PUT LockStatus USER
+
+PUT http://{{HOST}}:8080/idp/usercore/lock  HTTP/1.2
+Authorization: {{AUTH}}
+Accept: application/json
+Content-Type: application/json 
+wv-data-ctx: gdi
+
+{
+    "lockstatus":{
+        "TargetEntity": "user.gdid@sky-auth::16711936:0:18806359877222401",
+        "LockSpanUtc": {
+                "start": "2022-03-25T00:00:00-05:00",
+                "end": "2022-03-26T00:00:00-05:00"
+            },
+        "LockActor": "usrn@idp::root",
+        "LockNote": "user lock tezt 1"
+    }
+}
+
+
+
+
+### PUT LockStatus USER (UNLOCK)
+
+PUT http://{{HOST}}:8080/idp/usercore/lock  HTTP/1.2
+Authorization: {{AUTH}}
+Accept: application/json
+Content-Type: application/json 
+wv-data-ctx: gdi
+
+{
+    "lockstatus":{
+        "TargetEntity": "user.gdid@sky-auth::16711936:0:18806359877222401",
+        "LockSpanUtc": {
+                "start": null,
+                "end": null
+            },
+        "LockActor": "usrn@idp::root",
+        "LockNote": "user lock tezt 1"
+    }
+}

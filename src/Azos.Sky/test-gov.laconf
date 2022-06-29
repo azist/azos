@@ -1,0 +1,35 @@
+﻿app
+{
+  id="gov"
+  name="gov"
+
+  boot
+  {
+    type="Azos.Apps.Hosting.GovernorDaemon, Azos.Sky"
+    app
+    {
+      name=app1
+      start
+      {
+        exe-path="./" exe-name="ahgov.exe" exe-args="test-app1.laconf"
+      }
+    }
+
+    app
+    {
+      name=app2
+      start
+      {
+        exe-path="./" exe-name="ahgov.exe" exe-args="test-app2.laconf"
+      }
+    }
+  }
+
+  log
+  {
+    sink
+    {
+      type="Azos.Log.Sinks.ConsoleSink" colored=true
+    }
+  }
+}

@@ -11,13 +11,11 @@ using Azos.Text;
 
 namespace Azos.CodeAnalysis.CSharp
 {
-
   /// <summary>
   /// Provides C# string escape parsing
   /// </summary>
   public static class CSStrings
   {
-
     public static string UnescapeString(string str)
     {
       if (str.IndexOf('\\')==-1) return str;//20131215 DKh 6.3% speed improvement in JSON Integration test - similar problem
@@ -77,10 +75,5 @@ namespace Azos.CodeAnalysis.CSharp
       return sb.ToString();
     }
 
-
-
-
-
   }
-
 }

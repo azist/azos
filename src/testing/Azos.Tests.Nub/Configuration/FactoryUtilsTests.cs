@@ -6,7 +6,6 @@
 
 using System;
 
-
 using Azos.Conf;
 using Azos.Scripting;
 
@@ -151,7 +150,7 @@ namespace Azos.Tests.Nub.Configuration
     public void MakeAndConfigure_3()
     {
       var cfg = " type='Azos.Tests.Nub.Configuration.ClassBB, Azos.Tests.Nub' a=7 b='Theodore Dreiser'  c=12.67".AsLaconicConfig();
-      var got = FactoryUtils.MakeAndConfigure<ClassBB>(cfg, args: new []{"Gershwin"});
+      var got = FactoryUtils.MakeAndConfigure<ClassBB>(cfg, args: new[] { "Gershwin" });
       Aver.IsNotNull(got);
       Aver.IsTrue(got is ClassBB);
       Aver.AreEqual(7, got.A);
@@ -209,7 +208,7 @@ namespace Azos.Tests.Nub.Configuration
     {
       var made = FactoryUtils.MakeUsingCtor<CTORClass>("node{type='Azos.Tests.Nub.Configuration.CTORClassDerived, Azos.Tests.Nub' arg0=1 arg1=2}".AsLaconicConfig());
 
-      Aver.IsTrue( made is CTORClassDerived);
+      Aver.IsTrue(made is CTORClassDerived);
       Aver.AreEqual(1, made.A);
       Aver.AreEqual(2, made.B);
     }
@@ -219,7 +218,7 @@ namespace Azos.Tests.Nub.Configuration
     {
       var made = FactoryUtils.MakeUsingCtor<CTORClass>("node{type='Azos.Tests.Nub.Configuration.CTORClassDerived, Azos.Tests.Nub' arg0='7/1/1982'}".AsLaconicConfig());
 
-      Aver.IsTrue( made is CTORClassDerived);
+      Aver.IsTrue(made is CTORClassDerived);
       Aver.AreEqual(1982, made.A);
       Aver.AreEqual(7, made.B);
       Aver.AreEqual(155, ((CTORClassDerived)made).C);
@@ -227,7 +226,7 @@ namespace Azos.Tests.Nub.Configuration
 
 
     [Run]
-    [Aver.Throws(typeof(ConfigException), Message="MakeUsingCtor")]
+    [Aver.Throws(typeof(ConfigException), Message = "MakeUsingCtor")]
     public void MakeUsingCtor_5()
     {
       var made = FactoryUtils.MakeUsingCtor<CTORClass>("node{arg0=1}".AsLaconicConfig());
@@ -238,9 +237,9 @@ namespace Azos.Tests.Nub.Configuration
     public void MakeUsingCtor_6()
     {
       var made = FactoryUtils.MakeAndConfigure<CTORClass>(
-          "node{type='Azos.Tests.Nub.Configuration.CTORClassDerived, Azos.Tests.Nub' data1='AAA' data2='bbb'}".AsLaconicConfig(), args: new object[]{1,12});
+          "node{type='Azos.Tests.Nub.Configuration.CTORClassDerived, Azos.Tests.Nub' data1='AAA' data2='bbb'}".AsLaconicConfig(), args: new object[] { 1, 12 });
 
-      Aver.IsTrue( made is CTORClassDerived);
+      Aver.IsTrue(made is CTORClassDerived);
       Aver.AreEqual(1, made.A);
       Aver.AreEqual(12, made.B);
       Aver.AreEqual("AAA", ((CTORClassDerived)made).Data1);
@@ -254,7 +253,7 @@ namespace Azos.Tests.Nub.Configuration
       var made = FactoryUtils.MakeUsingCtor<CTORClass>(
           "node{type='CTORClassDerived' arg0='12' arg1='234'}".AsLaconicConfig(), typePattern: "Azos.Tests.Nub.Configuration.*, Azos.Tests.Nub");
 
-      Aver.IsTrue( made is CTORClassDerived);
+      Aver.IsTrue(made is CTORClassDerived);
       Aver.AreEqual(12, made.A);
       Aver.AreEqual(234, made.B);
     }
@@ -293,7 +292,7 @@ namespace Azos.Tests.Nub.Configuration
 
   public class ClassBB : ClassB
   {
-    public ClassBB(){ }
+    public ClassBB() { }
     public ClassBB(string name) => Name = name;
 
     public string Name;
@@ -303,9 +302,9 @@ namespace Azos.Tests.Nub.Configuration
 
 
 
-  public class CTORClass: IConfigurable
+  public class CTORClass : IConfigurable
   {
-    public CTORClass(int a,int b) { A = a; B = b; }
+    public CTORClass(int a, int b) { A = a; B = b; }
     public CTORClass(DateTime dt) { A = dt.Year; B = dt.Month; }
     public readonly int A; public readonly int B;
 
@@ -317,13 +316,13 @@ namespace Azos.Tests.Nub.Configuration
 
   public class CTORClassDerived : CTORClass
   {
-    public CTORClassDerived(int a,int b) : base(a,b){}
-    public CTORClassDerived(DateTime dt) : base(dt){}
+    public CTORClassDerived(int a, int b) : base(a, b) { }
+    public CTORClassDerived(DateTime dt) : base(dt) { }
 
     public readonly int C = 155;
 
     [Config]
-    public string Data1{get;set;}
+    public string Data1 { get; set; }
 
     [Config]
     public string Data2;

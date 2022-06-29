@@ -174,5 +174,6 @@ namespace Azos.Tests.Nub.BaseCollections
       }
       Aver.IsFalse(detect);
     }
+
   }
 }

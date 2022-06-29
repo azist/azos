@@ -1,4 +1,3 @@
-
 /*<FILE_LICENSE>
  * Azos (A to Z Application Operating System) Framework
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
@@ -20,6 +19,7 @@ namespace Azos.Apps
   {
 
     protected DaemonWithInstrumentation(IApplication application) : base(application) { }
+
     protected DaemonWithInstrumentation(TDirector director) : base(director) { }
 
     /// <summary>
@@ -34,30 +34,25 @@ namespace Azos.Apps
     /// <summary>
     /// Returns named parameters that can be used to control this component
     /// </summary>
-    public virtual IEnumerable<KeyValuePair<string, Type>> ExternalParameters{ get { return ExternalParameterAttribute.GetParameters(this); } }
+    public virtual IEnumerable<KeyValuePair<string, Type>> ExternalParameters
+      => ExternalParameterAttribute.GetParameters(this);
 
     /// <summary>
     /// Returns named parameters that can be used to control this component
     /// </summary>
     public virtual IEnumerable<KeyValuePair<string, Type>> ExternalParametersForGroups(params string[] groups)
-    {
-      return ExternalParameterAttribute.GetParameters(this, groups);
-    }
+      => ExternalParameterAttribute.GetParameters(this, groups);
 
     /// <summary>
     /// Gets external parameter value returning true if parameter was found
     /// </summary>
     public virtual bool ExternalGetParameter(string name, out object value, params string[] groups)
-    {
-        return ExternalParameterAttribute.GetParameter(App, this, name, out value, groups);
-    }
+      => ExternalParameterAttribute.GetParameter(App, this, name, out value, groups);
 
     /// <summary>
     /// Sets external parameter value returning true if parameter was found and set
     /// </summary>
     public virtual bool ExternalSetParameter(string name, object value, params string[] groups)
-    {
-      return ExternalParameterAttribute.SetParameter(App, this, name, value, groups);
-    }
+      => ExternalParameterAttribute.SetParameter(App, this, name, value, groups);
   }
 }

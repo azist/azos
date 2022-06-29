@@ -3,10 +3,8 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
+
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Azos.CodeAnalysis.CSharp
 {
@@ -15,22 +13,17 @@ namespace Azos.CodeAnalysis.CSharp
   /// </summary>
   public static class CSIdentifiers
   {
-
     /// <summary>
     /// Checks to see whether supplied char is a digit
     /// </summary>
     public static bool ValidateDigit(char c)
-    {
-      return (c >= '0' && c <= '9');
-    }
+      => (c >= '0' && c <= '9');
 
     /// <summary>
     /// Checks whether supplied char is suitable for a part of C# id
     /// </summary>
     public static bool ValidateChar(char c)
-    {
-      return Char.IsLetter(c) || (c == '_');
-    }
+      => Char.IsLetter(c) || (c == '_');
 
     /// <summary>
     /// Checks whether supplied string is a valid C# ident
@@ -48,8 +41,6 @@ namespace Azos.CodeAnalysis.CSharp
 
       return true;
     }
-
-
 
   }
 }

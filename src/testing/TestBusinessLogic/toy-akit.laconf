@@ -1,0 +1,420 @@
+﻿app
+{
+  log-root=$(~AZOS_TEST_ROOT)\
+  log-csv="Azos.Log.Sinks.CSVFileSink, Azos"
+  debug-default-action="Log,Throw"
+
+  cloud-origin="local"
+
+ web-settings
+ {
+    social
+    {
+        provider
+        {
+          type="Azos.Web.Social.Facebook, Azos.Web"
+          app-id="410577972401564"
+          client-secret="ffd9140afcd6b1e743e7affa9613d7f4"
+        }
+
+        provider
+        {
+          type="Azos.Web.Social.Twitter, Azos.Web"
+          client-code="7wzQlicXz5sdM5ScrxSrNg"
+          client-secret="OEb6gMSFwMBLew2BhHp3y6FgK4vxfoQmJBYG2Exb4E"
+        }
+    }
+
+    web-dav {}
+
+ }
+
+
+  log
+  {
+    name="LogSvc"
+
+    sink
+    {
+     type=$(/$log-csv)
+     name="WaveTestSite Log"
+     path=$(/$log-root)
+     file-name="{0:yyyyMMdd}-$($name).csv.log"
+     generate-failover-msg=false
+    }
+  }
+
+  object-store { name="Main Object Store"
+                 guid="A2E59DBB-27AE-4803-A19E-72C99DD8956E"
+                 object-life-span-ms="180000"
+                 bucket-count="1024"
+
+
+    provider
+    {
+              name="Disk Object Store Provider"
+              type="Azos.Apps.Volatile.FileObjectStoreProvider"
+              load-limit="0"
+              root-path=$(/$log-root)
+    }
+
+  }
+
+
+  /*instrumentation
+  {
+      name="Instruments" interval-ms="2000"
+      provider
+      {
+         name="Telemetry Instrumentation Provider"
+         type="Azos.Instrumentation.Telemetry.TelemetryInstrumentationProvider"
+         use-log="false"
+         receiver-node="sync://127.0.0.1:8300"
+      }
+  }*/
+
+  wave
+  {
+    server
+    {
+       // name="Main Test Server"
+  //parallel-works=1282048
+  //parallel-accepts=128024
+  //kernel-http-queue-limit=512000
+
+        environment-name="PROD"
+        instrumentation-enabled=true
+
+        prefix{ name="http://+:8080/" }
+
+        default-error-handler
+        {
+            show-dump { match{name=all} }
+            //log {  match{name=all} }
+        }
+
+        gate
+        {
+            //type="may inject type"
+            name="Default Gate"
+            enabled = false
+        }
+
+        dispatcher
+        {
+
+
+
+          filter
+          {
+            name="Errors" order=0 type="Azos.Wave.Filters.ErrorFilter, Azos.Wave"
+            show-dump { match{name=all} }
+          }
+
+
+
+  filter
+  {
+     order=1
+     name="session"
+     type="Azos.Wave.Filters.AuthorizeSessionFilter, Azos.Wave"
+
+     //Enable database multi-targeting
+     //the callers can supply this header with data context name
+     data-context-header="wv-data-ctx"
+
+     //An alias to Authorization header
+     //This can be useful for browser-based sticky headers
+     alt-authorization-header="wv-pass"
+
+     //When set, enables gating of bad auth by bumping the named variable by +1
+     gate-bad-auth-var="session_badAuth" //see gate.laconf
+
+     //When set, forces the treatment of Bearer scheme token starting with this prefix as Basic
+     //this is used for some integrations which are not capable of setting proper auth scheme
+     //bearer-basic-prefix="treat-as-basic--"
+
+     //You can temporarily turn this on to pretend that callers have sent this in
+     //used for temp testing od clients and should always be disabled in prod
+     //////// default-impersonation-authorization-header-value="Basic xxxxxxxxxxxxx"
+  }
+
+
+//**************** AUTHKIT TESTING
+  handler
+  {
+    order=12
+    name="minidp.apis"
+    type="Azos.Wave.Handlers.MvcHandler, Azos.Wave"
+    type-location{ assembly="Azos.Wave.dll" ns{ name="Azos.Security.MinIdp*"}}
+
+    log-level=Debug
+
+    match{ order=1 path="/v1/minidp/{type}/{mvc-action}/{id}" var{query-name="*"} }
+    match{ order=2 path="/minidp/{type}/{mvc-action}/{id}"    var{query-name="*"} }
+  }
+
+
+  handler
+  {
+    order=15
+    name="idp.apis"
+    type="Azos.Wave.Handlers.MvcHandler, Azos.Wave"
+    type-location{ assembly="Azos.AuthKit.Server.dll" ns{ name="Azos.AuthKit.Server.Web"}}
+
+    log-level=Debug
+
+    match{ order=1 path="/v1/idp/{type}/{mvc-action}/{id}" var{query-name="*"} }
+    match{ order=2 path="/idp/{type}/{mvc-action}/{id}"    var{query-name="*"} }
+  }
+//**************** AUTHKIT TESTING
+
+
+        }//dispatcher
+    }//server
+  }//wave
+
+
+security
+{
+
+cryptography
+{
+  algorithm
+  {
+    name="internal.idpmsg"
+    audience=Internal // (Public | Internal) - this algorithm is only used inside of system perimeter
+    type="Azos.Security.HMACAESCryptoMessageAlgorithm, Azos"
+    hmac{ key="base64:TCh_K6Ih8DSCQjDiour9Kw46vUCNsRDhX8WlmrKIYvhAazp3H5s_CP4c_cYVtfPNp6hYSBG3xny3fDMOdMwozQ" }
+    aes{ key="base64:X-it7L9oTB-P2snTm5lyCL4UBttEt4hd0sfuJuPSgdE" }
+    aes{ key="base64:_XoYyy0ZrPuQ0HERlafMrbk1-8xC8UFVkfpHvDWDY-8" }
+  }
+
+  algorithm
+  {
+    name="aes1"
+    default=true
+    audience=Public // (Public | Internal) - this is a public algorithm for generating tokens like Bearer OAuth etc..
+    type="Azos.Security.HMACAESCryptoMessageAlgorithm, Azos"
+
+    hmac{ key="base64:Wj-57q4gob9eDhSR8wi9AGsLyEoI_8d9B9gGZnqOb6wo-Efz0P_jjL9gfVZGrOyKtjZocz07hzOnthMSaSba5Q" }
+    hmac{ key="base64:7JjEGVmobBWuOmbPM02iTlQubI_jFx6iBh-165AYW5L-FR0dJf_7pREnIsux8DJOlsqJ5EFw14IlXZXLpx7Gfg" }
+
+    aes{ key="base64:zFdVSrHzy8xQvWIT39xH-OgSsZ4uIz2cPQ7sO4d6Xeo" }
+    aes{ key="base64:uP-ymZuNaYvo6YTsi3XV32K_PA0pgtjpc3vsWbnHP6Y" }
+    aes{ key="base64:b-8kmq7UwApkg5Hya5mhidN6dDGCOiSjgM325JkFdGY" }
+  }
+
+  algorithm
+  {
+    name="jwt1"
+    default=true
+    type="Azos.Security.JWTHS256CryptoMessageAlgorithm, Azos"
+    hmac{ key="base64:Q90VgcBobBA5UXjUe-x2AB349qzabIQHT0D9vEl5egHynoFlNmDTnC4N4VmtiuTuO0kfs73RDxaCJyKPbo6-pQ" }
+  }
+
+  // Oplog archive encryption key
+  algorithm
+  {
+    name="internal.oplog.beta"
+    audience=Internal
+    type="Azos.Security.HMACAESCryptoMessageAlgorithm, Azos"
+    hmac{ key="base64:lJPVehQN781JIpcmOum3fX2ZfEcGKOyrYZhDDLeGB1OQQxmU6T8oVf0Iv0q5xlk0hJu8gWlTblKyAQLD3PqViQ" }
+    aes{ key="base64:TYiy6X9MTMd3PBvRZiQ_Bkmil7VmNThx_M-ih19c4Rk" }
+  }
+
+  algorithm
+  {
+    name="internal.systoken"
+    audience=Internal // !!!! INTERNAL ONLY !!!!
+    type="Azos.Security.HMACAESCryptoMessageAlgorithm, Azos"
+    hmac{ key="base64:TCh_K6Ih8DSCQjDiour9Kw46vUCNsRDhX8WlmrKIYvhAazp3H5s_CP4c_cYVtfPNp6hYSBG3xny3fDMOdMwozQ" }
+    aes{ key="base64:X-it7L9oTB-P2snTm5lyCL4UBttEt4hd0sfuJuPSgdE" }
+    aes{ key="base64:_XoYyy0ZrPuQ0HERlafMrbk1-8xC8UFVkfpHvDWDY-8" }
+  }
+
+ }//cryptography
+
+
+  //use `MinIdp` Identity Provider Server
+  type="Azos.Security.MinIdp.MinIdpSecurityManager, Azos"
+  realm=gdi //realm = catalog id in the security catalog
+
+  //This store acts as a caching server which "remembers" authentication outcome for
+  //up to the specified period of time
+  store
+  {
+    type="Azos.Security.MinIdp.CacheLayer, Azos"
+
+    //Caching is used to reduce latency and network traffic between this app and MiIdp server
+    //caching significantly improves performance for chatty APIs e.g. when a customers make
+    //API calls they typically use the same Bearer token which gets checked with EVERY call.
+    //This cache is of much less help when different principals authenticate
+    max-cache-age-sec=10 // 0 disables cache altogether.
+
+    //Actual store which calls remote IDP server
+    store
+    {
+      type="Azos.AuthKit.MinIdpCoreStore, Azos.AuthKit"
+      //log-level="Debug"  //useful when trying to set-up the system
+
+
+    }//store
+  }//cache
+}//security
+
+
+  modules
+  {
+    //Responsible for generating Global Distributed Id (GDID)
+    //The `local` environment uses local authority for testing instead of true id service
+    //the local authority generates gdid based on timestamp prefixes and has worse resolution
+    module
+    {
+        name="gdidprovider"
+        type="Azos.Sky.Identification.GdidProviderModule, Azos.Sky"
+        log-level=Debug
+
+        use-local-authority=true
+        generator
+        {
+            //As a protection mechanism in case when various environments share the same
+            //physical data store, we set era to some unrealistic number in future so
+            //the ids never clash
+            era=0xff0100//use unrealistic era for a very distant future
+            authority=0
+        }
+    }
+
+
+    module
+    {
+      type='Azos.Security.Services.OAuthModule, Azos'
+      supported-scopes="openid connect"
+    }
+
+    module
+    {
+      type='Azos.Conf.Forest.Server.ForestLogic, Azos'
+
+      data
+      {
+        type="Azos.Conf.Forest.Server.ForestDataSource, Azos"
+        forest
+        {
+          name="sherwood"
+          tree
+          {
+            name="t1"
+            type="Azos.MySql.ConfForest.MySqlConfForestTreeDataStore, Azos.MySql"
+            connect-string="Server=localhost;Database=sherwood_t1;Uid=svcbasic;Pwd=thejake;"
+            //Defines where query objects are resolved into
+            script-assembly="Azos.MySql"
+            handler-location{ns="Azos.MySql.ConfForest.Queries, Azos.MySql"}
+          }
+
+          tree
+          {
+            name="t2"
+            type="Azos.MySql.ConfForest.MySqlConfForestTreeDataStore, Azos.MySql"
+            connect-string="Server=localhost;Database=sherwood_t2;Uid=svcbasic;Pwd=thejake;"
+            //Defines where query objects are resolved into
+            script-assembly="Azos.MySql"
+            handler-location{ns="Azos.MySql.ConfForest.Queries, Azos.MySql"}
+          }
+
+        }
+
+  forest
+  {
+    name="idp-akit"
+
+    tree//Auth kit SYSTEM tree
+    {
+      name="sky-akit"
+      type="Azos.MySql.ConfForest.MySqlConfForestTreeDataStore, Azos.MySql"
+
+      data-log-level=Debug
+      default-timeout-ms=7000
+
+      //Defines where query objects are resolved into
+      script-assembly="Azos.MySql"
+      handler-location{ns="Azos.MySql.ConfForest.Queries, Azos.MySql"}
+      connect-string="Server=localhost;Database=forest_idp_kit_sky_akit;Uid=localdev;Pwd=thejake;"
+      schema-name="forest_idp_kit_sky_akit"
+    }
+
+    tree//Auth kit "api" realm tree
+    {
+      name="gdi"
+      type="Azos.MySql.ConfForest.MySqlConfForestTreeDataStore, Azos.MySql"
+
+      data-log-level=Debug
+      default-timeout-ms=7000
+
+      //Defines where query objects are resolved into
+      script-assembly="Azos.MySql"
+      handler-location{ns="Azos.MySql.ConfForest.Queries, Azos.MySql"}
+      connect-string="Server=localhost;Database=forest_idp_kit_gdi;Uid=localdev;Pwd=thejake;"
+      schema-name="forest_idp_kit_gdi"
+    }
+  }
+
+      }
+    }
+
+    // Auth Kit server node
+  module
+  {
+    name="authkit.server"
+    type="Azos.AuthKit.Server.IdpUserCoreCrudDataLogic, Azos.AuthKit.Server"
+    log-level=Debug
+
+    //Protects internal IDP traffic with app-level message cryptography
+    msg-algo="internal.idpmsg"
+
+    data-store
+    {
+      name="authkit"
+      type="Azos.AuthKit.Server.MySql.MySqlUserStore, Azos.AuthKit.Server.MySql"
+      instrumentation-eanbled=true
+      log-level=Debug
+
+      //todo: move to machine
+      data-log-level=Debug
+      default-timeout-ms=3700
+
+      //Defines where query objects are resolved into
+      script-assembly="Azos.AuthKit.Server.MySql"
+      handler-location{ns="Azos.AuthKit.Server.MySql.Queries, Azos.AuthKit.Server.MySql"}
+
+      //Databse connect string and SCHEMA prefix
+      connect-string="Server=localhost;Database=authkit_usr;Uid=localdev;Pwd=thejake;"
+      schema-name="authkit_usr"
+    }
+  }
+
+  //Auth Kit handler module performs sec-related functionality related to auth and crypto
+  module
+  {
+    name="authkit.handler"
+    type="Azos.AuthKit.Server.DefaultIdpHandlerLogic, Azos.AuthKit.Server"
+    log-level=Debug
+
+    default-login-provider="syslogin"
+    idp-config-forest-id="idp-akit"
+
+    //Systoken protection algorithm
+    sys-token-algo="internal.systoken"
+    sys-token-life-hrs=12.5 //12 hrs 30 minutes, then token expires
+
+    provider
+    {
+      name="syslogin"
+      type="Azos.AuthKit.Server.SystemLoginProvider, Azos.AuthKit.Server"
+      default-login-type="id"
+    }
+  }
+  }
+
+}

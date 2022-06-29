@@ -15,7 +15,6 @@ namespace Azos.Data.Access.Subscriptions
   /// </summary>
   public interface ICRUDSubscriptionStore : IDataStore
   {
-
     /// <summary>
     /// Subscribes the local recipient to the remote data store by executing a Query.
     /// The subscription ends by calling a .Dispose()
@@ -41,7 +40,6 @@ namespace Azos.Data.Access.Subscriptions
     /// Returns registry of all mailboxes
     /// </summary>
     IRegistry<Mailbox> Mailboxes { get;}
-
   }
 
   public interface ICRUDSubscriptionStoreImplementation : ICRUDSubscriptionStore, IDataStoreImplementation

@@ -11,13 +11,11 @@ using Azos.Text;
 
 namespace Azos.CodeAnalysis.JSON
 {
-
   /// <summary>
   /// Provides JSON string escape parsing
   /// </summary>
   public static class JsonStrings
   {
-
     public static string UnescapeString(string str)
     {
       //quick return strings that are not escaped
@@ -81,7 +79,4 @@ namespace Azos.CodeAnalysis.JSON
     }
 
   }
-
-
-
 }

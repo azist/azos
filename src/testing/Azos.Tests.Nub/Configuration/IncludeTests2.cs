@@ -8,7 +8,6 @@ using Azos.Apps;
 using Azos.Conf;
 using Azos.Data;
 using Azos.Scripting;
-using System;
 
 namespace Azos.Tests.Nub.Configuration
 {
@@ -24,7 +23,7 @@ namespace Azos.Tests.Nub.Configuration
 
       c1.Include(c1.Root["b"], c2.Root);
 
-      Console.WriteLine(c1.Root.ToLaconicString());
+      c1.Root.ToLaconicString().See();
 
       Aver.AreEqual(900, c1.Root.AttrByName("z").ValueAsInt());//got merged from root2
       Aver.IsTrue(c1.Root["a"].Exists);
@@ -68,7 +67,7 @@ namespace Azos.Tests.Nub.Configuration
 
     public class CustomProvider : IConfigNodeProvider
     {
-      public void Configure(IConfigSectionNode node){ }
+      public void Configure(IConfigSectionNode node) { }
 
       public ConfigSectionNode ProvideConfigNode(object context = null)
       {

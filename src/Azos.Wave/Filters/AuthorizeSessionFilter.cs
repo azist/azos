@@ -14,7 +14,7 @@ namespace Azos.Wave.Filters
 {
   /// <summary>
   /// Handles Authorization header with Basic and Bearer schemes creating IDPasswordCredentials or BearerCredentials respectively.
-  /// Optionally performs injection of session.DataContextName from "wv-data-ctx" header (if present).
+  /// Optionally performs injection of session.DataContextName from DEFAULT_DATA_CONTEXT_HEADER ("wv-data-ctx") header (if present).
   /// This filter is typically used for API server development
   /// </summary>
   public sealed class AuthorizeSessionFilter : SessionFilter

@@ -4,9 +4,10 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using Azos.Data;
 using System;
 using System.Security.Principal;
+
+using Azos.Data;
 
 namespace Azos.Security
 {
@@ -38,23 +39,26 @@ namespace Azos.Security
                 string name,
                 string descr,
                 Rights rights,
-                DateTime? utcNow = null)
+                DateTime? utcNow = null,
+                ConfigVector props = null)
     {
-        m_Credentials = credentials;
-        m_AuthenticationToken = token;
-        m_Status = status;
-        m_Name = name;
-        m_Description = descr;
-        m_Rights = rights;
-        m_StatusTimeStampUTC = utcNow ?? Ambient.UTCNow;
+      m_Credentials = credentials;
+      m_AuthenticationToken = token;
+      m_Status = status;
+      m_Name = name;
+      m_Description = descr;
+      m_Rights = rights;
+      m_StatusTimeStampUTC = utcNow ?? Ambient.UTCNow;
+      m_Props = props;
     }
 
     public User(Credentials credentials,
                 SysAuthToken token,
                 string name,
-                Rights rights, DateTime? utcNow = null) : this(credentials, token, UserStatus.User, name, null, rights, utcNow)
+                Rights rights,
+                DateTime? utcNow = null,
+                ConfigVector props = null) : this(credentials, token, UserStatus.User, name, null, rights, utcNow, props)
     {
-
     }
     #endregion
 
@@ -73,6 +77,9 @@ namespace Azos.Security
     [NonSerialized]//Important, rights are NOT serializable
     private Rights m_Rights;
 
+    [NonSerialized]//Important, props are NOT serializable
+    private ConfigVector m_Props;
+
     #endregion
 
     #region Properties
@@ -87,7 +94,7 @@ namespace Azos.Security
 
     /// <summary>
     /// System authentication token - this token is issued by the security manager and
-    /// used "inside" the system perimietr - it should never be disclosed to the public/outside
+    /// used "inside" the system perimeter - it should never be disclosed to the public/outside
     /// consuming parties, as external callers should use appropriate credentials (e.g. Bearer)
     /// in place of this token.
     /// </summary>
@@ -109,6 +116,11 @@ namespace Azos.Security
     ///    to obtain AccessLevel
     /// </summary>
     public Rights Rights => m_Rights;
+
+    /// <summary>
+    /// Returns principal properties or NULL if none were set
+    /// </summary>
+    public ConfigVector Props => m_Props;
 
     #endregion
 

@@ -21,8 +21,6 @@ namespace Azos.CodeAnalysis.Source
     /// </summary>
     public readonly IProjectItem ProjectItem;
 
-
-
     public SourceCodeRef(string srcName)
     {
       SourceName = srcName ?? CoreConsts.UNNAMED_MEMORY_BUFFER;
@@ -35,11 +33,7 @@ namespace Azos.CodeAnalysis.Source
       SourceName = srcItem.Name ?? CoreConsts.UNNAMED_PROJECT_ITEM;
     }
 
+    public override string ToString() => SourceName;
 
-    public override string ToString()
-    {
-      return SourceName;
-    }
   }
-
 }

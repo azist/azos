@@ -3,6 +3,7 @@
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,10 +13,10 @@ using Azos.Data;
 using Azos.Text;
 using Azos.IO.FileSystem;
 using Azos.Serialization.JSON;
+using Azos.CodeAnalysis.Laconfig;
 
 namespace Azos.Conf
 {
-
   /// <summary>
   /// Provides configuration node abstraction for section and attribute nodes. This class is thread-safe
   /// </summary>
@@ -24,207 +25,182 @@ namespace Azos.Conf
   {
     #region .ctor
 
-        private ConfigNode()
-        {
-        }
+    private ConfigNode() { }
 
-        protected ConfigNode(Configuration conf, ConfigSectionNode parent)
-        {
-          m_Configuration = conf;
-          m_Parent = parent;
-        }
-        protected ConfigNode(Configuration conf, ConfigSectionNode parent, string name, string value)
-        {
-          m_Configuration = conf;
-          m_Parent = parent;
-          m_Name = conf.CheckAndAdjustNodeName(name);
-          m_Value = value;
-        }
+    /// <summary>
+    /// Creates new configuration node
+    /// </summary>
+    protected ConfigNode(Configuration conf, ConfigSectionNode parent)
+    {
+      m_Configuration = conf;
+      m_Parent = parent;
+    }
 
-        /// <summary>
-        /// Creates new node by cloning other node from this or another configuration
-        /// </summary>
-        protected ConfigNode(Configuration conf, ConfigSectionNode parent, IConfigNode clone)
-        {
-          if (!clone.Exists)
-            throw new ConfigException(StringConsts.CONFIGURATION_CLONE_EMPTY_NODE_ERROR);
+    /// <summary>
+    /// Creates new configuration node with a specific name and value
+    /// </summary>
+    protected ConfigNode(Configuration conf, ConfigSectionNode parent, string name, string value)
+    {
+      m_Configuration = conf;
+      m_Parent = parent;
+      m_Name = conf.CheckAndAdjustNodeName(name);
+      m_Value = value;
+    }
 
-          m_Configuration = conf;
-          m_Parent = parent;
-          m_Name = conf.CheckAndAdjustNodeName(clone.Name);
-          m_Value = clone.VerbatimValue;
-          m_Modified = false; //modified does not get cloned
-        }
+    /// <summary>
+    /// Creates new node by cloning other node from this or another configuration
+    /// </summary>
+    protected ConfigNode(Configuration conf, ConfigSectionNode parent, IConfigNode clone)
+    {
+      if (!clone.Exists)
+        throw new ConfigException(StringConsts.CONFIGURATION_CLONE_EMPTY_NODE_ERROR);
+
+      m_Configuration = conf;
+      m_Parent = parent;
+      m_Name = conf.CheckAndAdjustNodeName(clone.Name);
+      m_Value = clone.VerbatimValue;
+      m_Modified = false; //modified does not get cloned
+    }
 
 
     #endregion
-
 
 
     #region Private Fields
-      internal bool __Empty;
 
-      private ConfigSectionNode m_Parent;
-      protected Configuration m_Configuration;
-      private string m_Name;
-      private string m_Value;
-      protected internal bool m_Modified;
+    internal bool __Empty;
+
+    private ConfigSectionNode m_Parent;
+    protected Configuration m_Configuration;
+    private string m_Name;
+    private string m_Value;
+    protected internal bool m_Modified;
+
     #endregion
+
 
     #region Properties
 
+    /// <summary>
+    /// References configuration this node is under
+    /// </summary>
+    public Configuration Configuration => m_Configuration;
 
-            /// <summary>
-            /// References configuration this node is under
-            /// </summary>
-            public Configuration Configuration
+    /// <summary>
+    /// Determines whether this node really exists in configuration or is just a sentinel empty node
+    /// </summary>
+    public bool Exists => !__Empty;
+
+    /// <summary>
+    /// Retrieves node name
+    /// </summary>
+    public string Name
+    {
+      get { return m_Name ?? string.Empty; }
+      set
+      {
+        checkCanModify();
+        var val = m_Configuration.CheckAndAdjustNodeName(value);
+        if (m_Name != value)
+        {
+          m_Name = value ?? string.Empty;
+          m_Modified = true;
+        }
+      }
+    }
+
+    /// <summary>
+    /// Returns verbatim (without variable evaluation) node value or null
+    /// </summary>
+    public string VerbatimValue => m_Value;
+
+    /// <summary>
+    /// Returns null or value of this node with all variables evaluated
+    /// </summary>
+    public string EvaluatedValue
+    {
+      get
+      {
+        if (string.IsNullOrEmpty(m_Value)) return null;
+
+        var section = this as ConfigSectionNode;
+        if (section != null)
+          return section.EvaluateValueVariables(m_Value);
+        else
+          return m_Parent.EvaluateValueVariables(m_Value);
+      }
+    }
+
+    /// <summary>
+    /// Retrieves node value or null. The value getter performs evaluation of variables, while setter sets the value verbatim
+    /// </summary>
+    public string Value
+    {
+      get { return EvaluatedValue; }
+      set
+      {
+        checkCanModify();
+        if (m_Value != value)
+        {
+          m_Value = value;
+          m_Modified = true;
+        }
+      }
+    }
+
+    /// <summary>
+    /// References parent node or Empty if this node has no parent
+    /// </summary>
+    public ConfigSectionNode Parent => m_Parent ?? m_Configuration.m_EmptySectionNode;
+
+    /// <summary>
+    /// References parent node
+    /// </summary>
+    IConfigSectionNode IConfigNode.Parent => Parent;
+
+    /// <summary>
+    /// Indicates whether a node was modified
+    /// </summary>
+    public virtual bool Modified => m_Modified;
+
+    string IConfigNode.RootPath => RootPath;
+
+    /// <summary>
+    /// Returns path from root to this node
+    /// </summary>
+    public string RootPath
+    {
+      get
+      {
+        if (!Parent.Exists) return "/";
+
+        var children = Parent.Children.Where(cn => cn.IsSameName(Name)).ToList();
+
+        var idx = -1;
+        if (children.Count > 1)
+        {
+          for (var i = 0; i < children.Count; i++)
+            if (object.ReferenceEquals(children[i], this))
             {
-               get { return m_Configuration;}
+              idx = i;
+              break;
             }
+        }
+
+        string path = object.ReferenceEquals(Parent, m_Configuration.Root) ? string.Empty : Parent.RootPath;
 
 
-            /// <summary>
-            /// Determines whether this node really exists in configuration or is just a sentinel empty node
-            /// </summary>
-            public bool Exists
-            {
-              get { return !__Empty; }
-            }
+        path += "/{0}{1}".Args(
+                               (this is ConfigAttrNode) ? "$" : string.Empty,
+                               (idx >= 0) ? "[{0}]".Args(idx) : Name
+                              );
 
-
-
-            /// <summary>
-            /// Retrieves node name
-            /// </summary>
-            public string Name
-            {
-              get { return m_Name ?? string.Empty; }
-              set
-              {
-                checkCanModify();
-                var val = m_Configuration.CheckAndAdjustNodeName(value);
-                if (m_Name != value)
-                {
-                  m_Name = value ?? string.Empty;
-                  m_Modified = true;
-                }
-              }
-            }
-
-
-            /// <summary>
-            /// Returns verbatim (without variable evaluation) node value or null
-            /// </summary>
-            public string VerbatimValue
-            {
-              get { return m_Value; }
-            }
-
-            /// <summary>
-            /// Returns null or value of this node with all variables evaluated
-            /// </summary>
-            public string EvaluatedValue
-            {
-              get
-              {
-                if (string.IsNullOrEmpty(m_Value)) return null;
-
-                var section = this as ConfigSectionNode;
-                if (section != null)
-                  return section.EvaluateValueVariables(m_Value);
-                else
-                  return m_Parent.EvaluateValueVariables(m_Value);
-              }
-            }
-
-
-            /// <summary>
-            /// Retrieves node value or null. The value getter performs evaluation of variables, while setter sets the value verbatim
-            /// </summary>
-            public string Value
-            {
-              get { return EvaluatedValue; }
-              set
-              {
-                checkCanModify();
-                if (m_Value != value)
-                {
-                  m_Value = value;
-                  m_Modified = true;
-                }
-              }
-            }
-
-
-
-
-            /// <summary>
-            /// References parent node or Empty if this node has no parent
-            /// </summary>
-            public ConfigSectionNode Parent
-            {
-              get { return m_Parent ?? m_Configuration.m_EmptySectionNode; }
-            }
-
-            /// <summary>
-            /// References parent node
-            /// </summary>
-            IConfigSectionNode IConfigNode.Parent
-            {
-              get { return this.Parent; }
-            }
-
-
-            /// <summary>
-            /// Indicates whether a node was modified
-            /// </summary>
-            public virtual bool Modified
-            {
-              get { return m_Modified; }
-            }
-
-
-            string IConfigNode.RootPath
-            {
-              get { return this.RootPath; }
-            }
-
-            /// <summary>
-            /// Returns path from root to this node
-            /// </summary>
-            public string RootPath
-            {
-              get
-              {
-                 if (!Parent.Exists) return "/";
-
-                 var children = Parent.Children.Where(cn=> cn.IsSameName(Name)).ToList();
-
-                 var idx = -1;
-                 if (children.Count>1)
-                 {
-                    for(var i=0; i< children.Count; i++)
-                     if ( object.ReferenceEquals(children[i], this))
-                     {
-                       idx = i;
-                       break;
-                     }
-                 }
-
-                 string path = object.ReferenceEquals(Parent, m_Configuration.Root) ? string.Empty : Parent.RootPath;
-
-
-
-                 path += "/{0}{1}".Args(
-                                        (this is ConfigAttrNode) ? "$" : string.Empty,
-                                        (idx>=0) ? "[{0}]".Args(idx) : Name
-                                       );
-
-                 return path;
-              }
-            }
+        return path;
+      }
+    }
 
     #endregion
+
 
     #region Public
 
@@ -236,373 +212,337 @@ namespace Azos.Conf
       m_Modified = false;
     }
 
+    /// <summary>
+    /// Deletes this section from its parent
+    /// </summary>
     public abstract void Delete();
 
 
     #region Value Accessors
 
-            public string ValueAsString(string dflt = null, bool verbatim = false)
-            {
-              var val = verbatim ? VerbatimValue : Value;
-              return val.AsStringWhenNullOrEmpty(dflt);
-            }
-
-            public byte[] ValueAsByteArray(byte[] dflt = null, bool verbatim = false)
-            {
-              var val = verbatim ? VerbatimValue : Value;
-              return val.AsByteArray(dflt);
-            }
-
-            public int[] ValueAsIntArray(int[] dflt = null, bool verbatim = false)
-            {
-              var val = verbatim ? VerbatimValue : Value;
-              return val.AsIntArray(dflt);
-            }
-
-            public long[] ValueAsLongArray(long[] dflt = null, bool verbatim = false)
-            {
-              var val = verbatim ? VerbatimValue : Value;
-              return val.AsLongArray(dflt);
-            }
-
-            public float[] ValueAsFloatArray(float[] dflt = null, bool verbatim = false)
-            {
-              var val = verbatim ? VerbatimValue : Value;
-              return val.AsFloatArray(dflt);
-            }
-
-            public double[] ValueAsDoubleArray(double[] dflt = null, bool verbatim = false)
-            {
-              var val = verbatim ? VerbatimValue : Value;
-              return val.AsDoubleArray(dflt);
-            }
-
-            public decimal[] ValueAsDecimalArray(decimal[] dflt = null, bool verbatim = false)
-            {
-              var val = verbatim ? VerbatimValue : Value;
-              return val.AsDecimalArray(dflt);
-            }
-
-
-            public short ValueAsShort(short dflt = 0, bool verbatim = false)
-            {
-              var val = verbatim ? VerbatimValue : Value;
-              return val.AsShort(dflt);
-            }
-
-
-            public short? ValueAsNullableShort(short? dflt = 0, bool verbatim = false)
-            {
-              var val = verbatim ? VerbatimValue : Value;
-              return val.AsNullableShort(dflt);
-            }
-
-
-            public ushort ValueAsUShort(ushort dflt = 0, bool verbatim = false)
-            {
-              var val = verbatim ? VerbatimValue : Value;
-              return val.AsUShort(dflt);
-            }
-
-
-            public ushort? ValueAsNullableUShort(ushort? dflt = 0, bool verbatim = false)
-            {
-              var val = verbatim ? VerbatimValue : Value;
-              return val.AsNullableUShort(dflt);
-            }
-
-
-
-
-
-            public byte ValueAsByte(byte dflt = 0, bool verbatim = false)
-            {
-              var val = verbatim ? VerbatimValue : Value;
-              return val.AsByte(dflt);
-            }
-
-
-            public byte? ValueAsNullableByte(byte? dflt = 0, bool verbatim = false)
-            {
-              var val = verbatim ? VerbatimValue : Value;
-              return val.AsNullableByte(dflt);
-            }
-
-
-
-            public sbyte ValueAsSByte(sbyte dflt = 0, bool verbatim = false)
-            {
-              var val = verbatim ? VerbatimValue : Value;
-              return val.AsSByte(dflt);
-            }
-
-
-            public sbyte? ValueAsNullableSByte(sbyte? dflt = 0, bool verbatim = false)
-            {
-              var val = verbatim ? VerbatimValue : Value;
-              return val.AsNullableSByte(dflt);
-            }
-
-
-            public int ValueAsInt(int dflt = 0, bool verbatim = false)
-            {
-              var val = verbatim ? VerbatimValue : Value;
-
-              return val.AsInt(dflt);
-            }
-
-
-            public int? ValueAsNullableInt(int? dflt = 0, bool verbatim = false)
-            {
-              var val = verbatim ? VerbatimValue : Value;
-
-              return val.AsNullableInt(dflt);
-            }
-
-
-
-            public uint ValueAsUInt(uint dflt = 0, bool verbatim = false)
-            {
-              var val = verbatim ? VerbatimValue : Value;
-
-              return val.AsUInt(dflt);
-            }
-
-
-            public uint? ValueAsNullableUInt(uint? dflt = 0, bool verbatim = false)
-            {
-              var val = verbatim ? VerbatimValue : Value;
-
-              return val.AsNullableUInt(dflt);
-            }
-
-
-
-            public long ValueAsLong(long dflt = 0, bool verbatim = false)
-            {
-              var val = verbatim ? VerbatimValue : Value;
-
-              return val.AsLong(dflt);
-            }
-
-
-            public long? ValueAsNullableLong(long? dflt = 0, bool verbatim = false)
-            {
-              var val = verbatim ? VerbatimValue : Value;
-
-              return val.AsNullableLong(dflt);
-            }
-
-
-
-            public ulong ValueAsULong(ulong dflt = 0, bool verbatim = false)
-            {
-              var val = verbatim ? VerbatimValue : Value;
-
-              return val.AsULong(dflt);
-            }
-
-
-            public ulong? ValueAsNullableULong(ulong? dflt = 0, bool verbatim = false)
-            {
-              var val = verbatim ? VerbatimValue : Value;
-
-              return val.AsNullableULong(dflt);
-            }
-
-
-
-            public double ValueAsDouble(double dflt = 0d, bool verbatim = false)
-            {
-              var val = verbatim ? VerbatimValue : Value;
-
-              return val.AsDouble(dflt);
-            }
-
-
-            public double? ValueAsNullableDouble(double? dflt = 0d, bool verbatim = false)
-            {
-              var val = verbatim ? VerbatimValue : Value;
-
-              return val.AsNullableDouble(dflt);
-            }
-
-
-            public float ValueAsFloat(float dflt = 0f, bool verbatim = false)
-            {
-              var val = verbatim ? VerbatimValue : Value;
-
-              return val.AsFloat(dflt);
-            }
-
-
-            public float? ValueAsNullableFloat(float? dflt = 0f, bool verbatim = false)
-            {
-              var val = verbatim ? VerbatimValue : Value;
-
-              return val.AsNullableFloat(dflt);
-            }
-
-
-            public decimal ValueAsDecimal(decimal dflt = 0m, bool verbatim = false)
-            {
-              var val = verbatim ? VerbatimValue : Value;
-
-              return val.AsDecimal(dflt);
-            }
-
-
-            public decimal? ValueAsNullableDecimal(decimal? dflt = 0m, bool verbatim = false)
-            {
-              var val = verbatim ? VerbatimValue : Value;
-
-              return val.AsNullableDecimal(dflt);
-            }
-
-
-
-            public bool ValueAsBool(bool dflt = false, bool verbatim = false)
-            {
-              var val = verbatim ? VerbatimValue : Value;
-
-              return val.AsBool(dflt);
-            }
-
-
-            public bool? ValueAsNullableBool(bool? dflt = false, bool verbatim = false)
-            {
-              var val = verbatim ? VerbatimValue : Value;
-
-              return val.AsNullableBool(dflt);
-            }
-
-
-
-            public Guid ValueAsGUID(Guid dflt, bool verbatim = false)
-            {
-              var val = verbatim ? VerbatimValue : Value;
-
-              return val.AsGUID(dflt);
-            }
-
-
-            public Guid? ValueAsNullableGUID(Guid? dflt = null, bool verbatim = false)
-            {
-              var val = verbatim ? VerbatimValue : Value;
-
-              return val.AsNullableGUID(dflt);
-            }
-
-            public GDID ValueAsGDID(GDID dflt, bool verbatim = false)
-            {
-              var val = verbatim ? VerbatimValue : Value;
-
-              return val.AsGDID(dflt);
-            }
-
-
-            public GDID? ValueAsNullableGDID(GDID? dflt = null, bool verbatim = false)
-            {
-              var val = verbatim ? VerbatimValue : Value;
-
-              return val.AsNullableGDID(dflt);
-            }
-
-
-
-            public DateTime ValueAsDateTime(DateTime dflt, bool verbatim = false)
-            {
-              var val = verbatim ? VerbatimValue : Value;
-
-              return val.AsDateTime(dflt);
-            }
-
-
-            public DateTime? ValueAsNullableDateTime(DateTime? dflt = null, bool verbatim = false)
-            {
-              var val = verbatim ? VerbatimValue : Value;
-
-              return val.AsNullableDateTime(dflt);
-            }
-
-
-
-
-            public TimeSpan ValueAsTimeSpan(TimeSpan dflt, bool verbatim = false)
-            {
-              var val = verbatim ? VerbatimValue : Value;
-
-              return val.AsTimeSpan(dflt);
-            }
-
-
-            public TimeSpan? ValueAsNullableTimeSpan(TimeSpan? dflt = null, bool verbatim = false)
-            {
-              var val = verbatim ? VerbatimValue : Value;
-
-              return val.AsNullableTimeSpan(dflt);
-            }
-
-
-
-
-
-            public TEnum ValueAsEnum<TEnum>(TEnum dflt = default(TEnum), bool verbatim = false) where TEnum : struct
-            {
-              var val = verbatim ? VerbatimValue : Value;
-
-              return val.AsEnum<TEnum>(dflt);
-            }
-
-            public TEnum? ValueAsNullableEnum<TEnum>(TEnum? dflt = null, bool verbatim = false) where TEnum : struct
-            {
-              var val = verbatim ? VerbatimValue : Value;
-
-              return val.AsNullableEnum<TEnum>(dflt);
-            }
-
-
-            public Atom ValueAsAtom(Atom dflt, bool verbatim = false)
-            {
-              var val = verbatim ? VerbatimValue : Value;
-
-              return val.AsAtom(dflt);
-            }
-
-
-            public Atom? ValueAsNullableAtom(Atom? dflt = null, bool verbatim = false)
-            {
-              var val = verbatim ? VerbatimValue : Value;
-
-              return val.AsNullableAtom(dflt);
-            }
-
-            public Uri ValueAsUri(Uri dflt, bool verbatim = false)
-            {
-              var val = verbatim ? VerbatimValue : Value;
-
-              return val.AsUri(dflt);
-            }
-
-
-            /// <summary>
-            /// Tries to get value as specified type or throws if it can not be converted
-            /// </summary>
-            public object ValueAsType(Type tp, bool verbatim = false, bool strict = true)
-            {
-              try
-              {
-                var val = verbatim ? VerbatimValue : Value;
-
-                return val.AsType(tp, strict);
-              }
-              catch(Exception error)
-              {
-                throw new ConfigException(string.Format(StringConsts.CONFIGURATION_VALUE_COULD_NOT_BE_GOTTEN_AS_TYPE_ERROR, this.Name, tp.FullName), error);
-              }
-            }
-
-
+    /// <inheritdoc/>
+    public string ValueAsString(string dflt = null, bool verbatim = false)
+    {
+      var val = verbatim ? VerbatimValue : Value;
+      return val.AsStringWhenNullOrEmpty(dflt);
+    }
+
+    /// <inheritdoc/>
+    public byte[] ValueAsByteArray(byte[] dflt = null, bool verbatim = false)
+    {
+      var val = verbatim ? VerbatimValue : Value;
+      return val.AsByteArray(dflt);
+    }
+
+    /// <inheritdoc/>
+    public int[] ValueAsIntArray(int[] dflt = null, bool verbatim = false)
+    {
+      var val = verbatim ? VerbatimValue : Value;
+      return val.AsIntArray(dflt);
+    }
+
+    /// <inheritdoc/>
+    public long[] ValueAsLongArray(long[] dflt = null, bool verbatim = false)
+    {
+      var val = verbatim ? VerbatimValue : Value;
+      return val.AsLongArray(dflt);
+    }
+
+    /// <inheritdoc/>
+    public float[] ValueAsFloatArray(float[] dflt = null, bool verbatim = false)
+    {
+      var val = verbatim ? VerbatimValue : Value;
+      return val.AsFloatArray(dflt);
+    }
+
+    /// <inheritdoc/>
+    public double[] ValueAsDoubleArray(double[] dflt = null, bool verbatim = false)
+    {
+      var val = verbatim ? VerbatimValue : Value;
+      return val.AsDoubleArray(dflt);
+    }
+
+    /// <inheritdoc/>
+    public decimal[] ValueAsDecimalArray(decimal[] dflt = null, bool verbatim = false)
+    {
+      var val = verbatim ? VerbatimValue : Value;
+      return val.AsDecimalArray(dflt);
+    }
+
+    /// <inheritdoc/>
+    public short ValueAsShort(short dflt = 0, bool verbatim = false)
+    {
+      var val = verbatim ? VerbatimValue : Value;
+      return val.AsShort(dflt);
+    }
+
+    /// <inheritdoc/>
+    public short? ValueAsNullableShort(short? dflt = 0, bool verbatim = false)
+    {
+      var val = verbatim ? VerbatimValue : Value;
+      return val.AsNullableShort(dflt);
+    }
+
+    /// <inheritdoc/>
+    public ushort ValueAsUShort(ushort dflt = 0, bool verbatim = false)
+    {
+      var val = verbatim ? VerbatimValue : Value;
+      return val.AsUShort(dflt);
+    }
+
+    /// <inheritdoc/>
+    public ushort? ValueAsNullableUShort(ushort? dflt = 0, bool verbatim = false)
+    {
+      var val = verbatim ? VerbatimValue : Value;
+      return val.AsNullableUShort(dflt);
+    }
+
+    /// <inheritdoc/>
+    public byte ValueAsByte(byte dflt = 0, bool verbatim = false)
+    {
+      var val = verbatim ? VerbatimValue : Value;
+      return val.AsByte(dflt);
+    }
+
+    /// <inheritdoc/>
+    public byte? ValueAsNullableByte(byte? dflt = 0, bool verbatim = false)
+    {
+      var val = verbatim ? VerbatimValue : Value;
+      return val.AsNullableByte(dflt);
+    }
+
+    /// <inheritdoc/>
+    public sbyte ValueAsSByte(sbyte dflt = 0, bool verbatim = false)
+    {
+      var val = verbatim ? VerbatimValue : Value;
+      return val.AsSByte(dflt);
+    }
+
+    /// <inheritdoc/>
+    public sbyte? ValueAsNullableSByte(sbyte? dflt = 0, bool verbatim = false)
+    {
+      var val = verbatim ? VerbatimValue : Value;
+      return val.AsNullableSByte(dflt);
+    }
+
+    /// <inheritdoc/>
+    public int ValueAsInt(int dflt = 0, bool verbatim = false)
+    {
+      var val = verbatim ? VerbatimValue : Value;
+      return val.AsInt(dflt);
+    }
+
+    /// <inheritdoc/>
+    public int? ValueAsNullableInt(int? dflt = 0, bool verbatim = false)
+    {
+      var val = verbatim ? VerbatimValue : Value;
+      return val.AsNullableInt(dflt);
+    }
+
+    /// <inheritdoc/>
+    public uint ValueAsUInt(uint dflt = 0, bool verbatim = false)
+    {
+      var val = verbatim ? VerbatimValue : Value;
+      return val.AsUInt(dflt);
+    }
+
+    /// <inheritdoc/>
+    public uint? ValueAsNullableUInt(uint? dflt = 0, bool verbatim = false)
+    {
+      var val = verbatim ? VerbatimValue : Value;
+      return val.AsNullableUInt(dflt);
+    }
+
+    /// <inheritdoc/>
+    public long ValueAsLong(long dflt = 0, bool verbatim = false)
+    {
+      var val = verbatim ? VerbatimValue : Value;
+      return val.AsLong(dflt);
+    }
+
+    /// <inheritdoc/>
+    public long? ValueAsNullableLong(long? dflt = 0, bool verbatim = false)
+    {
+      var val = verbatim ? VerbatimValue : Value;
+      return val.AsNullableLong(dflt);
+    }
+
+    /// <inheritdoc/>
+    public ulong ValueAsULong(ulong dflt = 0, bool verbatim = false)
+    {
+      var val = verbatim ? VerbatimValue : Value;
+      return val.AsULong(dflt);
+    }
+
+    /// <inheritdoc/>
+    public ulong? ValueAsNullableULong(ulong? dflt = 0, bool verbatim = false)
+    {
+      var val = verbatim ? VerbatimValue : Value;
+      return val.AsNullableULong(dflt);
+    }
+
+    /// <inheritdoc/>
+    public double ValueAsDouble(double dflt = 0d, bool verbatim = false)
+    {
+      var val = verbatim ? VerbatimValue : Value;
+      return val.AsDouble(dflt);
+    }
+
+    /// <inheritdoc/>
+    public double? ValueAsNullableDouble(double? dflt = 0d, bool verbatim = false)
+    {
+      var val = verbatim ? VerbatimValue : Value;
+      return val.AsNullableDouble(dflt);
+    }
+
+    /// <inheritdoc/>
+    public float ValueAsFloat(float dflt = 0f, bool verbatim = false)
+    {
+      var val = verbatim ? VerbatimValue : Value;
+      return val.AsFloat(dflt);
+    }
+
+    /// <inheritdoc/>
+    public float? ValueAsNullableFloat(float? dflt = 0f, bool verbatim = false)
+    {
+      var val = verbatim ? VerbatimValue : Value;
+      return val.AsNullableFloat(dflt);
+    }
+
+    /// <inheritdoc/>
+    public decimal ValueAsDecimal(decimal dflt = 0m, bool verbatim = false)
+    {
+      var val = verbatim ? VerbatimValue : Value;
+      return val.AsDecimal(dflt);
+    }
+
+    /// <inheritdoc/>
+    public decimal? ValueAsNullableDecimal(decimal? dflt = 0m, bool verbatim = false)
+    {
+      var val = verbatim ? VerbatimValue : Value;
+      return val.AsNullableDecimal(dflt);
+    }
+
+    /// <inheritdoc/>
+    public bool ValueAsBool(bool dflt = false, bool verbatim = false)
+    {
+      var val = verbatim ? VerbatimValue : Value;
+      return val.AsBool(dflt);
+    }
+
+    /// <inheritdoc/>
+    public bool? ValueAsNullableBool(bool? dflt = false, bool verbatim = false)
+    {
+      var val = verbatim ? VerbatimValue : Value;
+      return val.AsNullableBool(dflt);
+    }
+
+    /// <inheritdoc/>
+    public Guid ValueAsGUID(Guid dflt, bool verbatim = false)
+    {
+      var val = verbatim ? VerbatimValue : Value;
+      return val.AsGUID(dflt);
+    }
+
+    /// <inheritdoc/>
+    public Guid? ValueAsNullableGUID(Guid? dflt = null, bool verbatim = false)
+    {
+      var val = verbatim ? VerbatimValue : Value;
+      return val.AsNullableGUID(dflt);
+    }
+
+    /// <inheritdoc/>
+    public GDID ValueAsGDID(GDID dflt, bool verbatim = false)
+    {
+      var val = verbatim ? VerbatimValue : Value;
+      return val.AsGDID(dflt);
+    }
+
+    /// <inheritdoc/>
+    public GDID? ValueAsNullableGDID(GDID? dflt = null, bool verbatim = false)
+    {
+      var val = verbatim ? VerbatimValue : Value;
+      return val.AsNullableGDID(dflt);
+    }
+
+    /// <inheritdoc/>
+    public DateTime ValueAsDateTime(DateTime dflt, bool verbatim = false)
+    {
+      var val = verbatim ? VerbatimValue : Value;
+      return val.AsDateTime(dflt);
+    }
+
+    /// <inheritdoc/>
+    public DateTime? ValueAsNullableDateTime(DateTime? dflt = null, bool verbatim = false)
+    {
+      var val = verbatim ? VerbatimValue : Value;
+      return val.AsNullableDateTime(dflt);
+    }
+
+    /// <inheritdoc/>
+    public TimeSpan ValueAsTimeSpan(TimeSpan dflt, bool verbatim = false)
+    {
+      var val = verbatim ? VerbatimValue : Value;
+      return val.AsTimeSpan(dflt);
+    }
+
+    /// <inheritdoc/>
+    public TimeSpan? ValueAsNullableTimeSpan(TimeSpan? dflt = null, bool verbatim = false)
+    {
+      var val = verbatim ? VerbatimValue : Value;
+      return val.AsNullableTimeSpan(dflt);
+    }
+
+    /// <inheritdoc/>
+    public TEnum ValueAsEnum<TEnum>(TEnum dflt = default(TEnum), bool verbatim = false) where TEnum : struct
+    {
+      var val = verbatim ? VerbatimValue : Value;
+      return val.AsEnum(dflt);
+    }
+
+    /// <inheritdoc/>
+    public TEnum? ValueAsNullableEnum<TEnum>(TEnum? dflt = null, bool verbatim = false) where TEnum : struct
+    {
+      var val = verbatim ? VerbatimValue : Value;
+      return val.AsNullableEnum(dflt);
+    }
+
+    /// <inheritdoc/>
+    public Atom ValueAsAtom(Atom dflt, bool verbatim = false)
+    {
+      var val = verbatim ? VerbatimValue : Value;
+      return val.AsAtom(dflt);
+    }
+
+    /// <inheritdoc/>
+    public Atom? ValueAsNullableAtom(Atom? dflt = null, bool verbatim = false)
+    {
+      var val = verbatim ? VerbatimValue : Value;
+      return val.AsNullableAtom(dflt);
+    }
+
+    /// <inheritdoc/>
+    public Uri ValueAsUri(Uri dflt, bool verbatim = false)
+    {
+      var val = verbatim ? VerbatimValue : Value;
+      return val.AsUri(dflt);
+    }
+
+    /// <summary>
+    /// Tries to get value as specified type or throws if it can not be converted
+    /// </summary>
+    public object ValueAsType(Type tp, bool verbatim = false, bool strict = true)
+    {
+      try
+      {
+        var val = verbatim ? VerbatimValue : Value;
+        return val.AsType(tp, strict);
+      }
+      catch (Exception error)
+      {
+        throw new ConfigException(string.Format(StringConsts.CONFIGURATION_VALUE_COULD_NOT_BE_GOTTEN_AS_TYPE_ERROR, Name, tp.FullName), error);
+      }
+    }
 
     #endregion
 
@@ -612,7 +552,7 @@ namespace Azos.Conf
     /// </summary>
     public bool IsSameName(IConfigNode other)
     {
-      if (other==null) return false;
+      if (other == null) return false;
       return IsSameName(other.Name);
     }
 
@@ -621,37 +561,31 @@ namespace Azos.Conf
     /// </summary>
     public bool IsSameName(string other)
     {
-      if (other==null) return false;
-      return this.Name.EqualsIgnoreCase(other);
+      if (other == null) return false;
+      return Name.EqualsIgnoreCase(other);
     }
 
-
+    /// <inheritdoc/>
     public override string ToString()
     {
       return string.Format("{0}=\"{1}\" {2}", m_Name, m_Value != null ? m_Value : string.Empty, m_Modified ? "(modified)" : string.Empty);
     }
-
 
     #endregion
 
 
     #region Private utils
 
-        internal void checkCanModify()
-        {
-          if (m_Configuration.IsReadOnly)
-            throw new ConfigException(StringConsts.CONFIGURATION_READONLY_ERROR);
-          if (!Exists)
-            throw new ConfigException(StringConsts.CONFIGURATION_EMPTY_NODE_MODIFY_ERROR);
-
-        }
-
+    internal void checkCanModify()
+    {
+      if (m_Configuration.IsReadOnly)
+        throw new ConfigException(StringConsts.CONFIGURATION_READONLY_ERROR);
+      if (!Exists)
+        throw new ConfigException(StringConsts.CONFIGURATION_EMPTY_NODE_MODIFY_ERROR);
+    }
 
     #endregion
-
-
   }
-
 
 
   /// <summary>
@@ -662,801 +596,804 @@ namespace Azos.Conf
   {
     #region .ctor
 
-        internal ConfigSectionNode(Configuration conf, ConfigSectionNode parent)
-          : base(conf, parent)
-        {
+    /// <inheritdoc/>
+    internal ConfigSectionNode(Configuration conf, ConfigSectionNode parent)
+      : base(conf, parent)
+    {
 
-        }
+    }
 
-        internal ConfigSectionNode(Configuration conf, ConfigSectionNode parent, string name, string value)
-          : base(conf, parent, name, value)
-        {
+    /// <inheritdoc/>
+    internal ConfigSectionNode(Configuration conf, ConfigSectionNode parent, string name, string value)
+      : base(conf, parent, name, value)
+    {
 
-        }
+    }
 
-        /// <summary>
-        /// Performs deep clone copy from another node which can be in this or different configuration
-        /// </summary>
-        internal ConfigSectionNode(Configuration conf, ConfigSectionNode parent, IConfigSectionNode clone)
-          : base(conf, parent, clone)
-        {
-          //there is no infinite recursion problem, because .Children and .Attributes make thread-safe copy at the moment of initial access
-          var clChildren = clone.Children;//thread-safe copy
-          var clAttributes = clone.Attributes;//thread-safe copy
+    /// <summary>
+    /// Performs deep clone copy from another node which can be in this or different configuration
+    /// </summary>
+    internal ConfigSectionNode(Configuration conf, ConfigSectionNode parent, IConfigSectionNode clone)
+      : base(conf, parent, clone)
+    {
+      //there is no infinite recursion problem, because .Children and .Attributes make thread-safe copy at the moment of initial access
+      var clChildren = clone.Children;//thread-safe copy
+      var clAttributes = clone.Attributes;//thread-safe copy
 
-          foreach(var clchild in clChildren)
-          {
-            var child = new ConfigSectionNode(conf, this, clchild);
-            lock(m_Children)
-              m_Children.Add(child);
-          }
+      foreach (var clchild in clChildren)
+      {
+        var child = new ConfigSectionNode(conf, this, clchild);
+        lock (m_Children)
+          m_Children.Add(child);
+      }
 
-          foreach(var clattr in clAttributes)
-          {
-            var attr = new ConfigAttrNode(conf, this, clattr);
-            lock(m_Attributes)
-              m_Attributes.Add(attr);
-          }
+      foreach (var clattr in clAttributes)
+      {
+        var attr = new ConfigAttrNode(conf, this, clattr);
+        lock (m_Attributes)
+          m_Attributes.Add(attr);
+      }
 
-        }
+    }
+
     #endregion
 
     #region Private Fields
-     internal ConfigSectionNodeList m_Children = new ConfigSectionNodeList();
-     internal ConfigAttrNodeList m_Attributes = new ConfigAttrNodeList();
+
+    internal ConfigSectionNodeList m_Children = new ConfigSectionNodeList();
+    internal ConfigAttrNodeList m_Attributes = new ConfigAttrNodeList();
 
 
-                         /// <summary>
-                         /// Internal field used for attaching temporary script state. do not use
-                         /// </summary>
-                         internal bool m_Script_Statement;
+    /// <summary>
+    /// Internal field used for attaching temporary script state. do not use
+    /// </summary>
+    internal bool m_Script_Statement;
 
-                         /// <summary>
-                         /// Internal field used for attaching temporary script state. do not use
-                         /// </summary>
-                         internal bool m_Script_Bool_Condition_Result;
+    /// <summary>
+    /// Internal field used for attaching temporary script state. do not use
+    /// </summary>
+    internal bool m_Script_Bool_Condition_Result;
+
     #endregion
 
 
     #region Properties
 
-        /// <summary>
-        /// Indicates whether this node has any child section nodes
-        /// </summary>
-        public bool HasChildren
-        {
-          get { lock (m_Children) return m_Children.Count > 0; }
-        }
+    /// <summary>
+    /// Indicates whether this node has any child section nodes
+    /// </summary>
+    public bool HasChildren
+    {
+      get { lock (m_Children) return m_Children.Count > 0; }
+    }
 
-        /// <summary>
-        /// Returns number of child section nodes
-        /// </summary>
-        public int ChildCount
-        {
-          get { lock (m_Children) return m_Children.Count; }
-        }
+    /// <summary>
+    /// Returns number of child section nodes
+    /// </summary>
+    public int ChildCount
+    {
+      get { lock (m_Children) return m_Children.Count; }
+    }
 
-        /// <summary>
-        /// Indicates whether this node has any associated attributes
-        /// </summary>
-        public bool HasAttributes
-        {
-          get { lock (m_Attributes) return m_Attributes.Count > 0; }
-        }
+    /// <summary>
+    /// Indicates whether this node has any associated attributes
+    /// </summary>
+    public bool HasAttributes
+    {
+      get { lock (m_Attributes) return m_Attributes.Count > 0; }
+    }
 
-        /// <summary>
-        /// Returns number of child attribute nodes
-        /// </summary>
-        public int AttrCount
-        {
-          get { lock (m_Attributes) return m_Attributes.Count; }
-        }
+    /// <summary>
+    /// Returns number of child attribute nodes
+    /// </summary>
+    public int AttrCount
+    {
+      get { lock (m_Attributes) return m_Attributes.Count; }
+    }
 
-        /// <summary>
-        /// Indicates whether this or any child nodes or attributes were modified
-        /// </summary>
-        public override bool Modified
-        {
-          get
+    /// <summary>
+    /// Indicates whether this or any child nodes or attributes were modified
+    /// </summary>
+    public override bool Modified
+    {
+      get
+      {
+        if (base.Modified) return true;
+
+        lock (m_Children)
+          foreach (ConfigSectionNode child in m_Children)
+            if (child.Modified) return true;
+
+        lock (m_Attributes)
+          foreach (ConfigAttrNode attr in m_Attributes)
+            if (attr.Modified) return true;
+
+        return false;
+      }
+    }
+
+    IEnumerable<IConfigSectionNode> IConfigSectionNode.Children => Children;
+
+    /// <summary>
+    /// Enumerates all child nodes
+    /// </summary>
+    public IEnumerable<ConfigSectionNode> Children
+    {
+      get { lock (m_Children) return m_Children.ToList(); }
+    }
+
+    IEnumerable<IConfigAttrNode> IConfigSectionNode.Attributes => Attributes;
+
+    /// <summary>
+    /// Enumerates all attribute nodes
+    /// </summary>
+    public IEnumerable<ConfigAttrNode> Attributes
+    {
+      get { lock (m_Attributes) return m_Attributes.ToList(); }
+    }
+
+    IConfigSectionNode IConfigSectionNode.this[params string[] names] => this[names];
+
+    /// <summary>
+    /// Retrieves section node by names, from left to right until existing node is found.
+    /// If no existing node could be found then empty node instance is returned
+    /// </summary>
+    public ConfigSectionNode this[params string[] names]
+    {
+      get
+      {
+        if (names == null || names.Length < 1)
+          throw new ConfigException(StringConsts.CONFIGURATION_SECTION_INDEXER_EMPTY_ERROR);
+
+        ConfigSectionNode result = null;
+
+        lock (m_Children)
+          foreach (var name in names)
           {
-            if (base.Modified) return true;
-
-            lock (m_Children)
-              foreach (ConfigSectionNode child in m_Children)
-                if (child.Modified) return true;
-
-            lock (m_Attributes)
-              foreach (ConfigAttrNode attr in m_Attributes)
-                if (attr.Modified) return true;
-
-            return false;
+            result = m_Children.FirstOrDefault((node => node.IsSameName(name)));
+            if (result != null) break;
           }
-        }
 
+        if (result != null)
+          return result;
+        else
+          return m_Configuration.m_EmptySectionNode;
+      }
+    }
 
+    IConfigSectionNode IConfigSectionNode.this[int idx] => this[idx];
 
-        IEnumerable<IConfigSectionNode> IConfigSectionNode.Children
-        {
-          get { return this.Children; }
-        }
-
-        /// <summary>
-        /// Enumerates all child nodes
-        /// </summary>
-        public IEnumerable<ConfigSectionNode> Children
-        {
-          get { lock (m_Children) return m_Children.ToList(); }
-        }
-
-
-        IEnumerable<IConfigAttrNode> IConfigSectionNode.Attributes
-        {
-          get { return this.Attributes; }
-        }
-
-        /// <summary>
-        /// Enumerates all attribute nodes
-        /// </summary>
-        public IEnumerable<ConfigAttrNode> Attributes
-        {
-          get { lock (m_Attributes) return m_Attributes.ToList(); }
-        }
-
-
-
-        IConfigSectionNode IConfigSectionNode.this[params string[] names]
-        {
-          get { return this[names]; }
-        }
-
-
-        /// <summary>
-        /// Retrieves section node by names, from left to right until existing node is found.
-        /// If no existing node could be found then empty node instance is returned
-        /// </summary>
-        public ConfigSectionNode this[params string[] names]
-        {
-          get
-          {
-            if (names==null || names.Length<1)
-             throw new ConfigException(StringConsts.CONFIGURATION_SECTION_INDEXER_EMPTY_ERROR);
-
-            ConfigSectionNode result = null;
-
-            lock (m_Children)
-             foreach(var name in names)
-             {
-              result = m_Children.FirstOrDefault((node => node.IsSameName(name)));
-              if (result!=null) break;
-             }
-
-            if (result != null)
-              return result;
-            else
-              return m_Configuration.m_EmptySectionNode;
-          }
-        }
-
-        IConfigSectionNode IConfigSectionNode.this[int idx]
-        {
-          get { return this[idx]; }
-        }
-
-
-        /// <summary>
-        /// Retrieves section node by index or empty node instance if section node with such index could not be found
-        /// </summary>
-        public ConfigSectionNode this[int idx]
-        {
-          get
-          {
-            lock(m_Children)
-              if (idx >= 0 && idx < m_Children.Count)
-                return m_Children[idx];
-              else
-                return m_Configuration.m_EmptySectionNode;
-          }
-        }
-
-
+    /// <summary>
+    /// Retrieves section node by index or empty node instance if section node with such index could not be found
+    /// </summary>
+    public ConfigSectionNode this[int idx]
+    {
+      get
+      {
+        lock (m_Children)
+          if (idx >= 0 && idx < m_Children.Count)
+            return m_Children[idx];
+          else
+            return m_Configuration.m_EmptySectionNode;
+      }
+    }
 
 
     #endregion
 
+
     #region Public
 
-        void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options)
+    void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options)
+    {
+      var map = ToConfigurationJSONDataMap();
+      JsonWriter.WriteMap(wri, map, nestingLevel, options);
+    }
+
+    /// <summary>
+    /// Deletes this section from its parent
+    /// </summary>
+    public override void Delete()
+    {
+      checkCanModify();
+      if (!Parent.Exists)
+        m_Configuration.Destroy();
+      else
+      {
+        lock (Parent.m_Children)
         {
-          var map = this.ToConfigurationJSONDataMap();
-          JsonWriter.WriteMap(wri, map, nestingLevel, options);
+          Parent.m_Children.Remove(this);
         }
+        Parent.m_Modified = true;
+      }
+    }
 
-        /// <summary>
-        /// Deletes this section from its parent
-        /// </summary>
-        public override void Delete()
-        {
-          checkCanModify();
-          if (!Parent.Exists)
-           m_Configuration.Destroy();
-          else
-          {
-            lock(Parent.m_Children)
-            {
-              Parent.m_Children.Remove(this);
-            }
-            Parent.m_Modified = true;
-          }
-        }
+    /// <summary>
+    /// Deletes all child section nodes from this node
+    /// </summary>
+    public void DeleteAllChildren()
+    {
+      checkCanModify();
 
-        /// <summary>
-        /// Deletes all child section nodes from this node
-        /// </summary>
-        public void DeleteAllChildren()
-        {
-          checkCanModify();
+      lock (m_Children)
+      {
+        m_Children.Clear();
+        m_Modified = true;
+      }
+    }
 
-            lock(m_Children)
-            {
-              m_Children.Clear();
-              m_Modified = true;
-            }
-        }
+    /// <summary>
+    /// Deletes all attribute nodes from this node
+    /// </summary>
+    public void DeleteAllAttributes()
+    {
+      checkCanModify();
 
-        /// <summary>
-        /// Deletes all attribute nodes from this node
-        /// </summary>
-        public void DeleteAllAttributes()
-        {
-          checkCanModify();
+      lock (m_Attributes)
+      {
+        m_Attributes.Clear();
+        m_Modified = true;
+      }
+    }
 
-            lock(m_Attributes)
-            {
-              m_Attributes.Clear();
-              m_Modified = true;
-            }
-        }
+    /// <summary>
+    /// Adds a new child section node to this node
+    /// </summary>
+    public ConfigSectionNode AddChildNode(string name)
+    {
+      return AddChildNode(name, null);
+    }
 
+    /// <summary>
+    /// Adds a new child section node to this node
+    /// </summary>
+    public ConfigSectionNode AddChildNode(string name, object value)
+    {
+      return AddChildNode(name, value == null ? null : value.ToString());
+    }
 
-        public ConfigSectionNode AddChildNode(string name)
-        {
-          return AddChildNode(name, null);
-        }
+    /// <summary>
+    /// Adds a new child section node to this node
+    /// </summary>
+    public ConfigSectionNode AddChildNode(string name, string value)
+    {
+      checkCanModify();
 
-        public ConfigSectionNode AddChildNode(string name, object value)
-        {
-          return AddChildNode(name, value == null ? null : value.ToString());
-        }
+      lock (m_Children)
+      {
+        ConfigSectionNode node = new ConfigSectionNode(m_Configuration, this, name, value);
+        m_Children.Add(node);
+        m_Modified = true;
+        return node;
+      }
+    }
 
+    /// <summary>
+    /// Adds a new child node into this one deeply cloning nodes data from some other node which may belong to a different conf instance
+    /// </summary>
+    public ConfigSectionNode AddChildNode(IConfigSectionNode clone)
+    {
+      checkCanModify();
 
+      lock (m_Children)
+      {
+        var node = new ConfigSectionNode(m_Configuration, this, clone);
+        m_Children.Add(node);
+        m_Modified = true;
+        return node;
+      }
+    }
 
-        /// <summary>
-        /// Adds a new child section node to this node
-        /// </summary>
-        public ConfigSectionNode AddChildNode(string name, string value)
-        {
-          checkCanModify();
+    /// <summary>
+    /// Adds a new section node to this configuration which is an ordered merge result of two other nodes - base and override.
+    /// </summary>
+    /// <param name="baseNode">A base node that data is defaulted from</param>
+    /// <param name="overrideNode">A node that contains overrides/additions of/to data from base node</param>
+    /// <param name="rules">Rules to use for this merge. Default rules will be used if null is passed</param>
+    public ConfigSectionNode AddChildNodeFromMerge(IConfigSectionNode baseNode, IConfigSectionNode overrideNode, NodeOverrideRules rules = null)
+    {
+      checkCanModify();
 
-          lock (m_Children)
-          {
-            ConfigSectionNode node = new ConfigSectionNode(m_Configuration, this, name, value);
-            m_Children.Add(node);
-            m_Modified = true;
-            return node;
-          }
-        }
+      var newNode = new ConfigSectionNode(m_Configuration, this, baseNode);
 
-        /// <summary>
-        /// Adds a new child node into this one deeply cloning nodes data from some other node which may belong to a different conf instance
-        /// </summary>
-        public ConfigSectionNode AddChildNode(IConfigSectionNode clone)
-        {
-          checkCanModify();
+      newNode.OverrideBy(overrideNode, rules);
 
-          lock (m_Children)
-          {
-            var node = new ConfigSectionNode(m_Configuration, this, clone);
-            m_Children.Add(node);
-            m_Modified = true;
-            return node;
-          }
-        }
+      lock (m_Children)
+      {
+        m_Children.Add(newNode);
+        m_Modified = true;
+      }
 
+      return newNode;
+    }
 
-        /// <summary>
-        /// Adds a new section node to this configuration which is an ordered merge result of two other nodes - base and override.
-        /// </summary>
-        /// <param name="baseNode">A base node that data is defaulted from</param>
-        /// <param name="overrideNode">A node that contains overrides/additions of/to data from base node</param>
-        /// <param name="rules">Rules to use for this merge. Default rules will be used if null is passed</param>
-        public ConfigSectionNode AddChildNodeFromMerge(IConfigSectionNode baseNode, IConfigSectionNode overrideNode, NodeOverrideRules rules = null)
-        {
-          checkCanModify();
+    /// <summary>
+    /// Merges another node data by overriding this node's value/attributes/sub nodes according to rules.
+    /// </summary>
+    /// <returns>True when merge match was made</returns>
+    public bool OverrideBy(IConfigSectionNode other, NodeOverrideRules rules = null)
+    {
+      if (other == null) return false;
 
-          var newNode = new ConfigSectionNode(m_Configuration, this, baseNode);
+      checkCanModify();
 
-          newNode.OverrideBy(overrideNode, rules);
+      if (rules == null) rules = NodeOverrideRules.Default;
 
-          lock (m_Children)
-          {
-            m_Children.Add(newNode);
-            m_Modified = true;
-          }
+      if (!IsSameName(other)) return false;
 
-          return newNode;
-        }
+      var ospec = rules.StringToOverrideSpec(AttrByName(rules.OverrideAttrName).Value);
 
-        /// <summary>
-        /// Merges another node data by overriding this node's value/attributes/sub nodes according to rules.
-        /// </summary>
-        /// <returns>True when merge match was made</returns>
-        public bool OverrideBy(IConfigSectionNode other, NodeOverrideRules rules = null)
-        {
-          if (other==null) return false;
-
-          checkCanModify();
-
-          if (rules==null) rules = NodeOverrideRules.Default;
-
-          if (!IsSameName(other)) return false;
-
-          var ospec = rules.StringToOverrideSpec(this.AttrByName(rules.OverrideAttrName).Value);
-
-          switch(ospec)
-          {
-            case OverrideSpec.Stop: return false;
-            case OverrideSpec.All:
-                                         if (other[rules.SectionDeleteName].Exists) { this.Delete(); return true; }
-                                         MergeAttributes(other, rules);
-                                         MergeSections(other, rules);
-                                         Value = other.VerbatimValue;
-                                         break;
-
-            case OverrideSpec.Attributes:
-                                         MergeAttributes(other, rules);
-                                         break;
-
-            case OverrideSpec.Sections:
-                                         MergeSections(other, rules);
-                                         break;
-
-            case OverrideSpec.Replace:
-                                         ReplaceBy(other);
-                                         break;
-
-            default: //fail
-              throw new ConfigException(StringConsts.CONFIGURATION_OVERRIDE_PROHOBITED_ERROR + this.RootPath);
-          }
-
-
-
-          return true;
-        }
-
-
-        /// <summary>
-        /// Merges attributes from another node into this one. Another node may belong to a different configuration instance
-        /// </summary>
-        public void MergeAttributes(IConfigSectionNode other, NodeOverrideRules rules = null)
-        {
-          if (other==null || !other.Exists) return;
-
-          checkCanModify();
-
-          if (rules==null) rules = NodeOverrideRules.Default;
-
-          var oattrs = other.Attributes;//thread safe
-          if (other.AttrByName(rules.AttributeClearName).ValueAsBool()) this.DeleteAllAttributes();
-          foreach(var oatr in oattrs)
-          {
-            if (oatr.IsSameName(rules.AttributeClearName))
-              continue;
-
-            var existing = this.AttrByName(oatr.Name);
-
-            if (existing.Exists)
-              existing.Value = oatr.VerbatimValue;
-            else
-              AddAttributeNode(oatr.Name, oatr.VerbatimValue);
-          }
-        }
-
-        /// <summary>
-        /// Merges child sections from another node into this one. Another node may belong to a different configuration instance.
-        /// This method ignores override flags and merges nodes regardless
-        /// </summary>
-        public void MergeSections(IConfigSectionNode other, NodeOverrideRules rules = null)
-        {
-          if (other==null || !other.Exists) return;
-
-          checkCanModify();
-
-          if (rules==null) rules = NodeOverrideRules.Default;
-
-          var children = this.Children;//thread safe
-          var osects = other.Children;//thread safe
-          var clear = other[rules.SectionClearName].Exists;
-          if (clear) this.DeleteAllChildren();
-          foreach(var osect in osects)
-          {
-            if (osect.IsSameName(rules.SectionClearName))
-              continue;
-
-            var match = children.Where(child =>
-                                 child.IsSameName(osect) &&
-                                 child.AttrByName( rules.SectionMatchAttrName ).Value
-                                 .EqualsIgnoreCase(osect.AttrByName(rules.SectionMatchAttrName).Value)).FirstOrDefault();
-
-            var append = match == null;
-
-            if (!append)
-             append = rules.AppendSectionsWithoutMatchAttr &&
-                      osect.AttrByName(rules.SectionMatchAttrName).Value.IsNullOrWhiteSpace();
-
-            if (append)
-              AddChildNode(osect.Name, osect.VerbatimValue).OverrideBy(osect, rules);
-            else
-              match.OverrideBy(osect, rules);
-
-          }
-        }
-
-
-        /// <summary>
-        /// Completely replaces this node's attributes, value and children with data from another node
-        /// </summary>
-        public void ReplaceBy(IConfigSectionNode other)
-        {
-          if (other==null) return;  //does not check for empty, as replace by empty basically deletes all children and attrs
-
-          checkCanModify();
-
+      switch (ospec)
+      {
+        case OverrideSpec.Stop: return false;
+        case OverrideSpec.All:
+          if (other[rules.SectionDeleteName].Exists) { Delete(); return true; }
+          MergeAttributes(other, rules);
+          MergeSections(other, rules);
           Value = other.VerbatimValue;
+          break;
 
-          var ochildren = other.Children;//thread safe
-          var oattrs = other.Attributes;//thread safe
+        case OverrideSpec.Attributes:
+          MergeAttributes(other, rules);
+          break;
 
-          lock(m_Children)
+        case OverrideSpec.Sections:
+          MergeSections(other, rules);
+          break;
+
+        case OverrideSpec.Replace:
+          ReplaceBy(other);
+          break;
+
+        default: //fail
+          throw new ConfigException(StringConsts.CONFIGURATION_OVERRIDE_PROHOBITED_ERROR + RootPath);
+      }
+
+      return true;
+    }
+
+    /// <summary>
+    /// Merges attributes from another node into this one. Another node may belong to a different configuration instance
+    /// </summary>
+    public void MergeAttributes(IConfigSectionNode other, NodeOverrideRules rules = null)
+    {
+      if (other == null || !other.Exists) return;
+
+      checkCanModify();
+
+      if (rules == null) rules = NodeOverrideRules.Default;
+
+      var oattrs = other.Attributes;//thread safe
+      if (other.AttrByName(rules.AttributeClearName).ValueAsBool()) DeleteAllAttributes();
+      foreach (var oatr in oattrs)
+      {
+        if (oatr.IsSameName(rules.AttributeClearName))
+          continue;
+
+        var existing = AttrByName(oatr.Name);
+
+        if (existing.Exists)
+          existing.Value = oatr.VerbatimValue;
+        else
+          AddAttributeNode(oatr.Name, oatr.VerbatimValue);
+      }
+    }
+
+    /// <summary>
+    /// Merges child sections from another node into this one. Another node may belong to a different configuration instance.
+    /// This method ignores override flags and merges nodes regardless
+    /// </summary>
+    public void MergeSections(IConfigSectionNode other, NodeOverrideRules rules = null)
+    {
+      if (other == null || !other.Exists) return;
+
+      checkCanModify();
+
+      if (rules == null) rules = NodeOverrideRules.Default;
+
+      var children = Children;//thread safe
+      var osects = other.Children;//thread safe
+      var clear = other[rules.SectionClearName].Exists;
+      if (clear) DeleteAllChildren();
+      foreach (var osect in osects)
+      {
+        if (osect.IsSameName(rules.SectionClearName))
+          continue;
+
+        var match = children.Where(child =>
+                             child.IsSameName(osect) &&
+                             child.AttrByName(rules.SectionMatchAttrName).Value
+                             .EqualsIgnoreCase(osect.AttrByName(rules.SectionMatchAttrName).Value)).FirstOrDefault();
+
+        var append = match == null;
+
+        if (!append)
+          append = rules.AppendSectionsWithoutMatchAttr &&
+                   osect.AttrByName(rules.SectionMatchAttrName).Value.IsNullOrWhiteSpace();
+
+        if (append)
+          AddChildNode(osect.Name, osect.VerbatimValue).OverrideBy(osect, rules);
+        else
+          match.OverrideBy(osect, rules);
+
+      }
+    }
+
+    /// <summary>
+    /// Completely replaces this node's attributes, value and children with data from another node
+    /// </summary>
+    public void ReplaceBy(IConfigSectionNode other)
+    {
+      if (other == null) return;  //does not check for empty, as replace by empty basically deletes all children and attrs
+
+      checkCanModify();
+
+      Value = other.VerbatimValue;
+
+      var ochildren = other.Children;//thread safe
+      var oattrs = other.Attributes;//thread safe
+
+      lock (m_Children)
+      {
+        m_Children.Clear();
+        foreach (var ochild in ochildren)
+          m_Children.Add(new ConfigSectionNode(m_Configuration, this, ochild));
+      }
+
+      lock (m_Attributes)
+      {
+        m_Attributes.Clear();
+        foreach (var oattr in oattrs)
+          m_Attributes.Add(new ConfigAttrNode(m_Configuration, this, oattr));
+      }
+
+      m_Modified = true;
+    }
+
+    /// <summary>
+    /// Adds a new attribute node by string with a null value
+    /// </summary>
+    public ConfigAttrNode AddAttributeNode(string name) => AddAttributeNode(name, null);
+
+    /// <summary>
+    /// Adds a new attribute node by string name and object value
+    /// </summary>
+    public ConfigAttrNode AddAttributeNode(string name, object value)
+      => AddAttributeNode(name, value == null ? null : value.ToString());
+
+    /// <summary>
+    /// Adds a new attribute node by string name and string value
+    /// </summary>
+    public ConfigAttrNode AddAttributeNode(string name, string value)
+    {
+      checkCanModify();
+
+      lock (m_Attributes)
+      {
+        ConfigAttrNode node = new ConfigAttrNode(m_Configuration, this, name, value);
+        m_Attributes.Add(node);
+        m_Modified = true;
+        return node;
+      }
+    }
+
+    IConfigAttrNode IConfigSectionNode.AttrByName(string name, bool autoCreate)
+      => AttrByName(name, autoCreate);
+
+    /// <summary>
+    /// Returns attribute node by its name or empty attribute if real attribute with such index does not exist
+    /// </summary>
+    public ConfigAttrNode AttrByName(string name, bool autoCreate = false)
+    {
+      ConfigAttrNode result;
+
+      lock (m_Attributes)
+      {
+        result = m_Attributes.FirstOrDefault((node => node.IsSameName(name)));
+
+        if (result != null)
+          return result;
+        else
+          return !autoCreate ? m_Configuration.m_EmptyAttrNode : AddAttributeNode(name);
+      }
+    }
+
+    IConfigAttrNode IConfigSectionNode.AttrByIndex(int idx) => AttrByIndex(idx);
+
+    /// <summary>
+    /// Returns attribute node by its index or empty attribute if real attribute with such index does not exist
+    /// </summary>
+    public ConfigAttrNode AttrByIndex(int idx)
+    {
+      lock (m_Attributes)
+        if (idx >= 0 && idx < m_Attributes.Count)
+          return m_Attributes[idx];
+        else
+          return m_Configuration.m_EmptyAttrNode;
+    }
+
+    /// <summary>
+    /// Resets modification of this and all child nodes
+    /// </summary>
+    public override void ResetModified()
+    {
+      base.ResetModified();
+
+      lock (m_Children)
+        foreach (ConfigSectionNode child in m_Children)
+          child.ResetModified();
+
+      lock (m_Attributes)
+        foreach (ConfigAttrNode attr in m_Attributes)
+          attr.ResetModified();
+    }
+
+    IConfigNode IConfigSectionNode.Navigate(string path) => Navigate(path);
+
+    /// <summary>
+    /// Navigates the path and return the appropriate node. Example: '!/azos/logger/destination/$file-name'
+    /// </summary>
+    /// <param name="path">If path starts from '!' then exception will be thrown if such a node does not exist;
+    ///  Use '/' as leading char for root,
+    ///  '..' for step up,
+    ///  '$' for attribute name,
+    ///  [int] for access to subsection or attribute by index,
+    ///  section[value] for access using value comparison of named section,
+    ///  section[attr=value] for access using value of sections named `attr`
+    ///
+    /// Multiple paths may be coalesced  using '|' or ';', having each segment optionally start with either:
+    ///  '&' - require node verbatim value (such as variable reference) to be non null/empty
+    ///  '#' - require node evaluated value (such as eventually pointed-to value) to be non null/empty
+    /// Example:  &/$atr1|&/$atr2    #/$atr1|#/$atr2
+    /// </param>
+    /// <example>
+    ///     Navigate("/vars/[3]"); Navigate("/tables/table[resident]"); Navigate("/vars/var1/$[2]");  Navigate("/tables/table[name=patient]");
+    ///     Navigate("&$atr1; &$atr2"); Navigate("#$atr1; #$atr2");
+    /// </example>
+    /// <remarks>
+    ///   /table[patient]    -   get first section named "table" with value "patient"
+    ///   /[3]               -   get 4th child section from the root
+    ///   /table/$[2]        -   get 3rd attribute of first section named "table"
+    ///   /table[short-name=pat] -  get first section named "table" having attribute named "short-name" equal to "pat"
+    ///   #/$atr1;#/$atr2        - get attribute `atr1` if it exists and its evaluated value not null and not empty otherwise `atr2`
+    /// </remarks>
+    public ConfigNode Navigate(string path)
+    {
+      if (string.IsNullOrWhiteSpace(path))
+        throw new ArgumentException(StringConsts.ARGUMENT_ERROR + "ConfigSectionNode.Navigate(path)", "path");
+
+      try
+      {
+        //Path coalescing logic
+        var segments = path.Split(';', '|');
+        for (var i = 0; i < segments.Length; i++)
+        {
+          var seg = segments[i];
+          var needNodeVerbatimValue = false;//by default, a node existence is sufficient
+          var needNodeEvaluatedValue = false;//by default, a node existence is sufficient
+          if (seg.Length>1)
           {
-            m_Children.Clear();
-            foreach(var ochild in ochildren)
-                m_Children.Add( new ConfigSectionNode(m_Configuration, this, ochild) );
+            if (seg[0]=='&')
+            {
+              needNodeVerbatimValue = true;//need node with verbatim value, not just node
+              seg = seg.Substring(1);
+            } else if (seg[0] == '#')
+            {
+              needNodeEvaluatedValue = true;//need node with evaluated non-blank value, not just node
+              seg = seg.Substring(1);
+            }
           }
 
-          lock(m_Attributes)
+          bool required;
+          var node = doNavigate(seg, out required);
+
+          if (!node.Exists) continue;
+
+          if (needNodeVerbatimValue)
           {
-            m_Attributes.Clear();
-            foreach(var oattr in oattrs)
-                m_Attributes.Add( new ConfigAttrNode(m_Configuration, this, oattr) );
+            if (node.VerbatimValue.IsNotNullOrWhiteSpace()) return node;
+            continue;
           }
 
-          m_Modified = true;
-        }
-
-
-        public ConfigAttrNode AddAttributeNode(string name)
-        {
-          return AddAttributeNode(name, null);
-        }
-
-
-        public ConfigAttrNode AddAttributeNode(string name, object value)
-        {
-          return AddAttributeNode(name, value == null ? null : value.ToString());
-        }
-
-        public ConfigAttrNode AddAttributeNode(string name, string value)
-        {
-          checkCanModify();
-
-          lock (m_Attributes)
+          if (needNodeEvaluatedValue)
           {
-            ConfigAttrNode node = new ConfigAttrNode(m_Configuration, this, name, value);
-            m_Attributes.Add(node);
-            m_Modified = true;
-            return node;
+            if (node.EvaluatedValue.IsNotNullOrWhiteSpace()) return node;
+            continue;
           }
+
+          return node;
         }
 
+        return m_Configuration.EmptySection;
+      }
+      catch (Exception error)
+      {
+        if (error is ConfigException)
+          throw error;
+        else
+          throw new ConfigException(StringConsts.CONFIGURATION_NAVIGATION_BAD_PATH_ERROR + path ?? CoreConsts.NULL_STRING);
+      }
+    }
 
-        IConfigAttrNode IConfigSectionNode.AttrByName(string name, bool autoCreate)
+    IConfigSectionNode IConfigSectionNode.NavigateSection(string path) => NavigateSection(path);
+
+    /// <summary>
+    /// Navigates the path and return the appropriate section node. Example '!/azos/logger/destination'
+    /// </summary>
+    /// <param name="path">If path starts from '!' then exception will be thrown if such a section node does not exist;
+    ///  Use '/' as leading char for root,
+    ///  '..' for step up. Multiple paths may be coalesced using '|' or ';'
+    /// </param>
+    public ConfigSectionNode NavigateSection(string path)
+    {
+      if (string.IsNullOrWhiteSpace(path))
+        throw new ArgumentException(StringConsts.ARGUMENT_ERROR + "ConfigSectionNode.Navigate(path)", "path");
+
+      try
+      {
+        var segments = path.Split(';', '|');
+        for (var i = 0; i < segments.Length; i++)
         {
-          return this.AttrByName(name, autoCreate);
+          bool required;
+          var node = (doNavigate(segments[i], out required) as ConfigSectionNode) ?? m_Configuration.m_EmptySectionNode;
+
+          if (required && !node.Exists)
+            throw new ConfigException(string.Format(StringConsts.CONFIGURATION_NAVIGATION_SECTION_REQUIRED_ERROR, path));
+
+          if (node.Exists) return node;
         }
 
+        return m_Configuration.EmptySection;
+      }
+      catch (Exception error)
+      {
+        if (error is ConfigException)
+          throw error;
+        else
+          throw new ConfigException(StringConsts.CONFIGURATION_NAVIGATION_BAD_PATH_ERROR + path ?? CoreConsts.NULL_STRING);
+      }
+    }
 
-        public ConfigAttrNode AttrByName(string name, bool autoCreate = false)
+    [ThreadStatic]
+    private static HashSet<string> ts_VarNames;
+
+    [ThreadStatic]
+    private static int ts_Count;
+
+    /// <summary>
+    /// Evaluates a value string expanding all variables with var-paths relative to this node.
+    /// Evaluates configuration variables such as "$(varname)" or "$(@varname)". Varnames are paths
+    /// to other config nodes from the same configuration or variable names when prefixed with "~". If varname starts with "@" then it gets combined
+    ///  with input as path string. "~" is used to qualify environment vars that get resolved through Configuration.EnvironmentVarResolver
+    ///  Example: `....add key="Schema.$(/A/B/C/$attr)" value="$(@~HOME)bin\Transforms\"...`
+    /// </summary>
+    public string EvaluateValueVariables(string value, bool recurse = true)
+    {
+      if (value == null) return null;
+
+      var VAR_ESCAPE = m_Configuration.Variable_ESCAPE;
+      if (value.IndexOf(VAR_ESCAPE) == 0)
+        return value.Length > VAR_ESCAPE.Length ? value.Substring(VAR_ESCAPE.Length) : string.Empty;
+
+      HashSet<string> vlist;
+
+      if (ts_Count == 0)
+      {
+        vlist = new HashSet<string>();
+        ts_VarNames = vlist;
+      }
+      else
+        vlist = ts_VarNames;
+
+      ts_Count++;
+      try
+      {
+        var VAR_START = m_Configuration.Variable_START;
+        var VAR_END = m_Configuration.Variable_END;
+        var VAR_PATH_MOD = m_Configuration.Variable_PATH_MOD;
+
+        const int MAX_ITERATIONS = 1_000;
+        var iteration = 0;
+        var idxsLatch = 0;
+        while(true)
         {
-          ConfigAttrNode result;
+          if (iteration++ > MAX_ITERATIONS)
+            throw new ConfigException(StringConsts.CONFIG_INFINITE_VARS_ERROR.Args(value.TakeFirstChars(32, "..."), MAX_ITERATIONS));
 
-          lock (m_Attributes)
-          {
-            result = m_Attributes.FirstOrDefault((node => node.IsSameName(name)));
-
-            if (result != null)
-              return result;
-            else
-              return !autoCreate ? m_Configuration.m_EmptyAttrNode : AddAttributeNode(name);
-          }
-        }
+          var idxs = recurse ? value.IndexOf(VAR_START) : value.IndexOf(VAR_START, idxsLatch);
+          if (idxs < 0) break;
+          var idxe = value.IndexOf(VAR_END, idxs);
+          if (idxe <= idxs) break;
 
 
-        IConfigAttrNode IConfigSectionNode.AttrByIndex(int idx)
-        {
-          return this.AttrByIndex(idx);
-        }
+          var originalDecl = value.Substring(idxs, idxe - idxs + VAR_END.Length);
+          var vname = value.Substring(idxs + VAR_START.Length, 1 + idxe - idxs - VAR_START.Length - VAR_END.Length).Trim();
 
+          if (vlist.Contains(vname))
+            throw new ConfigException(string.Format(StringConsts.CONFIG_RECURSIVE_VARS_ERROR, value));
 
-        /// <summary>
-        /// Returns attribute node by its index or empty attribute if real attribute with such index does not exist
-        /// </summary>
-        public ConfigAttrNode AttrByIndex(int idx)
-        {
-          lock(m_Attributes)
-            if (idx >= 0 && idx < m_Attributes.Count)
-              return m_Attributes[idx];
-            else
-              return m_Configuration.m_EmptyAttrNode;
-        }
-
-
-
-        /// <summary>
-        /// Resets modification of this an all child nodes
-        /// </summary>
-        public override void ResetModified()
-        {
-          base.ResetModified();
-
-          lock (m_Children)
-            foreach (ConfigSectionNode child in m_Children)
-              child.ResetModified();
-
-          lock (m_Attributes)
-            foreach (ConfigAttrNode attr in m_Attributes)
-              attr.ResetModified();
-        }
-
-
-
-        IConfigNode IConfigSectionNode.Navigate(string path)
-        {
-          return this.Navigate(path);
-        }
-
-
-        /// <summary>
-        /// Navigates the path and return the appropriate node. Example: '!/azos/logger/destination/$file-name'
-        /// </summary>
-        /// <param name="path">If path starts from '!' then exception will be thrown if such a node does not exist;
-        ///  Use '/' as leading char for root,
-        ///  '..' for step up,
-        ///  '$' for attribute name,
-        ///  [int] for access to subsection or attribute by index,
-        ///  section[value] for access using value comparison of named section,
-        ///  section[attr=value] for access using value of sections named attr
-        /// Multiple paths may be coalesced  using '|' or ';'
-        /// </param>
-        /// <example>
-        ///     Navigate("/vars/[3]"); Navigate("/tables/table[resident]"); Navigate("/vars/var1/$[2]");  Navigate("/tables/table[name=patient]");
-        /// </example>
-        /// <remarks>
-        ///   /table[patient]    -   get first section named "table" with value "patient"
-        ///   /[3]               -   get 4th child section from the root
-        ///   /table/$[2]        -   get 3rd attribute of first section named "table"
-        ///   /table[short-name=pat] -  get first section named "table" having attribute named "short-name" equal "pat"
-        /// </remarks>
-        public ConfigNode Navigate(string path)
-        {
-          if (string.IsNullOrWhiteSpace(path))
-           throw new ArgumentException(StringConsts.ARGUMENT_ERROR + "ConfigSectionNode.Navigate(path)", "path");
-
+          vlist.Add(vname);
           try
           {
-            var segments = path.Split(';', '|');
-            for(var i=0; i<segments.Length; i++)
+            string replacement;
+            if (vname.StartsWith(VAR_PATH_MOD))
             {
-                bool required;
-                var node = doNavigate(segments[i], out required);
-                if (node.Exists) return node;
+              replacement = getValueFromMacroOrEnvVarOrNavigationWithCheck(vname.Replace(VAR_PATH_MOD, string.Empty));
+              value = replacePaths(recurse, value, originalDecl, replacement, recurse ? 0 : idxsLatch);
+            }
+            else
+            {
+              replacement = getValueFromMacroOrEnvVarOrNavigationWithCheck(vname);
+              value = replace(recurse, value, originalDecl, replacement, idxsLatch);
             }
 
-            return m_Configuration.EmptySection;
-          }
-          catch(Exception error)
-          {
-            if (error is ConfigException)
-             throw error;
-            else
-             throw new ConfigException(StringConsts.CONFIGURATION_NAVIGATION_BAD_PATH_ERROR + path ?? CoreConsts.NULL_STRING);
-          }
-        }
-
-
-        IConfigSectionNode IConfigSectionNode.NavigateSection(string path)
-        {
-          return this.NavigateSection(path);
-        }
-
-        /// <summary>
-        /// Navigates the path and return the appropriate section node. Example '!/azos/logger/destination'
-        /// </summary>
-        /// <param name="path">If path starts from '!' then exception will be thrown if such a section node does not exist;
-        ///  Use '/' as leading char for root,
-        ///  '..' for step up. Multiple paths may be coalesced using '|' or ';'
-        /// </param>
-        public ConfigSectionNode NavigateSection(string path)
-        {
-          if (string.IsNullOrWhiteSpace(path))
-           throw new ArgumentException(StringConsts.ARGUMENT_ERROR + "ConfigSectionNode.Navigate(path)", "path");
-
-          try
-          {
-            var segments = path.Split(';', '|');
-            for(var i=0; i<segments.Length; i++)
-            {
-                bool required;
-                var node = (doNavigate(segments[i], out required) as ConfigSectionNode) ?? m_Configuration.m_EmptySectionNode;
-
-                if (required && !node.Exists)
-                 throw new ConfigException(string.Format(StringConsts.CONFIGURATION_NAVIGATION_SECTION_REQUIRED_ERROR, path));
-
-                if (node.Exists) return node;
-            }
-
-            return m_Configuration.EmptySection;
-          }
-          catch(Exception error)
-          {
-            if (error is ConfigException)
-             throw error;
-            else
-             throw new ConfigException(StringConsts.CONFIGURATION_NAVIGATION_BAD_PATH_ERROR + path ?? CoreConsts.NULL_STRING);
-          }
-        }
-
-
-        [ThreadStatic]
-        private static HashSet<string> ts_VarNames;
-
-        [ThreadStatic]
-        private static int ts_Count;
-
-        /// <summary>
-        /// Evaluates a value string expanding all variables with var-paths relative to this node.
-        /// Evaluates configuration variables such as "$(varname)" or "$(@varname)". Varnames are paths
-        /// to other config nodes from the same configuration or variable names when prefixed with "~". If varname starts with "@" then it gets combined
-        ///  with input as path string. "~" is used to qualify environment vars that get resolved through Configuration.EnvironmentVarResolver
-        ///  Example: `....add key="Schema.$(/A/B/C/$attr)" value="$(@~HOME)bin\Transforms\"...`
-        /// </summary>
-        public string EvaluateValueVariables(string value)
-        {
-          if (value == null) return null;
-
-          var VAR_ESCAPE = m_Configuration.Variable_ESCAPE;
-          if (value.IndexOf(VAR_ESCAPE)==0)
-           return value.Length > VAR_ESCAPE.Length ? value.Substring(VAR_ESCAPE.Length) : string.Empty;
-
-
-          HashSet<string> vlist;
-
-          if (ts_Count==0)
-          {
-            vlist = new HashSet<string>();
-            ts_VarNames = vlist;
-          }
-          else
-            vlist = ts_VarNames;
-
-          ts_Count++;
-          try
-          {
-                  var VAR_START = m_Configuration.Variable_START;
-                  var VAR_END = m_Configuration.Variable_END;
-                  var VAR_PATH_MOD = m_Configuration.Variable_PATH_MOD;
-
-                       const int MAX_ITERATIONS = 1_000;
-                       var iteration=0;
-                       while(true)
-                       {
-                         if (iteration++ > MAX_ITERATIONS)
-                           throw new ConfigException(StringConsts.CONFIG_INFINITE_VARS_ERROR.Args(value.TakeFirstChars(32, "..."), MAX_ITERATIONS));
-
-                         var idxs = value.IndexOf(VAR_START);
-                         if (idxs<0) break;
-                         var idxe = value.IndexOf(VAR_END, idxs);
-                         if (idxe<=idxs) break;
-
-                         var originalDecl = value.Substring(idxs, idxe - idxs + VAR_END.Length);
-                         var vname = value.Substring(idxs + VAR_START.Length, 1 + idxe - idxs - VAR_START.Length - VAR_END.Length).Trim();
-
-                         if (vlist.Contains(vname))
-                           throw new ConfigException(string.Format(StringConsts.CONFIG_RECURSIVE_VARS_ERROR, value));
-
-                         vlist.Add(vname);
-                         try
-                         {
-                             if (vname.StartsWith(VAR_PATH_MOD))
-                             {
-                               value = replacePaths(value, originalDecl, getValueFromMacroOrEnvVarOrNavigationWithCheck(vname.Replace(VAR_PATH_MOD, string.Empty)));
-                             }
-                             else
-                             {
-                               value = value.Replace(originalDecl, getValueFromMacroOrEnvVarOrNavigationWithCheck(vname));
-                             }
-                         }
-                         finally
-                         {
-                             vlist.Remove(vname);
-                         }
-                       }
-
-                  return value;
+            idxsLatch = idxs + replacement.Length;
+            if (!recurse && idxsLatch >= value.Length) break;
           }
           finally
           {
-            ts_Count--;
-            if (ts_Count==0)
-             ts_VarNames = null;
+            vlist.Remove(vname);
           }
         }
 
+        return value;
+      }
+      finally
+      {
+        ts_Count--;
+        if (ts_Count == 0)
+          ts_VarNames = null;
+      }
+    }
 
-        /// <summary>
-        /// Returns true when another node has the attribute called 'name' and its value is the same as in this one per case-insensitive culture-neutral comparison
-        /// </summary>
-        public bool IsSameNameAttr(IConfigSectionNode other)
-        {
-          if (other==null) return false;
-          return IsSameNameAttr(other.AttrByName(Configuration.CONFIG_NAME_ATTR).Value);
-        }
+    /// <summary>
+    /// Returns true when another node has the attribute called 'name' and its value is the same as in this one per case-insensitive culture-neutral comparison
+    /// </summary>
+    public bool IsSameNameAttr(IConfigSectionNode other)
+    {
+      if (other == null) return false;
+      return IsSameNameAttr(other.AttrByName(Configuration.CONFIG_NAME_ATTR).Value);
+    }
 
-        /// <summary>
-        /// Returns true when another name is the same as this section "name" attribute per case-insensitive culture-neutral comparison
-        /// </summary>
-        public bool IsSameNameAttr(string other)
-        {
-          if (other==null) return false;
-          return this.AttrByName(Configuration.CONFIG_NAME_ATTR).Value.EqualsIgnoreCase( other);
-        }
+    /// <summary>
+    /// Returns true when another name is the same as this section "name" attribute per case-insensitive culture-neutral comparison
+    /// </summary>
+    public bool IsSameNameAttr(string other)
+    {
+      if (other == null) return false;
+      return AttrByName(Configuration.CONFIG_NAME_ATTR).Value.EqualsIgnoreCase(other);
+    }
 
-        /// <summary>
-        /// Serializes configuration tree rooted at this node into Laconic format and returns it as a string
-        /// </summary>
-        public string ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions options = null)
-        {
-          return Azos.CodeAnalysis.Laconfig.LaconfigWriter.Write(this, options);
-        }
+    /// <summary>
+    /// Serializes configuration tree rooted at this node into Laconic format and returns it as a string
+    /// </summary>
+    public string ToLaconicString(LaconfigWritingOptions options = null)
+      => LaconfigWriter.Write(this, options);
 
-        /// <summary>
-        /// Serializes configuration tree rooted at this node into JSON configuration format and returns it as a string
-        /// </summary>
-        public string ToJSONString(Azos.Serialization.JSON.JsonWritingOptions options = null)
-        {
-          return this.ToConfigurationJSONDataMap().ToJson(options);
-        }
+    /// <summary>
+    /// Serializes configuration tree rooted at this node into JSON configuration format and returns it as a string
+    /// </summary>
+    public string ToJSONString(JsonWritingOptions options = null)
+      => ToConfigurationJSONDataMap().ToJson(options);
 
-        /// <summary>
-        /// Serializes configuration tree as XML
-        /// </summary>
-        public System.Xml.XmlDocument ToXmlDoc(string xsl = null, string encoding = null)
-        {
-          return  XMLConfiguration.BuildXmlDocFromRoot(this, xsl, encoding);
-        }
+    /// <summary>
+    /// Serializes configuration tree as XML
+    /// </summary>
+    public System.Xml.XmlDocument ToXmlDoc(string xsl = null, string encoding = null)
+      => XMLConfiguration.BuildXmlDocFromRoot(this, xsl, encoding);
 
-        /// <summary>
-        /// Serializes configuration tree as XML string with optional link to xsl file
-        /// </summary>
-        public string ToXmlString(string xsl = null)
-        {
-          var doc = ToXmlDoc(xsl);
-          using (var writer = new System.IO.StringWriter())
-          {
-            doc.Save(writer);
-            return writer.ToString();
-          }
-        }
-
+    /// <summary>
+    /// Serializes configuration tree as XML string with optional link to xsl file
+    /// </summary>
+    public string ToXmlString(string xsl = null)
+    {
+      var doc = ToXmlDoc(xsl);
+      using (var writer = new StringWriter())
+      {
+        doc.Save(writer);
+        return writer.ToString();
+      }
+    }
 
     /// <summary>
     /// Calls ProcessIncludePragmas(recurse: true)in a loop until all includes are processed or max nesting depth is exceeded.
@@ -1464,18 +1401,18 @@ namespace Azos.Conf
     /// </summary>
     /// <param name="configLevelName">Optional logic name of config level which gets included in exception text in case of error</param>
     /// <param name="includePragma">Optional include pragma section name. If null, the default is used</param>
-    public void ProcessAllExistingIncludes(string configLevelName = null,  string includePragma = null)
+    public void ProcessAllExistingIncludes(string configLevelName = null, string includePragma = null)
     {
       const int MAX_INCLUDE_DEPTH = 7;
 
       if (configLevelName.IsNullOrWhiteSpace()) configLevelName = StringConsts.UNKNOWN_STRING;
       try
       {
-        for (int count = 0; this.ProcessIncludePragmas(true, includePragma); count++)
+        for (int count = 0; ProcessIncludePragmas(true, includePragma); count++)
           if (count >= MAX_INCLUDE_DEPTH)
-             throw new ConfigException(StringConsts.CONFIG_INCLUDE_PRAGMA_DEPTH_ERROR.Args(MAX_INCLUDE_DEPTH));
+            throw new ConfigException(StringConsts.CONFIG_INCLUDE_PRAGMA_DEPTH_ERROR.Args(MAX_INCLUDE_DEPTH));
       }
-      catch(Exception error)
+      catch (Exception error)
       {
         throw new ConfigException(StringConsts.CONFIGURATION_INCLUDE_PRAGMA_ERROR.Args(configLevelName, error.ToMessageWithType()), error);
       }
@@ -1514,556 +1451,556 @@ namespace Azos.Conf
     ///  }
     /// </example>
     public bool ProcessIncludePragmas(bool recurse, string includePragma = null)
+    {
+      if (includePragma.IsNullOrWhiteSpace())
+        includePragma = Configuration.DEFAULT_CONFIG_INCLUDE_PRAGMA;
+
+      var result = false;
+      checkCanModify();
+
+      foreach (var child in Children)//Children does snapshot
+      {
+        if (child.IsSameName(includePragma))
         {
-          if (includePragma.IsNullOrWhiteSpace())
-            includePragma = Configuration.DEFAULT_CONFIG_INCLUDE_PRAGMA;
-
-          var result = false;
-          checkCanModify();
-
-          foreach(var child in Children)//Children does snapshot
+          var included = getIncludedNode(child);
+          if (included != null)
           {
-            if (child.IsSameName(includePragma))
-            {
-              var included = getIncludedNode(child);
-              if (included!=null)
-              {
-                child.include( included );
-                result = true;
-              }
-              else
-                child.Delete();
-
-              continue;
-            }
-
-            if (recurse)
-             result |= child.ProcessIncludePragmas(recurse, includePragma);
+            child.include(included);
+            result = true;
           }
+          else
+            child.Delete();
 
-          return result;
+          continue;
         }
 
-        /// <summary>
-        /// Returns attribute values as string map
-        /// </summary>
-        public Collections.StringMap AttrsToStringMap(bool verbatim = false)
+        if (recurse)
+          result |= child.ProcessIncludePragmas(recurse, includePragma);
+      }
+
+      return result;
+    }
+
+    /// <summary>
+    /// Returns attribute values as string map
+    /// </summary>
+    public Collections.StringMap AttrsToStringMap(bool verbatim = false)
+    {
+      var result = new Collections.StringMap();
+
+      foreach (var atr in Attributes)
+        result[atr.Name] = verbatim ? atr.VerbatimValue : atr.Value;
+
+      return result;
+    }
+
+    /// <summary>
+    /// Converts this ConfigSectionNode to JSONDataMap. Contrast with ToConfigurationJSONDataMap
+    /// Be careful: that this operation can "lose" data from ConfigSectionNode.
+    /// In other words some ConfigSectionNode information can not be reflected in corresponding JSONDataMap, for example
+    ///  this method overwrites duplicate key names and does not support section values
+    /// </summary>
+    public JsonDataMap ToJSONDataMap()
+    {
+      var map = new JsonDataMap();
+
+      if (Exists)
+        buildSectionMap(this, map);
+
+      return map;
+    }
+
+    // Recursively builds up the supplied JsonDataMap from the specified ConfigSectionNode
+    private static void buildSectionMap(ConfigSectionNode node, JsonDataMap map)
+    {
+      foreach (var attr in node.Attributes)
+      {
+        map[attr.Name] = attr.Value;
+      }
+
+      foreach (var childNode in node.Children)
+      {
+        var childMap = new JsonDataMap();
+        map[childNode.Name] = childMap;
+        buildSectionMap(childNode, childMap);
+      }
+    }
+
+    /// <summary>
+    /// Returns this config node as JSON data map suitable for making JSONConfiguration.
+    /// Contrast with ToJSONDataMap
+    /// </summary>
+    public JsonDataMap ToConfigurationJSONDataMap()
+    {
+      var root = new JsonDataMap(false);
+
+      if (Exists)
+        root[Name] = buildSectionConfigJSONDataMap(this);
+
+      return root;
+    }
+
+    private static JsonDataMap buildSectionConfigJSONDataMap(ConfigSectionNode sect)
+    {
+      var result = new JsonDataMap(false);
+
+      if (sect.VerbatimValue.IsNotNullOrWhiteSpace())
+        result[JSONConfiguration.SECTION_VALUE_ATTR] = sect.VerbatimValue;
+
+      foreach (var atr in sect.Attributes)
+      {
+        if (!result.ContainsKey(atr.Name))
         {
-          var result = new Collections.StringMap();
-
-          foreach(var atr in this.Attributes)
-           result[atr.Name] = verbatim ? atr.VerbatimValue : atr.Value;
-
-          return result;
+          result[atr.Name] = atr.VerbatimValue;
+          continue;
         }
-
-
-        /// <summary>
-        /// Converts this ConfigSectionNode to JSONDataMap. Contrast with ToConfigurationJSONDataMap
-        /// Be careful: that this operation can "lose" data from ConfigSectionNode.
-        /// In other words some ConfigSectionNode information can not be reflected in corresponding JSONDataMap, for example
-        ///  this method overwrites duplicate key names and does not support section values
-        /// </summary>
-        public JsonDataMap ToJSONDataMap()
+        var existing = result[atr.Name];
+        if (existing is List<object> elst)
         {
-          var map = new JsonDataMap();
-
-          if (this.Exists)
-            buildSectionMap(this, map);
-
-          return map;
+          elst.Add(atr.VerbatimValue);
         }
+        else
+        {
+          var lst = new List<object>();
+          lst.Add(existing);
+          lst.Add(atr.VerbatimValue);
+          result[atr.Name] = lst;
+        }
+      }
 
-                  private static void buildSectionMap(ConfigSectionNode node, JsonDataMap map)
-                  {
-                    foreach (var attr in node.Attributes)
-                    {
-                      map[attr.Name] = attr.Value;
-                    }
-
-                    foreach (var childNode in node.Children)
-                    {
-                      var childMap = new JsonDataMap();
-                      map[childNode.Name] = childMap;
-                      buildSectionMap(childNode, childMap);
-                    }
-                  }
-
-         /// <summary>
-         /// Returns this config node as JSON data map suitable for making JSONConfiguration.
-         /// Contrast with ToJSONDataMap
-         /// </summary>
-         public JsonDataMap ToConfigurationJSONDataMap()
-         {
-           var root = new JsonDataMap(false);
-
-           if (this.Exists)
-             root[this.Name] = buildSectionConfigJSONDataMap(this);
-
-           return root;
-         }
-
-               private static JsonDataMap buildSectionConfigJSONDataMap(ConfigSectionNode sect)
-               {
-                 var result = new JsonDataMap(false);
-
-                 if (sect.VerbatimValue.IsNotNullOrWhiteSpace())
-                   result[JSONConfiguration.SECTION_VALUE_ATTR] = sect.VerbatimValue;
-
-                 foreach(var atr in sect.Attributes)
-                 {
-                    if (!result.ContainsKey(atr.Name))
-                    {
-                      result[atr.Name] = atr.VerbatimValue;
-                      continue;
-                    }
-                    var existing = result[atr.Name];
-                    if (existing is List<object> elst)
-                    {
-                      elst.Add(atr.VerbatimValue);
-                    }
-                    else
-                    {
-                      var lst = new List<object>();
-                      lst.Add(existing);
-                      lst.Add(atr.VerbatimValue);
-                      result[atr.Name] = lst;
-                    }
-                 }
-
-                 foreach(var cs in sect.Children)
-                 {
-                    var subSection = buildSectionConfigJSONDataMap(cs);
-                    if (!result.ContainsKey(cs.Name))
-                    {
-                      result[cs.Name] = subSection;
-                      continue;
-                    }
-                    var existing = result[cs.Name];
-                    if (existing is List<object> elst)
-                    {
-                      elst.Add(subSection);
-                    }
-                    else
-                    {
-                      var lst = new List<object>();
-                      lst.Add(existing);
-                      lst.Add(subSection);
-                      result[cs.Name] = lst;
-                    }
-                 }
-                 return result;
-               }
+      foreach (var cs in sect.Children)
+      {
+        var subSection = buildSectionConfigJSONDataMap(cs);
+        if (!result.ContainsKey(cs.Name))
+        {
+          result[cs.Name] = subSection;
+          continue;
+        }
+        var existing = result[cs.Name];
+        if (existing is List<object> elst)
+        {
+          elst.Add(subSection);
+        }
+        else
+        {
+          var lst = new List<object>();
+          lst.Add(existing);
+          lst.Add(subSection);
+          result[cs.Name] = lst;
+        }
+      }
+      return result;
+    }
 
     #endregion
+
 
     #region .pvt .impl
 
-        private ConfigSectionNode getIncludedNode(ConfigSectionNode pragma)
+    private ConfigSectionNode getIncludedNode(ConfigSectionNode pragma)
+    {
+      try
+      {
+        var root = getIncludedNodeRoot(pragma);
+
+        if (root == null)
+          return null;
+
+        //name section wrap
+        var asname = pragma.AttrByName(Configuration.CONFIG_NAME_ATTR).ValueAsString();
+        if (asname.IsNotNullOrWhiteSpace())
         {
-          try
-          {
-            var root = getIncludedNodeRoot(pragma);
-
-            if (root == null)
-              return null;
-
-            //name section wrap
-            var asname = pragma.AttrByName(Configuration.CONFIG_NAME_ATTR).ValueAsString();
-            if (asname.IsNotNullOrWhiteSpace())
-            {
-              var wrap = new MemoryConfiguration();
-              wrap.Create();
-              wrap.Root.AddChildNode( root ).Name = asname;
-              root = wrap.Root;
-            }
-
-            return root;
-          }
-          catch(Exception inner)
-          {
-            throw new ConfigException(StringConsts.CONFIGURATION_INCLUDE_PRAGMA_ERROR.Args(pragma.RootPath, inner.ToMessageWithType()), inner);
-          }
+          var wrap = new MemoryConfiguration();
+          wrap.Create();
+          wrap.Root.AddChildNode(root).Name = asname;
+          root = wrap.Root;
         }
 
+        return root;
+      }
+      catch (Exception inner)
+      {
+        throw new ConfigException(StringConsts.CONFIGURATION_INCLUDE_PRAGMA_ERROR.Args(pragma.RootPath, inner.ToMessageWithType()), inner);
+      }
+    }
 
-        private ConfigSectionNode getIncludedNodeRoot(ConfigSectionNode pragma)
+    private ConfigSectionNode getIncludedNodeRoot(ConfigSectionNode pragma)
+    {
+      var copyPath = pragma.AttrByName(Configuration.CONFIG_INCLUDE_PRAGMA_COPY_ATTR).Value;
+
+      var ndProvider = pragma[Configuration.CONFIG_INCLUDE_PRAGMA_PROVIDER_SECTION];
+      var fileName = pragma.AttrByName(Configuration.CONFIG_INCLUDE_PRAGMA_FILE_ATTR).ValueAsString();
+
+      if (copyPath.IsNotNullOrWhiteSpace())
+      {
+        if (ndProvider.Exists || fileName.IsNotNullOrWhiteSpace())
+          throw new ConfigException("May not specify either '{0}' or '{1}' when '{2}' is used"
+                                    .Args(Configuration.CONFIG_INCLUDE_PRAGMA_PROVIDER_SECTION,
+                                          Configuration.CONFIG_INCLUDE_PRAGMA_FILE_ATTR,
+                                          Configuration.CONFIG_INCLUDE_PRAGMA_COPY_ATTR));
+
+        var root = pragma.NavigateSection(copyPath);
+        return root.Exists ? root : null;
+      }
+
+      if (fileName.IsNullOrWhiteSpace() && !ndProvider.Exists)
+        throw new ConfigException("missing '{0}' or '{1}'".Args(Configuration.CONFIG_INCLUDE_PRAGMA_PROVIDER_SECTION,
+                                                                Configuration.CONFIG_INCLUDE_PRAGMA_FILE_ATTR));
+
+      var required = pragma.AttrByName(Configuration.CONFIG_INCLUDE_PRAGMA_REQUIRED_ATTR).ValueAsBool(true);
+
+      //1  Try to get content from IConfigNodeProvider
+      if (ndProvider.Exists)
+      {
+        var provider = FactoryUtils.MakeAndConfigure<IConfigNodeProvider>(ndProvider, Configuration.ProcesswideConfigNodeProviderType);
+        try
         {
-          var copyPath = pragma.AttrByName(Configuration.CONFIG_INCLUDE_PRAGMA_COPY_ATTR).Value;
+          Configuration.Application.DependencyInjector.InjectInto(provider);
 
-          var ndProvider = pragma[Configuration.CONFIG_INCLUDE_PRAGMA_PROVIDER_SECTION];
-          var fileName = pragma.AttrByName(Configuration.CONFIG_INCLUDE_PRAGMA_FILE_ATTR).ValueAsString();
+          var root = provider.ProvideConfigNode(this);
 
-          if (copyPath.IsNotNullOrWhiteSpace())
+          if (required && root == null) throw new ConfigException("'{0}'.ProvideConfigNode() returned null".Args(provider.GetType().FullName));
+
+          return root;
+        }
+        finally
+        {
+          var disposable = provider as IDisposable;
+          if (disposable != null) disposable.Dispose();
+        }
+      }
+
+      //2 Try to get content form the file system
+      var ndFs = pragma[Configuration.CONFIG_INCLUDE_PRAGMA_FS_SECTION];
+      //todo: Future, pool file system instances, do not allocate FS on every get, maybe create a module for FS?
+      using (var fs = FactoryUtils.MakeAndConfigureComponent<IFileSystemImplementation>(Configuration.Application,
+                                                                                       ndFs,
+                                                                                       typeof(IO.FileSystem.Local.LocalFileSystem)))
+      {
+        FileSystemSessionConnectParams cParams;
+
+        var ndSession = pragma[Configuration.CONFIG_INCLUDE_PRAGMA_SESSION_SECTION];
+
+        if (ndSession.Exists)
+          cParams = FileSystemSessionConnectParams.Make<FileSystemSessionConnectParams>(ndSession);
+        else
+          cParams = new FileSystemSessionConnectParams() { User = Azos.Security.User.Fake };
+
+        string source = "";
+        using (var fsSession = fs.StartSession(cParams))
+        {
+          var file = fsSession[fileName] as FileSystemFile;
+
+          if (file == null)
           {
-            if (ndProvider.Exists || fileName.IsNotNullOrWhiteSpace())
-              throw new ConfigException("May not specify either '{0}' or '{1}' when '{2}' is used"
-                                        .Args(Configuration.CONFIG_INCLUDE_PRAGMA_PROVIDER_SECTION,
-                                              Configuration.CONFIG_INCLUDE_PRAGMA_FILE_ATTR,
-                                              Configuration.CONFIG_INCLUDE_PRAGMA_COPY_ATTR));
-
-            var root = pragma.NavigateSection(copyPath);
-            return root.Exists ? root : null;
+            if (required) throw new ConfigException("Referenced file '{0}' does not exist".Args(fileName));
+            return null;
           }
 
+          source = file.ReadAllText();
 
-          if (fileName.IsNullOrWhiteSpace() && !ndProvider.Exists)
-            throw new ConfigException("missing '{0}' or '{1}'".Args(Configuration.CONFIG_INCLUDE_PRAGMA_PROVIDER_SECTION,
-                                                                    Configuration.CONFIG_INCLUDE_PRAGMA_FILE_ATTR));
+          string fmt = null;
+          var j = fileName.LastIndexOf('.');
+          if (j > 0 && j < fileName.Length - 1) fmt = fileName.Substring(j + 1);
 
-          var required = pragma.AttrByName(Configuration.CONFIG_INCLUDE_PRAGMA_REQUIRED_ATTR).ValueAsBool(true);
+          var root = Configuration.ProviderLoadFromString(source, fmt, Configuration.CONFIG_LACONIC_FORMAT).Root;
 
-          //1  Try to get content from IConfigNodeProvider
-          if (ndProvider.Exists)
+          return root;
+        }
+      }
+    }
+
+    internal void include(ConfigSectionNode other)
+    {
+      checkCanModify();
+
+      var oattrs = other.Attributes;
+      var ochildren = other.Children;
+
+      var parentChildren = Parent.m_Children;
+
+      lock (parentChildren)
+      {
+        var idx = parentChildren.IndexOf(this);
+        parentChildren.Remove(this);
+
+        foreach (var oatr in oattrs)
+        {
+          var existing = Parent.AttrByName(oatr.Name);
+
+          if (existing.Exists)
+            existing.Value = oatr.VerbatimValue;
+          else
+            Parent.AddAttributeNode(oatr.Name, oatr.VerbatimValue);
+        }
+
+        foreach (var ochild in ochildren)
+        {
+          var node = new ConfigSectionNode(m_Configuration, Parent, ochild);
+          if (idx < parentChildren.Count)
+            parentChildren.Insert(idx, node);
+          else
+            parentChildren.Add(node);
+          idx++;
+        }
+      }
+
+      Parent.m_Modified = true;
+    }
+
+    private ConfigNode doNavigate(string path, out bool required) //todo Use indexes on path and do not mutate it so no string copies are made
+    {
+      path = path.Trim();
+
+      ConfigNode result = this;
+      required = false;
+
+      if (path.Length == 0) return result;
+
+      if (path.StartsWith("!"))
+      {
+        required = true;
+        if (path.Length > 1)
+          path = path.Substring(1);
+        else
+          path = string.Empty;
+      }
+
+      if (path.StartsWith("/") || path.StartsWith("\\"))
+      {
+        if (path.Length > 1)
+          path = path.Substring(1);
+        else
+          path = string.Empty;
+
+        result = Configuration.Root;
+      }
+
+      if (path.Length > 0)
+      {
+        var segs = path.Split('/', '\\');
+
+        foreach (var s in segs)
+        {
+          //20160319 DKh
+          if (!result.Exists) break;
+
+          var seg = s.Trim();
+
+          if (seg == "..")
           {
-            var provider = FactoryUtils.MakeAndConfigure<IConfigNodeProvider>(ndProvider, Configuration.ProcesswideConfigNodeProviderType);
-            try
-            {
-              Configuration.Application.DependencyInjector.InjectInto(provider);
-
-              var root = provider.ProvideConfigNode(this);
-
-              if (required && root==null) throw new ConfigException("'{0}'.ProvideConfigNode() returned null".Args(provider.GetType().FullName));
-
-              return root;
-            }
-            finally
-            {
-              var disposable = provider as IDisposable;
-              if (disposable!=null) disposable.Dispose();
-            }
+            result = result.Parent;
+            continue;
           }
 
-          //2 Try to get content form the file system
-          var ndFs = pragma[Configuration.CONFIG_INCLUDE_PRAGMA_FS_SECTION];
-//todo: Future, pool file system instances, do not allocate FS on every get, maybe create a module for FS?
-          using(var fs = FactoryUtils.MakeAndConfigureComponent<IFileSystemImplementation>(Configuration.Application,
-                                                                                           ndFs,
-                                                                                           typeof(Azos.IO.FileSystem.Local.LocalFileSystem)))
+          if (!(result is ConfigSectionNode))
+            throw new ConfigException(StringConsts.CONFIGURATION_PATH_SEGMENT_NOT_SECTION_ERROR.Args(seg, path));
+
+          var section = (ConfigSectionNode)result;
+
+          var isAttr = false;
+          if (seg.StartsWith("$")) //attribute
           {
-            FileSystemSessionConnectParams cParams;
+            seg = seg.Substring(1).Trim();
+            isAttr = true;
+          }
 
-            var ndSession = pragma[Configuration.CONFIG_INCLUDE_PRAGMA_SESSION_SECTION];
+          if (seg.StartsWith("[")) //indexer like:   ../[0]  or  ../$[1] (attribute of section by index)
+          {
+            var icl = seg.LastIndexOf(']');
 
-            if (ndSession.Exists)
-              cParams = FileSystemSessionConnectParams.Make<FileSystemSessionConnectParams>(ndSession);
+            if (icl < 2)
+              throw new ConfigException(StringConsts.CONFIGURATION_PATH_INDEXER_SYNTAX_ERROR.Args(path));
+
+            var istr = seg.Substring(1, icl - 1);
+
+            int idx;
+            if (!int.TryParse(istr, out idx))
+              throw new ConfigException(StringConsts.CONFIGURATION_PATH_INDEXER_ERROR.Args(path, istr));
+            if (isAttr)
+              result = section.AttrByIndex(idx);
             else
-              cParams = new FileSystemSessionConnectParams(){ User = Azos.Security.User.Fake};
-
-            string source = "";
-            using(var fsSession = fs.StartSession(cParams))
-            {
-              var file = fsSession[fileName] as Azos.IO.FileSystem.FileSystemFile;
-
-              if (file==null)
-              {
-                if (required) throw new ConfigException("Referenced file '{0}' does not exist".Args(fileName));
-                return null;
-              }
-
-              source = file.ReadAllText();
-
-              string fmt = null;
-              var j = fileName.LastIndexOf('.');
-              if (j>0&&j<fileName.Length-1) fmt = fileName.Substring(j+1);
-
-              var root = Configuration.ProviderLoadFromString(source, fmt, Configuration.CONFIG_LACONIC_FORMAT).Root;
-
-              return root;
-            }
+              result = section[idx];
           }
-        }
-
-
-        internal void include(ConfigSectionNode other)
-        {
-          checkCanModify();
-
-          var oattrs = other.Attributes;
-          var ochildren = other.Children;
-
-          var parentChildren = Parent.m_Children;
-
-          lock(parentChildren)
+          else if (seg.EndsWith("]")) //value indexer like:   ../table[name=patient] (atr name=patient)   or  ../table[patient] (table node value=patient)
           {
-              var idx = parentChildren.IndexOf(this);
-              parentChildren.Remove(this);
+            if (isAttr)
+              throw new ConfigException(StringConsts.CONFIGURATION_PATH_VALUE_INDEXER_CAN_NOT_USE_WITH_ATTRS_ERROR.Args(path));
 
-              foreach(var oatr in oattrs)
-              {
-                var existing = Parent.AttrByName(oatr.Name);
+            var iop = seg.IndexOf('[');
 
-                if (existing.Exists)
-                 existing.Value = oatr.VerbatimValue;
-                else
-                 Parent.AddAttributeNode(oatr.Name, oatr.VerbatimValue);
-              }
-
-              foreach(var ochild in ochildren)
-              {
-                var node = new ConfigSectionNode(m_Configuration, Parent, ochild);
-                if (idx<parentChildren.Count)
-                    parentChildren.Insert(idx, node);
-                else
-                    parentChildren.Add(node);
-                idx++;
-              }
-          }
-
-          Parent.m_Modified = true;
-        }
+            if (iop < 1 || iop >= seg.Length - 2)
+              throw new ConfigException(StringConsts.CONFIGURATION_PATH_VALUE_INDEXER_SYNTAX_ERROR.Args(path));
 
 
-       private ConfigNode doNavigate(string path, out bool required) //todo Use indexes on path and do not mutate it so no string copies are made
-       {
-          path = path.Trim();
+            var name = seg.Substring(0, iop);
+            var vstr = seg.Substring(iop + 1, seg.Length - iop - 2);
 
-          ConfigNode result = this;
-          required = false;
+            var ieq = vstr.IndexOf('=');
 
-          if (path.Length==0) return result;
-
-          if (path.StartsWith("!"))
-          {
-            required = true;
-            if (path.Length>1)
-             path = path.Substring(1);
+            if (ieq < 0 || ieq == 0 || ieq == vstr.Length - 1)
+              result = section.Children.FirstOrDefault(c =>
+                                c.IsSameName(name) &&
+                                vstr.EqualsIgnoreCase(c.Value))
+                             ?? m_Configuration.m_EmptySectionNode;
             else
-             path = string.Empty;
+            {
+              var atr = vstr.Substring(0, ieq);
+              var val = vstr.Substring(ieq + 1);
+
+              result = section.Children.FirstOrDefault(c =>
+                              c.IsSameName(name) &&
+                              val.EqualsIgnoreCase(c.AttrByName(atr).Value))
+                           ?? m_Configuration.m_EmptySectionNode;
+
+            }
           }
-
-
-          if (path.StartsWith("/") || path.StartsWith("\\"))
+          else
           {
-            if (path.Length>1)
-             path = path.Substring(1);
+            if (isAttr)
+              result = section.AttrByName(seg);
             else
-             path = string.Empty;
-
-            result = this.Configuration.Root;
+              result = section[seg];
           }
+        }//foreach segment
+      }
 
-          if (path.Length>0)
-          {
-              var segs = path.Split('/', '\\');
+      if (required && !result.Exists)
+        throw new ConfigException(StringConsts.CONFIGURATION_NAVIGATION_REQUIRED_ERROR.Args(path));
 
-              foreach(var s in segs)
-              {
-                   //20160319 DKh
-                   if (!result.Exists) break;
+      return result;
+    }
 
-                   var seg = s.Trim();
+    private string getValueFromMacroOrEnvVarOrNavigationWithCheck(string name)
+    {
+      try
+      {
+        return getValueFromMacroOrEnvVarOrNavigation(name);
+      }
+      catch (Exception error)
+      {
+        throw new ConfigException(string.Format(StringConsts.CONFIG_VARS_EVAL_ERROR, name ?? CoreConsts.NULL_STRING, error.ToMessageWithType()), error);
+      }
+    }
 
-                   if (seg=="..")
-                   {
-                        result = result.Parent;
-                        continue;
-                   }
+    private string getValueFromMacroOrEnvVarOrNavigation(string name)
+    {
+      const char CO = (char)0xab;
+      const char CC = (char)0xbb;
 
-                   if (!(result is ConfigSectionNode))
-                     throw new ConfigException(StringConsts.CONFIGURATION_PATH_SEGMENT_NOT_SECTION_ERROR.Args(seg, path));
+      if (string.IsNullOrWhiteSpace(name)) return string.Empty;
 
-                   var section = (ConfigSectionNode)result;
+      var MACRO_START = m_Configuration.Variable_MACRO_START;
 
-                   var isAttr = false;
-                   if (seg.StartsWith("$")) //attribute
-                   {
-                        seg = seg.Substring(1).Trim();
-                        isAttr = true;
-                   }
+      var midx = name.IndexOf(MACRO_START);
+      if ((midx < 0) ||
+          (midx + MACRO_START.Length >= name.Length)) return getValueFromEnvVarOrNavigation(name);
 
-                   if (seg.StartsWith("[")) //indexer like:   ../[0]  or  ../$[1] (attribute of section by index)
-                   {
-                        var icl = seg.LastIndexOf(']');
+      var macroSrc = CO + name.Substring(midx + MACRO_START.Length) + CC;
+      name = name.Substring(0, midx);
 
-                        if (icl<2)
-                            throw new ConfigException(StringConsts.CONFIGURATION_PATH_INDEXER_SYNTAX_ERROR.Args(path));
+      var value = getValueFromEnvVarOrNavigation(name);
+      var macro = new TokenParser(macroSrc, CO, CC)[0];
 
-                        var istr = seg.Substring(1, icl-1);
+      value = runMacro(value, macro);
 
-                        int idx;
-                        if (!int.TryParse(istr, out idx))
-                            throw new ConfigException(StringConsts.CONFIGURATION_PATH_INDEXER_ERROR.Args(path, istr));
-                        if (isAttr)
-                          result = section.AttrByIndex(idx);
-                        else
-                          result = section[idx];
-                   }
-                   else if (seg.EndsWith("]")) //value indexer like:   ../table[name=patient] (atr name=patient)   or  ../table[patient] (table node value=patient)
-                   {
-                        if (isAttr)
-                            throw new ConfigException(StringConsts.CONFIGURATION_PATH_VALUE_INDEXER_CAN_NOT_USE_WITH_ATTRS_ERROR.Args(path));
+      return value;
+    }
 
-                        var iop = seg.IndexOf('[');
+    private string getValueFromEnvVarOrNavigation(string name)
+    {
+      if (string.IsNullOrWhiteSpace(name)) return string.Empty;
 
-                        if (iop<1 || iop>=seg.Length-2)
-                            throw new ConfigException(StringConsts.CONFIGURATION_PATH_VALUE_INDEXER_SYNTAX_ERROR.Args(path));
+      var ENV_MOD = m_Configuration.Variable_ENV_MOD;
 
+      if (name.StartsWith(ENV_MOD))
+      {
+        name = name.Replace(ENV_MOD, string.Empty);
+        return m_Configuration.ResolveEnvironmentVar(name) ?? string.Empty;
+      }
+      else
+        return Navigate(name).Value ?? string.Empty;
+    }
 
-                        var name = seg.Substring(0, iop);
-                        var vstr = seg.Substring(iop+1, seg.Length - iop - 2);
+    private string runMacro(string value, TokenParser.Token macro)
+    {
+      var config = new MemoryConfiguration();
+      config.Create();
 
-                        var ieq = vstr.IndexOf('=');
-
-                        if (ieq<0 || ieq==0 || ieq==vstr.Length-1)
-                          result = section.Children.FirstOrDefault(c =>
-                                            c.IsSameName(name) &&
-                                            vstr.EqualsIgnoreCase( c.Value) )
-                                         ?? m_Configuration.m_EmptySectionNode;
-                        else
-                        {
-                            var atr = vstr.Substring(0, ieq);
-                            var val = vstr.Substring(ieq+1);
-
-                            result = section.Children.FirstOrDefault(c =>
-                                            c.IsSameName(name) &&
-                                            val.EqualsIgnoreCase(c.AttrByName(atr).Value) )
-                                         ?? m_Configuration.m_EmptySectionNode;
-
-                        }
-                   }
-                   else
-                   {
-                       if (isAttr)
-                          result = section.AttrByName(seg);
-                       else
-                          result = section[seg];
-                   }
-              }//foreach segment
-          }
-
-          if (required && !result.Exists)
-           throw new ConfigException(StringConsts.CONFIGURATION_NAVIGATION_REQUIRED_ERROR.Args(path));
-
-          return result;
-        }
-
-
-
-
-        private string getValueFromMacroOrEnvVarOrNavigationWithCheck(string name)
+      foreach (var key in macro.Keys)
+        if (key != null)
         {
-               try
-               {
-                    return getValueFromMacroOrEnvVarOrNavigation(name);
-               }
-               catch(Exception error)
-               {
-                    throw new ConfigException(string.Format(StringConsts.CONFIG_VARS_EVAL_ERROR, name ?? CoreConsts.NULL_STRING, error.ToMessageWithType()), error);
-               }
+          var attr = macro[key] as TokenParser.Token.Attribute;
+          if (attr != null)
+            config.Root.AddAttributeNode(attr.Name, attr.Value);
         }
-
-            private string getValueFromMacroOrEnvVarOrNavigation(string name)
-            {
-                const char CO = (char)0xab;
-                const char CC = (char)0xbb;
-
-                if (string.IsNullOrWhiteSpace(name)) return string.Empty;
-
-                var MACRO_START = m_Configuration.Variable_MACRO_START;
-
-                var midx = name.IndexOf(MACRO_START);
-                if ((midx<0)||
-                    (midx+MACRO_START.Length >= name.Length)) return getValueFromEnvVarOrNavigation(name);
-
-                var macroSrc = CO + name.Substring(midx + MACRO_START.Length) + CC;
-                name = name.Substring(0, midx);
-
-                var value = getValueFromEnvVarOrNavigation(name);
-                var macro = new TokenParser(macroSrc, CO, CC)[0];
-
-                value = runMacro(value, macro);
-
-                return value;
-            }
-
-            private string getValueFromEnvVarOrNavigation(string name)
-            {
-              if (string.IsNullOrWhiteSpace(name)) return string.Empty;
-
-                    var ENV_MOD = m_Configuration.Variable_ENV_MOD;
-
-                    if (name.StartsWith(ENV_MOD))
-                    {
-                      name = name.Replace(ENV_MOD, string.Empty);
-                      return m_Configuration.ResolveEnvironmentVar(name) ?? string.Empty;
-                    }
-                    else
-               return  Navigate(name).Value ?? string.Empty;
-            }
+      return m_Configuration.RunMacro(this, value, macro.Name, config.Root);
+    }
 
 
-            private string runMacro(string value, TokenParser.Token macro)
-            {
-               var config = new MemoryConfiguration();
-               config.Create();
+    private string replace(bool all, string line, string oldValue, string newValue, int idxStart)
+    {
+       if (all) return line.Replace(oldValue, newValue);
+       //replace first
+       var i = line.IndexOf(oldValue, idxStart);
+       if (i<0) return line;
 
-               foreach(var key in macro.Keys)
-                if (key!=null)
-                {
-                 var attr = macro[key] as TokenParser.Token.Attribute;
-                 if (attr!=null)
-                   config.Root.AddAttributeNode( attr.Name, attr.Value );
-                }
-               return m_Configuration.RunMacro(this, value, macro.Name, config.Root);
-            }
+       return line.Substring(0, i) + newValue + line.Substring(i + oldValue.Length);
+    }
 
+    private string replacePaths(bool all, string line, string oldValue, string newValue, int idxStart)
+    {
+      var start = idxStart;
+      while (true)
+      {
+        var idx = line.IndexOf(oldValue, start);
+        if (idx < 0) break;
+        var path = addPath(line.Substring(0, idx), newValue);
+        start = path.Length - 1;
+        path = addPath(path, line.Substring(idx + oldValue.Length));
 
+        line = path;
+        if (!all) break;
+      }
 
-            private string replacePaths(string line, string oldValue, string newValue)
-            {
-               var start = 0;
-               while(true)
-               {
-                 var idx = line.IndexOf(oldValue, start);
-                 if (idx<0) break;
-                 var path = addPath(line.Substring(0, idx), newValue);
-                     start = path.Length - 1;
-                     path = addPath(path, line.Substring(idx+oldValue.Length));
+      return line;
+    }
 
-                 line = path;
-               }
-
-               return line;
-            }
-
-            private string addPath(string p1, string p2)
-            {
-              p1 = p1.Trim();
-              p2 = p2.Trim();
+    private string addPath(string p1, string p2)
+    {
+      p1 = p1.Trim();
+      p2 = p2.Trim();
 
 
-              if (p1.Length==0) return p2;
-              if (p2.Length==0) return p1;
+      if (p1.Length == 0) return p2;
+      if (p2.Length == 0) return p1;
 
 
-              if (p1.EndsWith("\\", StringComparison.OrdinalIgnoreCase) ||
-                  p1.EndsWith("/", StringComparison.OrdinalIgnoreCase))
-              {
-               if (p1.Length>1)
-                p1 = p1.Remove(p1.Length-1);
-               else
-                p1 = string.Empty;
-              }
+      if (p1.EndsWith("\\", StringComparison.OrdinalIgnoreCase) ||
+          p1.EndsWith("/", StringComparison.OrdinalIgnoreCase))
+      {
+        if (p1.Length > 1)
+          p1 = p1.Remove(p1.Length - 1);
+        else
+          p1 = string.Empty;
+      }
 
-              if (p2.StartsWith("\\", StringComparison.OrdinalIgnoreCase) ||
-                  p2.StartsWith("/", StringComparison.OrdinalIgnoreCase))
-              {
-               if (p2.Length>1)
-                p2 = p2.Remove(0, 1);
-               else
-                p2 = string.Empty;
-              }
+      if (p2.StartsWith("\\", StringComparison.OrdinalIgnoreCase) ||
+          p2.StartsWith("/", StringComparison.OrdinalIgnoreCase))
+      {
+        if (p2.Length > 1)
+          p2 = p2.Remove(0, 1);
+        else
+          p2 = string.Empty;
+      }
 
-              return p1 + System.IO.Path.DirectorySeparatorChar + p2;
-            }
-
-
+      return p1 + System.IO.Path.DirectorySeparatorChar + p2;
+    }
 
 
     #endregion
-
   }
+
 
   /// <summary>
   /// Represents an attribute of a attribute node
@@ -2073,47 +2010,51 @@ namespace Azos.Conf
   {
     #region .ctor
 
-        internal ConfigAttrNode(Configuration conf, ConfigSectionNode parent) : base(conf, parent)
-        {
+    internal ConfigAttrNode(Configuration conf, ConfigSectionNode parent) : base(conf, parent)
+    {
 
-        }
+    }
 
-        internal ConfigAttrNode(Configuration conf, ConfigSectionNode parent, string name, string value)
-          : base(conf, parent, name, value)
-        {
+    internal ConfigAttrNode(Configuration conf, ConfigSectionNode parent, string name, string value)
+      : base(conf, parent, name, value)
+    {
 
-        }
+    }
 
-        internal ConfigAttrNode(Configuration conf, ConfigSectionNode parent, IConfigAttrNode clone)
-          : base(conf, parent, clone)
-        {
+    internal ConfigAttrNode(Configuration conf, ConfigSectionNode parent, IConfigAttrNode clone)
+      : base(conf, parent, clone)
+    {
 
-        }
+    }
 
     #endregion
+
 
     #region Public
-      /// <summary>
-      /// Deletes this attribute from its parent
-      /// </summary>
-      public override void Delete()
+
+    /// <summary>
+    /// Deletes this attribute from its parent
+    /// </summary>
+    public override void Delete()
+    {
+      checkCanModify();
+      if (!Parent.Exists) return;//this is safeguard
+
+      lock (Parent.m_Attributes)
       {
-        checkCanModify();
-        if (!Parent.Exists) return;//this is safeguard
-
-        lock (Parent.m_Attributes)
-        {
-          Parent.m_Attributes.Remove(this);
-        }
-
-        Parent.m_Modified = true;
+        Parent.m_Attributes.Remove(this);
       }
+
+      Parent.m_Modified = true;
+    }
+
     #endregion
+
   }
 
 
+  [Serializable] internal class ConfigSectionNodeList : List<ConfigSectionNode> { }
 
-  [Serializable]internal class ConfigSectionNodeList : List<ConfigSectionNode> { }
-  [Serializable]internal class ConfigAttrNodeList : List<ConfigAttrNode> { }
+  [Serializable] internal class ConfigAttrNodeList : List<ConfigAttrNode> { }
 
 }

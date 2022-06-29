@@ -15,27 +15,6 @@ using Azos.Data.Idgen;
 namespace Azos.Sky.Identification
 {
   /// <summary>
-  /// Sets contract for hosting IGdidProvider as an app module
-  /// </summary>
-  public interface IGdidProviderModule : IModule
-  {
-    /// <summary>
-    /// Returns provider that generates GDIDs
-    /// </summary>
-    IGdidProvider Provider { get; }
-
-    /// <summary>
-    /// Returns ScopePrefix that gets appended  before the scope name. In most cases this property is null
-    /// </summary>
-    string ScopePrefix { get; }
-
-    /// <summary>
-    /// Returns ScopePrefix that gets appended  before the scope name. In most cases this property is null
-    /// </summary>
-    string SequencePrefix { get; }
-  }
-
-  /// <summary>
   /// Provides default implementation for GdidProviderModule which uses GdidGenerator with remote accessor or LocalGdidGenerator
   /// </summary>
   public sealed class GdidProviderModule : ModuleBase, IGdidProviderModule

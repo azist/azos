@@ -6,7 +6,6 @@
 
 using System.Collections.Generic;
 
-
 namespace Azos.Data.Access
 {
   /// <summary>
@@ -71,15 +70,14 @@ namespace Azos.Data.Access
       DisposeAndNull(ref m_Enumerator);
     }
 
-    protected IEnumerable<Doc>  m_Source;
-    protected enumerator  m_Enumerator;
-
+    protected IEnumerable<Doc> m_Source;
+    protected enumerator m_Enumerator;
 
     public virtual IEnumerator<Doc> GetEnumerator()
     {
       EnsureObjectNotDisposed();
 
-      if (m_Enumerator!=null) throw new DataAccessException(StringConsts.CRUD_CURSOR_ALREADY_ENUMERATED_ERROR);
+      if (m_Enumerator != null) throw new DataAccessException(StringConsts.CRUD_CURSOR_ALREADY_ENUMERATED_ERROR);
 
       m_Enumerator = new enumerator(this, m_Source.GetEnumerator());
       return m_Enumerator;
@@ -97,7 +95,7 @@ namespace Azos.Data.Access
   /// </summary>
   public sealed class PassthroughCursor : Cursor
   {
-    public PassthroughCursor(IEnumerable<Doc> source) : base(source){ }
+    public PassthroughCursor(IEnumerable<Doc> source) : base(source) { }
   }
 
 }

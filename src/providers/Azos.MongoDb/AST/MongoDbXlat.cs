@@ -8,14 +8,14 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Text;
+using System.Linq;
+using System.Collections;
 
 using Azos.Conf;
 using QDoc = Azos.Data.Access.MongoDb.Connector.Query;
 using Azos.Serialization.BSON;
 using Azos.Data.Access.MongoDb;
-using System.Linq;
 using Azos.Serialization.JSON;
-using System.Collections;
 
 namespace Azos.Data.AST
 {
@@ -41,7 +41,7 @@ namespace Azos.Data.AST
 
 
     /// <summary>
-    /// Translates root AST expression for ORACLE RDBMS
+    /// Translates root AST expression for Mongo Db
     /// </summary>
     public override MongoDbXlatContext TranslateInContext(Expression expression)
     {

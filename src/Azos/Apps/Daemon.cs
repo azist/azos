@@ -21,7 +21,9 @@ namespace Azos.Apps
   public abstract class Daemon : ApplicationComponent, IDaemon, ILocalizedTimeProvider
   {
     #region CONSTS
+
     public const string CONFIG_NAME_ATTR = "name";
+
     #endregion
 
     #region .ctor
@@ -40,6 +42,7 @@ namespace Azos.Apps
 
       base.Destructor();
     }
+
     #endregion
 
     #region Private Fields
@@ -64,17 +67,12 @@ namespace Azos.Apps
     /// Default implementation checks whether it is decorated with ApplicationDontAutoStartDaemonAttribute
     /// </summary>
     public virtual bool ApplicationDontAutoStartDaemon
-    {
-      get{ return Attribute.IsDefined(GetType(), typeof(ApplicationDontAutoStartDaemonAttribute));}
-    }
+      => Attribute.IsDefined(GetType(), typeof(ApplicationDontAutoStartDaemonAttribute));
 
     /// <summary>
     /// Current daemon operational status: Inactive, Running etc...
     /// </summary>
-    public DaemonStatus Status
-    {
-        get { return m_Status; }
-    }
+    public DaemonStatus Status => m_Status;
 
     /// <summary>
     /// Provides short textual service description which is typically used by hosting apps
@@ -122,11 +120,7 @@ namespace Azos.Apps
     /// <summary>
     /// Returns current time localized per TimeLocation
     /// </summary>
-    public DateTime LocalizedTime
-    {
-      get { return UniversalTimeToLocalizedTime(App.TimeSource.UTCNow); }
-    }
-
+    public DateTime LocalizedTime => UniversalTimeToLocalizedTime(App.TimeSource.UTCNow);
 
     #endregion
 
@@ -163,21 +157,23 @@ namespace Azos.Apps
     {
       EnsureObjectNotDisposed();
       lock (m_StatusLock)
-          if (m_Status == DaemonStatus.Inactive)
-          {
-              m_Status = DaemonStatus.Starting;
-              try
-              {
-                Behavior.ApplyBehaviorAttributes(this);
-                DoStart();
-                m_Status = DaemonStatus.Active;
-              }
-              catch
-              {
-                m_Status = DaemonStatus.Inactive;
-                throw;
-              }
-          }
+      {
+        if (m_Status == DaemonStatus.Inactive)
+        {
+            m_Status = DaemonStatus.Starting;
+            try
+            {
+              Behavior.ApplyBehaviorAttributes(this);
+              DoStart();
+              m_Status = DaemonStatus.Active;
+            }
+            catch
+            {
+              m_Status = DaemonStatus.Inactive;
+              throw;
+            }
+        }
+      }
     }
 
     /// <summary>
@@ -186,13 +182,14 @@ namespace Azos.Apps
     public void SignalStop()
     {
       lock (m_StatusLock)
-          if (m_Status == DaemonStatus.Active)
-          {
-              m_Status = DaemonStatus.Stopping;
-              DoSignalStop();
-          }
+      {
+        if (m_Status == DaemonStatus.Active)
+        {
+          m_Status = DaemonStatus.Stopping;
+          DoSignalStop();
+        }
+      }
     }
-
 
     /// <summary>
     /// Non-blocking call that returns true when the daemon instance has completely stopped after SignalStop()
@@ -201,12 +198,12 @@ namespace Azos.Apps
     {
       lock (m_StatusLock)
       {
-          if (m_Status == DaemonStatus.Inactive) return true;
+        if (m_Status == DaemonStatus.Inactive) return true;
 
-          if (m_Status == DaemonStatus.Stopping)
-              return DoCheckForCompleteStop();
-          else
-              return false;
+        if (m_Status == DaemonStatus.Stopping)
+            return DoCheckForCompleteStop();
+        else
+            return false;
       }
     }
 
@@ -237,7 +234,6 @@ namespace Azos.Apps
           m_Status = DaemonStatus.Inactive;
       }
     }
-
 
     /// <summary>
     /// Accepts a visit of a manager entity - this call is useful for periodic updates of daemon status,
@@ -297,9 +293,7 @@ namespace Azos.Apps
     }
 
     public override string ToString()
-    {
-      return "Daemon {0}('{1}' @{2})".Args(GetType().DisplayNameWithExpandedGenericArgs(), Name, ComponentSID);
-    }
+      => "Daemon {0}('{1}' @{2})".Args(GetType().DisplayNameWithExpandedGenericArgs(), Name, ComponentSID);
 
     #endregion
 
@@ -339,9 +333,7 @@ namespace Azos.Apps
     /// Provides implementation for checking whether the daemon has completely stopped
     /// </summary>
     protected virtual bool DoCheckForCompleteStop()
-    {
-        return m_Status == DaemonStatus.Inactive;
-    }
+      => m_Status == DaemonStatus.Inactive;
 
     /// <summary>
     /// Provides implementation for a blocking call that returns only after a complete daemon stop
@@ -349,7 +341,6 @@ namespace Azos.Apps
     protected virtual void DoWaitForCompleteStop()
     {
     }
-
 
     /// <summary>
     /// Provides implementation that configures daemon from configuration node (and possibly it's sub-nodes)
@@ -367,7 +358,6 @@ namespace Azos.Apps
         if (m_Status!=DaemonStatus.Active && m_Status!=DaemonStatus.Starting)
         throw new AzosException(StringConsts.DAEMON_INVALID_STATE + Name);
     }
-
 
     /// <summary>
     /// Checks that daemon is not active and returns the passed variable throwing otherwise. Used for one line property setters
@@ -405,6 +395,7 @@ namespace Azos.Apps
     {
 
     }
+
     #endregion
   }
 

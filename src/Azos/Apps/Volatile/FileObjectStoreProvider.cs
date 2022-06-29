@@ -12,7 +12,6 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Threading;
 
-
 using Azos.Log;
 using Azos.Conf;
 using Azos.Serialization;
@@ -23,7 +22,7 @@ namespace Azos.Apps.Volatile
   /// <summary>
   /// Format of files on disk
   /// </summary>
-  public enum FileObjectFormat {Slim = 0, MSBinary }
+  public enum FileObjectFormat { Slim = 0, MSBinary }
 
 
   /// <summary>
@@ -33,314 +32,289 @@ namespace Azos.Apps.Volatile
   {
     #region CONSTS
 
-        public const string FROM = "FileObjectStoreProvider";
+    public const string FROM = "FileObjectStoreProvider";
 
-        public const string CONFIG_LOAD_LIMIT_ATTR = "load-limit";
-        public const string CONFIG_ROOT_PATH_ATTR = "root-path";
-        public const string CONFIG_FORMAT_ATTR = "format";
+    public const string CONFIG_LOAD_LIMIT_ATTR = "load-limit";
+    public const string CONFIG_ROOT_PATH_ATTR = "root-path";
+    public const string CONFIG_FORMAT_ATTR = "format";
 
-        public const string CONFIG_KNOWN_TYPES_SECTION = "known-types";
-        public const string CONFIG_KNOWN_SECTION = "known";
-        public const string CONFIG_TYPE_ATTR = "type";
+    public const string CONFIG_KNOWN_TYPES_SECTION = "known-types";
+    public const string CONFIG_KNOWN_SECTION = "known";
+    public const string CONFIG_TYPE_ATTR = "type";
 
-        public const long MAX_LOAD_LIMIT = 8L/*gb*/ * 1024/*mb*/ * 1024/*k bytes */ * 1024/*bytes*/;
-        public const long DEFAULT_LOAD_LIMIT = 512/*mb*/ * 1024/*k bytes */ * 1024/*bytes*/;
-
+    public const long MAX_LOAD_LIMIT = 8L/*gb*/ * 1024/*mb*/ * 1024/*k bytes */ * 1024/*bytes*/;
+    public const long DEFAULT_LOAD_LIMIT = 512/*mb*/ * 1024/*k bytes */ * 1024/*bytes*/;
 
     #endregion
 
-
     #region .ctor
+
     public FileObjectStoreProvider(ObjectStoreDaemon director) : base(director)
     {
     }
+
     #endregion
 
     #region Private Fields
 
-        private FileObjectFormat m_Format;
-        private ISerializer m_Serializer;
+    private FileObjectFormat m_Format;
+    private ISerializer m_Serializer;
 
-        private List<string> m_KnownTypes = new List<string>();
+    private List<string> m_KnownTypes = new List<string>();
 
-
-        private long m_LoadLimit;
-        private string m_RootPath;
-        private long m_LoadSize;
-
+    private long m_LoadLimit;
+    private string m_RootPath;
+    private long m_LoadSize;
 
     #endregion
-
 
     #region Properties
 
-        /// <summary>
-        /// Returns file format used for serialization/deserialization into/from files
-        /// </summary>
-        public FileObjectFormat Format
-        {
-          get { return m_Format; }
-        }
+    /// <summary>
+    /// Returns file format used for serialization/deserialization into/from files
+    /// </summary>
+    public FileObjectFormat Format
+    {
+      get { return m_Format; }
+    }
 
+    /// <summary>
+    /// Imposes the limit on number of bytes that can be read from disk on load all.
+    /// Once limit is exceeded the rest of objects will not load.
+    /// Provider loads most recent objects first
+    /// </summary>
+    public long LoadLimit
+    {
+      get { return m_LoadLimit; }
+      set
+      {
+        if (value > MAX_LOAD_LIMIT)
+          value = MAX_LOAD_LIMIT;
+        m_LoadLimit = value;
+      }
+    }
 
+    /// <summary>
+    /// Returns how many bytes have been loaded from disk
+    /// </summary>
+    public long LoadSize
+    {
+      get { return m_LoadSize; }
+    }
 
-        /// <summary>
-        /// Imposes the limit on number of bytes that can be read from disk on load all.
-        /// Once limit is exceeded the rest of objects will not load.
-        /// Provider loads most recent objects first
-        /// </summary>
-        public long LoadLimit
-        {
-          get { return m_LoadLimit; }
-          set
-          {
-            if (value > MAX_LOAD_LIMIT)
-              value = MAX_LOAD_LIMIT;
-            m_LoadLimit = value;
-          }
-        }
+    /// <summary>
+    /// Gets/sets the root path where objects are stored
+    /// </summary>
+    public string RootPath
+    {
+      get { return m_RootPath ?? string.Empty; }
+      set
+      {
+        if (Status != DaemonStatus.Inactive)
+          throw new AzosException(StringConsts.DAEMON_INVALID_STATE + "FileObjectStoreProvider.Path.set()");
 
-        /// <summary>
-        /// Returns how many bytes have been loaded from disk
-        /// </summary>
-        public long LoadSize
-        {
-          get { return m_LoadSize; }
-        }
+        checkPath(value);
 
-
-
-        /// <summary>
-        /// Gets/sets the root path where objects are stored
-        /// </summary>
-        public string RootPath
-        {
-          get { return m_RootPath ?? string.Empty; }
-          set
-          {
-            if (Status != DaemonStatus.Inactive)
-              throw new AzosException(StringConsts.DAEMON_INVALID_STATE + "FileObjectStoreProvider.Path.set()");
-
-            checkPath(value);
-
-            m_RootPath = value;
-          }
-        }
+        m_RootPath = value;
+      }
+    }
 
     #endregion
-
-
-
 
     #region Public
 
-        public override IEnumerable<ObjectStoreEntry> LoadAll()
+    public override IEnumerable<ObjectStoreEntry> LoadAll()
+    {
+      var now = App.LocalizedTime;
+      var clock = Stopwatch.StartNew();
+      long priorLoadSize = 0;
+
+      var tasks = new Task<ObjectStoreEntry>[System.Environment.ProcessorCount];
+
+      var serializer = getSerializer();
+      foreach (var fname in getStorePath().AllFileNames(true))
+      {
+        var fi = new FileInfo(fname);
+        if ((now - fi.LastWriteTime).TotalMilliseconds > ComponentDirector.ObjectLifeSpanMS) continue;//dont need to read
+
+        if (m_LoadLimit > 0 && m_LoadSize > m_LoadLimit)
         {
-          var now = App.LocalizedTime;
-          var clock = Stopwatch.StartNew();
-          long priorLoadSize = 0;
+          WriteLog(MessageType.Info, FROM, "Load limit imposed:" + m_LoadLimit.ToString() + " bytes");
+          break;
+        }
 
-          var tasks = new Task<ObjectStoreEntry>[System.Environment.ProcessorCount];
-
-          var serializer = getSerializer();
-          foreach (var fname in getStorePath().AllFileNames(true))
+        var assigned = false;
+        while (!assigned)
+          for (int i = 0; i < tasks.Length; i++)
           {
-            var fi = new FileInfo(fname);
-            if ( (now - fi.LastWriteTime).TotalMilliseconds > ComponentDirector.ObjectLifeSpanMS) continue;//dont need to read
-
-            if (m_LoadLimit > 0 && m_LoadSize > m_LoadLimit)
+            var task = tasks[i];
+            if (task == null)
             {
-              WriteLog(MessageType.Info, FROM, "Load limit imposed:" + m_LoadLimit.ToString() + " bytes");
+              var file = fname;//C# lambda closure
+              tasks[i] = Task.Factory.StartNew(() => readFile(file, serializer, now, ref priorLoadSize, clock));
+              assigned = true;
               break;
             }
 
-            var assigned = false;
-            while(!assigned)
-                for(int i=0; i<tasks.Length; i++)
-                {
-                  var task = tasks[i];
-                  if (task==null)
-                  {
-                    var file = fname;//C# lambda closure
-                    tasks[i] = Task.Factory.StartNew( () => readFile(file, serializer, now, ref priorLoadSize, clock) );
-                    assigned = true;
-                    break;
-                  }
-
-                  if (task.IsCompleted)
-                  {
-                    tasks[i] = null;
-                    if (task.Result!=null)
-                     yield return task.Result;
-                  }
-                }
+            if (task.IsCompleted)
+            {
+              tasks[i] = null;
+              if (task.Result != null)
+                yield return task.Result;
+            }
           }
+      }
 
-          foreach(var task in tasks)
-           if (task!=null)
-            if (task.Result!=null)//20130715 DKh
-              yield return task.Result;
+      foreach (var task in tasks)
+        if (task != null)
+          if (task.Result != null)//20130715 DKh
+            yield return task.Result;
 
-          clock.Stop();
-        }
+      clock.Stop();
+    }
 
-        public override void Write(ObjectStoreEntry entry)
-        {
-          using (var fs = new FileStream(getFileName(entry), FileMode.Create))
-          {
-             m_Serializer.Serialize(fs, entry.Value);
-          }
-        }
+    public override void Write(ObjectStoreEntry entry)
+    {
+      using (var fs = new FileStream(getFileName(entry), FileMode.Create))
+      {
+        m_Serializer.Serialize(fs, entry.Value);
+      }
+    }
 
-        public override void Delete(ObjectStoreEntry entry)
-        {
-          File.Delete(getFileName(entry));
-        }
-
+    public override void Delete(ObjectStoreEntry entry)
+    {
+      File.Delete(getFileName(entry));
+    }
 
     #endregion
 
-
     #region Protected
 
-        protected override void DoConfigure(IConfigSectionNode node)
-        {
-          base.DoConfigure(node);
-          LoadLimit = node.AttrByName(CONFIG_LOAD_LIMIT_ATTR).ValueAsLong(DEFAULT_LOAD_LIMIT);
-          RootPath = node.AttrByName(CONFIG_ROOT_PATH_ATTR).ValueAsString();
-          m_Format = node.AttrByName(CONFIG_FORMAT_ATTR).ValueAsEnum<FileObjectFormat>(FileObjectFormat.Slim);
+    protected override void DoConfigure(IConfigSectionNode node)
+    {
+      base.DoConfigure(node);
+      LoadLimit = node.AttrByName(CONFIG_LOAD_LIMIT_ATTR).ValueAsLong(DEFAULT_LOAD_LIMIT);
+      RootPath = node.AttrByName(CONFIG_ROOT_PATH_ATTR).ValueAsString();
+      m_Format = node.AttrByName(CONFIG_FORMAT_ATTR).ValueAsEnum<FileObjectFormat>(FileObjectFormat.Slim);
 
-          foreach(var cn in  node[CONFIG_KNOWN_TYPES_SECTION].Children.Where(cn => cn.IsSameName(CONFIG_KNOWN_SECTION)))
-          {
-            var tn = cn.AttrByName(CONFIG_TYPE_ATTR).ValueAsString(CoreConsts.UNKNOWN);
-            m_KnownTypes.Add( tn );
-          }
-        }
+      foreach (var cn in node[CONFIG_KNOWN_TYPES_SECTION].Children.Where(cn => cn.IsSameName(CONFIG_KNOWN_SECTION)))
+      {
+        var tn = cn.AttrByName(CONFIG_TYPE_ATTR).ValueAsString(CoreConsts.UNKNOWN);
+        m_KnownTypes.Add(tn);
+      }
+    }
 
+    protected override void DoStart()
+    {
+      checkPath(m_RootPath);
 
-        protected override void DoStart()
-        {
-          checkPath(m_RootPath);
+      base.DoStart();
 
-          base.DoStart();
+      m_LoadSize = 0;
 
-          m_LoadSize = 0;
-
-          m_Serializer = getSerializer();
-        }
-
-
+      m_Serializer = getSerializer();
+    }
 
     #endregion
 
 
     #region .pvt .utils
 
-        private ISerializer getSerializer()
+    private ISerializer getSerializer()
+    {
+      if (m_Format != FileObjectFormat.Slim)
+      {
+        return new MSBinaryFormatter();
+      }
+
+
+      var treg = new TypeRegistry(TypeRegistry.CommonCollectionTypes,
+                                            TypeRegistry.BoxedCommonTypes,
+                                            TypeRegistry.BoxedCommonNullableTypes);
+
+      foreach (var tn in m_KnownTypes)
+      {
+        var t = Type.GetType(tn, false);
+        if (t != null)
+          treg.Add(t);
+        else
+          WriteLog(MessageType.Warning, "getSerializer(slim)", "Specified known type could not be found: " + tn);
+      }
+      return new SlimSerializer(treg);
+    }
+
+    private ObjectStoreEntry readFile(string fname, ISerializer serializer, DateTime now, ref long priorLoadSize, Stopwatch clock)
+    {
+      using (var fs = new FileStream(fname, FileMode.Open))//, FileAccess.Read, FileShare.Read, 64*1024, FileOptions.SequentialScan))
+      {
+
+        var entry = new ObjectStoreEntry();
+        try
         {
-          if (m_Format!=FileObjectFormat.Slim)
-          {
-            return new MSBinaryFormatter();
-          }
-
-
-          var treg = new TypeRegistry(TypeRegistry.CommonCollectionTypes,
-                                                TypeRegistry.BoxedCommonTypes,
-                                                TypeRegistry.BoxedCommonNullableTypes);
-
-          foreach(var tn in m_KnownTypes)
-          {
-            var t = Type.GetType(tn, false);
-            if (t!=null)
-             treg.Add(t);
-            else
-             WriteLog(MessageType.Warning, "getSerializer(slim)", "Specified known type could not be found: " + tn);
-          }
-          return  new SlimSerializer(treg);
+          entry.Value = serializer.Deserialize(fs);
+        }
+        catch (Exception error)
+        {
+          WriteLog(MessageType.Error, FROM, "Deserialization error in file '{0}': {1}".Args(fname, error.Message));
+          return null;
         }
 
+        Interlocked.Add(ref m_LoadSize, fs.Length);
 
-        private ObjectStoreEntry readFile(string fname, ISerializer serializer, DateTime now, ref long priorLoadSize, Stopwatch clock)
+        if (m_LoadSize - priorLoadSize > 32 * 1024 * 1024)
         {
-            using (var fs = new FileStream(fname, FileMode.Open))//, FileAccess.Read, FileShare.Read, 64*1024, FileOptions.SequentialScan))
-            {
-
-              var entry = new ObjectStoreEntry();
-              try
-              {
-                entry.Value = serializer.Deserialize(fs);
-              }
-              catch (Exception error)
-              {
-                WriteLog(MessageType.Error, FROM, "Deserialization error in file '{0}': {1}".Args(fname, error.Message));
-                return null;
-              }
-
-              Interlocked.Add( ref m_LoadSize, fs.Length);
-
-              if (m_LoadSize-priorLoadSize > 32*1024*1024)
-              {
-               WriteLog(MessageType.Info, FROM, "Loaded disk bytes {0} in {1}".Args(LoadSize, clock.Elapsed));
-               priorLoadSize = m_LoadSize;
-              }
-
-              entry.Key = getGUIDFromFileName(fname);
-              entry.LastTime = now;
-              entry.Status = ObjectStoreEntryStatus.Normal;
-
-              return entry;
-            }
+          WriteLog(MessageType.Info, FROM, "Loaded disk bytes {0} in {1}".Args(LoadSize, clock.Elapsed));
+          priorLoadSize = m_LoadSize;
         }
 
+        entry.Key = getGUIDFromFileName(fname);
+        entry.LastTime = now;
+        entry.Status = ObjectStoreEntryStatus.Normal;
 
-        private void checkPath(string path)
-        {
-          path = path ?? CoreConsts.UNKNOWN;
+        return entry;
+      }
+    }
 
-          if (!Directory.Exists(path))
-            throw new AzosException(StringConsts.OBJSTORESVC_PROVIDER_CONFIG_ERROR + "Bad path: " + path);
-        }
+    private void checkPath(string path)
+    {
+      path = path ?? CoreConsts.UNKNOWN;
 
+      if (!Directory.Exists(path))
+        throw new AzosException(StringConsts.OBJSTORESVC_PROVIDER_CONFIG_ERROR + "Bad path: " + path);
+    }
 
-        private string getStorePath()
-        {
-          var path = Path.Combine(m_RootPath, ComponentDirector.StoreGUID.ToString());
-          if (!Directory.Exists(path))
-            Directory.CreateDirectory(path);
+    private string getStorePath()
+    {
+      var path = Path.Combine(m_RootPath, ComponentDirector.StoreGUID.ToString());
+      if (!Directory.Exists(path))
+        Directory.CreateDirectory(path);
 
-          return path;
-        }
+      return path;
+    }
 
+    // storePath: c:\root
+    // Guid:      facaca23423434dada
+    // ->
+    //   c:\root\fa\ca\ca23423434dada.faca
+    private string getFileName(ObjectStoreEntry entry)
+    {
+      var key = entry.Key.ToString();
+      var path = Path.Combine(getStorePath(), key.Substring(0, 2), key.Substring(2, 2));
 
-        // storePath: c:\root
-        // Guid:      facaca23423434dada
-        // ->
-        //   c:\root\fa\ca\ca23423434dada.faca
-        private string getFileName(ObjectStoreEntry entry)
-        {
-          var key = entry.Key.ToString();
-          var path = Path.Combine(getStorePath(), key.Substring(0,2), key.Substring(2,2));
+      if (!Directory.Exists(path))
+        Directory.CreateDirectory(path);
 
-          if (!Directory.Exists(path))
-            Directory.CreateDirectory(path);
+      return Path.Combine(path, key.Substring(4) + '.' + key.Substring(0, 4));//for better file system tree balancing, first 4 chars moved as extension to the back
+    }
 
-          return Path.Combine(path, key.Substring(4)+'.'+key.Substring(0,4));//for better file system tree balancing, first 4 chars moved as extension to the back
-        }
+    private Guid getGUIDFromFileName(string fname)
+    {
+      var str = Path.GetExtension(fname).Substring(1) + Path.GetFileNameWithoutExtension(fname); //reconstruct GUID from file name ext+name
 
-
-        private Guid getGUIDFromFileName(string fname)
-        {
-          var str = Path.GetExtension(fname).Substring(1) + Path.GetFileNameWithoutExtension(fname); //reconstruct GUID from file name ext+name
-
-          return new Guid(str);
-        }
-
-
+      return new Guid(str);
+    }
 
     #endregion
 
-
   }
-
-
 }

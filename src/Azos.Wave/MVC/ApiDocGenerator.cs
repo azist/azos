@@ -15,6 +15,7 @@ using Azos.Conf;
 using Azos.Security;
 using Azos.Text;
 using Azos.Data;
+using Azos.Serialization.Bix;
 
 namespace Azos.Wave.Mvc
 {
@@ -84,6 +85,7 @@ namespace Azos.Wave.Mvc
           var asm = Assembly.LoadFrom(AssemblyName);
           return asm.GetTypes().Where(t => !t.IsAbstract &&
                                             t.IsSubclassOf(typeof(Controller)) &&
+                                            t.GetCustomAttribute<NoApiDoc>(false) == null &&
                                             t.Namespace.MatchPattern(Namespace)).ToArray();
         }
       }
@@ -140,9 +142,10 @@ namespace Azos.Wave.Mvc
     public string DefaultDataTargetName { get; set; }
 
     /// <summary>
-    /// An optional callback used by GetSchemaDataTargetName()
+    /// An optional callback used by GetSchemaDataTargetName().
+    /// Return a tuple: `(string name, bool useFieldNames)` true to use targeted field backend names
     /// </summary>
-    public Func<Schema, IDataDoc, string> SchemaDataTargetNameCallback { get; set;}
+    public Func<Schema, IDataDoc, (string name, bool useFieldNames)> SchemaDataTargetNameCallback { get; set;}
 
 
     /// <summary>
@@ -151,11 +154,11 @@ namespace Azos.Wave.Mvc
     /// This mechanism is used to get proper target names in call context, for example
     /// you may need to get a different metadata depending on a call context such as Session.DataContextName etc.
     /// </summary>
-    public virtual string GetSchemaDataTargetName(Schema schema, IDataDoc instance)
+    public virtual (string name, bool useFieldNames) GetSchemaDataTargetName(Schema schema, IDataDoc instance)
     {
       var callback = SchemaDataTargetNameCallback;
 
-      return callback==null ? DefaultDataTargetName
+      return callback==null ? (DefaultDataTargetName, false)
                             : callback(schema, instance);
     }
 
@@ -279,12 +282,15 @@ namespace Azos.Wave.Mvc
     }
 
     public virtual ConfigSectionNode MakeConfig() => Configuration.NewEmptyRoot(GetType().Name);
-    public virtual bool FilterControllerType(Type tController, ApiControllerDocAttribute attr) => !tController.IsAbstract && attr != null;
+
+    public virtual bool FilterControllerType(Type tController, ApiControllerDocAttribute attr)
+      => !tController.IsAbstract && attr != null && tController.GetCustomAttribute<NoApiDoc>(false) == null;
+
     public virtual object OrderControllerType(Type tController, ApiControllerDocAttribute attr) => attr.BaseUri;
 
     public virtual IEnumerable<EndpointContext> GetApiMethods(Type tController, ApiControllerDocAttribute attr)
      => tController.GetMethods(BindingFlags.Instance | BindingFlags.Public)
-                   .Where(mi => mi.GetCustomAttribute<ApiEndpointDocAttribute>()!=null)
+                   .Where(mi => mi.GetCustomAttribute<ApiEndpointDocAttribute>() != null && mi.GetCustomAttribute<NoApiDoc>(false) == null)
                    .Select(mi => new EndpointContext(this, tController, attr, mi.GetCustomAttribute<ApiEndpointDocAttribute>(), mi));
 
     public virtual void PopulateController(ConfigSectionNode data, Type ctlType, ApiControllerDocAttribute ctlAttr)

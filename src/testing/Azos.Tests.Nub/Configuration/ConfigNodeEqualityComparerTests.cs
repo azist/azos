@@ -237,12 +237,12 @@ namespace Azos.Tests.Nub.Configuration
           Type = person
           has-drive-license = 1
         }";
-        var root1 = Azos.Conf.LaconicConfiguration.CreateFromString(conf1).Root;
-        var root2 = Azos.Conf.LaconicConfiguration.CreateFromString(conf2).Root;
-        Aver.IsTrue(ConfigNodeEqualityComparer.Instance.Equals(root1, root1));
-        Aver.IsTrue(ConfigNodeEqualityComparer.Instance.Equals(root2, root2));
-        Aver.IsTrue(ConfigNodeEqualityComparer.Instance.Equals(root1, root2));
-        Aver.IsTrue(ConfigNodeEqualityComparer.Instance.Equals(root2, root1));
+      var root1 = Azos.Conf.LaconicConfiguration.CreateFromString(conf1).Root;
+      var root2 = Azos.Conf.LaconicConfiguration.CreateFromString(conf2).Root;
+      Aver.IsTrue(ConfigNodeEqualityComparer.Instance.Equals(root1, root1));
+      Aver.IsTrue(ConfigNodeEqualityComparer.Instance.Equals(root2, root2));
+      Aver.IsTrue(ConfigNodeEqualityComparer.Instance.Equals(root1, root2));
+      Aver.IsTrue(ConfigNodeEqualityComparer.Instance.Equals(root2, root1));
     }
 
     [Run]
@@ -280,36 +280,36 @@ namespace Azos.Tests.Nub.Configuration
           Type = person
           has-drive-license = 1
         }";
-        var root1 = Azos.Conf.LaconicConfiguration.CreateFromString(conf1).Root;
-        var root2 = Azos.Conf.LaconicConfiguration.CreateFromString(conf2).Root;
-        var hash1 = ConfigNodeEqualityComparer.Instance.GetHashCode(root1);
-        var hash2 = ConfigNodeEqualityComparer.Instance.GetHashCode(root2);
-        Aver.AreEqual(hash1, hash2);
+      var root1 = Azos.Conf.LaconicConfiguration.CreateFromString(conf1).Root;
+      var root2 = Azos.Conf.LaconicConfiguration.CreateFromString(conf2).Root;
+      var hash1 = ConfigNodeEqualityComparer.Instance.GetHashCode(root1);
+      var hash2 = ConfigNodeEqualityComparer.Instance.GetHashCode(root2);
+      Aver.AreEqual(hash1, hash2);
 
-        var hashOfNull = ConfigNodeEqualityComparer.Instance.GetHashCode(null);
-        Aver.AreEqual(hashOfNull, hashOfNull);
+      var hashOfNull = ConfigNodeEqualityComparer.Instance.GetHashCode(null);
+      Aver.AreEqual(hashOfNull, hashOfNull);
 
-        root1 = Azos.Conf.LaconicConfiguration.CreateFromString("root { }").Root;
-        root2 = Azos.Conf.LaconicConfiguration.CreateFromString("rOOt { }").Root;
-        hash1 = ConfigNodeEqualityComparer.Instance.GetHashCode(root1);
-        hash2 = ConfigNodeEqualityComparer.Instance.GetHashCode(root2);
-        Aver.AreEqual(hash1, hash2);
+      root1 = Azos.Conf.LaconicConfiguration.CreateFromString("root { }").Root;
+      root2 = Azos.Conf.LaconicConfiguration.CreateFromString("rOOt { }").Root;
+      hash1 = ConfigNodeEqualityComparer.Instance.GetHashCode(root1);
+      hash2 = ConfigNodeEqualityComparer.Instance.GetHashCode(root2);
+      Aver.AreEqual(hash1, hash2);
 
-        root2 = Azos.Conf.LaconicConfiguration.CreateFromString("root=people { }").Root;
-        hash2 = ConfigNodeEqualityComparer.Instance.GetHashCode(root2);
-        Aver.AreNotEqual(hash1, hash2);
+      root2 = Azos.Conf.LaconicConfiguration.CreateFromString("root=people { }").Root;
+      hash2 = ConfigNodeEqualityComparer.Instance.GetHashCode(root2);
+      Aver.AreNotEqual(hash1, hash2);
 
-        var sectionNode = root1["details"];
-        hash1 = ConfigNodeEqualityComparer.Instance.GetHashCode(sectionNode);
-        Aver.AreEqual(hash1, hashOfNull);
+      var sectionNode = root1["details"];
+      hash1 = ConfigNodeEqualityComparer.Instance.GetHashCode(sectionNode);
+      Aver.AreEqual(hash1, hashOfNull);
 
-        var attrNode = root1.AttrByIndex(0);
-        hash1 = ConfigNodeEqualityComparer.Instance.GetHashCode(attrNode);
-        Aver.AreEqual(hash1, hashOfNull);
+      var attrNode = root1.AttrByIndex(0);
+      hash1 = ConfigNodeEqualityComparer.Instance.GetHashCode(attrNode);
+      Aver.AreEqual(hash1, hashOfNull);
 
-        attrNode = root1.AttrByName("type");
-        hash1 = ConfigNodeEqualityComparer.Instance.GetHashCode(attrNode);
-        Aver.AreEqual(hash1, hashOfNull);
+      attrNode = root1.AttrByName("type");
+      hash1 = ConfigNodeEqualityComparer.Instance.GetHashCode(attrNode);
+      Aver.AreEqual(hash1, hashOfNull);
     }
   }
 }

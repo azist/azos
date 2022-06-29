@@ -4,11 +4,12 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using Azos.Conf;
-using Azos.Instrumentation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
+using Azos.Conf;
+using Azos.Instrumentation;
 
 namespace Azos.Apps
 {
@@ -46,19 +47,16 @@ namespace Azos.Apps
     /// </summary>
     string ComponentCommonName { get; }
 
-
     /// <summary>
     /// Sets the log level for this component, if not defined then the component logger uses the director/log level
     /// via the ComponentEffectiveLogLevel property
     /// </summary>
     Log.MessageType? ComponentLogLevel { get; set; }
 
-
     /// <summary>
     /// Determines the effective log level for this component, taking it from director if it is not defined on this level
     /// </summary>
     Azos.Log.MessageType ComponentEffectiveLogLevel { get; }
-
 
     /// <summary>
     /// Returns  value for "Topic" log message field
@@ -81,7 +79,6 @@ namespace Azos.Apps
   }
 
 
-
   /// <summary>
   /// An abstraction of a disposable application component - major implementation/functionality part of any app.
   /// Components logically subdivide application chassis so their instances may be discovered
@@ -93,6 +90,7 @@ namespace Azos.Apps
   public abstract class ApplicationComponent : DisposableObject, IApplicationComponent
   {
     #region .ctor
+
     protected ApplicationComponent(IApplication application) : this(application, null)
     {
     }
@@ -144,10 +142,10 @@ namespace Azos.Apps
       }
     }
 
-
     #endregion
 
     #region Private Fields
+
     private static ulong s_SIDSeed;
     private static Dictionary<IApplication, Dictionary<ulong, ApplicationComponent>> s_Instances = new Dictionary<IApplication, Dictionary<ulong, ApplicationComponent>>();
 
@@ -155,9 +153,11 @@ namespace Azos.Apps
     private readonly DateTime m_ComponentStartTime;
     private readonly ulong m_ComponentSID;
     private IApplicationComponent m_ComponentDirector;
+
     #endregion
 
     #region Properties
+
     /// <summary>
     /// Returns a thread-safe enumerable( a snapshot) of all known component instances
     /// </summary>
@@ -181,7 +181,6 @@ namespace Azos.Apps
         if (dict == null) return null;
         if (dict.TryGetValue(sid, out var result)) return result;
       }
-
       return null;
     }
 
@@ -206,7 +205,6 @@ namespace Azos.Apps
       }
     }
 
-
     /// <summary>
     /// References application that this component services
     /// </summary>
@@ -216,7 +214,6 @@ namespace Azos.Apps
     /// Returns process/instance unique app component system id
     /// </summary>
     public ulong ComponentSID => m_ComponentSID;
-
 
     /// <summary>
     /// Returns local computer time of component start (not from application container time)
@@ -250,12 +247,7 @@ namespace Azos.Apps
     /// Determines the effective log level for this component, taking it from director if it is not defined on this level
     /// </summary>
     public virtual Log.MessageType ComponentEffectiveLogLevel
-    {
-      get
-      {
-        return ComponentLogLevel ?? ComponentDirector?.ComponentEffectiveLogLevel ?? Log.MessageType.Info;
-      }
-    }
+      => ComponentLogLevel ?? ComponentDirector?.ComponentEffectiveLogLevel ?? Log.MessageType.Info;
 
     /// <summary>
     /// Returns  value for "Topic" log message field.
@@ -268,7 +260,6 @@ namespace Azos.Apps
     /// as the default uses class name concatenated with instance SID
     /// </summary>
     public virtual string ComponentLogFromPrefix => "{0}@{1}.".Args(GetType().DisplayNameWithExpandedGenericArgs(), m_ComponentSID);
-
 
     /// <summary>
     ///Returns an expected shutdown/deallocation/stop time duration expressed in ms.
@@ -335,20 +326,22 @@ namespace Azos.Apps
     }
 
     public override string ToString()
-    {
-      return "Component {0}(@{1}, '{2}')".Args(GetType().DisplayNameWithExpandedGenericArgs(), m_ComponentSID, ComponentCommonName ?? CoreConsts.NULL_STRING);
-    }
+      => "Component {0}(@{1}, '{2}')".Args(GetType().DisplayNameWithExpandedGenericArgs(), m_ComponentSID, ComponentCommonName ?? CoreConsts.NULL_STRING);
+
     #endregion
 
     #region .pvt
+
     private static Dictionary<ulong, ApplicationComponent> getComponentsOf(IApplication app)
     {
       app.NonNull(nameof(app));
       if (s_Instances.TryGetValue(app, out var result)) return result;
       return null;
     }
+
     #endregion
   }
+
 
   /// <summary>
   /// Represents app component with typed ComponentDirector property

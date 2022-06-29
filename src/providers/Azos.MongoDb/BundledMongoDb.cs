@@ -13,6 +13,7 @@ using System.Linq;
 
 using Azos.Data.Access.MongoDb.Connector;
 using Azos.Instrumentation;
+using Azos.Serialization.JSON;
 
 namespace Azos.Data.Access.MongoDb
 {
@@ -196,6 +197,13 @@ namespace Azos.Data.Access.MongoDb
     }
 
     /// <summary>
+    /// Specifies minimum log level for Mongo logging into app log.
+    /// Null disables logging. Default `Warning`
+    /// </summary>
+    [Config(Default = Log.MessageType.Warning), ExternalParameter(CoreConsts.EXT_PARAM_GROUP_DATA)]
+    public Log.MessageType? MongoLogMinLevel { get; set; } = Log.MessageType.Warning; //Re: #495
+
+    /// <summary>
     /// Server node which this instance listens on
     /// </summary>
     public Glue.Node ServerNode => new Glue.Node("{0}://{1}:{2}".Args(MongoClient.MONGO_BINDING, MongoPrimaryBindIp, m_Mongo_port));
@@ -267,8 +275,39 @@ namespace Azos.Data.Access.MongoDb
       var logrel = Guid.NewGuid();
       p.OutputDataReceived += (sender, e) =>
       {
+        var ll = this.MongoLogMinLevel;
+        if (!ll.HasValue) return;//logging disabled
+
         if (e.Data != null && e.Data.IsNotNullOrWhiteSpace())
-          WriteLog(Log.MessageType.TraceB, PROCESS_CMD, "  > "+e.Data, related: logrel);
+        {
+          //https://docs.mongodb.com/manual/reference/log-messages/#json-log-output-format
+          //With MongoDB 4.4, all log output is now in JSON format. This includes log output sent to the file, syslog, and
+          //stdout(standard out) log destinations, as well as the output of the getLog command.
+          try
+          {
+            //Re: #495
+            var map = e.Data.JsonToDataObject() as JsonDataMap;
+            var t = Log.MessageType.TraceD;
+
+            var ts = map["s"].AsString();
+            if (ts.EqualsOrdIgnoreCase("F")) t = Log.MessageType.CatastrophicError;
+            else if (ts.EqualsOrdIgnoreCase("E")) t = Log.MessageType.Error;
+            else if (ts.EqualsOrdIgnoreCase("W")) t = Log.MessageType.Warning;
+
+            if (t >= ll.Value)
+            {
+              WriteLog(t, PROCESS_CMD, map["msg"].AsString(), pars: e.Data, related: logrel);
+            }
+          }
+          catch //older versions of mongo
+          {
+            if (ll.Value <= Log.MessageType.TraceD)
+            {
+              WriteLog(Log.MessageType.TraceD, PROCESS_CMD, e.Data, related: logrel);
+            }
+          }
+
+        }
       };
 
       p.Start();//<===========

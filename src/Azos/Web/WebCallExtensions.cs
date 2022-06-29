@@ -73,9 +73,10 @@ namespace Azos.Web
 
 
     /// <summary>
-    /// Gets string response containing json and returns it as JsonDataMap
+    /// Gets string response containing json and returns it as JsonDataMap.
+    /// This method does not use headers and aspects ind is kept for legacy use
     /// </summary>
-    public static async Task<JsonDataMap> GetJsonMapAsync(this HttpClient client, string uri)
+    public static async Task<JsonDataMap> GetJsonMapDirectAsync(this HttpClient client, string uri)
     {
       var raw = await client.NonNull(nameof(client))
                             .GetStringAsync(uri.NonBlank(nameof(uri)))
@@ -85,17 +86,32 @@ namespace Azos.Web
       return jdm.NonNull(StringConsts.WEB_CALL_RETURN_JSONMAP_ERROR.Args(raw.TakeFirstChars(32)));
     }
 
+
+    /// <summary>
+    /// Gets JsonDataMap result on success.
+    /// A body is a string, a binary blob or object converted to json using JsonWritingOptions
+    /// </summary>
+    public static async Task<JsonDataMap> GetJsonMapAsync(this HttpClient client,
+                                                          string uri,
+                                                          object body = null,
+                                                          string contentType = null,
+                                                          JsonWritingOptions options = null,
+                                                          bool fetchErrorContent = true,
+                                                          IEnumerable<KeyValuePair<string, string>> requestHeaders = null)
+     => await CallAndGetJsonMapAsync(client, uri, HttpMethod.Get, body, contentType, options, fetchErrorContent, requestHeaders).ConfigureAwait(false);
+
+
     /// <summary>
     /// Posts body into remote endpoint returning a JsonDataMap result on success.
     /// A body is a string, a binary blob or object converted to json using JsonWritingOptions
     /// </summary>
     public static async Task<JsonDataMap> PostAndGetJsonMapAsync(this HttpClient client,
-                                                                      string uri,
-                                                                      object body,
-                                                                      string contentType = null,
-                                                                      JsonWritingOptions options = null,
-                                                                      bool fetchErrorContent = true,
-                                                                      IEnumerable<KeyValuePair<string, string>> requestHeaders = null)
+                                                                  string uri,
+                                                                  object body,
+                                                                  string contentType = null,
+                                                                  JsonWritingOptions options = null,
+                                                                  bool fetchErrorContent = true,
+                                                                  IEnumerable<KeyValuePair<string, string>> requestHeaders = null)
      => await CallAndGetJsonMapAsync(client, uri, HttpMethod.Post, body, contentType, options, fetchErrorContent, requestHeaders).ConfigureAwait(false);
 
 
@@ -258,14 +274,14 @@ namespace Azos.Web
     /// Processes the "wrap" Json protocol with ChangeResult such as: '{OK: true, change: "Inserted", affected: 3, message: "...", data: {...}}'
     /// Throws averment exceptions if OK!=true, no 'data' or 'change' keys are returned
     /// </summary>
-    public static Data.Business.ChangeResult UnwrapChangeResult(this JsonDataMap data)
+    public static ChangeResult UnwrapChangeResult(this JsonDataMap data)
     {
       data.NonNull(nameof(data)).ExpectOK();
 
       Aver.IsTrue(data.ContainsKey("change"), "no ['change'] key");
       Aver.IsTrue(data.ContainsKey("data"), "no ['data'] key");
 
-      return new Data.Business.ChangeResult(data);
+      return new ChangeResult(data);
     }
 
 

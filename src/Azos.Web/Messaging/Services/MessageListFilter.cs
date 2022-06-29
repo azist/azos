@@ -35,6 +35,6 @@ namespace Azos.Web.Messaging.Services
     [Inject] IMessageArchiveLogic m_Archive;
 
     protected async override Task<SaveResult<IEnumerable<MessageInfo>>> DoSaveAsync()
-     => new SaveResult<IEnumerable<MessageInfo>>(await m_Archive.GetMessageListAsync(this));
+     => new SaveResult<IEnumerable<MessageInfo>>(await m_Archive.GetMessageListAsync(this).ConfigureAwait(false));
   }
 }

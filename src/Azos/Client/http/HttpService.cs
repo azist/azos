@@ -4,7 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -71,9 +70,9 @@ namespace Azos.Client
       return shards;
     }
 
-    protected override IEnumerable<EndpointAssignment> DoGetEndpointsForCall(string remoteAddress, string contract, object shardKey, Atom network, Atom binding)
+    protected override IEnumerable<EndpointAssignment> DoGetEndpointsForCall(string remoteAddress, string contract, ShardKey shardKey, Atom network, Atom binding)
     {
-      var shard = (int)Data.ShardingUtils.ObjectToShardingID(shardKey) & CoreConsts.ABS_HASH_MASK;
+      var shard = ((int)shardKey.GetDistributedStableHash()) & CoreConsts.ABS_HASH_MASK;
 
       var shards = DoGetEndpointsForAllShardsArray(remoteAddress, contract, network, binding);
       if (shards==null || shards.Length==0) return Enumerable.Empty<EndpointAssignment>();

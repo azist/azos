@@ -4,12 +4,9 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-
 
 using Azos.Scripting;
 
@@ -27,14 +24,13 @@ namespace Azos.Tests.Nub
       Aver.IsNull(got.result);
     }
 
-
     [Run]
     public void TryGetCompletedTaskResultAsObject_1()
     {
       Task task = Task.FromResult(123);
       var got = task.TryGetCompletedTaskResultAsObject();
       Aver.IsTrue(got.ok);
-      Aver.AreEqual(123, (int) got.result);
+      Aver.AreEqual(123, (int)got.result);
 
       task = Task.FromResult("abcd");
       got = task.TryGetCompletedTaskResultAsObject();
@@ -45,7 +41,7 @@ namespace Azos.Tests.Nub
     [Run]
     public async Task TryGetCompletedTaskResultAsObject_2()
     {
-      Task task = Task.Delay(1000).ContinueWith( a => 1234);
+      Task task = Task.Delay(1000).ContinueWith(a => 1234);
       var got = task.TryGetCompletedTaskResultAsObject();
       Aver.IsFalse(got.ok);
 
@@ -68,7 +64,7 @@ namespace Azos.Tests.Nub
       got = task.TryGetCompletedTaskResultAsObject();
       Aver.IsFalse(got.ok);
 
-      Console.WriteLine(task.Exception.Flatten().InnerException.ToMessageWithType());//XXX
+      task.Exception.Flatten().InnerException.ToMessageWithType().See();//XXX
     }
 
   }
