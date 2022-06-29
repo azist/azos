@@ -3,6 +3,10 @@
     "trun": {
       "commandName": "Project",
       "commandLineArgs": "Azos.Tests.Nub.dll -r methods=SchemaEQU.Typed*"
+    },
+    "HourListTests": {
+      "commandName": "Project",
+      "commandLineArgs": "Azos.Tests.Nub.dll -r methods=HourListTestsJpk.IsCoveredOnCaryToNextDay"
     }
   }
 }

@@ -175,7 +175,8 @@ namespace Azos.Time
     public bool IsCovered(DateTime when)
     {
       var ts = (int)when.TimeOfDay.TotalMinutes;
-      return Spans.Any(s => s.StartMinute <= ts && s.FinishMinute >= ts);
+      return Spans.Any(s => s.StartMinute <= ts && s.FinishMinute >= ts)
+        || Spans.Any(s => s.StartMinute <= (ts + MINUTES_PER_DAY) && s.FinishMinute >= (ts + MINUTES_PER_DAY));
     }
 
 
@@ -270,6 +271,8 @@ namespace Azos.Time
       {
         str = str.Substring(0, str.Length - 2);
         result = parseMinutes(str);
+
+        if (result >= MINUTES_PER_HALFDAY) result -= MINUTES_PER_HALFDAY;//#713 20220628 JPK
       }
       else if(str.EndsWith("pm", StringComparison.InvariantCultureIgnoreCase))
       {
