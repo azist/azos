@@ -14,6 +14,7 @@ using Azos.Time;
 using Azos.Serialization.Bix;
 using Azos.Serialization.JSON;
 using Azos.Conf;
+using Azos.Collections;
 
 namespace Azos.Data.Business
 {
@@ -22,14 +23,17 @@ namespace Azos.Data.Business
   /// </summary>
   [Bix("3086149f-ea42-415f-a688-a6c9bb249daa")]
   [Schema(Description = "A schedule is a list of date spans, each defining work hours and overrides (such as holidays)")]
-  public class Schedule : TransientModel
+  public class Schedule : TransientModel, INamed
   {
     [Bix("3d399e8b-6cb4-4384-b204-44c951d829a6")]
     [Schema(Description = "Defines a part of schedule - a named span of time")]
     public sealed class Span : FragmentModel
     {
+      [Config, Field(description: "Span name in schedule spans collection")]
+      public string Name { get; set; }
+
       [Config, Field(description: "NLS name for the date span")]
-      public NLSMap Name { get; set; }
+      public NLSMap Title { get; set; }
 
       [Config, Field(description: "The date range of this span")]
       public DateRange Range { get; set; }
@@ -53,8 +57,11 @@ namespace Azos.Data.Business
     [Schema(Description = "Provides an overridden schedule for a specific day")]
     public sealed class DayOverride : FragmentModel
     {
+      [Config, Field(description: "Day override name in schedule day overrides collection")]
+      public string Name { get; set; }
+
       [Config, Field(description: "Nls name of the day")]
-      public NLSMap Name { get; set; }
+      public NLSMap Title { get; set; }
 
       [Config, Field(description: "The date of the day")]
       public DateTime Date { get; set; }
@@ -62,6 +69,12 @@ namespace Azos.Data.Business
       [Config, Field(description: "Hours during the day")]
       public HourList Hours { get; set; }
     }
+
+    [Config, Field(description: "Schedule name in collection")]
+    public string Name { get; set; }
+
+    [Config, Field(description: "Nls schedule name/descr")]
+    public NLSMap Title { get; set; }
 
     [Field(description: "List of schedules spans")]
     public List<Span> Spans { get; set; }

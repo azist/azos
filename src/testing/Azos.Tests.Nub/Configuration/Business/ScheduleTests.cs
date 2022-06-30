@@ -26,9 +26,13 @@ namespace Azos.Tests.Nub.Configuration.Business
  {
    schedule
    {
+     name='default709'
+     title{ eng{n='Default' d='The Default Schedule'} deu{n='Farter' d='Ein Farter Godülmeshteizenkraknüng'}}
+
      span
      {
-       name{ eng{n='city' d='The City'} deu{n='stadt' d='Die Stadt'}}
+       name='city'
+       title{ eng{n='city' d='The City'} deu{n='stadt' d='Die Stadt'}}
        range{ start='1/1/2010' end='12/31/2010'}
 
        week-day='9am-12pm; 12:30pm-6pm'
@@ -44,14 +48,16 @@ namespace Azos.Tests.Nub.Configuration.Business
 
      override
      {
-       name{ eng{n='ind' d='Independence Day'}}
+       name='j4th'
+       title{ eng{n='ind' d='Independence Day'}}
        date='7/4/2010'
        hours=''
      }
 
      override
      {
-       name{ eng{n='ld' d='Labor Day'}}
+       name='labor'
+       title{ eng{n='ld' d='Labor Day'}}
        date='9/10/2010'
        hours=''
      }
@@ -88,20 +94,32 @@ namespace Azos.Tests.Nub.Configuration.Business
 
     private void ensureInvariants(Schedule sut)
     {
+      Aver.AreEqual("default709", sut.Name);
+
+      Aver.AreEqual("Default", sut.Title.Get(NLSMap.GetParts.Name));
+      Aver.AreEqual("The Default Schedule", sut.Title.Get(NLSMap.GetParts.Description));
+
+      Aver.AreEqual("Farter", sut.Title.Get(NLSMap.GetParts.Name, "deu"));
+      Aver.AreEqual("Ein Farter Godülmeshteizenkraknüng", sut.Title.Get(NLSMap.GetParts.Description, "deu"));
+
+      Aver.AreEqual("Default", sut.Title.Get(NLSMap.GetParts.Name, "esp", "eng"));
+      Aver.AreEqual("The Default Schedule", sut.Title.Get(NLSMap.GetParts.Description, "esp", "eng"));
+
+
       Aver.IsNotNull(sut.Spans);
       Aver.IsNotNull(sut.Overrides);
 
       Aver.AreEqual(1, sut.Spans.Count);
       Aver.AreEqual(2, sut.Overrides.Count);
 
-      Aver.AreEqual("The City", sut.Spans[0].Name.Get(NLSMap.GetParts.Description));
-      Aver.AreEqual("Die Stadt", sut.Spans[0].Name.Get(NLSMap.GetParts.Description, "deu"));
-      Aver.AreEqual("The City", sut.Spans[0].Name.Get(NLSMap.GetParts.Description, "rus", "eng"));
+      Aver.AreEqual("The City", sut.Spans[0].Title.Get(NLSMap.GetParts.Description));
+      Aver.AreEqual("Die Stadt", sut.Spans[0].Title.Get(NLSMap.GetParts.Description, "deu"));
+      Aver.AreEqual("The City", sut.Spans[0].Title.Get(NLSMap.GetParts.Description, "rus", "eng"));
 
 
-      Aver.AreEqual("Independence Day", sut.Overrides[0].Name.Get(NLSMap.GetParts.Description));
+      Aver.AreEqual("Independence Day", sut.Overrides[0].Title.Get(NLSMap.GetParts.Description));
       Aver.AreEqual(4, sut.Overrides[0].Date.Day);
-      Aver.AreEqual("Labor Day", sut.Overrides[1].Name.Get(NLSMap.GetParts.Description));
+      Aver.AreEqual("Labor Day", sut.Overrides[1].Title.Get(NLSMap.GetParts.Description));
       Aver.AreEqual(10, sut.Overrides[1].Date.Day);
 
       //more cases
