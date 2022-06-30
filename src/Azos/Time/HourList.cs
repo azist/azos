@@ -24,19 +24,42 @@ namespace Azos.Time
     public const int MINUTES_PER_DAY = 24 * 60;
     public const int MINUTES_PER_HALFDAY = 12 * 60;
 
+    /// <summary>
+    /// Represents a minute time span within a day.
+    /// Note: start may not be beyond MINUTES_PER_DAY, however start+duration may extend into the next day
+    /// </summary>
     public struct Span : IEquatable<Span>, IComparable<Span>
     {
 
       internal Span(int start, int duration)
       {
+        (start <= MINUTES_PER_DAY).IsTrue("start <= MINUTES_PER_DAY");
         StartMinute = start;
         DurationMinutes = duration;
       }
 
+      /// <summary>
+      /// Start minute within a day. This value is always &lt;= to MINUTES_PER_DAY
+      /// </summary>
       public readonly int StartMinute;
+
+      /// <summary>
+      /// Duration of the span within a day
+      /// </summary>
       public readonly int DurationMinutes;
 
+      /// <summary>
+      /// Finish minute relative to the day of start.
+      /// Note: this can extend beyond the original day
+      /// </summary>
       public int FinishMinute => StartMinute + DurationMinutes;
+
+      /// <summary>
+      /// True if the span duration extends past original day 24 period.
+      /// For example:  23pm-3am working hour window starts at the day end but finishes at the NEXT day start
+      /// </summary>
+      public bool EndsTheNextDay => FinishMinute > MINUTES_PER_DAY;
+
       public bool IsAssigned => StartMinute!=0 || DurationMinutes!=0;
 
       public string Start
@@ -53,7 +76,7 @@ namespace Azos.Time
       {
         get
         {
-          var to = StartMinute + DurationMinutes;
+          var to = FinishMinute;
           if (to > MINUTES_PER_DAY) to = to % MINUTES_PER_DAY;
           var hr = to / 60;
           var min = to % 60;
@@ -170,15 +193,30 @@ namespace Azos.Time
 
     /// <summary>
     /// Returns true if the time component of the specified DateTime is covered(included)
-    /// by one of the HourList spans
+    /// by one of the `HourList` spans as of THAT DAY
     /// </summary>
-    public bool IsCovered(DateTime when)
+    /// <remarks>
+    /// Restaurant Schedule
+    ///  Lunch 10:30am-2pm
+    ///  Dinner 5:30pm-7pm
+    ///  Bar    8:00pm-4am  --- goes into another day
+    /// </remarks>
+    public bool IsCovered(DateTime when, bool isTheNextDay = false)
     {
       var ts = (int)when.TimeOfDay.TotalMinutes;
-      return Spans.Any(s => s.StartMinute <= ts && s.FinishMinute >= ts)
-        || Spans.Any(s => s.StartMinute <= (ts + MINUTES_PER_DAY) && s.FinishMinute >= (ts + MINUTES_PER_DAY));
-    }
 
+      if (!isTheNextDay)
+      {
+        return Spans.Any(s =>
+        {
+          if (s.EndsTheNextDay) return s.StartMinute <= ts;
+          return s.StartMinute <= ts && s.FinishMinute >= ts;
+        });
+      }
+
+      //the next day
+      return Spans.Any(s => s.EndsTheNextDay && s.FinishMinute - MINUTES_PER_DAY >= ts);
+    }
 
     public override bool Equals(object obj) => obj is HourList other ? this.Equals(other) : false;
     public override int GetHashCode() => Data==null ? 0 : Data.GetHashCode();
@@ -272,7 +310,8 @@ namespace Azos.Time
         str = str.Substring(0, str.Length - 2);
         result = parseMinutes(str);
 
-        if (result >= MINUTES_PER_HALFDAY) result -= MINUTES_PER_HALFDAY;//#713 20220628 JPK
+        if (result > MINUTES_PER_HALFDAY) return -1;
+        if (result == MINUTES_PER_HALFDAY) result = 0;
       }
       else if(str.EndsWith("pm", StringComparison.InvariantCultureIgnoreCase))
       {
@@ -281,7 +320,7 @@ namespace Azos.Time
 
         if (result>=MINUTES_PER_HALFDAY) result -= MINUTES_PER_HALFDAY;//#713 20220628 JPK
 
-        if (result>=0) result += MINUTES_PER_HALFDAY;
+        if (result>=0) result += MINUTES_PER_HALFDAY;//PM
       }
       else result = parseMinutes(str);
 

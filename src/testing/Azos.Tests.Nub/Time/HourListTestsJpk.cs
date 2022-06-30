@@ -125,34 +125,34 @@ namespace Azos.Tests.Nub.Time
     {
       var got = new HourList("23-1pm, 13:30-6pm");
 
-#warning Throws error because Spans is ordered which because of inter day context is not deterministic
-      //Aver.AreEqual(60 * 23, got.Spans.First().StartMinute);
-      //Aver.AreEqual(14 * 60, got.Spans.First().DurationMinutes);
+      Aver.AreEqual((int)(60 * 13.5d), got.Spans.First().StartMinute);
+      Aver.AreEqual((int)(4.5d * 60), got.Spans.First().DurationMinutes);
 
-      var noon = DateTime.Today.AddHours(12);
-      var covered = got.IsCovered(noon);
+      var noon = new DateTime(1980, 1, 1,     12, 00, 00, DateTimeKind.Utc);
+      Aver.IsFalse( got.IsCovered(noon) );
+      Aver.IsTrue(got.IsCovered(noon, isTheNextDay: true));
 
-      Aver.IsTrue(covered);
+
+      var twelveFortyFivePM = DateTime.Today.AddHours(12.75);
+      Aver.IsFalse(got.IsCovered(twelveFortyFivePM));
+      Aver.IsTrue(got.IsCovered(twelveFortyFivePM, true));
 
       var oneFifteenPM = DateTime.Today.AddHours(13.25);
-      covered = got.IsCovered(oneFifteenPM);
-
-      Aver.IsFalse(covered);
+      Aver.IsFalse(got.IsCovered(oneFifteenPM));
+      Aver.IsFalse(got.IsCovered(oneFifteenPM, true));
 
       var twoFifteenPM = DateTime.Today.AddHours(14.25);
-      covered = got.IsCovered(twoFifteenPM);
-
-      Aver.IsTrue(covered);
+      Aver.IsTrue(got.IsCovered(twoFifteenPM));
+      Aver.IsTrue(got.IsCovered(twoFifteenPM, false));
+      Aver.IsFalse(got.IsCovered(twoFifteenPM, true));
 
       var sevenPM = DateTime.Today.AddHours(19);
-      covered = got.IsCovered(sevenPM);
-
-      Aver.IsFalse(covered);
+      Aver.IsFalse(got.IsCovered(sevenPM));
+      Aver.IsFalse(got.IsCovered(sevenPM, true));
 
       var elevenFifteenPM = DateTime.Today.AddHours(23);
-      covered = got.IsCovered(elevenFifteenPM);
-
-      Aver.IsTrue(covered);
+      Aver.IsTrue(got.IsCovered(elevenFifteenPM));
+      Aver.IsFalse(got.IsCovered(elevenFifteenPM, true));
 
       got.See();
     }
