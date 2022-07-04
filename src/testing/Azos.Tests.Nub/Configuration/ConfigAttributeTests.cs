@@ -140,7 +140,7 @@ root
       [Config] public TZaza Zaza1;
       [Config] public TZaza Zaza2{get; set;}
       [Config] public string Another;
-      //[Config] public LatLng Location;
+      [Config] public LatLng Location;
     }
 
     public class EntityZDoc : TypedDoc
@@ -172,7 +172,7 @@ root
     [Run]
     public void CustomTypeWithConfigCtor()
     {
-      var cfg = "a{zaza1='message1' Another='cool' zaza2{msg='2message'}}".AsLaconicConfig();
+      var cfg = "a{zaza1='message1' Another='cool' zaza2{msg='2message'} location{'41.502057, -81.698387'}".AsLaconicConfig();
       var obj = new EntityZ();
       ConfigAttribute.Apply(obj, cfg);
 
@@ -181,6 +181,8 @@ root
       Aver.AreEqual("message1", obj.Zaza1.Msg);
       Aver.AreEqual("cool", obj.Another);
       Aver.AreEqual("2message", obj.Zaza2.Msg);
+      Aver.AreEqual(41, (int)obj.Location.Lat);
+      Aver.AreEqual(81, (int)obj.Location.Lng);
     }
 
     [Run]
