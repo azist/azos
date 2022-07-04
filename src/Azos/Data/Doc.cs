@@ -216,7 +216,7 @@ namespace Azos.Data
     #region Public
 
     /// <summary>
-    /// In base class applies Config attribute. Useful for typed rows
+    /// In base class applies Config attribute. Useful for typed data documents
     /// </summary>
     public virtual void Configure(IConfigSectionNode node)
     {

@@ -377,7 +377,7 @@ namespace Azos.Conf
           //#720 20220704 DKh inject TypedDoc derivatives using default ctor
           if (typeof(Data.TypedDoc).IsAssignableFrom(type))
           {
-            var result = Serialization.SerializationUtils.MakeNewObjectInstance(type) as Data.TypedDoc;
+            var result = (Data.TypedDoc)Serialization.SerializationUtils.MakeNewObjectInstance(type);
             result.Configure(nodeSection);
             return result;
           }
