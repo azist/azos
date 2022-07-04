@@ -217,14 +217,13 @@ namespace Azos.Conf
             finf.SetValue(entity, mnode);
           }
           else
-          if (typeof(IConfigurable).IsAssignableFrom(finf.FieldType))
+          if (typeof(IConfigurable).IsAssignableFrom(finf.FieldType) && finf.GetValue(entity) != null)
           {
             var snode = mnode as IConfigSectionNode;
             if (snode == null)
               throw new ConfigException(string.Format(StringConsts.CONFIGURATION_PATH_ICONFIGURABLE_SECTION_ERROR, etp.FullName, finf.Name));
 
-            if (finf.GetValue(entity) != null)
-              ((IConfigurable)finf.GetValue(entity)).Configure(snode);
+            ((IConfigurable)finf.GetValue(entity)).Configure(snode);
           }
           else
           {
@@ -255,14 +254,13 @@ namespace Azos.Conf
             pinf.SetValue(entity, mnode, null);
           }
           else
-          if (typeof(IConfigurable).IsAssignableFrom(pinf.PropertyType))
+          if (typeof(IConfigurable).IsAssignableFrom(pinf.PropertyType) && pinf.GetValue(entity, null) != null)
           {
             var snode = mnode as IConfigSectionNode;
             if (snode == null)
               throw new ConfigException(string.Format(StringConsts.CONFIGURATION_PATH_ICONFIGURABLE_SECTION_ERROR, etp.FullName, pinf.Name));
 
-            if (pinf.GetValue(entity, null) != null)
-              ((IConfigurable)pinf.GetValue(entity, null)).Configure(snode);
+            ((IConfigurable)pinf.GetValue(entity, null)).Configure(snode);
           }
           else
           {

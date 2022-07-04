@@ -5,6 +5,7 @@
 </FILE_LICENSE>*/
 
 using Azos.Conf;
+using Azos.Data;
 using Azos.Scripting;
 using System;
 
@@ -140,6 +141,14 @@ root
       [Config] public string Another;
     }
 
+    public class EntityZDoc : TypedDoc
+    {
+      [Config, Field] public TZaza Zaza1{ get; set; }
+      [Config, Field] public TZaza Zaza2 { get; set; }
+      [Config, Field] public string Another { get; set; }
+      [Config, Field] public EntityZDoc ChildDoc { get; set; }
+    }
+
     public struct TZaza
     {
       public TZaza(string msg) => Msg = msg;
@@ -163,6 +172,27 @@ root
       Aver.AreEqual("message1", obj.Zaza1.Msg);
       Aver.AreEqual("cool", obj.Another);
       Aver.AreEqual("2message", obj.Zaza2.Msg);
+    }
+
+    [Run]
+    public void DocInjection()
+    {
+      var cfg = "a{ zaza1='Outer1' zaza2{msg='2outer'}    child-doc{zaza1='message1' Another='cool' zaza2{msg='2message'}}}".AsLaconicConfig();
+      var obj = new EntityZDoc();
+      ConfigAttribute.Apply(obj, cfg);
+
+      obj.See();
+
+      Aver.AreEqual("Outer1", obj.Zaza1.Msg);
+      Aver.AreEqual(null, obj.Another);
+      Aver.AreEqual("2outer", obj.Zaza2.Msg);
+
+      Aver.IsNotNull(obj.ChildDoc);
+      Aver.IsNull(obj.ChildDoc.ChildDoc);
+
+      Aver.AreEqual("message1", obj.ChildDoc.Zaza1.Msg);
+      Aver.AreEqual("cool", obj.ChildDoc.Another);
+      Aver.AreEqual("2message", obj.ChildDoc.Zaza2.Msg);
     }
 
 
