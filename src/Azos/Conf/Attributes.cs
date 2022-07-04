@@ -191,7 +191,7 @@ namespace Azos.Conf
         var mattr = mem.GetCustomAttributes(typeof(ConfigAttribute), true).FirstOrDefault() as ConfigAttribute;
         if (mattr == null) continue;
 
-        //#720 20220402 DKh
+        //#720 20220704 DKh
         if (mattr.NoRead) continue;
 
         //default attribute name taken from member name if path==null
@@ -372,6 +372,14 @@ namespace Azos.Conf
           {
             var got = ctor.Invoke(new []{ nodeSection });
             return got;
+          }
+
+          //#720 20220704 DKh inject TypedDoc derivatives using default ctor
+          if (typeof(Data.TypedDoc).IsAssignableFrom(type))
+          {
+            var result = Serialization.SerializationUtils.MakeNewObjectInstance(type) as Data.TypedDoc;
+            result.Configure(nodeSection);
+            return result;
           }
         }
 
