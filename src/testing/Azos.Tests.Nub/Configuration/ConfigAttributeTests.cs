@@ -172,7 +172,7 @@ root
     [Run]
     public void CustomTypeWithConfigCtor()
     {
-      var cfg = "a{zaza1='message1' Another='cool' zaza2{msg='2message'} location{'41.502057, -81.698387'}".AsLaconicConfig();
+      var cfg = "a{zaza1='message1' Another='cool' zaza2{msg='2message'} location{lat=41.502057 lng=-81.698387 name='here'}}".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
       var obj = new EntityZ();
       ConfigAttribute.Apply(obj, cfg);
 
@@ -182,7 +182,8 @@ root
       Aver.AreEqual("cool", obj.Another);
       Aver.AreEqual("2message", obj.Zaza2.Msg);
       Aver.AreEqual(41, (int)obj.Location.Lat);
-      Aver.AreEqual(81, (int)obj.Location.Lng);
+      Aver.AreEqual(-81, (int)obj.Location.Lng);
+      Aver.AreEqual("here", obj.Location.Name);
     }
 
     [Run]
