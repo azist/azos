@@ -85,6 +85,11 @@ namespace Azos.Conf
     public bool Verbatim { get; set; }
 
     /// <summary>
+    /// When true, prevents reading config value into member
+    /// </summary>
+    public bool NoRead {  get; set; }
+
+    /// <summary>
     /// Applies config values to fields/properties as specified by config attributes
     /// </summary>
     public static T Apply<T>(T entity, IConfigSectionNode node)
@@ -185,6 +190,9 @@ namespace Azos.Conf
       {
         var mattr = mem.GetCustomAttributes(typeof(ConfigAttribute), true).FirstOrDefault() as ConfigAttribute;
         if (mattr == null) continue;
+
+        //#720 20220402 DKh
+        if (mattr.NoRead) continue;
 
         //default attribute name taken from member name if path==null
         if (string.IsNullOrWhiteSpace(mattr.Path))
