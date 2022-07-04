@@ -338,7 +338,7 @@ namespace Azos.Conf
     }
 
     private static readonly FiniteSetLookup<Type, ConstructorInfo> s_SectionCtors = new FiniteSetLookup<Type, ConstructorInfo>
-    (t => t.GetConstructors().FirstOrDefault(ci =>
+    (t => ((t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Nullable<>)) ? t.GetGenericArguments()[0] : t).GetConstructors().FirstOrDefault(ci =>
        {
          var ps = ci.GetParameters();
          if (ps.Length != 1) return false;
@@ -349,7 +349,7 @@ namespace Azos.Conf
     );
 
     private static readonly FiniteSetLookup<Type, ConstructorInfo> s_AttrCtors = new FiniteSetLookup<Type, ConstructorInfo>
-    (t => t.GetConstructors().FirstOrDefault(ci =>
+    (t => ((t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Nullable<>)) ? t.GetGenericArguments()[0] : t).GetConstructors().FirstOrDefault(ci =>
       {
         var ps = ci.GetParameters();
         if (ps.Length != 1) return false;

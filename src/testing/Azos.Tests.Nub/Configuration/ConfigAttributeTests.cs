@@ -6,6 +6,7 @@
 
 using Azos.Conf;
 using Azos.Data;
+using Azos.Geometry;
 using Azos.Scripting;
 using System;
 
@@ -139,17 +140,18 @@ root
       [Config] public TZaza Zaza1;
       [Config] public TZaza Zaza2{get; set;}
       [Config] public string Another;
+      //[Config] public LatLng Location;
     }
 
     public class EntityZDoc : TypedDoc
     {
       [Config, Field] public TZaza Zaza1{ get; set; }
-      [Config, Field] public TZaza Zaza2 { get; set; }
+      [Config, Field] public TZaza? Zaza2 { get; set; }
       [Config, Field] public string Another { get; set; }
       [Config, Field] public EntityZDoc ChildDoc { get; set; }
     }
 
-    public struct TZaza
+    public struct TZaza : IConfigurationPersistent
     {
       public TZaza(string msg) => Msg = msg;
 
@@ -158,6 +160,13 @@ root
       [ConfigCtor]  public TZaza(IConfigAttrNode ca) => Msg = ca.Value;
 
       public readonly string Msg;
+
+      //note: this is NOT needed for reading, but for writing
+      public ConfigSectionNode PersistConfiguration(ConfigSectionNode parentNode, string name)
+      {
+        parentNode.AddAttributeNode(name, Msg);
+        return parentNode;
+      }
     }
 
     [Run]
@@ -185,14 +194,18 @@ root
 
       Aver.AreEqual("Outer1", obj.Zaza1.Msg);
       Aver.AreEqual(null, obj.Another);
-      Aver.AreEqual("2outer", obj.Zaza2.Msg);
+      Aver.AreEqual("2outer", obj.Zaza2.Value.Msg);
 
       Aver.IsNotNull(obj.ChildDoc);
       Aver.IsNull(obj.ChildDoc.ChildDoc);
 
       Aver.AreEqual("message1", obj.ChildDoc.Zaza1.Msg);
       Aver.AreEqual("cool", obj.ChildDoc.Another);
-      Aver.AreEqual("2message", obj.ChildDoc.Zaza2.Msg);
+      Aver.AreEqual("2message", obj.ChildDoc.Zaza2.Value.Msg);
+
+     var cfg2 = MemoryConfiguration.NewEmptyRoot();
+     obj.PersistConfiguration(cfg2, "data");
+     cfg2.Configuration.ContentView.See();
     }
 
 
