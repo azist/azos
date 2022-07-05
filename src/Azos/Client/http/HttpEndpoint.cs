@@ -22,7 +22,7 @@ namespace Azos.Client
   public class HttpEndpoint : EndpointBase<HttpService>, IHttpEndpoint
   {
     /// <summary>
-    /// Implements internal HttpClient wrapper which supports various aspects (e.g. IDistributedCallFlowAspect)
+    /// Implements internal HttpClient wrapper which supports various aspects (e.g. IAuthImpersonationAspect, IDistributedCallFlowAspect etc.)
     /// </summary>
     internal class ClientWithAspects : HttpClient, WebCallExtensions.IDistributedCallFlowAspect, WebCallExtensions.IAuthImpersonationAspect
     {
@@ -36,21 +36,23 @@ namespace Azos.Client
       public DistributedCallFlow GetDistributedCallFlow()
         => Endpoint.EnableDistributedCallFlow ? ExecutionContext.CallFlow as DistributedCallFlow : null;
 
-      public async Task<string> GetAuthImpersonationHeaderAsync()
+      public async Task<string> GetAuthImpersonationHeaderAsync(Func<object> fGetIdentityContext)
       {
         if (!Endpoint.AuthImpersonate) return null;//turned off
 
         var aspectName = Endpoint.AuthAspectName;
 
-        if (aspectName.IsNullOrWhiteSpace())
+        if (aspectName.IsNullOrWhiteSpace())//Use SYS TOKEN
         {
           return Ambient.CurrentCallUser.MakeSysTokenAuthHeader().Value;
         }
 
+        //Use ASPECT
         var aspect = Endpoint.TryGetAspect<IHttpAuthAspect>(aspectName);
         aspect.NonNull("IHttpAuthApsect: " + aspectName);
-        var result = await aspect.ObtainAuthorizationHeaderAsync(Endpoint).ConfigureAwait(false);
-        return result.header;
+        var identityContext = fGetIdentityContext != null ? fGetIdentityContext() : null;
+        var result = await aspect.ObtainAuthorizationHeaderAsync(Endpoint, identityContext).ConfigureAwait(false);
+        return result;
       }
     }
 

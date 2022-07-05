@@ -19,6 +19,6 @@ namespace Azos.Client
   /// </summary>
   public interface IHttpAuthAspect : IAspect
   {
-    Task<(object state, string header)> ObtainAuthorizationHeaderAsync(object state);
+    Task<string> ObtainAuthorizationHeaderAsync(HttpEndpoint endpoint, object identityContext);
   }
 }
