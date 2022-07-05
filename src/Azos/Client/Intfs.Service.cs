@@ -115,9 +115,6 @@ namespace Azos.Client
   /// </summary>
   public interface IServiceImplementation : IService, IDisposable, IInstrumentable
   {
-    /// <summary>
-    /// Provides service-level aspects which cascade down on endpoints of this service
-    /// </summary>
-    new OrderedRegistry<IAspect> Aspects {  get; }
+
   }
 }

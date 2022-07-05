@@ -36,8 +36,9 @@ namespace Azos.Client
 
     protected override void EndpointsHaveChanged()
     {
-      m_EPCache = new Dictionary<EndpointAssignment.Request, EndpointAssignment[][]>();//clear cache after endpoints change
+      var cache = new Dictionary<EndpointAssignment.Request, EndpointAssignment[][]>();//clear cache after endpoints change
       Thread.MemoryBarrier();
+      m_EPCache = cache;
     }
 
     protected override IEnumerable<IEnumerable<EndpointAssignment>> DoGetEndpointsForAllShards(string remoteAddress, string contract, Atom network, Atom binding)

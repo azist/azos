@@ -58,7 +58,7 @@ namespace Azos.Client
     /// For Http bindings this typically contains URI root path, such as "/user/admin".
     /// Some providers may implement pattern matching on contract names.
     /// </summary>
-    string Contract {  get; }
+    string Contract { get; }
 
     /// <summary>
     /// Groups endpoints by logical shard. Shard numbers are positive consecutive integers starting from 0 (e.g. 0,1,2,3...)
@@ -123,12 +123,6 @@ namespace Azos.Client
   public interface IEndpointImplementation : IEndpoint, IDisposable
   {
     /// <summary>
-    /// Provides endpoint-level aspects which override by name the ones from service
-    /// </summary>
-    new OrderedRegistry<IAspect> Aspects { get; }
-
-
-    /// <summary>
     /// Notifies endpoint of call success. This typically used to update call statistics
     /// </summary>
     void NotifyCallSuccess(ITransport transport);
@@ -158,5 +152,12 @@ namespace Azos.Client
     /// Puts endpoint offline disabling traffic flow through this endpoint
     /// </summary>
     void PutOffline(string statusMsg);
+
+    /// <summary>
+    /// Tries to get an aspect defined for this endpoint, and if not found, tries to search the service level unless `notInherited` is specified.
+    /// Returns null if aspect of such type and optionally name was not found on either levels.
+    /// Search is done among aspects implementing `TAspect` and optionally constrained with a name
+    /// </summary>
+    TAspect TryGetAspect<TAspect>(string name = null, bool notInherited = false) where TAspect : class, IAspect;
   }
 }

@@ -1078,6 +1078,8 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
 
     public const string HTTP_CLIENT_CALL_ASSIGMENT_ERROR = "HttpService .Call() can not be made due to invalid endpoint assignments: {0}";
 
+    public const string HTTP_CLIENT_DUPLICATE_ASPECT_CONFIG_ERROR = "Duplicate named aspect `{0}` on `{1}`";
+
     public const string WEB_CALL_RETURN_JSONMAP_ERROR = "The received content is not representable as JsonDataMap: '{0}..'";
     public const string WEB_CALL_UNSUCCESSFUL_ERROR = "Web call to `...{0}` was unsuccessful: HTTP {1} - {2}";
 

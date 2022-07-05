@@ -4,6 +4,9 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using System;
+
+using Azos.Apps;
 using Azos.Conf;
 
 namespace Azos.Client
@@ -13,9 +16,11 @@ namespace Azos.Client
   /// for service calls. For example, an endpoint may be configured with ErrorClassificationAspect which
   /// tries to classify certain remote error conditions as ServiceLogic error
   /// </summary>
-  public abstract class AspectBase : IAspect
+  public abstract class AspectBase : ApplicationComponent, IAspect
   {
-    protected AspectBase(IConfigSectionNode config)
+    public const string CONFIG_ASPECT_SECTION = "aspect";
+
+    protected AspectBase(IApplicationComponent director, IConfigSectionNode config) : base(director)
     {
       ConfigAttribute.Apply(this, config);
       if (m_Name.IsNullOrWhiteSpace()) m_Name = "{0}-{1}".Args(GetType().Name, FID.Generate());
