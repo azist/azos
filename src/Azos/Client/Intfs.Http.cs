@@ -52,10 +52,15 @@ namespace Azos.Client
     string AuthHeader { get; }
 
     /// <summary>
-    /// When set to true, attaches Authorization header with `SysToken` scheme and sysAuthToken content, overriding
-    /// the AuthHeader value (if any)
+    /// When set to true, attaches Authorization header either with `SysToken` scheme and sysAuthToken content, overriding
+    /// the AuthHeader value (if any); OR if HttpAuthAspectName is set delegates header value acquisition to that named aspect instance
     /// </summary>
     bool AuthImpersonate { get; }
+
+    /// <summary>
+    /// When set, enables acquisition of AUTH header value from IHttpAuthAspect with the specified name
+    /// </summary>
+    string AuthAspectName { get; }
 
     /// <summary>
     /// When set, overrides the standard HTTP `Authorization` header name when impersonation is used

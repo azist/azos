@@ -52,7 +52,7 @@ namespace Azos.Web
       /// <summary>
       /// Gets auth header value if impersonation is used or null
       /// </summary>
-      string GetAuthImpersonationHeader();
+      Task<string> GetAuthImpersonationHeaderAsync();
     }
 
 
@@ -226,7 +226,7 @@ namespace Azos.Web
 
         if (client is IAuthImpersonationAspect aia)
         {
-          var token = aia.GetAuthImpersonationHeader();
+          var token = await aia.GetAuthImpersonationHeaderAsync().ConfigureAwait(false);
           if (token.IsNotNullOrWhiteSpace())
           {
             var hdr = aia.AuthImpersonationHeader.Default(WebConsts.HTTP_HDR_AUTHORIZATION);
