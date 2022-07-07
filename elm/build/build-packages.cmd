@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.42.12.11
-set HEADLINE=#711,#712,#713 fixes
+set VER=1.43.0.1
+set HEADLINE=#718 http client aspects
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

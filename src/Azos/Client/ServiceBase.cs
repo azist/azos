@@ -34,6 +34,7 @@ namespace Azos.Client
       ConfigAttribute.Apply(this, conf);
       if (m_Name.IsNullOrWhiteSpace()) m_Name = GetType().Name;
       BuildEndpoints(conf);
+      BuildAspects(conf);
     }
 
     /// <summary>
@@ -41,27 +42,62 @@ namespace Azos.Client
     /// </summary>
     protected virtual void BuildEndpoints(IConfigSectionNode conf)
     {
-      foreach (var nep in conf.Children.Where(c => c.IsSameName(CONFIG_ENDPOINT_SECTION)))
+      CleanupEndpoints();
+      m_Endpoints = new List<TEndpoint>();
+      foreach (var nep in conf.ChildrenNamed(CONFIG_ENDPOINT_SECTION))
       {
         var ep = FactoryUtils.Make<TEndpoint>(nep, typeof(TEndpoint), args: new object[] { this, nep });
         m_Endpoints.Add(ep);
       }
     }
 
+    /// <summary>
+    /// Override to build aspects list. The default implementation reads them from config
+    /// </summary>
+    protected virtual void BuildAspects(IConfigSectionNode conf)
+    {
+      CleanupAspects();
+      m_Aspects = new OrderedRegistry<IAspect>(caseSensitive: false);
+      foreach (var nas in conf.ChildrenNamed(AspectBase.CONFIG_ASPECT_SECTION))
+      {
+        var aspect = FactoryUtils.Make<IAspect>(nas, args: new object[] { this, nas });
+        if (!m_Aspects.Register(aspect))
+        {
+          throw new ClientException(StringConsts.HTTP_CLIENT_DUPLICATE_ASPECT_CONFIG_ERROR
+                                                .Args(aspect.Name, GetType().DisplayNameWithExpandedGenericArgs()));
+        }
+      }
+    }
+
+    protected void CleanupEndpoints()
+    {
+      var was = System.Threading.Interlocked.Exchange(ref m_Endpoints, null);
+      if (was == null) return;
+      was.ForEach(ep => ep.Dispose());
+    }
+
+    protected void CleanupAspects()
+    {
+      var was = System.Threading.Interlocked.Exchange(ref m_Aspects, null);
+      if (was == null) return;
+      was.ForEach(asp => DisposeIfDisposableAndNull(ref asp));
+    }
+
     protected override void Destructor()
     {
-      m_Endpoints.ForEach(ep => ep.Dispose());
+      CleanupEndpoints();
+      CleanupAspects();
       base.Destructor();
     }
 
     [Config]
     private string m_Name;
 
-    protected List<TEndpoint> m_Endpoints = new List<TEndpoint>();
+    protected List<TEndpoint> m_Endpoints;
 
     protected bool m_InstrumentationEnabled;
 
-    private OrderedRegistry<IAspect> m_Aspects = new OrderedRegistry<IAspect>(caseSensitive: false);
+    private OrderedRegistry<IAspect> m_Aspects;
 
     [Config] protected Atom m_DefaultNetwork;
 
@@ -75,9 +111,7 @@ namespace Azos.Client
 
     public IEnumerable<IEndpoint> Endpoints => m_Endpoints.Cast<IEndpoint>();
 
-    IOrderedRegistry<IAspect> IService.Aspects => m_Aspects;
-
-    public OrderedRegistry<IAspect> Aspects => m_Aspects;
+    public IOrderedRegistry<IAspect> Aspects => m_Aspects;
 
     public virtual Atom DefaultNetwork   => m_DefaultNetwork;
 

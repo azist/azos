@@ -4,6 +4,7 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using Azos.Apps;
 using Azos.Collections;
 
 namespace Azos.Client
@@ -11,7 +12,7 @@ namespace Azos.Client
   /// <summary>
   /// Extensions address cross-cutting concerns (e.g. logging) and provide extensions for various activities
   /// </summary>
-  public interface IAspect : INamed, IOrdered
+  public interface IAspect : IApplicationComponent, INamed, IOrdered
   {
   }
 }

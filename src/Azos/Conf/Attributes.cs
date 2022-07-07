@@ -85,6 +85,11 @@ namespace Azos.Conf
     public bool Verbatim { get; set; }
 
     /// <summary>
+    /// When true, prevents reading config value into member
+    /// </summary>
+    public bool NoRead {  get; set; }
+
+    /// <summary>
     /// Applies config values to fields/properties as specified by config attributes
     /// </summary>
     public static T Apply<T>(T entity, IConfigSectionNode node)
@@ -186,6 +191,9 @@ namespace Azos.Conf
         var mattr = mem.GetCustomAttributes(typeof(ConfigAttribute), true).FirstOrDefault() as ConfigAttribute;
         if (mattr == null) continue;
 
+        //#720 20220704 DKh
+        if (mattr.NoRead) continue;
+
         //default attribute name taken from member name if path==null
         if (string.IsNullOrWhiteSpace(mattr.Path))
           mattr.Path = GetConfigPathsForMember(mem);
@@ -209,14 +217,13 @@ namespace Azos.Conf
             finf.SetValue(entity, mnode);
           }
           else
-          if (typeof(IConfigurable).IsAssignableFrom(finf.FieldType))
+          if (typeof(IConfigurable).IsAssignableFrom(finf.FieldType) && finf.GetValue(entity) != null)
           {
             var snode = mnode as IConfigSectionNode;
             if (snode == null)
               throw new ConfigException(string.Format(StringConsts.CONFIGURATION_PATH_ICONFIGURABLE_SECTION_ERROR, etp.FullName, finf.Name));
 
-            if (finf.GetValue(entity) != null)
-              ((IConfigurable)finf.GetValue(entity)).Configure(snode);
+            ((IConfigurable)finf.GetValue(entity)).Configure(snode);
           }
           else
           {
@@ -247,14 +254,13 @@ namespace Azos.Conf
             pinf.SetValue(entity, mnode, null);
           }
           else
-          if (typeof(IConfigurable).IsAssignableFrom(pinf.PropertyType))
+          if (typeof(IConfigurable).IsAssignableFrom(pinf.PropertyType) && pinf.GetValue(entity, null) != null)
           {
             var snode = mnode as IConfigSectionNode;
             if (snode == null)
               throw new ConfigException(string.Format(StringConsts.CONFIGURATION_PATH_ICONFIGURABLE_SECTION_ERROR, etp.FullName, pinf.Name));
 
-            if (pinf.GetValue(entity, null) != null)
-              ((IConfigurable)pinf.GetValue(entity, null)).Configure(snode);
+            ((IConfigurable)pinf.GetValue(entity, null)).Configure(snode);
           }
           else
           {
@@ -332,7 +338,7 @@ namespace Azos.Conf
     }
 
     private static readonly FiniteSetLookup<Type, ConstructorInfo> s_SectionCtors = new FiniteSetLookup<Type, ConstructorInfo>
-    (t => t.GetConstructors().FirstOrDefault(ci =>
+    (t => ((t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Nullable<>)) ? t.GetGenericArguments()[0] : t).GetConstructors().FirstOrDefault(ci =>
        {
          var ps = ci.GetParameters();
          if (ps.Length != 1) return false;
@@ -343,7 +349,7 @@ namespace Azos.Conf
     );
 
     private static readonly FiniteSetLookup<Type, ConstructorInfo> s_AttrCtors = new FiniteSetLookup<Type, ConstructorInfo>
-    (t => t.GetConstructors().FirstOrDefault(ci =>
+    (t => ((t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Nullable<>)) ? t.GetGenericArguments()[0] : t).GetConstructors().FirstOrDefault(ci =>
       {
         var ps = ci.GetParameters();
         if (ps.Length != 1) return false;
@@ -364,6 +370,14 @@ namespace Azos.Conf
           {
             var got = ctor.Invoke(new []{ nodeSection });
             return got;
+          }
+
+          //#720 20220704 DKh inject TypedDoc derivatives using default ctor
+          if (typeof(Data.TypedDoc).IsAssignableFrom(type))
+          {
+            var result = (Data.TypedDoc)Serialization.SerializationUtils.MakeNewObjectInstance(type);
+            result.Configure(nodeSection);
+            return result;
           }
         }
 

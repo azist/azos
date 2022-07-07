@@ -50,9 +50,10 @@ namespace Azos.Web
       string AuthImpersonationHeader {  get; }
 
       /// <summary>
-      /// Gets auth header value if impersonation is used or null
+      /// Gets auth header value if impersonation is used or null.
+      /// Optional functor to get identity context of the caller
       /// </summary>
-      string GetAuthImpersonationHeader();
+      Task<string> GetAuthImpersonationHeaderAsync(Func<object> fGetIdentityContext);
     }
 
 
@@ -97,8 +98,9 @@ namespace Azos.Web
                                                           string contentType = null,
                                                           JsonWritingOptions options = null,
                                                           bool fetchErrorContent = true,
-                                                          IEnumerable<KeyValuePair<string, string>> requestHeaders = null)
-     => await CallAndGetJsonMapAsync(client, uri, HttpMethod.Get, body, contentType, options, fetchErrorContent, requestHeaders).ConfigureAwait(false);
+                                                          IEnumerable<KeyValuePair<string, string>> requestHeaders = null,
+                                                          Func<object> fGetIdentityContext = null)
+     => await CallAndGetJsonMapAsync(client, uri, HttpMethod.Get, body, contentType, options, fetchErrorContent, requestHeaders, fGetIdentityContext).ConfigureAwait(false);
 
 
     /// <summary>
@@ -111,8 +113,9 @@ namespace Azos.Web
                                                                   string contentType = null,
                                                                   JsonWritingOptions options = null,
                                                                   bool fetchErrorContent = true,
-                                                                  IEnumerable<KeyValuePair<string, string>> requestHeaders = null)
-     => await CallAndGetJsonMapAsync(client, uri, HttpMethod.Post, body, contentType, options, fetchErrorContent, requestHeaders).ConfigureAwait(false);
+                                                                  IEnumerable<KeyValuePair<string, string>> requestHeaders = null,
+                                                                  Func<object> fGetIdentityContext = null)
+     => await CallAndGetJsonMapAsync(client, uri, HttpMethod.Post, body, contentType, options, fetchErrorContent, requestHeaders, fGetIdentityContext).ConfigureAwait(false);
 
 
 
@@ -126,8 +129,9 @@ namespace Azos.Web
                                                                      string contentType = null,
                                                                      JsonWritingOptions options = null,
                                                                      bool fetchErrorContent = true,
-                                                                     IEnumerable<KeyValuePair<string, string>> requestHeaders = null)
-     => await CallAndGetJsonMapAsync(client, uri, HttpMethod.Put, body, contentType, options, fetchErrorContent, requestHeaders).ConfigureAwait(false);
+                                                                     IEnumerable<KeyValuePair<string, string>> requestHeaders = null,
+                                                                     Func<object> fGetIdentityContext = null)
+     => await CallAndGetJsonMapAsync(client, uri, HttpMethod.Put, body, contentType, options, fetchErrorContent, requestHeaders, fGetIdentityContext).ConfigureAwait(false);
 
 
 
@@ -143,8 +147,9 @@ namespace Azos.Web
                                                                     string contentType = null,
                                                                     JsonWritingOptions options = null,
                                                                     bool fetchErrorContent = true,
-                                                                    IEnumerable<KeyValuePair<string, string>> requestHeaders = null)
-     => await CallAndGetJsonMapAsync(client, uri, PATCH, body, contentType, options, fetchErrorContent, requestHeaders).ConfigureAwait(false);
+                                                                    IEnumerable<KeyValuePair<string, string>> requestHeaders = null,
+                                                                    Func<object> fGetIdentityContext = null)
+     => await CallAndGetJsonMapAsync(client, uri, PATCH, body, contentType, options, fetchErrorContent, requestHeaders, fGetIdentityContext).ConfigureAwait(false);
 
 
     /// <summary>
@@ -157,14 +162,16 @@ namespace Azos.Web
                                                                      string contentType = null,
                                                                      JsonWritingOptions options = null,
                                                                      bool fetchErrorContent = true,
-                                                                     IEnumerable<KeyValuePair<string, string>> requestHeaders = null)
-     => await CallAndGetJsonMapAsync(client, uri, HttpMethod.Delete, body, contentType, options, fetchErrorContent, requestHeaders).ConfigureAwait(false);
+                                                                     IEnumerable<KeyValuePair<string, string>> requestHeaders = null,
+                                                                     Func<object> fGetIdentityContext = null)
+     => await CallAndGetJsonMapAsync(client, uri, HttpMethod.Delete, body, contentType, options, fetchErrorContent, requestHeaders, fGetIdentityContext).ConfigureAwait(false);
 
 
 
     /// <summary>
     /// Calls an arbitrary HttpMethod with the specified entity body on a remote endpoint returning a JsonDataMap result on success.
-    /// A body is a string, a binary blob or object converted to json using JsonWritingOptions
+    /// A body is a string, a binary blob or object converted to json using JsonWritingOptions.
+    /// Optional fGetIdentityContext is used to create impersonation auth tokens - defines what identity is for the call.
     /// </summary>
     public static async Task<JsonDataMap> CallAndGetJsonMapAsync(this HttpClient client,
                                                                       string uri,
@@ -173,7 +180,8 @@ namespace Azos.Web
                                                                       string contentType = null,
                                                                       JsonWritingOptions options = null,
                                                                       bool fetchErrorContent = true,
-                                                                      IEnumerable<KeyValuePair<string, string>> requestHeaders = null)
+                                                                      IEnumerable<KeyValuePair<string, string>> requestHeaders = null,
+                                                                      Func<object> fGetIdentityContext = null)
     {
       client.NonNull(nameof(client));
       method.NonNull(nameof(method));
@@ -226,7 +234,7 @@ namespace Azos.Web
 
         if (client is IAuthImpersonationAspect aia)
         {
-          var token = aia.GetAuthImpersonationHeader();
+          var token = await aia.GetAuthImpersonationHeaderAsync(fGetIdentityContext).ConfigureAwait(false);
           if (token.IsNotNullOrWhiteSpace())
           {
             var hdr = aia.AuthImpersonationHeader.Default(WebConsts.HTTP_HDR_AUTHORIZATION);
