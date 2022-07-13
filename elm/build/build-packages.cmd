@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.43.0.1
-set HEADLINE=#718 http client aspects
+set VER=1.43.0.2
+set HEADLINE=#721 dsl paths
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
