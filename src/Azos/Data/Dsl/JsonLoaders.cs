@@ -36,11 +36,12 @@ namespace Azos.Data.Dsl
     {
       var fn = Eval(FileName, state);
       var json = Eval(Json, state);
+      var root = Eval(IncludeFileRootPath, state);
 
       if (fn.IsNotNullOrWhiteSpace())
-        return JsonObjectDataSource.FromFile(App, Name, fn, IncludeFileRootPath, IncludeFilePragma, CommonFilePathPragma);
+        return JsonObjectDataSource.FromFile(App, Name, fn, root, IncludeFilePragma, CommonFilePathPragma);
       else
-        return JsonObjectDataSource.FromJson(App, Name, json, IncludeFileRootPath, IncludeFilePragma, CommonFilePathPragma);
+        return JsonObjectDataSource.FromJson(App, Name, json, root, IncludeFilePragma, CommonFilePathPragma);
     }
   }
 
@@ -140,7 +141,7 @@ namespace Azos.Data.Dsl
 
       if (IncludeFilePragma.IsNotNullOrWhiteSpace())
       {
-        obj = obj.ProcessJsonLocalFileIncludes(App, IncludeFileRootPath, IncludeFilePragma, true, CommonFilePathPragma);
+        obj = obj.ProcessJsonLocalFileIncludes(App, Eval(IncludeFileRootPath, state), IncludeFilePragma, true, CommonFilePathPragma);
       }
 
       if (Global.IsNotNullOrWhiteSpace()) Runner.GlobalState[Global] = obj;

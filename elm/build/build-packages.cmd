@@ -1,6 +1,6 @@
 @echo on
 
-set VER=1.43.0.2
+set VER=1.43.0.3
 set HEADLINE=#721 dsl paths
 call vs2017-build-release %VER%
 
