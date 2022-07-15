@@ -29,42 +29,48 @@ namespace Azos.Data.Dsl
     [Config]
     public string CommonFilePathPragma { get; set; }
 
+    [Config]
+    public string IncludeFileRootPath { get; set; }  //#721
+
     protected override IDataSource MakeDataSource(JsonDataMap state)
     {
       var fn = Eval(FileName, state);
       var json = Eval(Json, state);
+      var root = Eval(IncludeFileRootPath, state);
 
       if (fn.IsNotNullOrWhiteSpace())
-        return JsonObjectDataSource.FromFile(App, Name, fn, IncludeFilePragma, CommonFilePathPragma);
+        return JsonObjectDataSource.FromFile(App, Name, fn, root, IncludeFilePragma, CommonFilePathPragma);
       else
-        return JsonObjectDataSource.FromJson(App, Name, json, IncludeFilePragma, CommonFilePathPragma);
+        return JsonObjectDataSource.FromJson(App, Name, json, root, IncludeFilePragma, CommonFilePathPragma);
     }
   }
 
   public sealed class JsonObjectDataSource : DisposableObject, IDataSource<IJsonDataObject>
   {
-    public static JsonObjectDataSource FromFile(IApplication app, string name, string fileName, string includeFilePragma, string commonFilePathPragma)
-     => new JsonObjectDataSource(app.NonNull(nameof(app)), name.NonBlank(nameof(name)), JsonReader.DeserializeDataObjectFromFile(fileName), includeFilePragma, commonFilePathPragma);
+    public static JsonObjectDataSource FromFile(IApplication app, string name, string fileName, string includeFileRootPath, string includeFilePragma, string commonFilePathPragma)
+     => new JsonObjectDataSource(app.NonNull(nameof(app)), name.NonBlank(nameof(name)), JsonReader.DeserializeDataObjectFromFile(fileName), includeFileRootPath, includeFilePragma, commonFilePathPragma);
 
-    public static JsonObjectDataSource FromJson(IApplication app, string name, string json, string includeFilePragma, string commonFilePathPragma)
-     => new JsonObjectDataSource(app.NonNull(nameof(app)), name.NonBlank(nameof(name)), JsonReader.DeserializeDataObject(json), includeFilePragma, commonFilePathPragma);
+    public static JsonObjectDataSource FromJson(IApplication app, string name, string json, string includeFileRootPath, string includeFilePragma, string commonFilePathPragma)
+     => new JsonObjectDataSource(app.NonNull(nameof(app)), name.NonBlank(nameof(name)), JsonReader.DeserializeDataObject(json), includeFileRootPath, includeFilePragma, commonFilePathPragma);
 
-    private JsonObjectDataSource(IApplication app, string name, IJsonDataObject data, string includeFilePragma, string commonFilePathPragma)
+    private JsonObjectDataSource(IApplication app, string name, IJsonDataObject data, string includeFileRootPath, string includeFilePragma, string commonFilePathPragma)
     {
       m_App = app;
       m_Name = name;
       m_Data = data;
+      m_IncludeFileRootPath = includeFileRootPath;
       m_IncludeFilePragma = includeFilePragma;
       m_CommonFilePathPragma = commonFilePathPragma;
       if (includeFilePragma.IsNotNullOrWhiteSpace())
       {
-        m_Data = m_Data.ProcessJsonLocalFileIncludes(App, null, includeFilePragma, true, commonFilePathPragma);
+        m_Data = m_Data.ProcessJsonLocalFileIncludes(App, includeFileRootPath, includeFilePragma, true, commonFilePathPragma);
       }
     }
 
     private IApplication m_App;
     private string m_Name;
     private IJsonDataObject m_Data;
+    private string m_IncludeFileRootPath;
     private string m_IncludeFilePragma;
     private string m_CommonFilePathPragma;
 
@@ -72,6 +78,7 @@ namespace Azos.Data.Dsl
     public string Name => m_Name;
     public IJsonDataObject Data => m_Data;
     public object ObjectData => m_Data;
+    public string IncludeFileRootPath => m_IncludeFileRootPath;
     public string IncludeFilePragma => m_IncludeFilePragma;
     public string CommonFilePathPragma => m_CommonFilePathPragma;
   }
@@ -104,6 +111,9 @@ namespace Azos.Data.Dsl
     [Config]
     public string CommonFilePathPragma { get; set; }
 
+    [Config]
+    public string IncludeFileRootPath { get; set; }  //#721
+
 
     protected override Task<string> DoRunAsync(JsonDataMap state)
     {
@@ -131,7 +141,7 @@ namespace Azos.Data.Dsl
 
       if (IncludeFilePragma.IsNotNullOrWhiteSpace())
       {
-        obj = obj.ProcessJsonLocalFileIncludes(App, null, IncludeFilePragma, true, CommonFilePathPragma);
+        obj = obj.ProcessJsonLocalFileIncludes(App, Eval(IncludeFileRootPath, state), IncludeFilePragma, true, CommonFilePathPragma);
       }
 
       if (Global.IsNotNullOrWhiteSpace()) Runner.GlobalState[Global] = obj;

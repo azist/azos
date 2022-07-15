@@ -30,6 +30,7 @@ namespace Azos.Scripting.Dsl
 
     public const string GLOBAL = "global";
     public const string LOCAL = "local";
+    public const string ENVIRONMENT = "environment";
     public const string UNKNOWN = "unknown";
     public const string RUNNER_RESULT = "runner.result";
 
@@ -234,6 +235,10 @@ namespace Azos.Scripting.Dsl
         return nav(runner.GlobalState, pair.Value);
       else if (pair.Key == Set.LOCAL)
         return nav(state, pair.Value);
+      else if (pair.Key == Set.ENVIRONMENT)
+      {
+        return System.Environment.GetEnvironmentVariable(pair.Value);
+      }
       else return ident;
     }
 
