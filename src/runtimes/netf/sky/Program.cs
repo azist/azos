@@ -17,6 +17,7 @@ namespace sky
     private static readonly Dictionary<string, Action<string[]>> MAPPINGS = new Dictionary<string, Action<string[]>>(StringComparer.OrdinalIgnoreCase)
     {
       {"ntc", args => Azos.Tools.Ntc.ProgramBody.Main(args) },
+      {"phash", args => Azos.Tools.Phash.ProgramBody.Main(args) },
     };
 
     private static Action<string[]> GetProcessEntryPoint(string processName)
