@@ -14,6 +14,7 @@ namespace sky
 {
   class Program
   {
+    //kept here so we can control per-platform
     private static readonly Dictionary<string, Action<string[]>> MAPPINGS = new Dictionary<string, Action<string[]>>(StringComparer.OrdinalIgnoreCase)
     {
       {"ntc",   args => Azos.Tools.Ntc.ProgramBody.Main(args)   },
