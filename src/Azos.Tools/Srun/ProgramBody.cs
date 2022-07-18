@@ -21,6 +21,7 @@ namespace Azos.Tools.Srun
     /// <summary>
     /// Program body (entry point) for SRUN "script runner" utility
     /// </summary>
+    [Platform.ProcessActivation.ProgramBody("srun", Description = "Script runner")]
     public static class ProgramBody
     {
         public static void Main(string[] args)

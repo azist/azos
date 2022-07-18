@@ -24,7 +24,7 @@ namespace sky
         var activator = new ProgramBodyActivator(args);
         foreach(var p in activator.All)
         {
-          Console.WriteLine("$ {0}  -  {1}".Args(p.bodyAttr.Names.Aggregate("", (e,s) => e + s), p.bodyAttr.Description));
+          Console.WriteLine("${0, -10}  -  {1}".Args(p.bodyAttr.Names.Aggregate("", (e,s) => e +" "+ s), p.bodyAttr.Description));
         }
         activator.Run();
       }
