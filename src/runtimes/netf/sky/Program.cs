@@ -22,7 +22,9 @@ namespace sky
       try
       {
         var activator = new ProgramBodyActivator(args);
-        foreach(var p in activator.All)
+        Console.WriteLine("Available programs:");
+        Console.WriteLine("-------------------");
+        foreach (var p in activator.All.OrderBy(p => p.bodyAttr.Names.First()))
         {
           Console.WriteLine("${0, -10}  -  {1}".Args(p.bodyAttr.Names.Aggregate("", (e,s) => e +" "+ s), p.bodyAttr.Description));
         }
