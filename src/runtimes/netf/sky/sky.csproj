@@ -47,14 +47,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Azos.Tools\Azos.Tools.csproj">
-      <Project>{1743d0b5-2b62-44b2-a1c1-84326209f0fc}</Project>
-      <Name>Azos.Tools</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Azos.Wave\Azos.Wave.csproj">
-      <Project>{26e0a0e2-9eb5-4905-a9b2-df5b08e0121c}</Project>
-      <Name>Azos.Wave</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\Azos\Azos.csproj">
       <Project>{c2bf5275-c8c2-46cc-86c7-a83a75c2be0d}</Project>
       <Name>Azos</Name>

@@ -11,10 +11,13 @@ using System.Linq;
 using System.Text;
 using System.Reflection;
 
+using Azos;
 using Azos.Conf;
 using Azos.Text;
+using Azos.Data;
+using Azos.Serialization.JSON;
 
-namespace Azos.Platform.Process
+namespace Azos.Platform.ProcessActivation
 {
   /// <summary>
   /// Activates program bodies from supplied command line args
@@ -22,6 +25,10 @@ namespace Azos.Platform.Process
   /// </summary>
   public class ProgramBodyActivator
   {
+    public class ENotFound : AzosException { public ENotFound(string msg) : base(msg){ } }
+
+
+
     public const string CONFIG_NAME_PREFIX = "@";
 
     public const string CONFIG_ASSEMBLY_SECTION = "assembly";
@@ -118,6 +125,8 @@ namespace Azos.Platform.Process
     public IConfigSectionNode Manifest => m_Manifest;
 
 
+    public IEnumerable<(Type tbody, MethodInfo miEntryPoint, ProgramBodyAttribute bodyAttr)> All => m_AllPrograms;
+
     protected virtual IEnumerable<(Type tbody, MethodInfo miEntryPoint, ProgramBodyAttribute bodyAttr)> GetAllPrograms()
     {
       var exeName = Assembly.GetEntryAssembly().Location;
@@ -128,9 +137,9 @@ namespace Azos.Platform.Process
                               .Where(fn => nAssembly.AttributesNamed(CONFIG_INCLUDE_FILE_PATTERN_ATTR)
                                                     .Any(a => fn.MatchPattern(a.Value, senseCase: true)) &&
                                            (!nAssembly.AttributesNamed(CONFIG_EXCLUDE_FILE_PATTERN_ATTR)
-                                                      .Any(a => fn.MatchPattern(a.Value, senseCase: true))) );
-
-        foreach(var afn in asmFiles)
+                                                      .Any(a => fn.MatchPattern(a.Value, senseCase: true))));
+//Console.WriteLine("aaaaaaaaaaaaa: " + asmFiles.ToJson());
+        foreach (var afn in asmFiles)
         {
           var asm = Assembly.LoadFrom(afn);
           var asmTypes = asm.GetTypes();
@@ -153,7 +162,7 @@ namespace Azos.Platform.Process
     /// <summary>
     /// Returns method info for a public static Main(string[]) method in a class decorated with [ProgramBody]
     /// </summary>
-    public (MethodInfo mi, ProgramBodyAttribute atr) GetMainEntryPoint(Type type)
+    protected virtual (MethodInfo mi, ProgramBodyAttribute atr) GetMainEntryPoint(Type type)
     {
       if (!type.IsClass) return (null, null);//only classes
       var atr = type.GetCustomAttribute<ProgramBodyAttribute>(false);
@@ -164,16 +173,14 @@ namespace Azos.Platform.Process
       return (main, atr);
     }
 
-    public bool Run()
+    public void Run()
     {
-      if (m_ProcessData==null) return false;
+      var main = m_ProcessData.miEntryPoint;
+
+      if (main == null) throw new ENotFound("Process `{0}` not found".Args(m_ProcessName));
       try
       {
-        var toRun = allPrograms.FirstOrDefault(p => activator.ProcessName.IsOneOf(p.bodyAttr.Names));
-        if (toRun == null)
-        {
-          m_ProcessData.miEntryPoint.Invoke(null, m_ProcessArgs);
-        return true;
+        main.Invoke(null, new []{ m_ProcessArgs });
       }
       catch(TargetInvocationException tie)
       {

@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Azos;
-using Azos.Platform.Process;
+using Azos.Platform.ProcessActivation;
 using Azos.Serialization.JSON;
 
 namespace sky
@@ -22,16 +22,15 @@ namespace sky
       try
       {
         var activator = new ProgramBodyActivator(args);
-        var allPrograms = activator.GetAllPrograms().ToArray();
-
-        var wasRun = activator.Run();
-
-        var toRun = allPrograms.FirstOrDefault(p => activator.ProcessName.IsOneOf(p.bodyAttr.Names));
-        if (toRun == null)
+        foreach(var p in activator.All)
         {
-          printAllPrograms();
+          Console.WriteLine("$ {0}  -  {1}".Args(p.bodyAttr.Names.Aggregate("", (e,s) => e + s), p.bodyAttr.Description));
         }
-
+        activator.Run();
+      }
+      catch(ProgramBodyActivator.ENotFound notfound)
+      {
+        Console.WriteLine(notfound.ToMessageWithType());
       }
       catch(Exception error)
       {

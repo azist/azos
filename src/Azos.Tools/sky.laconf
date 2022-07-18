@@ -1,0 +1,12 @@
+﻿sky
+{
+  assembly
+  {
+    file="*Azos.Tools.dll"
+    file="*Azos.Sky.dll"
+    //exclude-file="*.dll"
+
+    types="*"
+    //exclude-types="Namespace.*.Type"
+  }
+}

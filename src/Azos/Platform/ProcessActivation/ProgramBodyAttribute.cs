@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Azos.Platform.Process
+namespace Azos.Platform.ProcessActivation
 {
   /// <summary>
   /// Decorates program body classes with data necessary to delegate process activation.
@@ -27,7 +27,7 @@ namespace Azos.Platform.Process
                      .Select(s => s.ToLowerInvariant().Trim())
                      .Distinct()
                      .ToArray();
-      (m_Names.Length > 1).IsTrue("Defined names");
+      (m_Names.Length > 0).IsTrue("Defined names");
     }
 
     private string[] m_Names;
