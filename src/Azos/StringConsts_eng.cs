@@ -19,9 +19,12 @@ namespace Azos
     public const string FLOW_NO_REF_CYCLES_VIOLATION_ERROR = "State machine '{0}' caused violation of NoRefCycles constraint. Most likely the object graph has cycles which are either not supported or the operation body failed to check for presence of the reference in the set";
 
     public const string APP_SET_MEMORY_MODEL_ERROR =
-      "The App.SetMemoryModel() method must be called at process entry point before the app container allocation";
+      "The Ambient.SetMemoryModel() method must be called at process entry point before the app container allocation";
 
-        public const string OBJECT_DISPOSED_ERROR =
+    public const string APP_SET_PROCESS_NAME_ERROR =
+      "The Ambient.SetProcessName() method must be called at process entry point before the app container allocation";
+
+    public const string OBJECT_DISPOSED_ERROR =
             "Object '{0}' instance was already disposed";
 
         public const string OBJECT_WAS_NOT_DETERMINISTICALLY_DISPOSED_ERROR =

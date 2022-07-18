@@ -588,13 +588,14 @@ namespace Azos.Apps
     }
 
     /// <summary>
-    /// Tries to find a configuration file name looping through various supported extensions
+    /// Tries to find a configuration file name looping through various supported extensions.
+    /// The method respects `Ambient.ProcessName` if it is set
     /// </summary>
     /// <returns>File name that exists or empty string</returns>
     protected string GetDefaultConfigFileName()
     {
       var exeName = System.Reflection.Assembly.GetEntryAssembly().Location;
-      var exeNameWoExt = Path.Combine(Path.GetDirectoryName(exeName), Path.GetFileNameWithoutExtension(exeName));
+      var exeNameWoExt = Path.Combine(Path.GetDirectoryName(exeName), Ambient.ProcessName.Default(Path.GetFileNameWithoutExtension(exeName)));
       //Console.WriteLine("EXENAME:" +exeName);
       //Console.WriteLine("EXENAME wo extension:" +exeNameWoExt);
       var extensions = Configuration.AllSupportedFormats.Select(fmt => '.' + fmt);

@@ -45,6 +45,7 @@ namespace Azos
 
 
     private static MemoryUtilizationModel s_MemoryModel;
+    private static string s_ProcessName;
 
 
     /// <summary>
@@ -58,6 +59,17 @@ namespace Azos
     public static MemoryUtilizationModel MemoryModel => s_MemoryModel;
 
     /// <summary>
+    /// When set, return the logical name of this process which may be different than
+    /// entry-point executable. For example `sky x` driver command sets `x` as a process name
+    /// which is starts.
+    /// Application container reads its configuration from process-name if it is set.
+    /// If this value is not set then null is returned.
+    /// This property is NOT configurable. It may be set at process entry point via a call to
+    /// Ambient.SetProcessName() BEFORE the app container spawns.
+    /// </summary>
+    public static string ProcessName => s_ProcessName;
+
+    /// <summary>
     /// Sets the memory utilization model for the whole app.
     /// This setting is NOT configurable. It may be set at process entry-point via a call to
     /// App.SetMemoryModel() before the app container spawns.
@@ -69,10 +81,27 @@ namespace Azos
     {
       var app = ExecutionContext.Application;
 
-      if (app!=null && !(app is NOPApplication))
+      if (app != null && !(app is NOPApplication))
         throw new AzosException(StringConsts.APP_SET_MEMORY_MODEL_ERROR);
 
       s_MemoryModel = model;
+    }
+
+    /// <summary>
+    /// Sets the logical process name - the entry point.
+    /// This may be different from exe file.
+    /// For example, an `sky x` driver program sets `x` as a process name.
+    /// This setting is NOT configurable. It may be set at process entry-point via a call to
+    /// App.SetProcessName() before the app container spawns
+    /// </summary>
+    public static void SetProcessName(string name)
+    {
+      var app = ExecutionContext.Application;
+
+      if (app != null && !(app is NOPApplication))
+        throw new AzosException(StringConsts.APP_SET_PROCESS_NAME_ERROR);
+
+      s_ProcessName = name;
     }
 
     /// <summary>
