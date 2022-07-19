@@ -47,8 +47,8 @@ namespace Azos.AuthKit
     //System provider Login types
     public static readonly Atom LTP_SYS_EMAIL = Atom.Encode("email");//detected by searching for @
     public static readonly Atom LTP_SYS_PHONE = Atom.Encode("phone");//detected by searching for digits
-    public static readonly Atom LTP_SYS_USERNAME = Atom.Encode("username");//detected by searching a username string
     public static readonly Atom LTP_SYS_ID    = Atom.Encode("id");//if not email or phone
+    public static readonly Atom LTP_SYS_SCREEN_NAME = Atom.Encode("screenm");//user screen name akin to Id, screen names are more mnemonic than Ids
     public static readonly Atom LTP_SYS_URI   = Atom.Encode("uri");//used by Login by URI
 
     /// <summary>
