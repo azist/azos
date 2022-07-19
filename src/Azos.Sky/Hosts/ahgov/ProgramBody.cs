@@ -15,6 +15,7 @@ using Azos.Apps.HostGovernor;
 
 namespace Azos.Sky.Hosts.ahgov
 {
+  [Platform.ProcessActivation.ProgramBody("ahgov", Description = "Host governor")]
   public static class ProgramBody
   {
     public static void Main(string[] args)

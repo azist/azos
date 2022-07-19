@@ -15,6 +15,7 @@ using Azos.Sky.Workers.Server;
 
 namespace Azos.Sky.Hosts.aph
 {
+  [Platform.ProcessActivation.ProgramBody("aph", Description = "Process host")]
   public static class ProgramBody
   {
     public static void Main(string[] args)
