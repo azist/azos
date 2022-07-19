@@ -15,6 +15,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Azos.Tools\Azos.Tools.csproj" />
     <ProjectReference Include="..\..\..\Azos\Azos.csproj" />
     <ProjectReference Include="..\Azos.Platform.NetCore20\Azos.Platform.NetCore20.csproj" />
   </ItemGroup>

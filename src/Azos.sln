@@ -91,7 +91,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.AuthKit.Server", "prov
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "sky", "runtimes\netf\sky\sky.csproj", "{8253A489-1524-4E08-B155-D1A3F83CD031}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "skyc", "runtimes\core\skyc\skyc.csproj", "{4738C14F-1153-44F6-977B-B82750333E7E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "sky", "runtimes\core\sky\sky.csproj", "{4738C14F-1153-44F6-977B-B82750333E7E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
