@@ -9,4 +9,9 @@
     types="*"
     //exclude-types="Namespace.*.Type"
   }
+
+  assembly
+  {
+    file="*TestBusinessLogic.dll"  types="*"
+  }
 }
