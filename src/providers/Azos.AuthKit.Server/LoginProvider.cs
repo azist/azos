@@ -68,6 +68,7 @@ namespace Azos.AuthKit.Server
       get
       {
         yield return Constraints.LTP_SYS_ID;
+        yield return Constraints.LTP_SYS_SCREEN_NAME;
         yield return Constraints.LTP_SYS_EMAIL;
         yield return Constraints.LTP_SYS_PHONE;
       }
