@@ -7,11 +7,11 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\..\..\..\out\Debug\run-core</OutputPath>
+    <OutputPath>..\..\..\..\out\Debug</OutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>..\..\..\..\out\Release\run-core</OutputPath>
+    <OutputPath>..\..\..\..\out\Release</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>

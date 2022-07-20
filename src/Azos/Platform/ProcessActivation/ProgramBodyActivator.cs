@@ -64,7 +64,7 @@ namespace Azos.Platform.ProcessActivation
         }
       }
 
-      m_AllPrograms = GetAllPrograms().ToArray();
+      m_AllPrograms = GetAllPrograms().DistinctBy(t => t.tbody).ToArray();
 
       if (m_Args.Length > 0)
       {

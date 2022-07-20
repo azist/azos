@@ -34,13 +34,15 @@ namespace Azos.Platform.ProcessActivation
         Console.WriteLine();
         Console.WriteLine(notfound.ToMessageWithType());
         Console.WriteLine();
+        generalSyntax();
         dumpPrograms(activator);
       }
       catch (Exception error)
       {
-        var doc = new WrappedExceptionData(error);
+        Console.WriteLine();
         Console.WriteLine(error.ToMessageWithType());
         Console.WriteLine();
+        var doc = new WrappedExceptionData(error);
         Console.WriteLine(doc.ToJson(JsonWritingOptions.PrettyPrintRowsAsMapASCII));
         Environment.ExitCode = -1;
       }
@@ -49,6 +51,7 @@ namespace Azos.Platform.ProcessActivation
     private static void generalSyntax()
     {
       Console.WriteLine("SKY Process Activator v2022.07");
+      Console.WriteLine(" on {0} running {1}".Args(Computer.HostName, Abstraction.PlatformAbstractionLayer.PlatformName));
       Console.WriteLine();
       Console.WriteLine("Command syntax:");
       Console.WriteLine();
