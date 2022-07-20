@@ -48,6 +48,11 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestBusinessLogic", "testing\TestBusinessLogic\TestBusinessLogic.csproj", "{27C8EE85-4E00-4471-B81B-C4D51C9D03D0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.Web", "Azos.Web\Azos.Web.csproj", "{9902D057-8385-44A8-B4C1-053E17AC7FE7}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4738C14F-1153-44F6-977B-B82750333E7E} = {4738C14F-1153-44F6-977B-B82750333E7E}
+		{8253A489-1524-4E08-B155-D1A3F83CD031} = {8253A489-1524-4E08-B155-D1A3F83CD031}
+		{1743D0B5-2B62-44B2-A1C1-84326209F0FC} = {1743D0B5-2B62-44B2-A1C1-84326209F0FC}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.Wave", "Azos.Wave\Azos.Wave.csproj", "{26E0A0E2-9EB5-4905-A9B2-DF5B08E0121C}"
 EndProject
@@ -91,7 +96,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.AuthKit.Server", "prov
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "sky", "runtimes\netf\sky\sky.csproj", "{8253A489-1524-4E08-B155-D1A3F83CD031}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "sky", "runtimes\core\sky\sky.csproj", "{4738C14F-1153-44F6-977B-B82750333E7E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "sky", "runtimes\core\sky\sky.csproj", "{4738C14F-1153-44F6-977B-B82750333E7E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

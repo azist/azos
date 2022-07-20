@@ -142,11 +142,22 @@ namespace Azos.Platform.ProcessActivation
                                                     .Any(a => fn.MatchPattern(a.Value, senseCase: true)) &&
                                            (!nAssembly.AttributesNamed(CONFIG_EXCLUDE_FILE_PATTERN_ATTR)
                                                       .Any(a => fn.MatchPattern(a.Value, senseCase: true))));
-//Console.WriteLine("aaaaaaaaaaaaa: " + asmFiles.ToJson());
         foreach (var afn in asmFiles)
         {
-          var asm = Assembly.LoadFrom(afn);
-          var asmTypes = asm.GetTypes();
+          Assembly asm;
+          Type[] asmTypes;
+          try
+          {
+            asm = Assembly.LoadFrom(afn);
+            asmTypes = asm.GetTypes();
+          }
+          catch(Exception error)
+          {
+          #if DEBUG
+            Console.WriteLine("Error loading assembly `{0}`: {1}".Args(afn, error.ToMessageWithType()));
+          #endif
+            continue;
+          }
 
           var matchingTypes = asmTypes.Where(t => nAssembly.AttributesNamed(CONFIG_INCLUDE_TYPE_PATTERN_ATTR)
                                                     .Any(a => t.FullName.MatchPattern(a.Value, senseCase: true)) &&
