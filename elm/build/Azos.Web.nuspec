@@ -26,18 +26,9 @@
   </metadata>
 
   <files>
-  
-    <!-- Core tools -->
-  
-    <file src="..\..\out\Release\Azos.Web.dll"   target="contentFiles\any\any\azos\run-core" />
-    <file src="..\..\out\Release\Azos.Web.xml"   target="contentFiles\any\any\azos\run-core" />
-    <file src="..\..\out\Release\Azos.Web.pdb"   target="contentFiles\any\any\azos\run-core" />
-    
-    <!-- Netf tools -->
-    
-    <file src="..\..\out\Release\Azos.Web.dll"   target="contentFiles\any\any\azos\run-netf" />
-    <file src="..\..\out\Release\Azos.Web.xml"   target="contentFiles\any\any\azos\run-netf" />
-    <file src="..\..\out\Release\Azos.Web.pdb"   target="contentFiles\any\any\azos\run-netf" />
+    <file src="..\..\out\Release\Azos.Web.dll"   target="contentFiles\any\any\azos" />
+    <file src="..\..\out\Release\Azos.Web.xml"   target="contentFiles\any\any\azos" />
+    <file src="..\..\out\Release\Azos.Web.pdb"   target="contentFiles\any\any\azos" />
     
     <!-- ============================================================ -->
   

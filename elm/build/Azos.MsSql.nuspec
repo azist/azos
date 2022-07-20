@@ -34,7 +34,7 @@
     <file src="..\..\out\Release\Azos.MsSql.dll"   target="lib\net472" />
     <file src="..\..\out\Release\Azos.MsSql.xml"   target="lib\net472" />
     <file src="..\..\out\Release\Azos.MsSql.pdb"   target="lib\net472" />
-    <!-- this is temp fox for msbuild issue -->
+    <!-- this is temp fix for msbuild issue -->
     <file src="..\..\out\Release\System.Data.SqlClient.dll"   target="lib\net472" />
     
   </files>

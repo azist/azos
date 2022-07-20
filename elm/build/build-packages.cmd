@@ -19,7 +19,6 @@ set ICON=https://raw.githubusercontent.com/azist/azos/master/elm/design/logo/azo
 set WARNING=-NoPackageAnalysis
 
 nuget pack Azos.nuspec -Version %VER% %WARNING% -OutputDirectory "%OUT%" -Properties icon="%ICON%";headline="%HEADLINE%"
-goto :FINISH
 nuget pack Azos.Web.nuspec -Version %VER% %WARNING%  -OutputDirectory "%OUT%" -Properties icon="%ICON%";headline="%HEADLINE%"
 nuget pack Azos.Wave.nuspec -Version %VER% %WARNING% -OutputDirectory "%OUT%" -Properties icon="%ICON%";headline="%HEADLINE%"
 nuget pack Azos.Media.nuspec -Version %VER% %WARNING% -OutputDirectory "%OUT%" -Properties icon="%ICON%";headline="%HEADLINE%"
