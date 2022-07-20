@@ -19,20 +19,21 @@ namespace sky
     static void Main(string[] args)
     {
       new Azos.Platform.Abstraction.NetFramework.DotNetFrameworkRuntime();
+      ProgramBodyActivator activator = null;
       try
       {
-        var activator = new ProgramBodyActivator(args);
-        Console.WriteLine("Available programs:");
-        Console.WriteLine("-------------------");
-        foreach (var p in activator.All.OrderBy(p => p.bodyAttr.Names.First()))
-        {
-          Console.WriteLine("${0, -10}  -  {1}".Args(p.bodyAttr.Names.Aggregate("", (e,s) => e +" "+ s), p.bodyAttr.Description));
-        }
+        activator = new ProgramBodyActivator(args);
         activator.Run();
       }
-      catch(ProgramBodyActivator.ENotFound notfound)
+      catch(ProgramBodyActivator.EMissingArgs notfound)
       {
         Console.WriteLine(notfound.ToMessageWithType());
+        generalSyntax();
+      }
+      catch(ProgramBodyActivator.ENotFound notfound) when (activator != null)
+      {
+        Console.WriteLine(notfound.ToMessageWithType());
+        dumpPrograms(activator);
       }
       catch(Exception error)
       {
@@ -41,6 +42,24 @@ namespace sky
         Console.WriteLine();
         Console.WriteLine(doc.ToJson(JsonWritingOptions.PrettyPrintRowsAsMapASCII));
         Environment.ExitCode = -1;
+      }
+    }
+
+    private static void generalSyntax()
+    {
+      Console.WriteLine("Process activator general syntax:");
+      Console.WriteLine("  > sky $app_process_name [app-args]");
+      Console.WriteLine("");
+      Console.WriteLine("  $app_process_name - is the name of target process, e.g. `gluec`");
+    }
+
+    private static void dumpPrograms(ProgramBodyActivator activator)
+    {
+      Console.WriteLine("Available programs:");
+      Console.WriteLine("-------------------");
+      foreach (var p in activator.All.OrderBy(p => p.bodyAttr.Names.First()))
+      {
+        Console.WriteLine("${0, -10}  -  {1}".Args(p.bodyAttr.Names.Aggregate("", (e, s) => e + " " + s), p.bodyAttr.Description));
       }
     }
   }

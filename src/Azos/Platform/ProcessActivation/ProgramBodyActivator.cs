@@ -25,6 +25,7 @@ namespace Azos.Platform.ProcessActivation
   /// </summary>
   public class ProgramBodyActivator
   {
+    public class EMissingArgs : AzosException { public EMissingArgs(string msg) : base(msg) { } }
     public class ENotFound : AzosException { public ENotFound(string msg) : base(msg){ } }
 
 
@@ -41,7 +42,7 @@ namespace Azos.Platform.ProcessActivation
     public ProgramBodyActivator(string[] args)
     {
       m_OriginalArgs = args.NonNull(nameof(args));
-      (m_OriginalArgs.Length > 0).IsTrue("Present activator args");
+      if (m_OriginalArgs.Length == 0) throw new EMissingArgs("Missing arguments");
 
       if (args[0].StartsWith(CONFIG_NAME_PREFIX) && args[0].Length > CONFIG_NAME_PREFIX.Length)
       {
@@ -63,14 +64,17 @@ namespace Azos.Platform.ProcessActivation
         }
       }
 
-      (m_Args.Length > 0).IsTrue("Present process name activator args");
-      m_ProcessName = m_Args[0];
-      m_ProcessArgs = m_Args.Skip(1).ToArray();
-
-      Ambient.SetProcessName(m_ProcessName);
-
       m_AllPrograms = GetAllPrograms().ToArray();
-      m_ProcessData = m_AllPrograms.FirstOrDefault(p => m_ProcessName.IsOneOf(p.bodyAttr.Names));
+
+      if (m_Args.Length > 0)
+      {
+        m_ProcessName = m_Args[0];
+        m_ProcessArgs = m_Args.Skip(1).ToArray();
+
+        Ambient.SetProcessName(m_ProcessName);
+        m_ProcessData = m_AllPrograms.FirstOrDefault(p => m_ProcessName.IsOneOf(p.bodyAttr.Names));
+      }
+      //otherwise object state is broken as there is no process name supplied
     }
 
     private string getDefaultConfigFileName()
