@@ -45,4 +45,4 @@ test: on
 
 test_script:
  - cd ..\out\Release
- - trun Azos.Tests.Nub.dll -ec -host type="Azos.Scripting.TestRunnerAppVeyorHost, Azos"
+ - sky trun Azos.Tests.Nub.dll -ec -host type="Azos.Scripting.TestRunnerAppVeyorHost, Azos"
