@@ -3,7 +3,7 @@ echo +++++ [Azos.Sky] Post Build
 set SOLUTION_DIR=%1
 set PROJECT_DIR=%2
 set CONFIG=%3
-set TOOL_DIR=%SOLUTION_DIR%../out/%CONFIG%/run-core/
+set TOOL_DIR=%SOLUTION_DIR%../out/%CONFIG%/
 
 echo +++ Solution  -  %SOLUTION_DIR%
 echo +++ Project   -  %PROJECT_DIR%

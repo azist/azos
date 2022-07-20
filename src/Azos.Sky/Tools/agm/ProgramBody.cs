@@ -15,6 +15,7 @@ using Azos.Sky.Identification;
 
 namespace Azos.Sky.Tools.agm
 {
+  [Platform.ProcessActivation.ProgramBody("agm", Description = "Gdid manager")]
   public static class ProgramBody
   {
     public static void Main(string[] args)

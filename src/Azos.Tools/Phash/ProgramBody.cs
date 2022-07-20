@@ -20,6 +20,7 @@ namespace Azos.Tools.Phash
   /// <summary>
   /// Program entry point for PASSWORD HASH generator tool
   /// </summary>
+  [Platform.ProcessActivation.ProgramBody("phash,pwd", Description = "Security password hash generator tool")]
   public static class ProgramBody
   {
     public static void Main(string[] args)

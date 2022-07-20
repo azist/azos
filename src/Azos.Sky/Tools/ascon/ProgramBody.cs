@@ -17,6 +17,7 @@ using Azos.Sky.Clients;
 
 namespace Azos.Sky.Tools.ascon
 {
+  [Platform.ProcessActivation.ProgramBody("ascon", Description = "App server console")]
   public static class ProgramBody
   {
     public static void Main(string[] args)

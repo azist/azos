@@ -15,6 +15,7 @@ using Azos.Apps;
 
 namespace Azos.Sky.Hosts.aws
 {
+  [Platform.ProcessActivation.ProgramBody("aws", Description = "Web server")]
   public static class ProgramBody
   {
     public static void Main(string[] args)

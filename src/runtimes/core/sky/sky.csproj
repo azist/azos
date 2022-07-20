@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-
   <PropertyGroup>
+    <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.0</TargetFramework>
-    <Description>NFX - .Net Core Platform Abstraction Layer</Description>
+    <ServerGarbageCollection>true</ServerGarbageCollection>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -16,7 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\Azos\Azos.csproj" />
+    <ProjectReference Include="..\Azos.Platform.NetCore20\Azos.Platform.NetCore20.csproj" />
   </ItemGroup>
-
 
 </Project>

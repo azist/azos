@@ -58,6 +58,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="sky.laconf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="trun.laconf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

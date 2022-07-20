@@ -15,6 +15,7 @@ using Azos.Apps.ZoneGovernor;
 
 namespace Azos.Sky.Hosts.azgov
 {
+  [Platform.ProcessActivation.ProgramBody("azgov", Description = "Zone governor")]
   public static class ProgramBody
   {
     public static void Main(string[] args)

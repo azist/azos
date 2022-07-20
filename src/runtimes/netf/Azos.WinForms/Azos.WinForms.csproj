@@ -18,20 +18,20 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\..\..\out\Debug\run-netf\</OutputPath>
+    <OutputPath>..\..\..\..\out\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\..\..\..\out\Debug\run-netf\Azos.WinForms.xml</DocumentationFile>
+    <DocumentationFile>..\..\..\..\out\Debug\Azos.WinForms.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\..\..\..\out\Release\run-netf\</OutputPath>
+    <OutputPath>..\..\..\..\out\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\..\..\..\out\Release\run-netf\Azos.WinForms.xml</DocumentationFile>
+    <DocumentationFile>..\..\..\..\out\Release\Azos.WinForms.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />

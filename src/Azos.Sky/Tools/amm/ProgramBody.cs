@@ -20,6 +20,7 @@ using Azos.Sky.Metabase;
 
 namespace Azos.Sky.Tools.amm
 {
+  [Platform.ProcessActivation.ProgramBody("amm", Description = "Metabase manager")]
   public static class ProgramBody
   {
     public static void Main(string[] args)

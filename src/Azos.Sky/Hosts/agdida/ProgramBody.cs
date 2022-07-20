@@ -15,6 +15,7 @@ using Azos.Sky.Identification;
 
 namespace Azos.Sky.Hosts.agdida
 {
+  [Platform.ProcessActivation.ProgramBody("agdida", Description = "Gdid authority")]
   public static class ProgramBody
   {
     public static void Main(string[] args)
