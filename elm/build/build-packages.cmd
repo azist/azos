@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.43.0.3
-set HEADLINE=#721 dsl paths
+set VER=2.0.0.1
+set HEADLINE=#624 new runtime directories
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
@@ -19,6 +19,7 @@ set ICON=https://raw.githubusercontent.com/azist/azos/master/elm/design/logo/azo
 set WARNING=-NoPackageAnalysis
 
 nuget pack Azos.nuspec -Version %VER% %WARNING% -OutputDirectory "%OUT%" -Properties icon="%ICON%";headline="%HEADLINE%"
+goto :FINISH
 nuget pack Azos.Web.nuspec -Version %VER% %WARNING%  -OutputDirectory "%OUT%" -Properties icon="%ICON%";headline="%HEADLINE%"
 nuget pack Azos.Wave.nuspec -Version %VER% %WARNING% -OutputDirectory "%OUT%" -Properties icon="%ICON%";headline="%HEADLINE%"
 nuget pack Azos.Media.nuspec -Version %VER% %WARNING% -OutputDirectory "%OUT%" -Properties icon="%ICON%";headline="%HEADLINE%"
