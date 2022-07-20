@@ -47,6 +47,7 @@
     <file src="..\..\out\Release\buildinfo.exe.config"   target="contentFiles\any\any\azos" />
     <file src="..\..\out\Release\sky.exe.config" target="contentFiles\any\any\azos" />
     
+    <file src="..\..\out\Release\sky.laconf"     target="contentFiles\any\any\azos" />
     <file src="..\..\out\Release\phash.laconf"   target="contentFiles\any\any\azos" />
     <file src="..\..\out\Release\trun.laconf"    target="contentFiles\any\any\azos" />
   
