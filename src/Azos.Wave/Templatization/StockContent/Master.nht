@@ -219,5 +219,5 @@
 <br />
   Generated ?[Context.App.TimeSource.UTCNow.ToString("yyyy-MM-ddTHH:mm:ssZ", System.Globalization.CultureInfo.InvariantCulture)] for ?[Context.EffectiveCallerIPEndPoint]
 <br />
-  Served by <strong><a href="https://github.com/azist/azos" target="_blank">AZOS (github)</a></strong>
+  Served by <strong><a href="https://github.com/azist/azos" target="_blank">Azos Sky (GitHub)</a></strong>
   &nbsp;

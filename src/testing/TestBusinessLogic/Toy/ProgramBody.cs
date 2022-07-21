@@ -16,6 +16,7 @@ using Azos.Platform;
 
 namespace TestBusinessLogic.Toy
 {
+  [Azos.Platform.ProcessActivation.ProgramBody("toy", Description = "[T]est [o]f [Y]our code")]
   public static class ProgramBody
   {
     public static void Main(string[] args)

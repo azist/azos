@@ -19,6 +19,7 @@ namespace Azos.Tools.Trun
     /// <summary>
     /// Program body (entry point) for TRUN "test runner" utility
     /// </summary>
+    [Platform.ProcessActivation.ProgramBody("trun", Description = "Test runner")]
     public static class ProgramBody
     {
         public static void Main(string[] args)

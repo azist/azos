@@ -52,6 +52,16 @@ namespace Azos
     }
 
     /// <summary>
+    /// Returns all attribute nodes of the specified node having the specified name
+    /// </summary>
+    public static IEnumerable<IConfigAttrNode> AttributesNamed(this IConfigSectionNode node, string attributeName)
+    {
+      attributeName.NonBlank(nameof(attributeName));
+      if (node == null) return Enumerable.Empty<IConfigAttrNode>();
+      return node.Attributes.Where(a => a.IsSameName(attributeName));
+    }
+
+    /// <summary>
     /// Iterates through all child nodes of the section and invokes MakeAndConfigure on each talking
     /// into consideration their polymorphic sub-type
     /// </summary>

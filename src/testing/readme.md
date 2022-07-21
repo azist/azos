@@ -152,7 +152,7 @@ Azos uses [Appveyor](https://www.appveyor.com/) service for its CI auto build.
 The `-host` switch is used to inject a different text host type (taken from `appveyor.yml')`:
 ```yml
  test_script:
- - cd ..\out\Release\run-netf
+ - cd ..\out\Release
  - trun Azos.Tests.Nub.dll -ec -host type="Azos.Scripting.TestRunnerAppVeyorHost, Azos"
 ```
 

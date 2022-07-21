@@ -21,6 +21,7 @@ namespace Azos.Tools.Arow
   /// <summary>
   /// Amorphous Row (Arow) serializer generator
   /// </summary>
+  [Platform.ProcessActivation.ProgramBody("arow", Description = "Amorphous row serialization code gen")]
   public static class ProgramBody
   {
     public static void Main(string[] args)

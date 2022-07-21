@@ -44,5 +44,5 @@ before_build:
 test: on
 
 test_script:
- - cd ..\out\Release\run-netf
- - trun Azos.Tests.Nub.dll -ec -host type="Azos.Scripting.TestRunnerAppVeyorHost, Azos"
+ - cd ..\out\Release
+ - sky trun Azos.Tests.Nub.dll -ec -host type="Azos.Scripting.TestRunnerAppVeyorHost, Azos"

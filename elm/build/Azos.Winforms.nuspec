@@ -22,9 +22,9 @@
   </metadata>
 
   <files>
-    <file src="..\..\out\Release\run-netf\Azos.WinForms.dll"   target="lib\net472" />
-    <file src="..\..\out\Release\run-netf\Azos.WinForms.xml"   target="lib\net472" />
-    <file src="..\..\out\Release\run-netf\Azos.WinForms.pdb"   target="lib\net472" />
+    <file src="..\..\out\Release\Azos.WinForms.dll"   target="lib\net472" />
+    <file src="..\..\out\Release\Azos.WinForms.xml"   target="lib\net472" />
+    <file src="..\..\out\Release\Azos.WinForms.pdb"   target="lib\net472" />
   </files>
 
 </package>

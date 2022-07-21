@@ -13,6 +13,7 @@ using Azos.Platform;
 
 namespace Azos.Sky.Hosts.ash
 {
+  [Platform.ProcessActivation.ProgramBody("ash", Description = "Service host")]
   public static class ProgramBody
   {
     public static void Main(string[] args)

@@ -1,7 +1,7 @@
 @echo on
 
-set VER=1.43.0.3
-set HEADLINE=#721 dsl paths
+set VER=2.0.0.2
+set HEADLINE=#624 new runtime directories
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

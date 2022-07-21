@@ -27,17 +27,11 @@
   </metadata>
 
   <files>
-    <!-- Core tools -->
   
-    <file src="..\..\out\Release\Azos.Wave.dll"   target="contentFiles\any\any\azos\run-core" />
-    <file src="..\..\out\Release\Azos.Wave.xml"   target="contentFiles\any\any\azos\run-core" />
-    <file src="..\..\out\Release\Azos.Wave.pdb"   target="contentFiles\any\any\azos\run-core" />
+    <file src="..\..\out\Release\Azos.Wave.dll"   target="contentFiles\any\any\azos" />
+    <file src="..\..\out\Release\Azos.Wave.xml"   target="contentFiles\any\any\azos" />
+    <file src="..\..\out\Release\Azos.Wave.pdb"   target="contentFiles\any\any\azos" />
     
-    <!-- Netf tools -->
-    
-    <file src="..\..\out\Release\Azos.Wave.dll"   target="contentFiles\any\any\azos\run-netf" />
-    <file src="..\..\out\Release\Azos.Wave.xml"   target="contentFiles\any\any\azos\run-netf" />
-    <file src="..\..\out\Release\Azos.Wave.pdb"   target="contentFiles\any\any\azos\run-netf" />
     
     <!-- ============================================================ -->
   

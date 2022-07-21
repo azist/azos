@@ -24,73 +24,33 @@
 
   <files>
   
-    <!-- Core tools -->
+    <file src="..\..\out\Release\Azos.dll"   target="contentFiles\any\any\azos" />
+    <file src="..\..\out\Release\Azos.xml"   target="contentFiles\any\any\azos" />
+    <file src="..\..\out\Release\Azos.pdb"   target="contentFiles\any\any\azos" />
+    
+    <file src="..\..\out\Release\Azos.Platform.NetCore20.dll"   target="contentFiles\any\any\azos" />
+    <file src="..\..\out\Release\Azos.Platform.NetCore20.pdb"   target="contentFiles\any\any\azos" />
+    <file src="..\..\out\Release\Azos.Platform.NetFramework.dll"   target="contentFiles\any\any\azos" />
+    <file src="..\..\out\Release\Azos.Platform.NetFramework.pdb"   target="contentFiles\any\any\azos" />
+
+    <file src="..\..\out\Release\Azos.Tools.dll"  target="contentFiles\any\any\azos" />
+    <file src="..\..\out\Release\Azos.Tools.xml"  target="contentFiles\any\any\azos" />
+    <file src="..\..\out\Release\Azos.Tools.pdb"  target="contentFiles\any\any\azos" />
+
+    <file src="..\..\out\Release\buildinfo.dll"   target="contentFiles\any\any\azos" />
+    <file src="..\..\out\Release\sky.dll"         target="contentFiles\any\any\azos" />
+    <file src="..\..\out\Release\buildinfo.exe"   target="contentFiles\any\any\azos" />
+    <file src="..\..\out\Release\sky.exe" target="contentFiles\any\any\azos" />
+
+    <file src="..\..\out\Release\buildinfo.runtimeconfig.json"   target="contentFiles\any\any\azos" />
+    <file src="..\..\out\Release\sky.runtimeconfig.json" target="contentFiles\any\any\azos" />
+    <file src="..\..\out\Release\buildinfo.exe.config"   target="contentFiles\any\any\azos" />
+    <file src="..\..\out\Release\sky.exe.config" target="contentFiles\any\any\azos" />
+    
+    <file src="..\..\out\Release\sky.laconf"     target="contentFiles\any\any\azos" />
+    <file src="..\..\out\Release\phash.laconf"   target="contentFiles\any\any\azos" />
+    <file src="..\..\out\Release\trun.laconf"    target="contentFiles\any\any\azos" />
   
-    <file src="..\..\out\Release\Azos.dll"   target="contentFiles\any\any\azos\run-core" />
-    <file src="..\..\out\Release\Azos.xml"   target="contentFiles\any\any\azos\run-core" />
-    <file src="..\..\out\Release\Azos.pdb"   target="contentFiles\any\any\azos\run-core" />
-    
-    <file src="..\..\out\Release\run-core\Azos.Platform.NetCore20.dll"   target="contentFiles\any\any\azos\run-core" />
-    <file src="..\..\out\Release\run-core\Azos.Platform.NetCore20.pdb"   target="contentFiles\any\any\azos\run-core" />
-
-    <file src="..\..\out\Release\Azos.Tools.dll"  target="contentFiles\any\any\azos\run-core" />
-    <file src="..\..\out\Release\Azos.Tools.xml"  target="contentFiles\any\any\azos\run-core" />
-    <file src="..\..\out\Release\Azos.Tools.pdb"  target="contentFiles\any\any\azos\run-core" />
-
-    <file src="..\..\out\Release\run-core\buildinfo.dll"   target="contentFiles\any\any\azos\run-core" />
-    <file src="..\..\out\Release\run-core\getdatetime.dll" target="contentFiles\any\any\azos\run-core" />
-    <file src="..\..\out\Release\run-core\gluec.dll"       target="contentFiles\any\any\azos\run-core" />
-    <file src="..\..\out\Release\run-core\ntc.dll"         target="contentFiles\any\any\azos\run-core" />
-    <file src="..\..\out\Release\run-core\phash.dll"       target="contentFiles\any\any\azos\run-core" />
-    <file src="..\..\out\Release\run-core\rsc.dll"         target="contentFiles\any\any\azos\run-core" />
-    <file src="..\..\out\Release\run-core\trun.dll"        target="contentFiles\any\any\azos\run-core" />
-    <file src="..\..\out\Release\run-core\arow.dll"        target="contentFiles\any\any\azos\run-core" />
-
-    <file src="..\..\out\Release\run-core\buildinfo.runtimeconfig.json"   target="contentFiles\any\any\azos\run-core" />
-    <file src="..\..\out\Release\run-core\getdatetime.runtimeconfig.json" target="contentFiles\any\any\azos\run-core" />
-    <file src="..\..\out\Release\run-core\gluec.runtimeconfig.json"       target="contentFiles\any\any\azos\run-core" />
-    <file src="..\..\out\Release\run-core\ntc.runtimeconfig.json"         target="contentFiles\any\any\azos\run-core" />
-    <file src="..\..\out\Release\run-core\phash.runtimeconfig.json"       target="contentFiles\any\any\azos\run-core" />
-    <file src="..\..\out\Release\run-core\rsc.runtimeconfig.json"         target="contentFiles\any\any\azos\run-core" />
-    <file src="..\..\out\Release\run-core\trun.runtimeconfig.json"        target="contentFiles\any\any\azos\run-core" />
-    <file src="..\..\out\Release\run-core\arow.runtimeconfig.json"        target="contentFiles\any\any\azos\run-core" />
-    
-    <file src="..\..\out\Release\run-core\phash.laconf"   target="contentFiles\any\any\azos\run-core" />
-    <file src="..\..\out\Release\run-core\trun.laconf"    target="contentFiles\any\any\azos\run-core" />
-  
-    <!-- Netf tools -->
-    
-    <file src="..\..\out\Release\Azos.dll"   target="contentFiles\any\any\azos\run-netf" />
-    <file src="..\..\out\Release\Azos.xml"   target="contentFiles\any\any\azos\run-netf" />
-    <file src="..\..\out\Release\Azos.pdb"   target="contentFiles\any\any\azos\run-netf" />
-    
-    <file src="..\..\out\Release\run-netf\Azos.Platform.NetFramework.dll"   target="contentFiles\any\any\azos\run-netf" />
-    <file src="..\..\out\Release\run-netf\Azos.Platform.NetFramework.pdb"   target="contentFiles\any\any\azos\run-netf" />
-
-    <file src="..\..\out\Release\Azos.Tools.dll"  target="contentFiles\any\any\azos\run-netf" />
-    <file src="..\..\out\Release\Azos.Tools.xml"  target="contentFiles\any\any\azos\run-netf" />
-    <file src="..\..\out\Release\Azos.Tools.pdb"  target="contentFiles\any\any\azos\run-netf" />
-
-    <file src="..\..\out\Release\run-netf\buildinfo.exe"   target="contentFiles\any\any\azos\run-netf" />
-    <file src="..\..\out\Release\run-netf\getdatetime.exe" target="contentFiles\any\any\azos\run-netf" />
-    <file src="..\..\out\Release\run-netf\gluec.exe"       target="contentFiles\any\any\azos\run-netf" />
-    <file src="..\..\out\Release\run-netf\ntc.exe"         target="contentFiles\any\any\azos\run-netf" />
-    <file src="..\..\out\Release\run-netf\phash.exe"       target="contentFiles\any\any\azos\run-netf" />
-    <file src="..\..\out\Release\run-netf\rsc.exe"         target="contentFiles\any\any\azos\run-netf" />
-    <file src="..\..\out\Release\run-netf\trun.exe"        target="contentFiles\any\any\azos\run-netf" />
-    <file src="..\..\out\Release\run-netf\arow.exe"        target="contentFiles\any\any\azos\run-netf" />
-
-    <file src="..\..\out\Release\run-netf\buildinfo.exe.config"   target="contentFiles\any\any\azos\run-netf" />
-    <file src="..\..\out\Release\run-netf\getdatetime.exe.config" target="contentFiles\any\any\azos\run-netf" />
-    <file src="..\..\out\Release\run-netf\gluec.exe.config"       target="contentFiles\any\any\azos\run-netf" />
-    <file src="..\..\out\Release\run-netf\ntc.exe.config"         target="contentFiles\any\any\azos\run-netf" />
-    <file src="..\..\out\Release\run-netf\phash.exe.config"       target="contentFiles\any\any\azos\run-netf" />
-    <file src="..\..\out\Release\run-netf\rsc.exe.config"         target="contentFiles\any\any\azos\run-netf" />
-    <file src="..\..\out\Release\run-netf\trun.exe.config"        target="contentFiles\any\any\azos\run-netf" />
-    <file src="..\..\out\Release\run-netf\arow.exe.config"        target="contentFiles\any\any\azos\run-netf" />
-    
-    <file src="..\..\out\Release\run-netf\phash.laconf"   target="contentFiles\any\any\azos\run-netf" />
-    <file src="..\..\out\Release\run-netf\trun.laconf"    target="contentFiles\any\any\azos\run-netf" />
   
     <!-- ============================================================ -->
   
@@ -107,8 +67,8 @@
     <file src="..\..\out\Release\Azos.Tools.dll" target="lib\netcoreapp2.0" />
     <file src="..\..\out\Release\Azos.Tools.xml" target="lib\netcoreapp2.0" />
     <file src="..\..\out\Release\Azos.Tools.pdb" target="lib\netcoreapp2.0" />
-    <file src="..\..\out\Release\run-core\Azos.Platform.NetCore20.dll"   target="lib\netcoreapp2.0" />
-    <file src="..\..\out\Release\run-core\Azos.Platform.NetCore20.pdb"   target="lib\netcoreapp2.0" />
+    <file src="..\..\out\Release\Azos.Platform.NetCore20.dll"   target="lib\netcoreapp2.0" />
+    <file src="..\..\out\Release\Azos.Platform.NetCore20.pdb"   target="lib\netcoreapp2.0" />
     
     
     <file src="..\..\out\Release\Azos.dll"   target="lib\net472" />
@@ -117,8 +77,8 @@
     <file src="..\..\out\Release\Azos.Tools.dll" target="lib\net472" />
     <file src="..\..\out\Release\Azos.Tools.xml" target="lib\net472" />
     <file src="..\..\out\Release\Azos.Tools.pdb" target="lib\net472" />
-    <file src="..\..\out\Release\run-netf\Azos.Platform.NetFramework.dll"   target="lib\net472" />
-    <file src="..\..\out\Release\run-netf\Azos.Platform.NetFramework.pdb"   target="lib\net472" />
+    <file src="..\..\out\Release\Azos.Platform.NetFramework.dll"   target="lib\net472" />
+    <file src="..\..\out\Release\Azos.Platform.NetFramework.pdb"   target="lib\net472" />
   </files>
 
 </package>
