@@ -1,7 +1,7 @@
 @echo on
 
 set VER=2.1.0.1
-set HEADLINE=#624 new runtime directories
+set HEADLINE=#727 change to API protocol + idempotency tokens
 call vs2017-build-release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
