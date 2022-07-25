@@ -42,8 +42,12 @@ namespace Azos.Wave.Mvc
     {
       var filtered = await App.InjectInto(filter.NonNull(nameof(filter)))
                               .SaveReturningObjectAsync().ConfigureAwait(false);
+
       if (filtered.IsSuccess)
-        return new { OK = true, data = filtered.Result }; //note: filters don't need idempotency tokens
+      {
+        //note: filters don't need idempotency tokens
+        return new { OK = true, data = filtered.Result };
+      }
 
       throw new BusinessException($"Could not apply filter `{typeof(TFilter).Name}`: {filtered.Error.ToMessageWithType()}", filtered.Error);
     }
