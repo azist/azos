@@ -1,6 +1,6 @@
 @echo on
 
-set VER=2.0.0.2
+set VER=2.1.0.1
 set HEADLINE=#624 new runtime directories
 call vs2017-build-release %VER%
 
