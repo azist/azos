@@ -13,9 +13,24 @@ using Azos.Serialization.JSON;
 namespace Azos.Data
 {
   /// <summary>
+  /// Decorates types that represent a result of an idempotent operation with a `IdempotencyToken: string`.
+  /// This interface addresses the response part and does not specify how the token value gets supplied
+  /// by the calling client (e.g. call header, request parameter, etc.)
+  /// </summary>
+  public interface IIdempotentResult
+  {
+    /// <summary>
+    /// Provide idempotency key value which server can use to prevent secondary execution of the
+    /// request marked with the same token
+    /// </summary>
+    string IdempotencyToken {  get; }
+  }
+
+
+  /// <summary>
   /// Describes data change operation result: {ChangeType, AffectedCount, Message, Data}
   /// </summary>
-  public struct ChangeResult : IJsonWritable, IJsonReadable, IHttpStatusProvider
+  public struct ChangeResult : IJsonWritable, IJsonReadable, IHttpStatusProvider, IIdempotentResult
   {
     /// <summary>
     /// Change types: Undefined/Inserted/Updated/Upserted/Deleted/Other.
@@ -54,13 +69,15 @@ namespace Azos.Data
     /// <param name="msg">Optional message from the serving party</param>
     /// <param name="data">Returns optional extra data which is returned from the data change operation</param>
     /// <param name="statusCode">Status code mappable to http response, zero by default</param>
-    public ChangeResult(ChangeType change, long affectedCount, string msg, object data, int statusCode = 0)
+    /// <param name="idempotencyToken">Optional idempotency token</param>
+    public ChangeResult(ChangeType change, long affectedCount, string msg, object data, int statusCode = 0, string idempotencyToken = null)
     {
       Change = change;
       StatusCode = statusCode;
       AffectedCount = affectedCount;
       Message = msg;
       Data = data;
+      IdempotencyToken = idempotencyToken;
     }
 
     /// <summary>
@@ -69,13 +86,15 @@ namespace Azos.Data
     /// <param name="msg">Optional message from the serving party</param>
     /// <param name="statusCode">Status code mappable to http response, zero by default which maps to HTTP 404</param>
     /// <param name="data">Returns optional extra data which is returned from the data change operation</param>
-    public ChangeResult(string msg, int statusCode = 0, object data = null)
+    /// <param name="idempotencyToken">Optional idempotency token</param>
+    public ChangeResult(string msg, int statusCode = 0, object data = null, string idempotencyToken = null)
     {
       Change = ChangeType.Undefined;
       StatusCode = statusCode;
       AffectedCount = 0;
       Message = msg;
       Data = data;
+      IdempotencyToken = idempotencyToken;
     }
 
     /// <summary>
@@ -91,6 +110,7 @@ namespace Azos.Data
       AffectedCount = map["affected"].AsLong();
       Message       = map["message"].AsString();
       Data          = map["data"];
+      IdempotencyToken = map["idempotency_token"].AsString();
     }
 
     /// <summary> True if change is not `Undefined` </summary>
@@ -123,6 +143,16 @@ namespace Azos.Data
     public readonly object Data;
 
     /// <summary>
+    /// Optional idempotency token issued by the server/processing entity. Guid.Empty is used when no token was issued.
+    /// You can use the returned token to retry the seemingly failed server operation which may already have succeeded
+    /// on the server in which case the token will ensure that the secondary re-executions are not going to affect server state
+    /// beyond the very first change
+    /// </summary>
+    public readonly string IdempotencyToken;
+
+    string IIdempotentResult.IdempotencyToken => this.IdempotencyToken;
+
+    /// <summary>
     /// Writes this ChangeResult as a typical JSON object like: {OK: true, change: Inserted ... }
     /// </summary>
     void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options)
@@ -133,7 +163,8 @@ namespace Azos.Data
                     new DictionaryEntry("status", StatusCode),
                     new DictionaryEntry("affected", AffectedCount),
                     new DictionaryEntry("message", Message),
-                    new DictionaryEntry("data", Data)
+                    new DictionaryEntry("data", Data),
+                    new DictionaryEntry("idempotency_token", IdempotencyToken)
                    );
     }
 
@@ -153,26 +184,24 @@ namespace Azos.Data
   /// <summary>
   /// Struct returned from Form.Save(): it is either an error (IsSuccess==false), or TResult
   /// </summary>
-  public struct SaveResult<TResult>
+  public struct SaveResult<TResult> : IIdempotentResult
   {
     /// <summary>
     /// Creates error result
     /// </summary>
-    public SaveResult(Exception error, Guid idempotencyToken = default(Guid))
+    public SaveResult(Exception error)
     {
       Error = error;
       Result = default(TResult);
-      IdempotencyToken = idempotencyToken;
     }
 
     /// <summary>
     /// Creates successful result
     /// </summary>
-    public SaveResult(TResult result, Guid idempotencyToken = default(Guid))
+    public SaveResult(TResult result)
     {
       Error = null;
       Result = result;
-      IdempotencyToken = idempotencyToken;
     }
 
     /// <summary>
@@ -186,14 +215,6 @@ namespace Azos.Data
     /// Use <see cref="GetResult"/> to return a valid result or throw
     /// </summary>
     public readonly TResult Result;
-
-    /// <summary>
-    /// Optional idempotency token issued by the server/processing entity. Guid.Empty is used when no token was issued.
-    /// You can use the returned token to retry the seemingly failed server operation which may already have succeeded
-    /// on the server in which case the token will ensure that the secondary re-executions are not going to affect server state
-    /// beyond the very first change
-    /// </summary>
-    public readonly Guid IdempotencyToken;
 
     /// <summary>
     /// True if there is no error - a success
@@ -214,5 +235,10 @@ namespace Azos.Data
     /// If result is successful then returns it, otherwise throws an error
     /// </summary>
     public TResult GetResult() => IsSuccess ? Result : throw Error;
+
+    /// <summary>
+    /// If the embodied result is <see cref="IIdempotentResult"/> then returns its <see cref="IIdempotentResult.IdempotencyToken"/>, null otherwise
+    /// </summary>
+    public string IdempotencyToken => Result is IIdempotentResult ir ? ir.IdempotencyToken : null;
   }
 }

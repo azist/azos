@@ -43,7 +43,7 @@ namespace Azos.Wave.Mvc
       var filtered = await App.InjectInto(filter.NonNull(nameof(filter)))
                               .SaveReturningObjectAsync().ConfigureAwait(false);
       if (filtered.IsSuccess)
-        return new { OK = true, data = filtered.Result };
+        return new { OK = true, data = filtered.Result }; //note: filters don't need idempotency tokens
 
       throw new BusinessException($"Could not apply filter `{typeof(TFilter).Name}`: {filtered.Error.ToMessageWithType()}", filtered.Error);
     }
@@ -61,7 +61,12 @@ namespace Azos.Wave.Mvc
       var processed = await App.InjectInto(request.NonNull(nameof(request)))
                                .SaveReturningObjectAsync().ConfigureAwait(false);
       if (processed.IsSuccess)
-        return new { OK = true, data = processed.Result, idempotency_token = processed.IdempotencyToken };
+      {
+        if (processed.IdempotencyToken.IsNotNullOrWhiteSpace())
+          return new { OK = true, data = processed.Result, idempotency_token = processed.IdempotencyToken };
+        else
+          return new { OK = true, data = processed.Result };
+      }
 
       throw new BusinessException($"Could not process request `{typeof(TRequest).Name}`: {processed.Error.ToMessageWithType()}", processed.Error);
     }
@@ -157,7 +162,11 @@ namespace Azos.Wave.Mvc
         var ok = code >= 200 && code <= 299;
         WorkContext.Response.StatusCode = code;
         WorkContext.Response.StatusDescription = hsp.HttpStatusDescription;
-        return new { OK = ok, data = result };
+
+        if (result is IIdempotentResult ir1 && ir1.IdempotencyToken.IsNotNullOrWhiteSpace())
+          return new { OK = ok, data = result, idempotency_token = ir1.IdempotencyToken };
+        else
+          return new { OK = ok, data = result };
       }
 
       var is404 = result == null;
@@ -174,7 +183,11 @@ namespace Azos.Wave.Mvc
         WorkContext.Response.StatusCode = WebConsts.STATUS_404;
         WorkContext.Response.StatusDescription = WebConsts.STATUS_404_DESCRIPTION;
       }
-      return new { OK = !is404, data = result };
+
+      if (result is IIdempotentResult ir2 && ir2.IdempotencyToken.IsNotNullOrWhiteSpace())
+        return new { OK = !is404, data = result, idempotency_token = ir2.IdempotencyToken };
+      else
+        return new { OK = !is404, data = result };
     }
   }
 }
