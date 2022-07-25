@@ -48,6 +48,24 @@ namespace Azos.Wave.Mvc
       throw new BusinessException($"Could not apply filter `{typeof(TFilter).Name}`: {filtered.Error.ToMessageWithType()}", filtered.Error);
     }
 
+    /// <summary>
+    /// Processes the request and generates response returning JSON result.
+    /// Note:
+    ///  this method does not return 404 if response is null, this is because 404 would indicate an absence
+    /// of the request processor resource, whereas a null response result is returned as HTTP 200 with an empty/null response object.
+    /// In case of exception absence, the HTTP response codes are always 200, even when the response is null, this is because
+    /// request/response is treated more like RPC and does not rely on HTTP response code semantics
+    /// </summary>
+    protected async Task<object> ProcessRequestAsync<TRequest>(TRequest request) where TRequest : class, IBusinessRequestModel
+    {
+      var processed = await App.InjectInto(request.NonNull(nameof(request)))
+                               .SaveReturningObjectAsync().ConfigureAwait(false);
+      if (processed.IsSuccess)
+        return new { OK = true, data = processed.Result, idempotency_token = processed.IdempotencyToken };
+
+      throw new BusinessException($"Could not process request `{typeof(TRequest).Name}`: {processed.Error.ToMessageWithType()}", processed.Error);
+    }
+
 
     private async Task<object> save(PersistedModel<ChangeResult> model)
     {
@@ -115,11 +133,15 @@ namespace Azos.Wave.Mvc
     /// For example, an object may represent a non-null "good data" but sometimes you might need to return specific HTTP
     /// status code with accompanying description
     /// </summary>
-    public object GetExplicitResult(bool ok, object result, int httpStatus, string httpStatusDescription)
+    public object GetExplicitResult(bool ok, object result, int httpStatus, string httpStatusDescription, string idempotencyToken)
     {
       WorkContext.Response.StatusCode = httpStatus;
       WorkContext.Response.StatusDescription = httpStatusDescription;
-      return new { OK = ok, data = result };
+
+      if (idempotencyToken.IsNotNullOrWhiteSpace())
+        return new { OK = ok, data = result, idempotency_token = idempotencyToken };
+      else
+        return new { OK = ok, data = result};
     }
 
     /// <summary>

@@ -142,7 +142,7 @@ namespace Azos.Data
     /// </summary>
     public (bool match, IJsonReadable self) ReadAsJson(object data, bool fromUI, JsonReader.DocReadOptions? options)
     {
-      if (data is JsonDataMap map && map["OK"].AsBool())
+      if (data is JsonDataMap map)
         return (true, new ChangeResult(map));
 
       return (false, null);
