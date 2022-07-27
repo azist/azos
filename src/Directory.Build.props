@@ -6,9 +6,13 @@
     <!-- To copy referenced packages into /out -->
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 
+    <!-- Classic use of nulls is everywhere in Azos -->
+    <Nullable>disable</Nullable>
+
     <PreserveCompilationContext>false</PreserveCompilationContext>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <NoWarn>1701;1702;1705;1591;649</NoWarn>
+
 
 
     <Authors>Azist, @dzhabis, @dkh</Authors>
