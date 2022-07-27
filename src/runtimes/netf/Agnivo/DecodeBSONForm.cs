@@ -33,12 +33,13 @@ namespace Agnivo
 
     private void InitializeTextBoxContextMenu()
     {
-      ContextMenu contextMenu = new System.Windows.Forms.ContextMenu();
-      var menuItem = new MenuItem("Copy");
-      menuItem.Click += new EventHandler(CopyAction);
-      contextMenu.MenuItems.Add(menuItem);
+    //Net 6 upgrade
+      //ContextMenu contextMenu = new System.Windows.Forms.ContextMenu();
+      //var menuItem = new MenuItem("Copy");
+      //menuItem.Click += new EventHandler(CopyAction);
+      //contextMenu.MenuItems.Add(menuItem);
 
-      DecodedBSONText.ContextMenu = contextMenu;
+      //DecodedBSONText.ContextMenu = contextMenu;
     }
 
     private void CopyAction(object sender, EventArgs e)

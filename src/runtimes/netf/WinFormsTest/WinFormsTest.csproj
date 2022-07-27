@@ -37,7 +37,6 @@
     <Reference Update="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
-    <Reference Include="System.Windows.Forms.DataVisualization" />
     <Reference Update="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
@@ -141,7 +140,8 @@
     <EmbeddedResource Remove="WaveForm.resx" />
     <EmbeddedResource Remove="WaveServerForm.resx" />
   </ItemGroup>
-  <PropertyGroup>
+
+  <!--PropertyGroup>
     <PreBuildEvent>$(ProjectDir)pre-build $(SolutionDir)
 
 
@@ -149,5 +149,5 @@
   </PropertyGroup>
   <PropertyGroup>
     <PostBuildEvent>$(ProjectDir)post-build $(SolutionDir)</PostBuildEvent>
-  </PropertyGroup>
+  </PropertyGroup -->
 </Project>

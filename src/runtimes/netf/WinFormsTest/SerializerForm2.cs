@@ -401,68 +401,68 @@ namespace WinFormsTest
           {
             prepare();
 
+    //net 6 upgrade
+              //var asmBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(
+              //      new AssemblyName("ZmeyaTeztx"), AssemblyBuilderAccess.Run);
+              //var modBuilder = asmBuilder.DefineDynamicModule("myModule");
+              //var tpBuilder = modBuilder.DefineType("myType_1", TypeAttributes.Public);
+              //var methodBuilder = tpBuilder.DefineMethod(
+              //             "myMethod_1", MethodAttributes.Public | MethodAttributes.Static);
+              //expression1.CompileToMethod(methodBuilder);
+              //var tp = tpBuilder.CreateType();
+              //var asmF1 = (Func<int, int>)Delegate.CreateDelegate( typeof(Func<int, int>), this, tp.GetMethod("myMethod_1"));
 
-              var asmBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(
-                    new AssemblyName("ZmeyaTeztx"), AssemblyBuilderAccess.Run);
-              var modBuilder = asmBuilder.DefineDynamicModule("myModule");
-              var tpBuilder = modBuilder.DefineType("myType_1", TypeAttributes.Public);
-              var methodBuilder = tpBuilder.DefineMethod(
-                           "myMethod_1", MethodAttributes.Public | MethodAttributes.Static);
-              expression1.CompileToMethod(methodBuilder);
-              var tp = tpBuilder.CreateType();
-              var asmF1 = (Func<int, int>)Delegate.CreateDelegate( typeof(Func<int, int>), this, tp.GetMethod("myMethod_1"));
+              //Text = asmF1(5).ToString();
 
-              Text = asmF1(5).ToString();
+              //tpBuilder = modBuilder.DefineType("myType_2", TypeAttributes.Public);
+              //methodBuilder = tpBuilder.DefineMethod(
+              //             "myMethod_2", MethodAttributes.Public | MethodAttributes.Static);
 
-              tpBuilder = modBuilder.DefineType("myType_2", TypeAttributes.Public);
-              methodBuilder = tpBuilder.DefineMethod(
-                           "myMethod_2", MethodAttributes.Public | MethodAttributes.Static);
+              //expression2.CompileToMethod(methodBuilder);
+              //tp = tpBuilder.CreateType();
+              //var asmF2 = (Func<int, int>)Delegate.CreateDelegate( typeof(Func<int, int>), this, tp.GetMethod("myMethod_2"));
 
-              expression2.CompileToMethod(methodBuilder);
-              tp = tpBuilder.CreateType();
-              var asmF2 = (Func<int, int>)Delegate.CreateDelegate( typeof(Func<int, int>), this, tp.GetMethod("myMethod_2"));
+              //Text += "    "+asmF2(5).ToString();
 
-              Text += "    "+asmF2(5).ToString();
+              //test1(this, 2);
+              //test2(this, 3);
+              //test3(3);
 
-              test1(this, 2);
-              test2(this, 3);
-              test3(3);
+              //const int CNT = 500000000;
+              //for(var i=0; i<500000000; i++);
 
-              const int CNT = 500000000;
-              for(var i=0; i<500000000; i++);
-
-              var w = Stopwatch.StartNew();
-
-
-              w.Restart();
-              for(var i=0; i<CNT; i++)  asmF1(3);
-              var ts1 = w.ElapsedMilliseconds;
-
-              w.Restart();
-              for(var i=0; i<CNT; i++)  asmF2(3);
-              var ts2 = w.ElapsedMilliseconds;
-
-              w.Restart();
-              for(var i=0; i<CNT; i++)  test1(this, 3);
-              var ts3 = w.ElapsedMilliseconds;
-
-              w.Restart();
-              for(var i=0; i<CNT; i++)  test2(this, 3);
-              var ts4 = w.ElapsedMilliseconds;
-
-              w.Restart();
-              for(var i=0; i<CNT; i++)  test3(3);
-              var ts5 = w.ElapsedMilliseconds;
+              //var w = Stopwatch.StartNew();
 
 
-              Text = "T1: {0:n2}/sec  T2: {1:n2}/sec  T3: {2:n2}/sec  T4: {3:n2}/sec T5: {4:n2}/sec".Args
-                      (
-                         CNT / (ts1 / 1000d),
-                         CNT / (ts2 / 1000d),
-                         CNT / (ts3 / 1000d),
-                         CNT / (ts4 / 1000d),
-                         CNT / (ts5 / 1000d)
-                      );
+              //w.Restart();
+              //for(var i=0; i<CNT; i++)  asmF1(3);
+              //var ts1 = w.ElapsedMilliseconds;
+
+              //w.Restart();
+              //for(var i=0; i<CNT; i++)  asmF2(3);
+              //var ts2 = w.ElapsedMilliseconds;
+
+              //w.Restart();
+              //for(var i=0; i<CNT; i++)  test1(this, 3);
+              //var ts3 = w.ElapsedMilliseconds;
+
+              //w.Restart();
+              //for(var i=0; i<CNT; i++)  test2(this, 3);
+              //var ts4 = w.ElapsedMilliseconds;
+
+              //w.Restart();
+              //for(var i=0; i<CNT; i++)  test3(3);
+              //var ts5 = w.ElapsedMilliseconds;
+
+
+              //Text = "T1: {0:n2}/sec  T2: {1:n2}/sec  T3: {2:n2}/sec  T4: {3:n2}/sec T5: {4:n2}/sec".Args
+              //        (
+              //           CNT / (ts1 / 1000d),
+              //           CNT / (ts2 / 1000d),
+              //           CNT / (ts3 / 1000d),
+              //           CNT / (ts4 / 1000d),
+              //           CNT / (ts5 / 1000d)
+              //        );
           }
 
           private void btnDates_Click(object sender, EventArgs e)
