@@ -10,6 +10,7 @@ using System.IO;
 
 using Azos.Scripting;
 using static Azos.Aver.ThrowsAttribute;
+using MatchType = Azos.Aver.ThrowsAttribute.MatchType;
 
 namespace Azos.Tests.Nub
 {
