@@ -14,7 +14,4 @@
     <ProjectReference Include="..\..\..\Azos\Azos.csproj" />
     <ProjectReference Include="..\Azos.Platform.NetFramework\Azos.Platform.NetFramework.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-  </ItemGroup>
 </Project>
