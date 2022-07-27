@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2026
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32630.192
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos", "Azos\Azos.csproj", "{C2BF5275-C8C2-46CC-86C7-A83A75C2BE0D}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -21,7 +21,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Azos.Platform.NetFramework"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C2217C23-C12B-4CE7-B8B6-7222662EB16A}"
 	ProjectSection(SolutionItems) = preProject
-		____GlobalWarningSuppressions.cs = ____GlobalWarningSuppressions.cs
 		Directory.Build.props = Directory.Build.props
 		documentation-index.md = documentation-index.md
 		naming-conventions.md = naming-conventions.md
@@ -30,6 +29,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		runtimes.md = runtimes.md
 		todo-stickers.md = todo-stickers.md
 		truisms.md = truisms.md
+		____GlobalWarningSuppressions.cs = ____GlobalWarningSuppressions.cs
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "buildinfo", "runtimes\netf\buildinfo\buildinfo.csproj", "{AB869DBB-623B-4A34-8D06-D11FAEE2B8F1}"
@@ -78,9 +78,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.Sky.WebManager", "Azos
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.Sky.MongoDb", "providers\Azos.Sky.MongoDb\Azos.Sky.MongoDb.csproj", "{32C6DCC7-5E9D-4D87-AF56-6F690135F19A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Agnivo", "runtimes\netf\Agnivo\Agnivo.csproj", "{3320B3B9-EC75-4C18-9E70-44955FA43CBB}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ard", "runtimes\netf\ard\ard.csproj", "{DCE248F9-CB14-464F-AF65-DA245F9337C5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Agnivo", "runtimes\netf\Agnivo\Agnivo.csproj", "{3320B3B9-EC75-4C18-9E70-44955FA43CBB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinFormsTestSky", "runtimes\netf\WinFormsTestSky\WinFormsTestSky.csproj", "{A7DFADE5-8018-45FF-8033-F61A6ED6802D}"
 EndProject
@@ -188,10 +186,6 @@ Global
 		{3320B3B9-EC75-4C18-9E70-44955FA43CBB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3320B3B9-EC75-4C18-9E70-44955FA43CBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3320B3B9-EC75-4C18-9E70-44955FA43CBB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DCE248F9-CB14-464F-AF65-DA245F9337C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DCE248F9-CB14-464F-AF65-DA245F9337C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DCE248F9-CB14-464F-AF65-DA245F9337C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DCE248F9-CB14-464F-AF65-DA245F9337C5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A7DFADE5-8018-45FF-8033-F61A6ED6802D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A7DFADE5-8018-45FF-8033-F61A6ED6802D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A7DFADE5-8018-45FF-8033-F61A6ED6802D}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -246,7 +240,6 @@ Global
 		{96C1D999-FFD7-4599-831B-FBD37606AD36} = {608A6011-035A-4E1C-A1EB-29F91960A5BD}
 		{32C6DCC7-5E9D-4D87-AF56-6F690135F19A} = {608A6011-035A-4E1C-A1EB-29F91960A5BD}
 		{3320B3B9-EC75-4C18-9E70-44955FA43CBB} = {F572F5AC-8BDE-4D36-BE8A-ED42299C576F}
-		{DCE248F9-CB14-464F-AF65-DA245F9337C5} = {F572F5AC-8BDE-4D36-BE8A-ED42299C576F}
 		{A7DFADE5-8018-45FF-8033-F61A6ED6802D} = {F572F5AC-8BDE-4D36-BE8A-ED42299C576F}
 		{C533831A-DD1B-4DA2-A7D8-98B6DD708871} = {0FC66524-0EE2-410C-B971-97170166D2D6}
 		{C2CF5A80-206E-4BE0-AEDD-0CD0592AECFC} = {608A6011-035A-4E1C-A1EB-29F91960A5BD}
