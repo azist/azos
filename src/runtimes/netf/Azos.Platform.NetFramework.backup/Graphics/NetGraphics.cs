@@ -13,26 +13,35 @@ namespace Azos.Platform.Abstraction.NetFramework.Graphics
 {
   public sealed class NetGraphics : IPALGraphics
   {
+    /// <summary>
+    /// This GDI+ implementation allows to create assets outside of GDI+.Graphics scope
+    /// </summary>
     public bool CanvasOwnsAssets => false;
 
     public IPALImage CreateImage(string fileName)
     {
-      throw new NetFrameworkPALException("Not implemented");
+      var nimg = System.Drawing.Image.FromFile(fileName);
+      return new NetImage(nimg);
     }
 
     public IPALImage CreateImage(byte[] data)
     {
-      throw new NetFrameworkPALException("Not implemented");
+      using(var ms = new MemoryStream(data))
+      {
+       var nimg = System.Drawing.Image.FromStream(ms);
+       return new NetImage(nimg);
+      }
     }
 
     public IPALImage CreateImage(Stream stream)
     {
-      throw new NetFrameworkPALException("Not implemented");
+      var nimg = System.Drawing.Image.FromStream(stream);
+      return new NetImage(nimg);
     }
 
     public IPALImage CreateImage(Size size, Size resolution, ImagePixelFormat pixFormat)
     {
-      throw new NetFrameworkPALException("Not implemented");
+      return new NetImage(size, resolution, pixFormat);
     }
 
   }

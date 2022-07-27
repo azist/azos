@@ -51,8 +51,7 @@ namespace Azos.Platform.Abstraction.NetFramework
       dirSec.AddAccessRule(adminsRule);
       dirSec.AddAccessRule(sysRule);
 
-   #warning WHat is the access mode here?
-      return Directory.CreateDirectory(path);//, dirSec);
+      return Directory.CreateDirectory(path, dirSec);
     }
 
   }
