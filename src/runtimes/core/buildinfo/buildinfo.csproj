@@ -4,6 +4,13 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
     <ServerGarbageCollection>true</ServerGarbageCollection>
+
+
+    <UseAppHost>True</UseAppHost> <!-- FALSE = get rid of EXE -->
+
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
+    <SelfContained>false</SelfContained>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
