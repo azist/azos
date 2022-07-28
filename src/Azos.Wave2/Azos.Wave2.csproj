@@ -21,4 +21,9 @@
     <ProjectReference Include="..\Azos\Azos.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Include="..\____GlobalWarningSuppressions.cs" Link="____GlobalWarningSuppressions.cs" />
+    <Compile Include="Templatization\StockContent\.tc\*.nht.auto.cs" />
+  </ItemGroup>
+
 </Project>

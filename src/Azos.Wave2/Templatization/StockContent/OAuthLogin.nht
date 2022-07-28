@@ -1,0 +1,40 @@
+﻿#<laconf>
+compiler
+{
+  using{ns="Azos.Data"}
+  using{ns="Azos.Security"}
+  base-class-name="Azos.Wave.Templatization.StockContent.Master"
+  namespace="Azos.Wave.Templatization.StockContent"
+  abstract="false"
+  summary="Displays OAuth user login page"
+}
+#</laconf>
+#[class]
+
+public readonly User ClientUser;
+public readonly string Roundtrip;
+public readonly string Error;
+
+public OAuthLogin(User clAppUser, string roundtrip, string error) : base()
+{
+  ClientUser = clAppUser;
+  Roundtrip = roundtrip;
+}
+
+public override string Title { get {return "OAuth - User Login"; } }
+
+#[override renderHeader()]
+ Open Auth Login
+#[override renderBody()]
+
+<strong>?[ClientUser.Description]</strong> application is trying to access your account.
+
+<form method="POST" action="authorize">
+  <input type="hidden" name="roundtrip" value="?[:Roundtrip]">
+  Email: <input type="text" name="id"><br>
+  Password: <input type="password" name="pwd" ><br>
+  Remember me <input type="checkbox" name="stay" value="true"><br>
+  <input type="submit">
+</form>
+
+
