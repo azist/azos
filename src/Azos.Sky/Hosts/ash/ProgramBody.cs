@@ -108,7 +108,7 @@ namespace Azos.Sky.Hosts.ash
             Exception = error
           });
 
-          throw error;
+          throw;
         }
       }//using app
     }

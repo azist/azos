@@ -99,7 +99,7 @@ namespace Azos.Sky.Hosts.ahgov
             Exception = error
           });
 
-          throw error;
+          throw;
         }
       }//using APP
     }

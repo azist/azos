@@ -4,6 +4,7 @@
     <OutputType>Library</OutputType>
     <_HasReferenceToSystemRuntime>true</_HasReferenceToSystemRuntime>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <SupportedPlatform>windows</SupportedPlatform>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <OutputPath>..\..\..\..\out\Debug\</OutputPath>

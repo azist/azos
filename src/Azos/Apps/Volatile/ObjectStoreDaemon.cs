@@ -470,7 +470,7 @@ namespace Azos.Apps.Volatile
         }
 
         WriteLog(MessageType.CatastrophicError, nameof(DoStart), "Leaked exception: " + error.ToMessageWithType(), error);
-        throw error;
+        throw;
       }
 
       WriteLog(MessageType.Trace, nameof(DoStart), "Exiting");
@@ -491,7 +491,7 @@ namespace Azos.Apps.Volatile
       catch (Exception error)
       {
         WriteLog(MessageType.CatastrophicError, nameof(DoSignalStop), "Leaked: " + error.ToMessageWithType(), error);
-        throw error;
+        throw;
       }
 
       WriteLog(MessageType.Trace, nameof(DoSignalStop), "Exiting");
@@ -515,7 +515,7 @@ namespace Azos.Apps.Volatile
       catch (Exception error)
       {
         WriteLog(MessageType.CatastrophicError, nameof(DoWaitForCompleteStop), "Leaked exception: " + error.ToMessageWithType(), error);
-        throw error;
+        throw;
       }
 
       WriteLog(MessageType.Trace, nameof(DoWaitForCompleteStop), "Exiting");

@@ -96,7 +96,7 @@ namespace Azos.Sky.Hosts.agdida
             Exception = error
           });
 
-          throw error;
+          throw;
         }
       }//using app
     }

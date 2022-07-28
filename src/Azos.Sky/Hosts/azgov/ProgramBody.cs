@@ -97,7 +97,7 @@ namespace Azos.Sky.Hosts.azgov
             Exception = error
           });
 
-          throw error;
+          throw;
         }
       }//using APP
     }

@@ -9,6 +9,7 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 
 
 // General Information about an assembly is controlled through the following
@@ -43,3 +44,6 @@ using System.Runtime.InteropServices;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("3.0.0.1")]
 [assembly: AssemblyFileVersion("3.0.0.1")]
+
+
+[assembly: SupportedOSPlatform("windows")]

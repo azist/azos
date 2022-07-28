@@ -110,7 +110,7 @@ namespace Azos.Sky.Hosts.aws
             Exception = error
           });
 
-          throw error;
+          throw;
         }
       }//using app
     }
