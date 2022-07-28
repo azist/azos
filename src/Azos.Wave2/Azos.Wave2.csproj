@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Description>Azos - Web Wave Assembly</Description>
+    <RootNamespace>Azos.Wave</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>..\..\out\Debug\</OutputPath>
+    <DocumentationFile>..\..\out\Debug\Azos.Wave2.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>..\..\out\Release\</OutputPath>
+    <DocumentationFile>..\..\out\Release\Azos.Wave2.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Azos.Web\Azos.Web.csproj" />
+    <ProjectReference Include="..\Azos\Azos.csproj" />
+  </ItemGroup>
+
+</Project>

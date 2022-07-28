@@ -25,7 +25,7 @@
     <PackageTags>atoz;fullstack;full-stack;apps;net-core;big-memory;pile;slim;glue;wave;cluster;zhabis</PackageTags>
     <PackageLicenseUrl>https://github.com/azist/azos</PackageLicenseUrl>
     <PackageIconUrl>https://raw.githubusercontent.com/azist/azos/master/elm/logo/logo.50.png</PackageIconUrl>
-    <PackageReleaseNotes>Supports both .NET Framework 4.7.1+ and .NET Core 2.0+</PackageReleaseNotes>
+    <PackageReleaseNotes>.NET 6.0 Runtime</PackageReleaseNotes>
   </PropertyGroup>
 
 </Project>

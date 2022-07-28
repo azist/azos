@@ -31,11 +31,6 @@
 
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CSharp" Version="4.4.0" />
-  </ItemGroup>
-
-
-  <ItemGroup>
     <ProjectReference Include="..\Azos\Azos.csproj" />
   </ItemGroup>
 
