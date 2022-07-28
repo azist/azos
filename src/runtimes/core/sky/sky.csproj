@@ -5,17 +5,16 @@
     <TargetFramework>net6.0</TargetFramework>
     <ServerGarbageCollection>true</ServerGarbageCollection>
 
-    <!-- <UseAppHost>False</UseAppHost> get rid of EXE -->
-
-
+    <UseAppHost>True</UseAppHost>   <!-- get rid of EXE -->
+    <!--RuntimeIdentifier>windows-x64;linux-x64</RuntimeIdentifier-->
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\..\..\..\out\Debug</OutputPath>
+    <OutputPath>../../../../out/Debug</OutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>..\..\..\..\out\Release</OutputPath>
+    <OutputPath>../../../../out/Release</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>
