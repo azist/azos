@@ -26,8 +26,12 @@ namespace Azos.Wave
   [Serialization.Slim.SlimSerializationProhibited]
   public class WorkContext : DisposableObject, Apps.ICallFlow
   {
+    public Microsoft.AspNetCore.Http.HttpContext MACACACACA;//<============================================
+
+
+
     #region .ctor/.dctor
-      private static AsyncFlowMutableLocal<WorkContext> ats_Current = new AsyncFlowMutableLocal<WorkContext>();
+    private static AsyncFlowMutableLocal<WorkContext> ats_Current = new AsyncFlowMutableLocal<WorkContext>();
 
       /// <summary>
       /// Returns the current call context/thread/async flow instance
