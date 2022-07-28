@@ -81,7 +81,7 @@
     <ProjectReference Include="..\..\..\providers\Azos.MongoDb\Azos.MongoDb.csproj" />
     <ProjectReference Include="..\..\..\providers\Azos.MsSql\Azos.MsSql.csproj" />
     <ProjectReference Include="..\..\..\testing\TestBusinessLogic\TestBusinessLogic.csproj" />
-    <ProjectReference Include="..\Azos.Platform.NetFramework\Azos.Platform.NetFramework.csproj" />
+    <ProjectReference Include="..\Azos.Platform.Windows\Azos.Platform.Windows.csproj" />
     <ProjectReference Include="..\Azos.WinForms\Azos.WinForms.csproj" />
   </ItemGroup>
   <ItemGroup>

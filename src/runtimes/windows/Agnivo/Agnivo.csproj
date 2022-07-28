@@ -28,7 +28,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\Azos.Sky\Azos.Sky.csproj" />
     <ProjectReference Include="..\..\..\Azos\Azos.csproj" />
-    <ProjectReference Include="..\Azos.Platform.NetFramework\Azos.Platform.NetFramework.csproj" />
+    <ProjectReference Include="..\Azos.Platform.Windows\Azos.Platform.Windows.csproj" />
   </ItemGroup>
   <PropertyGroup />
   <PropertyGroup />
