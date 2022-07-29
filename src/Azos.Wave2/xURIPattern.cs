@@ -69,7 +69,7 @@ namespace Azos.Wave
     /// Tries to match the pattern against the URI path section and returns a JSONDataMap match object filled with pattern match or
     /// NULL if pattern could not be matched.
     /// </summary>
-    public JsonDataMap MatchURIPath(PathString path, bool senseCase = false)
+    public JsonDataMap MatchUriPath(PathString path, bool senseCase = false)
     {
       JsonDataMap result = null;
       if (m_MatchChunks.Count==0) return new JsonDataMap(false);

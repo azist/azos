@@ -433,13 +433,13 @@ namespace Azos.Wave
 
         if (m_PathPattern != null)
         {
-          result = m_PathPattern.MatchURIPath(work.Request.Url);
+          result = m_PathPattern.MatchUriPath(work.Request.Url);
           if (result==null) return null;
         }
 
         if (m_NotPathPattern != null)
         {
-          if (m_NotPathPattern.MatchURIPath(work.Request.Url)!=null) return null;
+          if (m_NotPathPattern.MatchUriPath(work.Request.Url)!=null) return null;
         }
 
         if (!Check_VariablesAndGetValues(work, ref result)) return null;
