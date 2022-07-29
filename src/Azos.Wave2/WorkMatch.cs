@@ -160,11 +160,11 @@ namespace Azos.Wave
 
         var ppattern = confNode.AttrByName(CONFIG_PATH_ATTR).Value;
         if (ppattern.IsNotNullOrWhiteSpace())
-          m_PathPattern = new URIPattern( ppattern );
+          m_PathPattern = new UriPattern( ppattern );
 
         var nppattern = confNode.AttrByName(CONFIG_NOT_PATH_ATTR).Value;
         if (nppattern.IsNotNullOrWhiteSpace())
-          m_NotPathPattern = new URIPattern( nppattern );
+          m_NotPathPattern = new UriPattern( nppattern );
 
         //Variables
         foreach(var vnode in confNode.Children.Where(c=>c.IsSameName(CONFIG_VAR_SECTION)))
@@ -179,8 +179,8 @@ namespace Azos.Wave
 
       private string m_Name;
       private int m_Order;
-      private URIPattern m_PathPattern;
-      private URIPattern m_NotPathPattern;
+      private UriPattern m_PathPattern;
+      private UriPattern m_NotPathPattern;
 
       private string m_TypeNsPrefix;
 
@@ -227,7 +227,7 @@ namespace Azos.Wave
       /// <summary>
       /// Returns the URIPattern matcher for URI path segment matching
       /// </summary>
-      public URIPattern PathPattern
+      public UriPattern PathPattern
       {
         get { return m_PathPattern; }
         set { m_PathPattern = value;}
@@ -236,7 +236,7 @@ namespace Azos.Wave
       /// <summary>
       /// Returns the URIPattern matcher for reverse URI path segment matching
       /// </summary>
-      public URIPattern NotPathPattern
+      public UriPattern NotPathPattern
       {
         get { return m_NotPathPattern; }
         set { m_NotPathPattern = value;}
@@ -431,13 +431,13 @@ namespace Azos.Wave
 
         JsonDataMap result = null;
 
-        if (m_PathPattern!=null)
+        if (m_PathPattern != null)
         {
           result = m_PathPattern.MatchURIPath(work.Request.Url);
           if (result==null) return null;
         }
 
-        if (m_NotPathPattern!=null)
+        if (m_NotPathPattern != null)
         {
           if (m_NotPathPattern.MatchURIPath(work.Request.Url)!=null) return null;
         }
