@@ -6,10 +6,11 @@
 
 using System;
 using System.Linq;
-using System.Net;
 using System.Threading;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+
+using Microsoft.AspNetCore.Http;
 
 using Azos.Log;
 using Azos.Web;
@@ -17,6 +18,7 @@ using Azos.Web;
 using Azos.Serialization.JSON;
 using Azos.Web.GeoLookup;
 using Azos.Platform;
+using System.Net;
 
 namespace Azos.Wave
 {
@@ -26,10 +28,6 @@ namespace Azos.Wave
   [Serialization.Slim.SlimSerializationProhibited]
   public class WorkContext : DisposableObject, Apps.ICallFlow
   {
-    public Microsoft.AspNetCore.Http.HttpContext MACACACACA;//<============================================
-
-
-
     #region .ctor/.dctor
     private static AsyncFlowMutableLocal<WorkContext> ats_Current = new AsyncFlowMutableLocal<WorkContext>();
 
@@ -38,12 +36,13 @@ namespace Azos.Wave
       /// </summary>
       public static WorkContext Current => ats_Current.Value;
 
-      internal WorkContext(WaveServer server, HttpListenerContext listenerContext)
+      internal WorkContext(WaveServer server, HttpContext httpContext)
       {
         m_ID = Guid.NewGuid();
         m_Server = server;
-        m_ListenerContext = listenerContext;
-        m_Response = new Response(this, listenerContext.Response);
+        m_HttpContext = httpContext;
+        m_Request = new Request(httpContext.Request);
+        m_Response = new Response(this, httpContext.Response);
 
         ats_Current.Value = this;
         Apps.ExecutionContext.__SetThreadLevelCallContext(this);
@@ -51,7 +50,7 @@ namespace Azos.Wave
 
         var flowHdr = m_Server.CallFlowHeader;
         if (flowHdr.IsNotNullOrWhiteSpace())
-          m_ListenerContext.Response.AddHeader(flowHdr, m_ID.ToString());
+          m_HttpContext.Response.AddHeader(flowHdr, m_ID.ToString());
       }
 
       /// <summary>
@@ -75,52 +74,51 @@ namespace Azos.Wave
     #endregion
 
     #region Fields
-      private Guid m_ID;
-      private WaveServer m_Server;
-      private bool m_WorkSemaphoreReleased;
+    private Guid m_ID;
+    private WaveServer m_Server;
 
-      private HttpListenerContext m_ListenerContext;
-      internal IPEndPoint m_EffectiveCallerIPEndPoint;//set by filters
-      private Response m_Response;
+    private HttpContext m_HttpContext;
+    internal IPEndPoint m_EffectiveCallerIPEndPoint;//set by filters
+    private Request m_Request;
+    private Response m_Response;
 
-      internal Filters.SessionFilter m_SessionFilter;
-      internal WaveSession m_Session;
+    internal Filters.SessionFilter m_SessionFilter;
+    internal WaveSession m_Session;
 
-      internal Filters.PortalFilter m_PortalFilter;
-      internal Portal m_Portal;
-      internal Theme m_PortalTheme;
-      internal WorkMatch m_PortalMatch;
-      internal JsonDataMap m_PortalMatchedVars;
+    internal Filters.PortalFilter m_PortalFilter;
+    internal Portal m_Portal;
+    internal Theme m_PortalTheme;
+    internal WorkMatch m_PortalMatch;
+    internal JsonDataMap m_PortalMatchedVars;
 
 
-      private object m_ItemsLock = new object();
-      private volatile ConcurrentDictionary<object, object> m_Items;
+    private object m_ItemsLock = new object();
+    private volatile ConcurrentDictionary<object, object> m_Items;
 
-      internal WorkHandler m_Handler;
+    internal WorkHandler m_Handler;
 
-      private WorkMatch m_Match;
-      private JsonDataMap m_MatchedVars;
-                     /// <summary>
-                     /// Internal method. Developers do not call
-                     /// </summary>
-                     internal void ___SetWorkMatch(WorkMatch match, JsonDataMap vars){m_Match = match; m_MatchedVars = vars;}
+    private WorkMatch m_Match;
+    private JsonDataMap m_MatchedVars;
+                    /// <summary>
+                    /// Internal method. Developers do not call
+                    /// </summary>
+                    internal void ___SetWorkMatch(WorkMatch match, JsonDataMap vars){m_Match = match; m_MatchedVars = vars;}
 
-      private bool m_HasParsedRequestBody;
-      private JsonDataMap m_RequestBodyAsJSONDataMap;
-      private JsonDataMap m_WholeRequestAsJSONDataMap;
+    private bool m_HasParsedRequestBody;
+    private JsonDataMap m_RequestBodyAsJSONDataMap;
+    private JsonDataMap m_WholeRequestAsJSONDataMap;
 
-      internal bool m_Handled;
-      private bool m_Aborted;
+    internal bool m_Handled;
+    private bool m_Aborted;
 
-      private bool m_NoDefaultAutoClose;
+    private bool m_NoDefaultAutoClose;
 
-      private GeoEntity m_GeoEntity;
+    private GeoEntity m_GeoEntity;
 
-      private bool m_IsAuthenticated;
+    private bool m_IsAuthenticated;
 
-      private string m_CallFlowDirectorName;
-      private volatile ConcurrentDictionary<string, object> m_CallFlowValues;
-
+    private string m_CallFlowDirectorName;
+    private volatile ConcurrentDictionary<string, object> m_CallFlowValues;
     #endregion
 
     #region Properties
@@ -137,7 +135,7 @@ namespace Azos.Wave
 
       string Apps.ICallFlow.CallerAddress => EffectiveCallerIPEndPoint.ToString();
       string Apps.ICallFlow.CallerAgent   => Request.UserAgent.TakeFirstChars(96, "..");
-      string Apps.ICallFlow.CallerPort    => Request.HttpMethod + "  " + Request.Url.ToString().TakeFirstChars(96, "..");
+      string Apps.ICallFlow.CallerPort    => Request.Method + "  " + Request.Url.ToString().TakeFirstChars(96, "..");
 
       object Apps.ICallFlow.this[string key]
       {
@@ -175,27 +173,19 @@ namespace Azos.Wave
       /// </summary>
       public WaveServer Server => m_Server;
 
-      /// <summary>
-      /// Returns true to indicate that work semaphore has been already released.
-      /// It is not necessary to use this property or ReleaseWorkSemaphore() method as the framework does it
-      ///  automatically in 99% cases. ReleaseWorkSemaphore() may need to be called from special places like HTTP streaming
-      ///   servers that need to keep WorkContext instances open for a long time
-      /// </summary>
-      public bool WorkSemaphoreReleased => m_WorkSemaphoreReleased;
-
 
       /// <summary>
-      /// Returns HttpListenerRequest object for this context
+      /// Returns Request object for this context
       /// </summary>
-     //todo Wrap in Wave.Request object (just like Response)
-      public HttpListenerRequest Request => m_ListenerContext.Request;
+      public Request Request => m_Request;
 
 
       /// <summary>
       /// Returns the effective caller endpoint- that is, if the real caller filter is set it will inject the real IP
       /// as seen before any proxy devices. By default this property returns the Request.RemoteEndPoint
       /// </summary>
-      public IPEndPoint EffectiveCallerIPEndPoint => m_EffectiveCallerIPEndPoint ?? Request.RemoteEndPoint;
+      public IPEndPoint EffectiveCallerIPEndPoint
+        => m_EffectiveCallerIPEndPoint ?? new IPEndPoint(m_HttpContext.Connection.RemoteIpAddress, m_HttpContext.Connection.RemotePort);
 
 
       /// <summary>
@@ -420,8 +410,7 @@ namespace Azos.Wave
         get
         {
           if (!m_RequestedJson.HasValue)
-            m_RequestedJson = Request.AcceptTypes != null && Request.AcceptTypes.Any(at => at != null && at.IndexOf(ContentType.JSON, StringComparison.OrdinalIgnoreCase) != -1);
-
+            m_RequestedJson = Request.RequestedJson;
           return m_RequestedJson.Value;
         }
       }
@@ -429,32 +418,32 @@ namespace Azos.Wave
       /// <summary>
       /// Indicates that request method is POST
       /// </summary>
-      public bool IsPOST => Request.HttpMethod.EqualsOrdIgnoreCase(WebConsts.HTTP_POST);
+      public bool IsPOST => Request.Method.EqualsOrdIgnoreCase(WebConsts.HTTP_POST);
 
       /// <summary>
       /// Indicates that request method is GET
       /// </summary>
-      public bool IsGET => Request.HttpMethod.EqualsOrdIgnoreCase(WebConsts.HTTP_GET);
+      public bool IsGET => Request.Method.EqualsOrdIgnoreCase(WebConsts.HTTP_GET);
 
       /// <summary>
       /// Indicates that request method is PUT
       /// </summary>
-      public bool IsPUT => Request.HttpMethod.EqualsOrdIgnoreCase(WebConsts.HTTP_PUT);
+      public bool IsPUT => Request.Method.EqualsOrdIgnoreCase(WebConsts.HTTP_PUT);
 
       /// <summary>
       /// Indicates that request method is DELETE
       /// </summary>
-      public bool IsDELETE => Request.HttpMethod.EqualsOrdIgnoreCase(WebConsts.HTTP_DELETE);
+      public bool IsDELETE => Request.Method.EqualsOrdIgnoreCase(WebConsts.HTTP_DELETE);
 
       /// <summary>
       /// Indicates that request method is PATCH
       /// </summary>
-      public bool IsPATCH => Request.HttpMethod.EqualsOrdIgnoreCase(WebConsts.HTTP_PATCH);
+      public bool IsPATCH => Request.Method.EqualsOrdIgnoreCase(WebConsts.HTTP_PATCH);
 
       /// <summary>
       /// Indicates that request method is OPTIONS
       /// </summary>
-      public bool IsOPTIONS => Request.HttpMethod.EqualsOrdIgnoreCase(WebConsts.HTTP_OPTIONS);
+      public bool IsOPTIONS => Request.Method.EqualsOrdIgnoreCase(WebConsts.HTTP_OPTIONS);
 
       /// <summary>
       /// Returns true to indicate that this context is/was authenticated.
@@ -465,133 +454,109 @@ namespace Azos.Wave
 
     #region Public
 
-      /// <summary>
-      /// Releases work semaphore that throttles the processing of WorkContext instances.
-      /// The WorkContext is released automatically in destructor, however there are cases when the semaphore release
-      /// may be needed sooner, i.e. in a HTTP streaming application where work context instances are kept open indefinitely
-      /// it may not be desirable to consider long-living work context instances as a throttling factor.
-      /// Returns true if semaphore was released, false if it was not released during this call as it was already released before
-      /// </summary>
-      public bool ReleaseWorkSemaphore()
+    /// <summary>
+    /// Ensures that session is injected if session filter is present in processing chain.
+    /// If session is already available (Session!=null) then does nothing, otherwise
+    /// fills Session property with either NEW session (if onlyExisting=false(default)) if user supplied no session token,
+    /// OR gets session from session store as defined by the first SessionFilter in the chain
+    /// </summary>
+    public WaveSession NeedsSession(bool onlyExisting = false)
+    {
+      if (m_Session!=null) return m_Session;
+
+      Interlocked.Increment(ref m_Server.m_stat_WorkContextNeedsSession);
+
+      if (m_SessionFilter!=null)
+        m_SessionFilter.FetchExistingOrMakeNewSession(this, onlyExisting);
+      else
+        throw new WaveException(StringConsts.SESSION_NOT_AVAILABLE_ERROR.Args(About));
+
+      return m_Session;
+    }
+
+
+    /// <summary>
+    /// Facilitates context-aware logging
+    /// </summary>
+    public void Log(MessageType type, string text, string from = null, Exception error = null, string pars = null, Guid? related = null)
+    {
+      var msg = new Message
       {
-        if (m_Server!=null && m_Server.Running && !m_WorkSemaphoreReleased)
-        {
-          var workCount = m_Server.m_WorkSemaphore.Release();
-          m_WorkSemaphoreReleased = true;
-          if (m_Server.m_InstrumentationEnabled)
-          {
-            Interlocked.Increment(ref m_Server.m_stat_WorkContextWorkSemaphoreRelease);
-            Thread.VolatileWrite(ref m_Server.m_stat_ServerWorkSemaphoreCount, workCount);
-          }
-          return true;
-        }
-        return false;
-      }
+        Type = type,
+        Topic = SysConsts.WAVE_LOG_TOPIC,
+        From = from.IsNotNullOrWhiteSpace() ? from : About,
+        Text = text,
+        Exception = error ?? LastError,
+        Parameters = pars
+      };
 
+      if (related.HasValue)
+        msg.RelatedTo = related.Value;
+      else
+        msg.RelatedTo = this.m_ID;
 
-      /// <summary>
-      /// Ensures that session is injected if session filter is present in processing chain.
-      /// If session is already available (Session!=null) then does nothing, otherwise
-      /// fills Session property with either NEW session (if onlyExisting=false(default)) if user supplied no session token,
-      /// OR gets session from session store as defined by the first SessionFilter in the chain
-      /// </summary>
-      public WaveSession NeedsSession(bool onlyExisting = false)
-      {
-        if (m_Session!=null) return m_Session;
+      App.Log.Write(msg);
+    }
 
-        Interlocked.Increment(ref m_Server.m_stat_WorkContextNeedsSession);
+    /// <summary>
+    /// Returns true if the whole request (body or matched vars) contains any names matching any field names of the specified document
+    /// </summary>
+    public bool HasAnyVarsMatchingFieldNames(Data.Doc doc)
+    {
+      if (doc == null) return false;
 
-        if (m_SessionFilter!=null)
-          m_SessionFilter.FetchExistingOrMakeNewSession(this, onlyExisting);
-        else
-          throw new WaveException(StringConsts.SESSION_NOT_AVAILABLE_ERROR.Args(About));
+      foreach(var fdef in doc.Schema)
+        if (WholeRequestAsJSONDataMap.ContainsKey(fdef.Name)) return true;
 
-        return m_Session;
-      }
+      return false;
+    }
 
+    public override string ToString()
+    {
+      return About;
+    }
 
-      /// <summary>
-      /// Facilitates context-aware logging
-      /// </summary>
-      public void Log(MessageType type, string text, string from = null, Exception error = null, string pars = null, Guid? related = null)
-      {
-        var msg = new Message
-        {
-          Type = type,
-          Topic = SysConsts.WAVE_LOG_TOPIC,
-          From = from.IsNotNullOrWhiteSpace() ? from : About,
-          Text = text,
-          Exception = error ?? LastError,
-          Parameters = pars
-        };
+    /// <summary>
+    /// Invoked by applications to signify the presence of authentication
+    /// </summary>
+    public void SetAuthenticated(bool value)
+    {
+      m_IsAuthenticated = value;
+    }
 
-        if (related.HasValue)
-          msg.RelatedTo = related.Value;
-        else
-          msg.RelatedTo = this.m_ID;
-
-        App.Log.Write(msg);
-      }
-
-      /// <summary>
-      /// Returns true if the whole request (body or matched vars) contains any names matching any field names of the specified document
-      /// </summary>
-      public bool HasAnyVarsMatchingFieldNames(Data.Doc doc)
-      {
-        if (doc == null) return false;
-
-        foreach(var fdef in doc.Schema)
-         if (WholeRequestAsJSONDataMap.ContainsKey(fdef.Name)) return true;
-
-        return false;
-      }
-
-      public override string ToString()
-      {
-        return About;
-      }
-
-      /// <summary>
-      /// Invoked by applications to signify the presence of authentication
-      /// </summary>
-      public void SetAuthenticated(bool value)
-      {
-        m_IsAuthenticated = value;
-      }
-
-      /// <summary>
-      /// Tries to increase server network Gate named variable for incoming traffic for this caller's effective ip.
-      /// Returns true if gate is enabled and variable was increased
-      /// </summary>
-      public bool IncreaseGateVar(string varName, int value = 1)
-      {
-        varName.NonBlank(nameof(varName));
-        var gate = Server.Gate;
-        if (gate == null || !gate.Enabled) return false;
-        var ip = EffectiveCallerIPEndPoint.Address.ToString();
-        gate.IncreaseVariable(IO.Net.Gate.TrafficDirection.Incoming, ip, varName, value);
-        return true;
-      }
+    /// <summary>
+    /// Tries to increase server network Gate named variable for incoming traffic for this caller's effective ip.
+    /// Returns true if gate is enabled and variable was increased
+    /// </summary>
+    public bool IncreaseGateVar(string varName, int value = 1)
+    {
+      varName.NonBlank(nameof(varName));
+      var gate = Server.Gate;
+      if (gate == null || !gate.Enabled) return false;
+      var ip = EffectiveCallerIPEndPoint.Address.ToString();
+      gate.IncreaseVariable(IO.Net.Gate.TrafficDirection.Incoming, ip, varName, value);
+      return true;
+    }
 
     #endregion
 
 
     #region Protected
 
-      /// <summary>
-      /// Converts request body and MatchedVars into a single JSONDataMap. Users should call WholeRequestAsJSONDataMap.get() as it caches the result
-      /// </summary>
-      protected virtual JsonDataMap GetWholeRequestAsJSONDataMap()
-      {
-        var body = this.RequestBodyAsJSONDataMap;
+    /// <summary>
+    /// Converts request body and MatchedVars into a single JSONDataMap. Users should call WholeRequestAsJSONDataMap.get() as it caches the result
+    /// </summary>
+    protected virtual JsonDataMap GetWholeRequestAsJSONDataMap()
+    {
+      var body = this.RequestBodyAsJSONDataMap;
 
-        if (body==null) return MatchedVars;
+      if (body == null) return MatchedVars;
 
-        var result = new JsonDataMap(false);
-        result.Append(MatchedVars)
-              .Append(body);
-        return result;
-      }
+      var result = new JsonDataMap(false);
+      result.Append(MatchedVars)
+            .Append(body);
+      return result;
+    }
 
       /// <summary>
       /// This method is called only once as it touches the input streams
@@ -605,28 +570,26 @@ namespace Azos.Wave
         var ctp = Request.ContentType;
 
         //Has body by no content type
-        if (ctp==null)
+        if (ctp == null)
         {
           throw HTTPStatusException.NotAcceptable_406("Missing content-type");
         }
-
-        try
-        {
+      //https://markb.uk/asp-net-core-read-raw-request-body-as-string.html
+      try
+      {
           //Multi-part
           if (ctp.IndexOf(ContentType.FORM_MULTIPART_ENCODED)>=0)
           {
             var boundary = Multipart.ParseContentType(ctp);
-            var mp = Multipart.ReadFromStream(Request.InputStream, ref boundary, Request.ContentEncoding);
+            var mp = Multipart.ReadFromStream(Request.BodyStream, ref boundary);
             result =  mp.ToJSONDataMap();
           }
           else //Form URL encoded
           if (ctp.IndexOf(ContentType.FORM_URL_ENCODED)>=0)
-            result = JsonDataMap.FromURLEncodedStream(new Azos.IO.NonClosingStreamWrap(Request.InputStream),
-                                                    Request.ContentEncoding);
+            result = JsonDataMap.FromURLEncodedStream(new Azos.IO.NonClosingStreamWrap(Request.BodyStream));
           else//JSON
           if (ctp.IndexOf(ContentType.JSON)>=0)
-            result = JsonReader.DeserializeDataObject(new Azos.IO.NonClosingStreamWrap(Request.InputStream),
-                                                    Request.ContentEncoding) as JsonDataMap;
+            result = JsonReader.DeserializeDataObject(new Azos.IO.NonClosingStreamWrap(Request.BodyStream)) as JsonDataMap;
 
           return result;
         }

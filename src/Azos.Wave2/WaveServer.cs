@@ -145,8 +145,6 @@ namespace Azos.Wave
     private Thread m_InstrumentationThread;
     private AutoResetEvent m_InstrumentationThreadWaiter;
 
-    private Semaphore m_AcceptSemaphore;
-    internal Semaphore m_WorkSemaphore;
 
     private INetGate m_Gate;
     private WorkDispatcher m_Dispatcher;
@@ -166,14 +164,12 @@ namespace Azos.Wave
     internal long m_stat_FilterHandleException;
 
     internal long m_stat_ServerAcceptSemaphoreCount;
-    internal long m_stat_ServerWorkSemaphoreCount;
 
     internal long m_stat_WorkContextWrittenResponse;
     internal long m_stat_WorkContextBufferedResponse;
     internal long m_stat_WorkContextBufferedResponseBytes;
     internal long m_stat_WorkContextCtor;
     internal long m_stat_WorkContextDctor;
-    internal long m_stat_WorkContextWorkSemaphoreRelease;
     internal long m_stat_WorkContextAborted;
     internal long m_stat_WorkContextHandled;
     internal long m_stat_WorkContextNoDefaultClose;
