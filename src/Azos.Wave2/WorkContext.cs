@@ -565,6 +565,10 @@ namespace Azos.Wave
       {
         if (!Request.HasEntityBody) return null;
 
+        //request content decompression
+        //https://stackoverflow.com/questions/42792099/request-content-decompression-in-asp-net-core
+       // Request.AspRequest.ContentLength
+
         JsonDataMap result = null;
 
         var ctp = Request.ContentType;
