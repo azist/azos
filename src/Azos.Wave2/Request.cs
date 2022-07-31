@@ -41,4 +41,5 @@ namespace Azos.Wave
         return result;
       }
     }
+  }
 }
