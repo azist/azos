@@ -232,7 +232,15 @@ namespace Azos.Apps
     /// </summary>
     public IApplicationComponent ComponentDirector => m_ComponentDirector;
 
-#warning REMOVE asap WAVE handler refactoring
+#warning REMOVE asap WAVE2 handler refactoring
+#warning REMOVE asap WAVE2 handler refactoring
+#warning REMOVE asap WAVE2 handler refactoring
+#warning REMOVE asap WAVE2 handler refactoring
+#warning REMOVE asap WAVE2 handler refactoring
+#warning REMOVE asap WAVE2 handler refactoring
+#warning REMOVE asap WAVE2 handler refactoring
+#warning REMOVE asap WAVE2 handler refactoring
+#warning REMOVE asap WAVE2 handler refactoring
     internal void __setComponentDirector(IApplicationComponent director) { m_ComponentDirector = director; }
 
     /// <summary>
