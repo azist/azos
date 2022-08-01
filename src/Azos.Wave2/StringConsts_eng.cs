@@ -78,8 +78,8 @@ namespace Azos.Wave
       public const string CONFIG_DUPLICATE_FILTER_NAME_ERROR =
         "Filter '{0}' is specified more than once in config";
 
-      public const string CONFIG_HANDLER_DUPLICATE_MATCH_NAME_ERROR =
-        "Match '{0}' is specified more than once in handler config";
+      public const string CONFIG_DUPLICATE_MATCH_NAME_ERROR =
+        "Match '{0}' is specified more than once in '{1}' config";
 
       public const string CONFIG_COMPOSITE_MATCH_DUPLICATE_MATCH_NAME_ERROR =
         "Match '{0}' is specified more than once in composite match config";

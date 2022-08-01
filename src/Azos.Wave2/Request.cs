@@ -28,6 +28,7 @@ namespace Azos.Wave
     public readonly HttpRequest AspRequest;
     public string UserAgent => AspRequest.Headers.UserAgent.ToString();
     public string Method => AspRequest.Method;
+    public string Referer => AspRequest.Headers.Referer.ToString();
     public string ContentType => AspRequest.ContentType;
 
     public Stream BodyStream => AspRequest.Body;

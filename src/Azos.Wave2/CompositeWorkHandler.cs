@@ -9,31 +9,30 @@ using System.Linq;
 using Azos.Conf;
 using Azos.Collections;
 
-namespace Azos.Wave.Handlers
+namespace Azos.Wave
 {
   /// <summary>
-  /// Dispatched work to sub-handlers just like dispatcher does
+  /// Dispatched work to sub-handlers
   /// </summary>
-  public sealed class CompositeHandler : WorkHandler
+  public sealed class CompositeWorkHandler : WorkHandler
   {
     #region .ctor
-      public CompositeHandler(WorkDispatcher dispatcher, string name, int order, WorkMatch match) : base(dispatcher, name, order, match)
-      {
+    internal CompositeWorkHandler(WaveServer server, IConfigSectionNode confNode) : base(server, confNode){ }
 
-      }
+    public CompositeWorkHandler(WorkHandler director, string name, int order, WorkMatch match) : base(director, name, order, match)
+    {
+    }
 
-      public CompositeHandler(WorkDispatcher dispatcher, IConfigSectionNode confNode) : base(dispatcher, confNode)
-      {
+    public CompositeWorkHandler(WorkHandler director, IConfigSectionNode confNode) : base(director, confNode)
+    {
       foreach (var hNode in confNode.Children.Where(cn => cn.IsSameName(WorkHandler.CONFIG_HANDLER_SECTION)))
       {
-        var sub = FactoryUtils.Make<WorkHandler>(hNode, args: new object[] { dispatcher, hNode });
-        sub.___setParentHandler(this);
-#warning Refactor: REMOVE per Wave.ASYNC
-        sub.__setComponentDirector(this);
+        var sub = FactoryUtils.MakeDirectedComponent<WorkHandler>(this, hNode, extraArgs: new object[] { hNode });
         if (!m_Handlers.Register(sub))
+        {
           throw new WaveException(StringConsts.CONFIG_DUPLICATE_HANDLER_NAME_ERROR.Args(hNode.AttrByName(Configuration.CONFIG_NAME_ATTR).Value));
+        }
       }
-
     }
     #endregion
 

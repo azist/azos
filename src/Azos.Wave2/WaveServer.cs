@@ -19,6 +19,8 @@ using Azos.Instrumentation;
 using Azos.Serialization.JSON;
 
 using Azos.Wave.Filters;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace Azos.Wave
 {
@@ -54,48 +56,26 @@ namespace Azos.Wave
 
       public const string CONFIG_GATE_SECTION = "gate";
 
-      public const string CONFIG_DISPATCHER_SECTION = "dispatcher";
-
       public const string CONFIG_DEFAULT_ERROR_HANDLER_SECTION = "default-error-handler";
 
-
-      public const int DEFAULT_KERNEL_HTTP_QUEUE_LIMIT = 1000;
-      public const int MIN_KERNEL_HTTP_QUEUE_LIMIT = 16;
-      public const int MAX_KERNEL_HTTP_QUEUE_LIMIT = 512 * 1024;
-
-      public const int DEFAULT_PARALLEL_ACCEPTS = 64;
-      public const int MIN_PARALLEL_ACCEPTS = 1;
-      public const int MAX_PARALLEL_ACCEPTS = 1024;
-
-      public const int DEFAULT_PARALLEL_WORKS = 256;
-      public const int MIN_PARALLEL_WORKS = 1;
-      public const int MAX_PARALLEL_WORKS = 1024*1024;
-
-      public const string DEFAULT_CLIENT_VARS_COOKIE_NAME = "WV.CV";
 
       public const int ACCEPT_THREAD_GRANULARITY_MS = 250;
 
       public const int INSTRUMENTATION_DUMP_PERIOD_MS = 3377;
 
-      public const ushort DEFAULT_DRAIN_ENTITY_BODY_TIMEOUT_SEC = 120;
-      public const ushort DEFAULT_ENTITY_BODY_TIMEOUT_SEC = 120;
-      public const ushort DEFAULT_HEADER_WAIT_TIMEOUT_SEC = 120;
-      public const ushort DEFAULT_IDLE_CONNECTION_TIMEOUT_SEC = 120;
-      public const ushort DEFAULT_REQUEST_QUEUE_TIMEOUT_SEC = 120;
-      public const uint   DEFAULT_MIN_SEND_BYTES_PER_SECOND = 150;
     #endregion
 
     #region Static
 
-      private static Registry<WaveServer> s_Servers = new Registry<WaveServer>();
+    private static Registry<WaveServer> s_Servers = new Registry<WaveServer>();
 
-      /// <summary>
-      /// Returns the global registry of all server instances that are active in this process
-      /// </summary>
-      public static IRegistry<WaveServer> Servers
-      {
-        get{ return s_Servers; }
-      }
+    /// <summary>
+    /// Returns the global registry of all server instances that are active in this process
+    /// </summary>
+    public static IRegistry<WaveServer> Servers
+    {
+      get{ return s_Servers; }
+    }
 
 
     #endregion
@@ -117,39 +97,22 @@ namespace Azos.Wave
     {
       base.Destructor();
       DisposeIfDisposableAndNull(ref m_Gate);
-      DisposeIfDisposableAndNull(ref m_Dispatcher);
+      DisposeIfDisposableAndNull(ref m_RootHandler);
     }
     #endregion
 
     #region Fields
 
-    private string m_EnvironmentName;
-
-    private int m_KernelHttpQueueLimit = DEFAULT_KERNEL_HTTP_QUEUE_LIMIT;
-    private int m_ParallelAccepts = DEFAULT_PARALLEL_ACCEPTS;
-    private int m_ParallelWorks = DEFAULT_PARALLEL_WORKS;
-
-    private ushort m_DrainEntityBodyTimeoutSec = DEFAULT_DRAIN_ENTITY_BODY_TIMEOUT_SEC;
-    private ushort m_EntityBodyTimeoutSec      = DEFAULT_ENTITY_BODY_TIMEOUT_SEC;
-    private ushort m_HeaderWaitTimeoutSec      = DEFAULT_HEADER_WAIT_TIMEOUT_SEC;
-    private ushort m_IdleConnectionTimeoutSec  = DEFAULT_IDLE_CONNECTION_TIMEOUT_SEC;
-    private ushort m_RequestQueueTimeoutSec    = DEFAULT_REQUEST_QUEUE_TIMEOUT_SEC;
-    private uint   m_MinSendBytesPerSecond     = DEFAULT_MIN_SEND_BYTES_PER_SECOND;
-
-    private HttpListener m_Listener;
-    private bool m_IgnoreClientWriteErrors = true;
     private bool m_LogHandleExceptionErrors;
     private EventedList<string, WaveServer> m_Prefixes;
 
-    private Thread m_AcceptThread;
     private Thread m_InstrumentationThread;
     private AutoResetEvent m_InstrumentationThreadWaiter;
 
 
     private INetGate m_Gate;
-    private WorkDispatcher m_Dispatcher;
+    private CompositeWorkHandler m_RootHandler;
 
-    private string m_ClientVarsCookieName;
 
     private OrderedRegistry<WorkMatch> m_ErrorShowDumpMatches = new OrderedRegistry<WorkMatch>();
     private OrderedRegistry<WorkMatch> m_ErrorLogMatches = new OrderedRegistry<WorkMatch>();
@@ -162,8 +125,6 @@ namespace Azos.Wave
     internal long m_stat_ServerGateDenial;
     internal long m_stat_ServerHandleException;
     internal long m_stat_FilterHandleException;
-
-    internal long m_stat_ServerAcceptSemaphoreCount;
 
     internal long m_stat_WorkContextWrittenResponse;
     internal long m_stat_WorkContextBufferedResponse;
@@ -187,309 +148,138 @@ namespace Azos.Wave
 
     #endregion
 
-
-
-
     #region Properties
 
-      public override string ComponentLogTopic => CoreConsts.WAVE_TOPIC;
+    public override string ComponentLogTopic => CoreConsts.WAVE_TOPIC;
 
-      public override string ComponentCommonName { get { return "ws-"+Name; }}
+    public override string ComponentCommonName =>  "ws-" + Name;
 
-      /// <summary>
-      /// Provides a list of served endpoints
-      /// </summary>
-      public override string ServiceDescription => Prefixes.Aggregate(string.Empty, (s, p) => s + "  " + p);
+    /// <summary>
+    /// Provides a list of served endpoints
+    /// </summary>
+    public override string ServiceDescription => Prefixes.Aggregate(string.Empty, (s, p) => s + "  " + p);
 
 
-      /// <summary>
-      /// Provides the name of environment, i.e. DEV,PROD, TEST i.e. some handlers may depend on environment name to serve DEV vs PROD java script files etc.
-      /// </summary>
-      [Config]
-      public string EnvironmentName
+    /// <summary>
+    /// Optional name of header used for disclosure of WorkContext.ID. If set to null, suppresses the header
+    /// </summary>
+    [Config(Default = CoreConsts.HTTP_HDR_DEFAULT_CALL_FLOW)]
+    [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_WEB)]
+    public string CallFlowHeader { get; set;} = CoreConsts.HTTP_HDR_DEFAULT_CALL_FLOW;
+
+
+    /// <summary>
+    /// When true, emits instrumentation messages
+    /// </summary>
+    [Config]
+    [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_WEB, CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
+    public override bool InstrumentationEnabled
+    {
+        get { return m_InstrumentationEnabled;}
+        set { m_InstrumentationEnabled = value;}
+    }
+
+
+    /// <summary>
+    /// When true writes errors that get thrown in server catch-all HandleException methods
+    /// </summary>
+    [Config]
+    [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_WEB, CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
+    public bool LogHandleExceptionErrors
+    {
+      get { return m_LogHandleExceptionErrors;}
+      set { m_LogHandleExceptionErrors = value;}
+    }
+
+    /// <summary>
+    /// Returns HttpListener prefixes such as "http://+:8080/"
+    /// </summary>
+    public IList<string> Prefixes => m_Prefixes;
+
+
+    /// <summary>
+    /// Gets/sets network gate
+    /// </summary>
+    public INetGate Gate
+    {
+      get { return m_Gate;}
+      set
       {
-        get { return m_EnvironmentName ?? App.EnvironmentName;}
-        set
-        {
-          CheckDaemonInactive();
-          m_EnvironmentName = value;
-        }
+        CheckDaemonInactive();
+        m_Gate = value;
       }
+    }
 
-      /// <summary>
-      /// Optional name of header used for disclosure of WorkContext.ID. If set to null, suppresses the header
-      /// </summary>
-      [Config(Default = CoreConsts.HTTP_HDR_DEFAULT_CALL_FLOW)]
-      [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_WEB)]
-      public string CallFlowHeader { get; set;} = CoreConsts.HTTP_HDR_DEFAULT_CALL_FLOW;
+    [Config]
+    [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_WEB)]
+    public string GateCallerRealIpAddressHeader  {  get; set;  }
 
-      /// <summary>
-      /// Provides the name of cookie where server keeps client vars
-      /// </summary>
-      [Config]
-      [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_WEB)]
-      public string ClientVarsCookieName
+
+    /// <summary>
+    /// Gets/sets work dispatcher
+    /// </summary>
+    public CompositeWorkHandler RootHandler
+    {
+      get { return m_RootHandler;}
+      set
       {
-        get { return m_ClientVarsCookieName.IsNullOrWhiteSpace() ? DEFAULT_CLIENT_VARS_COOKIE_NAME : m_ClientVarsCookieName;}
-        set { m_ClientVarsCookieName = value;}
+        CheckDaemonInactive();
+        if (value!=null && value.ComponentDirector!=this)
+          throw new WaveException(StringConsts.DISPATCHER_NOT_THIS_SERVER_ERROR);
+        m_RootHandler = value;
       }
+    }
 
-      /// <summary>
-      /// When true, emits instrumentation messages
-      /// </summary>
-      [Config]
-      [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_WEB, CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
-      public override bool InstrumentationEnabled
-      {
-          get { return m_InstrumentationEnabled;}
-          set { m_InstrumentationEnabled = value;}
-      }
+    /// <summary>
+    /// Returns matches used by the server's default error handler to determine whether exception details should be shown
+    /// </summary>
+    public OrderedRegistry<WorkMatch> ShowDumpMatches => m_ErrorShowDumpMatches;
 
-      /// <summary>
-      /// When true does not throw exceptions on client channel write
-      /// </summary>
-      [Config(Default=true)]
-      [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_WEB)]
-      public bool IgnoreClientWriteErrors
-      {
-        get { return m_IgnoreClientWriteErrors;}
-        set
-        {
-          CheckDaemonInactive();
-          m_IgnoreClientWriteErrors = value;
-        }
-      }
-
-      /// <summary>
-      /// When true writes errors that get thrown in server catch-all HandleException methods
-      /// </summary>
-      [Config]
-      [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_WEB, CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
-      public bool LogHandleExceptionErrors
-      {
-        get { return m_LogHandleExceptionErrors;}
-        set { m_LogHandleExceptionErrors = value;}
-      }
-
-
-      /// <summary>
-      /// Establishes HTTP.sys kernel queue limit
-      /// </summary>
-      [Config]
-      [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_WEB)]
-      public int KernelHttpQueueLimit
-      {
-        get { return m_KernelHttpQueueLimit;}
-        set
-        {
-          CheckDaemonInactive();
-          if (value < MIN_KERNEL_HTTP_QUEUE_LIMIT) value = MIN_KERNEL_HTTP_QUEUE_LIMIT;
-           else
-            if (value > MAX_KERNEL_HTTP_QUEUE_LIMIT) value = MAX_KERNEL_HTTP_QUEUE_LIMIT;
-          m_KernelHttpQueueLimit = value;
-        }
-      }
-
-      /// <summary>
-      /// Specifies how many requests can get accepted from kernel queue in parallel
-      /// </summary>
-      [Config(Default=DEFAULT_PARALLEL_ACCEPTS)]
-      [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_WEB)]
-      public int ParallelAccepts
-      {
-        get { return m_ParallelAccepts;}
-        set
-        {
-          CheckDaemonInactive();
-          if (value < MIN_PARALLEL_ACCEPTS) value = MIN_PARALLEL_ACCEPTS;
-           else
-            if (value > MAX_PARALLEL_ACCEPTS) value = MAX_PARALLEL_ACCEPTS;
-          m_ParallelAccepts = value;
-        }
-      }
-
-
-      /// <summary>
-      /// Specifies how many instances of WorkContext(or derivatives) can be processed at the same time
-      /// </summary>
-      [Config(Default=DEFAULT_PARALLEL_WORKS)]
-      [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_WEB)]
-      public int ParallelWorks
-      {
-        get { return m_ParallelWorks;}
-        set
-        {
-          CheckDaemonInactive();
-          if (value < MIN_PARALLEL_WORKS) value = MIN_PARALLEL_WORKS;
-           else
-            if (value > MAX_PARALLEL_WORKS) value = MAX_PARALLEL_WORKS;
-          m_ParallelWorks = value;
-        }
-      }
-
-      [Config(Default=DEFAULT_DRAIN_ENTITY_BODY_TIMEOUT_SEC)]
-      [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_WEB)]
-      public ushort DrainEntityBodyTimeoutSec
-      {
-        get { return m_DrainEntityBodyTimeoutSec; }
-        set
-        {
-          m_DrainEntityBodyTimeoutSec = value;
-          if (m_Listener != null && m_Listener.IsListening && !Platform.Computer.IsMono)
-            m_Listener.TimeoutManager.DrainEntityBody = TimeSpan.FromSeconds(m_DrainEntityBodyTimeoutSec);
-        }
-      }
-      [Config(Default=DEFAULT_ENTITY_BODY_TIMEOUT_SEC)]
-      [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_WEB)]
-      public ushort EntityBodyTimeoutSec
-      {
-        get { return m_EntityBodyTimeoutSec; }
-        set
-        {
-          m_EntityBodyTimeoutSec = value;
-          if (m_Listener != null && m_Listener.IsListening && !Platform.Computer.IsMono)
-            m_Listener.TimeoutManager.EntityBody = TimeSpan.FromSeconds(m_EntityBodyTimeoutSec);
-        }
-      }
-      [Config(Default=DEFAULT_HEADER_WAIT_TIMEOUT_SEC)]
-      [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_WEB)]
-      public ushort HeaderWaitTimeoutSec
-      {
-        get { return m_HeaderWaitTimeoutSec; }
-        set
-        {
-          m_HeaderWaitTimeoutSec = value;
-          if (m_Listener != null && m_Listener.IsListening && !Platform.Computer.IsMono)
-            m_Listener.TimeoutManager.HeaderWait = TimeSpan.FromSeconds(m_HeaderWaitTimeoutSec);
-        }
-      }
-      [Config(Default=DEFAULT_IDLE_CONNECTION_TIMEOUT_SEC)]
-      [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_WEB)]
-      public ushort IdleConnectionTimeoutSec
-      {
-        get { return m_IdleConnectionTimeoutSec; }
-        set
-        {
-          m_IdleConnectionTimeoutSec = value;
-          if (m_Listener != null && m_Listener.IsListening && !Platform.Computer.IsMono)
-            m_Listener.TimeoutManager.IdleConnection = TimeSpan.FromSeconds(m_IdleConnectionTimeoutSec);
-        }
-      }
-      [Config(Default=DEFAULT_REQUEST_QUEUE_TIMEOUT_SEC)]
-      [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_WEB)]
-      public ushort RequestQueueTimeoutSec
-      {
-        get { return m_RequestQueueTimeoutSec; }
-        set
-        {
-          m_RequestQueueTimeoutSec = value;
-          if (m_Listener != null && m_Listener.IsListening && !Platform.Computer.IsMono)
-            m_Listener.TimeoutManager.RequestQueue = TimeSpan.FromSeconds(m_RequestQueueTimeoutSec);
-        }
-      }
-      [Config(Default=DEFAULT_MIN_SEND_BYTES_PER_SECOND)]
-      [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_WEB)]
-      public uint MinSendBytesPerSecond
-      {
-        get { return m_MinSendBytesPerSecond; }
-        set
-        {
-          m_MinSendBytesPerSecond = value;
-          if (m_Listener != null && m_Listener.IsListening && !Platform.Computer.IsMono)
-            m_Listener.TimeoutManager.MinSendBytesPerSecond = m_MinSendBytesPerSecond;
-        }
-      }
-
-      /// <summary>
-      /// Returns HttpListener prefixes such as "http://+:8080/"
-      /// </summary>
-      public IList<string> Prefixes => m_Prefixes;
-
-
-      /// <summary>
-      /// Gets/sets network gate
-      /// </summary>
-      public INetGate Gate
-      {
-        get { return m_Gate;}
-        set
-        {
-          CheckDaemonInactive();
-          m_Gate = value;
-        }
-      }
-
-      [Config]
-      [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_WEB)]
-      public string GateCallerRealIpAddressHeader  {  get; set;  }
-
-
-      /// <summary>
-      /// Gets/sets work dispatcher
-      /// </summary>
-      public WorkDispatcher Dispatcher
-      {
-        get { return m_Dispatcher;}
-        set
-        {
-          CheckDaemonInactive();
-          if (value!=null && value.ComponentDirector!=this)
-            throw new WaveException(StringConsts.DISPATCHER_NOT_THIS_SERVER_ERROR);
-          m_Dispatcher = value;
-        }
-      }
-
-      /// <summary>
-      /// Returns matches used by the server's default error handler to determine whether exception details should be shown
-      /// </summary>
-      public OrderedRegistry<WorkMatch> ShowDumpMatches { get{ return m_ErrorShowDumpMatches;}}
-
-      /// <summary>
-      /// Returns matches used by the server's default error handler to determine whether exception details should be logged
-      /// </summary>
-      public OrderedRegistry<WorkMatch> LogMatches { get{ return m_ErrorLogMatches;}}
+    /// <summary>
+    /// Returns matches used by the server's default error handler to determine whether exception details should be logged
+    /// </summary>
+    public OrderedRegistry<WorkMatch> LogMatches => m_ErrorLogMatches;
 
     #endregion
 
     #region Public
-      /// <summary>
-      /// Handles processing exception by calling ErrorFilter.HandleException(work, error).
-      /// All parameters except ERROR can be null - which indicates error that happened during WorkContext dispose
-      /// </summary>
-      public virtual void HandleException(WorkContext work, WorkFilter filter, WorkHandler handler, Exception error)
+    /// <summary>
+    /// Handles processing exception by calling ErrorFilter.HandleException(work, error).
+    /// All parameters except ERROR can be null - which indicates error that happened during WorkContext dispose
+    /// </summary>
+    public virtual async Task HandleExceptionAsync(WorkContext work, Exception error)
+    {
+      try
       {
-         try
-         {
-            if (m_InstrumentationEnabled) Interlocked.Increment(ref m_stat_ServerHandleException);
+        if (m_InstrumentationEnabled) Interlocked.Increment(ref m_stat_ServerHandleException);
 
-            //work may be null (when WorkContext is already disposed)
-            if (work!=null)
-              ErrorFilter.HandleException(work, error, m_ErrorShowDumpMatches, m_ErrorLogMatches);
-            else
-              WriteLog(MessageType.Error,
-                 nameof(HandleException),
-                 StringConsts.SERVER_DEFAULT_ERROR_WC_NULL_ERROR + error.ToMessageWithType(),
-                 error);
-         }
-         catch(Exception error2)
-         {
-            if (m_LogHandleExceptionErrors)
-              try
-              {
-                WriteLog(MessageType.Error,
-                     nameof(HandleException),
-                     StringConsts.SERVER_DEFAULT_ERROR_HANDLER_ERROR + error2.ToMessageWithType(),
-                     error2,
-                     pars: new
-                      {
-                        OriginalError = error.ToMessageWithType()
-                      }.ToJson()
-                     );
-              }
-              catch{}
-         }
+        //work may be null (when WorkContext is already disposed)
+        if (work != null)
+          await ErrorFilter.HandleExceptionAsync(work, error, m_ErrorShowDumpMatches, m_ErrorLogMatches).ConfigureAwait(false);
+        else
+          WriteLog(MessageType.Error,
+              nameof(HandleExceptionAsync),
+              StringConsts.SERVER_DEFAULT_ERROR_WC_NULL_ERROR + error.ToMessageWithType(),
+              error);
       }
-
+      catch(Exception error2)
+      {
+        if (m_LogHandleExceptionErrors)
+          try
+          {
+            WriteLog(MessageType.Error,
+                  nameof(HandleExceptionAsync),
+                  StringConsts.SERVER_DEFAULT_ERROR_HANDLER_ERROR + error2.ToMessageWithType(),
+                  error2,
+                  pars: new
+                  {
+                    OriginalError = error.ToMessageWithType()
+                  }.ToJson()
+                  );
+          }
+          catch{}
+      }
+    }
     #endregion
 
 
@@ -531,12 +321,12 @@ namespace Azos.Wave
           m_Gate = FactoryUtils.MakeAndConfigure<INetGateImplementation>(nGate, typeof(NetGate), args: new object[]{this});
         }
 
-        var nDispatcher = node[CONFIG_DISPATCHER_SECTION];
-        if (nDispatcher.Exists)
-        {
-          DisposeIfDisposableAndNull(ref m_Dispatcher);
-          m_Dispatcher = FactoryUtils.MakeAndConfigure<WorkDispatcher>(nDispatcher, typeof(WorkDispatcher), args: new object[]{this});
-        }
+
+        var nRootHandler = node[WorkHandler.CONFIG_HANDLER_SECTION];
+        m_RootHandler = FactoryUtils.MakeDirectedComponent<CompositeWorkHandler>(this,
+                                           nRootHandler,
+                                           typeof(CompositeWorkHandler),
+                                           new object[]{ nRootHandler });
 
         ErrorFilter.ConfigureMatches(node[CONFIG_DEFAULT_ERROR_HANDLER_SECTION], m_ErrorShowDumpMatches, m_ErrorLogMatches, null, GetType().FullName);
       }
@@ -556,46 +346,20 @@ namespace Azos.Wave
                ((Daemon)m_Gate).Start();
 
 
-           if (m_Dispatcher==null)
-              m_Dispatcher = new WorkDispatcher(this);
-
-           m_Dispatcher.Start();
-
-           m_AcceptSemaphore = new Semaphore(m_ParallelAccepts, m_ParallelAccepts);
-           m_WorkSemaphore = new Semaphore(m_ParallelWorks, m_ParallelWorks);
-
-           m_AcceptThread = new Thread(acceptThreadSpin);
-           m_AcceptThread.Name = "{0}-AcceptThread".Args(Name);
+           m_RootHandler.NonNull(nameof(RootHandler));
 
            m_InstrumentationThread = new Thread(instrumentationThreadSpin);
            m_InstrumentationThread.Name = "{0}-InstrumentationThread".Args(Name);
            m_InstrumentationThreadWaiter = new AutoResetEvent(false);
 
-           m_Listener = new HttpListener();
 
            foreach(var prefix in m_Prefixes)
              m_Listener.Prefixes.Add(prefix);
 
-           BeforeListenerStart(m_Listener);
 
-           m_Listener.Start();
-
-           AfterListenerStart(m_Listener);
-
-
-           m_Listener.IgnoreWriteExceptions = m_IgnoreClientWriteErrors;
-
-           if (m_KernelHttpQueueLimit!=DEFAULT_KERNEL_HTTP_QUEUE_LIMIT)
-              PlatformUtils.SetRequestQueueLimit(m_Listener, m_KernelHttpQueueLimit);
         }
         catch
         {
-          closeListener();
-
-          if (m_AcceptSemaphore!=null) { m_AcceptSemaphore.Dispose(); m_AcceptSemaphore = null;}
-          if (m_WorkSemaphore!=null) { m_WorkSemaphore.Dispose(); m_WorkSemaphore = null;}
-          if (m_AcceptThread!=null) { m_AcceptThread = null;}
-          if (m_Dispatcher!=null) m_Dispatcher.WaitForCompleteStop();
 
           if (m_Gate!=null && m_Gate is Daemon)
             ((Daemon)m_Gate).WaitForCompleteStop();
@@ -606,15 +370,10 @@ namespace Azos.Wave
         }
 
         m_InstrumentationThread.Start();
-        m_AcceptThread.Start();
       }
 
       protected override void DoSignalStop()
       {
-       // m_Listener.Stop();
-        m_Listener.Abort();
-        m_Dispatcher.SignalStop();
-
         if (m_InstrumentationThreadWaiter!=null)
               m_InstrumentationThreadWaiter.Set();
 
@@ -627,12 +386,6 @@ namespace Azos.Wave
       {
         s_Servers.Unregister(this);
 
-        if (m_AcceptThread!=null)
-        {
-          m_AcceptThread.Join();
-          m_AcceptThread = null;
-        }
-
         if (m_InstrumentationThread!=null)
         {
           m_InstrumentationThread.Join();
@@ -640,186 +393,83 @@ namespace Azos.Wave
           m_InstrumentationThreadWaiter.Close();
         }
 
-        closeListener();
-
-        try
-        {
-           m_Dispatcher.WaitForCompleteStop();
-           if (m_Gate!=null)
-             if (m_Gate is Daemon)
+         if (m_Gate!=null)
+            if (m_Gate is Daemon)
                 ((Daemon)m_Gate).WaitForCompleteStop();
-        }
-        finally
+      }
+
+
+    /// <summary>
+    /// Called by the Asp.Net middleware, an entry point for server request processing
+    /// </summary>
+    public async Task ProcessAsync(HttpContext httpContext)
+    {
+      using var work = MakeContext(httpContext);
+      try
+      {
+        if (m_InstrumentationEnabled) Interlocked.Increment(ref m_stat_ServerRequest);
+
+        var gate = m_Gate;
+        if (gate != null)
         {
-          m_AcceptSemaphore.Dispose();
-          m_AcceptSemaphore = null;
-
-          m_WorkSemaphore.Dispose();
-          m_WorkSemaphore = null;
+          try
+          {
+            var action = gate.CheckTraffic(new HTTPIncomingTraffic(httpContext, GateCallerRealIpAddressHeader));
+            if (action != GateAction.Allow)
+            {
+              //access denied
+              httpContext.Response.StatusCode = WebConsts.STATUS_429;
+              //await httpContext.Response.WriteAsync(WebConsts.STATUS_429_DESCRIPTION).ConfigureAwait(false);
+              if (m_InstrumentationEnabled) Interlocked.Increment(ref m_stat_ServerGateDenial);
+              return;
+            }
+          }
+          catch (Exception denyError)
+          {
+            WriteLog(MessageType.Error, nameof(ProcessAsync), denyError.ToMessageWithType(), denyError);
+          }
         }
+
+        await m_RootHandler.Process(work).ConfigureAwait(false);
       }
-
-
-      /// <summary>
-      /// Factory method that makes new WorkContext instances. Override to make a WorkContext-derivative
-      /// </summary>
-      protected virtual WorkContext MakeContext(HttpListenerContext listenerContext)
+      catch(Exception unhandled)
       {
-        return new WorkContext(this, listenerContext);
+        await this.HandleExceptionAsync(work, unhandled).ConfigureAwait(false);
       }
+    }
 
-      /// <summary>
-      /// Override to set listener options such as TimeoutManager.MinSendBytesPerSecond before listener.Start()
-      /// </summary>
-      protected virtual void BeforeListenerStart(HttpListener listener)
-      {
-
-
-        //if (!OS.Computer.IsMono)
-        //{
-        ////////  m_Listener.TimeoutManager.DrainEntityBody = TimeSpan.FromSeconds(m_DrainEntityBodyTimeoutSec);
-        ////////  m_Listener.TimeoutManager.EntityBody = TimeSpan.FromSeconds(m_EntityBodyTimeoutSec);
-        ////////  m_Listener.TimeoutManager.HeaderWait = TimeSpan.FromSeconds(m_HeaderWaitTimeoutSec);
-        ////////  m_Listener.TimeoutManager.IdleConnection = TimeSpan.FromSeconds(m_IdleConnectionTimeoutSec);
-        ////////  m_Listener.TimeoutManager.RequestQueue = TimeSpan.FromSeconds(m_RequestQueueTimeoutSec);
-        ////////  m_Listener.TimeoutManager.MinSendBytesPerSecond = m_MinSendBytesPerSecond;
-        //////////}
-      }
-
-      /// <summary>
-      /// Override to set listener options such as TimeoutManager.MinSendBytesPerSecond after listener.Start()
-      /// </summary>
-      protected virtual void AfterListenerStart(HttpListener listener)
-      {
-      }
-
+    /// <summary>
+    /// Factory method to make WorkContext
+    /// </summary>
+    protected virtual WorkContext MakeContext(HttpContext httpContext)
+      =>  new WorkContext(this, httpContext);
 
     #endregion
 
     #region .pvt
 
-     private void acceptThreadSpin()
-     {
-        var semaphores = new Semaphore[]{m_AcceptSemaphore, m_WorkSemaphore};
-        while(Running)
-        {
-          //Both semaphores get acquired here
-          if (!WaitHandle.WaitAll(semaphores, ACCEPT_THREAD_GRANULARITY_MS)) continue;
 
-          if (m_Listener.IsListening)
-               m_Listener.BeginGetContext(callback, null);//the BeginGetContext/EndGetContext is called on a different thread (pool IO background)
-                                                          // whereas GetContext() is called on the caller thread
+    private void instrumentationThreadSpin()
+    {
+      var pe = m_InstrumentationEnabled;
+      while(Running)
+      {
+        if (pe!=m_InstrumentationEnabled)
+        {
+          resetStats();
+          pe = m_InstrumentationEnabled;
         }
-     }
 
-     private void callback(IAsyncResult result)
-     {
-       var listener = m_Listener;
-       if (listener==null) return;//callback sometime happens when listener is null on shutdown
-       if (!listener.IsListening) return;
-
-       //This is called on its own pool thread by HttpListener
-       bool gateAccessDenied = false;
-       HttpListenerContext listenerContext;
-       try
-       {
-         listenerContext = listener.EndGetContext(result);
-
-         if (!Running) return;
-
-         if (m_InstrumentationEnabled) Interlocked.Increment(ref m_stat_ServerRequest);
-
-         var gate = m_Gate;
-         if (gate!=null)
-            try
-            {
-              var action = gate.CheckTraffic(new HTTPIncomingTraffic(listenerContext.Request, GateCallerRealIpAddressHeader));
-              if (action!=GateAction.Allow)
-              {
-                //access denied
-                gateAccessDenied = true;
-                listenerContext.Response.StatusCode = WebConsts.STATUS_429;
-                listenerContext.Response.StatusDescription = WebConsts.STATUS_429_DESCRIPTION;
-                listenerContext.Response.Close();
-
-                if (m_InstrumentationEnabled) Interlocked.Increment(ref m_stat_ServerGateDenial);
-                return;
-              }
-            }
-            catch(Exception denyError)
-            {
-              WriteLog(MessageType.Error, nameof(callback) + "(deny request)", denyError.ToMessageWithType(), denyError);
-            }
-       }
-       catch(Exception error)
-       {
-          if (error is HttpListenerException)
-           if ((error as HttpListenerException).ErrorCode==995) return;//Aborted
-
-          WriteLog(MessageType.Error, nameof(callback) + "(endGetContext())", error.ToMessageWithType(),  error);
-          return;
-       }
-       finally
-       {
-          if (Running)
-          {
-             var acceptCount = m_AcceptSemaphore.Release();
-
-             if (m_InstrumentationEnabled)
-              Thread.VolatileWrite(ref m_stat_ServerAcceptSemaphoreCount, acceptCount);
-
-             if (gateAccessDenied)//if access was denied then no work will be done either
-             {
-                var workCount = m_WorkSemaphore.Release();
-                if (m_InstrumentationEnabled)
-                  Thread.VolatileWrite(ref m_stat_ServerWorkSemaphoreCount, workCount);
-             }
-          }
-       }
-
-       //no need to call process() asynchronously because this whole method is on its own thread already
-       if (Running)
-       {
-          var workContext = MakeContext(listenerContext);
-          m_Dispatcher.Dispatch(workContext);
-       }
-     }
-
-     private void closeListener()
-     {
-        if (m_Listener!=null)
+        if (m_InstrumentationEnabled &&
+            App.Instrumentation.Enabled)
         {
-          try { m_Listener.Close(); }
-          catch(Exception error)
-          {
-            WriteLog(MessageType.Error, nameof(closeListener), error.ToMessageWithType(), error);
-          }
-          m_Listener = null;
-        }
-     }
-
-
-     private void instrumentationThreadSpin()
-     {
-        var pe = m_InstrumentationEnabled;
-        while(Running)
-        {
-          if (pe!=m_InstrumentationEnabled)
-          {
+            dumpStats();
             resetStats();
-            pe = m_InstrumentationEnabled;
-          }
-
-          if (m_InstrumentationEnabled &&
-              App.Instrumentation.Enabled)
-          {
-             dumpStats();
-             resetStats();
-          }
-
-          m_InstrumentationThreadWaiter.WaitOne(INSTRUMENTATION_DUMP_PERIOD_MS);
         }
-     }
+
+        m_InstrumentationThreadWaiter.WaitOne(INSTRUMENTATION_DUMP_PERIOD_MS);
+      }
+    }
 
      private void resetStats()
      {
@@ -828,15 +478,12 @@ namespace Azos.Wave
         m_stat_ServerHandleException                = 0;
         m_stat_FilterHandleException                = 0;
 
-        m_stat_ServerAcceptSemaphoreCount           = 0;
-        m_stat_ServerWorkSemaphoreCount             = 0;
 
         m_stat_WorkContextWrittenResponse           = 0;
         m_stat_WorkContextBufferedResponse          = 0;
         m_stat_WorkContextBufferedResponseBytes     = 0;
         m_stat_WorkContextCtor                      = 0;
         m_stat_WorkContextDctor                     = 0;
-        m_stat_WorkContextWorkSemaphoreRelease      = 0;
         m_stat_WorkContextAborted                   = 0;
         m_stat_WorkContextHandled                   = 0;
         m_stat_WorkContextNoDefaultClose            = 0;
@@ -862,15 +509,12 @@ namespace Azos.Wave
         i.Record( new Instrumentation.ServerHandleException              (Name, m_stat_ServerHandleException              ));
         i.Record( new Instrumentation.FilterHandleException              (Name, m_stat_FilterHandleException              ));
 
-        i.Record( new Instrumentation.ServerAcceptSemaphoreCount         (Name, m_stat_ServerAcceptSemaphoreCount         ));
-        i.Record( new Instrumentation.ServerWorkSemaphoreCount           (Name, m_stat_ServerWorkSemaphoreCount           ));
 
         i.Record( new Instrumentation.WorkContextWrittenResponse         (Name, m_stat_WorkContextWrittenResponse         ));
         i.Record( new Instrumentation.WorkContextBufferedResponse        (Name, m_stat_WorkContextBufferedResponse        ));
         i.Record( new Instrumentation.WorkContextBufferedResponseBytes   (Name, m_stat_WorkContextBufferedResponseBytes   ));
         i.Record( new Instrumentation.WorkContextCtor                    (Name, m_stat_WorkContextCtor                    ));
         i.Record( new Instrumentation.WorkContextDctor                   (Name, m_stat_WorkContextDctor                   ));
-        i.Record( new Instrumentation.WorkContextWorkSemaphoreRelease    (Name, m_stat_WorkContextWorkSemaphoreRelease    ));
         i.Record( new Instrumentation.WorkContextAborted                 (Name, m_stat_WorkContextAborted                 ));
         i.Record( new Instrumentation.WorkContextHandled                 (Name, m_stat_WorkContextHandled                 ));
         i.Record( new Instrumentation.WorkContextNoDefaultClose          (Name, m_stat_WorkContextNoDefaultClose          ));

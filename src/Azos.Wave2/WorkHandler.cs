@@ -14,111 +14,96 @@ using Azos.IO.Net.Gate;
 
 namespace Azos.Wave
 {
-
   /// <summary>
   /// Represents a base for all work handlers. Handlers are final work execution destination
   /// </summary>
   public abstract class WorkHandler : ApplicationComponent, INamed, IOrdered
   {
-      public const string CONFIG_HANDLER_SECTION = "handler";
+    public const string CONFIG_HANDLER_SECTION = "handler";
 
-      protected WorkHandler(WorkDispatcher dispatcher, string name, int order, WorkMatch match) : base(dispatcher)
+    protected WorkHandler(WorkHandler director, string name, int order, WorkMatch match = null) : base(director)
+    {
+      m_Name = name.Default("{0}({1})".Args(GetType().FullName, Guid.NewGuid()));
+      m_Order = order;
+
+      if (match != null)
       {
-        if (name.IsNullOrWhiteSpace())
-          name = "{0}({1})".Args(GetType().FullName, Guid.NewGuid());
+        m_Matches.Register(match);
+      }
+    }
 
-        m_Name = name;
-        m_Dispatcher = dispatcher;
-        m_Server = dispatcher.ComponentDirector;
-        m_Order = order;
-        if (match!=null)
-         m_Matches.Register(match);
+    internal WorkHandler(WaveServer director, IConfigSectionNode confNode) : base(director) => ctor(confNode);
+    protected WorkHandler(WorkHandler director, IConfigSectionNode confNode) : base(director) => ctor(confNode);
+
+    private void ctor(IConfigSectionNode confNode)
+    {
+      confNode.NonEmpty(nameof(confNode));
+
+      ConfigAttribute.Apply(this, confNode);
+
+      m_Name = confNode.AttrByName(Configuration.CONFIG_NAME_ATTR).Value.Default("{0}({1})".Args(GetType().FullName, Guid.NewGuid()));
+      m_Order = confNode.AttrByName(Configuration.CONFIG_ORDER_ATTR).ValueAsInt(0);
+
+      foreach(var cn in confNode.ChildrenNamed(WorkFilter.CONFIG_FILTER_SECTION))
+      {
+        var filter = FactoryUtils.Make<WorkFilter>(cn, args: new object[] { this, cn });
+        if (!m_Filters.Register(filter))
+        {
+          throw new WaveException(StringConsts.CONFIG_HANDLER_DUPLICATE_FILTER_NAME_ERROR.Args(filter.Name));
+        }
       }
 
+      WorkMatch.MakeAndRegisterFromConfig(m_Matches, confNode, ToString());
+    }
 
-      protected WorkHandler(WorkDispatcher dispatcher, IConfigSectionNode confNode) : base(dispatcher)
-      {
-        confNode.NonEmpty(nameof(confNode));
-
-        ConfigAttribute.Apply(this, confNode);
-
-        m_Dispatcher = dispatcher;
-        m_Server = dispatcher.ComponentDirector;
-        m_Name = confNode.AttrByName(Configuration.CONFIG_NAME_ATTR).Value;
-        m_Order = confNode.AttrByName(Configuration.CONFIG_ORDER_ATTR).ValueAsInt(0);
-        if (m_Name.IsNullOrWhiteSpace())
-         m_Name = "{0}({1})".Args(GetType().FullName, Guid.NewGuid());
+    protected override void Destructor()
+    {
+      base.Destructor();
+      foreach(var filter in Filters) filter.Dispose();
+    }
 
 
-        foreach(var cn in confNode.Children.Where(cn=>cn.IsSameName(WorkFilter.CONFIG_FILTER_SECTION)))
-          if(!m_Filters.Register( FactoryUtils.Make<WorkFilter>(cn, typeof(WorkFilter), args: new object[]{ this, cn })) )
-            throw new WaveException(StringConsts.CONFIG_HANDLER_DUPLICATE_FILTER_NAME_ERROR.Args(cn.AttrByName(Configuration.CONFIG_NAME_ATTR).Value));
-
-        foreach(var cn in confNode.Children.Where(cn=>cn.IsSameName(WorkMatch.CONFIG_MATCH_SECTION)))
-          if(!m_Matches.Register( FactoryUtils.Make<WorkMatch>(cn, typeof(WorkMatch), args: new object[]{ cn })) )
-            throw new WaveException(StringConsts.CONFIG_HANDLER_DUPLICATE_MATCH_NAME_ERROR.Args(cn.AttrByName(Configuration.CONFIG_NAME_ATTR).Value));
-      }
-
-      protected override void Destructor()
-      {
-        base.Destructor();
-        foreach(var filter in Filters) filter.Dispose();
-      }
+    private string m_Name;
+    private int m_Order;
+    private OrderedRegistry<WorkMatch> m_Matches = new OrderedRegistry<WorkMatch>();
+    private OrderedRegistry<WorkFilter> m_Filters = new OrderedRegistry<WorkFilter>();
 
 
-      private string m_Name;
-      private int m_Order;
-      private WorkDispatcher m_Dispatcher;
-      private WorkHandler m_ParentHandler; internal void ___setParentHandler(WorkHandler parent) { m_ParentHandler = parent;}
-      private WaveServer m_Server;
-      private OrderedRegistry<WorkMatch> m_Matches = new OrderedRegistry<WorkMatch>();
-      private OrderedRegistry<WorkFilter> m_Filters = new OrderedRegistry<WorkFilter>();
+    public override string ComponentLogTopic => CoreConsts.WAVE_TOPIC;
+    public override string ComponentCommonName => Name;
 
 
-      public override string ComponentLogTopic => CoreConsts.WAVE_TOPIC;
+    /// <summary>
+    /// Returns the paent handler that this handler works under or null if this is a
+    /// root handler which works directly under server
+    /// </summary>
+    public WorkHandler ParentHandler => ComponentDirector as WorkHandler;
 
-      public override string ComponentCommonName => Name;
+
+    /// <summary>
+    /// Returns the server that this handler works under
+    /// </summary>
+    public WaveServer Server => (ParentHandler?.Server) ?? (WaveServer)ComponentDirector;
 
       /// <summary>
       /// Returns the handler instance name
       /// </summary>
-      public string Name { get{ return m_Name;}}
+      public string Name => m_Name;
 
       /// <summary>
       /// Returns the handler order in handler registry. Order is used for URI pattern matching
       /// </summary>
-      public int Order { get{ return m_Order;}}
+      public int Order => m_Order;
 
       /// <summary>
       /// Returns matches used by this handler. May change the registry at runtime (inject/remove matches)
       /// </summary>
-      public OrderedRegistry<WorkMatch> Matches { get{ return m_Matches;}}
+      public OrderedRegistry<WorkMatch> Matches => m_Matches;
 
       /// <summary>
       /// Returns ordered registry of filters
       /// </summary>
-      public IRegistry<WorkFilter> Filters { get { return m_Filters;}}
-
-      /// <summary>
-      /// Returns the server that this handler works under
-      /// </summary>
-      public WaveServer Server { get{ return m_Server;}}
-
-      /// <summary>
-      /// Returns the dispatcher that this handler works under
-      /// </summary>
-      public WorkDispatcher Dispatcher { get{ return m_Dispatcher;}}
-
-      /// <summary>
-      /// Returns parent handler that this handler is under or null
-      /// </summary>
-      public WorkHandler ParentHandler{ get{return m_ParentHandler;}}
-
-      /// <summary>
-      /// Returns network gate that handler implementation may use to set business variables or null
-      /// </summary>
-      public INetGate NetGate { get{ return m_Dispatcher.ComponentDirector.Gate;}}
-
+      public IRegistry<WorkFilter> Filters => m_Filters;
 
       /// <summary>
       /// Registers filter and returns true if the named instance has not been registered yet
@@ -180,10 +165,7 @@ namespace Azos.Wave
       }
 
 
-      public override string ToString()
-      {
-        return "{0}('{1}',#{2},{3})".Args(GetType().FullName, m_Name, m_Order, m_Matches.Count);
-      }
+      public override string ToString() => $"{GetType().DisplayNameWithExpandedGenericArgs()}(`{m_Name}`, #{m_Order})";
 
       /// <summary>
       /// Returns true when the particular work request matches the pattern match of this handler.

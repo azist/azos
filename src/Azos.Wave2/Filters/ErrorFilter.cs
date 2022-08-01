@@ -16,6 +16,7 @@ using Azos.Collections;
 using Azos.Data;
 using Azos.Wave.Templatization;
 using ErrorPage = Azos.Wave.Templatization.StockContent.Error;
+using System.Threading.Tasks;
 
 namespace Azos.Wave.Filters
 {
@@ -144,14 +145,14 @@ namespace Azos.Wave.Filters
       /// <summary>
       /// Handles the exception by responding appropriately with error page with conditional level of details and logging
       /// </summary>
-      public static void HandleException(WorkContext work,
-                                         Exception error,
-                                         OrderedRegistry<WorkMatch> showDumpMatches,
-                                         OrderedRegistry<WorkMatch> logMatches,
-                                         string securityRedirectURL = null,
-                                         string securityRedirectTarget = null,
-                                         OrderedRegistry<WorkMatch> securityRedirectMatches = null,
-                                         Type customPageType = null
+      public static async Task HandleExceptionAsync(WorkContext work,
+                                           Exception error,
+                                           OrderedRegistry<WorkMatch> showDumpMatches,
+                                           OrderedRegistry<WorkMatch> logMatches,
+                                           string securityRedirectURL = null,
+                                           string securityRedirectTarget = null,
+                                           OrderedRegistry<WorkMatch> securityRedirectMatches = null,
+                                           Type customPageType = null
                                          )
       {
           if (work==null || error==null) return;
@@ -162,10 +163,7 @@ namespace Azos.Wave.Filters
           if (work.Response.Buffered)
             work.Response.CancelBuffered();
 
-          var json = false;
-
-          if (work.Request!=null && work.Request.AcceptTypes!=null)//if needed for some edge HttpListener cases when Request or Request.AcceptTypes are null
-               json = work.Request.AcceptTypes.Any(at=>at.EqualsIgnoreCase(ContentType.JSON));
+          var json = work.Request.RequestedJson;
 
           var actual = error;
           if (actual is FilterPipelineException fpe)
@@ -173,7 +171,6 @@ namespace Azos.Wave.Filters
 
           if (actual is MvcException mvce)
             actual = mvce.InnerException;
-
 
           var securityError = Security.AuthorizationException.IsDenotedBy(error);
 
@@ -284,9 +281,9 @@ namespace Azos.Wave.Filters
             {
               matched["$ip"] = work.EffectiveCallerIPEndPoint.ToString();
               matched["$ua"] = work.Request.UserAgent.TakeFirstChars(78, "..");
-              matched["$mtd"] = work.Request.HttpMethod;
+              matched["$mtd"] = work.Request.Method;
               matched["$uri"] = work.Request.Url.ToString().TakeFirstChars(78, "..");
-              matched["$ref"] = work.Request.UrlReferrer?.ToString().TakeFirstChars(78, "..");
+              matched["$ref"] = work.Request.Referer?.TakeFirstChars(78, "..");
               matched["$stat"] = "{0}/{1}".Args(work.Response.StatusCode, work.Response.StatusDescription);
 
               if (work.Portal != null)
