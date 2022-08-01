@@ -32,6 +32,8 @@ namespace Azos.Wave
 
     public Stream BodyStream => AspRequest.Body;
 
+    public string Url => AspRequest.PathBase + AspRequest.Path + AspRequest.QueryString;
+
     public bool RequestedJson
     {
       get

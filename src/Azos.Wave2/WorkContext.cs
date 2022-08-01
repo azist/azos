@@ -9,6 +9,8 @@ using System.Linq;
 using System.Threading;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Net;
+using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Http;
 
@@ -18,8 +20,6 @@ using Azos.Web;
 using Azos.Serialization.JSON;
 using Azos.Web.GeoLookup;
 using Azos.Platform;
-using System.Net;
-using System.Threading.Tasks;
 
 namespace Azos.Wave
 {
@@ -136,7 +136,7 @@ namespace Azos.Wave
 
     string Apps.ICallFlow.CallerAddress => EffectiveCallerIPEndPoint.ToString();
     string Apps.ICallFlow.CallerAgent   => Request.UserAgent.TakeFirstChars(96, "..");
-    string Apps.ICallFlow.CallerPort    => Request.Method + "  " + Request.Url.ToString().TakeFirstChars(96, "..");
+    string Apps.ICallFlow.CallerPort    => Request.Method + "  " + Request.Url.TakeFirstChars(96, "..");
 
     object Apps.ICallFlow.this[string key]
     {
