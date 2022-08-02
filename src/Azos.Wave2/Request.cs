@@ -32,6 +32,7 @@ namespace Azos.Wave
     public string ContentType => AspRequest.ContentType;
 
     public IHeaderDictionary Headers => AspRequest.Headers;
+    public IRequestCookieCollection Cookies => AspRequest.Cookies;
 
     public string HeaderAsString(string name) => AspRequest.Headers[name];
 
