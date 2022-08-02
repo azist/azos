@@ -56,7 +56,9 @@ namespace Azos.Wave.Handlers
 
       //2. if controller did not resolve then resolve by framework (most probable case)
       if (mi==null)
-        mi = FindMatchingAction(target, work, action, out args);
+      {
+        (mi, args) = await FindMatchingActionAsync(target, work, action).ConfigureAwait(false);
+      }
 
 
       if (mi==null)
@@ -97,7 +99,7 @@ namespace Azos.Wave.Handlers
         }
         finally
         {
-          target.ActionInvocationFinally(work, action, mi, args, result);
+          result = await target.ActionInvocationFinally(work, action, mi, args, result).ConfigureAwait(false);
         }
       }
       catch(Exception error)
@@ -161,7 +163,7 @@ namespace Azos.Wave.Handlers
     /// <summary>
     /// Finds matching method that has the specified action name and best matches the supplied input
     /// </summary>
-    protected virtual MethodInfo FindMatchingAction(Controller controller, WorkContext work, string action, out object[] args)
+    protected virtual async Task<(MethodInfo, object[])> FindMatchingActionAsync(Controller controller, WorkContext work, string action)
     {
       var tp = controller.GetType();
 
@@ -192,27 +194,26 @@ namespace Azos.Wave.Handlers
             var attr = ai.Attribute;
             var result = ai.Method;
 
-            BindParameters(controller, action, attr, result, work, out args);
+            var args = await BindParametersAsync(controller, action, attr, result, work);
 
-            return result;
+            return (result, args);
           }
         }
 
-      args = null;
-      return null;
+      return (null, null);
     }
 
     /// <summary>
     /// Fills method invocation param array with args doing some interpretation for widely used types like JSONDataMaps, DataDocs etc..
     /// </summary>
-    protected virtual void BindParameters(Controller controller, string action, ActionBaseAttribute attrAction, MethodInfo method,  WorkContext work, out object[] args)
+    protected virtual async Task<object[]> BindParametersAsync(Controller controller, string action, ActionBaseAttribute attrAction, MethodInfo method,  WorkContext work)
     {
       var mpars = method.GetParameters();
-      args = new object[mpars.Length];
+      var args = new object[mpars.Length];
 
-      if (mpars.Length == 0) return;
+      if (mpars.Length == 0) return null;
 
-      var requested = work.WholeRequestAsJSONDataMap;
+      var requested = await work.GetWholeRequestAsJsonDataMapAsync().ConfigureAwait(false);
 
       var strictParamBinding = attrAction.StrictParamBinding;
 
@@ -305,6 +306,8 @@ namespace Azos.Wave.Handlers
                                                         mp.ParameterType.DisplayNameWithExpandedGenericArgs(), strVal ));
         }
       }//for args
+
+      return args;
     }
 
     /// <summary>
