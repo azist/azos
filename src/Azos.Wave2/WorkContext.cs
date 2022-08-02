@@ -100,10 +100,10 @@ namespace Azos.Wave
 
     private WorkMatch m_Match;
     private JsonDataMap m_MatchedVars;
-                    /// <summary>
-                    /// Internal method. Developers do not call
-                    /// </summary>
-                    internal void ___SetWorkMatch(WorkMatch match, JsonDataMap vars){m_Match = match; m_MatchedVars = vars;}
+    /// <summary>
+    /// Internal method. Developers do not call
+    /// </summary>
+    internal void ___SetWorkMatch(WorkMatch match, JsonDataMap vars){m_Match = match; m_MatchedVars = vars;}
 
     private bool m_HasParsedRequestBody;
     private JsonDataMap m_RequestBodyAsJSONDataMap;

@@ -35,50 +35,62 @@ namespace Azos.Wave
         }
       }
     }
+    protected override void Destructor()
+    {
+      base.Destructor();
+      foreach (var handler in Handlers) handler.Dispose();
+    }
+
     #endregion
 
 
     #region Fields
-
-         private OrderedRegistry<WorkHandler> m_Handlers = new OrderedRegistry<WorkHandler>();
-
+    private OrderedRegistry<WorkHandler> m_Handlers = new OrderedRegistry<WorkHandler>();
     #endregion
 
     #region Properties
-
-        /// <summary>
-        /// Returns ordered registry of handlers
-        /// </summary>
-        public IRegistry<WorkHandler> Handlers { get { return m_Handlers;}}
-
+    /// <summary>
+    /// Returns ordered registry of handlers
+    /// </summary>
+    public IOrderedRegistry<WorkHandler> Handlers => m_Handlers;
     #endregion
 
     #region Public
-       /// <summary>
-        /// Registers handler and returns true if the named instance has not been registered yet
-        /// Note: it is possible to call this method on active server that is - inject handlers while serving requests
-        /// </summary>
-        public bool RegisterHandler(WorkHandler handler)
-        {
-          if (handler==null) return false;
-          if (handler.Dispatcher!=this.Dispatcher)
-            throw new WaveException(StringConsts.WRONG_DISPATCHER_HANDLER_REGISTRATION_ERROR.Args(handler));
+    /// <summary>
+    /// Registers handler and returns true if the named instance has not been registered yet
+    /// Note: it is possible to call this method on active server that is - inject handlers while serving requests
+    /// </summary>
+    public bool RegisterHandler(WorkHandler handler)
+    {
+      if (handler==null) return false;
+      if (handler.ParentHandler != this)
+        throw new WaveException(StringConsts.WRONG_HANDLER_HANDLER_REGISTRATION_ERROR.Args(handler));
 
-          return m_Handlers.Register(handler);
-        }
+      return m_Handlers.Register(handler);
+    }
 
-        /// <summary>
-        /// Unregisters handler and returns true if the named instance has been removed
-        /// Note: it is possible to call this method on active server that is - remove handlers while serving requests
-        /// </summary>
-        public bool UnRegisterHandler(WorkHandler handler)
-        {
-          if (handler==null) return false;
-          if (handler.Dispatcher!=this.Dispatcher)
-            throw new WaveException(StringConsts.WRONG_DISPATCHER_HANDLER_UNREGISTRATION_ERROR.Args(handler));
+    /// <summary>
+    /// Unregisters handler and returns true if the named instance has been removed
+    /// Note: it is possible to call this method on active server that is - remove handlers while serving requests
+    /// </summary>
+    public bool UnRegisterHandler(WorkHandler handler)
+    {
+      if (handler==null) return false;
+      if (handler.ParentHandler != this)
+        throw new WaveException(StringConsts.WRONG_HANDLER_HANDLER_UNREGISTRATION_ERROR.Args(handler));
 
-          return m_Handlers.Unregister(handler);
-        }
+      return m_Handlers.Unregister(handler);
+    }
+
+    /// <summary>
+    /// Unregisters handler and returns true if the named instance has been removed
+    /// Note: it is possible to call this method on active server that is - remove handlers while serving requests
+    /// </summary>
+    public bool UnRegisterHandler(string name)
+    {
+      if (name.IsNullOrWhiteSpace()) return false;
+      return m_Handlers.Unregister(name);
+    }
 
     #endregion
 

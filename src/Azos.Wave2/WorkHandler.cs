@@ -129,7 +129,7 @@ namespace Azos.Wave
     /// </summary>
     public bool UnRegisterFilter(string name)
     {
-      if (name.IsNotNullOrWhiteSpace()) return false;
+      if (name.IsNullOrWhiteSpace()) return false;
       return m_Filters.Unregister(name);
     }
 
@@ -140,12 +140,20 @@ namespace Azos.Wave
     /// </summary>
     public async Task FilterAndHandleWorkAsync(WorkContext work)
     {
-      var filters = m_Filters.OrderedValues.ToList().AsReadOnly();//captures context
-      var filter = filters.FirstOrDefault();
-      if (filter!=null)
-        await filter.FilterWorkAsync(work, filters, 0).ConfigureAwait(false);
+      var chain = new WorkFilter.CallChain(m_Filters);//captures context
+
+      var filter = chain.Current;
+      if (filter != null)
+      {
+        //if there is a filter it MAY elect to keep processing and
+        //finally handle work from within its callchain
+        await filter.FilterWorkAsync(work, chain).ConfigureAwait(false);
+      }
       else
+      {
+        //if no filter exists then we need to handle work explicitly here
         await HandleWorkAsync(work).ConfigureAwait(false);
+      }
     }
 
     /// <summary>
@@ -177,10 +185,10 @@ namespace Azos.Wave
       foreach(var match in m_Matches.OrderedValues)
       {
         var matched = match.Make(work);
-        if (matched!=null)
+        if (matched != null)
         {
-            work.___SetWorkMatch(match, matched);
-            return true;
+          work.___SetWorkMatch(match, matched);
+          return true;
         }
       }
       return false;

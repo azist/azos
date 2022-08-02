@@ -22,6 +22,41 @@ namespace Azos.Wave
     public const string CONFIG_FILTER_SECTION = "filter";
 
     /// <summary>
+    /// Captures a sequenced registry of filters and current position of processing
+    /// </summary>
+    public struct CallChain
+    {
+      /// <summary>
+      /// Starts new filter call chain starting from zero
+      /// </summary>
+      public CallChain(IOrderedRegistry<WorkFilter> filters)
+      {
+        filters.NonNull(nameof(filters));
+        Filters = filters;
+        CurrentIndex = 0;
+      }
+
+      /// <summary>
+      /// Advances the chain to the next caller index
+      /// </summary>
+      public CallChain(CallChain current)
+      {
+        current.Assigned.IsTrue("assigned current");
+        Filters = current.Filters;
+        CurrentIndex = current.CurrentIndex + 1;
+      }
+
+      public readonly IOrderedRegistry<WorkFilter> Filters;
+      public readonly int CurrentIndex;
+      public bool Assigned => Filters != null;
+
+      /// <summary> Get current filter or null if not assigned or EOF </summary>
+      public WorkFilter Current => Filters?[CurrentIndex];
+    }
+
+
+
+    /// <summary>
     /// Registers matches declared in config. Throws error if registry already contains a match with a duplicate name
     /// </summary>
     public static void MakeAndRegisterFromConfig(WorkHandler handler, OrderedRegistry<WorkFilter> registry, IConfigSectionNode confNode)
@@ -87,18 +122,14 @@ namespace Azos.Wave
     /// Note: This method is re-entrant by multiple threads
     /// </summary>
     /// <param name="work">Work context</param>
-    /// <param name="filters">
-    /// The filters that participated in a call.
-    /// Note the Dipatcher.Filters may yield different results as it may change with time, whereas this parameter captures all filters during the call start
+    /// <param name="callChain">
+    /// Filter call chain that should be passed into <see cref="InvokeNextWorkerAsync(WorkContext, CallChain)"/>
     /// </param>
-    /// <param name="thisFilterIndex">
-    /// The index of THIS filter in filters
-    /// </param>
-    public async Task FilterWorkAsync(WorkContext work, IList<WorkFilter> filters, int thisFilterIndex)
+    public async Task FilterWorkAsync(WorkContext work, CallChain callChain)
     {
       try
       {
-        await DoFilterWork(work, filters, thisFilterIndex).ConfigureAwait(false);
+        await DoFilterWorkAsync(work, callChain).ConfigureAwait(false);
       }
       catch(Exception error)
       {
@@ -119,25 +150,24 @@ namespace Azos.Wave
     /// The filter implementors must call this method to pass WorkContext processing along the line.
     /// Does nothing if work is Aborted or Handled
     /// </summary>
-    protected void InvokeNextWorker(WorkContext work, IList<WorkFilter> filters, int thisFilterIndex)
+    protected async Task InvokeNextWorkerAsync(WorkContext work, CallChain callChain)
     {
-        if (work==null) return;
-        if (work.Aborted || work.Handled) return;
+      if (work == null) return;
+      if (work.Aborted || work.Handled) return;
 
-        var idxNext = thisFilterIndex+1;
-        if (idxNext<filters.Count)
-        {
-          filters[idxNext].FilterWork(work, filters, idxNext);
-        }
-        else
-        {
-        WorkHandler handler = m_Handler;
-
-        if (handler!=null)//if we are under Handler already then call the handler directly
-          handler.HandleWork(work);
-        else //if we are under dispatcher then call dipatcher to locate and invoke the matching handler
-          m_Dispatcher.InvokeHandler(work, out handler);
-        }
+      var next = new CallChain(callChain);//advances to the next worker
+      var nextFilter = next.Current;
+      if (nextFilter != null)
+      {
+        //if there is a next filter, then it may elect to handle work by itself or
+        //whihin its call chain
+        await nextFilter.DoFilterWorkAsync(work, next).ConfigureAwait(false);
+      }
+      else
+      {
+        //if there is no NEXT filter, we need to handle the work to handler that owns this filter
+        await this.Handler.HandleWorkAsync(work).ConfigureAwait(false);
+      }
     }
 
     /// <summary>
@@ -146,13 +176,9 @@ namespace Azos.Wave
     ///  not be handled (which may be a desired behavior)
     /// </summary>
     /// <param name="work">Work context</param>
-    /// <param name="filters">
-    /// The filters that participated in a call.
-    /// Note the Dipatcher.Filters may yield different results as it may change with time, whereas this parameter captures all filters during the call start
+    /// <param name="callChain">
+    /// Filter call chain to pass along
     /// </param>
-    /// <param name="thisFilterIndex">
-    /// The index of THIS filter in filters
-    /// </param>
-    protected abstract Task DoFilterWorkAsync(WorkContext work, IList<WorkFilter> filters, int thisFilterIndex);
+    protected abstract Task DoFilterWorkAsync(WorkContext work, CallChain callChain);
   }
 }

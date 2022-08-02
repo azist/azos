@@ -30,11 +30,11 @@ namespace Azos.Wave
       public const string WRONG_HANDLER_FILTER_UNREGISTRATION_ERROR =
         "Can not unregister a filter '{0}' because it does not belong to this handler";
 
-      public const string WRONG_DISPATCHER_HANDLER_REGISTRATION_ERROR =
-        "Can not register a handler '{0}' because it does not belong to this dispatcher";
+      public const string WRONG_HANDLER_HANDLER_REGISTRATION_ERROR =
+        "Can not register a handler '{0}' because it does not belong to this handler";
 
-      public const string WRONG_DISPATCHER_HANDLER_UNREGISTRATION_ERROR =
-        "Can not unregister a handler '{0}' because it does not belong to this dispatcher";
+      public const string WRONG_HANDLER_HANDLER_UNREGISTRATION_ERROR =
+        "Can not unregister a handler '{0}' because it does not belong to this handler";
 
       public const string NO_HANDLER_ERROR = "No suitable work handler could be matched";
 

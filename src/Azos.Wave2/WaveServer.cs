@@ -430,7 +430,7 @@ namespace Azos.Wave
           }
         }
 
-        await m_RootHandler.Process(work).ConfigureAwait(false);
+        await m_RootHandler.FilterAndHandleWorkAsync(work).ConfigureAwait(false);
       }
       catch(Exception unhandled)
       {
