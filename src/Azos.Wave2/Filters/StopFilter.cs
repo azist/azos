@@ -53,7 +53,5 @@ namespace Azos.Wave.Filters
       return Task.CompletedTask;
     }
     #endregion
-
   }
-
 }
