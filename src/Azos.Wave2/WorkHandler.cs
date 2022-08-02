@@ -44,15 +44,7 @@ namespace Azos.Wave
       m_Name = confNode.AttrByName(Configuration.CONFIG_NAME_ATTR).Value.Default("{0}({1})".Args(GetType().FullName, Guid.NewGuid()));
       m_Order = confNode.AttrByName(Configuration.CONFIG_ORDER_ATTR).ValueAsInt(0);
 
-      foreach(var cn in confNode.ChildrenNamed(WorkFilter.CONFIG_FILTER_SECTION))
-      {
-        var filter = FactoryUtils.Make<WorkFilter>(cn, args: new object[] { this, cn });
-        if (!m_Filters.Register(filter))
-        {
-          throw new WaveException(StringConsts.CONFIG_HANDLER_DUPLICATE_FILTER_NAME_ERROR.Args(filter.Name));
-        }
-      }
-
+      WorkFilter.MakeAndRegisterFromConfig(this, m_Filters, confNode);
       WorkMatch.MakeAndRegisterFromConfig(m_Matches, confNode, ToString());
     }
 

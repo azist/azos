@@ -21,6 +21,22 @@ namespace Azos.Wave
   {
     public const string CONFIG_FILTER_SECTION = "filter";
 
+    /// <summary>
+    /// Registers matches declared in config. Throws error if registry already contains a match with a duplicate name
+    /// </summary>
+    public static void MakeAndRegisterFromConfig(WorkHandler handler, OrderedRegistry<WorkFilter> registry, IConfigSectionNode confNode)
+    {
+      foreach (var cn in confNode.NonNull(nameof(confNode)).ChildrenNamed(CONFIG_FILTER_SECTION))
+      {
+        var filter = FactoryUtils.MakeDirectedComponent<WorkFilter>(handler.NonNull(nameof(handler)), cn, extraArgs: new object[] { cn });
+        if (!registry.NonNull(nameof(registry)).Register(filter))
+        {
+          throw new WaveException(StringConsts.CONFIG_DUPLICATE_FILTER_NAME_ERROR.Args(filter.Name, handler.Name));
+        }
+      }
+    }
+
+
     protected WorkFilter(WorkHandler director, string name, int order) : base(director)
     {
       m_Name = name.Default("{0}({1})".Args(GetType().FullName, Guid.NewGuid()));
