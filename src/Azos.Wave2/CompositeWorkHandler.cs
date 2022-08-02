@@ -8,6 +8,7 @@ using System.Linq;
 
 using Azos.Conf;
 using Azos.Collections;
+using System.Threading.Tasks;
 
 namespace Azos.Wave
 {
@@ -19,7 +20,7 @@ namespace Azos.Wave
     #region .ctor
     internal CompositeWorkHandler(WaveServer server, IConfigSectionNode confNode) : base(server, confNode){ }
 
-    public CompositeWorkHandler(WorkHandler director, string name, int order, WorkMatch match) : base(director, name, order, match)
+    public CompositeWorkHandler(WorkHandler director, string name, int order, WorkMatch match = null) : base(director, name, order, match)
     {
     }
 
@@ -83,18 +84,15 @@ namespace Azos.Wave
 
     #region Protected
 
-      protected override void DoHandleWork(WorkContext work)
-      {
-        var subHandler = m_Handlers.OrderedValues.FirstOrDefault(handler => handler.MakeMatch(work));
+    protected override async Task DoHandleWorkAsync(WorkContext work)
+    {
+      var subHandler = m_Handlers.OrderedValues.FirstOrDefault(handler => handler.MakeMatch(work));
 
-        if (subHandler==null)
-          throw HTTPStatusException.NotFound_404(StringConsts.NO_HANDLER_ERROR);
+      if (subHandler == null)
+        throw HTTPStatusException.NotFound_404(StringConsts.NO_HANDLER_ERROR);
 
-        subHandler.FilterAndHandleWork(work);
-      }
-
+      await subHandler.FilterAndHandleWorkAsync(work).ConfigureAwait(false);
+    }
     #endregion
-
   }
-
 }

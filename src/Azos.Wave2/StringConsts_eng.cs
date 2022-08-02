@@ -24,11 +24,11 @@ namespace Azos.Wave
       public const string SERVER_COULD_NOT_GET_REGISTERED_ERROR =
         "WaveServer '{0}' can not start as there is already a global instance with such name";
 
-      public const string WRONG_DISPATCHER_FILTER_REGISTRATION_ERROR =
-        "Can not register a filter '{0}' because it does not belong to this dispatcher";
+      public const string WRONG_HANDLER_FILTER_REGISTRATION_ERROR =
+        "Can not register a filter '{0}' because it does not belong to this handler";
 
-      public const string WRONG_DISPATCHER_FILTER_UNREGISTRATION_ERROR =
-        "Can not unregister a filter '{0}' because it does not belong to this dispatcher";
+      public const string WRONG_HANDLER_FILTER_UNREGISTRATION_ERROR =
+        "Can not unregister a filter '{0}' because it does not belong to this handler";
 
       public const string WRONG_DISPATCHER_HANDLER_REGISTRATION_ERROR =
         "Can not register a handler '{0}' because it does not belong to this dispatcher";
