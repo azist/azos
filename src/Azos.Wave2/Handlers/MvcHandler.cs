@@ -27,11 +27,11 @@ namespace Azos.Wave.Handlers
   public class MvcHandler : TypeLookupHandler<Controller>
   {
     #region .ctor
-    protected MvcHandler(WorkDispatcher dispatcher, string name, int order, WorkMatch match) : base(dispatcher, name, order, match)
+    protected MvcHandler(WorkHandler director, string name, int order, WorkMatch match = null) : base(director, name, order, match)
     {
     }
 
-    protected MvcHandler(WorkDispatcher dispatcher, IConfigSectionNode confNode) : base(dispatcher, confNode)
+    protected MvcHandler(WorkHandler director, IConfigSectionNode confNode) : base(director, confNode)
     {
     }
     #endregion
@@ -41,99 +41,99 @@ namespace Azos.Wave.Handlers
     #endregion
 
     #region Protected
-    protected override void DoTargetWork(Controller target, WorkContext work)
+    protected override async Task DoTargetWorkAsync(Controller target, WorkContext work)
     {
-        target.m_WorkContext = work;//This also establishes Controller.App
-        App.DependencyInjector.InjectInto(target);//Inject app-rooted context
+      target.m_WorkContext = work;//This also establishes Controller.App
+      App.DependencyInjector.InjectInto(target);//Inject app-rooted context
 
 
-        var action = GetActionName(target, work);
+      var action = GetActionName(target, work);
 
-        object[] args;
+      object[] args;
 
-        //1. try controller instance to resolve action
-        var mi = target.FindMatchingAction(work, action, out args);
+      //1. try controller instance to resolve action
+      var mi = target.FindMatchingAction(work, action, out args);
 
-        //2. if controller did not resolve then resolve by framework (most probable case)
-        if (mi==null)
-          mi = FindMatchingAction(target, work, action, out args);
+      //2. if controller did not resolve then resolve by framework (most probable case)
+      if (mi==null)
+        mi = FindMatchingAction(target, work, action, out args);
 
 
-        if (mi==null)
-          throw new HTTPStatusException(WebConsts.STATUS_404,
-                                        WebConsts.STATUS_404_DESCRIPTION,
-                                        StringConsts.MVC_CONTROLLER_ACTION_UNMATCHED_HANDLER_ERROR.Args(target.GetType().FullName, action));
+      if (mi==null)
+        throw new HTTPStatusException(WebConsts.STATUS_404,
+                                      WebConsts.STATUS_404_DESCRIPTION,
+                                      StringConsts.MVC_CONTROLLER_ACTION_UNMATCHED_HANDLER_ERROR.Args(target.GetType().FullName, action));
 
-        Security.Permission.AuthorizeAndGuardAction(App.SecurityManager, mi, work.Session, () => work.NeedsSession());
+      Security.Permission.AuthorizeAndGuardAction(App.SecurityManager, mi, work.Session, () => work.NeedsSession());
 
-        object result = null;
-
+      object result = null;
+      bool handled = false;
+      try
+      {
         try
         {
-          try
+          (handled, result) = await target.BeforeActionInvocationAsync(work, action, mi, args, result).ConfigureAwait(false);
+          if (!handled)
           {
-            var handled = target.BeforeActionInvocation(work, action, mi, args, ref result);
-            if (!handled)
+            result = mi.Invoke(target, args);
+
+            //-----------------
+            // 20190303 DKh temp code until Wave is refactored to full async pipeline
+            //-----------------
+            if (result is Task task)
             {
-              result = mi.Invoke(target, args);
+              await task.ConfigureAwait(false);//20220802 #479
 
-              //-----------------
-              // 20190303 DKh temp code until Wave is refactored to full async pipeline
-              //-----------------
-              if (result is Task task)
-              {
-                while(App.Active && !Disposed && !task.IsCompleted && !task.IsFaulted &&!task.IsCanceled) task.Wait(150);//temporary code due to sync pipeline
-
-                var taskResult = task.TryGetCompletedTaskResultAsObject();
-                if (taskResult.ok) result = taskResult.result;//unwind the result
-                else if (task.IsCanceled) result = null;
-                else if (task.IsFaulted) throw task.Exception;
-              }
-              //-----------------
-
-
-              result = target.AfterActionInvocation(work, action, mi, args, result);
+              var taskResult = task.TryGetCompletedTaskResultAsObject();
+              if (taskResult.ok) result = taskResult.result;//unwind the result
+              else if (task.IsCanceled) result = null;
+              else if (task.IsFaulted) throw task.Exception;
             }
-          }
-          finally
-          {
-            target.ActionInvocationFinally(work, action, mi, args, result);
-          }
-        }
-        catch(Exception error)
-        {
-          if (error is TargetInvocationException tie)
-          {
-            var cause = tie.InnerException;
-            if (cause!=null) error = cause;
-          }
+            //-----------------
 
-          if (error is AggregateException age)
-          {
-            var cause = age.Flatten().InnerException;
-            if (cause != null) error = cause;
-          }
-          throw MvcActionException.WrapActionBodyError(target.GetType().FullName, action, error);
-        }
 
-        //20200610 DKh if (mi.ReturnType == typeof(void)) return;
-        if (mi.ReturnType==typeof(void) || mi.ReturnType==typeof(Task)) return;
-
-        try
-        {
-          try
-          {
-            ProcessResult(target, work, result);
-          }
-          catch(Exception error)
-          {
-            throw MvcActionException.WrapActionResultError(target.GetType().FullName, action, result, error);
+            (handled, result) = await target.AfterActionInvocationAsync(work, action, mi, args, result).ConfigureAwait(false);
           }
         }
         finally
         {
-          if (result is IDisposable) ((IDisposable)result).Dispose();
+          target.ActionInvocationFinally(work, action, mi, args, result);
         }
+      }
+      catch(Exception error)
+      {
+        if (error is TargetInvocationException tie)
+        {
+          var cause = tie.InnerException;
+          if (cause!=null) error = cause;
+        }
+
+        if (error is AggregateException age)
+        {
+          var cause = age.Flatten().InnerException;
+          if (cause != null) error = cause;
+        }
+        throw MvcActionException.WrapActionBodyError(target.GetType().FullName, action, error);
+      }
+
+      //20200610 DKh if (mi.ReturnType == typeof(void)) return;
+      if (mi.ReturnType==typeof(void) || mi.ReturnType==typeof(Task)) return;
+
+      try
+      {
+        try
+        {
+          ProcessResult(target, work, result);
+        }
+        catch(Exception error)
+        {
+          throw MvcActionException.WrapActionResultError(target.GetType().FullName, action, result, error);
+        }
+      }
+      finally
+      {
+        if (result is IDisposable) ((IDisposable)result).Dispose();
+      }
     }
 
     /// <summary>
