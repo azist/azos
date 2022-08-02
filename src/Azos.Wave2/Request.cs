@@ -31,6 +31,10 @@ namespace Azos.Wave
     public string Referer => AspRequest.Headers.Referer.ToString();
     public string ContentType => AspRequest.ContentType;
 
+    public IHeaderDictionary Headers => AspRequest.Headers;
+
+    public string HeaderAsString(string name) => AspRequest.Headers[name];
+
     public Stream BodyStream => AspRequest.Body;
 
     public string Url => AspRequest.PathBase + AspRequest.Path + AspRequest.QueryString;
