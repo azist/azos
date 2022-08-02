@@ -6,7 +6,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
-
+using System.Threading.Tasks;
 using Azos.Apps;
 using Azos.Conf;
 using Azos.Serialization.JSON;
@@ -18,8 +18,6 @@ namespace Azos.Wave.Filters
   /// </summary>
   public sealed class DistributedCallFlowFilter : WorkFilter
   {
-    public DistributedCallFlowFilter(WorkDispatcher dispatcher, string name, int order) : base(dispatcher, name, order){ }
-    public DistributedCallFlowFilter(WorkDispatcher dispatcher, IConfigSectionNode confNode) : base(dispatcher, confNode){ }
     public DistributedCallFlowFilter(WorkHandler handler, string name, int order) : base(handler, name, order){ }
     public DistributedCallFlowFilter(WorkHandler handler, IConfigSectionNode confNode) : base(handler, confNode){ }
 
@@ -30,7 +28,7 @@ namespace Azos.Wave.Filters
     [Config(Default = CoreConsts.HTTP_HDR_DEFAULT_CALL_FLOW)]
     public string DistributedCallFlowHeader { get; set; } = CoreConsts.HTTP_HDR_DEFAULT_CALL_FLOW;
 
-    protected override void DoFilterWork(WorkContext work, IList<WorkFilter> filters, int thisFilterIndex)
+    protected override async Task DoFilterWorkAsync(WorkContext work, CallChain callChain)
     {
       var original = ExecutionContext.CallFlow;
 
@@ -40,7 +38,7 @@ namespace Azos.Wave.Filters
         if (hdrName.IsNotNullOrWhiteSpace() &&  !(original is DistributedCallFlow))
         {
           DistributedCallFlow flow = null;
-          var hdrJson = work.Request.Headers[hdrName];
+          var hdrJson = work.Request.HeaderAsString(hdrName);
 
           if (hdrJson.IsNotNullOrWhiteSpace())
           {
@@ -56,7 +54,7 @@ namespace Azos.Wave.Filters
             flow = DistributedCallFlow.Start(App, App.Description);
         }
 
-        this.InvokeNextWorker(work, filters, thisFilterIndex);
+        await this.InvokeNextWorkerAsync(work, callChain).ConfigureAwait(false);
       }
       finally
       {
