@@ -414,7 +414,7 @@ namespace Azos.Wave
         {
           try
           {
-            var action = gate.CheckTraffic(new HTTPIncomingTraffic(httpContext, GateCallerRealIpAddressHeader));
+            var action = gate.CheckTraffic(new AspHttpIncomingTraffic(httpContext, GateCallerRealIpAddressHeader));
             if (action != GateAction.Allow)
             {
               //access denied

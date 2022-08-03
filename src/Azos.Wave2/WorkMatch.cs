@@ -583,7 +583,7 @@ namespace Azos.Wave
       {
         var cookie = work.Request.Cookies[pair.Name];
         if (cookie==null) continue;
-        if (cookie.Value.EqualsIgnoreCase(pair.Value)) return true;
+        if (cookie.EqualsIgnoreCase(pair.Value)) return true;
       }
       return false;
     }
@@ -595,7 +595,7 @@ namespace Azos.Wave
       {
         var cookie = work.Request.Cookies[pair.Name];
         if (cookie==null) return true;
-        if (!cookie.Value.EqualsIgnoreCase(pair.Value)) return true;
+        if (!cookie.EqualsIgnoreCase(pair.Value)) return true;
       }
       return false;
     }

@@ -69,7 +69,6 @@ namespace Azos.Wave
 
       ats_Current.Value = null;
       Apps.ExecutionContext.__SetThreadLevelCallContext(null);
-      ReleaseWorkSemaphore();
       m_Response.Dispose();
     }
     #endregion
