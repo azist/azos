@@ -13,6 +13,7 @@ using Azos.Conf;
 using Azos.Collections;
 using Azos.Serialization.JSON;
 using Azos.Security;
+using Azos.Data;
 
 namespace Azos.Wave
 {
@@ -200,9 +201,8 @@ namespace Azos.Wave
     private bool     m_AcceptJson;
     private string[] m_ContentTypes;
     private string[] m_Hosts;
-    private string[] m_Ports;
+    private int[] m_Ports;
     private string[] m_UserAgents;
-    private string[] m_UserHosts;
     private string[] m_Methods;
     private NameValuePair[] m_Cookies;
     private NameValuePair[] m_AbsentCookies;
@@ -305,7 +305,7 @@ namespace Azos.Wave
     public string Ports
     {
       get { return m_Ports==null ? null : string.Join(",", m_Ports); }
-      set { m_Ports = value.IsNullOrWhiteSpace() ? null : value.Split(LIST_DELIMITERS, StringSplitOptions.RemoveEmptyEntries); }
+      set { m_Ports = value.IsNullOrWhiteSpace() ? null : value.Split(LIST_DELIMITERS, StringSplitOptions.RemoveEmptyEntries).Select(v => v.AsInt()).ToArray(); }
     }
 
     [Config]
@@ -313,13 +313,6 @@ namespace Azos.Wave
     {
       get { return m_UserAgents==null ? null : string.Join(",", m_UserAgents); }
       set { m_UserAgents = value.IsNullOrWhiteSpace() ? null : value.Split(LIST_DELIMITERS, StringSplitOptions.RemoveEmptyEntries); }
-    }
-
-    [Config]
-    public string UserHosts
-    {
-      get { return m_UserHosts==null ? null : string.Join(",", m_UserHosts); }
-      set { m_UserHosts = value.IsNullOrWhiteSpace() ? null : value.Split(LIST_DELIMITERS, StringSplitOptions.RemoveEmptyEntries); }
     }
 
     [Config]
@@ -429,7 +422,6 @@ namespace Azos.Wave
           !Check_Ports(work) ||
           !Check_Schemes(work) ||
           !Check_UserAgents(work) ||
-          !Check_UserHosts(work) ||
           !Check_Permissions(work) ||
           !Check_Cookies(work) ||
           !Check_AbsentCookies(work) ||
@@ -461,7 +453,7 @@ namespace Azos.Wave
     protected virtual bool Check_Schemes(WorkContext work)
     {
       if (m_Schemes==null) return true;
-      return m_Schemes.Any(s=>s.Equals(work.Request.Url.Scheme, StringComparison.OrdinalIgnoreCase));
+      return m_Schemes.Any(s => s.EqualsOrdIgnoreCase(work.Request.AspRequest.Scheme));
     }
 
     protected virtual bool Check_AcceptTypes(WorkContext work)
@@ -472,18 +464,20 @@ namespace Azos.Wave
       }
 
       if (m_AcceptTypes==null) return true;
-      var atps = work.Request.AcceptTypes;
-      if (atps==null || atps.Length==0) return false;
 
-      var found = false;
+      var atps = work.Request.Headers.Accept;
+      if (atps.Count == 0) return false;
+
 
       foreach(var at in m_AcceptTypes)
-          if (atps.Any(t=>at.Equals(t, StringComparison.OrdinalIgnoreCase)))
-          {
-            found = true;
-            break;
-          }
-      return found;
+      {
+        if (atps.Any(t => at.EqualsOrdIgnoreCase(t)))
+        {
+          return true;
+        }
+      }
+
+      return false;
     }
 
     protected virtual bool Check_ContentTypes(WorkContext work)
@@ -499,31 +493,25 @@ namespace Azos.Wave
     protected virtual bool Check_Hosts(WorkContext work)
     {
       if (m_Hosts==null) return true;
-      return m_Hosts.Any(h=>h.Equals(work.Request.Url.Host, StringComparison.OrdinalIgnoreCase));
+      return m_Hosts.Any(h => h.EqualsOrdIgnoreCase(work.Request.Host));
     }
 
     protected virtual bool Check_Ports(WorkContext work)
     {
       if (m_Ports==null) return true;
-      return m_Ports.Any(p=>p.Equals(work.Request.Url.Port.ToString(), StringComparison.Ordinal));
+      return m_Ports.Any(p => p == work.Request.AspRequest.Host.Port);
     }
 
     protected virtual bool Check_UserAgents(WorkContext work)
     {
       if (m_UserAgents==null) return true;
-      return m_UserAgents.Any(ua=> work.Request.UserAgent.IndexOf(ua, StringComparison.InvariantCultureIgnoreCase)>=0);
-    }
-
-    protected virtual bool Check_UserHosts(WorkContext work)
-    {
-      if (m_UserHosts==null) return true;
-      return m_UserHosts.Any(uh=> work.Request.UserHostName.IndexOf(uh, StringComparison.InvariantCultureIgnoreCase)>=0);
+      return m_UserAgents.Any(ua => work.Request.UserAgent.IndexOf(ua, StringComparison.InvariantCultureIgnoreCase) >= 0);
     }
 
     protected virtual bool Check_Methods(WorkContext work)
     {
       if (m_Methods==null) return true;
-      return m_Methods.Any(m => m.Equals(work.Request.HttpMethod, StringComparison.OrdinalIgnoreCase));
+      return m_Methods.Any(m => m.EqualsOrdIgnoreCase(work.Request.Method));
     }
 
     protected virtual bool Check_IsLocal(WorkContext work)

@@ -176,6 +176,11 @@ namespace Azos.Wave
 
 
     /// <summary>
+    /// Returns ASP context
+    /// </summary>
+    public HttpContext HttpContext => m_HttpContext;
+
+    /// <summary>
     /// Returns Request object for this context
     /// </summary>
     public Request Request => m_Request;

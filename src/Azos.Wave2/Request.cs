@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -28,6 +29,9 @@ namespace Azos.Wave
     public readonly HttpRequest AspRequest;
     public string UserAgent => AspRequest.Headers.UserAgent.ToString();
     public string Method => AspRequest.Method;
+    public string Scheme => AspRequest.Scheme;
+
+    public string Host => AspRequest.Host.Host;
     public string Referer => AspRequest.Headers.Referer.ToString();
     public string ContentType => AspRequest.ContentType;
 
@@ -39,6 +43,23 @@ namespace Azos.Wave
     public Stream BodyStream => AspRequest.Body;
 
     public string Url => AspRequest.PathBase + AspRequest.Path + AspRequest.QueryString;
+
+    public bool IsLocal
+    {
+      get
+      {
+        var connection = AspRequest.HttpContext.Connection;
+        if (connection.RemoteIpAddress.IsSpecified())
+        {
+          return connection.LocalIpAddress.IsSpecified()
+              //Is local is same as remote, then we are local
+              ? connection.RemoteIpAddress.Equals(connection.LocalIpAddress)
+              //else we are remote if the remote IP address is not a loopback address
+              : IPAddress.IsLoopback(connection.RemoteIpAddress);
+        }
+        return true;
+      }
+    }
 
     public bool RequestedJson
     {
