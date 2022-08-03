@@ -25,6 +25,9 @@ using Microsoft.AspNetCore.Http;
 namespace Azos.Wave
 {
   /// <summary>
+  ///
+  /// todo:  REWRITE BULLSHIT!!!!!!!!!!
+  ///
   /// Represents "(W)eb(A)pp(V)iew(E)nhanced" web server which provides DYNAMIC web site services.
   /// This server is not meant to be exposed directly to the public Internet, rather it should be used as an application server
   /// behind the reverse proxy, such as NGINX. This server is designed to serve dynamic data-driven requests/APIs and not meant to be used
