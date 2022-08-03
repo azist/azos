@@ -49,37 +49,100 @@ namespace Azos.Wave
   public class WaveServer : DaemonWithInstrumentation<IApplicationComponent>
   {
     #region CONSTS
-
-      public const string CONFIG_SERVER_SECTION = "server";
-
-      public const string CONFIG_PREFIX_SECTION = "prefix";
-
-      public const string CONFIG_GATE_SECTION = "gate";
-
-      public const string CONFIG_DEFAULT_ERROR_HANDLER_SECTION = "default-error-handler";
-
-
-      public const int ACCEPT_THREAD_GRANULARITY_MS = 250;
-
-      public const int INSTRUMENTATION_DUMP_PERIOD_MS = 3377;
-
+    public const string CONFIG_SERVER_SECTION = "server";
+    public const string CONFIG_MATCH_SECTION = "match";
+    public const string CONFIG_GATE_SECTION = "gate";
+    public const string CONFIG_DEFAULT_ERROR_HANDLER_SECTION = "default-error-handler";
+    public const int    ACCEPT_THREAD_GRANULARITY_MS = 250;
+    public const int    INSTRUMENTATION_DUMP_PERIOD_MS = 3377;
     #endregion
 
     #region Static
 
-    private static Registry<WaveServer> s_Servers = new Registry<WaveServer>();
-
     /// <summary>
-    /// Returns the global registry of all server instances that are active in this process
+    /// Exposes active <see cref="WaveServer"/> instances in the <see cref="IApplication"/> context
     /// </summary>
-    public static IRegistry<WaveServer> Servers
+    public sealed class Pool
     {
-      get{ return s_Servers; }
+      /// <summary>
+      /// Returns an app-singleton instance of WaveServer pool
+      /// </summary>
+      public static Pool Get(IApplication app)
+       => app.NonNull(nameof(app)).Singletons.GetOrCreate(() => new Pool()).instance;
+
+      private Pool() { m_Servers = new Registry<WaveServer>(); }
+
+      private readonly Registry<WaveServer> m_Servers;
+
+      internal bool RegisterActiveServer(WaveServer server) => m_Servers.Register(server);
+      internal bool UnregisterActiveServer(WaveServer server) => m_Servers.Unregister(server);
+
+      public IRegistry<WaveServer> Servers => m_Servers;
+
+      /// <summary>
+      /// Called by ASP.Net middleware to dispatch request into WaveServer pool where
+      /// a specific server gets pattern match on request and handles it.
+      /// Returns a server that handled the request OR NULL if the request was not hadnled by ANY server in the app
+      /// </summary>
+      public async Task<WaveServer> DispatchAsync(HttpContext httpContext)
+      {
+        foreach(var server in m_Servers)
+        {
+          var handled = await server.HandleRequestAsync(httpContext).ConfigureAwait(false);
+          if (handled) return server;
+        }
+        return null;
+      }
     }
-
-
     #endregion
 
+    #region Match
+    /// <summary>
+    /// Matches incoming traffic with HttpContext. You can extend this class with custom matching logic
+    /// </summary>
+    public class Match : INamed, IOrdered
+    {
+      public Match(IConfigSectionNode node)
+      {
+        ConfigAttribute.Apply(this, node.NonEmpty(nameof(node)));
+        if (Name.IsNullOrWhiteSpace()) Name = Guid.NewGuid().ToString();
+
+        var host = node.Of("host", "host-name").Value;
+        if (host.IsNotNullOrWhiteSpace()) m_HostName = new HostString(host);
+      }
+
+      private HostString  m_HostName;
+
+      [Config] public string Name { get; private set; }
+      [Config] public int Order { get; private set; }
+
+      public HostString HostName => m_HostName;
+
+      public bool Make(HttpContext httpContext)
+      {
+        if (m_HostName.HasValue && !httpContext.Request.Host.Equals(m_HostName)) return false;
+        return true;
+      }
+
+      /// <summary>
+      /// Registers matches declared in config. Throws error if registry already contains a match with a duplicate name
+      /// </summary>
+      internal static void MakeAndRegisterFromConfig(OrderedRegistry<Match> registry, IConfigSectionNode confNode, WaveServer server)
+      {
+        registry.Clear();
+        foreach (var cn in confNode.ChildrenNamed(CONFIG_MATCH_SECTION))
+        {
+          var match = FactoryUtils.Make<Match>(cn, typeof(Match), args: new object[] { cn });
+          if (!registry.Register(match))
+          {
+            throw new WaveException(StringConsts.CONFIG_SERVER_DUPLICATE_MATCH_NAME_ERROR.Args(match.Name, server.Name));
+          }
+        }
+      }
+
+    }
+
+    #endregion
 
     #region .ctor
     public WaveServer(IApplication app) : base(app) => ctor();
@@ -89,8 +152,7 @@ namespace Azos.Wave
 
     private void ctor()
     {
-      m_Prefixes = new EventedList<string, WaveServer>(this, true);
-      m_Prefixes.GetReadOnlyEvent = (l) => Status != DaemonStatus.Inactive;
+      m_Matches = new OrderedRegistry<Match>();
     }
 
     protected override void Destructor()
@@ -104,7 +166,7 @@ namespace Azos.Wave
     #region Fields
 
     private bool m_LogHandleExceptionErrors;
-    private EventedList<string, WaveServer> m_Prefixes;
+    private OrderedRegistry<Match> m_Matches;
 
     private Thread m_InstrumentationThread;
     private AutoResetEvent m_InstrumentationThreadWaiter;
@@ -157,7 +219,7 @@ namespace Azos.Wave
     /// <summary>
     /// Provides a list of served endpoints
     /// </summary>
-    public override string ServiceDescription => Prefixes.Aggregate(string.Empty, (s, p) => s + "  " + p);
+    public override string ServiceDescription => Matches.Aggregate(string.Empty, (s, p) => s + "  " + p);
 
 
     /// <summary>
@@ -192,9 +254,9 @@ namespace Azos.Wave
     }
 
     /// <summary>
-    /// Returns HttpListener prefixes such as "http://+:8080/"
+    /// Returns server match collection
     /// </summary>
-    public IList<string> Prefixes => m_Prefixes;
+    public IOrderedRegistry<Match> Matches => m_Matches;
 
 
     /// <summary>
@@ -307,12 +369,8 @@ namespace Azos.Wave
 
         ConfigAttribute.Apply(this, node);
 
-        m_Prefixes.Clear();
-        foreach(var name in node.Children
-                             .Where(c=>c.IsSameName(CONFIG_PREFIX_SECTION))
-                             .Select(c=>c.AttrByName(Configuration.CONFIG_NAME_ATTR).Value)
-                             .Where(n=>n.IsNotNullOrWhiteSpace()))
-           m_Prefixes.Add(name);
+
+        Match.MakeAndRegisterFromConfig(m_Matches, node, this);
 
         var nGate = node[CONFIG_GATE_SECTION];
         if (nGate.Exists)
@@ -333,10 +391,12 @@ namespace Azos.Wave
 
       protected override void DoStart()
       {
-        if (m_Prefixes.Count==0)
-          throw new WaveException(StringConsts.SERVER_NO_PREFIXES_ERROR.Args(Name));
+        if (m_Matches.Count==0)
+          throw new WaveException(StringConsts.SERVER_NO_MATCHES_ERROR.Args(Name));
 
-        if (!s_Servers.Register(this))
+        var serverPool = Pool.Get(App);
+
+        if (!serverPool.RegisterActiveServer(this))
           throw new WaveException(StringConsts.SERVER_COULD_NOT_GET_REGISTERED_ERROR.Args(Name));
 
         try
@@ -351,12 +411,6 @@ namespace Azos.Wave
            m_InstrumentationThread = new Thread(instrumentationThreadSpin);
            m_InstrumentationThread.Name = "{0}-InstrumentationThread".Args(Name);
            m_InstrumentationThreadWaiter = new AutoResetEvent(false);
-
-
-           foreach(var prefix in m_Prefixes)
-             m_Listener.Prefixes.Add(prefix);
-
-
         }
         catch
         {
@@ -364,8 +418,7 @@ namespace Azos.Wave
           if (m_Gate!=null && m_Gate is Daemon)
             ((Daemon)m_Gate).WaitForCompleteStop();
 
-          s_Servers.Unregister(this);
-
+          serverPool.UnregisterActiveServer(this);
           throw;
         }
 
@@ -384,9 +437,9 @@ namespace Azos.Wave
 
       protected override void DoWaitForCompleteStop()
       {
-        s_Servers.Unregister(this);
+        Pool.Get(App).UnregisterActiveServer(this);
 
-        if (m_InstrumentationThread!=null)
+        if (m_InstrumentationThread != null)
         {
           m_InstrumentationThread.Join();
           m_InstrumentationThread = null;
@@ -398,13 +451,27 @@ namespace Azos.Wave
                 ((Daemon)m_Gate).WaitForCompleteStop();
       }
 
+    /// <summary>
+    /// Returns true if the specfied context will be services by this server based on its
+    /// listen-on hosts, ports etc...
+    /// </summary>
+    public virtual bool MatchContext(HttpContext httpContext)
+    {
+      if (httpContext == null) return false;
+      return m_Matches.OrderedValues.Any(match => match.Make(httpContext));
+    }
 
     /// <summary>
-    /// Called by the Asp.Net middleware, an entry point for server request processing
+    /// Called by the Asp.Net middleware via Pool, an entry point for server request processing.
+    /// Return true if request was handled and processing should stop
     /// </summary>
-    public async Task ProcessAsync(HttpContext httpContext)
+    public async Task<bool> HandleRequestAsync(HttpContext httpContext)
     {
-      using var work = MakeContext(httpContext);
+      //warning: match PREFIXES return false
+      var matches = MatchContext(httpContext);
+      if (!matches) return false;
+
+      WorkContext work = null;
       try
       {
         if (m_InstrumentationEnabled) Interlocked.Increment(ref m_stat_ServerRequest);
@@ -421,14 +488,16 @@ namespace Azos.Wave
               httpContext.Response.StatusCode = WebConsts.STATUS_429;
               //await httpContext.Response.WriteAsync(WebConsts.STATUS_429_DESCRIPTION).ConfigureAwait(false);
               if (m_InstrumentationEnabled) Interlocked.Increment(ref m_stat_ServerGateDenial);
-              return;
+              return true;
             }
           }
           catch (Exception denyError)
           {
-            WriteLog(MessageType.Error, nameof(ProcessAsync), denyError.ToMessageWithType(), denyError);
+            WriteLog(MessageType.Error, nameof(HandleRequestAsync), denyError.ToMessageWithType(), denyError);
           }
         }
+
+        work = MakeContext(httpContext);
 
         await m_RootHandler.FilterAndHandleWorkAsync(work).ConfigureAwait(false);
       }
@@ -436,6 +505,19 @@ namespace Azos.Wave
       {
         await this.HandleExceptionAsync(work, unhandled).ConfigureAwait(false);
       }
+      finally
+      {
+        try
+        {
+          DisposeAndNull(ref work);
+        }
+        catch(Exception swallow)
+        {
+          WriteLogFromHere(MessageType.Error, "work.dctor leaked: " + swallow.Message, swallow);
+        }
+      }
+
+      return true;
     }
 
     /// <summary>
