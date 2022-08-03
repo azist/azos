@@ -6,7 +6,7 @@
 
 using System;
 using System.Reflection;
-
+using System.Threading.Tasks;
 using Azos.Data;
 
 namespace Azos.Wave.Mvc
@@ -27,14 +27,14 @@ namespace Azos.Wave.Mvc
     public bool OnlyExistingSession{ get; set; } = true;
 
 
-    protected internal override bool BeforeActionInvocation(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, ref object result)
+    protected internal override async ValueTask<(bool, object)> BeforeActionInvocationAsync(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, object result)
     {
-      if (work.IsGET) return false;
+      if (work.IsGET) return (false, result);
 
       work.NeedsSession(OnlyExistingSession);
 
       var session = work.Session;
-      var supplied = work.WholeRequestAsJSONDataMap[TokenName].AsString();
+      var supplied = (await work.GetWholeRequestAsJsonDataMapAsync().ConfigureAwait(false))[TokenName].AsString();
 
       var bad = session==null;
 
@@ -43,17 +43,13 @@ namespace Azos.Wave.Mvc
 
       if (bad) throw new HTTPStatusException(WebConsts.STATUS_400, WebConsts.STATUS_400_DESCRIPTION, "CSRF failed");
 
-      return false;
+      return (false, result);
     }
 
-    protected internal override bool AfterActionInvocation(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, ref object result)
-    {
-      return false;
-    }
+    protected internal override ValueTask<(bool, object)> AfterActionInvocationAsync(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, object result)
+      => new ValueTask<(bool, object)>((false, result));
 
-    protected internal override void ActionInvocationFinally(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, ref object result)
-    {
-
-    }
+    protected internal override ValueTask<object> ActionInvocationFinallyAsync(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, object result)
+      => new ValueTask<object>(result);
   }
 }
