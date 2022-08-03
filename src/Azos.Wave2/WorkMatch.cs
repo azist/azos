@@ -604,7 +604,7 @@ namespace Azos.Wave
     {
       if (m_Headers==null) return true;
       foreach(var pair in m_Headers)
-        if (work.Request.Headers[pair.Name].EqualsIgnoreCase(pair.Value)) return true;
+        if (work.Request.HeaderAsString(pair.Name).EqualsIgnoreCase(pair.Value)) return true;
       return false;
     }
 
@@ -612,7 +612,7 @@ namespace Azos.Wave
     {
       if (m_AbsentHeaders==null) return true;
       foreach(var pair in m_AbsentHeaders)
-        if (!work.Request.Headers[pair.Name].EqualsIgnoreCase(pair.Value)) return true;
+        if (!work.Request.HeaderAsString(pair.Name).EqualsIgnoreCase(pair.Value)) return true;
       return false;
     }
 
@@ -620,7 +620,7 @@ namespace Azos.Wave
     {
       if (!m_ApiMinVer.HasValue && !m_ApiMaxVer.HasValue) return true;
 
-      var hdr = work.Request.Headers[SysConsts.HEADER_API_VERSION];
+      var hdr = work.Request.HeaderAsString(SysConsts.HEADER_API_VERSION);
 
       if (hdr.IsNullOrWhiteSpace()) return false;
 
