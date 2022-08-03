@@ -156,5 +156,4 @@ namespace Azos.Wave.Handlers
     }//deliverCore
 
   }//Mailbox
-
 }

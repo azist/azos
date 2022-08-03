@@ -115,13 +115,13 @@ namespace Azos.Wave.Handlers
 
 
 
-    public SSEMailboxHandler(WorkDispatcher dispatcher, string name, int order, WorkMatch match)
-                     : base(dispatcher, name, order, match)
+    public SSEMailboxHandler(WorkHandler director, string name, int order, WorkMatch match)
+                     : base(director, name, order, match)
     {
       ctor();
     }
 
-    public SSEMailboxHandler(WorkDispatcher dispatcher, IConfigSectionNode confNode) : base(dispatcher, confNode)
+    public SSEMailboxHandler(WorkHandler director, IConfigSectionNode confNode) : base(director, confNode)
     {
       ctor();
     }
@@ -172,7 +172,7 @@ namespace Azos.Wave.Handlers
     }
 
 
-    protected override void DoHandleWork(WorkContext work)
+    protected override Task DoHandleWorkAsync(WorkContext work)
     {
       if (Disposed) throw HTTPStatusException.InternalError_500("Unavailable");
 
@@ -189,13 +189,15 @@ namespace Azos.Wave.Handlers
 
       try
       {
-        flushFirstChunk(work);//Microsoft Http bug. need 1000 chars at first to start buffer flushing
+        flushFirstChunk(work);
         work.NoDefaultAutoClose = true;
       }
       catch
       {
         mbox.DisconnectClient(work);
       }
+
+      return Task.CompletedTask;
     }
 
     /// <summary>

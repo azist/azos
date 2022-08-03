@@ -49,7 +49,6 @@ namespace Azos.Wave.Handlers
 
 
     #region .ctor
-
     protected EmbeddedSiteHandler(WorkHandler director, string name, int order, WorkMatch match = null)
                                   : base(director, name, order, match)
     {
