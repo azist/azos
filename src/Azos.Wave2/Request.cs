@@ -39,6 +39,9 @@ namespace Azos.Wave
     public IRequestCookieCollection Cookies => AspRequest.Cookies;
 
     public string HeaderAsString(string name) => AspRequest.Headers[name];
+    public string QueryVarAsString(string name) => AspRequest.Query[name];
+
+    public IQueryCollection Query => AspRequest.Query;
 
     public Stream BodyStream => AspRequest.Body;
 

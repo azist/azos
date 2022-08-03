@@ -543,14 +543,18 @@ namespace Azos.Wave
       {
         if (cvar.QueryName==Variable.QUERY_NAME_WC)
         {
-          foreach(var qk in work.Request.QueryString.AllKeys)
-            if (qk.IsNotNullOrWhiteSpace())//20150528 DKh  fixed: ?a=1&b
-              result[qk] = work.Request.QueryString[qk];
+          foreach(var pair in work.Request.Query)
+          {
+            string v = pair.Value;
+            if (v.IsNotNullOrWhiteSpace())//20150528 DKh  fixed: ?a=1&b
+            {
+              result[pair.Key] = v;
+            }
+          }
           continue;
         }
 
-
-        var qv = cvar.QueryName.IsNotNullOrWhiteSpace() ? work.Request.QueryString[cvar.QueryName] : string.Empty;
+        var qv = cvar.QueryName.IsNotNullOrWhiteSpace() ? work.Request.QueryVarAsString(cvar.QueryName) : string.Empty;
         if (qv.IsNullOrWhiteSpace()) qv = cvar.Default ?? string.Empty;
         result[cvar.Name] = qv;
 
