@@ -54,6 +54,13 @@ namespace Azos.Wave
         m_HttpContext.Response.AddHeader(flowHdr, m_ID.ToString());
     }
 
+
+    protected override void Destructor()
+    {
+      base.Destructor();
+      throw new NotImplementedException("Sync WorkContext destructior is prohibited");
+    }
+
     /// <summary>
     /// Warning: if overridden, must call base otherwise semaphore will not get released
     /// </summary>

@@ -51,7 +51,7 @@ namespace Azos.Wave
 
           if (ie && m_WasWrittenTo)
           Interlocked.Increment(ref srv.m_stat_WorkContextWrittenResponse);
-IAsyncDisposable
+
           stowClientVars();
 
           if (m_Buffer != null)

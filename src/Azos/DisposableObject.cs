@@ -60,6 +60,31 @@ namespace Azos
     }
 
     /// <summary>
+    /// Checks to see if the IAsyncDisposable reference is not null and sets it to null in a thread-safe way then calls DisposeAsync()
+    /// </summary>
+    public static ValueTask DisposeAndNullAsync<T>(ref T obj) where T : class, IAsyncDisposable
+      => DisposeAndNullAsync(ref obj, out var _);
+
+    /// <summary>
+    /// Checks to see if the IAsyncDisposable reference is not null and sets it to null in a thread-safe way then calls DisposeAsync().
+    /// Returns false if it is already null or not the original reference captured at the invocation
+    /// </summary>
+    public static ValueTask DisposeAndNullAsync<T>(ref T obj, out bool disposed) where T : class, IAsyncDisposable
+    {
+      var original = obj;
+      var was = Interlocked.CompareExchange(ref obj, null, original);
+      if (was == null || !object.ReferenceEquals(was, original))
+      {
+        disposed = false;
+        return ValueTask.CompletedTask;
+      }
+
+      disposed = true;
+      return was.DisposeAsync();
+    }
+
+
+    /// <summary>
     /// Checks to see if the reference is not null and sets it to null in a thread-safe way then calls Dispose()
     /// if the reference is IDisposable.
     /// Returns false if it is already null or not the original reference or the original reference is not IDisposable
