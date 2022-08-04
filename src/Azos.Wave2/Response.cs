@@ -8,13 +8,15 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
-using System.Net;
 using System.Threading;
 
 using Azos.IO;
 using Azos.Log;
 using Azos.Web;
 using Azos.Serialization.JSON;
+
+using Microsoft.Net.Http.Headers;
+using Microsoft.AspNetCore.Http;
 
 namespace Azos.Wave
 {
@@ -24,97 +26,93 @@ namespace Azos.Wave
   public sealed class Response : DisposableObject
   {
     #region CONSTS
-
-      public const int DEFAULT_DOWNLOAD_BUFFER_SIZE = 128*1024;
-      public const int MIN_DOWNLOAD_BUFFER_SIZE = 1*1024;
-      public const int MAX_DOWNLOAD_BUFFER_SIZE = 1024*1024;
-
-
-      public const int MAX_DOWNLOAD_FILE_SIZE = 32 * 1024 * 1024;
+    public const int DEFAULT_DOWNLOAD_BUFFER_SIZE = 128*1024;
+    public const int MIN_DOWNLOAD_BUFFER_SIZE = 1*1024;
+    public const int MAX_DOWNLOAD_BUFFER_SIZE = 1024*1024;
+    public const int MAX_DOWNLOAD_FILE_SIZE = 32 * 1024 * 1024;
     #endregion
 
-
     #region .ctor
-      internal Response(WorkContext work, HttpListenerResponse netResponse)
+    internal Response(WorkContext work, HttpResponse httpResponse)
+    {
+      Work = work;
+      m_AspResponse = httpResponse;
+      m_AspResponse.Headers[HeaderNames.Server] = Work.Server.Name;
+    }
+
+    protected override void Destructor()
+    {
+      try
       {
-        Work = work;
-        m_NetResponse = netResponse;
-        m_NetResponse.Headers[HttpResponseHeader.Server] = Work.Server.Name;
-      }
+        try
+        {
+          var srv = Work.Server;
+          var ie = srv.m_InstrumentationEnabled;
 
-      protected override void Destructor()
+          if (ie && m_WasWrittenTo)
+          Interlocked.Increment(ref srv.m_stat_WorkContextWrittenResponse);
+IAsyncDisposable
+          stowClientVars();
+
+          if (m_Buffer != null)
+          {
+            var sz = m_Buffer.Position;
+            m_AspResponse.ContentLength = sz;
+            m_AspResponse.Body.Write(m_Buffer.GetBuffer(), 0, (int)sz);
+            m_Buffer = null;
+
+            if (ie)
+            {
+              Interlocked.Increment(ref srv.m_stat_WorkContextBufferedResponse);
+              Interlocked.Add(ref srv.m_stat_WorkContextBufferedResponseBytes, sz);
+            }
+          }
+        }
+        finally
+        {
+          m_NetResponse.OutputStream.Close();
+ 	        m_NetResponse.Close();
+        }
+      }
+      catch(HttpListenerException lerror)
       {
-         try
-         {
-           try
-           {
-             var srv = Work.Server;
-             var ie = srv.m_InstrumentationEnabled;
-
-             if (ie && m_WasWrittenTo)
-              Interlocked.Increment(ref srv.m_stat_WorkContextWrittenResponse);
-
-             stowClientVars();
-
-             if (m_Buffer!=null)
-             {
-                var sz = m_Buffer.Position;
-                m_NetResponse.ContentLength64 = sz;
-                m_NetResponse.OutputStream.Write(m_Buffer.GetBuffer(), 0, (int)sz);
-                m_Buffer = null;
-
-                if (ie)
-                {
-                  Interlocked.Increment(ref srv.m_stat_WorkContextBufferedResponse);
-                  Interlocked.Add(ref srv.m_stat_WorkContextBufferedResponseBytes, sz);
-                }
-             }
-           }
-           finally
-           {
-             m_NetResponse.OutputStream.Close();
- 	           m_NetResponse.Close();
-           }
-         }
-         catch(HttpListenerException lerror)
-         {
-           if (lerror.ErrorCode!=64)//specified net name no longer available
-            Work.Log(MessageType.Error, lerror.ToMessageWithType(), "Response.dctor()", lerror);
-         }
+        if (lerror.ErrorCode!=64)//specified net name no longer available
+        Work.Log(MessageType.Error, lerror.ToMessageWithType(), "Response.dctor()", lerror);
       }
+    }
     #endregion
 
     #region Fields
-      private HttpListenerResponse m_NetResponse;
-      private bool m_WasWrittenTo;
-      private MemoryStream m_Buffer;
+    public readonly WorkContext Work;
+    private HttpResponse m_AspResponse;
 
-      private Dictionary<string, string> m_ClientVars;
-      private bool m_ClientVarsChanged;
+    private bool m_WasWrittenTo;
+    private MemoryStream m_Buffer;
 
-      public readonly WorkContext Work;
+    private Dictionary<string, string> m_ClientVars;
+    private bool m_ClientVarsChanged;
     #endregion
 
     #region Properties
-      /// <summary>
-      /// Returns true if some output has been performed
-      /// </summary>
-      public bool WasWrittenTo { get{ return m_WasWrittenTo;}}
+    /// <summary>
+    /// Returns true if some output has been performed
+    /// </summary>
+    public bool WasWrittenTo => m_WasWrittenTo;
 
-      /// <summary>
-      /// Determines whether the content is buffered locally. This property can not be set after
-      ///  the response has been written to
-      /// </summary>
-      public bool Buffered
+    /// <summary>
+    /// Determines whether the content is buffered locally. This property can not be set after
+    ///  the response has been written to
+    /// </summary>
+    public bool Buffered
+    {
+      get => !m_NetResponse.SendChunked;
+      set
       {
-        get {return !m_NetResponse.SendChunked;}
-        set
-        {
-          if (m_WasWrittenTo)
-            throw new WaveException(StringConsts.RESPONSE_WAS_WRITTEN_TO_ERROR+".Buffered.set()");
-          m_NetResponse.SendChunked = !value;
-        }
+        if (m_WasWrittenTo)
+          throw new WaveException(StringConsts.RESPONSE_WAS_WRITTEN_TO_ERROR+".Buffered.set()");
+        m_NetResponse.SendChunked = !value;
       }
+    }
 
       /// <summary>
       /// Gets/sets content encoding
@@ -144,14 +142,14 @@ namespace Azos.Wave
       /// </summary>
       public string ContentType
       {
-        get { return m_NetResponse.ContentType;}
-        set { m_NetResponse.ContentType = value;}
+        get { return m_AspResponse.ContentType;}
+        set { m_AspResponse.ContentType = value;}
       }
 
       /// <summary>
       /// Returns http headers of the response
       /// </summary>
-      public WebHeaderCollection Headers { get { return m_NetResponse.Headers;} }
+      public IHeaderDictionary Headers => m_AspResponse.Headers;
 
 
       /// <summary>

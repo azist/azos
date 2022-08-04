@@ -57,7 +57,7 @@ namespace Azos.Wave
     /// <summary>
     /// Warning: if overridden, must call base otherwise semaphore will not get released
     /// </summary>
-    protected override void Destructor()
+    protected override ValueTask DestructorAsync()
     {
       if (m_Server.m_InstrumentationEnabled)
       {

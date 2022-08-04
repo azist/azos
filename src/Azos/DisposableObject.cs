@@ -6,6 +6,7 @@
 using System;
 using System.Runtime.Serialization;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Azos
 {
@@ -37,7 +38,7 @@ namespace Azos
   /// The .Dispose() pattern is implemented in a thread-safe way
   /// </summary>
   [Serializable]
-  public abstract class DisposableObject : IDisposableLifecycle
+  public abstract class DisposableObject : IDisposableLifecycle, IAsyncDisposable
   {
     private const int STATE_ALIVE = 0;
     private const int STATE_DISPOSED_USER = 1;
@@ -90,7 +91,6 @@ namespace Azos
         Destructor();
       }
     }
-
     #endregion
 
     #region Private Fields
@@ -121,13 +121,29 @@ namespace Azos
     /// <remarks>
     /// This method is called as the result of both the deterministic .Dispose() call by user code
     /// and non-deterministic system finalizer invocations. The typical MS `.Dispose(bool)` pattern is not used on purpose because
-    /// all object implementing `IDisposable` must be deallocated ONLY via a call to `Dispose()` and
+    /// all objects implementing `IDisposable` must be deallocated ONLY via a call to `Dispose()` and
     /// invocation of system finalizer is considered to be a memory leak in Azos.
     /// You could check the <seealso cref="IDisposableLifecycle.DisposedByFinalizer"/> property,
     /// however this is considered to be a special case such as reporting of memory leaks using instrumentation/gauges
     /// </remarks>
     protected virtual void Destructor()
     {
+    }
+
+    /// <summary>
+    /// Works on behalf of <see cref="IAsyncDisposable"/> allowing for efficient async-first
+    /// deterministic mechanism for implementing types.
+    /// Override to perform custom type ASYNC finalization akin to sync one.
+    /// The default implementation delegates work to synchronous <see cref="Destructor"/>, this way
+    /// the logical system integrity is not violated by introduction of <see cref="IAsyncDisposable"/> interface,
+    /// however if you need a true asynchronous finalization, then this method MUST be overriden in a concrete class.
+    /// Warning: a synchronous <see cref="Destructor"/> must ALWAYS be implemented as it may be called by
+    /// a CLR GC finalizer which does not call async methods.
+    /// </summary>
+    protected virtual ValueTask DestructorAsync()
+    {
+      Destructor();
+      return ValueTask.CompletedTask;
     }
 
     /// <summary>
@@ -153,6 +169,27 @@ namespace Azos
         try
         {
           Destructor();
+        }
+        finally
+        {
+          GC.SuppressFinalize(this);
+        }
+      }
+    }
+    #endregion
+
+    #region IAsyncDisposable Members
+    /// <summary>
+    /// Deterministically disposes this object in a thread-safe way.
+    /// DO NOT TRY TO OVERRIDE this method, override Destructor() instead
+    /// </summary>
+    public async ValueTask DisposeAsync()
+    {
+      if (STATE_ALIVE == Interlocked.CompareExchange(ref m_DisposeState, STATE_DISPOSED_USER, STATE_ALIVE))
+      {
+        try
+        {
+          await DestructorAsync().ConfigureAwait(false);
         }
         finally
         {

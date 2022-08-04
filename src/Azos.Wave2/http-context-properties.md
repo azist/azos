@@ -40,3 +40,19 @@ Cookie: WV.CV = SID~SURUEJ-MNEQGLTI-UBOHOAIM-GVSIAWAFEXETGLMDIDOFTVOABEIZOBUZ
 
 ## Response
 
+### Send chunked
+Microsoft sends chunked transfer if you **do not spesify content size**:
+```
+Response headers raw:
+  Content-Type: text/event-stream
+  Date: Thu, 04 Aug 2022 18:53:31 GMT
+  Transfer-Encoding: chunked
+```
+
+However, the monet we add `ctx.Response.ContentLength = x;`, we now get this in response:
+```
+Response headers raw:
+  Content-Length: 1000
+  Content-Type: text/event-stream
+  Date: Thu, 04 Aug 2022 18:56:32 GMT 
+```
