@@ -5,8 +5,11 @@
 </FILE_LICENSE>*/
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Azos
 {
@@ -551,5 +554,87 @@ namespace Azos
       return new KeyValuePair<string, string>(src, string.Empty);
     }
 
+    /// <summary>
+    /// Provides string to byte[] conversion using a rented buffer.
+    /// You must release the common buffer back by calling TextBytes.Dispose().
+    /// </summary>
+    /// <remarks>
+    /// The algorithm with get/release pattern is buit around the IDisposable finalization
+    /// block, because the usage of function would have required to use a delegate which could
+    /// introduce additional insance allocation. The whole point of this type is to avoid
+    /// any instance allocations, hence the IDisposable() pattern on a struct which enables use of `using`
+    /// </remarks>
+    public struct TextBytes : IDisposable
+    {
+      private const int THRESHOLD_MAX_BYTE_COUNT = 8 * 1024;
+
+      /// <summary>
+      /// Creates text bytes from non-null string, using the supplied encoding or UTF8 by default.
+      /// If the string is sensitive then the array is cleared after use
+      /// </summary>
+      public TextBytes(string text, Encoding encoding = null, bool sensitive = true)
+      {
+        Text = text.NonNull(nameof(text));
+        Encoding = encoding ?? Encoding.UTF8;
+        Sensitive = sensitive;
+
+        var len = text.Length;
+        var mbc = Encoding.GetMaxByteCount(len);
+        var byteCount = mbc < THRESHOLD_MAX_BYTE_COUNT ? mbc : Encoding.GetByteCount(Text);
+        var buffer = System.Buffers.ArrayPool<byte>.Shared.Rent(byteCount);
+        var encodedLength = Encoding.GetBytes(Text, 0, len, buffer, 0);
+        Buffer = new ArraySegment<byte>(buffer, 0, encodedLength);
+      }
+
+      public void Dispose()
+      {
+        if (Buffer.Array == null) return;//unassigned
+        System.Buffers.ArrayPool<byte>.Shared.Return(Buffer.Array, clearArray: Sensitive);
+      }
+
+      /// <summary>
+      /// Original string that Buffer was encoded from
+      /// </summary>
+      public readonly string Text;
+
+      /// <summary>
+      /// Encoding that is used; UTF8 by default
+      /// </summary>
+      public readonly Encoding Encoding;
+
+      /// <summary>
+      /// Buffer filled with data. WARNING: The length of the underlying buffer is usually LONGER than length of encoded text,
+      /// you must use array segment of that buffer
+      /// </summary>
+      public readonly ArraySegment<byte> Buffer;
+      public readonly bool Sensitive;
+
+      public bool Assigned => Buffer.Array != null;
+
+
+      /// <summary>
+      /// Asynchronously writes an instance into a stream
+      /// </summary>
+      public async Task WriteToStreamAsync(Stream stream, CancellationToken? cancelToken = null)
+      {
+        Assigned.IsTrue(nameof(Assigned));
+        stream.NonNull(nameof(stream)).CanWrite.IsTrue("stream.CanWrite");
+
+        if (cancelToken.HasValue)
+          await stream.WriteAsync(Buffer.Array, 0, Buffer.Count, cancelToken.Value).ConfigureAwait(false);
+        else
+          await stream.WriteAsync(Buffer.Array, 0, Buffer.Count).ConfigureAwait(false);
+      }
+
+      /// <summary>
+      /// Asynchronously writes a string into a stream
+      /// </summary>
+      public static async Task WriteToStreamAsync(Stream stream, string text, Encoding encoding = null, bool sensitive = true, CancellationToken? cancelToken = null)
+      {
+        using var encoded = new TextBytes(text, encoding, sensitive);
+        await encoded.WriteToStreamAsync(stream, cancelToken).ConfigureAwait(false);
+      }
+
+    }
   }
 }

@@ -57,14 +57,14 @@ namespace Azos.Wave
 
     protected override void Destructor()
     {
-      base.Destructor();
-      throw new NotImplementedException("Sync WorkContext destructior is prohibited");
+      if (!((IDisposableLifecycle)this).DisposedByFinalizer)
+       throw new NotSupportedException("Sync WorkContext destructior is prohibited");
     }
 
     /// <summary>
     /// Warning: if overridden, must call base otherwise semaphore will not get released
     /// </summary>
-    protected override ValueTask DestructorAsync()
+    protected override async ValueTask DestructorAsync()
     {
       if (m_Server.m_InstrumentationEnabled)
       {
@@ -76,7 +76,7 @@ namespace Azos.Wave
 
       ats_Current.Value = null;
       Apps.ExecutionContext.__SetThreadLevelCallContext(null);
-      m_Response.Dispose();
+      await DisposeAndNullAsync(ref m_Response).ConfigureAwait(false);
     }
     #endregion
 

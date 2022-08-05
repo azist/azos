@@ -17,6 +17,7 @@ using Azos.Serialization.JSON;
 
 using Microsoft.Net.Http.Headers;
 using Microsoft.AspNetCore.Http;
+using System.Threading.Tasks;
 
 namespace Azos.Wave
 {
@@ -36,48 +37,48 @@ namespace Azos.Wave
     internal Response(WorkContext work, HttpResponse httpResponse)
     {
       Work = work;
+      m_Encoding = Encoding.UTF8;
       m_AspResponse = httpResponse;
       m_AspResponse.Headers[HeaderNames.Server] = Work.Server.Name;
     }
 
     protected override void Destructor()
     {
+      if (!((IDisposableLifecycle)this).DisposedByFinalizer)
+        throw new NotSupportedException("Sync Response destructior is prohibited");
+    }
+
+    protected override async ValueTask DestructorAsync()
+    {
       try
       {
-        try
+        var srv = Work.Server;
+        var ie = srv.m_InstrumentationEnabled;
+
+        if (ie && m_WasWrittenTo)
+        Interlocked.Increment(ref srv.m_stat_WorkContextWrittenResponse);
+
+        stowClientVars();
+
+        if (m_Buffer != null)
         {
-          var srv = Work.Server;
-          var ie = srv.m_InstrumentationEnabled;
+          var sz = m_Buffer.Position;
+          m_AspResponse.ContentLength = sz;
 
-          if (ie && m_WasWrittenTo)
-          Interlocked.Increment(ref srv.m_stat_WorkContextWrittenResponse);
+          await m_AspResponse.Body.WriteAsync(m_Buffer.GetBuffer(), 0, (int)sz).ConfigureAwait(false);
 
-          stowClientVars();
+          m_Buffer = null;
 
-          if (m_Buffer != null)
+          if (ie)
           {
-            var sz = m_Buffer.Position;
-            m_AspResponse.ContentLength = sz;
-            m_AspResponse.Body.Write(m_Buffer.GetBuffer(), 0, (int)sz);
-            m_Buffer = null;
-
-            if (ie)
-            {
-              Interlocked.Increment(ref srv.m_stat_WorkContextBufferedResponse);
-              Interlocked.Add(ref srv.m_stat_WorkContextBufferedResponseBytes, sz);
-            }
+            Interlocked.Increment(ref srv.m_stat_WorkContextBufferedResponse);
+            Interlocked.Add(ref srv.m_stat_WorkContextBufferedResponseBytes, sz);
           }
         }
-        finally
-        {
-          m_NetResponse.OutputStream.Close();
- 	        m_NetResponse.Close();
-        }
       }
-      catch(HttpListenerException lerror)
+      catch(Exception error)
       {
-        if (lerror.ErrorCode!=64)//specified net name no longer available
-        Work.Log(MessageType.Error, lerror.ToMessageWithType(), "Response.dctor()", lerror);
+        Work.Log(MessageType.Error, error.ToMessageWithType(), "Response.dctor()", error);
       }
     }
     #endregion
@@ -86,11 +87,10 @@ namespace Azos.Wave
     public readonly WorkContext Work;
     private HttpResponse m_AspResponse;
 
+    private Encoding m_Encoding;
     private bool m_WasWrittenTo;
+    private bool m_Buffered;
     private MemoryStream m_Buffer;
-
-    private Dictionary<string, string> m_ClientVars;
-    private bool m_ClientVarsChanged;
     #endregion
 
     #region Properties
@@ -105,113 +105,104 @@ namespace Azos.Wave
     /// </summary>
     public bool Buffered
     {
-      get => !m_NetResponse.SendChunked;
+      get => m_Buffered;
       set
       {
         if (m_WasWrittenTo)
+        {
           throw new WaveException(StringConsts.RESPONSE_WAS_WRITTEN_TO_ERROR+".Buffered.set()");
-        m_NetResponse.SendChunked = !value;
+        }
+        m_Buffered = value;
       }
     }
 
-      /// <summary>
-      /// Gets/sets content encoding
-      /// </summary>
-      public Encoding Encoding { get { return m_NetResponse.ContentEncoding ?? Encoding.UTF8; } set {m_NetResponse.ContentEncoding = value;}}
-
-      /// <summary>
-      /// Http status code
-      /// </summary>
-      public int StatusCode
+    /// <summary>
+    /// Gets/sets content encoding
+    /// </summary>
+    public Encoding Encoding
+    {
+      get => m_Encoding;
+      set
       {
-        get { return m_NetResponse.StatusCode;}
-        set { m_NetResponse.StatusCode = value;}
+        if (m_WasWrittenTo)
+        {
+          throw new WaveException(StringConsts.RESPONSE_WAS_WRITTEN_TO_ERROR + ".Encoding.set()");
+        }
+        m_Encoding = value ?? Encoding.UTF8;
       }
+    }
 
-      /// <summary>
-      /// Http status description
-      /// </summary>
-      public string StatusDescription
-      {
-        get { return m_NetResponse.StatusDescription;}
-        set { m_NetResponse.StatusDescription = value;}
-      }
+    /// <summary>
+    /// Http status code
+    /// </summary>
+    public int StatusCode
+    {
+      get => m_AspResponse.StatusCode;
+      set => m_AspResponse.StatusCode = value;
+    }
 
-      /// <summary>
-      /// Http content type
-      /// </summary>
-      public string ContentType
-      {
-        get { return m_AspResponse.ContentType;}
-        set { m_AspResponse.ContentType = value;}
-      }
+    /// <summary>
+    /// Http status description communicated via header
+    /// </summary>
+    public string StatusDescription
+    {
+      get => m_AspResponse.Headers[Work.Server.HttpStatusTextHeader].ToString();
+      set => m_AspResponse.Headers[Work.Server.HttpStatusTextHeader] = value;
+    }
 
-      /// <summary>
-      /// Returns http headers of the response
-      /// </summary>
-      public IHeaderDictionary Headers => m_AspResponse.Headers;
+    /// <summary>
+    /// Http content type get or set.
+    /// Warning: Set textual content type using <see cref="SetTextualContentType(string)"/> which
+    /// also sets the charset header value
+    /// </summary>
+    public string ContentType
+    {
+      get => m_AspResponse.ContentType;
+      set => m_AspResponse.ContentType = value;
+    }
 
+    /// <summary>
+    /// Set textual content type with charset taken from current encoding
+    /// </summary>
+    public void SetTextualContentType(string ctp)
+     => m_AspResponse.ContentType = ctp.NonBlank(nameof(ctp)) + "; charset=" + Encoding.WebName;
 
-      /// <summary>
-      /// Returns true if current request processing cycle has changed the client var
-      /// </summary>
-      public bool ClientVarsChanged { get{ return m_ClientVarsChanged;} }
-
+    /// <summary>
+    /// Returns http headers of the response
+    /// </summary>
+    public IHeaderDictionary Headers => m_AspResponse.Headers;
 
     #endregion
 
     #region Public
 
-      /// <summary>
-      /// Writes an object into response as string
-      /// </summary>
-      public void Write(object content)
-      {
-        if (content==null) return;
+    /// <summary>
+    /// Writes a string into response
+    /// </summary>
+    public async ValueTask WriteAsync(string content)
+    {
+      if (content.IsNotNullOrEmpty()) return;
+      setWasWrittenTo();
+      await StrUtils.TextBytes.WriteToStreamAsync(getStream(), content, Encoding).ConfigureAwait(false);
+    }
 
-        Write(content.ToString());
-      }
+    /// <summary>
+    /// Writes a string into response with \\n at the end
+    /// </summary>
+    public async ValueTask WriteLine(string content)
+      => await WriteAsync((content ?? string.Empty) + "\n").ConfigureAwait(false);
 
-      /// <summary>
-      /// Writes an object into response as string
-      /// </summary>
-      public void WriteLine(object content)
-      {
-        if (content==null) return;
-
-        WriteLine(content.ToString());
-      }
-
-      /// <summary>
-      /// Writes a string into response
-      /// </summary>
-      public void Write(string content)
-      {
-        if (content==null) return;
-
-        setWasWrittenTo();
-        byte[] buffer = Encoding.GetBytes(content);
-        getStream().Write(buffer, 0, buffer.Length);
-      }
-
-      /// <summary>
-      /// Writes a string into response
-      /// </summary>
-      public void WriteLine(string content)
-      {
-        Write((content??string.Empty)+"\n");
-      }
-
-      /// <summary>
-      /// Writes an object as JSON. Does nothing if object is null
-      /// </summary>
-      public void WriteJSON(object data, JsonWritingOptions options = null)
-      {
-        if (data==null) return;
-        setWasWrittenTo();
-        m_NetResponse.ContentType = Azos.Web.ContentType.JSON + ";charset=" + Encoding.WebName;
-        JsonWriter.Write(data, new NonClosingStreamWrap( getStream() ), options, Encoding);
-      }
+    /// <summary>
+    /// Writes an object as JSON. Does nothing if object is null
+    /// </summary>
+    public async Task WriteJsonAsync(object data, JsonWritingOptions options = null)
+    {
+      if (data==null) return;
+      setWasWrittenTo();
+      SetTextualContentType(Azos.Web.ContentType.JSON);
+#warning async JsonWriter
+      JsonWriter.Write(data, new NonClosingStreamWrap( getStream() ), options, Encoding);
+    }
 
       /// <summary>
       /// Write the file to the client so client can download it. May set Buffered=false to use chunked encoding for big files
@@ -381,70 +372,6 @@ namespace Azos.Wave
       {
         return SetCacheControlHeaders(CacheControl.NoCache, force);
       }
-
-      /// <summary>
-      /// Provides access to client state object which gets persisted as a cookie.
-      /// Client states need to be used instead of cookies because of some HttpListener+Browser limitations
-      /// that can not parse multiple cookies set into one Set-Cookie header
-      /// </summary>
-      public IEnumerable<string> GetClientVarNames()
-      {
-         loadClientVars();
-         return m_ClientVars.Keys;
-      }
-
-      /// <summary>
-      /// Provides access to client state object which gets persisted as a cookie.
-      /// Client states need to be used instead of cookies because of some HttpListener+Browser limitations
-      /// that can not parse multiple cookies set into one Set-Cookie header
-      /// </summary>
-      public string GetClientVar(string key)
-      {
-          if (key==null) return string.Empty;
-          loadClientVars();
-          string result;
-          if (m_ClientVars.TryGetValue(key, out result)) return result;
-          return string.Empty;
-      }
-
-      /// <summary>
-      /// Provides access to client state object which gets persisted as a cookie.
-      /// Client states need to be used instead of cookies because of some HttpListener+Browser limitations
-      /// that can not parse multiple cookies set into one Set-Cookie header.
-      /// Pass null for value to delete the var form the collection. The values are generally expected to be base64 encoded by the caller
-      /// </summary>
-      public void SetClientVar(string key, string value)
-      {
-          if (m_WasWrittenTo && !Buffered)
-            throw new WaveException(StringConsts.RESPONSE_WAS_WRITTEN_TO_ERROR+".SetClientVar()");
-
-          if (key==null) key = string.Empty;
-
-
-          if (key.IndexOf(KEY_DELIMITER)>=0)
-            throw new WaveException(StringConsts.ARGUMENT_ERROR+".SetClientVar(key has "+KEY_DELIMITER+")");
-
-
-
-          if (value!=null && value.IndexOf(VAR_DELIMITER)>=0)
-            throw new WaveException(StringConsts.ARGUMENT_ERROR+".SetClientVar(value has "+VAR_DELIMITER+")");
-
-
-          loadClientVars();
-
-          if (value==null)
-          {
-            m_ClientVarsChanged = m_ClientVarsChanged | m_ClientVars.Remove(key);
-            return;
-          }
-
-          string existing;
-          if (m_ClientVars.TryGetValue(key, out existing))
-           if ( string.Equals(existing, value, StringComparison.OrdinalIgnoreCase)) return;
-          m_ClientVars[key] = value;
-          m_ClientVarsChanged = true;
-      }
-
 
     #endregion
 

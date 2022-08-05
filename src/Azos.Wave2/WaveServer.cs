@@ -28,27 +28,7 @@ namespace Azos.Wave
   ///
   /// todo:  REWRITE BULLSHIT!!!!!!!!!!
   ///
-  /// Represents "(W)eb(A)pp(V)iew(E)nhanced" web server which provides DYNAMIC web site services.
-  /// This server is not meant to be exposed directly to the public Internet, rather it should be used as an application server
-  /// behind the reverse proxy, such as NGINX. This server is designed to serve dynamic data-driven requests/APIs and not meant to be used
-  /// for serving static content files (although it can).
-  /// The implementation is based on a lightweight HttpListener that processes incoming Http requests via an injectable WorkDispatcher
-  /// which governs the threading and WorkContext lifecycle.
-  /// The server processing pipeline is purposely designed to be synchronous-blocking (thread per call) which does not mean that the
-  /// server is inefficient, to the contrary - this server design is specifically targeting short-called methods relying on a classical thread call stack.
-  /// This approach obviates the need to create surrogate message loops/synchro contexts, tasks and other objects that introduce extra GC load.
-  /// The server easily support "dangling"(left open indefinitely) WorkContext instances that can stream events (i.e. SSE/Server Push) and WebSockets from
-  ///  specially-purposed asynchronous notification threads.
-  /// </summary>
-  /// <remarks>
-  /// The common belief that asynchronous non-thread-based web servers always work faster (i.e. Node.js) is not true in the data-oriented systems of high scale because
-  ///  eventually multiple web server machines still block on common data access resources, so it is much more important to design the database backend
-  /// in an asynchronous fashion, as it is the real bottle neck of the system. Even if most of the available threads are not physically paused by IO,
-  ///  they are paused logically as the logical units of work are waiting for IO and the fact that server can accept more socket requests does not mean that they
-  ///  will not timeout.  The downsides of asynchronous web layers are:
-  ///   (a) much increased implementation/maintenance complexity
-  ///   (b) many additional task/thread context switches and extra objects that facilitate the event loops/messages/tasks etc...
-  /// </remarks>
+  ///</summary>
   public class WaveServer : DaemonWithInstrumentation<IApplicationComponent>
   {
     #region CONSTS
@@ -58,6 +38,8 @@ namespace Azos.Wave
     public const string CONFIG_DEFAULT_ERROR_HANDLER_SECTION = "default-error-handler";
     public const int    ACCEPT_THREAD_GRANULARITY_MS = 250;
     public const int    INSTRUMENTATION_DUMP_PERIOD_MS = 3377;
+
+    public const string HTTP_STATUS_TEXT_HDR_DEFAULT = "wv-http-status";
     #endregion
 
     #region Static
@@ -178,6 +160,7 @@ namespace Azos.Wave
     private INetGate m_Gate;
     private CompositeWorkHandler m_RootHandler;
 
+    private string m_HttpStatusTextHeader;
 
     private OrderedRegistry<WorkMatch> m_ErrorShowDumpMatches = new OrderedRegistry<WorkMatch>();
     private OrderedRegistry<WorkMatch> m_ErrorLogMatches = new OrderedRegistry<WorkMatch>();
@@ -254,6 +237,17 @@ namespace Azos.Wave
     {
       get { return m_LogHandleExceptionErrors;}
       set { m_LogHandleExceptionErrors = value;}
+    }
+
+    /// <summary>
+    /// The name of http status text header where the system reports additional textual description of the HTTP response code
+    /// </summary>
+    [Config]
+    [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_WEB)]
+    public string HttpStatusTextHeader
+    {
+      get => m_HttpStatusTextHeader.Default(HTTP_STATUS_TEXT_HDR_DEFAULT);
+      set => m_HttpStatusTextHeader = value;
     }
 
     /// <summary>
