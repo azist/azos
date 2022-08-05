@@ -31,13 +31,15 @@ namespace Azos.Wave
     public const int MIN_DOWNLOAD_BUFFER_SIZE = 1*1024;
     public const int MAX_DOWNLOAD_BUFFER_SIZE = 1024*1024;
     public const int MAX_DOWNLOAD_FILE_SIZE = 32 * 1024 * 1024;
+
+    public static readonly Encoding UTF8_WEB_ENCODING = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
     #endregion
 
     #region .ctor
     internal Response(WorkContext work, HttpResponse httpResponse)
     {
       Work = work;
-      m_Encoding = Encoding.UTF8;
+      m_Encoding = UTF8_WEB_ENCODING;
       m_AspResponse = httpResponse;
       m_AspResponse.Headers[HeaderNames.Server] = Work.Server.Name;
     }
@@ -128,7 +130,7 @@ namespace Azos.Wave
         {
           throw new WaveException(StringConsts.RESPONSE_WAS_WRITTEN_TO_ERROR + ".Encoding.set()");
         }
-        m_Encoding = value ?? Encoding.UTF8;
+        m_Encoding = value ?? UTF8_WEB_ENCODING;
       }
     }
 
