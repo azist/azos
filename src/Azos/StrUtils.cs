@@ -559,14 +559,19 @@ namespace Azos
     /// You must release the common buffer back by calling TextBytes.Dispose().
     /// </summary>
     /// <remarks>
-    /// The algorithm with get/release pattern is buit around the IDisposable finalization
+    /// The algorithm with get/release pattern is built around the IDisposable finalization
     /// block, because the usage of function would have required to use a delegate which could
-    /// introduce additional insance allocation. The whole point of this type is to avoid
+    /// introduce additional instance allocation. The whole point of this type is to avoid
     /// any instance allocations, hence the IDisposable() pattern on a struct which enables use of `using`
     /// </remarks>
     public struct TextBytes : IDisposable
     {
       private const int THRESHOLD_MAX_BYTE_COUNT = 8 * 1024;
+      private const int THRESHOLD_POOL_ALLOC_COUNT = 1024;
+
+
+      private static byte[] s_Cache1;
+      private static byte[] s_Cache2;
 
       /// <summary>
       /// Creates text bytes from non-null string, using the supplied encoding or UTF8 by default.
@@ -581,15 +586,43 @@ namespace Azos
         var len = text.Length;
         var mbc = Encoding.GetMaxByteCount(len);
         var byteCount = mbc < THRESHOLD_MAX_BYTE_COUNT ? mbc : Encoding.GetByteCount(Text);
-        var buffer = System.Buffers.ArrayPool<byte>.Shared.Rent(byteCount);
+        byte[] buffer;
+        if (byteCount > THRESHOLD_POOL_ALLOC_COUNT)
+        {
+          buffer = System.Buffers.ArrayPool<byte>.Shared.Rent(byteCount);
+          FromPool = true;
+        }
+        else
+        {
+          buffer = Interlocked.Exchange(ref s_Cache1, null);
+          if (buffer == null)
+          {
+            buffer = Interlocked.Exchange(ref s_Cache2, null);
+            if (buffer == null)
+            {
+              buffer = new byte[THRESHOLD_POOL_ALLOC_COUNT];
+            }
+          }
+          FromPool = false;
+        }
+
         var encodedLength = Encoding.GetBytes(Text, 0, len, buffer, 0);
         Buffer = new ArraySegment<byte>(buffer, 0, encodedLength);
       }
 
       public void Dispose()
       {
-        if (Buffer.Array == null) return;//unassigned
-        System.Buffers.ArrayPool<byte>.Shared.Return(Buffer.Array, clearArray: Sensitive);
+        if (Buffer.Array == null ) return;//unassigned or not from pool
+        if (FromPool)
+        {
+          System.Buffers.ArrayPool<byte>.Shared.Return(Buffer.Array, clearArray: Sensitive);
+        }
+        else
+        {
+          if (Sensitive) Array.Clear(Buffer.Array);
+          if (null == Interlocked.CompareExchange(ref s_Cache1, Buffer.Array, null)) return;
+          Interlocked.CompareExchange(ref s_Cache2, Buffer.Array, null);
+        }
       }
 
       /// <summary>
@@ -607,6 +640,8 @@ namespace Azos
       /// you must use array segment of that buffer
       /// </summary>
       public readonly ArraySegment<byte> Buffer;
+
+      public readonly bool FromPool;
       public readonly bool Sensitive;
 
       public bool Assigned => Buffer.Array != null;

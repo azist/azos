@@ -121,7 +121,7 @@ namespace Azos.Security.MinIdp
       try
       {
         command = source.NonBlank(nameof(source))
-                           .AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw);
+                           .AsLaconicConfig(handling: Azos.Data.ConvertErrorHandling.Throw);
       }
       catch(Exception error)
       {

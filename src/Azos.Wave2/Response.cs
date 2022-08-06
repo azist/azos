@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 
 using Azos.IO;
 using Azos.Log;
@@ -17,7 +18,6 @@ using Azos.Serialization.JSON;
 
 using Microsoft.Net.Http.Headers;
 using Microsoft.AspNetCore.Http;
-using System.Threading.Tasks;
 
 namespace Azos.Wave
 {
@@ -59,8 +59,6 @@ namespace Azos.Wave
 
         if (ie && m_WasWrittenTo)
         Interlocked.Increment(ref srv.m_stat_WorkContextWrittenResponse);
-
-        stowClientVars();
 
         if (m_Buffer != null)
         {
@@ -184,7 +182,8 @@ namespace Azos.Wave
     public async ValueTask WriteAsync(string content)
     {
       if (content.IsNotNullOrEmpty()) return;
-      setWasWrittenTo();
+      SetTextualContentType(Azos.Web.ContentType.TEXT);
+      await setWasWrittenToAsync().ConfigureAwait(false);
       await StrUtils.TextBytes.WriteToStreamAsync(getStream(), content, Encoding).ConfigureAwait(false);
     }
 
@@ -200,8 +199,8 @@ namespace Azos.Wave
     public async Task WriteJsonAsync(object data, JsonWritingOptions options = null)
     {
       if (data==null) return;
-      setWasWrittenTo();
       SetTextualContentType(Azos.Web.ContentType.JSON);
+      await setWasWrittenToAsync().ConfigureAwait(false);
 #warning async JsonWriter
       JsonWriter.Write(data, new NonClosingStreamWrap( getStream() ), options, Encoding);
     }
@@ -379,87 +378,28 @@ namespace Azos.Wave
 
 
     #region .pvt
-      private Stream getStream()
+    private Stream getStream()
+    {
+      if (m_Buffer != null) return m_Buffer;
+
+      if (Buffered)
       {
-        if (m_Buffer!=null) return m_Buffer;
-        if (Buffered)
-        {
-          m_Buffer = new MemoryStream();
-          return m_Buffer;
-        }
-        return m_NetResponse.OutputStream;
+        m_Buffer = new MemoryStream();
+        return m_Buffer;
       }
 
-      private void setWasWrittenTo()
+      return m_AspResponse.Body;
+    }
+
+    private async ValueTask setWasWrittenToAsync()
+    {
+      m_WasWrittenTo = true;
+
+      if (!m_AspResponse.HasStarted)
       {
-        m_WasWrittenTo = true;
-        if (!Buffered) stowClientVars();
+        await m_AspResponse.StartAsync().ConfigureAwait(false);
       }
-
-
-      private const char KEY_DELIMITER = '~';
-      private const char VAR_DELIMITER = '|';
-      private const int MAX_COOKIE_LENGTH = 4020;
-
-      private void loadClientVars()
-      {
-        if (m_ClientVars!=null) return;
-
-        m_ClientVars = new Dictionary<string,string>();
-
-        var cookie = Work.Request.Cookies[Work.Server.ClientVarsCookieName];
-
-        if (cookie==null)  return;
-
-        //Format:   name»value´name2=value2
-        var cv = cookie.Value;
-        if (cv.IsNullOrWhiteSpace()) return;
-
-
-        var segs = cv.Split(VAR_DELIMITER);
-        foreach(var seg in segs)
-        {
-          if (seg.Length==0) continue;
-          var i = seg.IndexOf(KEY_DELIMITER);
-          if (i<=0 || i==seg.Length)
-            m_ClientVars[seg] = string.Empty;
-          else
-            m_ClientVars[seg.Substring(0, i)] = seg.Substring(i+1);
-        }
-      }
-
-      private void stowClientVars()
-      {
-        if (m_ClientVars==null || !m_ClientVarsChanged) return;
-
-        m_ClientVarsChanged = false;
-
-        var sb = new StringBuilder();
-        var first = true;
-        foreach(var kvp in m_ClientVars)
-        {
-         if (!first) sb.Append(VAR_DELIMITER);
-         sb.Append(kvp.Key);
-         sb.Append(KEY_DELIMITER);
-         sb.Append(kvp.Value);
-         first = false;
-        }
-
-        var cookieName = Work.Server.ClientVarsCookieName;
-        var cv = sb.ToString();
-
-        var total = cookieName.Length + cv.Length;
-        if (total > MAX_COOKIE_LENGTH)
-         throw new WaveException(StringConsts.CLIENT_VARS_LENGTH_OVER_LIMIT_ERROR.Args(total, MAX_COOKIE_LENGTH));
-
-        AddHeader(WebConsts.HTTP_SET_COOKIE,
-                             "{0}={1};path=/;expires={2};HttpOnly"
-                           .Args(cookieName, cv, WebUtils.DateTimeToHTTPCookieDateTime(Work.App.TimeSource.UTCNow.AddYears(100))));
-      }
-
-
+    }
     #endregion
-
-
   }
 }
