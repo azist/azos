@@ -201,7 +201,7 @@ namespace Azos.Wave
       if (data==null) return;
       SetTextualContentType(Azos.Web.ContentType.JSON);
       await setWasWrittenToAsync().ConfigureAwait(false);
-#warning async JsonWriter
+#warning AZ #731 async JsonWriter
       JsonWriter.Write(data, new NonClosingStreamWrap( getStream() ), options, Encoding);
     }
 
