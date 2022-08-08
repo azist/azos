@@ -41,7 +41,7 @@ Cookie: WV.CV = SID~SURUEJ-MNEQGLTI-UBOHOAIM-GVSIAWAFEXETGLMDIDOFTVOABEIZOBUZ
 ## Response
 
 ### Send chunked
-Microsoft sends chunked transfer if you **do not spesify content size**:
+Microsoft sends chunked transfer if you **do not specify content size**:
 ```
 Response headers raw:
   Content-Type: text/event-stream

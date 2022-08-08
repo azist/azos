@@ -14,6 +14,7 @@ using System.Text;
 using Azos.Conf;
 using Azos.CodeAnalysis.Source;
 using Azos.Data;
+using System.Threading.Tasks;
 
 namespace Azos.Serialization.JSON
 {
@@ -113,6 +114,9 @@ namespace Azos.Serialization.JSON
     public static IJsonDataObject DeserializeDataObject(Stream stream, Encoding encoding = null, bool caseSensitiveMaps = true)
      => deserializeObject(ReaderBackend.DeserializeFromJson(stream, caseSensitiveMaps, encoding));
 
+    public static Task<object> DeserializeAsync(Stream stream, Encoding encoding = null, bool caseSensitiveMaps = true)
+     => ReaderBackend.DeserializeFromJsonAsync(stream, caseSensitiveMaps, encoding);
+
     public static IJsonDataObject DeserializeDataObject(string source, bool caseSensitiveMaps = true)
      => deserializeObject(ReaderBackend.DeserializeFromJson(source, caseSensitiveMaps));
 
@@ -122,8 +126,17 @@ namespace Azos.Serialization.JSON
           return deserializeObject(ReaderBackend.DeserializeFromJson(fs, caseSensitiveMaps, encoding));
     }
 
+    public static async Task<object> DeserializeFromFileAsync(string filePath, Encoding encoding = null, bool caseSensitiveMaps = true)
+    {
+      using var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+      return await ReaderBackend.DeserializeFromJsonAsync(fs, caseSensitiveMaps, encoding).ConfigureAwait(false);
+    }
+
     public static IJsonDataObject DeserializeDataObject(ISourceText source, bool caseSensitiveMaps = true)
-     => deserializeObject(ReaderBackend.DeserializeFromJson(source, caseSensitiveMaps));
+      => deserializeObject(ReaderBackend.DeserializeFromJson(source, caseSensitiveMaps));
+
+    public static Task<object> DeserializeAsync(ISourceText source, bool caseSensitiveMaps = true)
+      => ReaderBackend.DeserializeFromJsonAsync(source, caseSensitiveMaps);
 
 
     /// <summary>
@@ -546,12 +559,11 @@ namespace Azos.Serialization.JSON
         var data = root as IJsonDataObject;
 
         if (data == null)
-          data = new JsonDataMap{{"value", root}};
+          data = new JsonDataMap{ {"value", root} };
 
         return data;
     }
 
     #endregion
-
   }
 }

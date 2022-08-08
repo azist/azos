@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 using Azos.CodeAnalysis.JSON;
 using Azos.CodeAnalysis.Source;
 
@@ -34,6 +35,18 @@ namespace Azos.Serialization.JSON.Backends
     public object DeserializeFromJson(ISourceText source, bool caseSensitiveMaps)
     {
       return JazonParser.Parse(source, caseSensitiveMaps);
+    }
+
+    public Task<object> DeserializeFromJsonAsync(Stream stream, bool caseSensitiveMaps, Encoding encoding)
+    {
+#warning AZ #731 rewrite async deserializer core
+      return Task.FromResult(DeserializeFromJson(stream, caseSensitiveMaps, encoding));
+    }
+
+    public Task<object> DeserializeFromJsonAsync(ISourceText source, bool caseSensitiveMaps)
+    {
+#warning AZ #731 rewrite async deserializer core
+      return Task.FromResult(DeserializeFromJson(source, caseSensitiveMaps));
     }
   }
 }
