@@ -10,131 +10,203 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Collections;
+using System.Threading.Tasks;
 
 using Azos.Text;
 
 namespace Azos.Serialization.JSON
 {
+  /// <summary>
+  /// Writes primitive types, JSONDataObjects, JSONDynamicObjects, IEnumerable and IDictionary - implementers into string or stream.
+  /// Can also write IJSONWritable-implementing types that directly serialize their state into JSON.
+  /// This class does not serialize regular CLR types (that do not implement IJSONWritable), use JSONSerializer for full functionality
+  /// </summary>
+  public static class JsonWriter
+  {
+
     /// <summary>
-    /// Writes primitive types, JSONDataObjects, JSONDynamicObjects, IEnumerable and IDictionary - implementers into string or stream.
-    /// Can also write IJSONWritable-implementing types that directly serialize their state into JSON.
-    /// This class does not serialize regular CLR types (that do not implement IJSONWritable), use JSONSerializer for full functionality
+    /// Writes JSON data to a file
     /// </summary>
-    public static class JsonWriter
+    public static void WriteToFile(object data, string  fileName, JsonWritingOptions options = null, Encoding encoding = null)
     {
+        using(var fs = new FileStream(fileName, FileMode.Create, FileAccess.Write))
+            Write(data, fs, options, encoding);
+    }
 
-        /// <summary>
-        /// Writes JSON data to the file
-        /// </summary>
-        public static void WriteToFile(object data, string  fileName, JsonWritingOptions options = null, Encoding encoding = null)
-        {
-            using(var fs = new FileStream(fileName, FileMode.Create, FileAccess.Write))
-               Write(data, fs, options, encoding);
-        }
+    /// <summary>
+    /// Writes JSON data to a file
+    /// </summary>
+    public static Task WriteToFileAsync(object data, string fileName, JsonWritingOptions options = null, Encoding encoding = null)
+    {
+      using var fs = new FileStream(fileName, FileMode.Create, FileAccess.Write);
+      return WriteAsync(data, fs, options, encoding);
+    }
+
+    /// <summary>
+    /// Writes JSON data to a new byte[]
+    /// </summary>
+    public static byte[] WriteToBuffer(object data, JsonWritingOptions options = null, Encoding encoding = null)
+    {
+      using(var ms = new MemoryStream())
+      {
+        Write(data, ms, options, encoding);
+        return ms.ToArray();
+      }
+    }
+
+    /// <summary>
+    /// Writes JSON data to a stream
+    /// </summary>
+    public static void Write(object data, Stream stream, JsonWritingOptions options = null, Encoding encoding = null)
+    {
+        using(var writer = new StreamWriter(stream, encoding ?? UTF8Encoding.UTF8))
+            Write(data, writer, options);
+    }
+
+    /// <summary>
+    /// Writes JSON data to a stream
+    /// </summary>
+    public static Task WriteAsync(object data, Stream stream, JsonWritingOptions options = null, Encoding encoding = null)
+    {
+      using var writer = new StreamWriter(stream, encoding ?? UTF8Encoding.UTF8);
+      #warning Async json refactor Az #731
+      Write(data, writer, options);
+      return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Writes JSON data into a string
+    /// </summary>
+    public static string Write(object data, JsonWritingOptions options = null, IFormatProvider formatProvider = null)
+    {
+      if (options==null) options = JsonWritingOptions.CompactRowsAsMap;
+
+      var sb = new StringBuilder(0xff);
+      using( var wri =  formatProvider==null ?
+                            new StringWriter( sb ) :
+                            new StringWriter( sb, formatProvider ) )
+      {
+        writeAny(wri, data, 0, options);
+      }
+
+      return sb.ToString();
+    }
+
+    /// <summary>
+    /// Appends JSON data into the instance of TextWriter
+    /// </summary>
+    public static void Write(object data, TextWriter wri, JsonWritingOptions options = null)
+    {
+      if (options==null) options = JsonWritingOptions.Compact;
+
+      writeAny(wri, data, 0, options);
+    }
+
+    /// <summary>
+    /// Appends JSON data into the instance of TextWriter
+    /// </summary>
+    public static Task WriteAsync(object data, TextWriter wri, JsonWritingOptions options = null)
+    {
+      if (options == null) options = JsonWritingOptions.Compact;
+
+      #warning Json async #731
+      writeAny(wri, data, 0, options);
+
+      return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Appends JSON representation of a map(IDictionary)
+    /// </summary>
+    public static void WriteMap(TextWriter wri, IDictionary data, int level, JsonWritingOptions options = null)
+    {
+      if (options==null) options = JsonWritingOptions.Compact;
+
+      writeMap(wri, data, level, options);
+    }
+
+    /// <summary>
+    /// Appends JSON representation of a map(IDictionary)
+    /// </summary>
+    public static Task WriteMapAsync(TextWriter wri, IDictionary data, int level, JsonWritingOptions options = null)
+    {
+      if (options == null) options = JsonWritingOptions.Compact;
+      #warning Json async #731
+      writeMap(wri, data, level, options);
+      return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Appends JSON representation of a map(IEnumerable(DictionaryEntry))
+    /// </summary>
+    public static void WriteMap(TextWriter wri, IEnumerable<DictionaryEntry> data, int level, JsonWritingOptions options = null)
+    {
+      if (options==null) options = JsonWritingOptions.Compact;
+
+      writeMap(wri, data, level, options);
+    }
+
+    /// <summary>
+    /// Appends JSON representation of a map(IEnumerable(DictionaryEntry))
+    /// </summary>
+    public static Task WriteMapAsync(TextWriter wri, IEnumerable<DictionaryEntry> data, int level, JsonWritingOptions options = null)
+    {
+      if (options == null) options = JsonWritingOptions.Compact;
+      #warning Json async #731
+      writeMap(wri, data, level, options);
+      return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Appends JSON representation of a map(IEnumerable(DictionaryEntry))
+    /// </summary>
+    public static void WriteMap(TextWriter wri, int level, JsonWritingOptions options, params DictionaryEntry[] data)
+    {
+      if (options==null) options = JsonWritingOptions.Compact;
+
+      writeMap(wri, data, level, options);
+    }
+
+    /// <summary>
+    /// Appends JSON representation of a map(IEnumerable(DictionaryEntry))
+    /// </summary>
+    public static Task WriteMapAsync(TextWriter wri, int level, JsonWritingOptions options, params DictionaryEntry[] data)
+    {
+      if (options == null) options = JsonWritingOptions.Compact;
+#warning Json async #731
+      writeMap(wri, data, level, options);
+      return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Appends JSON representation of an IEnumerable
+    /// </summary>
+    public static void WriteArray(TextWriter wri, IEnumerable data, int level, JsonWritingOptions options)
+    {
+        if (options==null) options = JsonWritingOptions.Compact;
+
+        writeArray(wri, data, level, options);
+    }
+
+    /// <summary>
+    /// Appends JSON representation of an IEnumerable
+    /// </summary>
+    public static Task WriteArrayAsync(TextWriter wri, IEnumerable data, int level, JsonWritingOptions options)
+    {
+      if (options == null) options = JsonWritingOptions.Compact;
+#warning Json async #731
+      writeArray(wri, data, level, options);
+      return Task.CompletedTask;
+    }
 
 
-        /// <summary>
-        /// Writes JSON data to the byte[]
-        /// </summary>
-        public static byte[] WriteToBuffer(object data, JsonWritingOptions options = null, Encoding encoding = null)
-        {
-            using(var ms = new MemoryStream())
-            {
-              Write(data, ms, options, encoding);
-              return ms.ToArray();
-            }
-        }
-
-
-        /// <summary>
-        /// Writes JSON data to the stream
-        /// </summary>
-        public static void Write(object data, Stream stream, JsonWritingOptions options = null, Encoding encoding = null)
-        {
-            using(var writer = new StreamWriter(stream, encoding ?? UTF8Encoding.UTF8))
-               Write(data, writer, options);
-        }
-
-        /// <summary>
-        /// Writes JSON data to the string
-        /// </summary>
-        public static string Write(object data, JsonWritingOptions options = null, IFormatProvider formatProvider = null)
-        {
-            if (options==null) options = JsonWritingOptions.CompactRowsAsMap;
-
-            var sb = new StringBuilder(0xff);
-            using( var wri =  formatProvider==null ?
-                                  new StringWriter( sb ) :
-                                  new StringWriter( sb, formatProvider ) )
-            {
-                writeAny(wri, data, 0, options);
-            }
-
-            return sb.ToString();
-        }
-
-        /// <summary>
-        /// Appends JSON data into the instance of StringBuilder
-        /// </summary>
-        public static void Write(object data, TextWriter wri, JsonWritingOptions options = null)
-        {
-            if (options==null) options = JsonWritingOptions.Compact;
-
-            writeAny(wri, data, 0, options);
-        }
-
-        /// <summary>
-        /// Appends JSON representation of a map(IDictionary)
-        /// </summary>
-        public static void WriteMap(TextWriter wri, IDictionary data, int level, JsonWritingOptions options = null)
-        {
-            if (options==null) options = JsonWritingOptions.Compact;
-
-            writeMap(wri, data, level, options);
-        }
-
-        /// <summary>
-        /// Appends JSON representation of a map(IEnumerable(DictionaryEntry))
-        /// </summary>
-        public static void WriteMap(TextWriter wri, IEnumerable<DictionaryEntry> data, int level, JsonWritingOptions options = null)
-        {
-            if (options==null) options = JsonWritingOptions.Compact;
-
-            writeMap(wri, data, level, options);
-        }
-
-        /// <summary>
-        /// Appends JSON representation of a map(IEnumerable(DictionaryEntry))
-        /// </summary>
-        public static void WriteMap(TextWriter wri, int level, JsonWritingOptions options, params DictionaryEntry[] data)
-        {
-            if (options==null) options = JsonWritingOptions.Compact;
-
-            writeMap(wri, data, level, options);
-        }
-
-        /// <summary>
-        /// Appends JSON representation of an IEnumerable
-        /// </summary>
-        public static void WriteArray(TextWriter wri, IEnumerable data, int level, JsonWritingOptions options)
-        {
-            if (options==null) options = JsonWritingOptions.Compact;
-
-            writeArray(wri, data, level, options);
-        }
-
-
-
-
-
-
-        /// <summary>
-        /// Writes a string in JSON format (a la "JSON encode string") - using quotes and escaping characters that need it
-        /// </summary>
-        /// <param name="wri">TextWriter instance to append data into</param>
-        /// <param name="data">Original string to encode as JSON</param>
-        /// <param name="opt">JSONWriting options instance, if omitted then JSONWritingOptions.Compact is used</param>
-        public static void EncodeString(TextWriter wri, string data, JsonWritingOptions opt = null)
+    /// <summary>
+    /// Writes a string in JSON format (a la "JSON encode string") - using quotes and escaping characters that need it
+    /// </summary>
+    /// <param name="wri">TextWriter instance to append data into</param>
+    /// <param name="data">Original string to encode as JSON</param>
+    /// <param name="opt">JSONWriting options instance, if omitted then JSONWritingOptions.Compact is used</param>
+    public static void EncodeString(TextWriter wri, string data, JsonWritingOptions opt = null)
         {
             if (data.IsNullOrEmpty())
             {

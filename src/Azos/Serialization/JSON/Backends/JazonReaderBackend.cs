@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+
 using Azos.CodeAnalysis.JSON;
 using Azos.CodeAnalysis.Source;
 
@@ -19,14 +20,16 @@ namespace Azos.Serialization.JSON.Backends
   /// </summary>
   public sealed class JazonReaderBackend : IJsonReaderBackend
   {
+#warning AZ #731 reuse instance
     public object DeserializeFromJson(string json, bool caseSensitiveMaps)
     {
-      var source = new StringSource(json, JsonLanguage.Instance);//todo: reuse instance
+      var source = new StringSource(json, JsonLanguage.Instance);
       return JazonParser.Parse(source, caseSensitiveMaps);
     }
 
     public object DeserializeFromJson(Stream stream, bool caseSensitiveMaps, Encoding encoding)
     {
+#warning AZ #731 reuse instance
       using (var source = encoding == null ? new StreamSource(stream, JsonLanguage.Instance)
                                            : new StreamSource(stream, encoding, JsonLanguage.Instance))
         return JazonParser.Parse(source, caseSensitiveMaps);
