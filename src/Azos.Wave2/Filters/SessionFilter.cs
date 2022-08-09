@@ -178,6 +178,19 @@ namespace Azos.Wave.Filters
     }
 
     /// <summary>
+    /// Override to set cooki options for you session cookie case (e.g. HttpS only)
+    /// </summary>
+    protected virtual void AddSessionCookie(WorkContext work, string name, string value)
+    {
+      work.Response.AppendCookie(name, value, new Microsoft.AspNetCore.Http.CookieOptions
+      {
+        HttpOnly = true,
+        IsEssential = true
+      });
+    }
+
+
+    /// <summary>
     /// Override to put session object back into whatever storage medium is provided (i.e. DB) and
     /// respond with appropriate session identifying token(i.e. a cookie)
     /// </summary>
@@ -202,14 +215,16 @@ namespace Azos.Wave.Filters
             if (apiVersion.IsNotNullOrWhiteSpace())
               work.Response.AddHeader(SysConsts.HEADER_API_SESSION, EncodeSessionID( work, session, true));
             else
-              work.Response.SetClientVar(m_CookieName, EncodeSessionID( work, session, false ));//the cookie is set only for non-api call
+              AddSessionCookie(work, m_CookieName, EncodeSessionID( work, session, false ));//the cookie is set only for non-api call
           }
         }
         else
         {
           App.ObjectStore.Delete(session.ID);
 
-          work.Response.SetClientVar(m_CookieName, null);
+          //#479 delete
+          //work.Response.SetClientVar(m_CookieName, null);
+          work.Response.Cookies.Delete(m_CookieName);
 
 
           if (Server.m_InstrumentationEnabled)
@@ -229,7 +244,7 @@ namespace Azos.Wave.Filters
     /// </summary>
     protected virtual Guid? ExtractSessionID(WorkContext work, out ulong idSecret)
     {
-      var cv = work.Response.GetClientVar(m_CookieName);// work.Request.Cookies[m_CookieName];
+      var cv = work.Request.Cookies[m_CookieName]; //work.Response.GetClientVar(m_CookieName);
 
       var apiHeaders = false;
       if (cv.IsNullOrWhiteSpace())
