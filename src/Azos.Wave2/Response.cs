@@ -5,7 +5,6 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using System.Threading;
@@ -18,6 +17,7 @@ using Azos.Serialization.JSON;
 
 using Microsoft.Net.Http.Headers;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Primitives;
 
 namespace Azos.Wave
 {
@@ -172,6 +172,11 @@ namespace Azos.Wave
     /// </summary>
     public IHeaderDictionary Headers => m_AspResponse.Headers;
 
+    /// <summary>
+    /// Response cookies
+    /// </summary>
+    public IResponseCookies Cookies => m_AspResponse.Cookies;
+
     #endregion
 
     #region Public
@@ -261,127 +266,143 @@ namespace Azos.Wave
     }
 
 
-      /// <summary>
-      /// Write the contents of the stream to the client so client can download it. May set Buffered=false to use chunked encoding for big files
-      /// </summary>
-      public void WriteStream(Stream stream, int bufferSize = DEFAULT_DOWNLOAD_BUFFER_SIZE, string attachmentName = null)
+    /// <summary>
+    /// Write the contents of the stream to the client so client can download it. May set Buffered=false to use chunked encoding for big files
+    /// </summary>
+    public async Task WriteStreamAsync(Stream stream, int bufferSize = DEFAULT_DOWNLOAD_BUFFER_SIZE, string attachmentName = null, CancellationToken? cancelToken = null)
+    {
+      if (stream==null)
+        throw new WaveException(StringConsts.ARGUMENT_ERROR+"Response.WriteStream(stream==null)");
+
+
+      if (attachmentName.IsNotNullOrWhiteSpace())
       {
-        if (stream==null)
-          throw new WaveException(StringConsts.ARGUMENT_ERROR+"Response.WriteStream(stream==null)");
-
-        setWasWrittenTo();
-
-        if (attachmentName.IsNotNullOrWhiteSpace())
-          m_NetResponse.Headers.Add(WebConsts.HTTP_HDR_CONTENT_DISPOSITION, "attachment; filename={0}".Args(attachmentName));
-
-        if (bufferSize<MIN_DOWNLOAD_BUFFER_SIZE) bufferSize=MIN_DOWNLOAD_BUFFER_SIZE;
-        else if (bufferSize>MAX_DOWNLOAD_BUFFER_SIZE) bufferSize=MAX_DOWNLOAD_BUFFER_SIZE;
-
-
-        var dest = getStream();
-        stream.CopyTo(dest, bufferSize);
+        Headers.Add(WebConsts.HTTP_HDR_CONTENT_DISPOSITION, "attachment; filename={0}".Args(attachmentName));
       }
 
+      await setWasWrittenToAsync().ConfigureAwait(false);
 
-      /// <summary>
-      /// Returns output stream for direct output and marks response as being written into
-      /// </summary>
-      public Stream GetDirectOutputStreamForWriting()
+      if (bufferSize<MIN_DOWNLOAD_BUFFER_SIZE) bufferSize=MIN_DOWNLOAD_BUFFER_SIZE;
+      else if (bufferSize>MAX_DOWNLOAD_BUFFER_SIZE) bufferSize=MAX_DOWNLOAD_BUFFER_SIZE;
+
+
+      var dest = getStream();
+
+      if (cancelToken.HasValue)
+        await stream.CopyToAsync(dest, bufferSize, cancelToken.Value).ConfigureAwait(false);
+      else
+        await stream.CopyToAsync(dest, bufferSize).ConfigureAwait(false);
+    }
+
+
+    /// <summary>
+    /// Returns output stream for direct output and marks response as being written into
+    /// </summary>
+    public async Task<Stream> GetDirectOutputStreamForWritingAsync()
+    {
+      await setWasWrittenToAsync().ConfigureAwait(false);
+      return getStream();
+    }
+
+    /// <summary>
+    /// Cancels the buffered content. Throws if the response is not Buffered
+    /// </summary>
+    public void CancelBuffered()
+    {
+      if (!WasWrittenTo) return;
+      if (!Buffered)
+        throw new WaveException(StringConsts.RESPONSE_CANCEL_NON_BUFFERED_ERROR);
+      m_Buffer = null;
+      m_WasWrittenTo = false;
+    }
+
+    /// <summary>
+    /// RESERVED FOR FUTURE USE. Flushes the internally buffered content
+    /// </summary>
+    public async ValueTask FlushAsync(CancellationToken? cancelToken = null)
+    {
+      if (!WasWrittenTo || Buffered) return;
+
+      if (cancelToken.HasValue)
+        await m_AspResponse.Body.FlushAsync(cancelToken.Value);
+      else
+        await m_AspResponse.Body.FlushAsync();
+    }
+
+
+    /// <summary>
+    /// Configures response with redirect status and headers. This method DOES NOT ABORT the work pipeline,so
+    ///  the processing of filters and handlers continues unless 'work.Aborted = true' is issued in code.
+    ///  See also 'RedirectAndAbort(url)'
+    /// </summary>
+    public void Redirect(string url, WebConsts.RedirectCode code = WebConsts.RedirectCode.Found_302)
+    {
+      Headers.Location = url.NonBlank(nameof(url));
+      StatusCode        = WebConsts.GetRedirectStatusCode(code);
+      StatusDescription = WebConsts.GetRedirectStatusDescription(code);
+    }
+
+    /// <summary>
+    /// Configures response with redirect status and headers. This method also aborts the work pipeline,so
+    ///  the processing of filters and handlers does not continue. See also 'Redirect(url)'
+    /// </summary>
+    public void RedirectAndAbort(string url, WebConsts.RedirectCode code = WebConsts.RedirectCode.Found_302)
+    {
+      this.Redirect(url, code);
+      Work.Aborted = true;
+    }
+
+    /// <summary>
+    /// Adds Http header
+    /// </summary>
+    public void AddHeader(string name, string value)
+      => Headers.Add(name.NonBlank(nameof(name)), value.NonNull(nameof(value)));
+
+    /// <summary>
+    /// Appends cookie to the response
+    /// </summary>
+    public void AppendCookie(string key, string value, CookieOptions options = null)
+    {
+      if (options != null)
+        m_AspResponse.Cookies.Append(key.NonBlank(nameof(key)), value.NonNull(nameof(value)), options);
+      else
+        m_AspResponse.Cookies.Append(key.NonBlank(nameof(key)), value.NonNull(nameof(value)));
+    }
+
+    /// <summary>
+    /// Sets cache control header
+    /// </summary>
+    public bool SetCacheControlHeaders(CacheControl control, bool force = true, string vary = null)
+    {
+      //SeekOrigin:
+      //Microsoft.AspNetCore.Http.Headers.ResponseHeaders.
+      //Microsoft.Net.Http.Headers.CacheControlHeaderValue
+
+      if (!force && StringValues.IsNullOrEmpty(Headers.CacheControl)) return false;
+      var value = control.HTTPCacheControl;
+      if (value.IsNullOrWhiteSpace()) return false;
+
+      Headers.CacheControl = value;
+      if (control.Cacheability == CacheControl.Type.NoCache)
       {
-        setWasWrittenTo();
-        return getStream();
+        Headers.Pragma = "no-cache";
+        Headers.Expires = "0";
+        Headers.Vary = "*";
       }
-
-      /// <summary>
-      /// Cancels the buffered content. Throws if the response is not Buffered
-      /// </summary>
-      public void CancelBuffered()
+      else
       {
-        if (!WasWrittenTo) return;
-        if (!Buffered)
-          throw new WaveException(StringConsts.RESPONSE_CANCEL_NON_BUFFERED_ERROR);
-        m_Buffer = null;
-        m_WasWrittenTo = false;
+        if (vary.IsNotNullOrWhiteSpace())
+          Headers.Vary = vary;
       }
+      return true;
+    }
 
-      /// <summary>
-      /// RESERVED FOR FUTURE USE. Flushes the internally buffered content
-      /// </summary>
-      public void Flush()
-      {
-       //There is currently (2014.03.26) no way to flush the HttpListenerResponse.OutputStream
-      }
-
-
-      /// <summary>
-      /// Configures response with redirect status and headers. This method DOES NOT ABORT the work pipeline,so
-      ///  the processing of filters and handlers continues unless 'work.Aborted = true' is issued in code.
-      ///  See also 'RedirectAndAbort(url)'
-      /// </summary>
-      public void Redirect(string url, WebConsts.RedirectCode code = WebConsts.RedirectCode.Found_302)
-      {
-        m_NetResponse.Headers.Set(HttpResponseHeader.Location, url);
-        m_NetResponse.StatusCode        = WebConsts.GetRedirectStatusCode(code);
-        m_NetResponse.StatusDescription = WebConsts.GetRedirectStatusDescription(code);
-      }
-
-      /// <summary>
-      /// Configures response with redirect status and headers. This method also aborts the work pipeline,so
-      ///  the processing of filters and handlers does not continue. See also 'Redirect(url)'
-      /// </summary>
-      public void RedirectAndAbort(string url, WebConsts.RedirectCode code = WebConsts.RedirectCode.Found_302)
-      {
-        this.Redirect(url, code);
-        Work.Aborted = true;
-      }
-
-      /// <summary>
-      /// Adds Http header
-      /// </summary>
-      public void AddHeader(string name, string value)
-      {
-        m_NetResponse.AddHeader(name, value);
-      }
-
-      /// <summary>
-      /// Appends cookie to the response
-      /// </summary>
-      public void AppendCookie(Cookie cookie)
-      {
-        m_NetResponse.AppendCookie(cookie);
-      }
-
-      public bool SetCacheControlHeaders(CacheControl control, bool force = true, string vary = null)
-      {
-        if (!force && m_NetResponse.Headers[HttpResponseHeader.CacheControl].IsNotNullOrWhiteSpace()) return false;
-        var value = control.HTTPCacheControl;
-        if (value.IsNullOrWhiteSpace()) return false;
-
-        m_NetResponse.Headers[HttpResponseHeader.CacheControl] = value;
-        if (control.Cacheability == CacheControl.Type.NoCache)
-        {
-          m_NetResponse.Headers[HttpResponseHeader.Pragma] = "no-cache";
-          m_NetResponse.Headers[HttpResponseHeader.Expires] = "0";
-          m_NetResponse.Headers[HttpResponseHeader.Vary] = "*";
-        }
-        else
-        {
-          if (vary.IsNotNullOrWhiteSpace())
-            m_NetResponse.Headers[HttpResponseHeader.Vary] = vary;
-        }
-        return true;
-      }
-
-      /// <summary>
-      /// Sets headers so all downstream, layers (browsers, proxies) do not cache response.
-      /// If Force==true(default) then overrides existing headers with no cache.
-      /// Returns true when headers were set
-      /// </summary>
-      public bool SetNoCacheHeaders(bool force = true)
-      {
-        return SetCacheControlHeaders(CacheControl.NoCache, force);
-      }
-
+    /// <summary>
+    /// Sets headers so all downstream, layers (browsers, proxies) do not cache response.
+    /// If Force==true(default) then overrides existing headers with no cache.
+    /// Returns true when headers were set
+    /// </summary>
+    public bool SetNoCacheHeaders(bool force = true) => SetCacheControlHeaders(CacheControl.NoCache, force);
     #endregion
 
 

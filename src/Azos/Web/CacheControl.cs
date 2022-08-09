@@ -26,22 +26,14 @@ namespace Azos.Web
       NoCache
     }
 
-    public static CacheControl FromConfig(IConfigSectionNode cfg)
-    {
-      return ConfigAttribute.Apply(new CacheControl(), cfg);
-    }
+    public static CacheControl FromConfig(IConfigSectionNode cfg) => ConfigAttribute.Apply(new CacheControl(), cfg);
 
     public static CacheControl PublicMaxAgeSec(int maxAgeSec = DEFAULT_CACHE_MAX_AGE_SEC)
-    {
-      return new CacheControl { Cacheability = Type.Public, MaxAgeSec = maxAgeSec };
-    }
-
+     => new CacheControl { Cacheability = Type.Public, MaxAgeSec = maxAgeSec };
     public static CacheControl PrivateMaxAgeSec(int maxAgeSec = DEFAULT_CACHE_MAX_AGE_SEC)
-    {
-      return new CacheControl { Cacheability = Type.Private, MaxAgeSec = maxAgeSec };
-    }
+     => new CacheControl { Cacheability = Type.Private, MaxAgeSec = maxAgeSec };
 
-    public static CacheControl NoCache { get { return new CacheControl { Cacheability = Type.NoCache, NoStore = true }; } }
+    public static CacheControl NoCache =>new CacheControl { Cacheability = Type.NoCache, NoStore = true };
 
     [Config] public Type Cacheability { get; set; }
     [Config] public int? MaxAgeSec { get; set; }
