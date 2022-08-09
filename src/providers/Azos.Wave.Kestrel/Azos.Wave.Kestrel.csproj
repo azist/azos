@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Description>Azos.Wave.Kestrel - Enables Kestrel ASPCORE traffic handling by Wave</Description>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>../../../out/Debug\</OutputPath>
+    <DocumentationFile>../../../out/Debug/Azos.Wave.Kestrel.xml</DocumentationFile>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>../../../out/Release/</OutputPath>
+    <DocumentationFile>../../../out/Release/Azos.Wave.Kestrel.xml</DocumentationFile>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Azos\Azos.csproj" />
+    <ProjectReference Include="..\..\Azos.Web\Azos.Web.csproj" />
+    <ProjectReference Include="..\..\Azos.Wave\Azos.Wave.csproj" />
+  </ItemGroup>
+
+</Project>

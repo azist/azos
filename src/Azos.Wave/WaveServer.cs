@@ -67,7 +67,7 @@ namespace Azos.Wave
       /// <summary>
       /// Called by ASP.Net middleware to dispatch request into WaveServer pool where
       /// a specific server gets pattern match on request and handles it.
-      /// Returns a server that handled the request OR NULL if the request was not hadnled by ANY server in the app
+      /// Returns a server that handled the request OR NULL if the request was not handled by ANY server in the app
       /// </summary>
       public async Task<WaveServer> DispatchAsync(HttpContext httpContext)
       {
