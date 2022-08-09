@@ -6,176 +6,179 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using Azos.Apps;
 using Azos.Conf;
 using Azos.Collections;
-using Azos.IO.Net.Gate;
 
 namespace Azos.Wave
 {
-
   /// <summary>
   /// Represents a base for all work filters. Unlike handlers, filters do not necessarily handle work rather augment the work context
   /// </summary>
-  public abstract class WorkFilter : ApplicationComponent, INamed, IOrdered
+  public abstract class WorkFilter : ApplicationComponent<WorkHandler>, INamed, IOrdered
   {
-      public const string CONFIG_FILTER_SECTION = "filter";
+    public const string CONFIG_FILTER_SECTION = "filter";
 
-      protected WorkFilter(WorkDispatcher dispatcher, string name, int order) : base(dispatcher) => ctor(dispatcher, name, order);
-      private void ctor(WorkDispatcher dispatcher, string name, int order)
+    /// <summary>
+    /// Captures a sequenced registry of filters and current position of processing
+    /// </summary>
+    public struct CallChain
+    {
+      /// <summary>
+      /// Starts new filter call chain starting from zero
+      /// </summary>
+      public CallChain(IOrderedRegistry<WorkFilter> filters)
       {
-        if (name.IsNullOrWhiteSpace()||dispatcher==null)
-         throw new WaveException(StringConsts.ARGUMENT_ERROR + GetType().FullName+".ctor(dispatcher|name==null|empty)");
-
-        m_Name = name;
-        m_Dispatcher = dispatcher;
-        m_Server = dispatcher.ComponentDirector;
-        m_Order = order;
-      }
-
-      protected WorkFilter(WorkHandler handler, string name, int order) : base(handler)
-      {
-        ctor(handler.NonNull(name: ".ctor(handler==null)").Dispatcher, name, order);
-        m_Handler = handler;
-      }
-
-      protected WorkFilter(WorkDispatcher dispatcher, IConfigSectionNode confNode) : base(dispatcher) => ctor(dispatcher, confNode);
-      private void ctor(WorkDispatcher dispatcher, IConfigSectionNode confNode)
-      {
-        confNode.NonEmpty(nameof(confNode));
-
-        ConfigAttribute.Apply(this, confNode);
-
-        m_Dispatcher = dispatcher;
-        m_Server = dispatcher.ComponentDirector;
-        m_Name = confNode.AttrByName(Configuration.CONFIG_NAME_ATTR).Value;
-        m_Order = confNode.AttrByName(Configuration.CONFIG_ORDER_ATTR).ValueAsInt(0);
-
-        if (m_Name.IsNullOrWhiteSpace())
-         throw new WaveException(StringConsts.ARGUMENT_ERROR + GetType().FullName+".ctor(confNode$name==null|empty)");
-      }
-
-      protected WorkFilter(WorkHandler handler, IConfigSectionNode confNode) : base(handler)
-      {
-        ctor(handler.NonNull(name: ".ctor(handler==null)").Dispatcher, confNode);
-        m_Handler = handler;
-      }
-
-      private string m_Name;
-      private int m_Order;
-      private WorkDispatcher m_Dispatcher;
-      private WaveServer m_Server;
-      private WorkHandler m_Handler;
-
-      public override string ComponentLogTopic => CoreConsts.WAVE_TOPIC;
-
-      /// <summary>
-      /// Returns the filter instance name
-      /// </summary>
-      public string Name { get{ return m_Name;}}
-
-      /// <summary>
-      /// Returns the filter order in filter registry. Order is used for URI pattern matching
-      /// </summary>
-      public int Order { get{ return m_Order;}}
-
-
-      /// <summary>
-      /// Returns the server that this filter works under
-      /// </summary>
-      public WaveServer Server { get{ return m_Server;}}
-
-      /// <summary>
-      /// Returns the dispatcher that this filter works under
-      /// </summary>
-      public WorkDispatcher Dispatcher { get{ return m_Dispatcher;}}
-
-      /// <summary>
-      /// Returns the handler that this filter works under. May be null if the filter works under dispatcher
-      /// </summary>
-      public WorkHandler Handler { get{ return m_Handler;}}
-
-
-      /// <summary>
-      /// Returns network gate that filter implementation may use to set business variables or null
-      /// </summary>
-      public INetGate NetGate { get{ return m_Dispatcher.ComponentDirector.Gate;} }
-
-
-      /// <summary>
-      /// Override to filter the work - i.e. extract some security name from cookies and check access, turn exception in error page etc.
-      /// Note: This method is re-entrant by multiple threads
-      /// </summary>
-      /// <param name="work">Work context</param>
-      /// <param name="filters">
-      /// The filters that participated in a call.
-      /// Note the Dipatcher.Filters may yield different results as it may change with time, whereas this parameter captures all filters during the call start
-      /// </param>
-      /// <param name="thisFilterIndex">
-      /// The index of THIS filter in filters
-      /// </param>
-      public void FilterWork(WorkContext work, IList<WorkFilter> filters, int thisFilterIndex)
-      {
-         try
-         {
-            DoFilterWork(work, filters, thisFilterIndex);
-         }
-         catch(Exception error)
-         {
-            work.LastError = error;
-            throw new FilterPipelineException(this, error);
-         }
-      }
-
-
-      public override string ToString()
-      {
-        return "{0}('{1}',#{2})".Args(GetType().FullName, m_Name, m_Order);
-      }
-
-
-      /// <summary>
-      /// Invokes next processing body be it the next filter or handler (when all filters are iterated through).
-      /// The filter implementors must call this method to pass WorkContext processing along the line.
-      /// Does nothing if work is Aborted or Handled
-      /// </summary>
-      protected void InvokeNextWorker(WorkContext work, IList<WorkFilter> filters, int thisFilterIndex)
-      {
-         if (work==null) return;
-         if (work.Aborted || work.Handled) return;
-
-         var idxNext = thisFilterIndex+1;
-         if (idxNext<filters.Count)
-         {
-            filters[idxNext].FilterWork(work, filters, idxNext);
-         }
-         else
-         {
-          WorkHandler handler = m_Handler;
-
-          if (handler!=null)//if we are under Handler already then call the handler directly
-            handler.HandleWork(work);
-          else //if we are under dispatcher then call dipatcher to locate and invoke the matching handler
-            m_Dispatcher.InvokeHandler(work, out handler);
-         }
+        filters.NonNull(nameof(filters));
+        Filters = filters;
+        CurrentIndex = 0;
       }
 
       /// <summary>
-      /// Override to filter the work - i.e. extract some security name from cookies and check access, turn exception in error page etc.
-      /// Note: This method is re-entrant by multiple threads. Do not forget to call InvokeNextWorker() to continue request processing, otherwise the work will
-      ///  not be handled (which may be a desired behavior)
+      /// Advances the chain to the next caller index
       /// </summary>
-      /// <param name="work">Work context</param>
-      /// <param name="filters">
-      /// The filters that participated in a call.
-      /// Note the Dipatcher.Filters may yield different results as it may change with time, whereas this parameter captures all filters during the call start
-      /// </param>
-      /// <param name="thisFilterIndex">
-      /// The index of THIS filter in filters
-      /// </param>
-      protected abstract void DoFilterWork(WorkContext work, IList<WorkFilter> filters, int thisFilterIndex);
+      public CallChain(CallChain current)
+      {
+        current.Assigned.IsTrue("assigned current");
+        Filters = current.Filters;
+        CurrentIndex = current.CurrentIndex + 1;
+      }
+
+      public readonly IOrderedRegistry<WorkFilter> Filters;
+      public readonly int CurrentIndex;
+      public bool Assigned => Filters != null;
+
+      /// <summary> Get current filter or null if not assigned or EOF </summary>
+      public WorkFilter Current => Filters?[CurrentIndex];
+    }
 
 
+
+    /// <summary>
+    /// Registers matches declared in config. Throws error if registry already contains a match with a duplicate name
+    /// </summary>
+    public static void MakeAndRegisterFromConfig(WorkHandler handler, OrderedRegistry<WorkFilter> registry, IConfigSectionNode confNode)
+    {
+      foreach (var cn in confNode.NonNull(nameof(confNode)).ChildrenNamed(CONFIG_FILTER_SECTION))
+      {
+        var filter = FactoryUtils.MakeDirectedComponent<WorkFilter>(handler.NonNull(nameof(handler)), cn, extraArgs: new object[] { cn });
+        if (!registry.NonNull(nameof(registry)).Register(filter))
+        {
+          throw new WaveException(StringConsts.CONFIG_DUPLICATE_FILTER_NAME_ERROR.Args(filter.Name, handler.Name));
+        }
+      }
+    }
+
+
+    protected WorkFilter(WorkHandler director, string name, int order) : base(director)
+    {
+      m_Name = name.Default("{0}({1})".Args(GetType().FullName, Guid.NewGuid()));
+      m_Order = order;
+    }
+
+    protected WorkFilter(WorkHandler director, IConfigSectionNode confNode) : base(director)
+    {
+      confNode.NonEmpty(nameof(confNode));
+
+      ConfigAttribute.Apply(this, confNode);
+
+      m_Name = confNode.AttrByName(Configuration.CONFIG_NAME_ATTR).Value.Default("{0}({1})".Args(GetType().FullName, Guid.NewGuid()));
+      m_Order = confNode.AttrByName(Configuration.CONFIG_ORDER_ATTR).ValueAsInt(0);
+    }
+
+    private readonly string m_Name;
+    private readonly int m_Order;
+
+    public override string ComponentLogTopic => CoreConsts.WAVE_TOPIC;
+
+    /// <summary>
+    /// Returns the filter instance name
+    /// </summary>
+    public string Name => m_Name;
+
+    /// <summary>
+    /// Returns the filter order in filter registry. Order is used for URI pattern matching
+    /// </summary>
+    public int Order => m_Order;
+
+
+    /// <summary>
+    /// Returns the server that this filter works under
+    /// </summary>
+    public WorkHandler Handler => ComponentDirector;
+
+    /// <summary>
+    /// Returns the server that this filter works under
+    /// </summary>
+    public WaveServer Server =>  Handler.Server;
+
+
+
+
+    /// <summary>
+    /// Override to filter the work - i.e. extract some security name from cookies and check access, turn exception in error page etc.
+    /// Note: This method is re-entrant by multiple threads
+    /// </summary>
+    /// <param name="work">Work context</param>
+    /// <param name="callChain">
+    /// Filter call chain that should be passed into <see cref="InvokeNextWorkerAsync(WorkContext, CallChain)"/>
+    /// </param>
+    public async Task FilterWorkAsync(WorkContext work, CallChain callChain)
+    {
+      try
+      {
+        await DoFilterWorkAsync(work, callChain).ConfigureAwait(false);
+      }
+      catch(Exception error)
+      {
+        work.LastError = error;
+        throw new FilterPipelineException(this, error);
+      }
+    }
+
+
+    public override string ToString()
+    {
+      return "{0}('{1}',#{2})".Args(GetType().FullName, m_Name, m_Order);
+    }
+
+
+    /// <summary>
+    /// Invokes next processing body be it the next filter or handler (when all filters are iterated through).
+    /// The filter implementors must call this method to pass WorkContext processing along the line.
+    /// Does nothing if work is Aborted or Handled
+    /// </summary>
+    protected async Task InvokeNextWorkerAsync(WorkContext work, CallChain callChain)
+    {
+      if (work == null) return;
+      if (work.Aborted || work.Handled) return;
+
+      var next = new CallChain(callChain);//advances to the next worker
+      var nextFilter = next.Current;
+      if (nextFilter != null)
+      {
+        //if there is a next filter, then it may elect to handle work by itself or
+        //whihin its call chain
+        await nextFilter.DoFilterWorkAsync(work, next).ConfigureAwait(false);
+      }
+      else
+      {
+        //if there is no NEXT filter, we need to handle the work to handler that owns this filter
+        await this.Handler.HandleWorkAsync(work).ConfigureAwait(false);
+      }
+    }
+
+    /// <summary>
+    /// Override to filter the work - i.e. extract some security name from cookies and check access, turn exception in error page etc.
+    /// Note: This method is re-entrant by multiple threads. Do not forget to call InvokeNextWorker() to continue request processing, otherwise the work will
+    ///  not be handled (which may be a desired behavior)
+    /// </summary>
+    /// <param name="work">Work context</param>
+    /// <param name="callChain">
+    /// Filter call chain to pass along
+    /// </param>
+    protected abstract Task DoFilterWorkAsync(WorkContext work, CallChain callChain);
   }
 }

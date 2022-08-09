@@ -111,8 +111,6 @@ namespace TestBusinessLogic.Toy
           {
             ws.Configure(null);
 
-            ws.IgnoreClientWriteErrors = false;
-
             ws.Start();
             Console.WriteLine("Web server started");
             Console.WriteLine("Strike <ENTER> to terminate web server ");

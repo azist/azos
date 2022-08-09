@@ -4,8 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System.Threading.Tasks;
-
 using Azos.Conf;
 using Azos.Wave.Templatization;
 
@@ -16,16 +14,28 @@ namespace Azos.Wave.Handlers
   /// </summary>
   public class TemplateHandler : TypeLookupHandler<WaveTemplate>
   {
-    protected TemplateHandler(WorkHandler director, string name, int order, WorkMatch match)
-                      : base(director, name, order, match){ }
-    protected TemplateHandler(WorkHandler director, IConfigSectionNode confNode)
-                      : base(director, confNode){ }
+     #region .ctor
 
-    protected override Task DoTargetWorkAsync(WaveTemplate target, WorkContext work)
-    {
-      target.BindGlobalContexts(work);
-      target.Render(new ResponseRenderingTarget(work), null);
-      return Task.CompletedTask;
-    }
+      protected TemplateHandler(WorkDispatcher dispatcher, string name, int order, WorkMatch match)
+                          : base(dispatcher, name, order, match)
+      {
+      }
+
+      protected TemplateHandler(WorkDispatcher dispatcher, IConfigSectionNode confNode) : base(dispatcher, confNode)
+      {
+      }
+
+     #endregion
+
+     #region Protected
+
+      protected override void DoTargetWork(WaveTemplate target, WorkContext work)
+      {
+        target.BindGlobalContexts(work);
+        target.Render(new ResponseRenderingTarget(work), null);
+      }
+
+     #endregion
+
   }
 }

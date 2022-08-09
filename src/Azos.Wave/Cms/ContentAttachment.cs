@@ -10,6 +10,8 @@ using System.Net;
 
 using Azos.Web;
 using Azos.Wave.Mvc;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Primitives;
 
 namespace Azos.Wave.Cms
 {
@@ -75,7 +77,7 @@ namespace Azos.Wave.Cms
     /// </summary>
     public bool UseETag { get; set; } = true;
 
-    public void Execute(Controller controller, WorkContext work)
+    public async Task ExecuteAsync(Controller controller, WorkContext work)
     {
       var cache = Caching;
       var useETag = UseETag;
@@ -97,17 +99,17 @@ namespace Azos.Wave.Cms
         work.Response.SetCacheControlHeaders(cache.Value, true);
 
       if (Content.ModifyDate.HasValue)
-        work.Response.Headers[HttpResponseHeader.LastModified] = WebUtils.DateTimeToHTTPLastModifiedHeaderDateTime(Content.ModifyDate.Value);
+        work.Response.Headers.LastModified = WebUtils.DateTimeToHTTPLastModifiedHeaderDateTime(Content.ModifyDate.Value);
 
 
       if (useETag)
       {
         var etag = $"\"{Content.ETag}\"";
-        work.Response.Headers[HttpResponseHeader.ETag] = etag;
+        work.Response.Headers.ETag = etag;
         var clETag = work.Request.Headers["If-None-Match"];
-        if (clETag.IsNotNullOrWhiteSpace())
+        if (!StringValues.IsNullOrEmpty(clETag))
         {
-          if (clETag.EqualsOrdSenseCase(etag))
+          if (clETag == etag)
           {
             work.Response.StatusCode = WebConsts.GetRedirectStatusCode(WebConsts.RedirectCode.NotModified_304);
             work.Response.StatusDescription = WebConsts.GetRedirectStatusDescription(WebConsts.RedirectCode.NotModified_304);
@@ -120,7 +122,7 @@ namespace Azos.Wave.Cms
 
       if (Content.IsString)
       {
-        work.Response.Write(Content.StringContent);
+        await work.Response.WriteAsync(Content.StringContent, setContentType: false).ConfigureAwait(false);
       }
       else
       {
@@ -136,7 +138,7 @@ namespace Azos.Wave.Cms
 
         using (var ms = new MemoryStream(bin, idx, sz))
         {
-          work.Response.WriteStream(ms, attachmentName: attachmentName);
+          await work.Response.WriteStreamAsync(ms, attachmentName: attachmentName).ConfigureAwait(false);
         }
       }
     }

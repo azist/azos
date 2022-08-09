@@ -6,7 +6,6 @@
 
 using System;
 using System.Reflection;
-using System.Threading.Tasks;
 using Azos.Conf;
 
 namespace Azos.Wave.Mvc
@@ -27,17 +26,17 @@ namespace Azos.Wave.Mvc
     /// Return TRUE to indicate that request has already been handled and no need to call method body and AfterActionInvocation in which case
     ///  return result via 'out result' parameter
     /// </summary>
-    protected internal abstract ValueTask<(bool, object)> BeforeActionInvocationAsync(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, object result);
+    protected internal abstract bool BeforeActionInvocation(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, ref object result);
 
     /// <summary>
     /// Override to add logic/filtering right after the invocation of action method. Must return TRUE to stop processing chain
     /// </summary>
-    protected internal abstract ValueTask<(bool, object)> AfterActionInvocationAsync(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, object result);
+    protected internal abstract bool AfterActionInvocation(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, ref object result);
 
     /// <summary>
-    /// Override to add logic/filtering finally after the invocation of action method
+    /// Override to add logic/filtering finally after the invocation of action method. Must return TRUE to stop processing chain
     /// </summary>
-    protected internal abstract ValueTask<object> ActionInvocationFinallyAsync(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, object result);
+    protected internal abstract void ActionInvocationFinally(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, ref object result);
 
     public virtual bool ShouldProvideInstanceMetadata(IMetadataGenerator context, ConfigSectionNode dataRoot)
       => false;

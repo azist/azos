@@ -15,21 +15,29 @@ namespace Azos.Wave.Handlers
   /// </summary>
   public class StockContentSiteHandler : EmbeddedSiteHandler
   {
-    public StockContentSiteHandler(WorkHandler director, string name, int order, WorkMatch match)
-                          : base(director, name, order, match){}
+    public StockContentSiteHandler(WorkDispatcher dispatcher, string name, int order, WorkMatch match)
+                          : base(dispatcher, name, order, match){}
 
 
-    public StockContentSiteHandler(WorkHandler director, IConfigSectionNode confNode)
-                          : base(director, confNode) {}
+    public StockContentSiteHandler(WorkDispatcher dispatcher, IConfigSectionNode confNode)
+                          : base(dispatcher, confNode) {}
 
 
-    public override string RootResourcePath => "Azos.Wave.Templatization.StockContent.Embedded";
+    public override string RootResourcePath
+    {
+      get { return "Azos.Wave.Templatization.StockContent.Embedded"; }
+    }
 
-    public override bool SupportsEnvironmentBranching => false;
+    public override bool SupportsEnvironmentBranching
+    {
+      get { return false; }
+    }
 
     protected override IEnumerable<EmbeddedSiteHandler.IAction> GetActions()
     {
       yield break;
     }
   }
+
+
 }

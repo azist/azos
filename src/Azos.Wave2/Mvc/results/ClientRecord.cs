@@ -5,7 +5,6 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Threading.Tasks;
 
 using Azos.Data;
 using Azos.Serialization.JSON;
@@ -58,12 +57,16 @@ namespace Azos.Wave.Mvc
     public readonly Client.ModelFieldValueListLookupFunc ValueListLookupFunc;
 
 
-    public Task ExecuteAsync(Controller controller, WorkContext work)
+    public void Execute(Controller controller, WorkContext work)
     {
-      var gen = (work.Portal != null) ? work.Portal.RecordModelGenerator
-                                      : Client.RecordModelGenerator.DefaultInstance;
+      var gen = (work.Portal!=null) ? work.Portal.RecordModelGenerator
+                                    : Client.RecordModelGenerator.DefaultInstance;
 
-      return work.Response.WriteJsonAsync( gen.RowToRecordInitJSON(Doc, ValidationError, IsoLang, RecID, Target, ValueListLookupFunc) );
+      work.Response.WriteJSON( gen.RowToRecordInitJSON(Doc, ValidationError, IsoLang, RecID, Target, ValueListLookupFunc) );
     }
   }
+
+
+
+
 }

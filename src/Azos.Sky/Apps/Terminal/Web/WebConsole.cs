@@ -12,6 +12,7 @@ using Azos.Data;
 using Azos.Wave;
 using Azos.Platform;
 using Azos.Web;
+using System.Threading.Tasks;
 
 namespace Azos.Apps.Terminal.Web
 {
@@ -20,7 +21,7 @@ namespace Azos.Apps.Terminal.Web
   public class WebConsole : ApiProtocolController
   {
     [Action]
-    public void Index()
+    public async Task Index()
     {
       string esc(string s)
        => s.IsNullOrWhiteSpace() ? "" : s.Replace("\"", "'")
@@ -36,7 +37,7 @@ namespace Azos.Apps.Terminal.Web
                  .Replace("[:ENV:]", esc(App.EnvironmentName));
 
       WorkContext.Response.ContentType = ContentType.HTML;
-      WorkContext.Response.Write(html);
+      await WorkContext.Response.WriteAsync(html).ConfigureAwait(false);
     }
 
     [ActionOnPost(Name = "connection")]

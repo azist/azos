@@ -4,8 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System.Threading.Tasks;
-
 namespace Azos.Wave.Mvc
 {
   /// <summary>
@@ -19,6 +17,7 @@ namespace Azos.Wave.Mvc
       IsAttachment = isAttachment;
       BufferSize = bufferSize;
     }
+
 
     /// <summary>
     /// Local file name
@@ -36,7 +35,14 @@ namespace Azos.Wave.Mvc
     public readonly bool   IsAttachment;
 
 
-    public Task ExecuteAsync(Controller controller, WorkContext work)
-      => work.Response.WriteFileAsync(LocalFileName, BufferSize, IsAttachment);
+
+    public void Execute(Controller controller, WorkContext work)
+    {
+      work.Response.WriteFile(LocalFileName, BufferSize, IsAttachment);
+    }
+
   }
+
+
+
 }

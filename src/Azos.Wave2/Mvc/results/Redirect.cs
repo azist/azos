@@ -5,8 +5,6 @@
 </FILE_LICENSE>*/
 
 
-using System.Threading.Tasks;
-
 namespace Azos.Wave.Mvc
 {
   /// <summary>
@@ -29,10 +27,9 @@ namespace Azos.Wave.Mvc
     /// </summary>
     public readonly WebConsts.RedirectCode Code;
 
-    public Task ExecuteAsync(Controller controller, WorkContext work)
+    public void Execute(Controller controller, WorkContext work)
     {
       work.Response.Redirect(URL, Code);
-      return Task.CompletedTask;
     }
   }
 }

@@ -7,6 +7,7 @@
 using System;
 using System.Threading.Tasks;
 
+using Azos.Apps.Injection;
 using Azos.Security.Data;
 using Azos.Serialization.JSON;
 using Azos.Wave.Mvc;

@@ -30,7 +30,7 @@ namespace Azos.Sky.Chronicle.Server.Web
   {
     [Action(Name = "view")]
     [ChroniclePermission(ChronicleAccessLevel.Browse)]
-    public void View(Guid? id = null, Guid? rel = null)
+    public async Task View(Guid? id = null, Guid? rel = null)
     {
       string esc(string s)
         => s.IsNullOrWhiteSpace() ? "" : s.Replace("\"", "'")
@@ -49,7 +49,7 @@ namespace Azos.Sky.Chronicle.Server.Web
 
 
       WorkContext.Response.ContentType = ContentType.HTML;
-      WorkContext.Response.Write(html);
+      await WorkContext.Response.WriteAsync(html).ConfigureAwait(false);
     }
 
 

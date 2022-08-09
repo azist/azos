@@ -52,7 +52,7 @@ namespace Azos.Wave.Cms.Default.Controllers
                                       "nocache: true to bypass cache and fetch from upstream, false is default",
                                       "buffered: pass true to use double buffering with `Content-Length` header, otherwise(default) chunked transfer is used"})]
     [ActionOnGet(Name = "feed")]
-    public void Feed(string portal, string ns, string block, Atom isolang, bool nocache = false, bool buffered = false)
+    public async Task Feed(string portal, string ns, string block, Atom isolang, bool nocache = false, bool buffered = false)
     {
       ContentId id = default(ContentId);
       try
@@ -82,7 +82,7 @@ namespace Azos.Wave.Cms.Default.Controllers
       WorkContext.Response.StatusCode = 200;
       WorkContext.Response.StatusDescription = "Found CMS content";
       WorkContext.Response.ContentType = compress ? CTP_COMPRESSED : CTP_UNCOMPRESSED;
-      var httpStream = WorkContext.Response.GetDirectOutputStreamForWriting();
+      var httpStream = await WorkContext.Response.GetDirectOutputStreamForWritingAsync().ConfigureAwait(false);
       if (compress)
       {
         using(var zipStream = new GZipStream(httpStream, CompressionLevel.Optimal))

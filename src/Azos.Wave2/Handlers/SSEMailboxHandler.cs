@@ -115,13 +115,13 @@ namespace Azos.Wave.Handlers
 
 
 
-    public SSEMailboxHandler(WorkHandler director, string name, int order, WorkMatch match)
-                     : base(director, name, order, match)
+    public SSEMailboxHandler(WorkDispatcher dispatcher, string name, int order, WorkMatch match)
+                     : base(dispatcher, name, order, match)
     {
       ctor();
     }
 
-    public SSEMailboxHandler(WorkHandler director, IConfigSectionNode confNode) : base(director, confNode)
+    public SSEMailboxHandler(WorkDispatcher dispatcher, IConfigSectionNode confNode) : base(dispatcher, confNode)
     {
       ctor();
     }
@@ -172,7 +172,7 @@ namespace Azos.Wave.Handlers
     }
 
 
-    protected override async Task DoHandleWorkAsync(WorkContext work)
+    protected override void DoHandleWork(WorkContext work)
     {
       if (Disposed) throw HTTPStatusException.InternalError_500("Unavailable");
 
@@ -189,7 +189,8 @@ namespace Azos.Wave.Handlers
 
       try
       {
-        await flushFirstChunkAsync(work).ConfigureAwait(false);
+        flushFirstChunk(work);//Microsoft Http bug. need 1000 chars at first to start buffer flushing
+        work.NoDefaultAutoClose = true;
       }
       catch
       {
@@ -235,10 +236,11 @@ namespace Azos.Wave.Handlers
       mailbox.Dispose();
     }
 
-    private async Task flushFirstChunkAsync(WorkContext work)
+    private void flushFirstChunk(WorkContext work)
     {
-      await work.Response.WriteAsync("event: connect\ndata: {0}\n\n".Args(new {startDate = App.TimeSource.UTCNow}.ToJson(JsonWritingOptions.CompactASCII))).ConfigureAwait(false);
-      await work.Response.FlushAsync().ConfigureAwait(false);
+      work.Response.Write("".PadLeft(1000, ' '));//Microsoft bug. need 1000 chars at first to start buffer flushing
+      work.Response.Write("event: connect\ndata: {0}\n\n".Args(new {startDate = App.TimeSource.UTCNow}.ToJson(JsonWritingOptions.CompactASCII)));
+      work.Response.Flush();
     }
 
     private void scheduleNextManage()

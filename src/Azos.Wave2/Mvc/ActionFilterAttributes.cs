@@ -6,7 +6,6 @@
 
 using System;
 using System.Reflection;
-using System.Threading.Tasks;
 using Azos.Conf;
 
 namespace Azos.Wave.Mvc
@@ -19,14 +18,15 @@ namespace Azos.Wave.Mvc
     /// <summary>
     /// Override to add logic/filtering right after the invocation of action method. Must return TRUE to stop processing chain
     /// </summary>
-    protected internal override ValueTask<(bool, object)> AfterActionInvocationAsync(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, object result)
-      => new ValueTask<(bool, object)>((false, null));
+    protected internal override bool AfterActionInvocation(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, ref object result)
+      => false;
 
     /// <summary>
     /// Override to add logic/filtering finally after the invocation of action method. Must return TRUE to stop processing chain
     /// </summary>
-    protected internal override ValueTask<object> ActionInvocationFinallyAsync(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, object result)
-      => new ValueTask<object>(null);
+    protected internal override void ActionInvocationFinally(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, ref object result)
+    {
+    }
   }
 
   /// <summary>
@@ -42,16 +42,15 @@ namespace Azos.Wave.Mvc
   {
     public HttpGetAttribute() { }
 
-    protected internal override ValueTask<(bool, object)> BeforeActionInvocationAsync(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, object result)
+    protected internal override bool BeforeActionInvocation(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, ref object result)
     {
       if (!work.IsGET)
       {
         work.Response.StatusCode = WebConsts.STATUS_405;
         work.Response.StatusDescription = WebConsts.STATUS_405_DESCRIPTION;
-        return new ValueTask<(bool, object)>((true, result));
+        return true;
       }
-
-      return new ValueTask<(bool, object)>((false, result));
+      return false;
     }
   }
 
@@ -68,16 +67,15 @@ namespace Azos.Wave.Mvc
   {
     public HttpPostAttribute() { }
 
-    protected internal override ValueTask<(bool, object)> BeforeActionInvocationAsync(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, object result)
+    protected internal override bool BeforeActionInvocation(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, ref object result)
     {
       if (!work.IsPOST)
       {
         work.Response.StatusCode = WebConsts.STATUS_405;
         work.Response.StatusDescription = WebConsts.STATUS_405_DESCRIPTION;
-        return new ValueTask<(bool, object)>((true, result));
+        return true;
       }
-
-      return new ValueTask<(bool, object)>((false, result));
+      return false;
     }
   }
 
@@ -94,15 +92,15 @@ namespace Azos.Wave.Mvc
   {
     public HttpPutAttribute() { }
 
-    protected internal override ValueTask<(bool, object)> BeforeActionInvocationAsync(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, object result)
+    protected internal override bool BeforeActionInvocation(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, ref object result)
     {
       if (!work.IsPUT)
       {
         work.Response.StatusCode = WebConsts.STATUS_405;
         work.Response.StatusDescription = WebConsts.STATUS_405_DESCRIPTION;
-        return new ValueTask<(bool, object)>((true, result));
+        return true;
       }
-      return new ValueTask<(bool, object)>((false, result));
+      return false;
     }
   }
 
@@ -119,15 +117,15 @@ namespace Azos.Wave.Mvc
   {
     public HttpDeleteAttribute() { }
 
-    protected internal override ValueTask<(bool, object)> BeforeActionInvocationAsync(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, object result)
+    protected internal override bool BeforeActionInvocation(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, ref object result)
     {
       if (!work.IsDELETE)
       {
         work.Response.StatusCode = WebConsts.STATUS_405;
         work.Response.StatusDescription = WebConsts.STATUS_405_DESCRIPTION;
-        return new ValueTask<(bool, object)>((true, result));
+        return true;
       }
-      return new ValueTask<(bool, object)>((false, result));
+      return false;
     }
   }
 
@@ -144,15 +142,15 @@ namespace Azos.Wave.Mvc
   {
     public HttpPatchAttribute() { }
 
-    protected internal override ValueTask<(bool, object)> BeforeActionInvocationAsync(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, object result)
+    protected internal override bool BeforeActionInvocation(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, ref object result)
     {
       if (!work.IsPATCH)
       {
         work.Response.StatusCode = WebConsts.STATUS_405;
         work.Response.StatusDescription = WebConsts.STATUS_405_DESCRIPTION;
-        return new ValueTask<(bool, object)>((true, result));
+        return true;
       }
-      return new ValueTask<(bool, object)>((false, result));
+      return false;
     }
   }
 
@@ -169,15 +167,15 @@ namespace Azos.Wave.Mvc
   {
     public HttpPutOrPostAttribute() { }
 
-    protected internal override ValueTask<(bool, object)> BeforeActionInvocationAsync(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, object result)
+    protected internal override bool BeforeActionInvocation(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, ref object result)
     {
       if (!work.IsPUT && !work.IsPOST)
       {
         work.Response.StatusCode = WebConsts.STATUS_405;
         work.Response.StatusDescription = WebConsts.STATUS_405_DESCRIPTION;
-        return new ValueTask<(bool, object)>((true, result));
+        return true;
       }
-      return new ValueTask<(bool, object)>((false, result));
+      return false;
     }
   }
 
@@ -194,15 +192,15 @@ namespace Azos.Wave.Mvc
   {
     public AcceptsJsonAttribute() { }
 
-    protected internal override ValueTask<(bool, object)> BeforeActionInvocationAsync(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, object result)
+    protected internal override bool BeforeActionInvocation(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, ref object result)
     {
       if (!work.RequestedJson)
       {
         work.Response.StatusCode = WebConsts.STATUS_406;
         work.Response.StatusDescription = WebConsts.STATUS_406_DESCRIPTION;
-        return new ValueTask<(bool, object)>((true, result));
+        return true;
       }
-      return new ValueTask<(bool, object)>((false, result));
+      return false;
     }
   }
 
@@ -226,34 +224,33 @@ namespace Azos.Wave.Mvc
     /// </summary>
     public long MaxContentLength { get; set; }
 
-    protected internal override ValueTask<(bool, object)> BeforeActionInvocationAsync(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, object result)
+    protected internal override bool BeforeActionInvocation(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, ref object result)
     {
-      //if (!work.Request.HasEntityBody)
-      //{
-      //  work.Response.StatusCode = WebConsts.STATUS_400;
-      //  work.Response.StatusDescription = WebConsts.STATUS_400_DESCRIPTION;
-      //  return new ValueTask<(bool, object)>((true, result));
-      //}
+      if (!work.Request.HasEntityBody)
+      {
+        work.Response.StatusCode = WebConsts.STATUS_400;
+        work.Response.StatusDescription = WebConsts.STATUS_400_DESCRIPTION;
+        return true;
+      }
 
-      //if (MaxContentLength<=0) return new ValueTask<(bool, object)>((false, result));
+      if (MaxContentLength<=0) return false;
 
-      //var got = work.Request.ContentLength;
-      //if (got<0)
-      //{
-      //  work.Response.StatusCode = WebConsts.STATUS_411;
-      //  work.Response.StatusDescription = WebConsts.STATUS_411_DESCRIPTION;
-      //  return new ValueTask<(bool, object)>((true, result));
-      //}
+      var got = work.Request.ContentLength64;
+      if (got<0)
+      {
+        work.Response.StatusCode = WebConsts.STATUS_411;
+        work.Response.StatusDescription = WebConsts.STATUS_411_DESCRIPTION;
+        return true;
+      }
 
-      //if (got > MaxContentLength)
-      //{
-      //  work.Response.StatusCode = WebConsts.STATUS_413;
-      //  work.Response.StatusDescription = WebConsts.STATUS_413_DESCRIPTION;
-      //  return new ValueTask<(bool, object)>((true, result));
-      //}
+      if (got > MaxContentLength)
+      {
+        work.Response.StatusCode = WebConsts.STATUS_413;
+        work.Response.StatusDescription = WebConsts.STATUS_413_DESCRIPTION;
+        return true;
+      }
 
-#warning THis needs to be re-written
-      return new ValueTask<(bool, object)>((false, result));
+      return false;
     }
 
     public override bool ShouldProvideInstanceMetadata(IMetadataGenerator context, ConfigSectionNode dataRoot)

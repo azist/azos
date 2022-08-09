@@ -9,8 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using Microsoft.AspNetCore.Http;
-
 using Azos.CodeAnalysis.Source;
 using Azos.CodeAnalysis.CSharp;
 
@@ -24,7 +22,7 @@ namespace Azos.Wave
   /// Example: '/profiles/{controller}/{action="dflt value"}/{*params}'
   /// The class uses CSharp lexer, so it allows to use string escapes and Unicode chars like CSharp
   /// </summary>
-  public sealed class UriPattern
+  public sealed class URIPattern
   {
     private enum chunkPortion{Path, Query}
     private class chunk
@@ -42,9 +40,13 @@ namespace Azos.Wave
       }
     }
 
-    public UriPattern(string pattern)
+
+    public URIPattern(string pattern)
     {
-      m_Pattern = pattern.NonNull(nameof(pattern));
+      if (pattern==null)
+        throw new WaveException(StringConsts.ARGUMENT_ERROR+"URIPattern.ctor(pattern==null)");
+
+      m_Pattern = pattern;
       try
       {
         parse();
@@ -63,40 +65,38 @@ namespace Azos.Wave
     /// <summary>
     /// Returns the original pattern
     /// </summary>
-    public string Pattern => m_Pattern;
+    public string Pattern { get{return m_Pattern;} }
 
     /// <summary>
-    /// Tries to match the pattern against the URI path section and returns a JSONDataMap match object filled with pattern match or
-    /// NULL if pattern could not be matched.
+    /// Tries to match the pattern against the URI path section and returns a JSONDataMap match object filled with pattern match or NULL if pattern could not be matched.
     /// </summary>
-    public JsonDataMap MatchUriPath(PathString path, bool senseCase = false)
+    public JsonDataMap MatchURIPath(Uri uri, bool senseCase = false)
     {
       JsonDataMap result = null;
       if (m_MatchChunks.Count==0) return new JsonDataMap(false);
 
-      var segs = path.ToUriComponent().Split('/');
+      var segs = uri.AbsolutePath.Split('/');
 
       var ichunk = -1;
       chunk chunk = null;
       var wildCard = false;
       foreach(var seg in segs)
       {
-        if (seg.Length == 0) continue;//skip empty ////
+        if (seg.Length==0) continue;//skip empty ////
 
         if (!wildCard)
         {
           ichunk++;
-          if (ichunk >= m_MatchChunks.Count) return null;
+          if (ichunk>=m_MatchChunks.Count) return null;
           chunk = m_MatchChunks[ichunk];
         }
 
-        if (chunk.Portion != chunkPortion.Path) return null;
+        if (chunk.Portion!=chunkPortion.Path) return null;
 
         if (chunk.IsWildcard)
         {
           wildCard = true;
-          if (result == null) result = new JsonDataMap(false);
-
+          if (result==null) result = new JsonDataMap(false);
           if (!result.ContainsKey(chunk.Name))
             result[chunk.Name] = Uri.UnescapeDataString(seg);
           else
@@ -105,31 +105,22 @@ namespace Azos.Wave
         else
         if (chunk.IsVar)
         {
-          if (result == null) result = new JsonDataMap(false);
+          if (result==null) result = new JsonDataMap(false);
           result[chunk.Name] = Uri.UnescapeDataString(seg);
         }
         else
         if (!chunk.Name.Equals(seg, senseCase ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase)) return null;
       }//foreach
 
-
       ichunk++;
-      while(ichunk < m_MatchChunks.Count)
+      while(ichunk<m_MatchChunks.Count)
       {
-        chunk = m_MatchChunks[ichunk];
-
+        chunk=m_MatchChunks[ichunk];
         if (!chunk.IsVar) return null;//some trailing elements that are not vars and  do not match
-
-        if (result == null)
-        {
+        if (result==null)
           result = new JsonDataMap(false);
-        }
-
         if (!result.ContainsKey(chunk.Name))
-        {
           result[chunk.Name] = chunk.DefaultValue;
-        }
-
         ichunk++;
       }
 
@@ -139,7 +130,7 @@ namespace Azos.Wave
     /// <summary>
     /// Creates URI from the supplied values for this pattern
     /// </summary>
-    public Uri MakeUri(IDictionary<string, object> values, Uri prefix = null)
+    public Uri MakeURI(IDictionary<string, object> values, Uri prefix = null)
     {
       var result = new StringBuilder();
       var portion = chunkPortion.Path;
@@ -176,16 +167,16 @@ namespace Azos.Wave
                             new Uri(result.ToString(), UriKind.RelativeOrAbsolute);
     }
 
- //////internal string _____Chunks
- //////{
- //////   get
- //////   {
- //////     var sb = new StringBuilder();
- //////     foreach(var c in m_Chunks)
- //////       sb.AppendLine(c.ToString());
- //////     return sb.ToString();
- //////   }
- //////}
+ internal string _____Chunks
+ {
+    get
+    {
+      var sb = new StringBuilder();
+      foreach(var c in m_Chunks)
+        sb.AppendLine(c.ToString());
+      return sb.ToString();
+    }
+ }
 
 
 

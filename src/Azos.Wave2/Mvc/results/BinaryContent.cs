@@ -5,8 +5,6 @@
 </FILE_LICENSE>*/
 
 
-using System.Threading.Tasks;
-
 namespace Azos.Wave.Mvc
 {
   /// <summary>
@@ -21,6 +19,7 @@ namespace Azos.Wave.Mvc
       AttachmentName = attachmentName;
       BufferSize = bufferSize;
     }
+
 
     /// <summary>
     /// Binary data to send
@@ -43,7 +42,7 @@ namespace Azos.Wave.Mvc
     public readonly string AttachmentName;
 
 
-    public async Task ExecuteAsync(Controller controller, WorkContext work)
+    public void Execute(Controller controller, WorkContext work)
     {
       var ctp = ContentType;
       if (ctp.IsNullOrWhiteSpace())
@@ -51,8 +50,9 @@ namespace Azos.Wave.Mvc
 
       work.Response.ContentType = ctp;
 
-      using var ms = new System.IO.MemoryStream(Data);
-      await work.Response.WriteStreamAsync(ms, BufferSize, AttachmentName).ConfigureAwait(false);
+      using (var ms = new System.IO.MemoryStream(Data))
+        work.Response.WriteStream(ms, BufferSize,  AttachmentName);
     }
+
   }
 }

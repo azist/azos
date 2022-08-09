@@ -14,7 +14,6 @@ using Azos.Wave;
 using Azos.Data;
 using System.Net;
 using Azos.Conf;
-using Microsoft.AspNetCore.Http;
 
 namespace Azos.Security.Services
 {
@@ -52,9 +51,11 @@ namespace Azos.Security.Services
       var ssoCookieName = OAuth.SsoSessionName;//copy
       if (ssoCookieName.IsNullOrWhiteSpace()) return;
       var cookie = WorkContext.Request.Cookies[ssoCookieName];
-      if (cookie.IsNullOrWhiteSpace()) return;
+      if (cookie == null) return;
+      var result = cookie.Value;
+      if (result.IsNullOrWhiteSpace()) return;
 
-      loginFlow.SsoSessionId = cookie;
+      loginFlow.SsoSessionId = result;
     }
 
     /// <summary>
@@ -62,14 +63,11 @@ namespace Azos.Security.Services
     /// </summary>
     protected virtual void SetSsoSessionId(LoginFlow loginFlow, string ssoSessionName)
     {
-      var copt = new CookieOptions()
-      {
-        HttpOnly = true,
-        Secure = true ^ WebOptions.Of("cookie-not-secure").ValueAsBool(false),
-        Expires = App.TimeSource.UTCNow.AddMinutes(WebOptions.Of("cookie-expire-in-minutes").ValueAsDouble(2 * 24 * 60))
-      };
-
-      WorkContext.Response.AppendCookie(ssoSessionName, loginFlow.SsoSessionId, copt);
+      var cookie = new Cookie(ssoSessionName, loginFlow.SsoSessionId);
+      cookie.HttpOnly = true;
+      cookie.Secure = true ^ WebOptions.Of("cookie-not-secure").ValueAsBool(false);
+      cookie.Expires = App.TimeSource.UTCNow.AddMinutes(WebOptions.Of("cookie-expire-in-minutes").ValueAsDouble(2 * 24 * 60));
+      WorkContext.Response.AppendCookie(cookie);
     }
 
     /// <summary>
@@ -77,14 +75,11 @@ namespace Azos.Security.Services
     /// </summary>
     protected virtual void DeleteSsoSessionId(string ssoSessionName)
     {
-      var copt = new CookieOptions()
-      {
-        HttpOnly = true,
-        Secure = true ^ WebOptions.Of("cookie-not-secure").ValueAsBool(false),
-        Expires = App.TimeSource.UTCNow.AddDays(-2)
-      };
-
-      WorkContext.Response.AppendCookie(ssoSessionName, "", copt);
+      var cookie = new Cookie(ssoSessionName, "");
+      cookie.HttpOnly = true;
+      cookie.Secure = true ^ WebOptions.Of("cookie-not-secure").ValueAsBool(false);
+      cookie.Expires = App.TimeSource.UTCNow.AddDays(-2);
+      WorkContext.Response.AppendCookie(cookie);
     }
 
     /// <summary>

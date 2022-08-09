@@ -6,7 +6,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+
 using Azos.Conf;
 using Azos.Instrumentation;
 using Azos.Time;
@@ -18,6 +18,8 @@ namespace Azos.Wave.Filters
   /// </summary>
   public sealed class LatencyInstrumentationFilter : WorkFilter
   {
+    public LatencyInstrumentationFilter(WorkDispatcher dispatcher, string name, int order) : base(dispatcher, name, order) { }
+    public LatencyInstrumentationFilter(WorkDispatcher dispatcher, IConfigSectionNode confNode) : base(dispatcher, confNode) { ConfigAttribute.Apply(this, confNode); }
     public LatencyInstrumentationFilter(WorkHandler handler, string name, int order) : base(handler, name, order) { }
     public LatencyInstrumentationFilter(WorkHandler handler, IConfigSectionNode confNode) : base(handler, confNode) { ConfigAttribute.Apply(this, confNode); }
 
@@ -34,28 +36,29 @@ namespace Azos.Wave.Filters
     [Config(Default = true), ExternalParameter(CoreConsts.EXT_PARAM_GROUP_WEB, CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
     public bool Enabled { get; set; } = true;
 
-    protected override async Task DoFilterWorkAsync(WorkContext work, CallChain callChain)
+    protected override void DoFilterWork(WorkContext work, IList<WorkFilter> filters, int thisFilterIndex)
     {
       var bypass = !this.Enabled || !App.Instrumentation.Enabled;
 
       if (bypass)
       {
-        await InvokeNextWorkerAsync(work, callChain).ConfigureAwait(false);
+        InvokeNextWorker(work, filters, thisFilterIndex);
         return;
       }
 
       var time = Timeter.StartNew();
       try
       {
-        await InvokeNextWorkerAsync(work, callChain).ConfigureAwait(false);
+        InvokeNextWorker(work, filters, thisFilterIndex);
       }
       finally
       {
-        var uri = work.Request.Url;
+        var uri = work.Request.Url.AbsolutePath;
         var ctx = work.Session?.DataContextName;
         Instrumentation.ApiLatency.EmitApiCall(App.Instrumentation, uri, ctx, time.ElapsedMs, EmitApiCallEvent);
       }
     }
+
   }
 }
 

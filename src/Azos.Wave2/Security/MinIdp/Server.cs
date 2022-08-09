@@ -114,7 +114,7 @@ namespace Azos.Security.MinIdp
       Methods = new []{"POST: json body"},
       ResponseContent = "Json object {OK: bool, ctype: string, data: {}}")]
     [ActionOnPost(Name = "exec"), AcceptsJson]
-    public async Task ExecCommand(string source)
+    public void ExecCommand(string source)
     {
       IConfigSectionNode command = null;
 
@@ -136,16 +136,13 @@ namespace Azos.Security.MinIdp
       {
         WorkContext.Response.StatusCode = 400;
         WorkContext.Response.StatusDescription = "Bad request: command not understood";
-        await WorkContext.Response.WriteJsonAsync(new {OK = false, cmd = command.Name}).ConfigureAwait(false);
+        WorkContext.Response.WriteJSON(new {OK = false, cmd = command.Name});
         return;
       }
 
       WorkContext.Response.StatusCode = got.StatusCode;
       WorkContext.Response.StatusDescription = got.StatusDescription;
-
-      await WorkContext.Response.WriteJsonAsync(
-              new {OK = true, ctype = got.ContentType, data = got.Content},
-              Serialization.JSON.JsonWritingOptions.PrettyPrintRowsAsMapASCII).ConfigureAwait(false);
+      WorkContext.Response.WriteJSON(new {OK = true, ctype = got.ContentType, data = got.Content}, Serialization.JSON.JsonWritingOptions.PrettyPrintRowsAsMapASCII);
     }
   }
 }
