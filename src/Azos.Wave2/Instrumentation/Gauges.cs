@@ -285,22 +285,6 @@ namespace Azos.Wave.Instrumentation
     protected override Datum MakeAggregateInstance() { return new WorkContextHandled(this.Source, 0); }
   }
 
-  /// <summary>
-  /// How many work contexts requested not to be closed at the end of the initial request processing cycle
-  /// </summary>
-  [Serializable]
-  [Arow("A12562A0-F81D-4972-949B-A37A5E6CBC58")]
-  public class WorkContextNoDefaultClose : WaveLongGauge, INetInstrument
-  {
-    internal WorkContextNoDefaultClose(string src, long value) : base(src, value) { }
-
-    public override string Description { get { return "How many work contexts requested not to be closed at the end of the initial request processing cycle"; } }
-
-    public override string ValueUnitName { get { return Azos.CoreConsts.UNIT_NAME_WORK_CONTEXT; } }
-
-    protected override Datum MakeAggregateInstance() { return new WorkContextNoDefaultClose(this.Source, 0); }
-  }
-
 
   /// <summary>
   /// How many work contexts requested session state

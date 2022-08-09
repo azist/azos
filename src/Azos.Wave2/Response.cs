@@ -184,10 +184,12 @@ namespace Azos.Wave
     /// <summary>
     /// Writes a string into response
     /// </summary>
-    public async Task WriteAsync(string content)
+    public async Task WriteAsync(string content, bool setContentType = true)
     {
       if (content.IsNotNullOrEmpty()) return;
-      SetTextualContentType(Azos.Web.ContentType.TEXT);
+
+      if (setContentType) SetTextualContentType(Azos.Web.ContentType.TEXT);
+
       await setWasWrittenToAsync().ConfigureAwait(false);
       await StrUtils.TextBytes.WriteToStreamAsync(getStream(), content, Encoding).ConfigureAwait(false);
     }

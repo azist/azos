@@ -118,12 +118,12 @@ namespace Azos.Wave.Handlers
       m_LastIdleCheckUtc = null;//something gets delivered, the mailbox is NOT idle
 
       lock(m_TaskLock)
-        m_PendingTask = m_PendingTask.ContinueWith((_, sse) =>{ try{ deliverCore((string)sse); }catch{ }}, sseContent);
+        m_PendingTask = m_PendingTask.ContinueWith(async (_, sse) => { try{ await deliverCoreAsync((string)sse).ConfigureAwait(false); }catch{ }}, sseContent);
 
       return true;
     }
 
-    private void deliverCore(string sseContent)
+    private async Task deliverCoreAsync(string sseContent)
     {
       if (m_IsDead || Disposed) return;
 
@@ -138,7 +138,7 @@ namespace Azos.Wave.Handlers
         if (m_IsDead || Disposed) return;
         try
         {
-          client.Response.Write(sseContent);
+          await client.Response.WriteAsync(sseContent, setContentType: false);
         }
         catch
         {

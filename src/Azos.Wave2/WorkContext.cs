@@ -71,7 +71,6 @@ namespace Azos.Wave
         Interlocked.Increment(ref m_Server.m_stat_WorkContextDctor);
         if (m_Aborted) Interlocked.Increment(ref m_Server.m_stat_WorkContextAborted);
         if (m_Handled) Interlocked.Increment(ref m_Server.m_stat_WorkContextHandled);
-        if (m_NoDefaultAutoClose) Interlocked.Increment(ref m_Server.m_stat_WorkContextNoDefaultClose);
       }
 
       ats_Current.Value = null;
@@ -117,8 +116,6 @@ namespace Azos.Wave
 
     internal bool m_Handled;
     private bool m_Aborted;
-
-    private bool m_NoDefaultAutoClose;
 
     private GeoEntity m_GeoEntity;
 
@@ -371,26 +368,6 @@ namespace Azos.Wave
     /// </summary>
     public string About
       =>"Work('{0}'@'{1}' -> {2} '{3}')".Args(Request.UserAgent, EffectiveCallerIPEndPoint, Request.Method, Request.Url);
-
-    /// <summary>
-    /// Indicates whether the default dispatcher should close the WorkContext upon completion of async processing.
-    /// This property may ONLY be set to TRUE IF Response.Buffered = false (chunked transfer) and Response has already been written to.
-    /// When this property is set to true the WorkDispatcher will not auto dispose this WorkContext instance.
-    /// This may be needed for a server that streams chat messages and some other thread manages the lifetime of this WorkContext.
-    /// Keep in mind that alternative implementations of WorkDispatcher (derived classes that implement alternative threading/lifecycle)
-    ///  may disregard this flag altogether
-    /// </summary>
-    public bool NoDefaultAutoClose
-    {
-      get { return m_NoDefaultAutoClose;}
-      set
-      {
-        if ( value && (Response.Buffered==true || !Response.WasWrittenTo))
-          throw new WaveException(StringConsts.WORK_NO_DEFAULT_AUTO_CLOSE_ERROR);
-
-        m_NoDefaultAutoClose = value;
-      }
-    }
 
     /// <summary>
     /// Captures last error

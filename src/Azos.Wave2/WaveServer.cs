@@ -181,7 +181,6 @@ namespace Azos.Wave
     internal long m_stat_WorkContextDctor;
     internal long m_stat_WorkContextAborted;
     internal long m_stat_WorkContextHandled;
-    internal long m_stat_WorkContextNoDefaultClose;
     internal long m_stat_WorkContextNeedsSession;
 
     internal long m_stat_SessionNew;
@@ -565,7 +564,6 @@ namespace Azos.Wave
         m_stat_WorkContextDctor                     = 0;
         m_stat_WorkContextAborted                   = 0;
         m_stat_WorkContextHandled                   = 0;
-        m_stat_WorkContextNoDefaultClose            = 0;
         m_stat_WorkContextNeedsSession              = 0;
 
         m_stat_SessionNew                           = 0;
@@ -596,7 +594,6 @@ namespace Azos.Wave
         i.Record( new Instrumentation.WorkContextDctor                   (Name, m_stat_WorkContextDctor                   ));
         i.Record( new Instrumentation.WorkContextAborted                 (Name, m_stat_WorkContextAborted                 ));
         i.Record( new Instrumentation.WorkContextHandled                 (Name, m_stat_WorkContextHandled                 ));
-        i.Record( new Instrumentation.WorkContextNoDefaultClose          (Name, m_stat_WorkContextNoDefaultClose          ));
         i.Record( new Instrumentation.WorkContextNeedsSession            (Name, m_stat_WorkContextNeedsSession            ));
 
         i.Record( new Instrumentation.SessionNew                         (Name, m_stat_SessionNew                         ));
