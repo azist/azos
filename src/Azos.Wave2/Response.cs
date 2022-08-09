@@ -201,56 +201,64 @@ namespace Azos.Wave
       if (data==null) return;
       SetTextualContentType(Azos.Web.ContentType.JSON);
       await setWasWrittenToAsync().ConfigureAwait(false);
-#warning AZ #731 async JsonWriter
-      JsonWriter.Write(data, new NonClosingStreamWrap( getStream() ), options, Encoding);
+#warning NonClosingStreamWrap needs to be removed, instead use "TextWriter.keepOpen" property #731
+      await JsonWriter.WriteAsync(data, new NonClosingStreamWrap( getStream() ), options, Encoding).ConfigureAwait(false);
     }
 
-      /// <summary>
-      /// Write the file to the client so client can download it. May set Buffered=false to use chunked encoding for big files
-      /// </summary>
-      public void WriteFile(string localFileName, int bufferSize = DEFAULT_DOWNLOAD_BUFFER_SIZE, bool attachment = false)
+    /// <summary>
+    /// Write the file to the client so client can download it. May set Buffered=false to use chunked encoding for big files
+    /// </summary>
+    public async Task WriteFileAsync(string localFileName, int bufferSize = DEFAULT_DOWNLOAD_BUFFER_SIZE, bool attachment = false, CancellationToken? cancelToken = null)
+    {
+      if (localFileName.IsNullOrWhiteSpace())
+        throw new WaveException(StringConsts.ARGUMENT_ERROR+"Response.WriteFile(localFileName==null|empty)");
+
+      var fi = new FileInfo(localFileName);
+
+      if (!fi.Exists)
+        throw new WaveException(StringConsts.RESPONSE_WRITE_FILE_DOES_NOT_EXIST_ERROR.Args(localFileName));
+
+      var fsize = fi.Length;
+      if (Buffered && fsize>MAX_DOWNLOAD_FILE_SIZE)
+        throw new WaveException(StringConsts.RESPONSE_WRITE_FILE_OVER_MAX_SIZE_ERROR.Args(localFileName, MAX_DOWNLOAD_FILE_SIZE));
+
+      var ext = Path.GetExtension(localFileName);
+      ContentType = Work.App.GetContentTypeMappings().MapFileExtension(ext).ContentType;
+      if (attachment)
       {
-        if (localFileName.IsNullOrWhiteSpace())
-          throw new WaveException(StringConsts.ARGUMENT_ERROR+"Response.WriteFile(localFileName==null|empty)");
+        Headers.Add(WebConsts.HTTP_HDR_CONTENT_DISPOSITION, "attachment; filename={0}".Args(fi.Name));
+      }
 
-        var fi = new FileInfo(localFileName);
+      await setWasWrittenToAsync().ConfigureAwait(false);
 
-        if (!fi.Exists)
-          throw new WaveException(StringConsts.RESPONSE_WRITE_FILE_DOES_NOT_EXIST_ERROR.Args(localFileName));
 
-        var fsize = fi.Length;
-        if (Buffered && fsize>MAX_DOWNLOAD_FILE_SIZE)
-          throw new WaveException(StringConsts.RESPONSE_WRITE_FILE_OVER_MAX_SIZE_ERROR.Args(localFileName, MAX_DOWNLOAD_FILE_SIZE));
+      if (bufferSize<MIN_DOWNLOAD_BUFFER_SIZE) bufferSize=MIN_DOWNLOAD_BUFFER_SIZE;
+      else if (bufferSize>MAX_DOWNLOAD_BUFFER_SIZE) bufferSize=MAX_DOWNLOAD_BUFFER_SIZE;
 
-        var ext = Path.GetExtension(localFileName);
-        setWasWrittenTo();
-        m_NetResponse.ContentType = Work.App.GetContentTypeMappings().MapFileExtension(ext).ContentType;
+      using var fs = new FileStream(localFileName, FileMode.Open, FileAccess.Read);
 
-        if (attachment)
-          m_NetResponse.Headers.Add(WebConsts.HTTP_HDR_CONTENT_DISPOSITION, "attachment; filename={0}".Args(fi.Name));
-
-        if (bufferSize<MIN_DOWNLOAD_BUFFER_SIZE) bufferSize=MIN_DOWNLOAD_BUFFER_SIZE;
-        else if (bufferSize>MAX_DOWNLOAD_BUFFER_SIZE) bufferSize=MAX_DOWNLOAD_BUFFER_SIZE;
-
-        using(var fs = new FileStream(localFileName, FileMode.Open, FileAccess.Read))
+      var dest = getStream();
+      if (dest is MemoryStream ms)
+      {
+        if (ms.Position==0)
         {
+          ms.SetLength(fsize);//pre-allocate memory stream
+          ms.Position = ms.Length;
 
-          var dest = getStream();
-          if (dest is MemoryStream)
-          {
-            var ms = ((MemoryStream)dest);
-            if (ms.Position==0)
-            {
-              ms.SetLength(fsize);//pre-allocate memory stream
-              ms.Position = ms.Length;
-              fs.Read(ms.GetBuffer(), 0, (int)ms.Position);
-              return;
-            }
-          }
+          if (cancelToken.HasValue)
+            await fs.ReadAsync(ms.GetBuffer(), 0, (int)ms.Position, cancelToken.Value).ConfigureAwait(false);
+          else
+            await fs.ReadAsync(ms.GetBuffer(), 0, (int)ms.Position).ConfigureAwait(false);
 
-          fs.CopyTo(dest, bufferSize);
+          return;
         }
       }
+
+      if (cancelToken.HasValue)
+        await fs.CopyToAsync(dest, bufferSize, cancelToken.Value).ConfigureAwait(false);
+      else
+        await fs.CopyToAsync(dest, bufferSize).ConfigureAwait(false);
+    }
 
 
       /// <summary>
