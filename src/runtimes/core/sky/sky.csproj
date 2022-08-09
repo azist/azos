@@ -6,8 +6,8 @@
     <ServerGarbageCollection>true</ServerGarbageCollection>
 
     <UseAppHost>True</UseAppHost>   <!-- FALSE = get rid of EXE -->
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <SelfContained>false</SelfContained>
   </PropertyGroup>
 
