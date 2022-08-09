@@ -5,6 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
+using System.Threading.Tasks;
 
 using Azos.Serialization.JSON;
 
@@ -43,13 +44,7 @@ namespace Azos.Wave.Mvc
     public readonly object Data;
     public readonly JsonWritingOptions Options;
 
-
-    public void Execute(Controller controller, WorkContext work)
-    {
-      work.Response.WriteJSON( Data, Options );
-    }
+    public Task ExecuteAsync(Controller controller, WorkContext work)
+      => work.Response.WriteJsonAsync( Data, Options );
   }
-
-
-
 }

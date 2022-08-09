@@ -125,7 +125,7 @@ namespace Azos.Wave.Handlers
       {
         try
         {
-          ProcessResult(target, work, result);
+          await ProcessResultAsync(target, work, result).ConfigureAwait(false);
         }
         catch(Exception error)
         {
@@ -134,7 +134,7 @@ namespace Azos.Wave.Handlers
       }
       finally
       {
-        if (result is IDisposable) ((IDisposable)result).Dispose();
+        await DisposeIfDisposableAndNullAsync(ref result).ConfigureAwait(false);
       }
     }
 
@@ -313,13 +313,12 @@ namespace Azos.Wave.Handlers
     /// <summary>
     /// Turns result object into appropriate response
     /// </summary>
-    protected virtual void ProcessResult(Controller controller, WorkContext work, object result)
+    protected virtual async Task ProcessResultAsync(Controller controller, WorkContext work, object result)
     {
       if (result==null) return;
-      if (result is string)
+      if (result is string txtresult)
       {
-        work.Response.ContentType = ContentType.TEXT;
-        work.Response.Write(result);
+        await work.Response.WriteAsync(txtresult).ConfigureAwait(false);
         return;
       }
 
@@ -335,17 +334,19 @@ namespace Azos.Wave.Handlers
       if (result is Image img)
       {
         work.Response.ContentType = ContentType.PNG;
-        img.Save(work.Response.GetDirectOutputStreamForWriting(), PngImageFormat.Standard);
+        var stream = await work.Response.GetDirectOutputStreamForWritingAsync().ConfigureAwait(false);
+        img.Save(stream, PngImageFormat.Standard);
         return;
       }
 
       if (result is IActionResult aresult)
       {
-        aresult.Execute(controller, work);
+        await aresult.ExecuteAsync(controller, work).ConfigureAwait(false);
         return;
       }
 
-      work.Response.WriteJSON(result, JsonWritingOptions.CompactRowsAsMap ); //default serialize object as JSON
+      //default serialize object as JSON
+      await work.Response.WriteJsonAsync(result, JsonWritingOptions.CompactRowsAsMap).ConfigureAwait(false);
     }
     #endregion
   }

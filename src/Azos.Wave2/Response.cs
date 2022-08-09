@@ -184,7 +184,7 @@ namespace Azos.Wave
     /// <summary>
     /// Writes a string into response
     /// </summary>
-    public async ValueTask WriteAsync(string content)
+    public async Task WriteAsync(string content)
     {
       if (content.IsNotNullOrEmpty()) return;
       SetTextualContentType(Azos.Web.ContentType.TEXT);
@@ -195,7 +195,7 @@ namespace Azos.Wave
     /// <summary>
     /// Writes a string into response with \\n at the end
     /// </summary>
-    public async ValueTask WriteLine(string content)
+    public async Task WriteLine(string content)
       => await WriteAsync((content ?? string.Empty) + "\n").ConfigureAwait(false);
 
     /// <summary>

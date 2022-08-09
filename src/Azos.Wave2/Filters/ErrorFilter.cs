@@ -142,149 +142,146 @@ namespace Azos.Wave.Filters
                                           Type customPageType = null
                                         )
     {
-        if (work==null || error==null) return;
+      if (work==null || error==null) return;
 
-        var showDump = showDumpMatches != null ?
-                        showDumpMatches.OrderedValues.Any(m => m.Make(work)!=null) : false;
+      var showDump = showDumpMatches != null ?
+                      showDumpMatches.OrderedValues.Any(m => m.Make(work)!=null) : false;
 
-        if (work.Response.Buffered)
-          work.Response.CancelBuffered();
+      if (work.Response.Buffered)
+        work.Response.CancelBuffered();
 
-        var json = work.Request.RequestedJson;
+      var json = work.Request.RequestedJson;
 
-        var actual = error;
-        if (actual is FilterPipelineException fpe)
-          actual = fpe.RootException;
+      var actual = error;
+      if (actual is FilterPipelineException fpe)
+        actual = fpe.RootException;
 
-        if (actual is MvcException mvce)
-          actual = mvce.InnerException;
+      if (actual is MvcException mvce)
+        actual = mvce.InnerException;
 
-        var securityError = Security.AuthorizationException.IsDenotedBy(error);
+      var securityError = Security.AuthorizationException.IsDenotedBy(error);
 
-        var hsp = error.SearchThisOrInnerExceptionOf<IHttpStatusProvider>();
-        if (hsp != null)
+      var hsp = error.SearchThisOrInnerExceptionOf<IHttpStatusProvider>();
+      if (hsp != null)
+      {
+        work.Response.StatusCode = hsp.HttpStatusCode;
+        work.Response.StatusDescription = hsp.HttpStatusDescription;
+      }
+      else
+      {
+        if (securityError)
         {
-          work.Response.StatusCode = hsp.HttpStatusCode;
-          work.Response.StatusDescription = hsp.HttpStatusDescription;
+          work.Response.StatusCode = WebConsts.STATUS_403;
+          work.Response.StatusDescription = WebConsts.STATUS_403_DESCRIPTION;
         }
         else
         {
-          if (securityError)
-          {
-            work.Response.StatusCode = WebConsts.STATUS_403;
-            work.Response.StatusDescription = WebConsts.STATUS_403_DESCRIPTION;
-          }
-          else
-          {
-            work.Response.StatusCode = WebConsts.STATUS_500;
-            work.Response.StatusDescription = WebConsts.STATUS_500_DESCRIPTION;
-          }
+          work.Response.StatusCode = WebConsts.STATUS_500;
+          work.Response.StatusDescription = WebConsts.STATUS_500_DESCRIPTION;
         }
+      }
 
 
-        if (json)
-        {
-            work.Response.ContentType = ContentType.JSON;
-            work.Response.WriteJSON(error.ToClientResponseJsonMap(showDump), JsonWritingOptions.PrettyPrintRowsAsMap);
-        }
-        else
-        {
-          if (securityRedirectMatches != null && securityRedirectMatches.Count > 0)
-          {
-            JsonDataMap matched = null;
-            foreach(var match in securityRedirectMatches.OrderedValues)
-            {
-              matched = match.Make(work, actual);
-              if (matched!=null) break;
-            }
-            if (matched!=null)
-            {
-              var url = matched[VAR_SECURITY_REDIRECT_URL].AsString();
-              var target = matched[VAR_SECURITY_REDIRECT_TARGET].AsString();
-
-              if (url.IsNotNullOrWhiteSpace())
-                securityRedirectURL = url;
-              if (target.IsNotNullOrWhiteSpace())
-                securityRedirectTarget = target;
-            }
-          }
-
-          if (securityRedirectURL.IsNotNullOrWhiteSpace() && securityError && !work.IsAuthenticated)
-          {
-            var url = securityRedirectURL;
-            var target = securityRedirectTarget;
-            if (target.IsNotNullOrWhiteSpace())
-            {
-              var partsA = url.Split('#');
-              var parts = partsA[0].Split('?');
-              var query = parts.Length > 1 ? parts[0] + "&" : string.Empty;
-              url = "{0}?{1}{2}={3}{4}".Args(parts[0], query,
-                target, Uri.EscapeDataString(work.Request.Url),
-                partsA.Length > 1 ? "#" + partsA[1] : string.Empty);
-            }
-            work.Response.RedirectAndAbort(url);
-          }
-          else
-          {
-            WaveTemplate errorPage = null;
-
-            if (customPageType != null)
-            {
-              try
-              {
-                //20201130 DKh fix #376
-                var simpleCtor = customPageType.GetConstructor(new Type[]{typeof(Exception), typeof(bool)}) == null;
-                errorPage = (simpleCtor ? Activator.CreateInstance(customPageType) :
-                                          Activator.CreateInstance(customPageType, error, showDump)
-                            ) as WaveTemplate;//fix #376
-
-                if (errorPage == null) throw new WaveException("not a {0}".Args(nameof(WaveTemplate)));
-              }
-              catch(Exception actErr)
-              {
-                work.Log(Log.MessageType.Error,
-                          StringConsts.ERROR_PAGE_TEMPLATE_TYPE_ERROR.Args(customPageType.FullName, actErr.ToMessageWithType()),
-                          typeof(ErrorFilter).FullName+".ctor(customPageType)",
-                          actErr);
-              }
-            }
-
-            if (errorPage == null)
-              errorPage =  new ErrorPage(error, showDump);
-
-            errorPage.Render(work, error);
-          }
-        }
-
-        if (logMatches != null && logMatches.Count > 0)
+      if (json)
+      {
+        await work.Response.WriteJsonAsync(error.ToClientResponseJsonMap(showDump), JsonWritingOptions.PrettyPrintRowsAsMap).ConfigureAwait(false);
+      }
+      else
+      {
+        if (securityRedirectMatches != null && securityRedirectMatches.Count > 0)
         {
           JsonDataMap matched = null;
-          foreach(var match in logMatches.OrderedValues)
+          foreach(var match in securityRedirectMatches.OrderedValues)
           {
-            matched = match.Make(work, error);
+            matched = match.Make(work, actual);
             if (matched!=null) break;
           }
           if (matched!=null)
           {
-            matched["$ip"] = work.EffectiveCallerIPEndPoint.ToString();
-            matched["$ua"] = work.Request.UserAgent.TakeFirstChars(78, "..");
-            matched["$mtd"] = work.Request.Method;
-            matched["$uri"] = work.Request.Url.ToString().TakeFirstChars(78, "..");
-            matched["$ref"] = work.Request.Referer?.TakeFirstChars(78, "..");
-            matched["$stat"] = "{0}/{1}".Args(work.Response.StatusCode, work.Response.StatusDescription);
+            var url = matched[VAR_SECURITY_REDIRECT_URL].AsString();
+            var target = matched[VAR_SECURITY_REDIRECT_TARGET].AsString();
 
-            if (work.Portal != null)
-              matched["$portal"] = work.Portal.Name;
-
-            if (work.GeoEntity != null)
-              matched["$geo"] = work.GeoEntity.LocalityName;
-
-            work.Log(Log.MessageType.Error, error.ToMessageWithType(), typeof(ErrorFilter).FullName, pars: matched.ToJson(JsonWritingOptions.CompactASCII));
+            if (url.IsNotNullOrWhiteSpace())
+              securityRedirectURL = url;
+            if (target.IsNotNullOrWhiteSpace())
+              securityRedirectTarget = target;
           }
         }
 
-    }
+        if (securityRedirectURL.IsNotNullOrWhiteSpace() && securityError && !work.IsAuthenticated)
+        {
+          var url = securityRedirectURL;
+          var target = securityRedirectTarget;
+          if (target.IsNotNullOrWhiteSpace())
+          {
+            var partsA = url.Split('#');
+            var parts = partsA[0].Split('?');
+            var query = parts.Length > 1 ? parts[0] + "&" : string.Empty;
+            url = "{0}?{1}{2}={3}{4}".Args(parts[0], query,
+              target, Uri.EscapeDataString(work.Request.Url),
+              partsA.Length > 1 ? "#" + partsA[1] : string.Empty);
+          }
+          work.Response.RedirectAndAbort(url);
+        }
+        else
+        {
+          WaveTemplate errorPage = null;
 
+          if (customPageType != null)
+          {
+            try
+            {
+              //20201130 DKh fix #376
+              var simpleCtor = customPageType.GetConstructor(new Type[]{typeof(Exception), typeof(bool)}) == null;
+              errorPage = (simpleCtor ? Activator.CreateInstance(customPageType) :
+                                        Activator.CreateInstance(customPageType, error, showDump)
+                          ) as WaveTemplate;//fix #376
+
+              if (errorPage == null) throw new WaveException("not a {0}".Args(nameof(WaveTemplate)));
+            }
+            catch(Exception actErr)
+            {
+              work.Log(Log.MessageType.Error,
+                        StringConsts.ERROR_PAGE_TEMPLATE_TYPE_ERROR.Args(customPageType.FullName, actErr.ToMessageWithType()),
+                        typeof(ErrorFilter).FullName+".ctor(customPageType)",
+                        actErr);
+            }
+          }
+
+          if (errorPage == null)
+            errorPage =  new ErrorPage(error, showDump);
+
+          errorPage.Render(work, error);
+        }
+      }
+
+      if (logMatches != null && logMatches.Count > 0)
+      {
+        JsonDataMap matched = null;
+        foreach(var match in logMatches.OrderedValues)
+        {
+          matched = match.Make(work, error);
+          if (matched!=null) break;
+        }
+        if (matched!=null)
+        {
+          matched["$ip"] = work.EffectiveCallerIPEndPoint.ToString();
+          matched["$ua"] = work.Request.UserAgent.TakeFirstChars(78, "..");
+          matched["$mtd"] = work.Request.Method;
+          matched["$uri"] = work.Request.Url.ToString().TakeFirstChars(78, "..");
+          matched["$ref"] = work.Request.Referer?.TakeFirstChars(78, "..");
+          matched["$stat"] = "{0}/{1}".Args(work.Response.StatusCode, work.Response.StatusDescription);
+
+          if (work.Portal != null)
+            matched["$portal"] = work.Portal.Name;
+
+          if (work.GeoEntity != null)
+            matched["$geo"] = work.GeoEntity.LocalityName;
+
+          work.Log(Log.MessageType.Error, error.ToMessageWithType(), typeof(ErrorFilter).FullName, pars: matched.ToJson(JsonWritingOptions.CompactASCII));
+        }
+      }
+    }
 
     #endregion
 
