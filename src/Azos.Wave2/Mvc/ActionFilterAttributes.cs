@@ -228,30 +228,31 @@ namespace Azos.Wave.Mvc
 
     protected internal override ValueTask<(bool, object)> BeforeActionInvocationAsync(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, object result)
     {
-      if (!work.Request.HasEntityBody)
-      {
-        work.Response.StatusCode = WebConsts.STATUS_400;
-        work.Response.StatusDescription = WebConsts.STATUS_400_DESCRIPTION;
-        return new ValueTask<(bool, object)>((true, result));
-      }
+      //if (!work.Request.HasEntityBody)
+      //{
+      //  work.Response.StatusCode = WebConsts.STATUS_400;
+      //  work.Response.StatusDescription = WebConsts.STATUS_400_DESCRIPTION;
+      //  return new ValueTask<(bool, object)>((true, result));
+      //}
 
-      if (MaxContentLength<=0) return new ValueTask<(bool, object)>((false, result));
+      //if (MaxContentLength<=0) return new ValueTask<(bool, object)>((false, result));
 
-      var got = work.Request.ContentLength64;
-      if (got<0)
-      {
-        work.Response.StatusCode = WebConsts.STATUS_411;
-        work.Response.StatusDescription = WebConsts.STATUS_411_DESCRIPTION;
-        return new ValueTask<(bool, object)>((true, result));
-      }
+      //var got = work.Request.ContentLength;
+      //if (got<0)
+      //{
+      //  work.Response.StatusCode = WebConsts.STATUS_411;
+      //  work.Response.StatusDescription = WebConsts.STATUS_411_DESCRIPTION;
+      //  return new ValueTask<(bool, object)>((true, result));
+      //}
 
-      if (got > MaxContentLength)
-      {
-        work.Response.StatusCode = WebConsts.STATUS_413;
-        work.Response.StatusDescription = WebConsts.STATUS_413_DESCRIPTION;
-        return new ValueTask<(bool, object)>((true, result));
-      }
+      //if (got > MaxContentLength)
+      //{
+      //  work.Response.StatusCode = WebConsts.STATUS_413;
+      //  work.Response.StatusDescription = WebConsts.STATUS_413_DESCRIPTION;
+      //  return new ValueTask<(bool, object)>((true, result));
+      //}
 
+#warning THis needs to be re-written
       return new ValueTask<(bool, object)>((false, result));
     }
 

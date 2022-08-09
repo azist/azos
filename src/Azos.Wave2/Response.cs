@@ -321,14 +321,14 @@ namespace Azos.Wave
     /// <summary>
     /// RESERVED FOR FUTURE USE. Flushes the internally buffered content
     /// </summary>
-    public async ValueTask FlushAsync(CancellationToken? cancelToken = null)
+    public Task FlushAsync(CancellationToken? cancelToken = null)
     {
-      if (!WasWrittenTo || Buffered) return;
+      if (!WasWrittenTo || Buffered) return Task.CompletedTask;
 
       if (cancelToken.HasValue)
-        await m_AspResponse.Body.FlushAsync(cancelToken.Value);
+        return m_AspResponse.Body.FlushAsync(cancelToken.Value);
       else
-        await m_AspResponse.Body.FlushAsync();
+        return m_AspResponse.Body.FlushAsync();
     }
 
 

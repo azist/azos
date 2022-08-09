@@ -45,7 +45,7 @@ namespace Azos.Wave.Templatization
         }
 
 
-        public void Flush()
+        public void Flush(bool lastChunk)
         {
             Response.Flush();
         }
