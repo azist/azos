@@ -210,25 +210,26 @@ namespace Azos.Wave.Handlers
     /// <summary>
     /// Dispatches an action which is not a site-serving one
     /// </summary>
-    protected virtual Task DispatchNonSiteActionAsync(WorkContext context, string action)
+    protected virtual async Task DispatchNonSiteActionAsync(WorkContext context, string action)
     {
       var actionInstance = m_Actions[action];
-      if (actionInstance!=null) actionInstance.Perform(context);
+      if (actionInstance != null)
+      {
+        actionInstance.Perform(context);
+      }
       else
       {
         context.Response.StatusCode = WebConsts.STATUS_500;
         context.Response.StatusDescription = WebConsts.STATUS_500_DESCRIPTION;
-        context.Response.Write(StringConsts.DONT_KNOW_ACTION_ERROR + action);
+        await context.Response.WriteAsync(StringConsts.DONT_KNOW_ACTION_ERROR + action).ConfigureAwait(false);
       }
-
-      return Task.CompletedTask;
     }
     #endregion
 
     #region .pvt
     private char[] DELIMS = new char[]{'/','\\'};
 
-    private Task serveSiteAsync(WorkContext work, string sitePath)
+    private async Task serveSiteAsync(WorkContext work, string sitePath)
     {
       if (sitePath.IsNullOrWhiteSpace())
         sitePath = DefaultSitePath;
@@ -245,21 +246,19 @@ namespace Azos.Wave.Handlers
       {
         SetResourceCacheHeader(work, sitePath, resName);
         work.Response.Redirect(null, WebConsts.RedirectCode.NotModified_304);
-        return Task.CompletedTask;
+        return;
       }
       using(var stream = assembly.GetManifestResourceStream(resName))
       if (stream != null)
       {
-        work.Response.Headers.Set(HttpResponseHeader.LastModified, m_LastModifiedDate);
+        work.Response.Headers.LastModified = m_LastModifiedDate;
         SetResourceCacheHeader(work, sitePath, resName);
         work.Response.ContentType = mapContentType(resName);
 
         stream.Seek(0, SeekOrigin.Begin);
-        work.Response.WriteStream(stream);
+        await work.Response.WriteStreamAsync(stream).ConfigureAwait(false);
       }
       else throw new HTTPStatusException(WebConsts.STATUS_404, WebConsts.STATUS_404_DESCRIPTION, resName);
-
-      return Task.CompletedTask;
     }
 
     private string getResourcePath(string sitePath)

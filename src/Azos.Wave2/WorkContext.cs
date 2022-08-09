@@ -51,7 +51,7 @@ namespace Azos.Wave
 
       var flowHdr = m_Server.CallFlowHeader;
       if (flowHdr.IsNotNullOrWhiteSpace())
-        m_HttpContext.Response.AddHeader(flowHdr, m_ID.ToString());
+        m_Response.AddHeader(flowHdr, m_ID.ToString());
     }
 
 

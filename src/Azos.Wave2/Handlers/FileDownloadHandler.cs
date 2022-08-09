@@ -131,7 +131,7 @@ namespace Azos.Wave.Handlers
     }
 
 
-    protected override Task DoHandleWorkAsync(WorkContext work)
+    protected override async Task DoHandleWorkAsync(WorkContext work)
     {
       var fp         = work.MatchedVars[VAR_FILE_PATH].AsString("none");
       var attachment = work.MatchedVars[VAR_ATTACHMENT].AsBool(true);
@@ -176,11 +176,10 @@ namespace Azos.Wave.Handlers
           if (m_Throw)
           throw new HTTPStatusException(WebConsts.STATUS_404, WebConsts.STATUS_404_DESCRIPTION, text);
 
-          work.Response.ContentType = ContentType.TEXT;
-          work.Response.Write( text );
+          await work.Response.WriteAsync( text ).ConfigureAwait(false);
           work.Response.StatusCode = WebConsts.STATUS_404;
           work.Response.StatusDescription = WebConsts.STATUS_404_DESCRIPTION;
-          return Task.CompletedTask;
+          return;
         }
 
         if (!work.Response.WasWrittenTo)
@@ -189,20 +188,18 @@ namespace Azos.Wave.Handlers
         work.Response.SetCacheControlHeaders(CacheControl);
 
         if (fsFile==null)
-          work.Response.WriteFile(fileName, attachment: attachment);
+          await work.Response.WriteFileAsync(fileName, attachment: attachment).ConfigureAwait(false);
         else
         {
           var ext = Path.GetExtension(fsFile.Name);
           work.Response.ContentType = App.GetContentTypeMappings().MapFileExtension(ext).ContentType;
-          work.Response.WriteStream(fsFile.FileStream, attachmentName: attachment ? Path.GetFileName(fileName) : null);
+          await work.Response.WriteStreamAsync(fsFile.FileStream, attachmentName: attachment ? Path.GetFileName(fileName) : null).ConfigureAwait(false);
         }
       }
       finally
       {
-        DisposableObject.DisposeAndNull(ref fsSession);
+        DisposeAndNull(ref fsSession);
       }
-
-      return Task.CompletedTask;
     }
   }
 }
