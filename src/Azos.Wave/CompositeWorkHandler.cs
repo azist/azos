@@ -9,6 +9,7 @@ using System.Linq;
 using Azos.Conf;
 using Azos.Collections;
 using System.Threading.Tasks;
+using System;
 
 namespace Azos.Wave
 {
@@ -18,13 +19,15 @@ namespace Azos.Wave
   public sealed class CompositeWorkHandler : WorkHandler
   {
     #region .ctor
-    internal CompositeWorkHandler(WaveServer server, IConfigSectionNode confNode) : base(server, confNode){ }
+    internal CompositeWorkHandler(WaveServer server, IConfigSectionNode confNode) : base(server, confNode) => ctor(confNode);
 
     public CompositeWorkHandler(WorkHandler director, string name, int order, WorkMatch match = null) : base(director, name, order, match)
     {
     }
 
-    public CompositeWorkHandler(WorkHandler director, IConfigSectionNode confNode) : base(director, confNode)
+    public CompositeWorkHandler(WorkHandler director, IConfigSectionNode confNode) : base(director, confNode) => ctor(confNode);
+
+    private void ctor(IConfigSectionNode confNode)
     {
       foreach (var hNode in confNode.Children.Where(cn => cn.IsSameName(WorkHandler.CONFIG_HANDLER_SECTION)))
       {

@@ -166,7 +166,6 @@ namespace Azos.Wave
       try
       {
         work.m_Handler = this;
-Console.WriteLine("Handler {0}/{1} is handling {2}".Args(Name, GetType().Name, work.Request.Path));
         await DoHandleWorkAsync(work).ConfigureAwait(false);
       }
       finally

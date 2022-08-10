@@ -413,7 +413,6 @@ namespace Azos.Wave
     /// </summary>
     public virtual JsonDataMap Make(WorkContext work, object context = null)
     {
-//Console.WriteLine("{0} got {1}".Args(Name, work.Request.Path));
       if (
           !Check_Methods(work) ||
           !Check_AcceptTypes(work) ||
@@ -438,7 +437,6 @@ namespace Azos.Wave
       if (m_PathPattern != null)
       {
         result = m_PathPattern.MatchUriPath(work.Request.Path);
-//Console.WriteLine("{0} got {1} result {2}".Args(m_PathPattern.Pattern, work.Request.Path, result.ToJson()));
         if (result==null) return null;
       }
 
