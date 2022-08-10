@@ -5,34 +5,36 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using Microsoft.AspNetCore;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
-using Azos.Conf;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
+
+using Azos.Conf;
 
 namespace Azos.Wave.Kestrel
 {
   /// <summary>
-  /// Makes and configures IWebHost from captured config options
+  /// Makes and configures IWebHost from captured config options.
+  /// Called "Factory" not to clash with Msft's "Builder" names
   /// </summary>
   public class HostFactory
   {
     public HostFactory(KestrelServerModule module, IConfigSectionNode cfg)
     {
       Module = module.NonNull(nameof(module));
+      ConfigAttribute.Apply(this, cfg);
     }
 
     public IApplication App => Module.App;
     public readonly KestrelServerModule Module;
+
+    [Config] public int ListenAnyIpPort{ get; set;}
+
 
     public virtual IWebHost Make()
     {
@@ -49,8 +51,10 @@ namespace Azos.Wave.Kestrel
 
     protected virtual void DoKestrel(KestrelServerOptions opt)
     {
-      opt.ListenAnyIP(8080);
-      opt.AllowSynchronousIO = true;
+      opt.AddServerHeader = false;
+      opt.AllowSynchronousIO = true;//used by Wave for now in some legacy code path (e.g. StockHandler)
+      //opt.Limits....
+      if (ListenAnyIpPort>0) opt.ListenAnyIP(ListenAnyIpPort);
     }
 
     protected virtual void DoServices(IServiceCollection services)
@@ -58,9 +62,9 @@ namespace Azos.Wave.Kestrel
       services.AddLogging(logging => DoService_Logging(logging));
     }
 
-    protected virtual void DoApp(IApplicationBuilder appb)
+    protected virtual void DoApp(IApplicationBuilder app)
     {
-      appb.Run((ctx) => Module.WaveAsyncTerminalMiddleware(ctx));
+      app.Run((ctx) => Module.WaveAsyncTerminalMiddleware(ctx));
     }
 
     protected virtual void DoService_Logging(ILoggingBuilder logging)
