@@ -161,7 +161,7 @@ namespace Azos.Wave
       {
         //if there is a next filter, then it may elect to handle work by itself or
         //whihin its call chain
-        await nextFilter.DoFilterWorkAsync(work, next).ConfigureAwait(false);
+        await nextFilter.FilterWorkAsync(work, next).ConfigureAwait(false);
       }
       else
       {

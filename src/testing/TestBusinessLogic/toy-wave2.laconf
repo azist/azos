@@ -90,31 +90,31 @@
      handler
      {
 
-       match{name="all"}
+        match{name="root-all"}
 
 
-            filter
-            {
-              name="Errors" order=0 type="Azos.Wave.Filters.ErrorFilter, Azos.Wave"
-              show-dump
-              {
-                match{name="localhost" order=1 is-local=true }
-              }
-            }
+        filter
+        {
+          name="Errors" order=0 type="Azos.Wave.Filters.ErrorFilter, Azos.Wave"
+          show-dump
+          {
+            match{name="errors-localhost" order=1 is-local=true }
+          }
+        }
 
-            handler
-            {
-                name="Mvc Testing"
-                order=0
-                type="Azos.Wave.Handlers.MvcHandler, Azos.Wave"
+        handler
+        {
+          name="Mvc Testing"
+          order=0
+          type="Azos.Wave.Handlers.MvcHandler, Azos.Wave"
 
-                type-location { name="local" assembly="TestBusinessLogic.dll" ns{ name="WaveTestSite.Controllers"} }
-                type-location { name="sky" assembly="Azos.Sky.dll" ns{ name="Azos.Apps.Terminal.Web*"} }
+          type-location { name="local" assembly="TestBusinessLogic.dll" ns{ name="WaveTestSite.Controllers"} }
+          type-location { name="sky" assembly="Azos.Sky.dll" ns{ name="Azos.Apps.Terminal.Web*"} }
 
-                match{ name="defaultMvcRoute" path="mvc/{type}/{mvc-action}" var{query-name="*"} }
-            }
+          match{ name="defaultMvcRoute" path="mvc/{type}/{mvc-action}" var{query-name="*"} }
+        }
 
-      }//handler root
+     }//handler root
     }//server
   }//wave
 
