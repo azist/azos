@@ -8,6 +8,7 @@ using System;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Hosting;
 
 using Azos.Apps;
 using Azos.Conf;
@@ -19,35 +20,61 @@ namespace Azos.Wave.Kestrel
   /// </summary>
   public sealed class KestrelServerModule : ModuleBase
   {
+    public const int DEFAULT_SHUTDOWN_TIMEOUT_MS = 3580;
+    public const int MIN_SHUTDOWN_TIMEOUT_MS = 100;
+    public const int MAX_SHUTDOWN_TIMEOUT_MS = 20000;
+
+    public const string CONFIG_HOST_SECTION = "host";
+
     public KestrelServerModule(IApplication application) : base(application){ }
 
     public KestrelServerModule(IModule parent) : base(parent) { }
+
+    private HostFactory m_Factory;
+    private IWebHost m_WebHost;
+
+    [Config(Default = DEFAULT_SHUTDOWN_TIMEOUT_MS)]
+    public int ShutdownTimeoutMs { get; set; } = DEFAULT_SHUTDOWN_TIMEOUT_MS;
+
 
     public override bool IsHardcodedModule => false;
     public override string ComponentLogTopic => CoreConsts.WEB_TOPIC;
 
     protected override void DoConfigure(IConfigSectionNode node)
     {
+      node.NonEmpty(nameof(node));
+
       base.DoConfigure(node);
+
       //this is were you configure your Kestrel options etc..
+      var nHost = node[CONFIG_HOST_SECTION].NonEmpty("section `{0}`".Args(CONFIG_HOST_SECTION));
+      m_Factory = FactoryUtils.Make<HostFactory>(nHost, typeof(HostFactory), new object[]{this, nHost});
     }
 
     protected override bool DoApplicationAfterInit()
     {
       //This is where you start the Kestrel application host
+      m_WebHost = m_Factory.Make();
+      m_WebHost.Start();
       return base.DoApplicationAfterInit();
     }
 
     protected override bool DoApplicationBeforeCleanup()
     {
-      //THis is where you stop the Kestrel application host
+      //This is where you stop the Kestrel application host
+      if (m_WebHost != null)
+      {
+        var timeout = TimeSpan.FromMilliseconds(ShutdownTimeoutMs.KeepBetween(MIN_SHUTDOWN_TIMEOUT_MS, MAX_SHUTDOWN_TIMEOUT_MS));
+        m_WebHost.StopAsync(timeout).RunSynchronously();
+        DisposeAndNull(ref m_WebHost);
+      }
       return base.DoApplicationBeforeCleanup();
     }
 
     /// <summary>
     /// Implements functional-style terminal middleware which always handles the request
     /// </summary>
-    public async Task WaveAsyncTerminalMiddleware(HttpContext context, RequestDelegate next)
+    public async Task WaveAsyncTerminalMiddleware(HttpContext context)
     {
       try
       {
@@ -63,7 +90,7 @@ namespace Azos.Wave.Kestrel
           {
             OK = false,
             status = 503,
-            description = "Request was not handled by any Wave server at this time"
+            description = "Request was not handled by any Wave server instance"
           }).ConfigureAwait(false);
         }
       }
