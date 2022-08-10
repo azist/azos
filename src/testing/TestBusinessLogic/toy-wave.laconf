@@ -103,7 +103,7 @@
         instrumentation-enabled=true
 
 
-        match{ host="localhost"}
+        match{ host-name="localhost:8080"}
 
         default-error-handler
         {
@@ -141,7 +141,8 @@
             }
         }
 
-
+     handler
+     {
 // filter
 // {
  // name="Log All" order=0 type="Azos.Wave.Filters.LoggingFilter, Azos.Wave"
@@ -470,7 +471,7 @@
                 }
             }
 
-
+      }//handler root
     }//server
   }//wave
 

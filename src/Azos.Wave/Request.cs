@@ -45,6 +45,9 @@ namespace Azos.Wave
 
     public Stream BodyStream => AspRequest.Body;
 
+
+    public PathString Path => AspRequest.Path;
+
     public string Url => AspRequest.PathBase + AspRequest.Path + AspRequest.QueryString;
 
     public bool IsLocal
