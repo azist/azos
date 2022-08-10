@@ -84,7 +84,7 @@ namespace WaveTestSite.Handlers
        {
          var evt = "event: {0}\ndata:{1}\n\n".Args("teztEvent", new {a=1, dt=DateTime.Now, count=works.Length}.ToJson());
 
-         w.Response.WriteAsync(evt).RunSynchronously();
+         w.Response.WriteAsync(evt).SyncRun();
        }
        catch(Exception error)
        {

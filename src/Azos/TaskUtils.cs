@@ -433,9 +433,14 @@ namespace Azos
     }
 
     /// <summary>
-    /// A shortcut to task.GetAwaiter().GetResult()
+    /// A shortcut to task(t).GetAwaiter().GetResult()
     /// </summary>
     public static T SyncRun<T>(this Task<T> task) => task.GetAwaiter().GetResult();
+
+    /// <summary>
+    /// A shortcut to task(void).GetAwaiter().GetResult()
+    /// </summary>
+    public static void SyncRun(this Task task) => task.GetAwaiter().GetResult();
   }
 
   /// <summary>

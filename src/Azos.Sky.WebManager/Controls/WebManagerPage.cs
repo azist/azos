@@ -84,12 +84,12 @@ namespace Azos.Sky.WebManager.Controls
     public void MenuHREF<TPage>(string uri)
     {
       if (this is TPage)
-       Context.Response.WriteAsync("href='#' class='selectedPage'").RunSynchronously();
+       Context.Response.WriteAsync("href='#' class='selectedPage'").SyncRun();
       else
       {
-       Context.Response.WriteAsync("href='").RunSynchronously();
-       Context.Response.WriteAsync(uri).RunSynchronously();
-       Context.Response.WriteAsync("'").RunSynchronously();
+       Context.Response.WriteAsync("href='").SyncRun();
+       Context.Response.WriteAsync(uri).SyncRun();
+       Context.Response.WriteAsync("'").SyncRun();
       }
     }
 

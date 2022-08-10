@@ -65,7 +65,7 @@ namespace Azos.Wave.Kestrel
       if (m_WebHost != null)
       {
         var timeout = TimeSpan.FromMilliseconds(ShutdownTimeoutMs.KeepBetween(MIN_SHUTDOWN_TIMEOUT_MS, MAX_SHUTDOWN_TIMEOUT_MS));
-        m_WebHost.StopAsync(timeout).RunSynchronously();
+        m_WebHost.StopAsync(timeout).SyncRun();
         DisposeAndNull(ref m_WebHost);
       }
       return base.DoApplicationBeforeCleanup();
