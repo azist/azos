@@ -186,7 +186,7 @@ namespace Azos.Wave
     /// </summary>
     public async Task WriteAsync(string content, bool setContentType = true)
     {
-      if (content.IsNotNullOrEmpty()) return;
+      if (content.IsNullOrEmpty()) return;
 
       if (setContentType) SetTextualContentType(Azos.Web.ContentType.TEXT);
 
