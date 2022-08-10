@@ -13,16 +13,23 @@ using Azos.IO.Console;
 using Azos.Apps;
 using Azos.Wave;
 using Azos.Platform;
+using System.Reflection;
 
 namespace TestBusinessLogic.Toy
 {
   [Azos.Platform.ProcessActivation.ProgramBody("toy", Description = "[T]est [o]f [Y]our code")]
   public static class ProgramBody
   {
+    private static Assembly refAssemblyResolver(System.Runtime.Loader.AssemblyLoadContext loadContext, AssemblyName asmName)
+     => Assembly.LoadFrom("{0}.dll".Args(asmName.Name));
+
+
     public static void Main(string[] args)
     {
       try
       {
+        System.Runtime.Loader.AssemblyLoadContext.Default.Resolving += refAssemblyResolver;
+
         var w = Stopwatch.StartNew();
         run(args);
         w.Stop();

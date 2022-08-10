@@ -6,8 +6,8 @@
     <ServerGarbageCollection>true</ServerGarbageCollection>
 
     <UseAppHost>True</UseAppHost>   <!-- FALSE = get rid of EXE -->
-    <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <!-- <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier> -->
     <SelfContained>false</SelfContained>
   </PropertyGroup>
 
@@ -22,6 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\Azos\Azos.csproj" />
     <ProjectReference Include="..\Azos.Platform.NetCore20\Azos.Platform.NetCore20.csproj" />
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
 </Project>
