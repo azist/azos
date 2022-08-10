@@ -490,7 +490,7 @@ namespace Azos.Wave
       if (doc == null) return false;
 
       //this is rarely use method
-      var whole = GetWholeRequestAsJsonDataMapAsync().AsTask().SyncRun();
+      var whole = GetWholeRequestAsJsonDataMapAsync().AsTask().AwaitResult();
 
       foreach (var fdef in doc.Schema)
         if (whole.ContainsKey(fdef.Name)) return true;

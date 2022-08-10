@@ -150,7 +150,7 @@ namespace Azos.Wave.Filters
       if (work.Response.Buffered)
         work.Response.CancelBuffered();
 
-      var json = true;// work.Request.RequestedJson;
+      var json = work.Request.RequestedJson;
 
       var actual = error;
       if (actual is FilterPipelineException fpe)

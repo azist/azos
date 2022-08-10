@@ -60,8 +60,8 @@ namespace Azos.Wave.Templatization
       m_TextBuffer.Clear();
       if (txt.Length > 0)
       {
-        Response.WriteAsync(txt, setContentType: false).SyncRun();
-        Response.FlushAsync().SyncRun();
+        Response.WriteAsync(txt, setContentType: false).Await();
+        Response.FlushAsync().Await();
       }
     }
   }

@@ -433,14 +433,14 @@ namespace Azos
     }
 
     /// <summary>
-    /// A shortcut to task(t).GetAwaiter().GetResult()
+    /// SYNCHRONOUSLY awaits a task with result completion: a shortcut to task(t).GetAwaiter().GetResult(t)()
     /// </summary>
-    public static T SyncRun<T>(this Task<T> task) => task.GetAwaiter().GetResult();
+    public static T AwaitResult<T>(this Task<T> task) => task.GetAwaiter().GetResult();
 
     /// <summary>
-    /// A shortcut to task(void).GetAwaiter().GetResult()
+    /// SYNCHRONOUSLY awaits a task completion: a shortcut to task(void).GetAwaiter().GetResult()
     /// </summary>
-    public static void SyncRun(this Task task) => task.GetAwaiter().GetResult();
+    public static void Await(this Task task) => task.GetAwaiter().GetResult();
   }
 
   /// <summary>
