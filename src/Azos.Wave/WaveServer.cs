@@ -507,7 +507,7 @@ namespace Azos.Wave
       {
         try
         {
-          DisposeAndNull(ref work);
+          await DisposeAndNullAsync(ref work).ConfigureAwait(false);
         }
         catch(Exception swallow)
         {

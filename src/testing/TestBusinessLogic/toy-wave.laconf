@@ -143,6 +143,10 @@
 
      handler
      {
+
+       match{name="all"}
+
+
 // filter
 // {
  // name="Log All" order=0 type="Azos.Wave.Filters.LoggingFilter, Azos.Wave"

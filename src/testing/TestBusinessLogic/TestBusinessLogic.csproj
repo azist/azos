@@ -51,10 +51,16 @@
     <None Update="toy-akit.laconf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="toy-wave2.laconf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="toy.laconf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="toy-wave.laconf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="toy-wave2.laconf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
