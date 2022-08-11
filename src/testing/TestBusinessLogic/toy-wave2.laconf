@@ -87,7 +87,7 @@
             }
         }
 
-     handler
+     root-handler
      {
 
         match{name="root-all"}
@@ -114,7 +114,7 @@
           match{ name="defaultMvcRoute" path="mvc/{type}/{mvc-action}" var{query-name="*"} }
         }
 
-     }//handler root
+     }//root-handler
     }//server
   }//wave
 

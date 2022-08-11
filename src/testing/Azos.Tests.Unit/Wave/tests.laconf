@@ -2,11 +2,26 @@
 {
   environment-name=TEST
 
+  modules
+  {
+    module // Install Kestrel server listener module
+    {
+      name="kestrel"
+      type="Azos.Wave.Kestrel.KestrelServerModule, Azos.Wave.Kestrel"
+
+      host
+      {
+        listen-any-ip-port=9871
+      }
+    }
+  }
+
+
   wave
   {
     server
     {
-      prefix{ name='http://+:9871/'}
+      match { host="localhost:9871" }
 
       default-error-handler
       {
@@ -14,10 +29,11 @@
         log{ match{ name=all }}
       }
 
-      gate { enabled =false }
+      gate { enabled=false }
 
-      dispatcher
+      root-handler
       {
+        match { }
         handler
         {
           name="Mvc Testing"
@@ -28,8 +44,8 @@
 
           match{ path="mvc/{type}/{mvc-action}" var{query-name="*"} }
         }
-      }
 
+      }//root-handler
     }//server
   }//wave
 }

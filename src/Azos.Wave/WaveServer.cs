@@ -26,7 +26,7 @@ namespace Azos.Wave
 {
   /// <summary>
   ///
-  /// todo:  REWRITE BULLSHIT!!!!!!!!!!
+  /// todo:  rewrite docs
   ///
   ///</summary>
   public class WaveServer : DaemonWithInstrumentation<IApplicationComponent>
@@ -35,6 +35,8 @@ namespace Azos.Wave
     public const string CONFIG_SERVER_SECTION = "server";
     public const string CONFIG_MATCH_SECTION = "match";
     public const string CONFIG_GATE_SECTION = "gate";
+    public const string CONFIG_ROOT_HANDLER_SECTION = "root-handler";
+
     public const string CONFIG_DEFAULT_ERROR_HANDLER_SECTION = "default-error-handler";
     public const int    ACCEPT_THREAD_GRANULARITY_MS = 250;
     public const int    INSTRUMENTATION_DUMP_PERIOD_MS = 3377;
@@ -378,7 +380,9 @@ namespace Azos.Wave
         }
 
 
-        var nRootHandler = node[WorkHandler.CONFIG_HANDLER_SECTION];
+        var nRootHandler = node[CONFIG_ROOT_HANDLER_SECTION];
+        nRootHandler.NonEmpty("Section `{0}/`".Args(CONFIG_ROOT_HANDLER_SECTION));
+
         m_RootHandler = FactoryUtils.MakeDirectedComponent<CompositeWorkHandler>(this,
                                            nRootHandler,
                                            typeof(CompositeWorkHandler),

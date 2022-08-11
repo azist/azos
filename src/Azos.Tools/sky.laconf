@@ -1,5 +1,8 @@
 ﻿sky
 {
+  load-from{ path="./" } //load dlls from current working directory
+  //load-from{path="/opt/bin/sky/bin"} //load dlls from custom location
+
   assembly
   {
     file="*Azos.Tools.dll"
