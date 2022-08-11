@@ -15,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 using Azos.Conf;
+using Microsoft.AspNetCore.Http;
 
 namespace Azos.Wave.Kestrel
 {
@@ -64,6 +65,7 @@ namespace Azos.Wave.Kestrel
 
     protected virtual void DoApp(IApplicationBuilder app)
     {
+    ///////  app.Run((ctx) => ctx.Response.WriteAsync("aaaaaa"));
       app.Run((ctx) => Module.WaveAsyncTerminalMiddleware(ctx));
     }
 

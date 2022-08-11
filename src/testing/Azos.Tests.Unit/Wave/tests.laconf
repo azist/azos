@@ -33,7 +33,8 @@
 
       root-handler
       {
-        match { }
+        //filter{ type="..." }
+
         handler
         {
           name="Mvc Testing"
