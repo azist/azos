@@ -1,0 +1,16 @@
+﻿<push>
+<f color=magenta>
+ Usage:
+<f color=white>
+   wport  <f color=yellow>action <f color=green>url <f color=darkCyan>[/h | /? | /help]
+
+<f color=gray>
+Executes an action against a connected web port.
+
+<f color=magenta>
+ Specifiers:
+
+<f color=green>action_type<f color=gray> - CLR type spec for action to take, "load" can be used as a shortcut
+<f color=green>url<f color=gray> - full URL to call
+
+<pop>
