@@ -72,7 +72,7 @@ namespace Azos.Wave.Kestrel
     protected virtual void DoService_Logging(ILoggingBuilder logging)
     {
       logging.ClearProviders();
-      logging.AddProvider(new AzosLogProvider(Module.App));
+//fecal!!!!      logging.AddProvider(new AzosLogProvider(Module.App));
       //Example:
       //logging.AddFilter("Microsoft", LogLevel.Warning)
       //      logging.ClearProviders();

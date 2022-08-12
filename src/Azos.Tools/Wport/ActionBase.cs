@@ -25,6 +25,7 @@ namespace Azos.Tools.Wport
     public virtual void Configure(IConfigSectionNode node)
     {
       ConfigAttribute.Apply(this, node);
+      Console.WriteLine(node.ToLaconicString());
     }
 
     public abstract void Run();

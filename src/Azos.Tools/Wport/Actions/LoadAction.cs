@@ -23,33 +23,56 @@ namespace Azos.Tools.Wport.Actions
     {
     }
 
-    [Config("$t;$threads;$thread-count")]
+    [Config("$t;$threads;$thread-count", Default = 1)]
     public int ThreadCount{ get; set;}
 
-    [Config("$c;$count")]
+    [Config("$c;$count", Default = 100)]
     public int TotalRequestCount { get; set; }
+
+    public override void Configure(IConfigSectionNode node)
+    {
+      node = node["load", "l"];
+      base.Configure(node);
+    }
+
+    private long m_RunningTotal;
+    private long m_RunningTotalOK;
+    private long m_RunningTotalError;
 
     public override void Run()
     {
+      m_RunningTotal = 0;
       var threadCount = ThreadCount.KeepBetween(1, 1024);
       var totalCount = TotalRequestCount.KeepBetween(1, 2_000_000_000);
       if (threadCount > totalCount) threadCount = totalCount;
       var perThread = totalCount / threadCount;
       totalCount = perThread * threadCount;
 
-      Console.WriteLine("Starting processing of {0:n0} requests on {1:n0} threads".Args(totalCount, perThread));
-
-
+      Console.WriteLine("Starting processing of {0:n0} requests on {1:n0} threads, each doing {2:n0} calls".Args(totalCount, threadCount, perThread));
 
       var tasks = new List<Task>();
       for(int i = 0; i < threadCount; i++)
         tasks.Add(new worker(this, perThread).Task);
 
+
+   System.Net.ServicePointManager.DefaultConnectionLimit = 1024;
+   System.Net.ServicePointManager.FindServicePoint(Uri).ConnectionLimit = 1024;
+
       var time = Timeter.StartNew();
-      Task.WhenAll(tasks);
+      while(tasks.Any(t => !t.IsCompleted) && App.Active)
+      {
+        Thread.Sleep(1000);
+        var totalNow = Interlocked.Read(ref m_RunningTotal);
+        Console.WriteLine("... made {0,10:n0} requests in {1:n} sec at {2:n0} ops/sec; OK: {3:n0} Error: {4:n0}".Args(totalNow, time.ElapsedSec, totalNow / time.ElapsedSec,
+              Interlocked.Read(ref m_RunningTotalOK), Interlocked.Read(ref m_RunningTotalError)));
+      }
       time.Stop();
 
-      Console.WriteLine("Made {0:n} requests in {1:n} sec at {2:n0} ops/sec".Args(totalCount, time.ElapsedSec, totalCount / time.ElapsedSec));
+      Console.WriteLine();
+      Console.WriteLine("-------------------------------------------------------------------");
+      Console.WriteLine("  Made  {0,10:n0} requests in {1:n} sec at {2:n0} ops/sec".Args(totalCount, time.ElapsedSec, totalCount / time.ElapsedSec));
+      Console.WriteLine("  OK    {0,10:n0} requests in {1:n} sec at {2:n0} ops/sec".Args(m_RunningTotalOK, time.ElapsedSec, m_RunningTotalOK / time.ElapsedSec));
+      Console.WriteLine("  ERROR {0,10:n0} requests in {1:n} sec at {2:n0} ops/sec".Args(m_RunningTotalError, time.ElapsedSec, m_RunningTotalError / time.ElapsedSec));
     }
 
     private class worker
@@ -77,9 +100,18 @@ namespace Azos.Tools.Wport.Actions
 
       private void tbody()
       {
-         for(var i=0; i< Count; i++)
+         for(var i=0; Action.App.Active && i < Count; i++)
          {
-           m_Client.GetStringAsync(Action.Uri).Await();
+           try
+           {
+             Interlocked.Increment(ref Action.m_RunningTotal);
+             m_Client.GetStringAsync(Action.Uri).Await();
+             Interlocked.Increment(ref Action.m_RunningTotalOK);
+           }
+           catch
+           {
+             Interlocked.Increment(ref Action.m_RunningTotalError);
+           }
          }
 
         //run test
