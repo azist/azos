@@ -55,9 +55,6 @@ namespace Azos.Tools.Wport.Actions
         tasks.Add(new worker(this, perThread).Task);
 
 
-   System.Net.ServicePointManager.DefaultConnectionLimit = 1024;
-   System.Net.ServicePointManager.FindServicePoint(Uri).ConnectionLimit = 1024;
-
       var time = Timeter.StartNew();
       while(tasks.Any(t => !t.IsCompleted) && App.Active)
       {
