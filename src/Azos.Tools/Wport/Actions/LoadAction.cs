@@ -39,6 +39,8 @@ namespace Azos.Tools.Wport.Actions
     private long m_RunningTotalOK;
     private long m_RunningTotalError;
 
+    private long m_RunningTotalBytes;
+
     public override void Run()
     {
       m_RunningTotal = 0;
@@ -55,21 +57,62 @@ namespace Azos.Tools.Wport.Actions
         tasks.Add(new worker(this, perThread).Task);
 
 
+      long pTotal = 0;
+      long pOpsSec = 0;
       var time = Timeter.StartNew();
       while(tasks.Any(t => !t.IsCompleted) && App.Active)
       {
         Thread.Sleep(1000);
         var totalNow = Interlocked.Read(ref m_RunningTotal);
-        Console.WriteLine("... made {0,10:n0} requests in {1:n} sec at {2:n0} ops/sec; OK: {3:n0} Error: {4:n0}".Args(totalNow, time.ElapsedSec, totalNow / time.ElapsedSec,
-              Interlocked.Read(ref m_RunningTotalOK), Interlocked.Read(ref m_RunningTotalError)));
+        var totalDelta = totalNow - pTotal; pTotal = totalNow;
+        var opsSec = (long)(totalNow / time.ElapsedSec);
+        var opsSecDelta = opsSec - pOpsSec; pOpsSec = opsSec;
+
+        Console.ForegroundColor = ConsoleColor.Gray;
+        Console.Write("... {0,8:n0}".Args(totalNow));
+        Console.ForegroundColor = ConsoleColor.DarkGray;
+        Console.Write(" (+{0:n0})".Args(totalDelta).PadRight(8));
+        Console.ForegroundColor = ConsoleColor.Gray;
+        Console.Write(" requests in {0:n} sec ".Args(time.ElapsedSec));
+        Console.Write(" at ");
+        Console.ForegroundColor = ConsoleColor.White;
+        Console.Write("{0:n0}".Args(opsSec));
+        if (opsSecDelta != 0)
+        {
+          Console.ForegroundColor = opsSecDelta > 0 ? ConsoleColor.DarkGreen : ConsoleColor.DarkRed;
+          Console.Write(" ({0}{1:n0})".Args(opsSecDelta > 0 ? "+" : "", opsSecDelta).PadRight(8));
+        }
+        else
+        {
+          Console.Write(" ".PadRight(8));
+        }
+        Console.ForegroundColor = ConsoleColor.Gray;
+        Console.Write(" ops/sec;");
+        Console.ForegroundColor = ConsoleColor.DarkGreen;
+        Console.Write(" OK: ");
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.Write("{0:n0}".Args(Interlocked.Read(ref m_RunningTotalOK)));
+        Console.ForegroundColor = ConsoleColor.DarkRed;
+        Console.Write(" Error: ");
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.Write("{0:n0}".Args(Interlocked.Read(ref m_RunningTotalError)));
+        Console.WriteLine();
       }
       time.Stop();
 
       Console.WriteLine();
+      Console.ForegroundColor = ConsoleColor.DarkGray;
       Console.WriteLine("-------------------------------------------------------------------");
-      Console.WriteLine("  Made  {0,10:n0} requests in {1:n} sec at {2:n0} ops/sec".Args(totalCount, time.ElapsedSec, totalCount / time.ElapsedSec));
-      Console.WriteLine("  OK    {0,10:n0} requests in {1:n} sec at {2:n0} ops/sec".Args(m_RunningTotalOK, time.ElapsedSec, m_RunningTotalOK / time.ElapsedSec));
-      Console.WriteLine("  ERROR {0,10:n0} requests in {1:n} sec at {2:n0} ops/sec".Args(m_RunningTotalError, time.ElapsedSec, m_RunningTotalError / time.ElapsedSec));
+      Console.ForegroundColor = ConsoleColor.Gray;
+      Console.WriteLine("  Made:  {0,10:n0} requests in {1:n} sec at {2:n0} ops/sec".Args(totalCount, time.ElapsedSec, totalCount / time.ElapsedSec));
+      Console.WriteLine("  Transferred: {0:n0} char/bytes in {1:n} sec at {2:n0} char/sec".Args(IOUtils.FormatByteSizeWithPrefix(m_RunningTotalBytes), time.ElapsedSec, m_RunningTotalBytes / time.ElapsedSec));
+      Console.WriteLine("  OK:    {0,10:n0} requests in {1:n} sec at {2:n0} ops/sec".Args(m_RunningTotalOK, time.ElapsedSec, m_RunningTotalOK / time.ElapsedSec));
+      if (m_RunningTotalError > 0)
+      {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine("  ERROR: {0,10:n0} requests in {1:n} sec at {2:n0} ops/sec".Args(m_RunningTotalError, time.ElapsedSec, m_RunningTotalError / time.ElapsedSec));
+        Console.ResetColor();
+      }
     }
 
     private class worker
@@ -97,19 +140,20 @@ namespace Azos.Tools.Wport.Actions
 
       private void tbody()
       {
-         for(var i=0; Action.App.Active && i < Count; i++)
-         {
-           try
-           {
-             Interlocked.Increment(ref Action.m_RunningTotal);
-             m_Client.GetStringAsync(Action.Uri).Await();
-             Interlocked.Increment(ref Action.m_RunningTotalOK);
-           }
-           catch
-           {
-             Interlocked.Increment(ref Action.m_RunningTotalError);
-           }
-         }
+        for(var i=0; Action.App.Active && i < Count; i++)
+        {
+          try
+          {
+            Interlocked.Increment(ref Action.m_RunningTotal);
+            var got = m_Client.GetStringAsync(Action.Uri).AwaitResult();
+            Interlocked.Add(ref Action.m_RunningTotalBytes, got.Length);
+            Interlocked.Increment(ref Action.m_RunningTotalOK);
+          }
+          catch
+          {
+            Interlocked.Increment(ref Action.m_RunningTotalError);
+          }
+        }
 
         //run test
         m_Done.SetResult();
