@@ -41,10 +41,7 @@
   {
     server
     {
-       // name="Main Test Server"
-  //parallel-works=1282048
-  //parallel-accepts=128024
-  //kernel-http-queue-limit=512000
+        //name="Sky-Toy-Server"
 
         instrumentation-enabled=true
 

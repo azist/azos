@@ -31,6 +31,13 @@ namespace WaveTestSite.Controllers
   [ApiControllerDoc(BaseUri ="/mvc/tester", Title = "Tester", Description ="Testing controller")]
   public class Tester : Controller
   {
+      [Action]
+      public object Story(bool buffered = false, int len = 500)
+      {
+        WorkContext.Response.Buffered = buffered;
+        return Azos.Text.NaturalTextGenerator.Generate(len.KeepBetween(1, 128*1024));
+      }
+
       [Action, ApiEndpointDoc]
       public object AboutUs()
       {

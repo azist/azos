@@ -21,7 +21,7 @@ namespace Azos
     /// For advanced use. Returns true when object is being disposed by a finalizer called from CLR GC.
     /// You may want to check for this flag in Destructor() to bypass some deallocation as the
     /// condition is equivalent to typical Dispose(false) pattern, however it indicates a possible memory leak
-    /// as all entities implementing IDisposable must be deterministically deallocated using a call to .Dispose() and
+    /// as all entities implementing IDisposable must be deterministically deallocated using a call to either .Dispose() or .DisposeAsync() and
     /// system finalizers should NEVER run
     /// </summary>
     /// <remarks>
@@ -245,7 +245,7 @@ namespace Azos
     #region IAsyncDisposable Members
     /// <summary>
     /// Deterministically disposes this object in a thread-safe way.
-    /// DO NOT TRY TO OVERRIDE this method, override Destructor() instead
+    /// DO NOT TRY TO OVERRIDE this method, override DestructorAsync() instead
     /// </summary>
     public async ValueTask DisposeAsync()
     {

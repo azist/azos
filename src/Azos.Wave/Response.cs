@@ -47,7 +47,7 @@ namespace Azos.Wave
     protected override void Destructor()
     {
       if (!((IDisposableLifecycle)this).DisposedByFinalizer)
-        throw new NotSupportedException("Sync Response destructior is prohibited");
+        throw new NotSupportedException("Sync Response destructor is prohibited");
     }
 
     protected override async ValueTask DestructorAsync()
@@ -64,7 +64,7 @@ namespace Azos.Wave
         {
           var sz = m_Buffer.Position;
           m_AspResponse.ContentLength = sz;
-
+          await m_AspResponse.StartAsync().ConfigureAwait(false);
           await m_AspResponse.Body.WriteAsync(m_Buffer.GetBuffer(), 0, (int)sz).ConfigureAwait(false);
 
           m_Buffer = null;
@@ -426,7 +426,7 @@ namespace Azos.Wave
     {
       m_WasWrittenTo = true;
 
-      if (!m_AspResponse.HasStarted)
+      if (!m_AspResponse.HasStarted && !m_Buffered)
       {
         await m_AspResponse.StartAsync().ConfigureAwait(false);
       }
