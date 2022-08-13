@@ -20,13 +20,13 @@ namespace Azos.Wave.Mvc
     /// Override to add logic/filtering right after the invocation of action method. Must return TRUE to stop processing chain
     /// </summary>
     protected internal override ValueTask<(bool, object)> AfterActionInvocationAsync(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, object result)
-      => new ValueTask<(bool, object)>((false, null));
+      => new ValueTask<(bool, object)>((false, result));
 
     /// <summary>
     /// Override to add logic/filtering finally after the invocation of action method. Must return TRUE to stop processing chain
     /// </summary>
     protected internal override ValueTask<object> ActionInvocationFinallyAsync(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, object result)
-      => new ValueTask<object>(null);
+      => new ValueTask<object>(result);
   }
 
   /// <summary>

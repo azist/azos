@@ -2,6 +2,15 @@
 {
   environment-name=TEST
 
+  log
+  {
+    sink
+    {
+      type="Azos.Log.Sinks.ConsoleSink, Azos"
+    }
+  }
+
+
   modules
   {
     module // Install Kestrel server listener module

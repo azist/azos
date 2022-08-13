@@ -165,6 +165,9 @@ namespace Azos.Tests.Unit.Wave
       var request = new HttpRequestMessage(HttpMethod.Get, "filter-get");
 
       var response = await Client.SendAsync(request);
+ response.StatusCode.See("STATUS CODE");
+ response.ReasonPhrase.See("REASON PHRASE");
+ response.Content.ReadAsStringAsync().See("CONTENT");
       Aver.IsTrue(HttpStatusCode.OK == response.StatusCode);
 
       var got = await response.Content.ReadAsStringAsync();
