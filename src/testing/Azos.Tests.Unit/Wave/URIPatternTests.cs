@@ -17,8 +17,8 @@ namespace Azos.Tests.Unit.Wave
     [Run]
     public void T1()
     {
-      var uri = "http://russia.ru/2012/sep/mayor-gets-elected?bonus=true";
-      var pat = new UriPattern("{year}/{month}/{title}");
+      var uri = "/2012/sep/mayor-gets-elected";
+      var pat = new UriPattern("/{year}/{month}/{title}");
 
       var match = pat.MatchUriPath(uri);
       Aver.IsNotNull(match);
@@ -30,8 +30,8 @@ namespace Azos.Tests.Unit.Wave
     [Run]
     public void T2()
     {
-      var uri = "http://russia.ru/news/2012/sep/mayor-gets-elected?bonus=true";
-      var pat = new UriPattern("{year}/{month}/{title}");
+      var uri = "/news/2012/sep/mayor-gets-elected";
+      var pat = new UriPattern("/{year}/{month}/{title}");
 
       var match = pat.MatchUriPath(uri);
       Aver.IsNull(match);
@@ -40,8 +40,8 @@ namespace Azos.Tests.Unit.Wave
     [Run]
     public void T3()
     {
-      var uri = "http://russia.ru/news/2012/sep/mayor-gets-elected?bonus=true";
-      var pat = new UriPattern("news/{year}/{month}/{title}");
+      var uri = "/news/2012/sep/mayor-gets-elected";
+      var pat = new UriPattern("/news/{year}/{month}/{title}");
 
       var match = pat.MatchUriPath(uri);
       Aver.IsNotNull(match);
@@ -51,10 +51,10 @@ namespace Azos.Tests.Unit.Wave
     }
 
     [Run]
-    public void T3_withLeadingSlash()
+    public void T3_no_slash()
     {
-      var uri = "http://russia.ru/news/2012/sep/mayor-gets-elected?bonus=true";
-      var pat = new UriPattern("/news/{year}/{month}/{title}");
+      var uri = "/news/2012/sep/mayor-gets-elected";
+      var pat = new UriPattern("news/{year}/{month}/{title}");
 
       var match = pat.MatchUriPath(uri);
       Aver.IsNotNull(match);
@@ -66,8 +66,8 @@ namespace Azos.Tests.Unit.Wave
     [Run]
     public void T4_defaults()
     {
-      var uri = "http://russia.ru/news/2012/sep/mayor-gets-elected?bonus=true";
-      var pat = new UriPattern("news/{year}/{month}/{title=overview}");
+      var uri = "/news/2012/sep/mayor-gets-elected";
+      var pat = new UriPattern("/news/{year}/{month}/{title=overview}");
 
       var match = pat.MatchUriPath(uri);
       Aver.IsNotNull(match);
@@ -79,8 +79,8 @@ namespace Azos.Tests.Unit.Wave
     [Run]
     public void T5_defaults()
     {
-      var uri = "http://russia.ru/news/2012/sep/";
-      var pat = new UriPattern("news/{year}/{month}/{title=overview}");
+      var uri = "/news/2012/sep/";
+      var pat = new UriPattern("/news/{year}/{month}/{title=overview}");
 
       var match = pat.MatchUriPath(uri);
       Aver.IsNotNull(match);
@@ -92,8 +92,8 @@ namespace Azos.Tests.Unit.Wave
     [Run]
     public void T6()
     {
-      var uri = "http://russia.ru/news/2012/sep/mayor-gets-elected?bonus=true";
-      var pat = new UriPattern("news/{year}/{month}/{title}/presidential");
+      var uri = "/news/2012/sep/mayor-gets-elected";
+      var pat = new UriPattern("/news/{year}/{month}/{title}/presidential");
 
       var match = pat.MatchUriPath(uri);
       Aver.IsNull(match);
@@ -102,8 +102,8 @@ namespace Azos.Tests.Unit.Wave
     [Run]
     public void T7()
     {
-      var uri = "http://russia.ru/news/2012/sep/mayor-gets-elected/presidential?bonus=true";
-      var pat = new UriPattern("news/{year}/{month}/{title}/presidential");
+      var uri = "/news/2012/sep/mayor-gets-elected/presidential";
+      var pat = new UriPattern("/news/{year}/{month}/{title}/presidential");
 
       var match = pat.MatchUriPath(uri);
       Aver.IsNotNull(match);
@@ -116,8 +116,8 @@ namespace Azos.Tests.Unit.Wave
     [Run]
     public void T8()
     {
-      var uri = "http://russia.ru/news/2012/sep/mayor-gets-elected/presidential?bonus=true";
-      var pat = new UriPattern("news/{*path}");
+      var uri = "/news/2012/sep/mayor-gets-elected/presidential";
+      var pat = new UriPattern("/news/{*path}");
 
       var match = pat.MatchUriPath(uri);
       Aver.IsNotNull(match);
@@ -129,16 +129,16 @@ namespace Azos.Tests.Unit.Wave
     [Aver.Throws(typeof(WaveException), Message="wildcard capture variable", MsgMatch= Aver.ThrowsAttribute.MatchType.Contains)]
     public void T9()
     {
-      var uri = "http://russia.ru/news/2012/sep/mayor-gets-elected/presidential?bonus=true";
-      var pat = new UriPattern("news/{*path}/cantbe");
+   //   var uri = "/news/2012/sep/mayor-gets-elected/presidential?bonus=true";
+      var pat = new UriPattern("/news/{*path}/cantbe");
     }
 
 
     [Run]
     public void T10()
     {
-      var uri = "http://russia.ru/news/2012/sep/mayor%2egets%2eelected/";
-      var pat = new UriPattern("news/{year}/{month}/{title}");
+      var uri = "/news/2012/sep/mayor%2egets%2eelected/";
+      var pat = new UriPattern("/news/{year}/{month}/{title}");
 
       var match = pat.MatchUriPath(uri);
       Aver.IsNotNull(match);
@@ -150,8 +150,8 @@ namespace Azos.Tests.Unit.Wave
     [Run]
     public void T10_notrailingslash()
     {
-      var uri = "http://russia.ru/news/2012/sep/mayor%2egets%2eelected";
-      var pat = new UriPattern("news/{year}/{month}/{title}");
+      var uri = "/news/2012/sep/mayor%2egets%2eelected";
+      var pat = new UriPattern("/news/{year}/{month}/{title}");
 
       var match = pat.MatchUriPath(uri);
       Aver.IsNotNull(match);
@@ -163,8 +163,8 @@ namespace Azos.Tests.Unit.Wave
     [Run]
     public void T11_case_insensitive()
     {
-      var uri = "http://russia.ru/news/2012/sep/mayor%2egets%2eelected/";
-      var pat = new UriPattern("NEWS/{year}/{month}/{title}");
+      var uri = "/news/2012/sep/mayor%2egets%2eelected/";
+      var pat = new UriPattern("/NEWS/{year}/{month}/{title}");
 
       var match = pat.MatchUriPath(uri);
       Aver.IsNotNull(match);
@@ -176,8 +176,8 @@ namespace Azos.Tests.Unit.Wave
     [Run]
     public void T11_case_sensitive()
     {
-      var uri = "http://russia.ru/news/2012/sep/mayor%2egets%2eelected/";
-      var pat = new UriPattern("NEWS/{year}/{month}/{title}");
+      var uri = "/news/2012/sep/mayor%2egets%2eelected/";
+      var pat = new UriPattern("/NEWS/{year}/{month}/{title}");
 
       var match = pat.MatchUriPath(uri, senseCase: true);
       Aver.IsNull(match);
@@ -186,8 +186,8 @@ namespace Azos.Tests.Unit.Wave
     [Run]
     public void T12_path_with_slashes()
     {
-      var uri = "http://contoso.com/news/2012/sep%2fmayor%2egets%2eelected/";
-      var pat = new UriPattern("news/{year}/{title}");
+      var uri = "/news/2012/sep%2fmayor%2egets%2eelected/";
+      var pat = new UriPattern("/news/{year}/{title}");
 
       var match = pat.MatchUriPath(uri);
       Aver.IsNotNull(match);
@@ -235,7 +235,7 @@ Console.WriteLine(pat._____Chunks);
     [Run]
     public void MakeURI_T1_prefix()
     {
-        var pattern = new UriPattern("{year}/{month}/{title}");
+        var pattern = new UriPattern("/{year}/{month}/{title}");
         var prefix = new Uri("http://test.com");
         var map = new JsonDataMap { { "year", "1981" }, { "month", 12 }, { "title", "some_title" } };
 
@@ -247,24 +247,24 @@ Console.WriteLine(pat._____Chunks);
     [Run]
     public void MakeURI_T2_params()
     {
-        var pattern = new UriPattern("{year}/values?{p1}={v1}&par2={v2}");
+        var pattern = new UriPattern("/{year}/values?{p1}={v1}&par2={v2}");
         var map = new JsonDataMap { { "year", "1980" }, { "p1", "par1" }, { "v1", 10 }, { "v2", "val2" } };
 
         var uri = pattern.MakeUri(map);
 
-        Aver.AreObjectsEqual(new Uri("1980/values?par1%3D10%26par2%3Dval2", UriKind.RelativeOrAbsolute), uri);
+        Aver.AreObjectsEqual(new Uri("/1980/values?par1%3D10%26par2%3Dval2", UriKind.Relative), uri);
     }
 
     [Run]
     public void MakeURI_T2_params_prefix()
     {
-        var pattern = new UriPattern("{year}/values?{p1}={v1}&par2={v2}");
+        var pattern = new UriPattern("/{year}/values?{p1}={v1}&par2={v2}");
         var map = new JsonDataMap { { "year", "1980" }, { "p1", "par1" }, { "v1", 10 }, { "v2", "val2" } };
         var prefix = new Uri("http://test.org/");
 
         var uri = pattern.MakeUri(map, prefix);
 
-        Aver.AreObjectsEqual(new Uri("http://test.org/1980/values?par1%3D10%26par2%3Dval2", UriKind.RelativeOrAbsolute), uri);
+        Aver.AreObjectsEqual(new Uri("http://test.org/1980/values?par1%3D10%26par2%3Dval2", UriKind.Absolute), uri);
     }
 
   }
