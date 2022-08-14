@@ -28,8 +28,9 @@ namespace Azos.Wave.Handlers
       {
         var sub = FactoryUtils.Make<WorkHandler>(hNode, args: new object[] { dispatcher, hNode });
         sub.___setParentHandler(this);
-#warning Refactor: REMOVE per Wave.ASYNC
-        sub.__setComponentDirector(this);
+//Superceeded by Net 6 Wave
+//#warning Refactor: REMOVE per Wave.ASYNC
+//        sub.__setComponentDirector(this);
         if (!m_Handlers.Register(sub))
           throw new WaveException(StringConsts.CONFIG_DUPLICATE_HANDLER_NAME_ERROR.Args(hNode.AttrByName(Configuration.CONFIG_NAME_ATTR).Value));
       }

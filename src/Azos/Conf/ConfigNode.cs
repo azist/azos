@@ -1142,13 +1142,13 @@ namespace Azos.Conf
     ///  section[attr=value] for access using value of sections named `attr`
     ///
     /// Multiple paths may be coalesced  using '|' or ';', having each segment optionally start with either:
-    ///  '&' - require node verbatim value (such as variable reference) to be non null/empty
+    ///  '&amp;' - require node verbatim value (such as variable reference) to be non null/empty
     ///  '#' - require node evaluated value (such as eventually pointed-to value) to be non null/empty
-    /// Example:  &/$atr1|&/$atr2    #/$atr1|#/$atr2
+    /// Example:  &amp;/$atr1|&amp;/$atr2    #/$atr1|#/$atr2
     /// </param>
     /// <example>
     ///     Navigate("/vars/[3]"); Navigate("/tables/table[resident]"); Navigate("/vars/var1/$[2]");  Navigate("/tables/table[name=patient]");
-    ///     Navigate("&$atr1; &$atr2"); Navigate("#$atr1; #$atr2");
+    ///     Navigate("&amp;$atr1; &amp;$atr2"); Navigate("#$atr1; #$atr2");
     /// </example>
     /// <remarks>
     ///   /table[patient]    -   get first section named "table" with value "patient"

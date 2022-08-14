@@ -20,6 +20,9 @@ using Azos.Serialization.Slim;
 
 namespace Azos.Tests.Nub.Serialization
 {
+
+#pragma warning disable SYSLIB0011 // Type or member is obsolete
+
   [Runnable]
   public class SlimTests
   {
@@ -670,6 +673,7 @@ namespace Azos.Tests.Nub.Serialization
       }
     }
 
+
     [Run]
     public void ListOfDataObject()
     {
@@ -899,6 +903,7 @@ namespace Azos.Tests.Nub.Serialization
       var bf = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
 
       bf.Serialize(stream, dict);
+
 
       stream.Position = 0;
 
@@ -1810,6 +1815,6 @@ namespace Azos.Tests.Nub.Serialization
       public bool WasCtor;
     }
 
-
+#pragma warning restore SYSLIB0011 // Type or member is obsolete
   }
 }

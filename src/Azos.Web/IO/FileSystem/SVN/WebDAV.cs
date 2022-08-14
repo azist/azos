@@ -13,7 +13,7 @@ using System.Text;
 using System.Xml.Linq;
 
 using Azos.Data;
-
+#pragma warning disable SYSLIB0014 // Type or member is obsolete
 namespace Azos.IO.FileSystem.SVN
 {
   /// <summary>
@@ -686,8 +686,9 @@ namespace Azos.IO.FileSystem.SVN
 
       private static HttpWebRequest makeRequest(Uri uri, string uName, string uPwd, int timeout = 0, string method = "GET")
       {
-        HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(uri);
-        request.Method = method;
+
+      HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(uri);
+      request.Method = method;
 
         var t = timeout > 0 ? timeout : DEFAULT_TIMEOUT_MS;
         if (t > 0) request.Timeout = t;
@@ -705,5 +706,6 @@ namespace Azos.IO.FileSystem.SVN
     #endregion
 
   } //WDav
+#pragma warning restore SYSLIB0014 // Type or member is obsolete
 
 }
