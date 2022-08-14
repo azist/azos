@@ -104,7 +104,7 @@ namespace Azos.Tools.Wport.Actions
       Console.ForegroundColor = ConsoleColor.DarkGray;
       Console.WriteLine("-------------------------------------------------------------------");
       Console.ForegroundColor = ConsoleColor.Gray;
-      Console.WriteLine("  Made:  {0,10:n0} requests in {1:n} sec at {2:n0} ops/sec".Args(totalCount, time.ElapsedSec, totalCount / time.ElapsedSec));
+      Console.WriteLine("  Made:  {0,10:n0} requests in {1:n} sec at {2:n0} ops/sec".Args(m_RunningTotal, time.ElapsedSec, m_RunningTotal / time.ElapsedSec));
       Console.WriteLine("  Transferred: {0:n0} char/bytes in {1:n} sec at {2:n0} char/sec".Args(IOUtils.FormatByteSizeWithPrefix(m_RunningTotalBytes), time.ElapsedSec, m_RunningTotalBytes / time.ElapsedSec));
       Console.WriteLine("  OK:    {0,10:n0} requests in {1:n} sec at {2:n0} ops/sec".Args(m_RunningTotalOK, time.ElapsedSec, m_RunningTotalOK / time.ElapsedSec));
       if (m_RunningTotalError > 0)
