@@ -19,13 +19,15 @@ namespace Azos.Tests.Nub.BaseCollections
     public void EmptyEnumerable()
     {
       var enumerator = string.Empty.AsLookAheadEnumerable().GetLookAheadEnumerator();
+
       Aver.IsFalse(enumerator.HasNext);
-      Aver.Throws<AzosException>(() => {
-        var next = enumerator.Next;
-      }, StringConsts.OPERATION_NOT_SUPPORTED_ERROR + "{0}.Next(!HasNext)".Args(typeof(LookAheadEnumerator<char>).FullName));
-      Aver.Throws<InvalidOperationException>(() => {
-        var current = enumerator.Current;
-      });
+
+      Aver.Throws<AzosException>(() =>
+      {
+          var next = enumerator.Next;
+      }, StringConsts.OPERATION_NOT_SUPPORTED_ERROR + "{0}.Next(!HasNext)".Args(typeof(LookAheadEnumerator<char>).FullName)
+      );
+
       Aver.IsFalse(enumerator.MoveNext());
     }
 
@@ -35,38 +37,30 @@ namespace Azos.Tests.Nub.BaseCollections
       var enumerator = " ".AsLookAheadEnumerable().GetLookAheadEnumerator();
       Aver.IsTrue(enumerator.HasNext);
       Aver.AreEqual(enumerator.Next, ' ');
-      Aver.Throws<InvalidOperationException>(() =>
-      {
-        var current = enumerator.Current;
-      });
+
       Aver.IsTrue(enumerator.MoveNext());
       Aver.IsFalse(enumerator.HasNext);
+
       Aver.Throws<AzosException>(() =>
       {
         var next = enumerator.Next;
       }, StringConsts.OPERATION_NOT_SUPPORTED_ERROR + "{0}.Next(!HasNext)".Args(typeof(LookAheadEnumerator<char>).FullName));
+
       Aver.AreEqual(enumerator.Current, ' ');
       Aver.IsFalse(enumerator.MoveNext());
+
       enumerator.Reset();
       Aver.AreEqual(enumerator.HasNext, true);
       Aver.AreEqual(enumerator.Next, ' ');
-      Aver.Throws<InvalidOperationException>(() =>
-      {
-        var current = enumerator.Current;
-      });
       Aver.IsTrue(enumerator.MoveNext());
     }
 
     [Run]
-    public void MulripleEnumerable()
+    public void MultipleEnumerable()
     {
       var enumerator = "+-".AsLookAheadEnumerable().GetLookAheadEnumerator();
       Aver.IsTrue(enumerator.HasNext);
       Aver.AreEqual(enumerator.Next, '+');
-      Aver.Throws<InvalidOperationException>(() =>
-      {
-        var current = enumerator.Current;
-      });
       Aver.IsTrue(enumerator.MoveNext());
       Aver.IsTrue(enumerator.HasNext);
       Aver.AreEqual(enumerator.Next, '-');
@@ -82,10 +76,6 @@ namespace Azos.Tests.Nub.BaseCollections
       enumerator.Reset();
       Aver.IsTrue(enumerator.HasNext);
       Aver.AreEqual(enumerator.Next, '+');
-      Aver.Throws<InvalidOperationException>(() =>
-      {
-        var current = enumerator.Current;
-      });
       Aver.IsTrue(enumerator.MoveNext());
     }
 
