@@ -453,10 +453,6 @@ root
       Aver.AreEqual("section_1.5", result.Root[3].Name);
       Aver.AreEqual("section_2", result.Root[4].Name);
       Aver.IsFalse(result.Root[5].Exists);
-
     }
-
-
   }
-
 }
