@@ -1,7 +1,7 @@
 @echo on
 
-set VER=2.1.0.1
-set HEADLINE=#727 change to API protocol + idempotency tokens
+set VER=3.0.0.1
+set HEADLINE=Net 6 Initial release
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
@@ -10,7 +10,7 @@ set PROJECT_HOME=%AZIST_HOME%
 SET LAST=%PROJECT_HOME:~-1%
 set %LAST% NEQ \ (SET PROJECT_HOME=%PROJECT_HOME%\)
 
-set AZOS_HOME=%PROJECT_HOME%AZOS\
+set AZOS_HOME=%PROJECT_HOME%azos-net6\
 set OUT=%AZOS_HOME%out\nuget
 
 set ICON=https://raw.githubusercontent.com/azist/azos/master/elm/design/logo/azos-logo-320x320.png
@@ -33,7 +33,8 @@ nuget pack Azos.AuthKit.nuspec -Version %VER% %WARNING% -OutputDirectory "%OUT%"
 nuget pack Azos.AuthKit.Server.nuspec -Version %VER% %WARNING% -OutputDirectory "%OUT%" -Properties icon="%ICON%";headline="%HEADLINE%"
 nuget pack Azos.AuthKit.Server.MySql.nuspec -Version %VER% %WARNING% -OutputDirectory "%OUT%" -Properties icon="%ICON%";headline="%HEADLINE%"
 
-rem goto :FINISH
+ goto :FINISH
+rem --------------------------
 
 nuget push "%OUT%\Azos.%VER%.nupkg" %AZIST_NUGET_API_KEY% 
 nuget push "%OUT%\Azos.Web.%VER%.nupkg" %AZIST_NUGET_API_KEY% 
