@@ -2,7 +2,7 @@
 
 set VER=2.1.0.1
 set HEADLINE=#727 change to API protocol + idempotency tokens
-call vs2017-build-release %VER%
+call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
 
