@@ -38,6 +38,13 @@ namespace WaveTestSite.Controllers
         return Azos.Text.NaturalTextGenerator.Generate(len.KeepBetween(1, 128*1024));
       }
 
+      [Action]
+      public Task<object> StoryAsync(bool buffered = false, int len = 500)
+      {
+        WorkContext.Response.Buffered = buffered;
+        return Task.FromResult<object>(Azos.Text.NaturalTextGenerator.Generate(len.KeepBetween(1, 128 * 1024)));
+      }
+
       [Action, ApiEndpointDoc]
       public object AboutUs()
       {
