@@ -13,7 +13,10 @@ using Azos.Serialization.JSON;
 
 namespace Azos.Wave.Kestrel
 {
-  internal class AzosLogProvider : ILoggerProvider
+  /// <summary>
+  /// Delegates logging into Azos
+  /// </summary>
+  internal sealed class AzosLogProvider : ILoggerProvider
   {
     internal AzosLogProvider(IApplication app) => App = app.NonNull(nameof(app));
     public void Dispose() { }
@@ -23,6 +26,9 @@ namespace Azos.Wave.Kestrel
     public ILogger CreateLogger(string categoryName) => new AzosLogger(App, categoryName);
   }
 
+  /// <summary>
+  /// Delegates logging into Azos
+  /// </summary>
   internal struct AzosLogger : ILogger
   {
     public static readonly Atom CHANNEL = Atom.Encode("msft");

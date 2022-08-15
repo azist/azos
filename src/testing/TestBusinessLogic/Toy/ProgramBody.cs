@@ -50,6 +50,13 @@ namespace TestBusinessLogic.Toy
       {
         Console.WriteLine("...app container is up");
 
+        Console.CancelKeyPress += (_, e) =>
+        {
+          app.Stop();
+          ((IApplicationImplementation)ExecutionContext.Application).Stop();
+          e.Cancel = true;
+        };
+
         Console.WriteLine("Effective config: ");
         Console.WriteLine( app.ConfigRoot.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint) );
         Console.WriteLine();

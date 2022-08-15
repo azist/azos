@@ -16,6 +16,7 @@ using Microsoft.Extensions.Logging;
 
 using Azos.Conf;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Hosting;
 
 namespace Azos.Wave.Kestrel
 {
@@ -60,6 +61,9 @@ namespace Azos.Wave.Kestrel
 
     protected virtual void DoServices(IServiceCollection services)
     {
+      services.AddSingleton<Azos.IApplication>(App);
+      // Net 6 does not add CTRL+C handler?
+      // services.AddSingleton<IHostLifetime, AzosHostLifetime>();
       services.AddLogging(logging => DoService_Logging(logging));
     }
 
@@ -71,8 +75,8 @@ namespace Azos.Wave.Kestrel
 
     protected virtual void DoService_Logging(ILoggingBuilder logging)
     {
-      logging.ClearProviders();
-//fecal!!!!      logging.AddProvider(new AzosLogProvider(Module.App));
+      logging.ClearProviders();//clear in-built console logger
+      logging.AddProvider(new AzosLogProvider(Module.App));
       //Example:
       //logging.AddFilter("Microsoft", LogLevel.Warning)
       //      logging.ClearProviders();
