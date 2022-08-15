@@ -433,10 +433,10 @@ schema{
 root
 {
        i=0
-       _loop='$(/$i)<=1.2'
+       _loop='$(/$i)<=2'
        {
            section_$(/$i) {}
-           _set{path=/$i to=$(/$i)+0.2}
+           _set{path=/$i to=$(/$i)+0.5}
        }
 }
 ");
@@ -448,13 +448,11 @@ root
       got.See();
 
       Aver.AreEqual("section_0", result.Root[0].Name);
-      Aver.AreEqual("section_0.2", result.Root[1].Name);
-      Aver.AreEqual("section_0.4", result.Root[2].Name);
-      Aver.AreEqual("section_0.6", result.Root[3].Name);
-      Aver.AreEqual("section_0.8", result.Root[4].Name);
-      Aver.AreEqual("section_1", result.Root[5].Name);
-      Aver.AreEqual("section_1.2", result.Root[6].Name);
-      Aver.IsFalse(result.Root[7].Exists);
+      Aver.AreEqual("section_0.5", result.Root[1].Name);
+      Aver.AreEqual("section_1", result.Root[2].Name);
+      Aver.AreEqual("section_1.5", result.Root[3].Name);
+      Aver.AreEqual("section_2", result.Root[4].Name);
+      Aver.IsFalse(result.Root[5].Exists);
 
     }
 
