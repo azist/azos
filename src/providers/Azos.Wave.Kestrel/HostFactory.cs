@@ -37,6 +37,9 @@ namespace Azos.Wave.Kestrel
 
     [Config] public int ListenAnyIpPort{ get; set;}
 
+    [Config(Default = LogLevel.Warning)]
+    public LogLevel MinAspLogLevel{ get; set; } = LogLevel.Warning;
+
 
     public virtual IWebHost Make()
     {
@@ -76,13 +79,15 @@ namespace Azos.Wave.Kestrel
     protected virtual void DoService_Logging(ILoggingBuilder logging)
     {
       logging.ClearProviders();//clear in-built console logger
+      logging.SetMinimumLevel(MinAspLogLevel);
       logging.AddProvider(new AzosLogProvider(Module.App));
-      //Example:
-      //logging.AddFilter("Microsoft", LogLevel.Warning)
-      //      logging.ClearProviders();
-      //         .AddConsole(cfg => {
-      //             //  cfg.LogToStandardErrorThreshold = LogLevel.Critical;
-      //         });
+
+      ////////////Example:
+      ////////////logging.AddFilter("Microsoft", LogLevel.Warning)
+      ////////////      logging.ClearProviders();
+      ////////////         .AddConsole(cfg => {
+      ////////////             //  cfg.LogToStandardErrorThreshold = LogLevel.Critical;
+      ////////////         });
     }
 
   }
