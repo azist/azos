@@ -141,10 +141,8 @@
             }
         }
 
-     handler
+     root-handler
      {
-
-       match{name="all"}
 
 
 // filter

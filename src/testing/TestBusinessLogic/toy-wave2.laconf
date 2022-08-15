@@ -87,16 +87,31 @@
      root-handler
      {
 
-        match{name="root-all"}
-
-
         filter
         {
           name="Errors" order=0 type="Azos.Wave.Filters.ErrorFilter, Azos.Wave"
           show-dump
           {
-            match{name="errors-localhost" order=1 is-local=true }
+            match{ name="errors-localhost" order=1 is-local=true }
           }
+
+          log
+          {
+            match{ name="all" var{name="movie" default="King of the Hill"} }
+            ////match{name="allButSecurity" type="Azos.Wave.NotAuthorizationExceptionMatch, Azos.Wave"}
+            //////////////match
+            //////////////{
+            //////////////  name="composite"
+            //////////////  type="Azos.Wave.CompositeWorkMatch, Azos.Wave"
+            //////////////  and
+            //////////////  {
+            //////////////    match{name="butSecurity" type="Azos.Wave.NotAuthorizationExceptionMatch, Azos.Wave"}
+            //////////////  //  match{name="but404" type="Azos.Wave.HttpResponseStatusCodeMatch, Azos.Wave" code=404 is-not=true}
+            //////////////  }
+            //////////////  or{}
+            //////////////}
+          }//log
+
         }
 
         handler
