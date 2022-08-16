@@ -82,36 +82,6 @@ namespace Azos.Platform.ProcessActivation
       //otherwise object state is broken as there is no process name supplied
     }
 
-    //AZ #738
-    //Occurs when the resolution of an assembly fails when attempting to load into
-    //this assembly load context.
- /*   private Assembly referencedAssemblyResolver(System.Runtime.Loader.AssemblyLoadContext loadContext, AssemblyName asmName)
-    {
-       const string CURRENT_DIR = "./";
-       foreach(var node in m_Manifest.ChildrenNamed("load-from"))
-       {
-         var path = node.ValOf("path");//default: co-located DLL file
-         if (path.IsNullOrWhiteSpace()) continue;
-         if (path.StartsWith(CURRENT_DIR))
-         {
-           path = Path.Combine(
-                                Directory.GetCurrentDirectory(),
-                                path.Length > CURRENT_DIR.Length ? path.Substring(CURRENT_DIR.Length) : string.Empty
-                              ).Trim();
-         }
-
-         path = Path.Combine(path, "{0}.dll".Args(asmName.Name));
-
-         if (File.Exists(path))
-         {
-           return Assembly.LoadFrom(path);
-         }
-       }
-
-       return null;
-    }
-  */
-
     private string getDefaultConfigFileName()
     {
       var exeName = Assembly.GetEntryAssembly().Location;

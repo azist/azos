@@ -21,9 +21,11 @@ namespace sky
       SkyProgramBody.Main(args, assemblyResolverFixup);
     }
 
+    //AZ #738
+    //Occurs when the resolution of an assembly fails when attempting to load into
+    //this assembly load context.
     private static void assemblyResolverFixup(IConfigSectionNode manifest)
     {
-      //AZ #738
       manifest.NonNull(nameof(manifest));
       System.Runtime.Loader.AssemblyLoadContext.Default.Resolving += delegate (System.Runtime.Loader.AssemblyLoadContext loadContext, AssemblyName asmName)
       {
