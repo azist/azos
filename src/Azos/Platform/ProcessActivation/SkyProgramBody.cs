@@ -7,6 +7,7 @@
 using System;
 using System.Linq;
 
+using Azos.Conf;
 using Azos.Serialization.JSON;
 
 
@@ -14,12 +15,17 @@ namespace Azos.Platform.ProcessActivation
 {
   public static class SkyProgramBody
   {
-    public static void Main(string[] args)
+    /// <summary>
+    ///  Entry point into SKY process activation host program
+    /// </summary>
+    /// <param name="args">Command line args</param>
+    /// <param name="assemblyResolverFixup">Used to install assembly resolution hook to load assemblies from various locations</param>
+    public static void Main(string[] args, Action<IConfigSectionNode> assemblyResolverFixup)
     {
       ProgramBodyActivator activator = null;
       try
       {
-        activator = new ProgramBodyActivator(args);
+        activator = new ProgramBodyActivator(args, assemblyResolverFixup.NonNull(nameof(assemblyResolverFixup)));
         activator.Run();
       }
       catch (ProgramBodyActivator.EMissingArgs notfound)

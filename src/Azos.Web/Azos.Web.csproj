@@ -2,7 +2,7 @@
 
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFrameworks>netstandard2.1</TargetFrameworks>
     <Description>Azos - Web Technologies Assembly</Description>
   </PropertyGroup>
 

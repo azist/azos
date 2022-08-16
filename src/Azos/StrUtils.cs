@@ -619,7 +619,7 @@ namespace Azos
         }
         else
         {
-          if (Sensitive) Array.Clear(Buffer.Array);
+          if (Sensitive) Array.Clear(Buffer.Array, 0, Buffer.Array.Length);
           if (null == Interlocked.CompareExchange(ref s_Cache1, Buffer.Array, null)) return;
           Interlocked.CompareExchange(ref s_Cache2, Buffer.Array, null);
         }

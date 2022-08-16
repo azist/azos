@@ -76,7 +76,7 @@ namespace Azos
       if (was == null || !object.ReferenceEquals(was, original))
       {
         disposed = false;
-        return ValueTask.CompletedTask;
+        return new ValueTask(Task.CompletedTask);
       }
 
       disposed = true;
@@ -123,7 +123,7 @@ namespace Azos
       if (was == null || !object.ReferenceEquals(was, original))
       {
         disposed = false;
-        return ValueTask.CompletedTask;
+        return new ValueTask(Task.CompletedTask);
       }
 
       if (was is IAsyncDisposable adisposable)
@@ -136,11 +136,11 @@ namespace Azos
       {
         disposed = true;
         disposable.Dispose();
-        return ValueTask.CompletedTask;
+        return new ValueTask(Task.CompletedTask);
       }
 
       disposed = false;
-      return ValueTask.CompletedTask;
+      return new ValueTask(Task.CompletedTask);
     }
     #endregion
 
@@ -207,7 +207,7 @@ namespace Azos
     protected virtual ValueTask DestructorAsync()
     {
       Destructor();
-      return ValueTask.CompletedTask;
+      return new ValueTask(Task.CompletedTask);
     }
 
     /// <summary>
