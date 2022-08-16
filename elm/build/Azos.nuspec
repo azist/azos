@@ -24,61 +24,92 @@
 
   <files>
   
-    <file src="..\..\out\Release\Azos.dll"   target="contentFiles\any\any\azos" />
-    <file src="..\..\out\Release\Azos.xml"   target="contentFiles\any\any\azos" />
-    <file src="..\..\out\Release\Azos.pdb"   target="contentFiles\any\any\azos" />
+    <!-- ========= WIN-X64 ==================== -->
+  
+    <file src="..\..\out\Release\Azos.dll"   target="contentFiles\any\any\azos-win-x64" />
+    <file src="..\..\out\Release\Azos.xml"   target="contentFiles\any\any\azos-win-x64" />
+    <file src="..\..\out\Release\Azos.pdb"   target="contentFiles\any\any\azos-win-x64" />
     
-    <file src="..\..\out\Release\Azos.Platform.NetCore20.dll"   target="contentFiles\any\any\azos" />
-    <file src="..\..\out\Release\Azos.Platform.NetCore20.pdb"   target="contentFiles\any\any\azos" />
-    <file src="..\..\out\Release\Azos.Platform.NetFramework.dll"   target="contentFiles\any\any\azos" />
-    <file src="..\..\out\Release\Azos.Platform.NetFramework.pdb"   target="contentFiles\any\any\azos" />
+    <file src="..\..\out\Release\Azos.Platform.NetCore20.dll"   target="contentFiles\any\any\azos-win-x64" />
+    <file src="..\..\out\Release\Azos.Platform.NetCore20.pdb"   target="contentFiles\any\any\azos-win-x64" />
 
-    <file src="..\..\out\Release\Azos.Tools.dll"  target="contentFiles\any\any\azos" />
-    <file src="..\..\out\Release\Azos.Tools.xml"  target="contentFiles\any\any\azos" />
-    <file src="..\..\out\Release\Azos.Tools.pdb"  target="contentFiles\any\any\azos" />
+    <file src="..\..\out\Release\Azos.Tools.dll"  target="contentFiles\any\any\azos-win-x64" />
+    <file src="..\..\out\Release\Azos.Tools.xml"  target="contentFiles\any\any\azos-win-x64" />
+    <file src="..\..\out\Release\Azos.Tools.pdb"  target="contentFiles\any\any\azos-win-x64" />
 
-    <file src="..\..\out\Release\buildinfo.dll"   target="contentFiles\any\any\azos" />
-    <file src="..\..\out\Release\sky.dll"         target="contentFiles\any\any\azos" />
-    <file src="..\..\out\Release\buildinfo.exe"   target="contentFiles\any\any\azos" />
-    <file src="..\..\out\Release\sky.exe" target="contentFiles\any\any\azos" />
-
-    <file src="..\..\out\Release\buildinfo.runtimeconfig.json"   target="contentFiles\any\any\azos" />
-    <file src="..\..\out\Release\sky.runtimeconfig.json" target="contentFiles\any\any\azos" />
-    <file src="..\..\out\Release\buildinfo.exe.config"   target="contentFiles\any\any\azos" />
-    <file src="..\..\out\Release\sky.exe.config" target="contentFiles\any\any\azos" />
+    <file src="..\..\out\Release\win-x64\buildinfo*"         target="contentFiles\any\any\azos-win-x64" />
+<!--
+    <file src="..\..\out\Release\win-x64\buildinfo.dll"         target="contentFiles\any\any\azos-win-x64" />
+    <file src="..\..\out\Release\win-x64\buildinfo.deps.json"   target="contentFiles\any\any\azos-win-x64" />
+    <file src="..\..\out\Release\win-x64\buildinfo.exe"         target="contentFiles\any\any\azos-win-x64" />
+    <file src="..\..\out\Release\win-x64\buildinfo.runtimeconfig.json"   target="contentFiles\any\any\azos-win-x64" />
+    <file src="..\..\out\Release\win-x64\buildinfo.pdb"   target="contentFiles\any\any\azos-win-x64" />
+ -->   
+    <file src="..\..\out\Release\win-x64\sky*"         target="contentFiles\any\any\azos-win-x64" />
+ <!--
+    <file src="..\..\out\Release\win-x64\sky.dll"         target="contentFiles\any\any\azos-win-x64" />
+    <file src="..\..\out\Release\win-x64\sky.deps.json"   target="contentFiles\any\any\azos-win-x64" />
+    <file src="..\..\out\Release\win-x64\sky.exe"         target="contentFiles\any\any\azos-win-x64" />
+    <file src="..\..\out\Release\win-x64\sky.runtimeconfig.json"   target="contentFiles\any\any\azos-win-x64" />
+    <file src="..\..\out\Release\win-x64\sky.pdb"   target="contentFiles\any\any\azos-win-x64" />
+ -->   
+    <file src="..\..\out\Release\sky.laconf"     target="contentFiles\any\any\azos-win-x64" />
+    <file src="..\..\out\Release\phash.laconf"   target="contentFiles\any\any\azos-win-x64" />
+    <file src="..\..\out\Release\trun.laconf"    target="contentFiles\any\any\azos-win-x64" />
     
-    <file src="..\..\out\Release\sky.laconf"     target="contentFiles\any\any\azos" />
-    <file src="..\..\out\Release\phash.laconf"   target="contentFiles\any\any\azos" />
-    <file src="..\..\out\Release\trun.laconf"    target="contentFiles\any\any\azos" />
+    <!-- ========== LINUX-X64 ====================== -->
+    
+    <file src="..\..\out\Release\Azos.dll"   target="contentFiles\any\any\azos-linux-x64" />
+    <file src="..\..\out\Release\Azos.xml"   target="contentFiles\any\any\azos-linux-x64" />
+    <file src="..\..\out\Release\Azos.pdb"   target="contentFiles\any\any\azos-linux-x64" />
+    
+    <file src="..\..\out\Release\Azos.Platform.NetCore20.dll"   target="contentFiles\any\any\azos-linux-x64" />
+    <file src="..\..\out\Release\Azos.Platform.NetCore20.pdb"   target="contentFiles\any\any\azos-linux-x64" />
+
+    <file src="..\..\out\Release\Azos.Tools.dll"  target="contentFiles\any\any\azos-linux-x64" />
+    <file src="..\..\out\Release\Azos.Tools.xml"  target="contentFiles\any\any\azos-linux-x64" />
+    <file src="..\..\out\Release\Azos.Tools.pdb"  target="contentFiles\any\any\azos-linux-x64" />
+
+    <file src="..\..\out\Release\linux-x64\buildinfo*"         target="contentFiles\any\any\azos-linux-x64" />
+<!--
+    <file src="..\..\out\Release\linux-x64\buildinfo.dll"         target="contentFiles\any\any\azos-linux-x64" />
+    <file src="..\..\out\Release\linux-x64\buildinfo.deps.json"   target="contentFiles\any\any\azos-linux-x64" />
+    <file src="..\..\out\Release\linux-x64\buildinfo"         target="contentFiles\any\any\azos-linux-x64" />
+    <file src="..\..\out\Release\linux-x64\buildinfo.runtimeconfig.json"   target="contentFiles\any\any\azos-linux-x64" />
+    <file src="..\..\out\Release\linux-x64\buildinfo.pdb"   target="contentFiles\any\any\azos-linux-x64" />
+-->   
+
+    <file src="..\..\out\Release\linux-x64\sky*"         target="contentFiles\any\any\azos-linux-x64" /> 
+<!--    
+    <file src="..\..\out\Release\linux-x64\sky.dll"         target="contentFiles\any\any\azos-linux-x64" />
+    <file src="..\..\out\Release\linux-x64\sky.deps.json"   target="contentFiles\any\any\azos-linux-x64" />
+    <file src="..\..\out\Release\linux-x64\sky"         target="contentFiles\any\any\azos-linux-x64" />
+    <file src="..\..\out\Release\linux-x64\sky.runtimeconfig.json"   target="contentFiles\any\any\azos-linux-x64" />
+    <file src="..\..\out\Release\linux-x64\sky.pdb"   target="contentFiles\any\any\azos-linux-x64" />
+-->
+    <file src="..\..\out\Release\sky.laconf"     target="contentFiles\any\any\azos-linux-x64" />
+    <file src="..\..\out\Release\phash.laconf"   target="contentFiles\any\any\azos-linux-x64" />
+    <file src="..\..\out\Release\trun.laconf"    target="contentFiles\any\any\azos-linux-x64" />
+    
   
+    <!-- ====================== LIBRARY ====================================== -->
   
-    <!-- ============================================================ -->
-  
-    <file src="..\..\out\Release\Azos.dll" target="lib\netstandard2.0" />
-    <file src="..\..\out\Release\Azos.xml" target="lib\netstandard2.0" />
-    <file src="..\..\out\Release\Azos.pdb" target="lib\netstandard2.0" />
-    <file src="..\..\out\Release\Azos.Tools.dll" target="lib\netstandard2.0" />
-    <file src="..\..\out\Release\Azos.Tools.xml" target="lib\netstandard2.0" />
-    <file src="..\..\out\Release\Azos.Tools.pdb" target="lib\netstandard2.0" />
+    <file src="..\..\out\Release\Azos.dll" target="lib\netstandard2.1" />
+    <file src="..\..\out\Release\Azos.xml" target="lib\netstandard2.1" />
+    <file src="..\..\out\Release\Azos.pdb" target="lib\netstandard2.1" />
+    <file src="..\..\out\Release\Azos.Tools.dll" target="lib\netstandard2.1" />
+    <file src="..\..\out\Release\Azos.Tools.xml" target="lib\netstandard2.1" />
+    <file src="..\..\out\Release\Azos.Tools.pdb" target="lib\netstandard2.1" />
    
-    <file src="..\..\out\Release\Azos.dll"   target="lib\netcoreapp2.0" />
-    <file src="..\..\out\Release\Azos.xml"   target="lib\netcoreapp2.0" />
-    <file src="..\..\out\Release\Azos.pdb"   target="lib\netcoreapp2.0" />
-    <file src="..\..\out\Release\Azos.Tools.dll" target="lib\netcoreapp2.0" />
-    <file src="..\..\out\Release\Azos.Tools.xml" target="lib\netcoreapp2.0" />
-    <file src="..\..\out\Release\Azos.Tools.pdb" target="lib\netcoreapp2.0" />
-    <file src="..\..\out\Release\Azos.Platform.NetCore20.dll"   target="lib\netcoreapp2.0" />
-    <file src="..\..\out\Release\Azos.Platform.NetCore20.pdb"   target="lib\netcoreapp2.0" />
+    <file src="..\..\out\Release\Azos.dll"   target="lib\net6.0" />
+    <file src="..\..\out\Release\Azos.xml"   target="lib\net6.0" />
+    <file src="..\..\out\Release\Azos.pdb"   target="lib\net6.0" />
+    <file src="..\..\out\Release\Azos.Tools.dll" target="lib\net6.0" />
+    <file src="..\..\out\Release\Azos.Tools.xml" target="lib\net6.0" />
+    <file src="..\..\out\Release\Azos.Tools.pdb" target="lib\net6.0" />
+    <file src="..\..\out\Release\Azos.Platform.NetCore20.dll"   target="lib\net6.0" />
+    <file src="..\..\out\Release\Azos.Platform.NetCore20.pdb"   target="lib\net6.0" />
     
-    
-    <file src="..\..\out\Release\Azos.dll"   target="lib\net472" />
-    <file src="..\..\out\Release\Azos.xml"   target="lib\net472" />
-    <file src="..\..\out\Release\Azos.pdb"   target="lib\net472" />
-    <file src="..\..\out\Release\Azos.Tools.dll" target="lib\net472" />
-    <file src="..\..\out\Release\Azos.Tools.xml" target="lib\net472" />
-    <file src="..\..\out\Release\Azos.Tools.pdb" target="lib\net472" />
-    <file src="..\..\out\Release\Azos.Platform.NetFramework.dll"   target="lib\net472" />
-    <file src="..\..\out\Release\Azos.Platform.NetFramework.pdb"   target="lib\net472" />
   </files>
 
 </package>
