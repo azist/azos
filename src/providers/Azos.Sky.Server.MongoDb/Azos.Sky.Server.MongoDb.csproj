@@ -8,19 +8,20 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>..\..\..\out\Debug\</OutputPath>
-    <DocumentationFile>..\..\..\out\Debug\Azos.Sky.MongoDb.xml</DocumentationFile>
+    <DocumentationFile>..\..\..\out\Debug\Azos.Sky.Server.MongoDb.xml</DocumentationFile>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <OutputPath>..\..\..\out\Release\</OutputPath>
-    <DocumentationFile>..\..\..\out\Release\Azos.Sky.MongoDb.xml</DocumentationFile>
+    <DocumentationFile>..\..\..\out\Release\Azos.Sky.Server.MongoDb.xml</DocumentationFile>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\Azos\Azos.csproj" />
     <ProjectReference Include="..\..\Azos.Sky\Azos.Sky.csproj" />
+    <ProjectReference Include="..\..\Azos.Sky.Server\Azos.Sky.Server.csproj" />
     <ProjectReference Include="..\Azos.MongoDb\Azos.MongoDb.csproj" />
   </ItemGroup>
 

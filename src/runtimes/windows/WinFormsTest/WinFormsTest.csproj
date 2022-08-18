@@ -76,7 +76,6 @@
     <EmbeddedResource Include="ConsoleUtils\ConsoleUtils.Modern.htm" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Azos.Web\Azos.Web.csproj" />
     <ProjectReference Include="..\..\..\Azos\Azos.csproj" />
     <ProjectReference Include="..\..\..\providers\Azos.MongoDb\Azos.MongoDb.csproj" />
     <ProjectReference Include="..\..\..\providers\Azos.MsSql\Azos.MsSql.csproj" />

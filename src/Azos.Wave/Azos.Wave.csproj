@@ -17,7 +17,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Azos.Web\Azos.Web.csproj" />
+    <ProjectReference Include="..\Azos.Sky\Azos.Sky.csproj" />
     <ProjectReference Include="..\Azos\Azos.csproj" />
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>

@@ -1,0 +1,106 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Description>Azos - Sky Operating System Main Assembly</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Apps\Terminal\Web\Console.htm" />
+    <None Remove="BUILD_INFO.txt" />
+    <None Remove="Chronicle\Server\Web\LogView.htm" />
+    <None Remove="Hosts\agdida\Welcome.txt" />
+    <None Remove="Tools\agm\Help.txt" />
+    <None Remove="Tools\agm\Welcome.txt" />
+    <None Remove="Tools\amm\Help.txt" />
+    <None Remove="Tools\amm\Welcome.txt" />
+    <None Remove="Tools\ascon\Help.txt" />
+    <None Remove="Tools\ascon\Welcome.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\____GlobalWarningSuppressions.cs" Link="____GlobalWarningSuppressions.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Apps\Terminal\Web\Console.htm" />
+    <EmbeddedResource Include="BUILD_INFO.txt" />
+    <EmbeddedResource Include="Chronicle\Server\Web\LogView.htm" />
+    <EmbeddedResource Include="Hosts\agdida\Welcome.txt" />
+    <EmbeddedResource Include="Tools\agm\Help.txt" />
+    <EmbeddedResource Include="Tools\agm\Welcome.txt" />
+    <EmbeddedResource Include="Tools\amm\Help.txt" />
+    <EmbeddedResource Include="Tools\amm\Welcome.txt" />
+    <EmbeddedResource Include="Tools\ascon\Help.txt" />
+    <EmbeddedResource Include="Tools\ascon\Welcome.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Azos.Wave\Azos.Wave.csproj" />
+    <ProjectReference Include="..\Azos.Sky\Azos.Sky.csproj" />
+    <ProjectReference Include="..\Azos\Azos.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="test-app2.laconf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="test-app1.laconf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="test-gov.laconf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="agdida.laconf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="amm.laconf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="agm.laconf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="ahgov.laconf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="aph.laconf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="ascon.laconf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="ash.laconf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="aws.laconf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="SKY_BOOT_CONF_TEMPLATE.laconf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="azgov.laconf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>..\..\out\Debug\</OutputPath>
+    <DocumentationFile>..\..\out\Debug\Azos.Sky.Server.xml</DocumentationFile>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>..\..\out\Release\</OutputPath>
+    <DocumentationFile>..\..\out\Release\Azos.Sky.Server.xml</DocumentationFile>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="$(ProjectDir)_build/pre-build $(SolutionDir) $(ProjectDir) $(ConfigurationName)" />
+  </Target>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="$(ProjectDir)_build/post-build $(SolutionDir) $(ProjectDir) $(ConfigurationName)" />
+  </Target>
+
+</Project>
