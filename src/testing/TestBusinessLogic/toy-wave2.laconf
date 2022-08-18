@@ -140,7 +140,7 @@
     module
     {
         name="gdidprovider"
-        type="Azos.Sky.Identification.GdidProviderModule, Azos.Sky"
+        type="Azos.Sky.Identification.GdidProviderModule, Azos.Sky.Server"
         log-level=$(/machine/$log-level-comp)
 
         use-local-authority=true

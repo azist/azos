@@ -6,7 +6,7 @@
   assembly
   {
     file="*Azos.Tools.dll"
-    file="*Azos.Sky.dll"
+    file="*Azos.Sky.Server.dll"
     //exclude-file="*.dll"
 
     types="*"
