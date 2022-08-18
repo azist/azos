@@ -88,8 +88,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.WinForms", "runtimes\w
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinFormsTest", "runtimes\windows\WinFormsTest\WinFormsTest.csproj", "{2B1BA164-BE13-4000-B8A8-671620665DB2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.Wave2", "Azos.Wave2\Azos.Wave2.csproj", "{71B1405F-60E3-4882-9A7B-F6C5A29BA854}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.Wave.Kestrel", "providers\Azos.Wave.Kestrel\Azos.Wave.Kestrel.csproj", "{1AECA4C8-F893-41D5-9D50-3F966FB03F0D}"
 EndProject
 Global
@@ -202,10 +200,6 @@ Global
 		{2B1BA164-BE13-4000-B8A8-671620665DB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2B1BA164-BE13-4000-B8A8-671620665DB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2B1BA164-BE13-4000-B8A8-671620665DB2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{71B1405F-60E3-4882-9A7B-F6C5A29BA854}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{71B1405F-60E3-4882-9A7B-F6C5A29BA854}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{71B1405F-60E3-4882-9A7B-F6C5A29BA854}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{71B1405F-60E3-4882-9A7B-F6C5A29BA854}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1AECA4C8-F893-41D5-9D50-3F966FB03F0D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1AECA4C8-F893-41D5-9D50-3F966FB03F0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1AECA4C8-F893-41D5-9D50-3F966FB03F0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
