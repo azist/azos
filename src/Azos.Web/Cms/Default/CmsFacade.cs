@@ -16,7 +16,7 @@ using Azos.Data;
 using Azos.Data.Access;
 using Azos.Instrumentation;
 
-namespace Azos.Wave.Cms.Default
+namespace Azos.Web.Cms.Default
 {
   /// <summary>
   /// Provides default implementation of ICmsFacade by providing caching and delegating

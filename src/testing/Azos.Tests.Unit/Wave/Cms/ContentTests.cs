@@ -11,7 +11,7 @@ using System.Text;
 
 using Azos.Scripting;
 using Azos.Serialization.JSON;
-using Azos.Wave.Cms;
+using Azos.Web.Cms;
 
 namespace Azos.Tests.Unit.Wave.Cms
 {

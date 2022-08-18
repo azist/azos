@@ -11,7 +11,7 @@ using System.Linq;
 using Azos.Collections;
 using Azos.Conf;
 
-namespace Azos.Wave.Cms
+namespace Azos.Web.Cms
 {
   /// <summary>
   /// Provides information about a language: an iso code atom and a name

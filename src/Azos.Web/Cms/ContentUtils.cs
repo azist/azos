@@ -9,7 +9,7 @@ using System.Linq;
 
 using Azos.Web;
 
-namespace Azos.Wave.Cms
+namespace Azos.Web.Cms
 {
   /// <summary>
   /// Provides various extensions related to Content

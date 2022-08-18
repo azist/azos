@@ -8,13 +8,13 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Azos.Wave.Cms
+namespace Azos.Web.Cms
 {
   /// <summary>
   /// Base exception thrown by error conditions related to Content Management(CMS)
   /// </summary>
   [Serializable]
-  public class CmsException : WaveException
+  public class CmsException : WebException
   {
     public CmsException() { }
     public CmsException(string message) : base(message) { }

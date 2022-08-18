@@ -36,5 +36,8 @@ namespace Azos.Web
       "Can not create an instance of file system session '{0}'. Make sure that suitable derivative of FileSystemSessionConnectParams is passed for the particular file system";
 
     public const string HTTP_OPERATION_ERROR = "HTTP[S] error: ";
+
+    public const string CMS_ID_ERROR =
+       "Got invalid ContentId `{0}`='{1}'. Only the following characters are permitted in CMS ContentId: 'a-z|A-Z|0-9|.|-|_' and be no longer than {2} chars. May not start with `.`";
   }
 }

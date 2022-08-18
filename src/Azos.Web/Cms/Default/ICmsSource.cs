@@ -12,7 +12,7 @@ using Azos.Apps;
 using Azos.Conf;
 using Azos.Data;
 
-namespace Azos.Wave.Cms.Default
+namespace Azos.Web.Cms.Default
 {
   /// <summary>
   /// Represents a CMS System Source where content is fetched from

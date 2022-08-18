@@ -7,13 +7,14 @@
 using System;
 using System.IO;
 using System.Net;
-
-using Azos.Web;
-using Azos.Wave.Mvc;
 using System.Threading.Tasks;
+
 using Microsoft.Extensions.Primitives;
 
-namespace Azos.Wave.Cms
+using Azos.Wave;
+using Azos.Wave.Mvc;
+
+namespace Azos.Web.Cms
 {
   /// <summary>
   /// Writes a CMS Content object as a file attachment into Mvc response stream.

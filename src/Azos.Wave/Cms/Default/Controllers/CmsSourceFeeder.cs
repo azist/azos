@@ -10,9 +10,10 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using Azos.Apps.Injection;
+using Azos.Wave;
 using Azos.Wave.Mvc;
 
-namespace Azos.Wave.Cms.Default.Controllers
+namespace Azos.Web.Cms.Default.Controllers
 {
   [ApiControllerDoc(
     BaseUri = "/content-source",
@@ -20,9 +21,6 @@ namespace Azos.Wave.Cms.Default.Controllers
     Description = "Provides internal content feed for ICmsSource web implementation")]
   public sealed class CmsSourceFeeder : Controller
   {
-    public const string CTP_COMPRESSED = "azos/wave-cms-compressed";
-    public const string CTP_UNCOMPRESSED = "azos/wave-cms";
-
     [InjectModule] ICmsFacade m_Cms;
 
     [ApiEndpointDoc(
@@ -81,7 +79,7 @@ namespace Azos.Wave.Cms.Default.Controllers
       WorkContext.Response.Buffered = buffered;
       WorkContext.Response.StatusCode = 200;
       WorkContext.Response.StatusDescription = "Found CMS content";
-      WorkContext.Response.ContentType = compress ? CTP_COMPRESSED : CTP_UNCOMPRESSED;
+      WorkContext.Response.ContentType = compress ? CmsConsts.CMS_CTP_COMPRESSED : CmsConsts.CMS_CTP_UNCOMPRESSED;
       var httpStream = await WorkContext.Response.GetDirectOutputStreamForWritingAsync().ConfigureAwait(false);
       if (compress)
       {

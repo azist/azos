@@ -20,7 +20,7 @@ using System.Linq;
 using Azos.Serialization.JSON;
 using System.IO.Compression;
 
-namespace Azos.Wave.Cms.Default
+namespace Azos.Web.Cms.Default
 {
   /// <summary>
   /// Provides implementation of CmsSource based on web calls to `CmsSourceFeeder` API
@@ -90,7 +90,7 @@ namespace Azos.Wave.Cms.Default
         using(var httpResponse = await http.Client.GetAsync(uri).ConfigureAwait(false))
         {
           httpResponse.EnsureSuccessStatusCode();
-          var compress = httpResponse.Content.Headers.ContentType.MediaType.EqualsOrdIgnoreCase(Controllers.CmsSourceFeeder.CTP_COMPRESSED);
+          var compress = httpResponse.Content.Headers.ContentType.MediaType.EqualsOrdIgnoreCase(CmsConsts.CMS_CTP_COMPRESSED);
           using(var stream = await httpResponse.Content.ReadAsStreamAsync().ConfigureAwait(false))
           {
             var rstream = stream;
