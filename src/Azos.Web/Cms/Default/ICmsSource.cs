@@ -12,7 +12,7 @@ using Azos.Apps;
 using Azos.Conf;
 using Azos.Data;
 
-namespace Azos.Web.Cms.Default
+namespace Azos.Sky.Cms.Default
 {
   /// <summary>
   /// Represents a CMS System Source where content is fetched from

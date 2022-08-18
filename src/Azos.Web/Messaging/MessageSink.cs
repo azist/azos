@@ -10,7 +10,7 @@ using Azos.Apps;
 using Azos.Conf;
 using Azos.Instrumentation;
 
-namespace Azos.Web.Messaging
+namespace Azos.Sky.Messaging
 {
 
   /// <summary>
@@ -61,14 +61,14 @@ namespace Azos.Web.Messaging
     /// </summary>
     public bool SendMsg(Message msg)
     {
-      if (msg == null) throw new WebException(StringConsts.ARGUMENT_ERROR + "MessageSink.SendMsg(msg==null)");
+      if (msg == null) throw new SkyException(StringConsts.ARGUMENT_ERROR + "MessageSink.SendMsg(msg==null)");
 
       if (!Running) return false;
       if (!Filter(msg)) return false;
 
       var sent = DoSendMsg(msg);
       if (!sent && ErrorHandlingMode == SendMessageErrorHandling.Throw)
-        throw new WebException(StringConsts.SENDING_MESSAGE_HAS_NOT_SUCCEEDED.Args(Name));
+        throw new SkyException(StringConsts.SENDING_MESSAGE_HAS_NOT_SUCCEEDED.Args(Name));
 
       return sent;
     }

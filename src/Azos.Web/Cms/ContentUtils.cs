@@ -9,7 +9,7 @@ using System.Linq;
 
 using Azos.Web;
 
-namespace Azos.Web.Cms
+namespace Azos.Sky.Cms
 {
   /// <summary>
   /// Provides various extensions related to Content

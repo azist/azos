@@ -9,7 +9,7 @@ using System.Net;
 using Azos.Apps;
 
 
-namespace Azos.Web.GeoLookup
+namespace Azos.Sky.GeoLookup
 {
 
   public enum LookupResolution{Planet, Continent, Country, City, Street }

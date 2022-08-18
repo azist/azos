@@ -5,7 +5,7 @@
 </FILE_LICENSE>*/
 
 
-namespace Azos.Security.Web
+namespace Azos.Security.Sky
 {
   /// <summary>
   /// Defines the scopes of allowed messaging actions

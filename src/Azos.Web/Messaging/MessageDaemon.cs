@@ -13,7 +13,7 @@ using Azos.Conf;
 using Azos.Apps;
 using Azos.Instrumentation;
 
-namespace Azos.Web.Messaging
+namespace Azos.Sky.Messaging
 {
 
   /// <summary>
@@ -71,7 +71,7 @@ namespace Azos.Web.Messaging
         CheckDaemonInactive();
 
         if (value != null && value.Messenger != this)
-          throw new WebException(StringConsts.MESSAGE_SINK_IS_NOT_OWNED_ERROR);
+          throw new SkyException(StringConsts.MESSAGE_SINK_IS_NOT_OWNED_ERROR);
         m_Sink = value as MessageSink;
       }
     }
@@ -84,7 +84,7 @@ namespace Azos.Web.Messaging
         CheckDaemonInactive();
 
         if (value != null && value.Messenger != this)
-          throw new WebException(StringConsts.MESSAGE_SINK_IS_NOT_OWNED_ERROR);
+          throw new SkyException(StringConsts.MESSAGE_SINK_IS_NOT_OWNED_ERROR);
         m_FallbackSink = value as MessageSink;
       }
     }
@@ -128,7 +128,7 @@ namespace Azos.Web.Messaging
       try
       {
         if (m_Sink == null)
-          throw new WebException(StringConsts.MAILER_SINK_IS_NOT_SET_ERROR);
+          throw new SkyException(StringConsts.MAILER_SINK_IS_NOT_SET_ERROR);
 
         m_Trigger = new AutoResetEvent(false);
 

@@ -13,8 +13,9 @@ using Microsoft.Extensions.Primitives;
 
 using Azos.Wave;
 using Azos.Wave.Mvc;
+using Azos.Web;
 
-namespace Azos.Web.Cms
+namespace Azos.Sky.Cms
 {
   /// <summary>
   /// Writes a CMS Content object as a file attachment into Mvc response stream.

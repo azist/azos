@@ -10,7 +10,7 @@ using System.Text;
 using Azos.Collections;
 using Azos.Serialization.JSON;
 
-namespace Azos.Web.Messaging.Services
+namespace Azos.Sky.Messaging.Services
 {
   /// <summary>
   /// A dictionary of ad-hoc message properties.

@@ -6,7 +6,7 @@
 
 using Azos.Apps;
 
-namespace Azos.Web.Messaging
+namespace Azos.Sky.Messaging
 {
   /// <summary>
   /// Implements NOP Mailer that does nothing

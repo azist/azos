@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using Azos.Apps;
 using Azos.Data;
 
-namespace Azos.Web.Cms
+namespace Azos.Sky.Cms
 {
   /// <summary>
   /// Defines a facade for consuming content from a content management system.

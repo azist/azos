@@ -7,13 +7,13 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Azos.Web.GeoLookup
+namespace Azos.Sky.GeoLookup
 {
   /// <summary>
   /// Base exception class thrown by geo-related logic
   /// </summary>
   [Serializable]
-  public class GeoException : WebException
+  public class GeoException : SkyException
   {
     public GeoException() { }
     public GeoException(string message) : base(message) { }

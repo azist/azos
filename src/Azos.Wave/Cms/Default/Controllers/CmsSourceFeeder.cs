@@ -13,7 +13,7 @@ using Azos.Apps.Injection;
 using Azos.Wave;
 using Azos.Wave.Mvc;
 
-namespace Azos.Web.Cms.Default.Controllers
+namespace Azos.Sky.Cms.Default.Controllers
 {
   [ApiControllerDoc(
     BaseUri = "/content-source",
@@ -70,7 +70,7 @@ namespace Azos.Web.Cms.Default.Controllers
         throw HTTPStatusException.NotFound_404(id.ToString());
       }
 
-      var compressionThreshold = App.ConfigRoot[SysConsts.CONFIG_WAVE_SECTION]
+      var compressionThreshold = App.ConfigRoot[Azos.Wave.SysConsts.CONFIG_WAVE_SECTION]
                                     .Of("cms-source-feeder-compressor-threshold-bytes").ValueAsInt(8000);
 
       var compress = (content.StringContent != null && content.StringContent.Length > compressionThreshold) ||

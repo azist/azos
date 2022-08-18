@@ -11,7 +11,7 @@ using System.Linq;
 using Azos.Collections;
 using Azos.Conf;
 
-namespace Azos.Web.Cms
+namespace Azos.Sky.Cms
 {
   /// <summary>
   /// Provides information about a language: an iso code atom and a name

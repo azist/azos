@@ -10,7 +10,7 @@ using Azos.Data;
 using Azos.Data.Business;
 using Azos.Serialization.JSON;
 
-namespace Azos.Web.Messaging.Services
+namespace Azos.Sky.Messaging.Services
 {
   /// <summary>
   /// Provides message header info suitable for message list display

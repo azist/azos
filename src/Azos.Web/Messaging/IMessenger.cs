@@ -7,7 +7,7 @@
 using Azos.Apps;
 using Azos.Conf;
 
-namespace Azos.Web.Messaging
+namespace Azos.Sky.Messaging
 {
   /// <summary>
   /// Describes an entity that can send Message(s) such as emails, text, voice calls etc.

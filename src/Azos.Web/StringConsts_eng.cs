@@ -4,9 +4,9 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-namespace Azos.Web
+namespace Azos.Sky
 {
-  public static class StringConsts
+  internal static class StringConsts
   {
     public const string UNKNOWN = "<unknown>";
     public const string ARGUMENT_ERROR = "Argument error: ";
@@ -39,5 +39,18 @@ namespace Azos.Web
 
     public const string CMS_ID_ERROR =
        "Got invalid ContentId `{0}`='{1}'. Only the following characters are permitted in CMS ContentId: 'a-z|A-Z|0-9|.|-|_' and be no longer than {2} chars. May not start with `.`";
+
+    public const string PERMISSION_DESCRIPTION_RemoteTerminalOperatorPermission =
+      "Controls whether users can access remote terminals";
+
+    public const string PERMISSION_DESCRIPTION_ChroniclePermission =
+       "Controls whether users can access chronicles";
+
+    public const string PERMISSION_DESCRIPTION_EventProducer =
+       "Controls whether users can produce event hub events";
+
+    public const string PERMISSION_DESCRIPTION_EventConsumer =
+       "Controls whether users can consume(subscribe to) event hub event feed";
+
   }
 }

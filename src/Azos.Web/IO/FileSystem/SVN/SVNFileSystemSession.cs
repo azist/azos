@@ -10,7 +10,7 @@ using Azos.Conf;
 using Azos.Data;
 using Azos.Security;
 
-using WSC = Azos.Web.StringConsts;
+using WSC = Azos.Sky.StringConsts;
 
 namespace Azos.IO.FileSystem.SVN
 {

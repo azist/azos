@@ -15,7 +15,7 @@ using Azos.Serialization.JSON;
 using Azos.Data;
 using System.Threading.Tasks;
 
-namespace Azos.Web.Messaging.Services
+namespace Azos.Sky.Messaging.Services
 {
 
   public sealed class MessageEnvelope : PersistedModel<ChangeResult>

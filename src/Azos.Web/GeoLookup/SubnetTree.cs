@@ -11,7 +11,7 @@ using System.Net.Sockets;
 
 using Azos.Data;
 
-namespace Azos.Web.GeoLookup
+namespace Azos.Sky.GeoLookup
 {
   public struct Subnet : IEnumerable<bool>
   {

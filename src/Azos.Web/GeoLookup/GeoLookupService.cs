@@ -18,7 +18,7 @@ using Azos.Log;
 using Azos.Text;
 using Azos.Serialization.CSV;
 
-namespace Azos.Web.GeoLookup
+namespace Azos.Sky.GeoLookup
 {
   /// <summary>
   /// Represents a service that can lookup country/city names by  domain names/ip addresses.

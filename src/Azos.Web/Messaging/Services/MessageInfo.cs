@@ -9,7 +9,7 @@ using System;
 using Azos.Data;
 using Azos.Data.Business;
 
-namespace Azos.Web.Messaging.Services
+namespace Azos.Sky.Messaging.Services
 {
   /// <summary>
   /// Provides message header info suitable for message list display

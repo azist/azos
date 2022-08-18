@@ -41,6 +41,6 @@ namespace Azos.Security.Chronicle
 
     public ChroniclePermission(ChronicleAccessLevel level) : base((int)level) { }
 
-    public override string Description => Sky.StringConsts.PERMISSION_DESCRIPTION_ChroniclePermission;
+    public override string Description => Azos.Sky.StringConsts.PERMISSION_DESCRIPTION_ChroniclePermission;
   }
 }

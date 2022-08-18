@@ -7,7 +7,7 @@ using System;
 
 using Azos.Data;
 
-namespace Azos.Web.Cms
+namespace Azos.Sky.Cms
 {
   /// <summary>
   /// Identifies a piece of content by PORTAL:NS:BLOCK pair.

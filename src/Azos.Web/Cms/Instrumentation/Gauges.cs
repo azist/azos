@@ -10,7 +10,7 @@ using Azos.Instrumentation;
 using Azos.Serialization.Arow;
 using Azos.Serialization.BSON;
 
-namespace Azos.Web.Cms.Instrumentation
+namespace Azos.Sky.Cms.Instrumentation
 {
   /// <summary>
   /// How many Cms requests made

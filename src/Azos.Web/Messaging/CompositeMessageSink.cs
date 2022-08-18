@@ -11,7 +11,7 @@ using Azos.Conf;
 using Azos.Collections;
 using Azos.Log;
 
-namespace Azos.Web.Messaging
+namespace Azos.Sky.Messaging
 {
   /// <summary>
   /// Implements a composite sink which directs message delivery to multiple sinks
@@ -62,7 +62,7 @@ namespace Azos.Web.Messaging
       try
       {
         if (!m_Sinks.Any())
-          throw new WebException("Message sink registry is empty");
+          throw new SkyException("Message sink registry is empty");
 
         m_Sinks.ForEach(s => s.Start());
       }

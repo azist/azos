@@ -10,11 +10,11 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Net;
+using System.Threading.Tasks;
 
 using Azos.Conf;
 using Azos.Collections;
-using Azos.Web.GeoLookup;
-using System.Threading.Tasks;
+using Azos.Sky.GeoLookup;
 
 namespace Azos.Wave.Filters
 {

@@ -13,7 +13,7 @@ using Azos.Conf;
 using Azos.Data;
 using Azos.Serialization.JSON;
 
-namespace Azos.Web.Messaging
+namespace Azos.Sky.Messaging
 {
 
   /// <summary>

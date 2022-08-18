@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Azos.Web.Messaging.Sinks
+namespace Azos.Sky.Messaging.Sinks
 {
   class TwilioSmsSink
   {

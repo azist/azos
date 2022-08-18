@@ -11,7 +11,7 @@ using System.Text;
 
 using Azos.Serialization.JSON;
 
-namespace Azos.Web.Cms
+namespace Azos.Sky.Cms
 {
   /// <summary>
   /// Represents content data returned from Content Management Systems

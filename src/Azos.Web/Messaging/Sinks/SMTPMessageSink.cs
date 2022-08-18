@@ -12,8 +12,9 @@ using System.Net.Mail;
 
 using Azos.Conf;
 using Azos.Log;
+using Azos.Web;
 
-namespace Azos.Web.Messaging.Sinks
+namespace Azos.Sky.Messaging.Sinks
 {
   /// <summary>
   /// Implements msg sink based on SMTPClient
@@ -96,7 +97,7 @@ namespace Azos.Web.Messaging.Sinks
       else
       {
         if (SmtpHost.IsNullOrWhiteSpace())
-        throw new WebException(StringConsts.MAILER_SINK_SMTP_IS_NOT_CONFIGURED_ERROR+"SmtpHost==null|empty|0");
+        throw new SkyException(StringConsts.MAILER_SINK_SMTP_IS_NOT_CONFIGURED_ERROR+"SmtpHost==null|empty|0");
 
         m_Smtp.Host = this.SmtpHost;
         m_Smtp.Port = this.SmtpPort;

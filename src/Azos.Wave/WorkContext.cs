@@ -18,7 +18,7 @@ using Azos.Log;
 using Azos.Web;
 
 using Azos.Serialization.JSON;
-using Azos.Web.GeoLookup;
+using Azos.Sky.GeoLookup;
 using Azos.Platform;
 
 namespace Azos.Wave

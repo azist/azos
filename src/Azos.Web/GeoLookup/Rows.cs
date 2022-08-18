@@ -8,7 +8,7 @@ using System;
 
 using Azos.Text;
 
-namespace Azos.Web.GeoLookup
+namespace Azos.Sky.GeoLookup
 {
   /// <summary>
   /// Provides address segment block information

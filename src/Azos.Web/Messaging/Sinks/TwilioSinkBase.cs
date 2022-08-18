@@ -7,7 +7,7 @@
 using Azos.Client;
 using Azos.Conf;
 
-namespace Azos.Web.Messaging.Sinks
+namespace Azos.Sky.Messaging.Sinks
 {
   /// <summary>
   /// Provides base for making Twilio HTTP service calls

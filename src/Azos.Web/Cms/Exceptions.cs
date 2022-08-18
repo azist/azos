@@ -8,13 +8,13 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Azos.Web.Cms
+namespace Azos.Sky.Cms
 {
   /// <summary>
   /// Base exception thrown by error conditions related to Content Management(CMS)
   /// </summary>
   [Serializable]
-  public class CmsException : WebException
+  public class CmsException : SkyException
   {
     public CmsException() { }
     public CmsException(string message) : base(message) { }

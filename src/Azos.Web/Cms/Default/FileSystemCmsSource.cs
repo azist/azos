@@ -15,8 +15,9 @@ using Azos.Data;
 using Azos.Log;
 using Azos.IO.FileSystem;
 using Azos.Security;
+using Azos.Web;
 
-namespace Azos.Web.Cms.Default
+namespace Azos.Sky.Cms.Default
 {
   /// <summary>
   /// Provides implementation of CmsSource based on a Virtual File System (VFS) accessor.

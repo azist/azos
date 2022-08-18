@@ -10,7 +10,7 @@ using Azos.Instrumentation;
 using Azos.Serialization.Arow;
 using Azos.Serialization.BSON;
 
-namespace Azos.Web.Messaging.Instrumentation
+namespace Azos.Sky.Messaging.Instrumentation
 {
   [Serializable]
   public abstract class MessagingSinkLongGauge : LongGauge, IWebInstrument

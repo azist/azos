@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using Azos.Apps;
 using Azos.Data.Business;
 
-namespace Azos.Web.Messaging.Services
+namespace Azos.Sky.Messaging.Services
 {
   /// <summary>
   /// Defines contract for sending web messages

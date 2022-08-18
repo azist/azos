@@ -13,7 +13,7 @@ using Azos.Data;
 using Azos.Data.AST;
 using Azos.Data.Business;
 
-namespace Azos.Web.Messaging.Services
+namespace Azos.Sky.Messaging.Services
 {
   /// <summary>
   /// Filter object submitted to server for message list search

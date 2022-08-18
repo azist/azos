@@ -16,7 +16,7 @@ using Azos.Data;
 using Azos.Data.Access;
 using Azos.Instrumentation;
 
-namespace Azos.Web.Cms.Default
+namespace Azos.Sky.Cms.Default
 {
   /// <summary>
   /// Provides default implementation of ICmsFacade by providing caching and delegating
@@ -363,7 +363,7 @@ namespace Azos.Web.Cms.Default
       }
       catch(Exception error)
       {
-        WriteLog(Log.MessageType.CatastrophicError, nameof(visit), $"{nameof(expireCache)}() leaked: {error.ToMessageWithType()}", error);
+        WriteLog(Azos.Log.MessageType.CatastrophicError, nameof(visit), $"{nameof(expireCache)}() leaked: {error.ToMessageWithType()}", error);
       }
 
       try
@@ -372,7 +372,7 @@ namespace Azos.Web.Cms.Default
       }
       catch (Exception error)
       {
-        WriteLog(Log.MessageType.CatastrophicError, nameof(visit), $"{nameof(dumpStats)}() leaked: {error.ToMessageWithType()}", error);
+        WriteLog(Azos.Log.MessageType.CatastrophicError, nameof(visit), $"{nameof(dumpStats)}() leaked: {error.ToMessageWithType()}", error);
       }
     }
 

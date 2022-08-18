@@ -27,17 +27,7 @@ namespace Azos.Sky
     public const string RT_CMDLET_CAPABILITY_NOT_SKY_APP_ERROR =
                   "Commandlet capability '{0}' is not supported on the current IApplication chassis. This capability is available only in ISkyApplication chassis";
 
-    public const string PERMISSION_DESCRIPTION_RemoteTerminalOperatorPermission =
-       "Controls whether users can access remote terminals";
 
-    public const string PERMISSION_DESCRIPTION_ChroniclePermission =
-       "Controls whether users can access chronicles";
-
-    public const string PERMISSION_DESCRIPTION_EventProducer =
-       "Controls whether users can produce event hub events";
-
-    public const string PERMISSION_DESCRIPTION_EventConsumer =
-       "Controls whether users can consume(subscribe to) event hub event feed";
 
     public const string GDIDGEN_ALL_AUTHORITIES_FAILED_ERROR = "GDIDGenerator failed to obtain GDIDBlock from any authority. Tried: \n";
 

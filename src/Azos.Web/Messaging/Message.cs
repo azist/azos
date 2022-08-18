@@ -11,7 +11,7 @@ using Azos.Data;
 using Azos.Serialization.Arow;
 
 
-namespace Azos.Web.Messaging
+namespace Azos.Sky.Messaging
 {
   /// <summary>
   /// Base abstraction for web Messages and attachments

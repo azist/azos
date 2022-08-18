@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using Azos.Apps;
 using Azos.Conf;
 
-namespace Azos.Web.Messaging.Services.Server
+namespace Azos.Sky.Messaging.Services.Server
 {
   /// <summary>
   /// Implements IMessagingLogic  and IMessageArchiveLogic

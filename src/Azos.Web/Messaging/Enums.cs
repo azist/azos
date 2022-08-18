@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Azos.Web.Messaging
+namespace Azos.Sky.Messaging
 {
   /// <summary>
   /// Message priorities: Urgent, Normal etc.

@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Azos.Web.Cms
+namespace Azos.Sky.Cms
 {
   public class CmsConsts
   {

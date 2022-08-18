@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using Azos.Apps;
 using Azos.Conf;
 
-namespace Azos.Web.GeoLookup
+namespace Azos.Sky.GeoLookup
 {
   /// <summary>
   /// Provides module facade for GeoLookupService
@@ -64,7 +64,7 @@ namespace Azos.Web.GeoLookup
         try {m_Service.Start(); }
         catch(Exception error)
         {
-          WriteLog(Log.MessageType.CatastrophicError, "m_GeoService.Start()", "Leaked: "+error.ToMessageWithType(), error);
+          WriteLog(Azos.Log.MessageType.CatastrophicError, "m_GeoService.Start()", "Leaked: "+error.ToMessageWithType(), error);
         }
       });
       return base.DoApplicationAfterInit();

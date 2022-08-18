@@ -10,8 +10,9 @@ using System.Text;
 
 using Azos.Client;
 using Azos.Serialization.JSON;
+using Azos.Web;
 
-namespace Azos.Web.Messaging.Sinks
+namespace Azos.Sky.Messaging.Sinks
 {
   /// <summary>
   /// Implements EMail sending logic based on Twilio SendGrid SMTP APIs

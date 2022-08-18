@@ -20,7 +20,7 @@ using System.Linq;
 using Azos.Serialization.JSON;
 using System.IO.Compression;
 
-namespace Azos.Web.Cms.Default
+namespace Azos.Sky.Cms.Default
 {
   /// <summary>
   /// Provides implementation of CmsSource based on web calls to `CmsSourceFeeder` API

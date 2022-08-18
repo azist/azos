@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Azos.Web.GeoLookup
+namespace Azos.Sky.GeoLookup
 {
   public class BinaryIndexedTree<K, V> where K : IEnumerable<bool>
   {
