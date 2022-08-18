@@ -11,15 +11,15 @@
     <iconUrl>$icon$</iconUrl>
     <description>AZOS - A to Z Application OS. IDP AuthKit server package</description>
     <releaseNotes>$headline$</releaseNotes>
-    <copyright>2021 Azist Group</copyright>
+    <copyright>2022 Azist Group</copyright>
     <tags>atoz fullstack full-stack apps net-core big-memory pile slim glue wave cluster zhabis idp identity oauth</tags>
     <repository type="GIT" url="https://github.com/azist/azos" />
     
     <dependencies>
       <dependency id="Azos" version="$version$" />
-      <dependency id="Azos.Web" version="$version$" />
-      <dependency id="Azos.Wave" version="$version$" />
       <dependency id="Azos.Sky" version="$version$" />
+      <dependency id="Azos.Wave" version="$version$" />
+      <dependency id="Azos.Sky.Server" version="$version$" />
       <dependency id="Azos.AuthKit" version="$version$" />
     </dependencies>
     
@@ -27,18 +27,9 @@
 
   <files>
   
-    <file src="..\..\out\Release\Azos.AuthKit.Server.dll" target="lib\netstandard2.0" />
-    <file src="..\..\out\Release\Azos.AuthKit.Server.xml" target="lib\netstandard2.0" />
-    <file src="..\..\out\Release\Azos.AuthKit.Server.pdb" target="lib\netstandard2.0" />
-   
-    <file src="..\..\out\Release\Azos.AuthKit.Server.dll"   target="lib\netcoreapp2.0" />
-    <file src="..\..\out\Release\Azos.AuthKit.Server.xml"   target="lib\netcoreapp2.0" />
-    <file src="..\..\out\Release\Azos.AuthKit.Server.pdb"   target="lib\netcoreapp2.0" />
-    
-    <file src="..\..\out\Release\Azos.AuthKit.Server.dll"   target="lib\net472" />
-    <file src="..\..\out\Release\Azos.AuthKit.Server.xml"   target="lib\net472" />
-    <file src="..\..\out\Release\Azos.AuthKit.Server.pdb"   target="lib\net472" />
-    
+    <file src="..\..\out\Release\Azos.AuthKit.Server.dll" target="lib\net6" />
+    <file src="..\..\out\Release\Azos.AuthKit.Server.xml" target="lib\net6" />
+    <file src="..\..\out\Release\Azos.AuthKit.Server.pdb" target="lib\net6" />
   </files>
 
 </package>

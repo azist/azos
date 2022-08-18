@@ -8,12 +8,12 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>..\..\out\Debug\</OutputPath>
-    <DocumentationFile>..\..\out\Debug\Azos.Wave2.xml</DocumentationFile>
+    <DocumentationFile>..\..\out\Debug\Azos.Wave.xml</DocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <OutputPath>..\..\out\Release\</OutputPath>
-    <DocumentationFile>..\..\out\Release\Azos.Wave2.xml</DocumentationFile>
+    <DocumentationFile>..\..\out\Release\Azos.Wave.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

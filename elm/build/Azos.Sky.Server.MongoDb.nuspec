@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
-    <id>Azos.Web</id>
+    <id>Azos.Sky.Server.MongoDb</id>
     <version>$version$</version>
     <authors>Azist, @dzhabis, @dkh</authors>
     <owners>Azist, @dzhabis, @dkh</owners>
@@ -9,28 +9,25 @@
     <license type="expression">MIT</license>
     <projectUrl>http://zhabis.com/</projectUrl>
     <iconUrl>$icon$</iconUrl>
-    <description>AZOS - A to Z Application OS. Web Assembly</description>
+    <description>AZOS - A to Z Application OS. Sky OS MongoDb</description>
     <releaseNotes>$headline$</releaseNotes>
-    <copyright>2019 Azist Group</copyright>
+    <copyright>2022 Azist Group</copyright>
     <tags>atoz fullstack full-stack apps net-core big-memory pile slim glue wave cluster zhabis</tags>
     <repository type="GIT" url="https://github.com/azist/azos" />
     
     <dependencies>
       <dependency id="Azos" version="$version$" />
+      <dependency id="Azos.Sky" version="$version$" />
+      <dependency id="Azos.Sky.Server" version="$version$" />
+      <dependency id="Azos.MongoDb" version="$version$" />
     </dependencies>
-    
-    <contentFiles>
-      <files include="**/*" buildAction="None" copyToOutput="true" flatten="false" />
-    </contentFiles>
     
   </metadata>
 
   <files>
-    <file src="..\..\out\Release\Azos.Web.*"   target="contentFiles\any\any\azos-win-x64" />
-    <file src="..\..\out\Release\Azos.Web.*"   target="contentFiles\any\any\azos-linux-x64" />
-    <!-- ============================================================ -->
-    <file src="..\..\out\Release\Azos.Web.*" target="lib\netstandard2.1" />
-    <file src="..\..\out\Release\Azos.Web.*"   target="lib\net6.0" />
+    <file src="..\..\out\Release\Azos.Sky.Server.MongoDb.dll" target="lib\net6" />
+    <file src="..\..\out\Release\Azos.Sky.Server.MongoDb.xml" target="lib\net6" />
+    <file src="..\..\out\Release\Azos.Sky.Server.MongoDb.pdb" target="lib\net6" />
   </files>
 
 </package>

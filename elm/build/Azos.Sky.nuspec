@@ -9,16 +9,14 @@
     <license type="expression">MIT</license>
     <projectUrl>http://zhabis.com/</projectUrl>
     <iconUrl>$icon$</iconUrl>
-    <description>AZOS - A to Z Application OS. Sky OS, This package include Sky runtime hosts</description>
+    <description>AZOS - A to Z Application OS. Sky Services Assembly</description>
     <releaseNotes>$headline$</releaseNotes>
-    <copyright>2019 Azist Group</copyright>
+    <copyright>2022 Azist Group</copyright>
     <tags>atoz fullstack full-stack apps net-core big-memory pile slim glue wave cluster zhabis</tags>
     <repository type="GIT" url="https://github.com/azist/azos" />
     
     <dependencies>
       <dependency id="Azos" version="$version$" />
-      <dependency id="Azos.Web" version="$version$" />
-      <dependency id="Azos.Wave" version="$version$" />
     </dependencies>
     
     <contentFiles>
@@ -28,50 +26,17 @@
   </metadata>
 
   <files>
-    <file src="..\..\out\Release\Azos.Sky.dll"   target="contentFiles\any\any\azos" />
-    <file src="..\..\out\Release\Azos.Sky.xml"   target="contentFiles\any\any\azos" />
-    <file src="..\..\out\Release\Azos.Sky.pdb"   target="contentFiles\any\any\azos" />
-    <file src="..\..\out\Release\Azos.Sky.WebManager.dll"   target="contentFiles\any\any\azos" />
-    <file src="..\..\out\Release\Azos.Sky.WebManager.xml"   target="contentFiles\any\any\azos" />
-    <file src="..\..\out\Release\Azos.Sky.WebManager.pdb"   target="contentFiles\any\any\azos" />
+    <file src="..\..\out\Release\Azos.Sky.dll"   target="contentFiles\any\any\azos-win-x64" />
+    <file src="..\..\out\Release\Azos.Sky.pdb"   target="contentFiles\any\any\azos-win-x64" />
+    <file src="..\..\out\Release\Azos.Sky.xml"   target="contentFiles\any\any\azos-win-x64" />
     
-    <file src="..\..\out\Release\agdida.laconf"  target="contentFiles\any\any\azos" />
-    <file src="..\..\out\Release\agm.laconf"     target="contentFiles\any\any\azos" />
-    <file src="..\..\out\Release\ahgov.laconf"   target="contentFiles\any\any\azos" />
-    <file src="..\..\out\Release\amm.laconf"     target="contentFiles\any\any\azos" />
-    <file src="..\..\out\Release\aph.laconf"     target="contentFiles\any\any\azos" />
-    <file src="..\..\out\Release\ascon.laconf"   target="contentFiles\any\any\azos" />
-    <file src="..\..\out\Release\ash.laconf"     target="contentFiles\any\any\azos" />
-    <file src="..\..\out\Release\aws.laconf"     target="contentFiles\any\any\azos" />
-    <file src="..\..\out\Release\azgov.laconf"   target="contentFiles\any\any\azos" />
-    <file src="..\..\out\Release\SKY_BOOT_CONF_TEMPLATE.laconf"   target="contentFiles\any\any\azos" />
-    <file src="..\..\out\Release\Agnivo.exe"  target="contentFiles\any\any\azos" />
-    <file src="..\..\out\Release\Agnivo.exe.config"  target="contentFiles\any\any\azos" />
-    <file src="..\..\out\Release\Agnivo.laconf"      target="contentFiles\any\any\azos" />
-    <file src="..\..\out\Release\Agnivo.win.laconf"  target="contentFiles\any\any\azos" />
-     
-     <!-- ============================================================ -->
-  
-    <file src="..\..\out\Release\Azos.Sky.dll" target="lib\netstandard2.0" />
-    <file src="..\..\out\Release\Azos.Sky.xml" target="lib\netstandard2.0" />
-    <file src="..\..\out\Release\Azos.Sky.pdb" target="lib\netstandard2.0" />
-    <file src="..\..\out\Release\Azos.Sky.WebManager.dll" target="lib\netstandard2.0" />
-    <file src="..\..\out\Release\Azos.Sky.WebManager.xml" target="lib\netstandard2.0" />
-    <file src="..\..\out\Release\Azos.Sky.WebManager.pdb" target="lib\netstandard2.0" />
-   
-    <file src="..\..\out\Release\Azos.Sky.dll"   target="lib\netcoreapp2.0" />
-    <file src="..\..\out\Release\Azos.Sky.xml"   target="lib\netcoreapp2.0" />
-    <file src="..\..\out\Release\Azos.Sky.pdb"   target="lib\netcoreapp2.0" />
-    <file src="..\..\out\Release\Azos.Sky.WebManager.dll"   target="lib\netcoreapp2.0" />
-    <file src="..\..\out\Release\Azos.Sky.WebManager.xml"   target="lib\netcoreapp2.0" />
-    <file src="..\..\out\Release\Azos.Sky.WebManager.pdb"   target="lib\netcoreapp2.0" />
-    
-    <file src="..\..\out\Release\Azos.Sky.dll"   target="lib\net472" />
-    <file src="..\..\out\Release\Azos.Sky.xml"   target="lib\net472" />
-    <file src="..\..\out\Release\Azos.Sky.pdb"   target="lib\net472" />
-    <file src="..\..\out\Release\Azos.Sky.WebManager.dll"   target="lib\net472" />
-    <file src="..\..\out\Release\Azos.Sky.WebManager.xml"   target="lib\net472" />
-    <file src="..\..\out\Release\Azos.Sky.WebManager.pdb"   target="lib\net472" />
+    <file src="..\..\out\Release\Azos.Sky.dll"   target="contentFiles\any\any\azos-linux-x64" />
+    <file src="..\..\out\Release\Azos.Sky.pdb"   target="contentFiles\any\any\azos-linux-x64" />
+    <file src="..\..\out\Release\Azos.Sky.xml"   target="contentFiles\any\any\azos-linux-x64" />
+    <!-- ============================================================ -->
+    <file src="..\..\out\Release\Azos.Sky.dll" target="lib\netstandard2.1" />
+    <file src="..\..\out\Release\Azos.Sky.pdb" target="lib\netstandard2.1" />
+    <file src="..\..\out\Release\Azos.Sky.xml" target="lib\netstandard2.1" />
     
   </files>
 
