@@ -1,4 +1,4 @@
-﻿echo +++++ [Azos.Wave] Post Build
+echo +++++ [Azos.Wave] Post Build
 
 set SOLUTION_DIR=%1
 set PROJECT_DIR=%2
