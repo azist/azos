@@ -69,6 +69,9 @@ cmd | Description
  `pm> install-package Azos.Media`| Azos Media Formats (PDF, QR Codes etc.) 
  `pm> install-package Azos.Sky.Server`| Azos Sky Distributed services implementations
  `pm> install-package Azos.Sky.Server.MongoDb`| Azos Sky MongoDb Services (Queues etc.)
+ `pm> install-package Azos.AuthKit`| Azos IDP/Authorization Authority (IDP, OAuth)
+ `pm> install-package Azos.AuthKit.Server`| Azos IDP/Authorization Authority server implementation
+ `pm> install-package Azos.AuthKit.Server.MySql`| Azos IDP/Authorization Authority server MySql storage layer
 
 
 See also:
