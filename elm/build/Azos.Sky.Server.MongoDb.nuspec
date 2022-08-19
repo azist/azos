@@ -25,9 +25,9 @@
   </metadata>
 
   <files>
-    <file src="..\..\out\Release\Azos.Sky.Server.MongoDb.dll" target="lib\net6" />
-    <file src="..\..\out\Release\Azos.Sky.Server.MongoDb.xml" target="lib\net6" />
-    <file src="..\..\out\Release\Azos.Sky.Server.MongoDb.pdb" target="lib\net6" />
+    <file src="..\..\out\Release\Azos.Sky.Server.MongoDb.dll" target="lib\net6.0" />
+    <file src="..\..\out\Release\Azos.Sky.Server.MongoDb.xml" target="lib\net6.0" />
+    <file src="..\..\out\Release\Azos.Sky.Server.MongoDb.pdb" target="lib\net6.0" />
   </files>
 
 </package>

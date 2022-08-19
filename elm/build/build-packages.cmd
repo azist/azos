@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.0.0.1
-set HEADLINE=Net 6 Initial release
+set VER=3.0.0.2
+set HEADLINE=Fix net6.0 packaging
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

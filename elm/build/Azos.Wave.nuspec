@@ -45,13 +45,13 @@
     
     <!-- ============================================================ -->
   
-    <file src="..\..\out\Release\Azos.Wave.dll" target="lib\net6" />
-    <file src="..\..\out\Release\Azos.Wave.xml" target="lib\net6" />
-    <file src="..\..\out\Release\Azos.Wave.pdb" target="lib\net6" />
+    <file src="..\..\out\Release\Azos.Wave.dll" target="lib\net6.0" />
+    <file src="..\..\out\Release\Azos.Wave.xml" target="lib\net6.0" />
+    <file src="..\..\out\Release\Azos.Wave.pdb" target="lib\net6.0" />
     
-    <file src="..\..\out\Release\Azos.Wave.Kestrel.dll" target="lib\net6" />
-    <file src="..\..\out\Release\Azos.Wave.Kestrel.xml" target="lib\net6" />
-    <file src="..\..\out\Release\Azos.Wave.Kestrel.pdb" target="lib\net6" />
+    <file src="..\..\out\Release\Azos.Wave.Kestrel.dll" target="lib\net6.0" />
+    <file src="..\..\out\Release\Azos.Wave.Kestrel.xml" target="lib\net6.0" />
+    <file src="..\..\out\Release\Azos.Wave.Kestrel.pdb" target="lib\net6.0" />
   </files>
 
 </package>
