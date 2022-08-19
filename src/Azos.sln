@@ -28,6 +28,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.Tools", "Azos.Tools\Azos.Tools.csproj", "{1743D0B5-2B62-44B2-A1C1-84326209F0FC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A9434D3F-E520-41A4-B844-0891D4D8C2D4} = {A9434D3F-E520-41A4-B844-0891D4D8C2D4}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "testing", "testing", "{0FC66524-0EE2-410C-B971-97170166D2D6}"
 	ProjectSection(SolutionItems) = preProject
@@ -36,12 +39,21 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "testing", "testing", "{0FC6
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestBusinessLogic", "testing\TestBusinessLogic\TestBusinessLogic.csproj", "{27C8EE85-4E00-4471-B81B-C4D51C9D03D0}"
 	ProjectSection(ProjectDependencies) = postProject
+		{356D2ACB-2AC7-4BE7-96F4-655F50B0152E} = {356D2ACB-2AC7-4BE7-96F4-655F50B0152E}
 		{4738C14F-1153-44F6-977B-B82750333E7E} = {4738C14F-1153-44F6-977B-B82750333E7E}
+		{C533831A-DD1B-4DA2-A7D8-98B6DD708871} = {C533831A-DD1B-4DA2-A7D8-98B6DD708871}
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.Wave", "Azos.Wave\Azos.Wave.csproj", "{26E0A0E2-9EB5-4905-A9B2-DF5B08E0121C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4738C14F-1153-44F6-977B-B82750333E7E} = {4738C14F-1153-44F6-977B-B82750333E7E}
+		{A9434D3F-E520-41A4-B844-0891D4D8C2D4} = {A9434D3F-E520-41A4-B844-0891D4D8C2D4}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.Platform.NetCore20", "runtimes\core\Azos.Platform.NetCore20\Azos.Platform.NetCore20.csproj", "{0C6EE318-7E95-4FA6-A590-43F1ED33C843}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A9434D3F-E520-41A4-B844-0891D4D8C2D4} = {A9434D3F-E520-41A4-B844-0891D4D8C2D4}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "buildinfo", "runtimes\core\buildinfo\buildinfo.csproj", "{A9434D3F-E520-41A4-B844-0891D4D8C2D4}"
 EndProject
@@ -90,6 +102,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.AuthKit.Server", "providers\Azos.AuthKit.Server\Azos.AuthKit.Server.csproj", "{FCC9B471-5847-4EFC-8167-9853B31DF511}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "sky", "runtimes\core\sky\sky.csproj", "{4738C14F-1153-44F6-977B-B82750333E7E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1743D0B5-2B62-44B2-A1C1-84326209F0FC} = {1743D0B5-2B62-44B2-A1C1-84326209F0FC}
+		{A9434D3F-E520-41A4-B844-0891D4D8C2D4} = {A9434D3F-E520-41A4-B844-0891D4D8C2D4}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Agnivo", "runtimes\windows\Agnivo\Agnivo.csproj", "{ECCD4913-A05E-453E-98DE-85421A8B79A7}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -114,15 +130,22 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.Wave.Kestrel", "providers\Azos.Wave.Kestrel\Azos.Wave.Kestrel.csproj", "{1AECA4C8-F893-41D5-9D50-3F966FB03F0D}"
 	ProjectSection(ProjectDependencies) = postProject
 		{4738C14F-1153-44F6-977B-B82750333E7E} = {4738C14F-1153-44F6-977B-B82750333E7E}
+		{A9434D3F-E520-41A4-B844-0891D4D8C2D4} = {A9434D3F-E520-41A4-B844-0891D4D8C2D4}
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.Sky", "Azos.Sky\Azos.Sky.csproj", "{242BBD17-BCD1-441F-AE24-B167E31DDAED}"
 	ProjectSection(ProjectDependencies) = postProject
 		{1743D0B5-2B62-44B2-A1C1-84326209F0FC} = {1743D0B5-2B62-44B2-A1C1-84326209F0FC}
 		{4738C14F-1153-44F6-977B-B82750333E7E} = {4738C14F-1153-44F6-977B-B82750333E7E}
+		{A9434D3F-E520-41A4-B844-0891D4D8C2D4} = {A9434D3F-E520-41A4-B844-0891D4D8C2D4}
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.Sky.Server", "Azos.Sky.Server\Azos.Sky.Server.csproj", "{7888A19E-72AA-4FF1-B697-A8FF7D0A5F12}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1743D0B5-2B62-44B2-A1C1-84326209F0FC} = {1743D0B5-2B62-44B2-A1C1-84326209F0FC}
+		{4738C14F-1153-44F6-977B-B82750333E7E} = {4738C14F-1153-44F6-977B-B82750333E7E}
+		{A9434D3F-E520-41A4-B844-0891D4D8C2D4} = {A9434D3F-E520-41A4-B844-0891D4D8C2D4}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.Sky.Server.MongoDb", "providers\Azos.Sky.Server.MongoDb\Azos.Sky.Server.MongoDb.csproj", "{5FA03E9F-02FB-49AE-B7EC-D22BE9E88E07}"
 EndProject
