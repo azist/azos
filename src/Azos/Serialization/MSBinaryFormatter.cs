@@ -12,6 +12,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Azos.Serialization
 {
+#pragma warning disable SYSLIB0011 // Type or member is obsolete
     /// <summary>
     /// Implements ISerializer with Ms BinaryFormatter
     /// </summary>
@@ -22,8 +23,8 @@ namespace Azos.Serialization
 
       public void Serialize(System.IO.Stream stream, object root)
       {
-          m_Formatter.Serialize(stream, root);
-      }
+      m_Formatter.Serialize(stream, root);
+    }
 
       public object Deserialize(System.IO.Stream stream)
       {
@@ -36,5 +37,6 @@ namespace Azos.Serialization
         get { return false; }
       }
     }
+#pragma warning restore SYSLIB0011 // Type or member is obsolete
 
 }

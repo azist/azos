@@ -228,7 +228,7 @@ namespace Azos.Tests.Unit.Wave
     [Run]
     public async Task EchoBuffer_POST()
     {
-      var toSend = new byte[]{1, 2, 3, 255, 254, 253};
+      var toSend = new byte[]{1, 2, 3, 255, 254, 253, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 65, 97, 12, 102, 103, 104, 105, 250, 190, 190, 78, 94, 89, 12, 17};
 
       var multipart = new MultipartFormDataContent();
       var content = new ByteArrayContent(toSend);
@@ -249,7 +249,7 @@ namespace Azos.Tests.Unit.Wave
     [Run]
     public async Task EchoBuffer_POST_AzosMultipart()
     {
-      var toSend = new byte[] { 1, 2, 3, 255, 254, 253 };
+      var toSend = new byte[] { 1, 2, 3, 255, 254, 253, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 65, 97, 12, 102, 103, 104, 105, 250, 190, 190, 78, 94, 89, 12, 17 };
 
       var part = new Multipart.Part("buffer")
       {

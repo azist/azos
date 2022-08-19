@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <Description>Azos - Various Fake Business Logic used for testing (not to deploy)</Description>
   </PropertyGroup>
 
@@ -51,17 +51,22 @@
     <None Update="toy-akit.laconf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="toy-wave2.laconf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="toy.laconf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="toy-wave.laconf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="toy-wave2.laconf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\Azos.Wave\Azos.Wave.csproj" />
-    <ProjectReference Include="..\..\Azos.Web\Azos.Web.csproj" />
     <ProjectReference Include="..\..\Azos\Azos.csproj" />
   </ItemGroup>
 

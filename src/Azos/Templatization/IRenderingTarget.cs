@@ -30,6 +30,6 @@ namespace Azos.Templatization
     /// Flushes writes into underlying target implementation. If target does not support
     /// buffering then this call does nothing
     /// </summary>
-    void Flush();
+    void Flush(bool lastChunk);
   }
 }

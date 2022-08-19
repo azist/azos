@@ -39,7 +39,7 @@ namespace Azos.Platform.ProcessActivation
     public const string CONFIG_INCLUDE_TYPE_PATTERN_ATTR = "types";
     public const string CONFIG_EXCLUDE_TYPE_PATTERN_ATTR = "exclude-types";
 
-    public ProgramBodyActivator(string[] args)
+    public ProgramBodyActivator(string[] args, Action<IConfigSectionNode> assemblyResolverFixup)
     {
       m_OriginalArgs = args.NonNull(nameof(args));
       if (m_OriginalArgs.Length == 0) throw new EMissingArgs("Missing arguments");
@@ -63,6 +63,11 @@ namespace Azos.Platform.ProcessActivation
           m_Manifest = Configuration.NewEmptyRoot();
         }
       }
+
+      //AZ #738 assembly resolution
+      //must be before the GetAllPrograms() call below
+      if (assemblyResolverFixup != null) assemblyResolverFixup(m_Manifest);
+      //----------------------------------------------
 
       m_AllPrograms = GetAllPrograms().DistinctBy(t => t.tbody).ToArray();
 

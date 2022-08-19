@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using Azos.Apps;
 using Azos.Conf;
 using Azos.Data.Access.Rpc;
-using Azos.Security.Permissions.Data;
+using Azos.Security.Data;
 using Azos.Serialization.JSON;
 
 namespace Azos.Data.Access.MsSql

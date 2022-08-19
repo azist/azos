@@ -204,7 +204,8 @@ namespace Azos.Sky
             (char)0,
             (char)0x0d,
             (char)0x0a,
-            Metabase.Metabank.HOST_DYNAMIC_SUFFIX_SEPARATOR,
+            #warning refactor
+            '~',//Metabase.Metabank.HOST_DYNAMIC_SUFFIX_SEPARATOR,
             '@', '#', ',' , ';' , ':' , '%', '&',
             '/' , '\\' , '\'' , '"' , '|' ,
             '*' , '?',

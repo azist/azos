@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 
 namespace Azos.Tests.Integration.Wave
 {
+#pragma warning disable SYSLIB0014 // Type or member is obsolete
   public class WebClientCookied: WebClient
   {
     private CookieContainer m_CookieContainer = new CookieContainer();
@@ -32,4 +33,5 @@ namespace Azos.Tests.Integration.Wave
       return request;
     }
   }
+#pragma warning restore SYSLIB0014 // Type or member is obsolete
 }

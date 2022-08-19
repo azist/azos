@@ -4,10 +4,9 @@ exit 1;
 
 
 
+
 SCRIPT=`realpath -s $0`
 SCRIPTPATH=`dirname $SCRIPT`
 
 SOLUTION_DIR=$1
 PROJECT_DIR=${SCRIPTPATH}/
-
-mono buildinfo.exe > "${PROJECT_DIR}BUILD_INFO.txt"

@@ -19,12 +19,12 @@ namespace Azos.Sky.WebManager
   /// </summary>
   public class WebManagerStockContentSiteHandler : StockContentSiteHandler
   {
-    public WebManagerStockContentSiteHandler(WorkDispatcher dispatcher, string name, int order, WorkMatch match)
-                          : base(dispatcher, name, order, match){}
+    public WebManagerStockContentSiteHandler(WorkHandler director, string name, int order, WorkMatch match)
+                          : base(director, name, order, match){}
 
 
-    public WebManagerStockContentSiteHandler(WorkDispatcher dispatcher, IConfigSectionNode confNode)
-                          : base(dispatcher, confNode) {}
+    public WebManagerStockContentSiteHandler(WorkHandler director, IConfigSectionNode confNode)
+                          : base(director, confNode) {}
 
 
     public override string RootResourcePath

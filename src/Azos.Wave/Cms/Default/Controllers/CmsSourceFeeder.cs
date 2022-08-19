@@ -10,9 +10,10 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using Azos.Apps.Injection;
+using Azos.Wave;
 using Azos.Wave.Mvc;
 
-namespace Azos.Wave.Cms.Default.Controllers
+namespace Azos.Sky.Cms.Default.Controllers
 {
   [ApiControllerDoc(
     BaseUri = "/content-source",
@@ -20,9 +21,6 @@ namespace Azos.Wave.Cms.Default.Controllers
     Description = "Provides internal content feed for ICmsSource web implementation")]
   public sealed class CmsSourceFeeder : Controller
   {
-    public const string CTP_COMPRESSED = "azos/wave-cms-compressed";
-    public const string CTP_UNCOMPRESSED = "azos/wave-cms";
-
     [InjectModule] ICmsFacade m_Cms;
 
     [ApiEndpointDoc(
@@ -52,7 +50,7 @@ namespace Azos.Wave.Cms.Default.Controllers
                                       "nocache: true to bypass cache and fetch from upstream, false is default",
                                       "buffered: pass true to use double buffering with `Content-Length` header, otherwise(default) chunked transfer is used"})]
     [ActionOnGet(Name = "feed")]
-    public void Feed(string portal, string ns, string block, Atom isolang, bool nocache = false, bool buffered = false)
+    public async Task Feed(string portal, string ns, string block, Atom isolang, bool nocache = false, bool buffered = false)
     {
       ContentId id = default(ContentId);
       try
@@ -72,7 +70,7 @@ namespace Azos.Wave.Cms.Default.Controllers
         throw HTTPStatusException.NotFound_404(id.ToString());
       }
 
-      var compressionThreshold = App.ConfigRoot[SysConsts.CONFIG_WAVE_SECTION]
+      var compressionThreshold = App.ConfigRoot[Azos.Wave.SysConsts.CONFIG_WAVE_SECTION]
                                     .Of("cms-source-feeder-compressor-threshold-bytes").ValueAsInt(8000);
 
       var compress = (content.StringContent != null && content.StringContent.Length > compressionThreshold) ||
@@ -81,8 +79,8 @@ namespace Azos.Wave.Cms.Default.Controllers
       WorkContext.Response.Buffered = buffered;
       WorkContext.Response.StatusCode = 200;
       WorkContext.Response.StatusDescription = "Found CMS content";
-      WorkContext.Response.ContentType = compress ? CTP_COMPRESSED : CTP_UNCOMPRESSED;
-      var httpStream = WorkContext.Response.GetDirectOutputStreamForWriting();
+      WorkContext.Response.ContentType = compress ? CmsConsts.CMS_CTP_COMPRESSED : CmsConsts.CMS_CTP_UNCOMPRESSED;
+      var httpStream = await WorkContext.Response.GetDirectOutputStreamForWritingAsync().ConfigureAwait(false);
       if (compress)
       {
         using(var zipStream = new GZipStream(httpStream, CompressionLevel.Optimal))

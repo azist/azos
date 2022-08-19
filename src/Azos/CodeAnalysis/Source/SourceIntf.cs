@@ -8,6 +8,8 @@ using System.Collections.Generic;
 
 namespace Azos.CodeAnalysis.Source
 {
+
+#warning AZ #731 rewrite async deserializer core - add CHUNKING ASYNC/SYNC block handling with "ChunkEof" which triggers next async fetch in chunks
   /// <summary>
   /// Represents source code input text (usually text from file)
   /// </summary>
@@ -50,7 +52,5 @@ namespace Azos.CodeAnalysis.Source
   /// </summary>
   public class ListOfISourceText : List<ISourceText>
   {
-
   }
-
 }

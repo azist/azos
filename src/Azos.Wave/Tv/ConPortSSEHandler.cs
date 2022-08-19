@@ -18,11 +18,11 @@ namespace Azos.Wave.Tv
   /// </summary>
   public class ConPortSSEHandler : SSEMailboxHandler
   {
-    public ConPortSSEHandler(WorkDispatcher dispatcher, string name, int order, WorkMatch match)
-                       : base(dispatcher, name, order, match){ }
+    public ConPortSSEHandler(WorkHandler director, string name, int order, WorkMatch match)
+                       : base(director, name, order, match){ }
 
-    public ConPortSSEHandler(WorkDispatcher dispatcher, IConfigSectionNode confNode)
-                       : base(dispatcher, confNode) { }
+    public ConPortSSEHandler(WorkHandler director, IConfigSectionNode confNode)
+                       : base(director, confNode) { }
 
     protected override (bool isNew, Mailbox mbox) ConnectMailbox(WorkContext work)
     {

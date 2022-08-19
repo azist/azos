@@ -9,6 +9,7 @@ using System.IO;
 
 namespace Azos.CodeAnalysis.Source
 {
+#warning AZ #731 Needs `ChunkEof` for async processing so we can `await streamSource.GetNextChunkAsync(1024)`
   /// <summary>
   /// Represents source code stored in a stream
   /// </summary>

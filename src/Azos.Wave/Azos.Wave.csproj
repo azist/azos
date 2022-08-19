@@ -1,8 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>net6.0</TargetFrameworks>
     <Description>Azos - Web Wave Assembly</Description>
+    <RootNamespace>Azos.Wave</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -16,41 +17,24 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Templatization/StockContent/Embedded/script/mtest/**" />
-    <Compile Remove="Templatization/StockContent/Embedded/script/utest/**" />
+    <ProjectReference Include="..\Azos.Sky\Azos.Sky.csproj" />
+    <ProjectReference Include="..\Azos\Azos.csproj" />
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Templatization\StockContent\Embedded\flags\**" />
-    <EmbeddedResource Include="Templatization\StockContent\Embedded\stl\**" />
+    <Compile Include="..\____GlobalWarningSuppressions.cs" Link="____GlobalWarningSuppressions.cs" />
+    <Compile Include="Templatization\StockContent\.tc\*.nht.auto.cs" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="BUILD_INFO.txt" />
     <None Remove="Tv\Help.txt" />
     <None Remove="Tv\Welcome.txt" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\____GlobalWarningSuppressions.cs" Link="____GlobalWarningSuppressions.cs" />
-    <Compile Include="Templatization\StockContent\.tc\ApiDoc-Schema.nht.auto.cs" />
-    <Compile Include="Templatization\StockContent\.tc\ApiDoc-Scope.nht.auto.cs" />
-    <Compile Include="Templatization\StockContent\.tc\ApiDoc-Toc.nht.auto.cs" />
-    <Compile Include="Templatization\StockContent\.tc\Error.nht.auto.cs" />
-    <Compile Include="Templatization\StockContent\.tc\Master.nht.auto.cs" />
-    <Compile Include="Templatization\StockContent\.tc\OAuthLogin.nht.auto.cs" />
-    <Compile Include="Templatization\StockContent\.tc\OAuthSsoRedirect.nht.auto.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="BUILD_INFO.txt" />
     <EmbeddedResource Include="Tv\Help.txt" />
     <EmbeddedResource Include="Tv\Welcome.txt" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Azos.Web\Azos.Web.csproj" />
-    <ProjectReference Include="..\Azos\Azos.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -59,12 +43,8 @@
     </None>
   </ItemGroup>
 
-  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="$(ProjectDir)_build/pre-build $(SolutionDir) $(ProjectDir) $(ConfigurationName)" />
-  </Target>
-
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="$(ProjectDir)_build/post-build $(SolutionDir) $(ProjectDir) $(ConfigurationName)" />
-  </Target>
+  <!--ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+  </ItemGroup-->
 
 </Project>

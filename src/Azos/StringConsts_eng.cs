@@ -470,7 +470,7 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
         "Guarded method '{0}' clause '{1}' may not be type cast to '{2}'";
 
     public const string GUARDED_CONFIG_NODE_CLAUSE_MAY_NOT_BE_EMPTY_ERROR =
-        "Guarded method '{0}' config node clause '{1}' may not be null or empty";
+        "Guarded method '{0}' config node clause '{1}' may not be null or empty but it is not defined in the supplied config context";
 
     public const string GUARDED_STRING_CLAUSE_MAY_NOT_BE_BLANK_ERROR =
         "Guarded method '{0}' string clause '{1}' may not be null or blank/whitespace";

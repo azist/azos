@@ -70,7 +70,7 @@ namespace Azos.Templatization
 
 
 
-        public void Flush()
+        public void Flush(bool lastChunk)
         {
         }
 

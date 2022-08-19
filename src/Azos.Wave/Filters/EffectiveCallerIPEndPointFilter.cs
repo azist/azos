@@ -4,13 +4,11 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System.Collections.Generic;
 using System.Net;
+using System.Threading.Tasks;
 
 using Azos.Conf;
 using Azos.Data;
-using Azos.Web.GeoLookup;
-
 
 namespace Azos.Wave.Filters
 {
@@ -20,22 +18,17 @@ namespace Azos.Wave.Filters
   public class EffectiveCallerIPEndPointFilter : WorkFilter
   {
     #region .ctor
-    public EffectiveCallerIPEndPointFilter(WorkDispatcher dispatcher, string name, int order) : base(dispatcher, name, order) {}
-    public EffectiveCallerIPEndPointFilter(WorkDispatcher dispatcher, IConfigSectionNode confNode): base(dispatcher, confNode) { ConfigAttribute.Apply(this, confNode); }
     public EffectiveCallerIPEndPointFilter(WorkHandler handler, string name, int order) : base(handler, name, order) {}
     public EffectiveCallerIPEndPointFilter(WorkHandler handler, IConfigSectionNode confNode): base(handler, confNode){ ConfigAttribute.Apply(this, confNode); }
     #endregion
 
     #region Properties
-
     [Config] public string  RealIpHdr  {  get; set; }
     [Config] public string  RealPortHdr{  get; set; }
-
     #endregion
 
     #region Protected
-
-    protected override void DoFilterWork(WorkContext work, IList<WorkFilter> filters, int thisFilterIndex)
+    protected override async Task DoFilterWorkAsync(WorkContext work, CallChain callChain)
     {
       var ipep  = work.m_EffectiveCallerIPEndPoint;
 
@@ -48,8 +41,8 @@ namespace Azos.Wave.Filters
         hprt  = hprt.IsNotNullOrWhiteSpace() ? hprt : "Real-Port";
 
 
-        var rIP = work.Request.Headers[hip];
-        var rPort = work.Request.Headers[hprt];
+        var rIP = work.Request.HeaderAsString(hip);
+        var rPort = work.Request.HeaderAsString(hprt);
 
         if (hip.EqualsOrdIgnoreCase(WebConsts.HTTP_HDR_X_FORWARDED_FOR) && rIP.IsNotNullOrWhiteSpace())
         {
@@ -71,11 +64,8 @@ namespace Azos.Wave.Filters
         }
       }
 
-      this.InvokeNextWorker(work, filters, thisFilterIndex);
+      await this.InvokeNextWorkerAsync(work, callChain).ConfigureAwait(false);
     }
-
     #endregion
-
   }
-
 }

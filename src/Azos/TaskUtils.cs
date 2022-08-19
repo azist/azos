@@ -4,9 +4,11 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using Azos.Platform;
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -395,27 +397,26 @@ namespace Azos
       }
     }
 
+    private static readonly FiniteSetLookup<Type, PropertyInfo> s_TaskResultPropertyCache = new FiniteSetLookup<Type, PropertyInfo>( t => {
+      var pi = t.GetProperty(nameof(Task<object>.Result));
+      if (pi == null || pi.PropertyType.FullName == "System.Threading.Tasks.VoidTaskResult") return null;
+      return pi;
+    });
+
     /// <summary>
     /// If the passed task is a completed instance of Task&lt;TResult&gt;
     /// returns TResult.Result polymorphically as object
     /// </summary>
     public static (bool ok, object result) TryGetCompletedTaskResultAsObject(this Task task)
     {
-      if (task==null) return (false, null);
-      if (!task.IsCompleted) return (false, null);
+      if (task==null || task == Task.CompletedTask) return (false, null);
+      if (!task.IsCompletedSuccessfully) return (false, null);
 
-      var t = task.GetType();
+      var pi = s_TaskResultPropertyCache[task.GetType()];
 
-      //safeguard for theoretical future fx extension to more derivatives than Task<t>
-      var tp = t;
-      while(tp!=null)//must search parent chain as continuation return internal ContinuationResultTaskFromTask<TResult> : Task<TResult>
-      {
-        if (tp.IsGenericType && tp.GetGenericTypeDefinition() == typeof(Task<>)) break;
-        tp = tp.BaseType;
-      }
-      if (tp==null) return (false, null);
+      if (pi == null) return (false, null);
 
-      var result = t.GetProperty("Result").GetValue(task);
+      var result = pi.GetValue(task);
       return (ok: true, result);
     }
 
@@ -433,9 +434,14 @@ namespace Azos
     }
 
     /// <summary>
-    /// A shortcut to task.GetAwaiter().GetResult()
+    /// SYNCHRONOUSLY awaits a task with result completion: a shortcut to task(t).GetAwaiter().GetResult(t)()
     /// </summary>
-    public static T SyncRun<T>(this Task<T> task) => task.GetAwaiter().GetResult();
+    public static T AwaitResult<T>(this Task<T> task) => task.GetAwaiter().GetResult();
+
+    /// <summary>
+    /// SYNCHRONOUSLY awaits a task completion: a shortcut to task(void).GetAwaiter().GetResult()
+    /// </summary>
+    public static void Await(this Task task) => task.GetAwaiter().GetResult();
   }
 
   /// <summary>

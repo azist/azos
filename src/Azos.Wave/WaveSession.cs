@@ -11,7 +11,7 @@ using System.Text;
 
 
 using Azos.Apps;
-using Azos.Web.GeoLookup;
+using Azos.Sky.GeoLookup;
 
 namespace Azos.Wave
 {
