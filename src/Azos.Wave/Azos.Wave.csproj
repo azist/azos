@@ -23,16 +23,34 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\____GlobalWarningSuppressions.cs" Link="____GlobalWarningSuppressions.cs" />
-    <Compile Include="Templatization\StockContent\.tc\*.nht.auto.cs" />
+    <Compile Remove="Templatization/StockContent/Embedded/script/mtest/**" />
+    <Compile Remove="Templatization/StockContent/Embedded/script/utest/**" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Templatization\StockContent\Embedded\flags\**" />
+    <EmbeddedResource Include="Templatization\StockContent\Embedded\stl\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="BUILD_INFO.txt" />
     <None Remove="Tv\Help.txt" />
     <None Remove="Tv\Welcome.txt" />
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="..\____GlobalWarningSuppressions.cs" Link="____GlobalWarningSuppressions.cs" />
+    <Compile Include="Templatization\StockContent\.tc\ApiDoc-Schema.nht.auto.cs" />
+    <Compile Include="Templatization\StockContent\.tc\ApiDoc-Scope.nht.auto.cs" />
+    <Compile Include="Templatization\StockContent\.tc\ApiDoc-Toc.nht.auto.cs" />
+    <Compile Include="Templatization\StockContent\.tc\Error.nht.auto.cs" />
+    <Compile Include="Templatization\StockContent\.tc\Master.nht.auto.cs" />
+    <Compile Include="Templatization\StockContent\.tc\OAuthLogin.nht.auto.cs" />
+    <Compile Include="Templatization\StockContent\.tc\OAuthSsoRedirect.nht.auto.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="BUILD_INFO.txt" />
     <EmbeddedResource Include="Tv\Help.txt" />
     <EmbeddedResource Include="Tv\Welcome.txt" />
   </ItemGroup>
@@ -43,8 +61,12 @@
     </None>
   </ItemGroup>
 
-  <!--ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
-  </ItemGroup-->
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="$(ProjectDir)_build/pre-build $(SolutionDir) $(ProjectDir) $(ConfigurationName)" />
+  </Target>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="$(ProjectDir)_build/post-build $(SolutionDir) $(ProjectDir) $(ConfigurationName)" />
+  </Target>
 
 </Project>
