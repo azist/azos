@@ -35,6 +35,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "testing", "testing", "{0FC6
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestBusinessLogic", "testing\TestBusinessLogic\TestBusinessLogic.csproj", "{27C8EE85-4E00-4471-B81B-C4D51C9D03D0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4738C14F-1153-44F6-977B-B82750333E7E} = {4738C14F-1153-44F6-977B-B82750333E7E}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.Wave", "Azos.Wave\Azos.Wave.csproj", "{26E0A0E2-9EB5-4905-A9B2-DF5B08E0121C}"
 EndProject
@@ -49,20 +52,38 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "providers", "providers", "{608A6011-035A-4E1C-A1EB-29F91960A5BD}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.MongoDb", "providers\Azos.MongoDb\Azos.MongoDb.csproj", "{B3831368-8B6F-4EB6-AFC8-8D52609FB6A4}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4738C14F-1153-44F6-977B-B82750333E7E} = {4738C14F-1153-44F6-977B-B82750333E7E}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.MySql", "providers\Azos.MySql\Azos.MySql.csproj", "{2CF0DBE7-3CEA-4E19-BAD4-1F0BCFB74D44}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4738C14F-1153-44F6-977B-B82750333E7E} = {4738C14F-1153-44F6-977B-B82750333E7E}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.MsSql", "providers\Azos.MsSql\Azos.MsSql.csproj", "{A82E327A-2492-4016-A9C5-BB1BE889A08E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4738C14F-1153-44F6-977B-B82750333E7E} = {4738C14F-1153-44F6-977B-B82750333E7E}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.Media", "providers\Azos.Media\Azos.Media.csproj", "{96C1D999-FFD7-4599-831B-FBD37606AD36}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4738C14F-1153-44F6-977B-B82750333E7E} = {4738C14F-1153-44F6-977B-B82750333E7E}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.Sky.WebManager", "Azos.Sky.WebManager\Azos.Sky.WebManager.csproj", "{C08D9A95-63BA-4D5F-9FB4-5F8A211D92D6}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.Tests.Nub", "testing\Azos.Tests.Nub\Azos.Tests.Nub.csproj", "{C533831A-DD1B-4DA2-A7D8-98B6DD708871}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.Oracle", "providers\Azos.Oracle\Azos.Oracle.csproj", "{C2CF5A80-206E-4BE0-AEDD-0CD0592AECFC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4738C14F-1153-44F6-977B-B82750333E7E} = {4738C14F-1153-44F6-977B-B82750333E7E}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.AuthKit", "providers\Azos.AuthKit\Azos.AuthKit.csproj", "{C1CA5780-86B9-4A07-87A7-50C2306F6B58}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4738C14F-1153-44F6-977B-B82750333E7E} = {4738C14F-1153-44F6-977B-B82750333E7E}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.AuthKit.Server.MySql", "providers\Azos.AuthKit.Server.MySql\Azos.AuthKit.Server.MySql.csproj", "{49E9A358-FB4B-4E0C-8CF2-B618A0B7B312}"
 EndProject
@@ -71,16 +92,35 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "sky", "runtimes\core\sky\sky.csproj", "{4738C14F-1153-44F6-977B-B82750333E7E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Agnivo", "runtimes\windows\Agnivo\Agnivo.csproj", "{ECCD4913-A05E-453E-98DE-85421A8B79A7}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4738C14F-1153-44F6-977B-B82750333E7E} = {4738C14F-1153-44F6-977B-B82750333E7E}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.Platform.Windows", "runtimes\windows\Azos.Platform.Windows\Azos.Platform.Windows.csproj", "{D11CE79A-812A-49A2-9506-7BD0380A0778}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4738C14F-1153-44F6-977B-B82750333E7E} = {4738C14F-1153-44F6-977B-B82750333E7E}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.WinForms", "runtimes\windows\Azos.WinForms\Azos.WinForms.csproj", "{4F7884B7-3017-4323-8A9F-E2CC6BE0A7B3}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4738C14F-1153-44F6-977B-B82750333E7E} = {4738C14F-1153-44F6-977B-B82750333E7E}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinFormsTest", "runtimes\windows\WinFormsTest\WinFormsTest.csproj", "{2B1BA164-BE13-4000-B8A8-671620665DB2}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4738C14F-1153-44F6-977B-B82750333E7E} = {4738C14F-1153-44F6-977B-B82750333E7E}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.Wave.Kestrel", "providers\Azos.Wave.Kestrel\Azos.Wave.Kestrel.csproj", "{1AECA4C8-F893-41D5-9D50-3F966FB03F0D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4738C14F-1153-44F6-977B-B82750333E7E} = {4738C14F-1153-44F6-977B-B82750333E7E}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.Sky", "Azos.Sky\Azos.Sky.csproj", "{242BBD17-BCD1-441F-AE24-B167E31DDAED}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1743D0B5-2B62-44B2-A1C1-84326209F0FC} = {1743D0B5-2B62-44B2-A1C1-84326209F0FC}
+		{4738C14F-1153-44F6-977B-B82750333E7E} = {4738C14F-1153-44F6-977B-B82750333E7E}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azos.Sky.Server", "Azos.Sky.Server\Azos.Sky.Server.csproj", "{7888A19E-72AA-4FF1-B697-A8FF7D0A5F12}"
 EndProject

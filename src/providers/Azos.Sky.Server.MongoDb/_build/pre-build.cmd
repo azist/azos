@@ -1,4 +1,4 @@
-echo +++++ [Azos.Sky.MongoDb] Pre Build
+echo +++++ [Azos.Sky.Server.MongoDb] Pre Build
 
 set SOLUTION_DIR=%1
 set PROJECT_DIR=%2
@@ -15,4 +15,4 @@ rem ---------------------------------------------
 echo Nothing...
 
 rem ---------------------------------------------
-echo +++++ [Azos.Sky.MongoDb] Pre Build
+echo +++++ [Azos.Sky.Server.MongoDb] Pre Build
