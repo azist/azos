@@ -10,7 +10,7 @@ set PROJECT_HOME=%AZIST_HOME%
 SET LAST=%PROJECT_HOME:~-1%
 set %LAST% NEQ \ (SET PROJECT_HOME=%PROJECT_HOME%\)
 
-set AZOS_HOME=%PROJECT_HOME%azos-net6\
+set AZOS_HOME=%PROJECT_HOME%azos\
 set OUT=%AZOS_HOME%out\nuget
 
 set ICON=https://raw.githubusercontent.com/azist/azos/master/elm/design/logo/azos-logo-320x320.png
