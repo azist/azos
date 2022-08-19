@@ -1,6 +1,6 @@
 # Azos - A to Z Business Operating System
 
-**NET6**
+Supports: .Net 6.0 Server Components; .Net Standard 2.1 Azos, Azos.Sky clients and server components
 
 <img src="/elm/design/logo/azos.png" alt="Logo" >
 
@@ -59,16 +59,19 @@ Azos is built for writing **Distributed systems** of **infinite scale**:
 cmd | Description
  -------|------
  `pm> install-package Azos` | Azos Core Package (App Chassis, Pile, Glue, Log, Instr etc.)
- `pm> install-package Azos.Web`| Azos Web (Client, Protocols etc.) 
- `pm> install-package Azos.Wave`| Azos Wave Server + Mvc 
+ `pm> install-package Azos.Sky`| Azos Sky (Client, Protocols, Distributed cloud etc.) 
+ `pm> install-package Azos.Wave`| Azos Wave Server + Mvc + Kestrel listener 
  `pm> install-package Azos.MsSql`| Azos Microsoft SQL Server Provider (CRUD etc.) 
  `pm> install-package Azos.Oracle`| Azos ORACLE RDBMS Provider (CRUD etc.)
  `pm> install-package Azos.MySQL`| Azos MySQL RDBMS Provider (CRUD etc.) + Native Client
  `pm> install-package Azos.MongoDb`| Azos MongoDb Proivder (CRUD etc.) + Native Client 
  `pm> install-package Azos.WinForms`| Azos WinForms Support (for legacy)
  `pm> install-package Azos.Media`| Azos Media Formats (PDF, QR Codes etc.) 
- `pm> install-package Azos.Sky`| Azos Sky Distributed Cloud OS
- `pm> install-package Azos.Sky.MongoDb`| Azos Sky MongoDb Services (Queues etc.)
+ `pm> install-package Azos.Sky.Server`| Azos Sky Distributed services implementations
+ `pm> install-package Azos.Sky.Server.MongoDb`| Azos Sky MongoDb Services (Queues etc.)
+ `pm> install-package Azos.AuthKit`| Azos IDP/Authorization Authority (IDP, OAuth)
+ `pm> install-package Azos.AuthKit.Server`| Azos IDP/Authorization Authority server implementation
+ `pm> install-package Azos.AuthKit.Server.MySql`| Azos IDP/Authorization Authority server MySql storage layer
 
 
 See also:
