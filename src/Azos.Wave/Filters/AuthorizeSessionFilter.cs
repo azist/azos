@@ -9,6 +9,7 @@ using System;
 using Azos.Security;
 using Azos.Conf;
 using Azos.Instrumentation;
+using Azos.Web;
 
 namespace Azos.Wave.Filters
 {

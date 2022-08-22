@@ -15,7 +15,7 @@ using Azos.Data;
 using Azos.Data.Access.MongoDb.Connector;
 using Azos.Glue;
 using Azos.Platform;
-using Azos.Wave;
+using Azos.Web;
 
 namespace Azos.Sky.EventHub.Server
 {

@@ -30,7 +30,7 @@ namespace Azos.Wave.Mvc
       if (error != null)
       {
         descr = error.Message;
-        var httpError = error as HTTPStatusException;
+        var httpError = error as Web.HTTPStatusException;
         if (httpError != null)
         {
           http = httpError.StatusCode;

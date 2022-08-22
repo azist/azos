@@ -125,7 +125,7 @@ namespace Azos.Security.MinIdp
       }
       catch(Exception error)
       {
-        throw new HTTPStatusException(400, "Bad command syntax", error.ToMessageWithType());
+        throw new Web.HTTPStatusException(400, "Bad command syntax", error.ToMessageWithType());
       }
 
       var callable = (TargetStore as IExternallyCallable).NonNull("Is not {0}".Args(nameof(IExternallyCallable)));
