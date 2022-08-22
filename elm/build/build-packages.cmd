@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.0.0.2
-set HEADLINE=Fix net6.0 packaging
+set VER=3.0.0.3
+set HEADLINE=HttpStatusException and Bixas
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
