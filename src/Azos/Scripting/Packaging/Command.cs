@@ -73,10 +73,10 @@ namespace Azos.Scripting.Packaging
 
 
   /// <summary>
-  /// Executes script on target host
+  /// Executes script on target OS system
   /// </summary>
   [PackageCommand("90b71e1c-8aa8-422d-8213-c19414de845f")]
-  public sealed class ExecCommand : Command
+  public sealed class ExecOsCommand : Command
   {
 
     public string ScriptText{  get; set; }
