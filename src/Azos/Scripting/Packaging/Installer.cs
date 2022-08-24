@@ -22,7 +22,7 @@ namespace Azos.Scripting.Packaging
     public Installer(string rootPath, Package package)
     {
       m_RootPath = rootPath.NonBlank();
-      Directory.Exists(m_RootPath).IsTrue("Existing path `{0}`".Args(m_RootPath));
+      System.IO.Directory.Exists(m_RootPath).IsTrue("Existing path `{0}`".Args(m_RootPath));
     }
 
     private string m_RootPath;
