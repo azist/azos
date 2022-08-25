@@ -19,7 +19,7 @@ namespace Azos.Scripting.Packaging
   {
     public delegate void ProgressHandler(string status);
 
-    public Installer(string rootPath, Package package)
+    public Installer(string rootPath, Package package, string targetName)
     {
       m_RootPath = rootPath.NonBlank();
       System.IO.Directory.Exists(m_RootPath).IsTrue("Existing path `{0}`".Args(m_RootPath));
@@ -34,6 +34,55 @@ namespace Azos.Scripting.Packaging
     /// Starts the installation
     /// </summary>
     public void Run()
+    {
+
+    }
+
+    /// <summary>
+    /// Returns True if condition is evaluated positively according to current installer state
+    /// </summary>
+    public bool EvaluateCondition(string condition)
+    {
+      return true;
+    }
+
+    public void SetStateTargetName(string targetName)
+    {
+
+    }
+
+    /// <summary>
+    /// Stops installation run
+    /// </summary>
+    public void Stop()
+    {
+      //
+    }
+
+    /// <summary>
+    /// Executes script on host OS
+    /// </summary>
+    public void ExecuteOsScript(string text)
+    {
+
+    }
+
+    public void ChangeDirectory(string path)
+    {
+
+    }
+
+    public void CreateDirectory(string name)
+    {
+
+    }
+
+    public void CreateFile(string name)
+    {
+
+    }
+
+    public void WriteFileChunk(long offset, byte[] data)
     {
 
     }
