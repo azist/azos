@@ -35,4 +35,8 @@ for specific control of package installation options. A series of built-in comma
 > You will need to include your assembly reference for the installer (see examples).
 > You can also invoke OS script with a built-in `ExecOsCommand`
 
+> Q: **Can packages have dependencies?**
+> A: You can model dependencies using custom `RequirePackageCommand` which will pause the installation of the current command until the dependency gets resolved
+> and installed. The base `Installer` provides virtual hooks for extension. Most cases don't need to have complex scenarios like inter-package dependencies
+
 
