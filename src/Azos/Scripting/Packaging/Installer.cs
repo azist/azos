@@ -5,9 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.IO;
-using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 
 namespace Azos.Scripting.Packaging
 {
@@ -17,6 +15,15 @@ namespace Azos.Scripting.Packaging
   /// </summary>
   public class Installer
   {
+    /// <summary>
+    /// Types of built-in commends declared in this namespace
+    /// </summary>
+    public static readonly Type[] BUILT_IN_COMMANDS =
+       typeof(Installer).Assembly
+                        .GetTypes()
+                        .Where(t => t.Namespace.StartsWith(typeof(Installer).Namespace) && t.IsSubclassOf(typeof(Command)))
+                        .ToArray();
+
     public delegate void ProgressHandler(string status);
 
     public Installer(string rootPath, Package package, string targetName)
