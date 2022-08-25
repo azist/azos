@@ -71,7 +71,7 @@ namespace Azos.Scripting.Packaging
     public IVolume Volume => m_Volume.NonDisposed("volume");
 
     /// <summary>
-    /// Returns all commands contained by the package
+    /// Returns all commands contained in the package
     /// </summary>
     public IEnumerable<Command> Commands => m_Reader.NonDisposed("reader").All;
   }
