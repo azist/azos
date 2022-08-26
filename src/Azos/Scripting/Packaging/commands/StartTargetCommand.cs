@@ -21,7 +21,8 @@ namespace Azos.Scripting.Packaging
   {
     public string TargetName { get; set; }
 
-    protected override void DoExecute(Installer state) => state.SetStateTargetName(TargetName);
+    protected override void DoExecute(Installer state)
+      => throw new NotSupportedException($"Explicit execution of {nameof(StartTargetCommand)} is prohibited");
 
     protected internal override void Serialize(BixWriter writer)
     {
