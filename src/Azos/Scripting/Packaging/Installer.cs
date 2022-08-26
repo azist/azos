@@ -100,6 +100,12 @@ namespace Azos.Scripting.Packaging
     protected FileStream m_State_FileStream;
 
     /// <summary>
+    /// Currently path segments
+    /// </summary>
+    public string[] State_PathSegments => m_State_PathSegments;
+    protected string[] m_State_PathSegments;
+
+    /// <summary>
     /// Installation application chassis
     /// </summary>
     public IApplication App => m_App;
@@ -237,6 +243,8 @@ namespace Azos.Scripting.Packaging
         m_State_CurrentCommand = one;
         m_State_CurrentCommandIndex++;
 
+        if (one is not FileChunkCommand) CloseCurrentFile();
+
         if (one is StartTargetCommand cmdStartTarget) //special system command
         {
           m_State_CurrentTarget = cmdStartTarget.TargetName;
@@ -285,13 +293,19 @@ namespace Azos.Scripting.Packaging
     public virtual void CreateDirectory(string name)
     {
 
+
+      var currentDir = GetCurrentFullPathOf(null);
+      Directory.Exists(currentDir).IsTrue("Existing stem dir");
+
+      var newPath = GetCurrentFullPathOf(name);
+      Directory.CreateDirectory(newPath);
     }
 
     public virtual void CreateFile(string name)
     {
       CloseCurrentFile();
-      var fullPath = Path.Combine(m_RootPath, name);
-      m_State_FileStream = new FileStream(fullPath, FileMode.Create, FileAccess.Write, FileShare.None, 32 * 1024, FileOptions.WriteThrough);
+      var fullPath = GetCurrentFullPathOf(name);
+      m_State_FileStream = new FileStream(fullPath, FileMode.Create, FileAccess.Write, FileShare.None);
     }
 
     //https://stackoverflow.com/questions/45132081/file-permissions-on-linux-unix-with-net-core
@@ -315,6 +329,15 @@ namespace Azos.Scripting.Packaging
       }
     }
 
+    protected string GetCurrentFullPathOf(string name)
+     => Path.Combine(m_RootPath, GetCurrentRelativePathOf(name));
+
+    protected string GetCurrentRelativePathOf(string name)
+    {
+      if (m_State_PathSegments == null || m_State_PathSegments.Length == 0) return name;
+      return name.IsNotNullOrWhiteSpace() ? Path.Combine(m_State_PathSegments.AppendToNew(name))
+                                          : Path.Combine(m_State_PathSegments);
+    }
 
     private T idle<T>(T v)
     {
