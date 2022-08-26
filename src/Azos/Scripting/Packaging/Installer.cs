@@ -223,8 +223,8 @@ namespace Azos.Scripting.Packaging
 
     protected virtual void DoBeforeRun()
     {
-      System.IO.Directory.Exists(m_RootPath.NonBlank(nameof(RootPath))).IsTrue("Existing root path: `{0}`".Args(m_RootPath));
-      System.IO.File.Exists(m_PackagePath.NonBlank(nameof(PackagePath))).IsTrue("Existing package file: `{0}`".Args(m_PackagePath));
+      Directory.Exists(m_RootPath.NonBlank(nameof(RootPath))).IsTrue("Existing root path: `{0}`".Args(m_RootPath));
+      File.Exists(m_PackagePath.NonBlank(nameof(PackagePath))).IsTrue("Existing package file: `{0}`".Args(m_PackagePath));
       DisposeAndNull(ref m_Package);
       m_Package = Package.FromFile(App, m_PackagePath, m_CommandTypeResolver);
     }
