@@ -282,33 +282,49 @@ namespace Azos.Scripting.Packaging
     /// </summary>
     public virtual void ExecuteOsScript(string text)
     {
-
+    //https://stackoverflow.com/questions/45132081/file-permissions-on-linux-unix-with-net-core
     }
 
-    public virtual void ChangeDirectory(string path)
+    public virtual void ChangeDirectory(string name)
     {
+      if (name == "/" || name == "\\")
+      {
+        m_State_PathSegments = null;
+        return;
+      }
 
+      if (name == "..")
+      {
+        if (m_State_PathSegments != null  &&  m_State_PathSegments.Length > 0)
+        {
+          m_State_PathSegments = m_State_PathSegments.Take(m_State_PathSegments.Length - 1).ToArray();
+        }
+        return;
+      }
+
+      name = GuardOnePathSegment(name);
+      var newFullPath = GetCurrentFullPathOf(name);
+      Directory.Exists(newFullPath).IsTrue("Existing dir");
+
+      m_State_PathSegments = m_State_PathSegments == null ? new string[]{ name } : m_State_PathSegments.AppendToNew(name);
     }
 
     public virtual void CreateDirectory(string name)
     {
-
-
       var currentDir = GetCurrentFullPathOf(null);
       Directory.Exists(currentDir).IsTrue("Existing stem dir");
 
-      var newPath = GetCurrentFullPathOf(name);
-      Directory.CreateDirectory(newPath);
+      var newFullPath = GetCurrentFullPathOf(GuardOnePathSegment(name));
+      Directory.CreateDirectory(newFullPath);
     }
 
     public virtual void CreateFile(string name)
     {
       CloseCurrentFile();
-      var fullPath = GetCurrentFullPathOf(name);
+      var fullPath = GetCurrentFullPathOf(GuardOnePathSegment(name));
       m_State_FileStream = new FileStream(fullPath, FileMode.Create, FileAccess.Write, FileShare.None);
     }
 
-    //https://stackoverflow.com/questions/45132081/file-permissions-on-linux-unix-with-net-core
     public virtual void WriteFileChunk(long offset, byte[] data)
     {
       //WARNING: Never trust data arriving from wire. MUST perform all MAX size checks!!!
@@ -327,6 +343,17 @@ namespace Azos.Scripting.Packaging
         m_State_FileStream.Close();
         DisposeAndNull(ref m_State_FileStream);
       }
+    }
+
+    protected string GuardOnePathSegment(string seg)
+    {
+      (seg.IsNotNullOrWhiteSpace() &&
+       seg.IndexOf(Path.PathSeparator) < 0 &&
+       seg.IndexOf(Path.DirectorySeparatorChar) < 0 &&
+       seg.IndexOf(Path.AltDirectorySeparatorChar) < 0 &&
+       seg.IndexOf(Path.VolumeSeparatorChar) < 0).IsTrue("Valid path segment");
+
+      return seg.Trim();
     }
 
     protected string GetCurrentFullPathOf(string name)
