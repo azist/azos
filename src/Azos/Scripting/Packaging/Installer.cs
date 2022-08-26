@@ -5,6 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
+using System.IO;
 using System.Linq;
 using Azos.Apps;
 using Azos.Conf;
@@ -18,7 +19,6 @@ namespace Azos.Scripting.Packaging
   public class Installer : DisposableObject, IConfigurable
   {
     public const string CONFIG_RESOLVER_SECTION = "command-type-resolver";
-
 
     public enum RunStatus
     {
@@ -91,6 +91,13 @@ namespace Azos.Scripting.Packaging
     /// </summary>
     public long State_CurrentCommandIndex => m_State_CurrentCommandIndex;
     protected long m_State_CurrentCommandIndex = -1;
+
+
+    /// <summary>
+    /// Currently open file stream or null
+    /// </summary>
+    public FileStream State_FileStream => m_State_FileStream;
+    protected FileStream m_State_FileStream;
 
     /// <summary>
     /// Installation application chassis
@@ -204,6 +211,7 @@ namespace Azos.Scripting.Packaging
       finally
       {
         m_Status = RunStatus.Stopped;
+        CloseCurrentFile();
       }
     }
 
@@ -235,6 +243,11 @@ namespace Azos.Scripting.Packaging
           continue;
         }
 
+        if (one is StopCommand cmdStop) //special system command
+        {
+          break;
+        }
+
         var ok = DoFilterCommand(one);
         if (!ok) continue;
 
@@ -244,51 +257,62 @@ namespace Azos.Scripting.Packaging
 
     protected virtual void DoAfterRun()
     {
+      CloseCurrentFile();
     }
 
 
     /// <summary>
     /// Returns True if condition is evaluated positively according to current installer state
     /// </summary>
-    public bool EvaluateCondition(string condition)
+    public virtual bool EvaluateCondition(string condition)
     {
       return true;
     }
 
     /// <summary>
-    /// Stops installation run
-    /// </summary>
-    public void Stop()
-    {
-      //
-    }
-
-    /// <summary>
     /// Executes script on host OS
     /// </summary>
-    public void ExecuteOsScript(string text)
+    public virtual void ExecuteOsScript(string text)
     {
 
     }
 
-    public void ChangeDirectory(string path)
+    public virtual void ChangeDirectory(string path)
     {
 
     }
 
-    public void CreateDirectory(string name)
+    public virtual void CreateDirectory(string name)
     {
 
     }
 
-    public void CreateFile(string name)
+    public virtual void CreateFile(string name)
     {
-
+      CloseCurrentFile();
+      var fullPath = Path.Combine(m_RootPath, name);
+      m_State_FileStream = new FileStream(fullPath, FileMode.Create, FileAccess.Write, FileShare.None, 32 * 1024, FileOptions.WriteThrough);
     }
 
-    public void WriteFileChunk(long offset, byte[] data)
+    //https://stackoverflow.com/questions/45132081/file-permissions-on-linux-unix-with-net-core
+    public virtual void WriteFileChunk(long offset, byte[] data)
     {
+      //WARNING: Never trust data arriving from wire. MUST perform all MAX size checks!!!
+      (offset >= 0 && offset < Package.MAX_TOTAL_FILE_SIZE_BYTES).IsTrue("Max file sz");
+      (data.NonNull(nameof(data)).Length <= Package.MAX_CHUNK_FILE_SIZE_BYTES).IsTrue("Max chunk sz");
 
+      var fs = m_State_FileStream.NonDisposed("Open fs");
+      fs.Position = offset;
+      fs.Write(data, 0, data.Length);
+    }
+
+    public virtual void CloseCurrentFile()
+    {
+      if (m_State_FileStream != null)
+      {
+        m_State_FileStream.Close();
+        DisposeAndNull(ref m_State_FileStream);
+      }
     }
 
 

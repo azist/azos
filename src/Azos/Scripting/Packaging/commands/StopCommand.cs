@@ -17,6 +17,7 @@ namespace Azos.Scripting.Packaging
   [PackageCommand("b3e0130c-3a51-4e8d-b91c-afa86ab1c323")]
   public sealed class StopCommand : Command
   {
-    protected override void DoExecute(Installer state) => state.Stop();
+    protected override void DoExecute(Installer state)
+      => throw new NotSupportedException($"Explicit execution of {nameof(StopCommand)} is prohibited");
   }
 }
