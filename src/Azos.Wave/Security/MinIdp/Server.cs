@@ -114,18 +114,18 @@ namespace Azos.Security.MinIdp
       Methods = new []{"POST: json body"},
       ResponseContent = "Json object {OK: bool, ctype: string, data: {}}")]
     [ActionOnPost(Name = "exec"), AcceptsJson]
-    public void ExecCommand(string source)
+    public async Task ExecCommand(string source)
     {
       IConfigSectionNode command = null;
 
       try
       {
         command = source.NonBlank(nameof(source))
-                           .AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw);
+                           .AsLaconicConfig(handling: Azos.Data.ConvertErrorHandling.Throw);
       }
       catch(Exception error)
       {
-        throw new HTTPStatusException(400, "Bad command syntax", error.ToMessageWithType());
+        throw new Web.HTTPStatusException(400, "Bad command syntax", error.ToMessageWithType());
       }
 
       var callable = (TargetStore as IExternallyCallable).NonNull("Is not {0}".Args(nameof(IExternallyCallable)));
@@ -136,13 +136,16 @@ namespace Azos.Security.MinIdp
       {
         WorkContext.Response.StatusCode = 400;
         WorkContext.Response.StatusDescription = "Bad request: command not understood";
-        WorkContext.Response.WriteJSON(new {OK = false, cmd = command.Name});
+        await WorkContext.Response.WriteJsonAsync(new {OK = false, cmd = command.Name}).ConfigureAwait(false);
         return;
       }
 
       WorkContext.Response.StatusCode = got.StatusCode;
       WorkContext.Response.StatusDescription = got.StatusDescription;
-      WorkContext.Response.WriteJSON(new {OK = true, ctype = got.ContentType, data = got.Content}, Serialization.JSON.JsonWritingOptions.PrettyPrintRowsAsMapASCII);
+
+      await WorkContext.Response.WriteJsonAsync(
+              new {OK = true, ctype = got.ContentType, data = got.Content},
+              Serialization.JSON.JsonWritingOptions.PrettyPrintRowsAsMapASCII).ConfigureAwait(false);
     }
   }
 }

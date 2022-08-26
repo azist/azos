@@ -197,7 +197,7 @@ namespace Azos.Glue.Implementation
     #region Public
 
 
-#warning missing check for this Glue affinity
+//#warning missing check for this Glue affinity
     public void RegisterProvider(Provider p)
     {
         if (!m_Providers.Register(p))
@@ -205,13 +205,13 @@ namespace Azos.Glue.Implementation
                 "Provider = " + p.Name);
     }
 
-#warning missing check for this Glue affinity
+//#warning missing check for this Glue affinity
     public void UnregisterProvider(Provider p)
     {
         m_Providers.Unregister(p);
     }
 
-#warning missing check for this Glue affinity
+//#warning missing check for this Glue affinity
     public void RegisterBinding(Binding b)
     {
         if (!m_Bindings.Register(b))
@@ -219,13 +219,13 @@ namespace Azos.Glue.Implementation
                 "Binding = " + b.Name);
     }
 
-#warning missing check for this Glue affinity
+//#warning missing check for this Glue affinity
     public void UnregisterBinding(Binding b)
     {
         m_Bindings.Unregister(b);
     }
 
-#warning missing check for this Glue affinity
+//#warning missing check for this Glue affinity
     public void RegisterServerEndpoint(ServerEndPoint ep)
     {
         if (!m_Servers.Register(ep))
@@ -233,7 +233,7 @@ namespace Azos.Glue.Implementation
                 "ServerEndPoint = " + ep.Name);
     }
 
-#warning missing check for this Glue affinity
+//#warning missing check for this Glue affinity
     public void UnregisterServerEndpoint(ServerEndPoint ep)
     {
         m_Servers.Unregister(ep);

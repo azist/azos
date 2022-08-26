@@ -4,7 +4,7 @@
 * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-namespace Azos.Security.Permissions.Data
+namespace Azos.Security.Data
 {
   /// <summary>
   /// Defines access levels for conf forest tree access

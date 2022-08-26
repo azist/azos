@@ -11,8 +11,10 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Azos.Conf;
 using Azos.Serialization.JSON;
+using Azos.Web;
 
 namespace Azos.Wave.Handlers
 {
@@ -115,13 +117,13 @@ namespace Azos.Wave.Handlers
 
 
 
-    public SSEMailboxHandler(WorkDispatcher dispatcher, string name, int order, WorkMatch match)
-                     : base(dispatcher, name, order, match)
+    public SSEMailboxHandler(WorkHandler director, string name, int order, WorkMatch match)
+                     : base(director, name, order, match)
     {
       ctor();
     }
 
-    public SSEMailboxHandler(WorkDispatcher dispatcher, IConfigSectionNode confNode) : base(dispatcher, confNode)
+    public SSEMailboxHandler(WorkHandler director, IConfigSectionNode confNode) : base(director, confNode)
     {
       ctor();
     }
@@ -172,7 +174,7 @@ namespace Azos.Wave.Handlers
     }
 
 
-    protected override void DoHandleWork(WorkContext work)
+    protected override async Task DoHandleWorkAsync(WorkContext work)
     {
       if (Disposed) throw HTTPStatusException.InternalError_500("Unavailable");
 
@@ -189,8 +191,7 @@ namespace Azos.Wave.Handlers
 
       try
       {
-        flushFirstChunk(work);//Microsoft Http bug. need 1000 chars at first to start buffer flushing
-        work.NoDefaultAutoClose = true;
+        await flushFirstChunkAsync(work).ConfigureAwait(false);
       }
       catch
       {
@@ -236,11 +237,10 @@ namespace Azos.Wave.Handlers
       mailbox.Dispose();
     }
 
-    private void flushFirstChunk(WorkContext work)
+    private async Task flushFirstChunkAsync(WorkContext work)
     {
-      work.Response.Write("".PadLeft(1000, ' '));//Microsoft bug. need 1000 chars at first to start buffer flushing
-      work.Response.Write("event: connect\ndata: {0}\n\n".Args(new {startDate = App.TimeSource.UTCNow}.ToJson(JsonWritingOptions.CompactASCII)));
-      work.Response.Flush();
+      await work.Response.WriteAsync("event: connect\ndata: {0}\n\n".Args(new {startDate = App.TimeSource.UTCNow}.ToJson(JsonWritingOptions.CompactASCII))).ConfigureAwait(false);
+      await work.Response.FlushAsync().ConfigureAwait(false);
     }
 
     private void scheduleNextManage()

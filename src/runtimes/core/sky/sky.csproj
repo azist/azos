@@ -2,21 +2,35 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <ServerGarbageCollection>true</ServerGarbageCollection>
+
+    <UseAppHost>True</UseAppHost>   <!-- FALSE = get rid of EXE -->
+    <!--
+    By Default, dotnet build uses platform that it runs on, we will rebild like:
+    $ dotnet build ....sky.csproj -r win-x64
+    $ dotnet build ....sky.csproj -r linux-x64
+    instead of the below:
+
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
+    <RuntimeIdentifiers>linux-x64;win-x64</RuntimeIdentifiers>
+    -->
+    <SelfContained>false</SelfContained>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\..\..\..\out\Debug</OutputPath>
+    <OutputPath>../../../../out/Debug</OutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>..\..\..\..\out\Release</OutputPath>
+    <OutputPath>../../../../out/Release</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\Azos\Azos.csproj" />
     <ProjectReference Include="..\Azos.Platform.NetCore20\Azos.Platform.NetCore20.csproj" />
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
 </Project>

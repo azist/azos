@@ -102,7 +102,8 @@
         environment-name="PROD"
         instrumentation-enabled=true
 
-        prefix{ name="http://+:8080/" }
+
+        match{ host-name="localhost:8080"}
 
         default-error-handler
         {
@@ -140,9 +141,9 @@
             }
         }
 
-        dispatcher
-        {
-           // type="Azos.Wave.MultithreadedDispatcher"
+     root-handler
+     {
+
 
 // filter
 // {
@@ -472,8 +473,7 @@
                 }
             }
 
-
-        }//dispatcher
+      }//handler root
     }//server
   }//wave
 
@@ -612,9 +612,19 @@
             handler-location{ns="Azos.MySql.ConfForest.Queries, Azos.MySql"}
           }
 
-        }
-      }
-    }
-  }
+        }//forest
+      }//data
+    }//module
 
+    module
+    {
+      name="kestrel"
+      type="Azos.Wave.Kestrel.KestrelServerModule, Azos.Wave.Kestrel"
+
+      host
+      {
+        listen-any-ip-port=8080
+      }
+    }//module
+  }
 }

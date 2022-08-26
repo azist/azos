@@ -19,12 +19,12 @@ namespace WaveTestSite.Handlers
 {
   public class SimpleHandler : WorkHandler
   {
-    protected SimpleHandler(WorkDispatcher dispatcher, string name, int order, WorkMatch match) : base(dispatcher, name, order, match){ }
-    protected SimpleHandler(WorkDispatcher dispatcher, IConfigSectionNode confNode) : base(dispatcher, confNode){ }
+    protected SimpleHandler(WorkHandler director, string name, int order, WorkMatch match) : base(director, name, order, match){ }
+    protected SimpleHandler(WorkHandler director, IConfigSectionNode confNode) : base(director, confNode){ }
 
-    protected override void DoHandleWork(WorkContext work)
+    protected override async Task DoHandleWorkAsync(WorkContext work)
     {
-      work.Response.Write("{0} came".Args(5));
+      await work.Response.WriteAsync("{0} came".Args(5));
     }
   }
 }

@@ -15,13 +15,14 @@ using Azos.Wave;
 using Azos.Wave.Handlers;
 using Azos.Conf;
 using Azos.Serialization.JSON;
+using System.Threading.Tasks;
 
 namespace WaveTestSite.Handlers
 {
   public class PushHandler : WorkHandler
   {
-    protected PushHandler(WorkDispatcher dispatcher, string name, int order, WorkMatch match) : base(dispatcher, name, order, match){ ctor(); }
-    protected PushHandler(WorkDispatcher dispatcher, IConfigSectionNode confNode) : base(dispatcher, confNode){ ctor();}
+    protected PushHandler(WorkHandler director, string name, int order, WorkMatch match) : base(director, name, order, match){ ctor(); }
+    protected PushHandler(WorkHandler director, IConfigSectionNode confNode) : base(director, confNode){ ctor();}
 
     private void ctor()
     {
@@ -43,7 +44,7 @@ namespace WaveTestSite.Handlers
     private List<WorkContext> m_Works;
 
 
-    protected override void DoHandleWork(WorkContext work)
+    protected override async Task DoHandleWorkAsync(WorkContext work)
     {
       //Prepare connection for SSE
       work.Response.ContentType = Azos.Web.ContentType.SSE;
@@ -51,10 +52,7 @@ namespace WaveTestSite.Handlers
    //   work.Response.Write("".PadLeft(1000, ' '));//Microsoft bug. need 1000 chars at first to start buffer flushing
    //   work.Response.Write("Connection srarted at {0}\n".Args(App.TimeSource.UTCNow));
    //   work.Response.Flush();
-      work.Response.Write("event:a\ndata: aaaa\n\n");
-
-      work.NoDefaultAutoClose = true;
-
+      await work.Response.WriteAsync("event:a\ndata: aaaa\n\n");
 
 
       lock(m_Works) m_Works.Add(work);
@@ -86,7 +84,7 @@ namespace WaveTestSite.Handlers
        {
          var evt = "event: {0}\ndata:{1}\n\n".Args("teztEvent", new {a=1, dt=DateTime.Now, count=works.Length}.ToJson());
 
-         w.Response.Write(evt);
+         w.Response.WriteAsync(evt).Await();
        }
        catch(Exception error)
        {

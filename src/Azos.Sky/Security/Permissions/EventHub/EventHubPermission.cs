@@ -14,7 +14,7 @@ namespace Azos.Security.EventHub
     public static readonly EventProducerPermission Instance = new EventProducerPermission();
 
     public EventProducerPermission() : base(AccessLevel.VIEW) { }
-    public override string Description => Sky.StringConsts.PERMISSION_DESCRIPTION_EventProducer;
+    public override string Description => Azos.Sky.StringConsts.PERMISSION_DESCRIPTION_EventProducer;
   }
 
   /// <summary>
@@ -25,6 +25,6 @@ namespace Azos.Security.EventHub
     public static readonly EventConsumerPermission Instance = new EventConsumerPermission();
 
     public EventConsumerPermission() : base(AccessLevel.VIEW) { }
-    public override string Description => Sky.StringConsts.PERMISSION_DESCRIPTION_EventConsumer;
+    public override string Description => Azos.Sky.StringConsts.PERMISSION_DESCRIPTION_EventConsumer;
   }
 }

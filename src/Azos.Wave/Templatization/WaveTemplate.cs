@@ -126,6 +126,7 @@ namespace Azos.Wave.Templatization
 
         protected override bool DoPostRender(Exception error)
         {
+          Target.Flush(true);
           if (error==null) return false;
           throw new WaveTemplateRenderingException("{0}.DoPostRender: {1}".Args(GetType().FullName, error.ToMessageWithType()), error);
         }

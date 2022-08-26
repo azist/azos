@@ -6,9 +6,9 @@
 using System;
 using System.Runtime.CompilerServices;
 
-[assembly:InternalsVisibleTo("Azos.Web")]
-[assembly:InternalsVisibleTo("Azos.Wave")]
+[assembly: InternalsVisibleTo("Azos.Wave")]
 [assembly: InternalsVisibleTo("Azos.Sky")]
+[assembly: InternalsVisibleTo("Azos.Sky.Server")]
 [assembly: InternalsVisibleTo("Azos.Tests.Nub")]
 [assembly: InternalsVisibleTo("Azos.Tests.Unit")]
 [assembly: InternalsVisibleTo("Azos.Tests.Integration")]

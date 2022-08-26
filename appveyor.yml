@@ -13,7 +13,7 @@ build:
   project: .\src\Azos.sln
   verbosity: minimal
 
-image: Visual Studio 2017
+image: Visual Studio 2022
 
 configuration: Release
 

@@ -15,7 +15,7 @@ namespace Azos.Security.Admin
 
       public override string Description
       {
-          get { return Sky.StringConsts.PERMISSION_DESCRIPTION_RemoteTerminalOperatorPermission; }
+          get { return Azos.Sky.StringConsts.PERMISSION_DESCRIPTION_RemoteTerminalOperatorPermission; }
       }
   }
 }

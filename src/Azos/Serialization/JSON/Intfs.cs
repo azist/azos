@@ -7,6 +7,7 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 
 using Azos.CodeAnalysis.Source;
 
@@ -21,6 +22,8 @@ namespace Azos.Serialization.JSON
     object DeserializeFromJson(string json, bool caseSensitiveMaps);
     object DeserializeFromJson(Stream stream, bool caseSensitiveMaps, Encoding encoding);
     object DeserializeFromJson(ISourceText source, bool caseSensitiveMaps);
+    Task<object> DeserializeFromJsonAsync(Stream stream, bool caseSensitiveMaps, Encoding encoding);
+    Task<object> DeserializeFromJsonAsync(ISourceText source, bool caseSensitiveMaps);
   }
 
 

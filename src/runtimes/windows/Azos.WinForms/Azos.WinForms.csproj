@@ -1,0 +1,52 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <OutputType>Library</OutputType>
+    <_HasReferenceToSystemRuntime>true</_HasReferenceToSystemRuntime>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
+    <SupportedPlatform>windows</SupportedPlatform>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>..\..\..\..\out\Debug\</OutputPath>
+    <DocumentationFile>..\..\..\..\out\Debug\Azos.WinForms.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>..\..\..\..\out\Release\</OutputPath>
+    <DocumentationFile>..\..\..\..\out\Release\Azos.WinForms.xml</DocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Update="Controls\ChartKit\Temporal\PlotPane.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Controls\ChartKit\Temporal\TimeScalePane.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Controls\ChartKit\Temporal\TimeSeriesChart.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Controls\ComboBoxEx.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Controls\GridKit\CellView.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Controls\GridKit\Grid.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Elements\ElementHostControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Forms\DictionaryForm.cs">
+      <SubType>Component</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Azos\Azos.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+  </ItemGroup>
+</Project>

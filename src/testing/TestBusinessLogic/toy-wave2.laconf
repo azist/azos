@@ -1,0 +1,252 @@
+﻿app
+{
+  log-root=$(~AZOS_TEST_ROOT)\
+  log-csv="Azos.Log.Sinks.CSVFileSink, Azos"
+  debug-default-action="Log,Throw"
+
+  cloud-origin="local"
+
+  log
+  {
+    name="LogSvc"
+
+    sink
+    {
+     type=$(/$log-csv)
+     name="WaveTestSite Log"
+     path=$(/$log-root)
+     file-name="{0:yyyyMMdd}-$($name).csv.log"
+     generate-failover-msg=false
+    }
+  }
+
+  object-store { name="Main Object Store"
+                 guid="A2E59DBB-27AE-4803-A19E-72C99DD8956E"
+                 object-life-span-ms="180000"
+                 bucket-count="1024"
+
+
+    provider
+    {
+              name="Disk Object Store Provider"
+              type="Azos.Apps.Volatile.FileObjectStoreProvider"
+              load-limit="0"
+              root-path=$(/$log-root)
+    }
+
+  }
+
+
+  wave
+  {
+    server
+    {
+        //name="Sky-Toy-Server"
+
+        instrumentation-enabled=true
+
+
+        match{ host-name="localhost:8080"}
+
+        default-error-handler
+        {
+            show-dump { match{name=all} }
+            //log {  match{name=all} }
+        }
+
+        gate
+        {
+            //type="may inject type"
+            name="Default Gate"
+            enabled = false
+
+            incoming
+            {
+                default-action=allow
+
+                rule{name="sessionFlood" order=0 action=deny from-expression="$newSession>3"}
+
+
+                rule{name="all_for_dima"  order=1 action=allow from-addrs="170.12.14.12;170.12.14.13"}
+                rule{name="Suspicious"    order=2 action=deny  from-addrs="170.2.1.*"}
+                rule{name="CC hackers"    order=3 action=deny  from-addrs="170.4.*" from-groups="CCAtackers;Greedy"}
+              //  rule{name="Session flood" order=4 action=deny  from-expression="$session<=(?$a<10,$a,12)"}
+
+                group
+                {
+                  name="CCAttackers"
+                  address{name="John Cle" patterns="32.44.*"}
+                  address{name="John Pitt" patterns="32.45.*"}
+                }
+
+                var-def{name="newSession" decay-by="1" interval-sec="20"}
+                var-def{name="cc-recharge" decay-by="1" interval-sec="600"}
+            }
+        }
+
+     root-handler
+     {
+
+        filter
+        {
+          name="Errors" order=0 type="Azos.Wave.Filters.ErrorFilter, Azos.Wave"
+          show-dump
+          {
+            match{ name="errors-localhost" order=1 is-local=true }
+          }
+
+          log
+          {
+            match{ name="all" var{name="movie" default="King of the Hill"} }
+            ////match{name="allButSecurity" type="Azos.Wave.NotAuthorizationExceptionMatch, Azos.Wave"}
+            //////////////match
+            //////////////{
+            //////////////  name="composite"
+            //////////////  type="Azos.Wave.CompositeWorkMatch, Azos.Wave"
+            //////////////  and
+            //////////////  {
+            //////////////    match{name="butSecurity" type="Azos.Wave.NotAuthorizationExceptionMatch, Azos.Wave"}
+            //////////////  //  match{name="but404" type="Azos.Wave.HttpResponseStatusCodeMatch, Azos.Wave" code=404 is-not=true}
+            //////////////  }
+            //////////////  or{}
+            //////////////}
+          }//log
+
+        }
+
+        handler
+        {
+          name="Mvc Testing"
+          order=0
+          type="Azos.Wave.Handlers.MvcHandler, Azos.Wave"
+
+          type-location { name="local" assembly="TestBusinessLogic.dll" ns{ name="WaveTestSite.Controllers"} }
+          type-location { name="sky" assembly="Azos.Sky.dll" ns{ name="Azos.Apps.Terminal.Web*"} }
+
+          match{ name="defaultMvcRoute" path="mvc/{type}/{mvc-action}" var{query-name="*"} }
+        }
+
+     }//root-handler
+    }//server
+  }//wave
+
+
+
+  modules
+  {
+    //Responsible for generating Global Distributed Id (GDID)
+    //The `local` environment uses local authority for testing instead of true id service
+    //the local authority generates gdid based on timestamp prefixes and has worse resolution
+    module
+    {
+        name="gdidprovider"
+        type="Azos.Sky.Identification.GdidProviderModule, Azos.Sky.Server"
+        log-level=$(/machine/$log-level-comp)
+
+        use-local-authority=true
+        generator
+        {
+            //As a protection mechanism in case when various environments share the same
+            //physical data store, we set era to some unrealistic number in future so
+            //the ids never clash
+            era=0xff$(~SKY_NODE_DISCRIMINATOR)00//use unrealistic era for a very distant future
+            authority=0
+        }
+    }
+
+
+    module
+    {
+      type='Azos.Security.Services.OAuthModule, Azos'
+      supported-scopes="openid connect"
+    }
+
+    module
+    {
+      name="kestrel"
+      type="Azos.Wave.Kestrel.KestrelServerModule, Azos.Wave.Kestrel"
+
+      host
+      {
+        //min-asp-log-level=Information
+        listen-any-ip-port=8080
+      }
+    }//module
+
+  }//modules
+
+
+  security
+  {
+    type="Azos.Security.ConfigSecurityManager, Azos"
+
+    cryptography
+    {
+      algorithm
+      {
+        name='aes1'  default=true
+        type='Azos.Security.HMACAESCryptoMessageAlgorithm, Azos'
+        hmac{key='0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3'}
+        aes{key='0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1'}
+      }
+    }
+
+    users
+    {
+      user
+      {
+        name="Dima"
+        description="Dima"
+        id="dima"
+        password='{"alg":"MD5","fam":"Text","hash":"ZcrDK120Iwj08Qqfzvz95w==","salt":"e0K7BA4Ylby2kWAp3nCR3A9jSw=="}'
+        status="User"
+        rights
+        {
+          TestPath
+          {
+            TestPermission
+            {
+              level=150
+            }
+          }
+        }
+      }
+
+      user
+      {
+        name="root"
+        description="Root Account"
+        id="root"
+        password='{"alg":"KDF","fam":"Text","h":"BGi67Y0GTtJdA_BXKwg4cttKMXu4LHQCBob5P151sno","s":"Js-WppOKGW3PeC_sGF6eztRybm7CSkt141ohS9Y1qKQ"}'
+        status="System"
+        rights
+        {
+
+        }
+      }
+
+      user
+      {
+        name="OauthApp1"
+        description="OAuth app1"
+        id="app1"
+        password='{"alg":"MD5","fam":"Text","hash":"ZcrDK120Iwj08Qqfzvz95w==","salt":"e0K7BA4Ylby2kWAp3nCR3A9jSw=="}'
+        status="User"
+        rights
+        {
+          Azos{Security{Services{
+            OAuthClientApp{
+              level=1
+              uri{pat="*"}
+              addr{pat="*"}
+            }
+
+          }}}
+        }
+      }
+
+
+    }
+  }//security
+
+}

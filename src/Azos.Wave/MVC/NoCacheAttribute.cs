@@ -6,6 +6,7 @@
 
 using System;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Azos.Wave.Mvc
 {
@@ -19,22 +20,18 @@ namespace Azos.Wave.Mvc
 
     public bool Force{ get; set; } = true;
 
-
-    protected internal override bool BeforeActionInvocation(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, ref object result)
+    protected internal override ValueTask<(bool, object)> BeforeActionInvocationAsync(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, object result)
     {
-      return false;
+      return new ValueTask<(bool, object)>((false, result));
     }
 
-    protected internal override bool AfterActionInvocation(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, ref object result)
+    protected internal override ValueTask<(bool, object)> AfterActionInvocationAsync(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, object result)
     {
       work.Response.SetNoCacheHeaders(Force);
-      return false;
+      return new ValueTask<(bool, object)>((false, result));
     }
 
-    protected internal override void ActionInvocationFinally(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, ref object result)
-    {
-
-    }
-
+    protected internal override ValueTask<object> ActionInvocationFinallyAsync(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, object result)
+      => new ValueTask<object>(result);
   }
 }

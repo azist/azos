@@ -1,8 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>net6.0</TargetFrameworks>
     <Description>Azos - Web Wave Assembly</Description>
+    <RootNamespace>Azos.Wave</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -14,6 +15,12 @@
     <OutputPath>..\..\out\Release\</OutputPath>
     <DocumentationFile>..\..\out\Release\Azos.Wave.xml</DocumentationFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Azos.Sky\Azos.Sky.csproj" />
+    <ProjectReference Include="..\Azos\Azos.csproj" />
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
 
   <ItemGroup>
     <Compile Remove="Templatization/StockContent/Embedded/script/mtest/**" />
@@ -46,11 +53,6 @@
     <EmbeddedResource Include="BUILD_INFO.txt" />
     <EmbeddedResource Include="Tv\Help.txt" />
     <EmbeddedResource Include="Tv\Welcome.txt" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Azos.Web\Azos.Web.csproj" />
-    <ProjectReference Include="..\Azos\Azos.csproj" />
   </ItemGroup>
 
   <ItemGroup>

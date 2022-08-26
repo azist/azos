@@ -4,6 +4,8 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using System.Threading.Tasks;
+
 namespace Azos.Wave.Mvc
 {
   /// <summary>
@@ -19,18 +21,20 @@ namespace Azos.Wave.Mvc
 
     public readonly string Description;
 
-    public void Execute(Controller controller, WorkContext work)
+    public Task ExecuteAsync(Controller controller, WorkContext work)
     {
       var txt = WebConsts.STATUS_404_DESCRIPTION;
+
       if (Description.IsNotNullOrWhiteSpace())
         txt += (": " + Description);
+
       work.Response.StatusCode = WebConsts.STATUS_404;
       work.Response.StatusDescription = txt;
 
       if (work.RequestedJson)
-       work.Response.WriteJSON( new {OK = false, http = WebConsts.STATUS_404, descr = txt});
+       return work.Response.WriteJsonAsync(new {OK = false, http = WebConsts.STATUS_404, descr = txt});
       else
-       work.Response.Write(txt);
+       return work.Response.WriteAsync(txt);
     }
   }
 
@@ -48,18 +52,19 @@ namespace Azos.Wave.Mvc
 
     public readonly string Description;
 
-    public void Execute(Controller controller, WorkContext work)
+    public Task ExecuteAsync(Controller controller, WorkContext work)
     {
       var txt = WebConsts.STATUS_401_DESCRIPTION;
       if (Description.IsNotNullOrWhiteSpace())
         txt += (": " + Description);
+
       work.Response.StatusCode = WebConsts.STATUS_401;
       work.Response.StatusDescription = txt;
 
       if (work.RequestedJson)
-        work.Response.WriteJSON(new { OK = false, http = WebConsts.STATUS_401, descr = txt });
+        return work.Response.WriteJsonAsync(new { OK = false, http = WebConsts.STATUS_401, descr = txt });
       else
-        work.Response.Write(txt);
+        return work.Response.WriteAsync(txt);
     }
   }
 
@@ -76,7 +81,7 @@ namespace Azos.Wave.Mvc
 
     public readonly string Description;
 
-    public void Execute(Controller controller, WorkContext work)
+    public Task ExecuteAsync(Controller controller, WorkContext work)
     {
       var txt = WebConsts.STATUS_403_DESCRIPTION;
       if (Description.IsNotNullOrWhiteSpace())
@@ -85,11 +90,9 @@ namespace Azos.Wave.Mvc
       work.Response.StatusDescription = txt;
 
       if (work.RequestedJson)
-       work.Response.WriteJSON( new {OK = false, http = WebConsts.STATUS_403, descr = txt});
+        return work.Response.WriteJsonAsync(new {OK = false, http = WebConsts.STATUS_403, descr = txt});
       else
-       work.Response.Write(txt);
+        return work.Response.WriteAsync(txt);
     }
   }
-
-
 }

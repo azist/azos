@@ -4,6 +4,8 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using System.Threading.Tasks;
+
 using Azos.Conf;
 
 namespace Azos.Wave.Handlers
@@ -13,27 +15,13 @@ namespace Azos.Wave.Handlers
   /// </summary>
   public sealed class NOPHandler : WorkHandler
   {
-     #region .ctor
+    public NOPHandler(WorkHandler director, string name, int order, WorkMatch match = null)
+                        : base(director, name, order, match){ }
 
-      public NOPHandler(WorkDispatcher dispatcher, string name, int order, WorkMatch match)
-                          : base(dispatcher, name, order, match)
-      {
-      }
+    public NOPHandler(WorkHandler director, IConfigSectionNode confNode)
+                        : base(director, confNode){ }
 
-      public NOPHandler(WorkDispatcher dispatcher, IConfigSectionNode confNode) : base(dispatcher, confNode)
-      {
-      }
-
-     #endregion
-
-     #region Protected
-
-      protected override void DoHandleWork(WorkContext work)
-      {
-
-      }
-
-     #endregion
-
+    protected override Task DoHandleWorkAsync(WorkContext work)
+      => Task.CompletedTask;
   }
 }

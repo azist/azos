@@ -1,27 +1,31 @@
 <Project>
 
   <PropertyGroup>
-    <Version>1.0.0</Version>
+    <Version>$(Version)</Version>
 
     <!-- To copy referenced packages into /out -->
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+
+    <!-- Classic use of nulls is everywhere in Azos -->
+    <Nullable>disable</Nullable>
 
     <PreserveCompilationContext>false</PreserveCompilationContext>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <NoWarn>1701;1702;1705;1591;649</NoWarn>
 
 
+
     <Authors>Azist, @dzhabis, @dkh</Authors>
     <Company>Azist Group</Company>
     <Description>AZOS - A to Z Application OS</Description>
-    <Copyright>2020 Azist Group</Copyright>
+    <Copyright>2022 Azist Group</Copyright>
     <PackageProjectUrl>http://zhabis.com/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/azist/azos</RepositoryUrl>
     <RepositoryType>GIT</RepositoryType>
     <PackageTags>atoz;fullstack;full-stack;apps;net-core;big-memory;pile;slim;glue;wave;cluster;zhabis</PackageTags>
     <PackageLicenseUrl>https://github.com/azist/azos</PackageLicenseUrl>
     <PackageIconUrl>https://raw.githubusercontent.com/azist/azos/master/elm/logo/logo.50.png</PackageIconUrl>
-    <PackageReleaseNotes>Supports both .NET Framework 4.7.1+ and .NET Core 2.0+</PackageReleaseNotes>
+    <PackageReleaseNotes>.NET 6.0 Runtime</PackageReleaseNotes>
   </PropertyGroup>
 
 </Project>

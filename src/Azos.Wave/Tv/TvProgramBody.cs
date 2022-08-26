@@ -62,7 +62,7 @@ namespace Azos.Wave.Tv
         ConsoleUtils.Info("{0} start time".Args(DateTime.UtcNow));
 
         Console.WriteLine("Server is listening on:");
-        web.Prefixes.ForEach(p => Console.WriteLine("     {0}".Args(p)));
+        web.Matches.ForEach(p => Console.WriteLine("     {0}".Args(p)));
         Console.WriteLine();
         Console.WriteLine("Strike <ENTER> to terminate ...");
 

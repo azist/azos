@@ -27,11 +27,11 @@ namespace Azos.Wave.Handlers
   public class MvcHandler : TypeLookupHandler<Controller>
   {
     #region .ctor
-    protected MvcHandler(WorkDispatcher dispatcher, string name, int order, WorkMatch match) : base(dispatcher, name, order, match)
+    protected MvcHandler(WorkHandler director, string name, int order, WorkMatch match = null) : base(director, name, order, match)
     {
     }
 
-    protected MvcHandler(WorkDispatcher dispatcher, IConfigSectionNode confNode) : base(dispatcher, confNode)
+    protected MvcHandler(WorkHandler director, IConfigSectionNode confNode) : base(director, confNode)
     {
     }
     #endregion
@@ -41,99 +41,101 @@ namespace Azos.Wave.Handlers
     #endregion
 
     #region Protected
-    protected override void DoTargetWork(Controller target, WorkContext work)
+    protected override async Task DoTargetWorkAsync(Controller target, WorkContext work)
     {
-        target.m_WorkContext = work;//This also establishes Controller.App
-        App.DependencyInjector.InjectInto(target);//Inject app-rooted context
+      target.m_WorkContext = work;//This also establishes Controller.App
+      App.DependencyInjector.InjectInto(target);//Inject app-rooted context
 
 
-        var action = GetActionName(target, work);
+      var action = GetActionName(target, work);
 
-        object[] args;
+      object[] args;
 
-        //1. try controller instance to resolve action
-        var mi = target.FindMatchingAction(work, action, out args);
+      //1. try controller instance to resolve action
+      var mi = target.FindMatchingAction(work, action, out args);
 
-        //2. if controller did not resolve then resolve by framework (most probable case)
-        if (mi==null)
-          mi = FindMatchingAction(target, work, action, out args);
+      //2. if controller did not resolve then resolve by framework (most probable case)
+      if (mi==null)
+      {
+        (mi, args) = await FindMatchingActionAsync(target, work, action).ConfigureAwait(false);
+      }
 
 
-        if (mi==null)
-          throw new HTTPStatusException(WebConsts.STATUS_404,
-                                        WebConsts.STATUS_404_DESCRIPTION,
-                                        StringConsts.MVC_CONTROLLER_ACTION_UNMATCHED_HANDLER_ERROR.Args(target.GetType().FullName, action));
+      if (mi==null)
+        throw new HTTPStatusException(WebConsts.STATUS_404,
+                                      WebConsts.STATUS_404_DESCRIPTION,
+                                      StringConsts.MVC_CONTROLLER_ACTION_UNMATCHED_HANDLER_ERROR.Args(target.GetType().FullName, action));
 
-        Security.Permission.AuthorizeAndGuardAction(App.SecurityManager, mi, work.Session, () => work.NeedsSession());
+      Security.Permission.AuthorizeAndGuardAction(App.SecurityManager, mi, work.Session, () => work.NeedsSession());
 
-        object result = null;
-
+      object result = null;
+      bool handled = false;
+      try
+      {
         try
         {
-          try
+          (handled, result) = await target.BeforeActionInvocationAsync(work, action, mi, args, result).ConfigureAwait(false);
+          if (!handled)
           {
-            var handled = target.BeforeActionInvocation(work, action, mi, args, ref result);
-            if (!handled)
+            result = mi.Invoke(target, args);
+
+            //-----------------
+            // 20190303 DKh temp code until Wave is refactored to full async pipeline
+            //-----------------
+            if (result is Task task)
             {
-              result = mi.Invoke(target, args);
+              await task.ConfigureAwait(false);//20220802 #479
 
-              //-----------------
-              // 20190303 DKh temp code until Wave is refactored to full async pipeline
-              //-----------------
-              if (result is Task task)
-              {
-                while(App.Active && !Disposed && !task.IsCompleted && !task.IsFaulted &&!task.IsCanceled) task.Wait(150);//temporary code due to sync pipeline
-
-                var taskResult = task.TryGetCompletedTaskResultAsObject();
-                if (taskResult.ok) result = taskResult.result;//unwind the result
-                else if (task.IsCanceled) result = null;
-                else if (task.IsFaulted) throw task.Exception;
-              }
-              //-----------------
-
-
-              result = target.AfterActionInvocation(work, action, mi, args, result);
+              var taskResult = task.TryGetCompletedTaskResultAsObject();
+              if (taskResult.ok) result = taskResult.result;//unwind the result
+              else if (task.IsCanceled) result = null;
+              else if (task.IsFaulted) throw task.Exception;
             }
-          }
-          finally
-          {
-            target.ActionInvocationFinally(work, action, mi, args, result);
-          }
-        }
-        catch(Exception error)
-        {
-          if (error is TargetInvocationException tie)
-          {
-            var cause = tie.InnerException;
-            if (cause!=null) error = cause;
-          }
+            //-----------------
 
-          if (error is AggregateException age)
-          {
-            var cause = age.Flatten().InnerException;
-            if (cause != null) error = cause;
-          }
-          throw MvcActionException.WrapActionBodyError(target.GetType().FullName, action, error);
-        }
 
-        //20200610 DKh if (mi.ReturnType == typeof(void)) return;
-        if (mi.ReturnType==typeof(void) || mi.ReturnType==typeof(Task)) return;
-
-        try
-        {
-          try
-          {
-            ProcessResult(target, work, result);
-          }
-          catch(Exception error)
-          {
-            throw MvcActionException.WrapActionResultError(target.GetType().FullName, action, result, error);
+            (handled, result) = await target.AfterActionInvocationAsync(work, action, mi, args, result).ConfigureAwait(false);
           }
         }
         finally
         {
-          if (result is IDisposable) ((IDisposable)result).Dispose();
+          result = await target.ActionInvocationFinally(work, action, mi, args, result).ConfigureAwait(false);
         }
+      }
+      catch(Exception error)
+      {
+        if (error is TargetInvocationException tie)
+        {
+          var cause = tie.InnerException;
+          if (cause!=null) error = cause;
+        }
+
+        if (error is AggregateException age)
+        {
+          var cause = age.Flatten().InnerException;
+          if (cause != null) error = cause;
+        }
+        throw MvcActionException.WrapActionBodyError(target.GetType().FullName, action, error);
+      }
+
+      //20200610 DKh if (mi.ReturnType == typeof(void)) return;
+      if (mi.ReturnType==typeof(void) || mi.ReturnType==typeof(Task)) return;
+
+      try
+      {
+        try
+        {
+          await ProcessResultAsync(target, work, result).ConfigureAwait(false);
+        }
+        catch(Exception error)
+        {
+          throw MvcActionException.WrapActionResultError(target.GetType().FullName, action, result, error);
+        }
+      }
+      finally
+      {
+        await DisposeIfDisposableAndNullAsync(ref result).ConfigureAwait(false);
+      }
     }
 
     /// <summary>
@@ -161,7 +163,7 @@ namespace Azos.Wave.Handlers
     /// <summary>
     /// Finds matching method that has the specified action name and best matches the supplied input
     /// </summary>
-    protected virtual MethodInfo FindMatchingAction(Controller controller, WorkContext work, string action, out object[] args)
+    protected virtual async Task<(MethodInfo, object[])> FindMatchingActionAsync(Controller controller, WorkContext work, string action)
     {
       var tp = controller.GetType();
 
@@ -192,27 +194,26 @@ namespace Azos.Wave.Handlers
             var attr = ai.Attribute;
             var result = ai.Method;
 
-            BindParameters(controller, action, attr, result, work, out args);
+            var args = await BindParametersAsync(controller, action, attr, result, work);
 
-            return result;
+            return (result, args);
           }
         }
 
-      args = null;
-      return null;
+      return (null, null);
     }
 
     /// <summary>
     /// Fills method invocation param array with args doing some interpretation for widely used types like JSONDataMaps, DataDocs etc..
     /// </summary>
-    protected virtual void BindParameters(Controller controller, string action, ActionBaseAttribute attrAction, MethodInfo method,  WorkContext work, out object[] args)
+    protected virtual async Task<object[]> BindParametersAsync(Controller controller, string action, ActionBaseAttribute attrAction, MethodInfo method,  WorkContext work)
     {
       var mpars = method.GetParameters();
-      args = new object[mpars.Length];
+      var args = new object[mpars.Length];
 
-      if (mpars.Length == 0) return;
+      if (mpars.Length == 0) return null;
 
-      var requested = work.WholeRequestAsJSONDataMap;
+      var requested = await work.GetWholeRequestAsJsonDataMapAsync().ConfigureAwait(false);
 
       var strictParamBinding = attrAction.StrictParamBinding;
 
@@ -305,18 +306,19 @@ namespace Azos.Wave.Handlers
                                                         mp.ParameterType.DisplayNameWithExpandedGenericArgs(), strVal ));
         }
       }//for args
+
+      return args;
     }
 
     /// <summary>
     /// Turns result object into appropriate response
     /// </summary>
-    protected virtual void ProcessResult(Controller controller, WorkContext work, object result)
+    protected virtual async Task ProcessResultAsync(Controller controller, WorkContext work, object result)
     {
       if (result==null) return;
-      if (result is string)
+      if (result is string txtresult)
       {
-        work.Response.ContentType = ContentType.TEXT;
-        work.Response.Write(result);
+        await work.Response.WriteAsync(txtresult).ConfigureAwait(false);
         return;
       }
 
@@ -332,17 +334,19 @@ namespace Azos.Wave.Handlers
       if (result is Image img)
       {
         work.Response.ContentType = ContentType.PNG;
-        img.Save(work.Response.GetDirectOutputStreamForWriting(), PngImageFormat.Standard);
+        var stream = await work.Response.GetDirectOutputStreamForWritingAsync().ConfigureAwait(false);
+        img.Save(stream, PngImageFormat.Standard);
         return;
       }
 
       if (result is IActionResult aresult)
       {
-        aresult.Execute(controller, work);
+        await aresult.ExecuteAsync(controller, work).ConfigureAwait(false);
         return;
       }
 
-      work.Response.WriteJSON(result, JsonWritingOptions.CompactRowsAsMap ); //default serialize object as JSON
+      //default serialize object as JSON
+      await work.Response.WriteJsonAsync(result, JsonWritingOptions.CompactRowsAsMap).ConfigureAwait(false);
     }
     #endregion
   }

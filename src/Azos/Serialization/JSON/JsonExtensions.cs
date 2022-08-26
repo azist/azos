@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 using Azos.CodeAnalysis.Source;
 using Azos.Conf;
@@ -64,12 +65,16 @@ namespace Azos.Serialization.JSON
     }
 
     /// <summary>
+    ///  Deserializes JSON content into object
+    /// </summary>
+    public static Task<object> JsonToObjectAsync(this Stream json, Encoding encoding = null, bool caseSensitiveMaps = true)
+     => JsonReader.DeserializeAsync(json, encoding, caseSensitiveMaps);
+
+    /// <summary>
     ///  Deserializes JSON content into IJSONDataObject
     /// </summary>
-    public static IJsonDataObject JsonToDataObject(this ISourceText json, bool caseSensitiveMaps = true)
-    {
-        return JsonReader.DeserializeDataObject(json, caseSensitiveMaps);
-    }
+    public static Task<object> JsonToObjectAsync(this ISourceText json, bool caseSensitiveMaps = true)
+      => JsonReader.DeserializeAsync(json, caseSensitiveMaps);
 
     /// <summary>
     ///  Serializes object into JSON string

@@ -26,11 +26,8 @@ namespace Azos.Sky.WebManager
   public sealed class WebManagerSessionFilter : SessionFilter
   {
     #region .ctor
-      public WebManagerSessionFilter(WorkDispatcher dispatcher, string name, int order) : base(dispatcher, name, order) {}
-      public WebManagerSessionFilter(WorkDispatcher dispatcher, IConfigSectionNode confNode): base(dispatcher, confNode) {ctor(confNode);}
-      public WebManagerSessionFilter(WorkHandler handler, string name, int order) : base(handler, name, order) {}
-      public WebManagerSessionFilter(WorkHandler handler, IConfigSectionNode confNode): base(handler, confNode) {ctor(confNode);}
-
+      public WebManagerSessionFilter(WorkHandler director, string name, int order) : base(director, name, order) {}
+      public WebManagerSessionFilter(WorkHandler director, IConfigSectionNode confNode): base(director, confNode) {ctor(confNode);}
       private void ctor(IConfigSectionNode confNode)
       {
         ConfigAttribute.Apply(this, confNode);

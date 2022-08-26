@@ -13,6 +13,7 @@ using Azos.Data;
 using Azos.Security.Authkit;
 using Azos.Wave;
 using Azos.Wave.Mvc;
+using Azos.Web;
 
 namespace Azos.AuthKit.Server.Web
 {
@@ -37,7 +38,7 @@ namespace Azos.AuthKit.Server.Web
 
     [Inject] IIdpUserCoreLogic m_Logic;
 
-    protected override bool BeforeActionInvocation(WorkContext work, string action, MethodInfo method, object[] args, ref object result)
+    protected override ValueTask<(bool, object)> BeforeActionInvocationAsync(WorkContext work, string action, MethodInfo method, object[] args, object result)
     {
       try
       {
@@ -48,7 +49,7 @@ namespace Azos.AuthKit.Server.Web
         throw new HTTPStatusException(400, "Missing REALM/DataContext", cause.ToMessageWithType(), cause);
       }
 
-      return base.BeforeActionInvocation(work, action, method, args, ref result);
+      return base.BeforeActionInvocationAsync(work, action, method, args, result);
     }
 
 

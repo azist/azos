@@ -1,4 +1,4 @@
-echo +++++ [Azos.Wave] Pre Build
+﻿echo +++++ [Azos.Wave] Pre Build
 
 set SOLUTION_DIR=%1
 set PROJECT_DIR=%2

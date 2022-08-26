@@ -1,0 +1,141 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <OutputType>WinExe</OutputType>
+    <_HasReferenceToSystemRuntime>true</_HasReferenceToSystemRuntime>
+    <SupportedPlatform>windows</SupportedPlatform>
+
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
+
+    <NoWarn>1701;1702;1705;1591;649;SYSLIB0011</NoWarn>
+
+
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>..\..\..\..\out\Debug\</OutputPath>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <OutputPath>..\..\..\..\out\Release\</OutputPath>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Update="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Update="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="glue-client-test.configuration">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
+    </None>
+    <None Update="Z1.laconf">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="WinFormsTest.configuration">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="ConsoleUtils\Help.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="ConsoleUtils\Welcome.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="ConsoleUtils\ConsoleUtils.Default.htm" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="ConsoleUtils\Calibration.htm" />
+    <Content Include="Resources\20140601_204233 - 2.jpg" />
+    <EmbeddedResource Include="ConsoleUtils\ConsoleUtils.Modern.htm" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Azos\Azos.csproj" />
+    <ProjectReference Include="..\..\..\providers\Azos.MongoDb\Azos.MongoDb.csproj" />
+    <ProjectReference Include="..\..\..\providers\Azos.MsSql\Azos.MsSql.csproj" />
+    <ProjectReference Include="..\..\..\testing\TestBusinessLogic\TestBusinessLogic.csproj" />
+    <ProjectReference Include="..\Azos.Platform.Windows\Azos.Platform.Windows.csproj" />
+    <ProjectReference Include="..\Azos.WinForms\Azos.WinForms.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+    <PackageReference Include="System.Runtime.Caching" Version="6.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="BlankForm.cs" />
+    <Compile Remove="BlankForm.Designer.cs" />
+    <Compile Remove="ChartForm.cs" />
+    <Compile Remove="ChartForm.Designer.cs" />
+    <Compile Remove="ChartFormDemo.cs" />
+    <Compile Remove="ChartFormDemo.Designer.cs" />
+    <Compile Remove="ELinkForm.cs" />
+    <Compile Remove="ELinkForm.Designer.cs" />
+    <Compile Remove="Form2.cs" />
+    <Compile Remove="Form2.Designer.cs" />
+    <Compile Remove="GlueStressForm.cs" />
+    <Compile Remove="GlueStressForm.Designer.cs" />
+    <Compile Remove="ImagesForm.cs" />
+    <Compile Remove="ImagesForm.Designer.cs" />
+    <Compile Remove="MailForm.cs" />
+    <Compile Remove="MailForm.Designer.cs" />
+    <Compile Remove="MongoConnectorForm.cs" />
+    <Compile Remove="MongoConnectorForm.Designer.cs" />
+    <Compile Remove="PdfTestForm.cs" />
+    <Compile Remove="PdfTestForm.Designer.cs" />
+    <Compile Remove="QRTestForm.cs" />
+    <Compile Remove="QRTestForm.Designer.cs" />
+    <Compile Remove="WaveForm.cs" />
+    <Compile Remove="WaveForm.Designer.cs" />
+    <Compile Remove="WaveServerForm.cs" />
+    <Compile Remove="WaveServerForm.Designer.cs" />
+    <EmbeddedResource Remove="BlankForm.resx" />
+    <EmbeddedResource Remove="ChartForm.resx" />
+    <EmbeddedResource Remove="ChartFormDemo.resx" />
+    <EmbeddedResource Remove="ELinkForm.resx" />
+    <EmbeddedResource Remove="Form2.resx" />
+    <EmbeddedResource Remove="GlueStressForm.resx" />
+    <EmbeddedResource Remove="ImagesForm.resx" />
+    <EmbeddedResource Remove="MongoConnectorForm.resx" />
+    <EmbeddedResource Remove="PdfTestForm.resx" />
+    <EmbeddedResource Remove="QRTestForm.resx" />
+    <EmbeddedResource Remove="WaveForm.resx" />
+    <EmbeddedResource Remove="WaveServerForm.resx" />
+  </ItemGroup>
+
+  <!--PropertyGroup>
+    <PreBuildEvent>$(ProjectDir)pre-build $(SolutionDir)
+
+
+</PreBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>$(ProjectDir)post-build $(SolutionDir)</PostBuildEvent>
+  </PropertyGroup -->
+</Project>

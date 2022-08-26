@@ -9,6 +9,7 @@ using System;
 using Azos.Security;
 using Azos.Conf;
 using Azos.Instrumentation;
+using Azos.Web;
 
 namespace Azos.Wave.Filters
 {
@@ -23,8 +24,6 @@ namespace Azos.Wave.Filters
     private const string BEARER = WebConsts.AUTH_SCHEME_BEARER + " ";
     private const string SYSTOKEN = WebConsts.AUTH_SCHEME_SYSTOKEN + " ";
 
-    public AuthorizeSessionFilter(WorkDispatcher dispatcher, string name, int order) : base(dispatcher, name, order) { }
-    public AuthorizeSessionFilter(WorkDispatcher dispatcher, IConfigSectionNode confNode) : base(dispatcher, confNode) { ConfigAttribute.Apply(this, confNode); }
     public AuthorizeSessionFilter(WorkHandler handler, string name, int order) : base(handler, name, order) { }
     public AuthorizeSessionFilter(WorkHandler handler, IConfigSectionNode confNode) : base(handler, confNode) { ConfigAttribute.Apply(this, confNode); }
 
@@ -143,7 +142,7 @@ namespace Azos.Wave.Filters
       var dch = DataContextHeader;
       if (dch.IsNotNullOrWhiteSpace())
       {
-        var dcn = work.Request.Headers[dch];
+        string dcn = work.Request.Headers[dch];
         if (dcn.IsNotNullOrWhiteSpace())
         {
           dcn = dcn.Trim().TakeFirstChars(1024);//hard limit safeguard
@@ -156,13 +155,13 @@ namespace Azos.Wave.Filters
       var altHdrName = AltAuthorizationHeader;
       if (altHdrName.IsNotNullOrWhiteSpace())
       {
-        hdr = work.Request.Headers[altHdrName]?.TrimStart(' ');
+        hdr = work.Request.HeaderAsString(altHdrName)?.TrimStart(' ');
       }
 
       if (hdr.IsNullOrWhiteSpace())
       {
         //real AUTHORIZATION header
-        hdr = work.Request.Headers[WebConsts.HTTP_HDR_AUTHORIZATION]?.TrimStart(' ');
+        hdr = work.Request.HeaderAsString(WebConsts.HTTP_HDR_AUTHORIZATION)?.TrimStart(' ');
         if (hdr.IsNullOrWhiteSpace())
         {
           var mockHdrName = DefaultImpersonationAuthorizationHeaderValue;
@@ -222,7 +221,7 @@ namespace Azos.Wave.Filters
       work.SetAuthenticated(user.IsAuthenticated);
 
       //gate bad traffic
-      var gate = NetGate;
+      var gate = Server.Gate;
       if (!user.IsAuthenticated && gate != null && gate.Enabled)
       {
         var vname = GateBadAuthVar;

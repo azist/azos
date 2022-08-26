@@ -12,7 +12,7 @@ using Azos.Apps;
 using Azos.Data;
 using Azos.Serialization.CSV;
 using Azos.Scripting;
-using Azos.Web.GeoLookup;
+using Azos.Sky.GeoLookup;
 
 namespace Azos.Tests.Integration.GeoLookup
 {

@@ -11,13 +11,13 @@
     <iconUrl>$icon$</iconUrl>
     <description>AZOS - A to Z Application OS. Wave Assembly</description>
     <releaseNotes>$headline$</releaseNotes>
-    <copyright>2019 Azist Group</copyright>
+    <copyright>2022 Azist Group</copyright>
     <tags>atoz fullstack full-stack apps net-core big-memory pile slim glue wave cluster zhabis</tags>
     <repository type="GIT" url="https://github.com/azist/azos" />
     
     <dependencies>
       <dependency id="Azos" version="$version$" />
-      <dependency id="Azos.Web" version="$version$" />
+      <dependency id="Azos.Sky" version="$version$" />
     </dependencies>
     
     <contentFiles>
@@ -28,25 +28,30 @@
 
   <files>
   
-    <file src="..\..\out\Release\Azos.Wave.dll"   target="contentFiles\any\any\azos" />
-    <file src="..\..\out\Release\Azos.Wave.xml"   target="contentFiles\any\any\azos" />
-    <file src="..\..\out\Release\Azos.Wave.pdb"   target="contentFiles\any\any\azos" />
+    <file src="..\..\out\Release\Azos.Wave.dll"   target="contentFiles\any\any\azos-win-x64" />
+    <file src="..\..\out\Release\Azos.Wave.xml"   target="contentFiles\any\any\azos-win-x64" />
+    <file src="..\..\out\Release\Azos.Wave.pdb"   target="contentFiles\any\any\azos-win-x64" />
+    <file src="..\..\out\Release\Azos.Wave.Kestrel.dll"   target="contentFiles\any\any\azos-win-x64" />
+    <file src="..\..\out\Release\Azos.Wave.Kestrel.xml"   target="contentFiles\any\any\azos-win-x64" />
+    <file src="..\..\out\Release\Azos.Wave.Kestrel.pdb"   target="contentFiles\any\any\azos-win-x64" />
+    
+    <file src="..\..\out\Release\Azos.Wave.dll"   target="contentFiles\any\any\azos-linux-x64" />
+    <file src="..\..\out\Release\Azos.Wave.xml"   target="contentFiles\any\any\azos-linux-x64" />
+    <file src="..\..\out\Release\Azos.Wave.pdb"   target="contentFiles\any\any\azos-linux-x64" />
+    <file src="..\..\out\Release\Azos.Wave.Kestrel.dll"   target="contentFiles\any\any\azos-linux-x64" />
+    <file src="..\..\out\Release\Azos.Wave.Kestrel.xml"   target="contentFiles\any\any\azos-linux-x64" />
+    <file src="..\..\out\Release\Azos.Wave.Kestrel.pdb"   target="contentFiles\any\any\azos-linux-x64" />
     
     
     <!-- ============================================================ -->
   
-    <file src="..\..\out\Release\Azos.Wave.dll" target="lib\netstandard2.0" />
-    <file src="..\..\out\Release\Azos.Wave.xml" target="lib\netstandard2.0" />
-    <file src="..\..\out\Release\Azos.Wave.pdb" target="lib\netstandard2.0" />
-   
-    <file src="..\..\out\Release\Azos.Wave.dll"   target="lib\netcoreapp2.0" />
-    <file src="..\..\out\Release\Azos.Wave.xml"   target="lib\netcoreapp2.0" />
-    <file src="..\..\out\Release\Azos.Wave.pdb"   target="lib\netcoreapp2.0" />
+    <file src="..\..\out\Release\Azos.Wave.dll" target="lib\net6.0" />
+    <file src="..\..\out\Release\Azos.Wave.xml" target="lib\net6.0" />
+    <file src="..\..\out\Release\Azos.Wave.pdb" target="lib\net6.0" />
     
-    <file src="..\..\out\Release\Azos.Wave.dll"   target="lib\net472" />
-    <file src="..\..\out\Release\Azos.Wave.xml"   target="lib\net472" />
-    <file src="..\..\out\Release\Azos.Wave.pdb"   target="lib\net472" />
-    
+    <file src="..\..\out\Release\Azos.Wave.Kestrel.dll" target="lib\net6.0" />
+    <file src="..\..\out\Release\Azos.Wave.Kestrel.xml" target="lib\net6.0" />
+    <file src="..\..\out\Release\Azos.Wave.Kestrel.pdb" target="lib\net6.0" />
   </files>
 
 </package>

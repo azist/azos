@@ -15,7 +15,7 @@ using Azos.Data.Access.MySql;
 using Azos.Data.Business;
 using Azos.Platform;
 using Azos.Time;
-using Azos.Wave;
+using Azos.Web;
 
 
 namespace Azos.AuthKit.Server.MySql.Queries.Admin

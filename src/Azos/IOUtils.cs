@@ -132,6 +132,11 @@ namespace Azos
       }
     }
 
+    /// <summary>
+    /// Returns true if the IPAddress is not null and is not a loopback address
+    /// </summary>
+    public static bool IsSpecified(this IPAddress address)
+     => address != null && !IPAddress.IsLoopback(address);
 
     /// <summary>
     /// Generates GUID based on a string MD5 hash

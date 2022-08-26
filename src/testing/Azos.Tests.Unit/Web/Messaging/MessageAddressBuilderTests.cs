@@ -7,7 +7,7 @@ using System;
 using System.Linq;
 
 using Azos.Scripting;
-using Azos.Web.Messaging;
+using Azos.Sky.Messaging;
 
 namespace Azos.Tests.Unit.Web.Messaging
 {

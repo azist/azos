@@ -2,8 +2,8 @@
 
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
-    <Description>NFX - .Net Core Platform Abstraction Layer</Description>
+    <TargetFramework>net6.0</TargetFramework>
+    <Description>Azos - .Net Core Platform Abstraction Layer</Description>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

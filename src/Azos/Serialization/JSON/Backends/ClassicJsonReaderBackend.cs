@@ -6,7 +6,7 @@
 
 using System.IO;
 using System.Text;
-
+using System.Threading.Tasks;
 using Azos.CodeAnalysis.JSON;
 using Azos.CodeAnalysis.Source;
 
@@ -42,5 +42,14 @@ namespace Azos.Serialization.JSON.Backends
       return parser.ResultContext.ResultObject;
     }
 
+    public Task<object> DeserializeFromJsonAsync(Stream stream, bool caseSensitiveMaps, Encoding encoding)
+    {
+      throw new System.NotSupportedException("ClassicJsonReaderBackend is deprecated and does not support ASYNC");
+    }
+
+    public Task<object> DeserializeFromJsonAsync(ISourceText source, bool caseSensitiveMaps)
+    {
+      throw new System.NotSupportedException("ClassicJsonReaderBackend is deprecated and does not support ASYNC");
+    }
   }
 }

@@ -79,7 +79,7 @@ namespace Azos.Security.MinIdp
 
       if (bson[FLD_PROPS] is BSONStringElement props)
       {
-        data.Props = new Data.ConfigVector(props.Value);
+        data.Props = new Azos.Data.ConfigVector(props.Value);
       }
     }
 
