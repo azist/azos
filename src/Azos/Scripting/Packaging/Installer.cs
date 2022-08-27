@@ -29,6 +29,31 @@ namespace Azos.Scripting.Packaging
       Stopped
     }
 
+    /// <summary>
+    /// Defines sec/permission audience type aka intall "umask".
+    /// This controls the ownership of newly created fs items
+    /// </summary>
+    public enum UmaskType
+    {
+      /// <summary>
+      /// File owner
+      /// </summary>
+      User = 0,
+      /// <summary>
+      /// Members of the file's group
+      /// </summary>
+      Group,
+      /// <summary>
+      /// Users who are neither the file's owner nor members of the file's group
+      /// </summary>
+      Others,
+
+      /// <summary>
+      /// All three of the above, same as `ugo`
+      /// </summary>
+      All
+    }
+
 
     /// <summary>
     /// Types of built-in commends declared in this namespace
@@ -54,6 +79,7 @@ namespace Azos.Scripting.Packaging
     }
 
     private IApplication m_App;
+    private UmaskType m_Umask;
 
     private RunStatus m_Status;
 
@@ -133,6 +159,16 @@ namespace Azos.Scripting.Packaging
     {
       get => m_RootPath;
       set => m_RootPath = idle(value);
+    }
+
+    /// <summary>
+    /// Defines installation umask (see https://en.wikipedia.org/wiki/Umask)
+    /// </summary>
+    [Config]
+    public UmaskType Umask
+    {
+      get => m_Umask;
+      set => m_Umask = idle(value);
     }
 
     /// <summary>
@@ -353,7 +389,7 @@ namespace Azos.Scripting.Packaging
       if (Platform.Computer.OSFamily >= Platform.OSFamily.PosixSystems)
       {
         var permissions = "";
-        var t = "u";//will have to review install target option
+        var t = map(m_Umask);
         if (canRead.HasValue) permissions = t + (canRead.Value ? "+r" : "-r");
         if (canWrite.HasValue) permissions = "," + t + (canWrite.Value ? "+w" : "-w");
         if (canExecute.HasValue) permissions = "," + t + (canExecute.Value ? "+x" : "-x");
@@ -389,6 +425,18 @@ namespace Azos.Scripting.Packaging
       if (m_State_PathSegments == null || m_State_PathSegments.Length == 0) return name;
       return name.IsNotNullOrWhiteSpace() ? Path.Combine(m_State_PathSegments.AppendToNew(name))
                                           : Path.Combine(m_State_PathSegments);
+    }
+
+
+    private char map(UmaskType t)
+    {
+      switch(t)
+      {
+        case UmaskType.User:  return 'u';
+        case UmaskType.Group: return 'g';
+        case UmaskType.All:   return 'a';
+        default:              return 'o';
+      }
     }
 
     private T idle<T>(T v)
