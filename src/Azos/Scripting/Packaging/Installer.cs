@@ -172,7 +172,7 @@ namespace Azos.Scripting.Packaging
     }
 
     /// <summary>
-    /// Defines where the package file path
+    /// Defines file path for package archive file
     /// </summary>
     [Config]
     public string PackagePath
