@@ -17,8 +17,11 @@ namespace Azos.Platform
   {
     Undetermined = 0,
     Windows = 1,
-    Linux = 100,
-    Mac = 200
+    PosixSystems = 100,
+    Linux = PosixSystems + 1,
+    BSD = 200,
+    Mac = 500,
+    Unix = 1000
   }
 
   /// <summary>

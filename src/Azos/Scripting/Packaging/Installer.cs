@@ -345,6 +345,31 @@ namespace Azos.Scripting.Packaging
       }
     }
 
+    public virtual void Chmod(string name, bool? canRead, bool? canWrite, bool? canExecute)
+    {
+      CloseCurrentFile();
+      var fullPath = GetCurrentFullPathOf(GuardOnePathSegment(name));
+
+      if (Platform.Computer.OSFamily >= Platform.OSFamily.PosixSystems)
+      {
+        var permissions = "";
+        var t = "u";//will have to review install target option
+        if (canRead.HasValue) permissions = t + (canRead.Value ? "+r" : "-r");
+        if (canWrite.HasValue) permissions = "," + t + (canWrite.Value ? "+w" : "-w");
+        if (canExecute.HasValue) permissions = "," + t + (canExecute.Value ? "+x" : "-x");
+
+        if (permissions.IsNotNullOrWhiteSpace())
+        {
+          if (permissions.StartsWith(",")) permissions = permissions.Substring(1);
+          Platform.OS.PosixShell.Chmod(fullPath, permissions).IsTrue("Success chmod");
+        }
+      }
+      else //Windows
+      {
+        //windows does nothing
+      }
+    }
+
     protected string GuardOnePathSegment(string seg)
     {
       (seg.IsNotNullOrWhiteSpace() &&
