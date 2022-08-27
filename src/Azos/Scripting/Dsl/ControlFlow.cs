@@ -21,7 +21,7 @@ namespace Azos.Scripting.Dsl
   public class EntryPoint : Step
   {
     public EntryPoint(StepRunner runner, IConfigSectionNode cfg, int idx) : base(runner, cfg, idx) { }
-    protected override Task<string> DoRunAsync(JsonDataMap state) => null;
+    protected override Task<string> DoRunAsync(JsonDataMap state) => Task.FromResult<string>(null);
   }
 
   /// <summary>
