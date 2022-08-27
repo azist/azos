@@ -2,7 +2,7 @@ name: Build
 on:
   push:
     branches:
-      - master
+      - develop
   pull_request:
     types: [opened, synchronize, reopened]
 jobs:
@@ -31,7 +31,7 @@ jobs:
           key: ${{ runner.os }}-sonar-scanner
           restore-keys: ${{ runner.os }}-sonar-scanner
       - name: Install SonarCloud scanner
-        if: steps.cache-sonar-scanner.outputs.cache-hit != 'true';
+        if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
         shell: powershell
         run: |
           New-Item -Path .\.sonar\scanner -ItemType Directory
