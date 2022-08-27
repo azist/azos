@@ -162,7 +162,7 @@ namespace Azos.Scripting.Packaging
     }
 
     /// <summary>
-    /// Defines installation umask (see https://en.wikipedia.org/wiki/Umask)
+    /// Defines installation `umask` (see https://en.wikipedia.org/wiki/Umask)
     /// </summary>
     [Config]
     public UmaskType Umask
