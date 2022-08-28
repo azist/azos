@@ -8,9 +8,6 @@ Supports: .Net 6.0 Server Components; .Net Standard 2.1 Azos, Azos.Sky clients a
 [![CodeFactor](https://www.codefactor.io/repository/github/azist/azos/badge/master)](https://www.codefactor.io/repository/github/azist/azos/overview/master)
 [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=azist_azos&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=azist_azos)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=azist_azos&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=azist_azos)
- 
-
-[![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=azist_azos)](https://sonarcloud.io/summary/new_code?id=azist_azos)
 
 -------
 
