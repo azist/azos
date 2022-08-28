@@ -68,11 +68,6 @@ namespace Azos.Collections
       return this.Equals((MatrixBase<T>)obj);
     }
 
-    public override int GetHashCode()
-    {
-      return base.GetHashCode();
-    }
-
     #endregion
 
     #region IEnumerable<T>

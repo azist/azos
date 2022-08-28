@@ -129,7 +129,6 @@ namespace Azos.CodeAnalysis.CSharp
       s_KeywordList[">="] = CSTokenType.tGE;
 
       s_KeywordList["="] = CSTokenType.tAssign;
-      s_KeywordList["."] = CSTokenType.tDot;
       s_KeywordList["->"] = CSTokenType.tDeref;
 
       s_KeywordList["+="] = CSTokenType.tPlusAssign;

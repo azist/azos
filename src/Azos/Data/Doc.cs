@@ -232,7 +232,7 @@ namespace Azos.Data
     }
 
     /// <summary>
-    /// Override to perform custom row equality comparison.
+    /// Override to perform custom doc equality comparison.
     /// Default implementation equates rows using their key fields
     /// </summary>
     public virtual bool Equals(Doc other)
@@ -245,6 +245,7 @@ namespace Azos.Data
         var obj1 = this[fdef.Order];
         var obj2 = other[fdef.Order];
         if (obj1 == null && obj2 == null) continue;
+        if (obj1 == null || obj2 == null) return false;
         if (!obj1.Equals(obj2)) return false;
       }
 

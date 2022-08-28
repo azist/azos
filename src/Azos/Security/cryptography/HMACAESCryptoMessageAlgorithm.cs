@@ -153,9 +153,11 @@ namespace Azos.Security
           }
         }
       }
-      catch(Exception error)
+      catch(Exception error) //WARNING: NEVER disclose the REASOn of error to the caller, just return null
       {
         WriteLog(Log.MessageType.TraceErrors, nameof(Unprotect), "Leaked on bad message: " + error.ToMessageWithType(), error);
+
+        //WARNING: NEVER disclose the REASON of error to the caller, just return null
         return null;
       }
     }
@@ -165,7 +167,7 @@ namespace Azos.Security
       var aes = new AesManaged();
       aes.Mode = CipherMode.CBC;//Cipher Block Chaining requires random 128bit IV
       aes.KeySize = 256;
-      aes.Padding = PaddingMode.PKCS7;
+      aes.Padding = PaddingMode.PKCS7;//use Zeros, PKCS7 is dangerous with CBC AZ #759
       return aes;
     }
 

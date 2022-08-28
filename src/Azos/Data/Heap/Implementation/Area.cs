@@ -93,7 +93,7 @@ namespace Azos.Data.Heap.Implementation
       // node has address which now can be used for Http call
       // call ServiceClient.Call(....)
       //...
-      return null;
+      throw new NotImplementedException();
     }
 
 
