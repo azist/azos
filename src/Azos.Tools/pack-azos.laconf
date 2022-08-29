@@ -8,6 +8,7 @@ pack
   package-label="azos"
   verbosity=3
 
+/*
   do
   {
     name="Install"
@@ -20,6 +21,7 @@ pack
   }
 
   do{ type="Halt" } //================
+*/
 
   do
   {
@@ -51,7 +53,6 @@ pack
   do
   {
     name="Add Dlls"
-    label=$(/$package-label)
     type="AddFiles"
     verbosity=$(/$verbosity)
     FromPath="."
@@ -61,7 +62,6 @@ pack
   do
   {
     name="Add Xmls"
-    label=$(/$package-label)
     type="AddFiles"
     verbosity=$(/$verbosity)
     FromPath="."

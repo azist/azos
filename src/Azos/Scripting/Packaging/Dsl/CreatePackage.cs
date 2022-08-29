@@ -143,6 +143,9 @@ namespace Azos.Scripting.Packaging.Dsl
       //gets registered on call stack
       var builder = new PackageBuilder(Label, volume, appender);
 
+      //sets the default builder
+      Runner.SetResult(builder);
+
       return Task.FromResult<string>(null);
     }
   }//CreatePackage

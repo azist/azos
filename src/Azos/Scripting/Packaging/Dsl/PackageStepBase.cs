@@ -24,6 +24,16 @@ namespace Azos.Scripting.Packaging.Dsl
 
     [Config(Default = 2)] public int Verbosity { get; set; }
 
-    protected PackageBuilder Builder => PackageBuilder.Get(Label);
+    protected PackageBuilder Builder
+    {
+      get
+      {
+        if (Label.IsNullOrWhiteSpace())
+        {
+          return (Runner.Result as PackageBuilder).NonNull("Runner.Result: PackageBuilder");
+        }
+        return PackageBuilder.Get(Label);
+      }
+    }
   }
 }
