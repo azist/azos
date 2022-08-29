@@ -19,6 +19,11 @@ namespace Azos.Scripting.Packaging.Dsl
   {
     protected PackageStepBase(StepRunner runner, IConfigSectionNode cfg, int idx) : base(runner, cfg, idx) { }
     [Config] public string Label { get; set; }
+    [Config] public string Condition { get; set; }
+    [Config] public string Description { get; set; }
+
+    [Config(Default = 2)] public int Verbosity { get; set; }
+
     protected PackageBuilder Builder => PackageBuilder.Get(Label);
   }
 }

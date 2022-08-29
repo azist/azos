@@ -21,9 +21,9 @@ namespace Azos.Scripting.Packaging
   [ContentTypeSupport(PackageCommandArchiveAppender.CONTENT_TYPE_PACKAGING)]
   public sealed class PackageCommandArchiveAppender : ArchiveBixAppender<Command>
   {
-    public const int MIN_PAGE_SIZE = 512 * 1024;
-    public const int MAX_PAGE_SIZE = 32 * 1024 * 1024;
-    public const int DEFAULT_PAGE_SIZE = 1024 * 1024;
+    public const int MIN_PAGE_SIZE = Package.MIN_CHUNK_FILE_SIZE_BYTES * 10;
+    public const int MAX_PAGE_SIZE = Package.MAX_CHUNK_FILE_SIZE_BYTES * 10;
+    public const int DEFAULT_PAGE_SIZE = Package.DEFAULT_CHUNK_FILE_SIZE_BYTES * 10;
     public const string CONTENT_TYPE_PACKAGING = "bix/scripting-package";
 
     public PackageCommandArchiveAppender(IVolume volume, ITimeSource time, Atom app, string host, Action<Command, Bookmark> onPageCommit = null)

@@ -20,8 +20,9 @@ namespace Azos.Scripting.Packaging
   public sealed class Package : DisposableObject
   {
     public const long MAX_TOTAL_FILE_SIZE_BYTES = 5L *  1024L * 1024L * 1024L;
-    public const long MAX_CHUNK_FILE_SIZE_BYTES =         10L * 1024L * 1024L;
-    public const long DEFAULT_CHUNK_FILE_SIZE_BYTES = 128 * 1024L;
+    public const int MIN_CHUNK_FILE_SIZE_BYTES =       16 * 1024;
+    public const int MAX_CHUNK_FILE_SIZE_BYTES =     1024 * 1024;
+    public const int DEFAULT_CHUNK_FILE_SIZE_BYTES =  128 * 1024;
 
 
     public static Package FromFile(IApplication app, string fileName, Apps.IGuidTypeResolver resolver = null)
