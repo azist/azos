@@ -10,6 +10,19 @@ pack
 
   do
   {
+    name="Install"
+    type="InstallPackage"
+    package-path="azos.apar"
+
+    install-root-path="c:\\azos\\apar"
+    target-names=""
+    //umask=User
+  }
+
+  do{ type="Halt" } //================
+
+  do
+  {
     name="Create"
     type="CreatePackage"
     verbosity=$(/$verbosity)

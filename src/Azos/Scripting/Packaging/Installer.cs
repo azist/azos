@@ -61,7 +61,7 @@ namespace Azos.Scripting.Packaging
     public static readonly Type[] BUILT_IN_COMMANDS =
        typeof(Installer).Assembly
                         .GetTypes()
-                        .Where(t => t.Namespace.StartsWith(typeof(Installer).Namespace) && t.IsSubclassOf(typeof(Command)))
+                        .Where(t => t.Namespace != null && t.Namespace.StartsWith(typeof(Installer).Namespace) && t.IsSubclassOf(typeof(Command)))
                         .ToArray();
 
     public delegate void ProgressHandler(string status);
