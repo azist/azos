@@ -6,25 +6,45 @@
 
 using System;
 using System.Linq;
+using System.IO;
 using System.Threading.Tasks;
 
 using Azos.Conf;
 using Azos.Serialization.JSON;
 using Azos.Scripting.Dsl;
 using Azos.IO.Archiving;
-using System.IO;
 
 namespace Azos.Scripting.Packaging.Dsl
 {
   /// <summary>
-  /// Keeps the state of package installation
+  /// Keeps the state of package building: maintains Volume, Appender and state.
+  /// This instance is created by <see cref="CreatePackage"/> Dsl step and
+  /// it gets owned by current call stack frame which is freed upon scope exit
   /// </summary>
   public sealed class PackageBuilder : DisposableObject
   {
-    internal PackageBuilder(DefaultVolume volume, PackageCommandArchiveAppender appender)
+    /// <summary>
+    /// Tries to find a PackageBuilder of a specified name on a call stack of frames.
+    /// Returns null if not found
+    /// </summary>
+    public static PackageBuilder TryGet(string name)
+     => StepRunner.Frame.Current?.All.FirstOrDefault(o => (o is PackageBuilder pb) && pb.Name.EqualsOrdIgnoreCase(name.NonBlank(nameof(name)))) as PackageBuilder;
+
+    /// <summary>
+    /// Tries to find a PackageBuilder by name on a call stack of frames.
+    /// Throws if such PackageBuildere is not found and dependency could not be satisfied
+    /// </summary>
+    public static PackageBuilder Get(string name)
+     => TryGet(name).NonNull("Satisfied dependency on `PackageBuilder('{0}')` loaded by `{1}` step".Args(
+                             name,
+                             nameof(CreatePackage)));
+
+    internal PackageBuilder(string name, DefaultVolume volume, PackageCommandArchiveAppender appender)
     {
+      m_Name = name.NonBlank(nameof(name));
       m_Volume = volume.NonDisposed();
       m_Appender = appender.NonDisposed();
+      StepRunner.Frame.Current.Owned.Add(this);
     }
 
     protected override void Destructor()
@@ -34,9 +54,12 @@ namespace Azos.Scripting.Packaging.Dsl
       DisposeAndNull(ref m_Volume);
     }
 
+    private string m_Name;
     private DefaultVolume m_Volume;
     private PackageCommandArchiveAppender m_Appender;
 
+
+    public string Name => m_Name;
     public DefaultVolume Volume => m_Volume;
     public PackageCommandArchiveAppender Appender => m_Appender;
   }
@@ -50,10 +73,6 @@ namespace Azos.Scripting.Packaging.Dsl
   public sealed class CreatePackage : Step
   {
     public CreatePackage(StepRunner runner, IConfigSectionNode cfg, int idx) : base(runner, cfg, idx) { }
-
-    [Config] public string Global { get; set; }
-    [Config] public string Local { get; set; }
-
 
     [Config] public string FilePath { get; set; }
     [Config] public bool DontOvewrite { get; set; }
@@ -79,11 +98,14 @@ namespace Azos.Scripting.Packaging.Dsl
 
     protected override Task<string> DoRunAsync(JsonDataMap state)
     {
-      //You need to specify either global or local or both
-      (Global.IsNotNullOrWhiteSpace() ||
-       Local.IsNotNullOrWhiteSpace()).IsTrue("CreatePackage is assigned into Global or Local");
+      //You need to specify label/name
+      Label.NonBlank(nameof(Label));
 
-      var meta = VolumeMetadataBuilder.Make(Label.NonBlank(nameof(Label)), PackageCommandArchiveAppender.CONTENT_TYPE_PACKAGING, "package")
+      var existing = PackageBuilder.TryGet(Label);
+      (existing == null).IsTrue("Unique open package label");
+
+
+      var meta = VolumeMetadataBuilder.Make(Label, PackageCommandArchiveAppender.CONTENT_TYPE_PACKAGING, "package")
                                       .SetVersion(VersionMajor, VersionMinor)
                                       .SetChannel(Channel.HasRequiredValue(nameof(Channel)))
                                       .SetDescription(Description.Default(
@@ -118,18 +140,8 @@ namespace Azos.Scripting.Packaging.Dsl
                                                        App.AppId,
                                                        Platform.Computer.HostName);
 
-      var builder = new PackageBuilder(volume, appender);
-
-
-      if (Global.IsNotNullOrWhiteSpace())
-      {
-        Runner.GlobalState[Global] = builder;
-      }
-
-      if (Local.IsNotNullOrWhiteSpace())
-      {
-        state[Local] = builder;
-      }
+      //gets registered on call stack
+      var builder = new PackageBuilder(Label, volume, appender);
 
       return Task.FromResult<string>(null);
     }
