@@ -91,6 +91,8 @@ namespace Azos.Security
 
       var iv = ComponentDirector.GenerateRandomBytes(IV_LEN);
       var keys = getKeys(iv);
+
+      //https://crypto.stackexchange.com/questions/202/should-we-mac-then-encrypt-or-encrypt-then-mac
       var hmac = getHMAC(keys.hmac, new ArraySegment<byte>(iv), originalMessage);
 
       using (var aes = makeAES())
