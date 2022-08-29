@@ -1,0 +1,58 @@
+﻿//This is a sample script which packs whole Azos/
+//you can call it like:
+// $ sky srun pack-azos.laconf
+pack
+{
+  type-path="Azos.Scripting.Dsl, Azos; Azos.Scripting.Packaging.Dsl, Azos"
+
+  package-label="azos"
+  verbosity=3
+
+  do
+  {
+    name="Create"
+    type="CreatePackage"
+    verbosity=$(/$verbosity)
+
+    file-path="azos.apar"
+    dont-overwrite=false
+
+    label=$(/$package-label)
+    channel="sys"
+    description="Sample Azos package"
+    version-major=3
+    version-minor=101
+
+    //compression-scheme=" "
+    compression-scheme="gzip-max"
+    //encryption-scheme="aes-pub-azist"
+
+    app-settings
+    {
+      a=1
+      b=2
+      custom-section{ z=yes }
+    }
+  }
+
+  do
+  {
+    name="Add Dlls"
+    label=$(/$package-label)
+    type="AddFiles"
+    verbosity=$(/$verbosity)
+    FromPath="."
+    Pattern="*.dll"
+  }
+
+  do
+  {
+    name="Add Xmls"
+    label=$(/$package-label)
+    type="AddFiles"
+    verbosity=$(/$verbosity)
+    FromPath="."
+    Pattern="*.xml"
+  }
+
+}

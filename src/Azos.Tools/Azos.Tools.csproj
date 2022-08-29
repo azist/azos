@@ -62,6 +62,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="pack-azos.laconf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="sky.laconf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

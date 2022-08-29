@@ -30,7 +30,9 @@ namespace Azos.Scripting.Packaging.Dsl
     protected override Task<string> DoRunAsync(JsonDataMap state)
     {
       var fromPath = Eval(FromPath, state);
+      if (fromPath.IsNotNullOrWhiteSpace() || fromPath == ".") fromPath = Directory.GetCurrentDirectory();
       var pat = Eval(Pattern, state);
+      if (pat.IsNullOrWhiteSpace()) pat = "*";
 
       var fNames = fromPath.AllFileNamesThatMatch(pat, false);
 
