@@ -27,9 +27,9 @@ namespace Azos.Security.Dsl
 
     protected override Task<string> DoRunAsync(JsonDataMap state)
     {
-      Algorithm.NonEmpty(nameof(Algorithm));
+      var cfg = StepRunnerVarResolver.WrapConfigSnippet(Algorithm.NonEmpty(nameof(Algorithm)), Runner, state);
       var crypto = App.SecurityManager.Cryptography as ICryptoManagerImplementation;
-      var algo = FactoryUtils.MakeDirectedComponent<ICryptoMessageAlgorithmImplementation>(crypto, Algorithm, extraArgs: new[] { Algorithm });
+      var algo = FactoryUtils.MakeDirectedComponent<ICryptoMessageAlgorithmImplementation>(crypto, cfg, extraArgs: new[] { cfg });
       crypto.RegisterAlgorithm(algo).IsTrue("Unique algo name");
       return Task.FromResult<string>(null);
     }

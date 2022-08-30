@@ -1,6 +1,7 @@
 ﻿//This is a sample script which packs whole Azos/
 //you can call it like:
 // $ sky srun pack-azos.laconf
+// $ sky srun pack-azos.laconf -vars keyhmac="base64:7LhLGGdNF_iGH2b_Ny0iKvnIcV9LojcLIAGKSsF264M86UW42jUSUTMXMxC_XnBkfxbjhqs-Xx1PlprQzBvbtA" keyaes="base64:edUJTZo818omBrLQdiDnFczw-qz5Tm69ffFiAF3Tz0Y"
 pack
 {
   type-path="Azos.Scripting.Dsl, Azos; Azos.Scripting.Packaging.Dsl, Azos"
@@ -19,12 +20,17 @@ pack
       audience=Internal
       type="Azos.Security.HMACAESCryptoMessageAlgorithm, Azos"
 
+      //keyset=$(~global.keyset)
+      hmac{ key=$(~global.keyhmac) }
+      aes{ key=$(~global.keyaes) }
+
+
       // To generate:  ~# sky pwd -k 512 -ne
-      hmac{ key="base64:7LhLGGdNF_iGH2b_Ny0iKvnIcV9LojcLIAGKSsF264M86UW42jUSUTMXMxC_XnBkfxbjhqs-Xx1PlprQzBvbtA" }
+      //hmac{ key="base64:7LhLGGdNF_iGH2b_Ny0iKvnIcV9LojcLIAGKSsF264M86UW42jUSUTMXMxC_XnBkfxbjhqs-Xx1PlprQzBvbtA" }
       //you can repeat hmac 512 keys
 
       // To generate: ~# sky pwd -k 256 -ne
-      aes{ key="base64:edUJTZo818omBrLQdiDnFczw-qz5Tm69ffFiAF3Tz0Y" }
+      //aes{ key="base64:edUJTZo818omBrLQdiDnFczw-qz5Tm69ffFiAF3Tz0Y" }
       //you can repeat aes keys
     }
   }
