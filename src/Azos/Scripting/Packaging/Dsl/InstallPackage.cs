@@ -49,10 +49,5 @@ namespace Azos.Scripting.Packaging.Dsl
 
       return Task.FromResult<string>(null);
     }
-
-    private void installer_Progress(string status)
-    {
-      Conout.WriteLine(status);
-    }
   }
 }
