@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Azos.Conf;
 using Azos.Scripting.Dsl;
 using Azos.Serialization.JSON;
+using Azos.Text;
 
 namespace Azos.Scripting.Packaging.Dsl
 {
@@ -23,26 +24,53 @@ namespace Azos.Scripting.Packaging.Dsl
     public AddFiles(StepRunner runner, IConfigSectionNode cfg, int idx) : base(runner, cfg, idx) { }
     [Config] public string FromPath { get; set; }
 
-    [Config] public string Pattern { get; set; }
+    [Config] public string IncludePatterns { get; set; }
+    [Config] public string ExcludePatterns { get; set; }
 
     [Config] public int ChunkSize { get; set; }
+
+    private static readonly char[] PATTERN_DELIMS = new [] {',',';'};
 
     protected override Task<string> DoRunAsync(JsonDataMap state)
     {
       var fromPath = Eval(FromPath, state);
       if (fromPath.IsNotNullOrWhiteSpace() || fromPath == ".") fromPath = Directory.GetCurrentDirectory();
-      var pat = Eval(Pattern, state);
+
+      var pat = Eval(IncludePatterns, state);
       if (pat.IsNullOrWhiteSpace()) pat = "*";
+      var includes = pat.Split(PATTERN_DELIMS).Where(p => p.IsNotNullOrWhiteSpace());
 
-      var fNames = fromPath.AllFileNamesThatMatch(pat, false);
+      pat = Eval(ExcludePatterns, state);
+      if (pat.IsNullOrWhiteSpace()) pat = null;
+      var excludes = pat?.Split(PATTERN_DELIMS).Where(p => p.IsNotNullOrWhiteSpace());
 
-      if (Verbosity > 0) Conout.WriteLine("Adding `{0}` files from `{1}`".Args(pat, fromPath));
+
+      var fNames = fromPath.AllFileNames(false);
+      if (Verbosity > 0)
+      {
+        Conout.WriteLine();
+        Conout.WriteLine("Adding `{0}` files from `{1}`".Args(includes.Aggregate("", (all,e) => $"{all}+{e}") +
+                                                              excludes?.Aggregate(" excluding ", (all, e) => $"{all}~{e}"),
+                                                              fromPath));
+      }
       foreach (var one in fNames)
       {
-        if (Verbosity > 1) Conout.WriteLine("  Add: " + one);
+        var fn = Path.GetFileName(one);
+
+        //Filter out files which do not match
+        if (!includes.Any(ione => fn.MatchPattern(ione, senseCase: true))) continue;
+        if (excludes != null && excludes.Any(eone => fn.MatchPattern(eone, senseCase: true))) continue;
+
+
+        if (Verbosity > 1) Conout.WriteLine("  ┌─ Add: " + fn);
         addOneFile(one);
       }
-      if (Verbosity > 0) Conout.WriteLine("..done");
+      if (Verbosity > 0)
+      {
+        Conout.WriteLine("..done adding files; Total {0} commands, archive size: 0x{1:x8} / {2}".Args(Builder.Appender.TotalEntriesAppended,
+                                                                                                      Builder.Appender.TotalBytesAppended,
+                                                                                                      IOUtils.FormatByteSizeWithPrefix(Builder.Appender.TotalBytesAppended)));
+      }
 
       return Task.FromResult<string>(null);
     }
@@ -66,7 +94,8 @@ namespace Azos.Scripting.Packaging.Dsl
         var buffer = new byte[chunkSize];
 
         long offset = 0;
-        for(var i = 0; App.Active && Runner.IsRunning; i++)
+        int i;
+        for(i = 0; App.Active && Runner.IsRunning; i++)
         {
           var got = fs.Read(buffer, 0, buffer.Length);
           if (got < 1) break;//eof
@@ -74,17 +103,17 @@ namespace Azos.Scripting.Packaging.Dsl
 
           var chunk = new FileChunkCommand
           {
-            Description = "{0} chunk #{1} at {2:x8}".Args(fn, i, offset),
+            Description = "chunk #{0} at 0x{1:x8} / {2}".Args(i, offset, IOUtils.FormatByteSizeWithPrefix(offset)),
             Offset = offset,
             Data = buffer.Take(got).ToArray()
           };
 
-          if (Verbosity > 2 && (i % 5) == 0) Conout.WriteLine("  ...." + chunk.Description);
+          if (Verbosity > 2 && i > 0 && (i % 5) == 0) Conout.WriteLine("  ├──» " + chunk.Description);
 
           Builder.Appender.Append(chunk);
           offset += got;
         }//for
-        if (Verbosity > 2) Conout.WriteLine("  ....done at {0:x8}".Args(offset));
+        if (Verbosity > 2) Conout.WriteLine("  └─ done {0} chunks at 0x{1:x8} / {2}".Args(i, offset, IOUtils.FormatByteSizeWithPrefix(offset)));
       }
     }
   }

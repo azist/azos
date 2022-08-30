@@ -9,6 +9,8 @@ using System.IO;
 using System.Linq;
 using Azos.Apps;
 using Azos.Conf;
+using Azos.IO.Console;
+using Azos.Serialization.JSON;
 
 namespace Azos.Scripting.Packaging
 {
@@ -64,12 +66,11 @@ namespace Azos.Scripting.Packaging
                         .Where(t => t.Namespace != null && t.Namespace.StartsWith(typeof(Installer).Namespace) && t.IsSubclassOf(typeof(Command)))
                         .ToArray();
 
-    public delegate void ProgressHandler(string status);
-
-    public Installer(IApplication app, GuidTypeResolver<Command, PackageCommandAttribute> commandTypeResolver = null)
+    public Installer(IApplication app, GuidTypeResolver<Command, PackageCommandAttribute> commandTypeResolver = null, IConsoleOut conout = null)
     {
       m_App = app.NonNull(nameof(app));
       m_CommandTypeResolver = commandTypeResolver;
+      m_Conout = conout ?? Conout.Port.DefaultConsole;
     }
 
     protected override void Destructor()
@@ -79,6 +80,7 @@ namespace Azos.Scripting.Packaging
     }
 
     private IApplication m_App;
+    private IConsoleOut m_Conout;
     private UmaskType m_Umask;
 
     private RunStatus m_Status;
@@ -148,7 +150,16 @@ namespace Azos.Scripting.Packaging
     /// </summary>
     public Package Package => m_Package;
 
-    public event ProgressHandler Progress;
+    /// <summary>
+    /// Console port that the system reports progress into
+    /// </summary>
+    public IConsoleOut ConsoleOut => m_Conout;
+
+    /// <summary>
+    /// Progress verbosity
+    /// </summary>
+    [Config]
+    public int Verbosity{ get; set;}
 
     /// <summary>
     /// Defines where the package is going to be installed.
@@ -203,11 +214,6 @@ namespace Azos.Scripting.Packaging
       }
     }
 
-
-
-
-
-
     public virtual void Configure(IConfigSectionNode node)
     {
       if (node == null) return;
@@ -235,20 +241,33 @@ namespace Azos.Scripting.Packaging
       m_State_CurrentCommandIndex = -1;
       try
       {
+        if (Verbosity > 0) m_Conout.WriteLine("Starting DoBeforeRun()");
+
         DoBeforeRun();
 
         if (!onlyIntrospect)
         {
           m_Status = RunStatus.Running;
+          if (Verbosity > 0) m_Conout.WriteLine("Starting DoRun()");
           DoRun();
           m_Status = RunStatus.Stopping;
         }
 
         DoAfterRun();
+
+        if (Verbosity > 0)
+        {
+          m_Conout.WriteLine("Success");
+        }
       }
       catch(Exception error)
       {
         m_State_Error = error;
+        if (Verbosity > 0)
+        {
+          m_Conout.WriteLine("Crashed: ");
+          m_Conout.WriteLine(new WrappedExceptionData(error).ToJson(JsonWritingOptions.PrettyPrintRowsAsMapASCII));
+        }
       }
       finally
       {
@@ -289,6 +308,7 @@ namespace Azos.Scripting.Packaging
 
         if (one is StopCommand cmdStop) //special system command
         {
+          if (Verbosity > 0) m_Conout.WriteLine("Stopped");
           break;
         }
 
@@ -323,6 +343,8 @@ namespace Azos.Scripting.Packaging
 
     public virtual void ChangeDirectory(string name)
     {
+      if (Verbosity > 1) m_Conout.WriteLine("ChangeDir: " + name);
+
       if (name == "/" || name == "\\")
       {
         m_State_PathSegments = null;
@@ -347,17 +369,22 @@ namespace Azos.Scripting.Packaging
 
     public virtual void CreateDirectory(string name)
     {
+
+
       var currentDir = GetCurrentFullPathOf(null);
       Directory.Exists(currentDir).IsTrue("Existing stem dir");
 
       var newFullPath = GetCurrentFullPathOf(GuardOnePathSegment(name));
+      if (Verbosity > 1) m_Conout.WriteLine("CreateDirectory: {0} -> {1}".Args(name, newFullPath));
       Directory.CreateDirectory(newFullPath);
+
     }
 
     public virtual void CreateFile(string name)
     {
       CloseCurrentFile();
       var fullPath = GetCurrentFullPathOf(GuardOnePathSegment(name));
+      if (Verbosity > 1) m_Conout.WriteLine("CreateFile: {0} -> {1}".Args(name, fullPath));
       m_State_FileStream = new FileStream(fullPath, FileMode.Create, FileAccess.Write, FileShare.None);
     }
 
@@ -385,6 +412,12 @@ namespace Azos.Scripting.Packaging
     {
       CloseCurrentFile();
       var fullPath = GetCurrentFullPathOf(GuardOnePathSegment(name));
+
+      if (Verbosity > 1) m_Conout.WriteLine("Chmod: {0} -> {1} {2}".Args(name, fullPath,
+                           (canRead.HasValue ? canRead.Value ? "+r" : "-r" : ".") +
+                           (canWrite.HasValue ? canWrite.Value ? "+w" : "-w" : ".") +
+                           (canExecute.HasValue ? canExecute.Value ? "+x" : "-x" : ".")
+                         ));
 
       if (Platform.Computer.OSFamily >= Platform.OSFamily.PosixSystems)
       {

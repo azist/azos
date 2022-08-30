@@ -30,7 +30,6 @@ pack
   }
 
 
-
   do
   {
     name="Install"
@@ -39,12 +38,13 @@ pack
 
     install-root-path="c:\\azos\\apar"
     target-names=""
+    verbosity=10
     //umask=User
   }
 
-  do{ type="Halt" } //================
+  do{ type="Halt" }
 
-
+//=======================================================
   do
   {
     name="Create"
@@ -74,20 +74,20 @@ pack
 
   do
   {
-    name="Add Dlls"
-    type="AddFiles"
+    name="Target"
+    type="SetTarget"
     verbosity=$(/$verbosity)
-    FromPath="."
-    Pattern="*.dll"
+    target-name="azos-core"
   }
 
   do
   {
-    name="Add Xmls"
+    name="Add Dlls"
     type="AddFiles"
     verbosity=$(/$verbosity)
     FromPath="."
-    Pattern="*.xml"
+    include-patterns="*.dll;*.xml"
+    exclude-patterns="*.apar"
   }
 
 }

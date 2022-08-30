@@ -31,6 +31,15 @@ namespace Azos.Scripting.Packaging.Dsl
 
       Builder.Appender.Append(cmd);
 
+      if (Verbosity > 0)
+      {
+        Conout.WriteLine();
+        Conout.WriteLine("    ╒═════════════" + new string('═', TargetName != null ? TargetName.Length : 1) + "═╕");
+        Conout.WriteLine("    │ Set target: " + TargetName+ " │");
+        Conout.WriteLine("    ╘═════════════" + new string('═', TargetName != null ? TargetName.Length : 1) + "═╛");
+        Conout.WriteLine();
+      }
+
 
       return Task.FromResult<string>(null);
     }

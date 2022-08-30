@@ -27,18 +27,20 @@ namespace Azos.Scripting.Packaging.Dsl
 
     [Config] public string Umask { get; set; }
 
+    [Config] public int Verbosity { get; set; }
+
     protected override Task<string> DoRunAsync(JsonDataMap state)
     {
       var rootPath = Eval(InstallRootPath, state);
       if (rootPath.IsNullOrWhiteSpace() || rootPath == ".") rootPath = Directory.GetCurrentDirectory();
 
-      using (var installer = new Installer(App, null))//todo: Add type resolver
+      using (var installer = new Installer(App, null, Conout.Port.DefaultConsole))//todo: Add type resolver
       {
         installer.PackagePath = Eval(PackagePath, state).NonBlank(nameof(PackagePath));
         installer.RootPath = rootPath;
         installer.TargetNames = Eval(TargetNames, state);
         installer.Umask = Eval(Umask, state).AsEnum(Installer.UmaskType.User);
-        installer.Progress += installer_Progress;
+        installer.Verbosity = Verbosity;
         installer.Run();
 
         if (installer.State_Error != null) throw installer.State_Error;
