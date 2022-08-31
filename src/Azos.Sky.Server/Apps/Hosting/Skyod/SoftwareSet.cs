@@ -22,9 +22,28 @@ namespace Azos.Sky.Server.Apps.Hosting.Skyod
   /// </summary>
   public sealed class SoftwareSet : ApplicationComponent<SkyodDaemon>, INamed
   {
+    public const string CONFIG_SOFTWARE_SET_SECTION = "software-set";
+
     internal SoftwareSet(SkyodDaemon director, IConfigSectionNode cfg) : base(director)
     {
+      cfg.NonEmpty("SoftwareSet cfg");
+      m_Name = cfg.ValOf(Configuration.CONFIG_NAME_ATTR).NonBlank($"{nameof(SoftwareSet)}.{Configuration.CONFIG_NAME_ATTR}");
       m_Components = new OrderedRegistry<SetComponent>();
+
+      foreach(var ncmp in cfg.ChildrenNamed(SetComponent.CONFIG_COMPONENT_SECTION))
+      {
+        var cmp = FactoryUtils.MakeDirectedComponent<SetComponent>(this, ncmp, typeof(SetComponent), new[] { ncmp });
+        m_Components.Register(cmp).IsTrue("Unique component name `{0}`".Args(cmp.Name));
+      }
+
+      (m_Components.Count > 0).IsTrue("Configured components");
+    }
+
+    protected override void Destructor()
+    {
+      base.Destructor();
+      m_Components.ForEach( c => this.DontLeak(() => c.Dispose()) );
+      m_Components.Clear();
     }
 
     private readonly string m_Name;
