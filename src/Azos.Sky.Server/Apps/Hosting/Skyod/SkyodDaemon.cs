@@ -22,6 +22,9 @@ namespace Azos.Sky.Server.Apps.Hosting.Skyod
   /// </summary>
   public sealed class SkyodDaemon : DaemonWithInstrumentation<IApplicationComponent>
   {
+    public const string CONFIG_CHAIN_ATTR = "chain-boot-path";
+
+
     public SkyodDaemon(IApplication app) : base(app)
     {
       m_Sets = new Registry<SoftwareSet>();
@@ -56,11 +59,25 @@ namespace Azos.Sky.Server.Apps.Hosting.Skyod
       cleanup();
       if (node == null) return;
 
+      // 1 Configure chained daemon (if any)
+      var chainPath = node.ValOf(CONFIG_CHAIN_ATTR);
+      if (chainPath.IsNotNullOrWhiteSpace())
+      {
+        var nChain = node.NavigateSection(chainPath);
+        if (nChain.Exists)
+        {
+          m_Chain = FactoryUtils.MakeAndConfigureDirectedComponent<Daemon>(this, nChain, typeof(Azos.Wave.WaveServer));
+        }
+      }
+
+      // 2 Configure software sets
       foreach (var nset in node.ChildrenNamed(SoftwareSet.CONFIG_SOFTWARE_SET_SECTION))
       {
         var set = FactoryUtils.MakeDirectedComponent<SoftwareSet>(this, nset, typeof(SoftwareSet), new[] { nset });
         m_Sets.Register(set).IsTrue("Unique software set name `{0}`".Args(set.Name));
       }
+
+      // 3 configure cluster
     }
 
     protected override void DoStart()
