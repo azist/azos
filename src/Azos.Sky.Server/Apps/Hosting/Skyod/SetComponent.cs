@@ -49,9 +49,9 @@ namespace Azos.Sky.Server.Apps.Hosting.Skyod
     /// </summary>
     public string InstallSubdirectory { get; set; }
 
-  //  public InstallAdapter Install => null;
+    //  public InstallationAdapter Install => null;
 
-  //  public ActivationAdapter Activator => null;
+    //  public ActivationAdapter Activator => null;
 
   }
 }
