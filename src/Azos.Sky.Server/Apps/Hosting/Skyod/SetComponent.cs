@@ -22,36 +22,85 @@ namespace Azos.Sky.Server.Apps.Hosting.Skyod
   /// </summary>
   public sealed class SetComponent : ApplicationComponent<SoftwareSet>, INamed, IOrdered
   {
+    public const string CONFIG_COMPONENT_SECTION = "component";
+    public const string CONFIG_INSTALLATION_SECTION = "installation";
+    public const string CONFIG_ACTIVATION_SECTION = "activation";
+
     internal SetComponent(SoftwareSet director, IConfigSectionNode cfg) : base(director)
     {
+      cfg.NonEmpty("SetComponent cfg");
+      m_Name = cfg.ValOf(Configuration.CONFIG_NAME_ATTR).NonBlank($"{nameof(SetComponent)}.{Configuration.CONFIG_NAME_ATTR}");
+      m_Order = cfg.Of(Configuration.CONFIG_ORDER_ATTR).NonEmpty($"{nameof(SetComponent)}.{Configuration.CONFIG_ORDER_ATTR}").ValueAsInt();
+      ConfigAttribute.Apply(this, cfg);
+
+      var nadapter = cfg[CONFIG_INSTALLATION_SECTION].NonEmpty($"Attribute ${CONFIG_INSTALLATION_SECTION}");
+      m_Installation = FactoryUtils.MakeDirectedComponent<InstallationAdapter>(this, nadapter, typeof(DefaultAzosPackageInstaller), new []{ nadapter });
+
+      nadapter = cfg[CONFIG_ACTIVATION_SECTION].NonEmpty($"Attribute ${CONFIG_ACTIVATION_SECTION}");
+      m_Activation = FactoryUtils.MakeDirectedComponent<ActivationAdapter>(this, nadapter, typeof(DefaultHgovOsProcessActivator), new[] { nadapter });
+    }
+
+    protected override void Destructor()
+    {
+      base.Destructor();
+      DisposeAndNull(ref m_Installation);
+      DisposeAndNull(ref m_Activation);
     }
 
     private readonly string m_Name;
     private readonly int m_Order;
+
+    private InstallationAdapter m_Installation;
+    private ActivationAdapter m_Activation;
+
+    [Config]
+    private bool m_IsManagedInstall;
+
+    [Config]
+    private bool m_IsManagedActivation;
+
+    [Config]
+    private bool m_IsManagedStatus;
+
 
     /// <summary>
     /// Unique software component name. Package labels must start from the set name e.g. `[x9-biz]-20220801-181200.apar`
     /// </summary>
     public string Name => m_Name;
 
+    /// <summary>
+    /// Order of the component within its parent set.
+    /// The components get installed/activated in order
+    /// </summary>
     public int Order => m_Order;
 
     public override string ComponentLogTopic => SysConsts.LOG_TOPIC_SKYOD;
 
 
     /// <summary>
-    /// Where the set gets installed  e.g. `/opt/sky-sys/` vs `/opt/sky-biz/`
+    /// True when component can be (re)installed
     /// </summary>
-    public string RootDirectory { get; set; }
+    public bool IsManagedInstall => m_IsManagedInstall;
 
     /// <summary>
-    /// By default `/bin`
+    /// True when component can be started/stopped
     /// </summary>
-    public string InstallSubdirectory { get; set; }
+    public bool IsManagedActivation => m_IsManagedActivation;
 
-    //  public InstallationAdapter Install => null;
+    /// <summary>
+    /// True when component status gets scanned
+    /// </summary>
+    public bool IsManagedStatus => m_IsManagedStatus;
 
-    //  public ActivationAdapter Activator => null;
+    /// <summary>
+    /// Handles installation functionality
+    /// </summary>
+    public InstallationAdapter Installation => this.NonDisposed(nameof(SetComponent)).m_Installation;
 
+
+    /// <summary>
+    /// Handles activation functionality
+    /// </summary>
+    public ActivationAdapter Activation => this.NonDisposed(nameof(SetComponent)).m_Activation;
   }
 }
