@@ -61,6 +61,7 @@ namespace Azos.Sky
 
     public const string LOG_TOPIC_METABASE = "mtbs";
     public const string LOG_TOPIC_APP_MANAGEMENT = "AppMgmt";
+    public const string LOG_TOPIC_SKYOD = "skyod";
     public const string LOG_TOPIC_HOST_GOV = "hgov";
     public const string LOG_TOPIC_ZONE_GOV = "zgov";
     public const string LOG_TOPIC_LOCKING = "lck";
