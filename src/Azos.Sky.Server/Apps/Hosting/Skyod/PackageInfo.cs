@@ -24,12 +24,13 @@ namespace Azos.Sky.Server.Apps.Hosting.Skyod
   /// </summary>
   public struct PackageInfo : IEquatable<PackageInfo>, IJsonWritable, IJsonReadable, IRequiredCheck
   {
-    public PackageInfo(string id, string description, DateTime createUtc)
+    public PackageInfo(string id, string providerId, string description, DateTime createUtc)
     {
-      Id = id; Description = description; CreateUtc = createUtc;
+      Id = id; ProviderId = providerId; Description = description; CreateUtc = createUtc;
     }
 
-    public readonly string Id;       //  g8-biz-78787897897.apar
+    public readonly string Id;        //  g8-biz-78787897897.apar
+    public readonly string ProviderId;//whatever is needed to store/extract by provider
     public readonly string Description;
     public readonly DateTime CreateUtc;
 
@@ -44,14 +45,18 @@ namespace Azos.Sky.Server.Apps.Hosting.Skyod
 
     public void WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
       => JsonWriter.WriteMap(wri, nestingLevel + 1, options, new DictionaryEntry("id", Id),
-                                                           new DictionaryEntry("desc", Description),
-                                                           new DictionaryEntry("cutc", CreateUtc.ToMillisecondsSinceUnixEpochStart()));
+                                                             new DictionaryEntry("pid", ProviderId),
+                                                             new DictionaryEntry("desc", Description),
+                                                             new DictionaryEntry("cutc", CreateUtc.ToMillisecondsSinceUnixEpochStart()));
 
     public (bool match, IJsonReadable self) ReadAsJson(object data, bool fromUI, JsonReader.DocReadOptions? options)
     {
       if (data is JsonDataMap map)
       {
-        var result = new PackageInfo(map["id"].AsString(), map["desc"].AsString(), map["cutc"].AsLong().FromMillisecondsSinceUnixEpochStart());
+        var result = new PackageInfo(map["id"].AsString(),
+                                     map["pid"].AsString(),
+                                     map["desc"].AsString(),
+                                     map["cutc"].AsLong().FromMillisecondsSinceUnixEpochStart());
         return (true, result);
       }
       return (false, null);
