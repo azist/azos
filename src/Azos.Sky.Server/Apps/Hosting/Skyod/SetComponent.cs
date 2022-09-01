@@ -6,7 +6,6 @@
 
 using System;
 
-
 using Azos.Collections;
 using Azos.Conf;
 using Azos.Apps.Hosting.Skyod.Adapters;
