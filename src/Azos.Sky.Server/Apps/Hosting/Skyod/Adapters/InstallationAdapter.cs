@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using Azos.Data;
 using Azos.Serialization.Bix;
 
-namespace Azos.Apps.Hosting.Skyod
+namespace Azos.Apps.Hosting.Skyod.Adapters
 {
   /// <summary>
   /// Outlines protocol for activities related to software component installation

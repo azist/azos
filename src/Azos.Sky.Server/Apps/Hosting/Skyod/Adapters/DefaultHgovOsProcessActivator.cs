@@ -10,7 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Azos.Apps.Hosting.Skyod
+namespace Azos.Apps.Hosting.Skyod.Adapters
 {
   public sealed class DefaultHgovOsProcessActivator : ActivationAdapter
   {

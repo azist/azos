@@ -17,7 +17,7 @@ using Azos.Apps;
 using Azos.Data;
 using Azos.Serialization.JSON;
 
-namespace Azos.Apps.Hosting.Skyod
+namespace Azos.Apps.Hosting.Skyod.Adapters
 {
   [Serialization.Bix.BixJsonHandler(ThrowOnUnresolvedType = true)]
   public abstract class AdapterDoc : AmorphousTypedDoc
