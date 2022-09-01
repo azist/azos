@@ -10,7 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Azos.Sky.Server.Apps.Hosting.Skyod
+namespace Azos.Apps.Hosting.Skyod
 {
   public sealed class DefaultAzosPackageInstaller : InstallationAdapter
   {
@@ -18,24 +18,7 @@ namespace Azos.Sky.Server.Apps.Hosting.Skyod
     {
     }
 
-    public override PackageInfo CurrentPackage => throw new NotImplementedException();
-
-    public override Task<PackageInfo> DownloadPackageAsync(PackageInfo package)
-    {
-      throw new NotImplementedException();
-    }
-
-    public override IEnumerable<PackageInfo> GetLocalPackageList()
-    {
-      throw new NotImplementedException();
-    }
-
-    public override IEnumerable<PackageInfo> GetRepositoryPackageList()
-    {
-      throw new NotImplementedException();
-    }
-
-    protected override Task DoInstallAsync(PackageInfo package)
+    protected override Task<InstallationResponse> DoExecActivationRequest(InstallationRequest request)
     {
       throw new NotImplementedException();
     }

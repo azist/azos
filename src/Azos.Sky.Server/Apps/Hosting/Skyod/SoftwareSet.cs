@@ -5,16 +5,11 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-using Azos.Apps;
 using Azos.Collections;
 using Azos.Conf;
 
-namespace Azos.Sky.Server.Apps.Hosting.Skyod
+namespace Azos.Apps.Hosting.Skyod
 {
   /// <summary>
   /// Provides logical isolation for sets of software, as the daemon
@@ -57,6 +52,6 @@ namespace Azos.Sky.Server.Apps.Hosting.Skyod
 
     public IOrderedRegistry<SetComponent> Components => m_Components;
 
-    public override string ComponentLogTopic => SysConsts.LOG_TOPIC_SKYOD;
+    public override string ComponentLogTopic => Sky.SysConsts.LOG_TOPIC_SKYOD;
   }
 }

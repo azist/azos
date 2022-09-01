@@ -14,7 +14,7 @@ using Azos.Apps;
 using Azos.Collections;
 using Azos.Conf;
 
-namespace Azos.Sky.Server.Apps.Hosting.Skyod
+namespace Azos.Apps.Hosting.Skyod
 {
   /// <summary>
   /// Provides logical isolation for sets of software, as the daemon
@@ -74,7 +74,7 @@ namespace Azos.Sky.Server.Apps.Hosting.Skyod
     /// </summary>
     public int Order => m_Order;
 
-    public override string ComponentLogTopic => SysConsts.LOG_TOPIC_SKYOD;
+    public override string ComponentLogTopic => Sky.SysConsts.LOG_TOPIC_SKYOD;
 
 
     /// <summary>
@@ -102,5 +102,12 @@ namespace Azos.Sky.Server.Apps.Hosting.Skyod
     /// Handles activation functionality
     /// </summary>
     public ActivationAdapter Activation => this.NonDisposed(nameof(SetComponent)).m_Activation;
+
+    public bool TryRegisterNewAdapterRequest(Guid id)
+    {
+      //This needs to WRITE TO DISK
+      //Maybe add a FileBackedSet<T>(Func<T, string> representAsString())//written to text file
+      throw new NotImplementedException();
+    }
   }
 }

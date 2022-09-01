@@ -15,7 +15,7 @@ using Azos.Instrumentation;
 using Azos.Log;
 using Azos.Serialization.JSON;
 
-namespace Azos.Sky.Server.Apps.Hosting.Skyod
+namespace Azos.Apps.Hosting.Skyod
 {
   /// <summary>
   /// Provides services for managing subordinate nodes and Governor processes on nodes
@@ -48,7 +48,7 @@ namespace Azos.Sky.Server.Apps.Hosting.Skyod
     private AutoResetEvent m_Wait;
     private Daemon m_Chain;
 
-    public override string ComponentLogTopic => SysConsts.LOG_TOPIC_SKYOD;
+    public override string ComponentLogTopic => Sky.SysConsts.LOG_TOPIC_SKYOD;
 
     [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
     public override bool InstrumentationEnabled { get; set; }

@@ -10,12 +10,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Azos.Sky.Server.Apps.Hosting.Skyod
+namespace Azos.Apps.Hosting.Skyod
 {
   public sealed class DefaultHgovOsProcessActivator : ActivationAdapter
   {
     public DefaultHgovOsProcessActivator(SetComponent director) : base(director)
     {
+    }
+
+    protected override Task<ActivationResponse> DoExecActivationRequest(ActivationRequest request)
+    {
+      throw new NotImplementedException();
     }
   }
 }

@@ -17,7 +17,7 @@ using Azos.Apps;
 using Azos.Data;
 using Azos.Serialization.JSON;
 
-namespace Azos.Sky.Server.Apps.Hosting.Skyod
+namespace Azos.Apps.Hosting.Skyod
 {
   /// <summary>
   /// Provides (id, descr, createUtc) tuple describing software packages
