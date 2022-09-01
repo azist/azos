@@ -79,13 +79,13 @@ namespace Azos.Scripting.Packaging
       DisposeAndNull(ref m_Package);
     }
 
-    private IApplication m_App;
-    private IConsoleOut m_Conout;
-    private UmaskType m_Umask;
+    private readonly IApplication m_App;
+    private readonly IConsoleOut m_Conout;
+    private GuidTypeResolver<Command, PackageCommandAttribute> m_CommandTypeResolver;
 
+    private UmaskType m_Umask;
     private RunStatus m_Status;
 
-    private GuidTypeResolver<Command, PackageCommandAttribute> m_CommandTypeResolver;
     private Package m_Package;
     private string m_RootPath;
     private string m_PackagePath;
