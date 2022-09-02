@@ -37,7 +37,6 @@ namespace Azos.Apps.Hosting.Skyod.Adapters
 
     protected sealed override async Task<AdapterResponse> DoExecRequestAsync(AdapterRequest request)
     {
-      ComponentDirector.IsManagedInstall.IsTrue("Support managed installation");
       var response = await DoExecActivationRequest(request.CastTo<InstallationRequest>());
       return response;
     }

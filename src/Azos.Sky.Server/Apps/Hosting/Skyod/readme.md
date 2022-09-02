@@ -21,9 +21,11 @@ It performs the following tasks:
 ## Definitions
 * **Managed** software - is installed, updated, spawn/re-spawn/ stopped/controlled using the `skyod` daemon
 * A **software set** is a logically-isolated set of **software set components** which get managed
-* Every software set component has an entry point. 
+* Every software set component has one entry point
 * For managed system components an entry point is a `governor daemon` instance which spawns subordinate applications
 * For unmanaged components (e.g. MongoDb server) an entry point is batch/shell script
+* A component has `is-local: bool` when true - requires to set adapters; when false requires subordinate nodes
+* A component has `auto-start: bool`, if false it must be started manually otherwise activated via activator
 * Every component has an `IComponentActivator`
 * Software sets are NOT inter-dependent
 * SetComponents ARE inter-dependent (ordered)
