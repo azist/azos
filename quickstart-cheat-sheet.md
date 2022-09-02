@@ -33,7 +33,7 @@ var asof = asOfUtc.DefaultAndAlignOnPolicyBoundary(App);
 
 ## <a name="GuardUtils"></a>`Azos.GuardUtils`
 
-<a href="src/Azos/GuardUtils.cs" target="blank">View Source</a>
+<a href="src/Azos/GuardUtils.cs" target="_blank">View Source</a>
 
 =======================================
 
