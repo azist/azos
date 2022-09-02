@@ -33,6 +33,8 @@ var asof = asOfUtc.DefaultAndAlignOnPolicyBoundary(App);
 
 ## <a name="GuardUtils"></a>`Azos.GuardUtils`
 
+<a href="https://github.com/azist/azos/blob/master/src/Azos/GuardUtils.cs" target="_blank">View Source</a>
+
 <a href="src/Azos/GuardUtils.cs" target="_blank">View Source</a>
 
 =======================================
@@ -141,6 +143,8 @@ var utcWhen = when.ToUniversalTime().IsTrue(v => v >= UNIX_EPOCH_START_DATE, "da
 
 ## <a name="DateUtils"></a>`Azos.DateUtils`
 
+<a href="https://github.com/azist/azos/blob/master/src/Azos/DateUtils.cs" target="_blank">View Source</a>
+
 =======================================
 
 Provides core date/time-related utility functions used by the majority of projects
@@ -224,6 +228,8 @@ var timeDiffString = createdAt.ApproximateTimeDistance(app.TimeSource.UTCNow);
 
 ## <a name="IOUtils"></a>`Azos.IOUtils`
 
+<a href="https://github.com/azist/azos/blob/master/src/Azos/IOUtils.cs" target="_blank">View Source</a>
+
 =======================================
 
 Provides IO-related utility extensions.
@@ -252,6 +258,8 @@ var keyBuffer = keyString.FromWebSafeBase64();
 ---
 
 ## <a name="CoreUtils"></a>`Azos.CoreUtils`
+
+<a href="https://github.com/azist/azos/blob/master/src/Azos/CoreUtils.cs" target="_blank">View Source</a>
 
 =======================================
 
@@ -336,6 +344,8 @@ var now = App.GetUtcNow();
 
 ## <a name="DataEntryUtils"></a>`Azos.Text.DataEntryUtils`
 
+<a href="https://github.com/azist/azos/blob/master/src/Azos/Text/DataEntryUtils.cs" target="_blank">View Source</a>
+
 =======================================
 
 Provides misc data-entry parsing routines
@@ -393,6 +403,8 @@ Aver.AreEqual(55521910305187, DataEntryUtils.PhoneNumberToLong("555-219-1030x518
 
 ## <a name="Text.Utils"></a>`Azos.Text.Utils`
 
+<a href="https://github.com/azist/azos/blob/master/src/Azos/Text/Utils.cs" target="_blank">View Source</a>
+
 =======================================
 
 Provides misc text utils
@@ -442,6 +454,8 @@ Aver.IsTrue("We shall overcome".MatchPattern("*********overCOME", senseCase: fal
 ---
 
 ## <a name="CollectionUtils"></a>`Azos.CollectionUtils`
+
+<a href="https://github.com/azist/azos/blob/master/src/Azos/CollectionUtils.cs" target="_blank">View Source</a>
 
 =======================================
 
@@ -512,6 +526,8 @@ var allSteps = startStep.ToEnumerable(runStep, shutdownStep, finalizeStep);
 
 
 ## <a name="StringValueConversion"></a>`Azos.Data.StringValueConversion`
+
+<a href="https://github.com/azist/azos/blob/master/src/Azos/Data/StringValueConversion.cs" target="_blank">View Source</a>
 
 =======================================
 
