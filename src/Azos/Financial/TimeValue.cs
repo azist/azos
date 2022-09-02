@@ -87,7 +87,7 @@ namespace Azos.Financial
             double[] cashFlowsArray = cashFlowsList.ToArray();
 
             double irr = IRR(cashFlowsArray, estimatedResult);
-            if (irr != Double.NaN && irr < 0)
+            if (!double.IsNaN(irr) && irr < 0)
             {
                 return .0d;
             }

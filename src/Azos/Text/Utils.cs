@@ -58,8 +58,8 @@ namespace Azos.Text
       return result;
     }
 
-
-    private static Regex urlCheckRegex;
+    private const string URI_PATTERN = @"^(http|https)\://[a-zA-Z0-9\-\.]+(:[a-zA-Z0-9]*)?(/[a-zA-Z0-9\-\._]*)*$";
+    private static readonly Regex URI_CHECK_REGEX = new Regex(URI_PATTERN, RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     /// <summary>
     /// Checks URL string for validity
@@ -67,16 +67,7 @@ namespace Azos.Text
     public static bool IsURLValid(this string url)
     {
       if (string.IsNullOrEmpty(url)) return false;
-
-
-      lock (typeof(Utils))
-        if (urlCheckRegex == null)
-        {
-          string pattern = @"^(http|https)\://[a-zA-Z0-9\-\.]+(:[a-zA-Z0-9]*)?(/[a-zA-Z0-9\-\._]*)*$";
-          urlCheckRegex = new Regex(pattern, RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        }
-
-      Match m = urlCheckRegex.Match(url);
+      Match m = URI_CHECK_REGEX.Match(url);
       return m.Success;
     }
 

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Text;
 
 using System.Collections;
+using System.Runtime.CompilerServices;
 
 namespace Azos.Collections
 {
@@ -68,11 +69,6 @@ namespace Azos.Collections
       return this.Equals((MatrixBase<T>)obj);
     }
 
-    public override int GetHashCode()
-    {
-      return base.GetHashCode();
-    }
-
     #endregion
 
     #region IEnumerable<T>
@@ -84,6 +80,8 @@ namespace Azos.Collections
     #endregion
 
     #region IEquatable<T>
+
+    public override int GetHashCode() => RuntimeHelpers.GetHashCode(this);
 
     public bool Equals(MatrixBase<T> other)
     {

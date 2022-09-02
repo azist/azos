@@ -27,9 +27,9 @@ namespace Azos.Sky.Workers.Server
 
     public ProcessDescriptor GetDescriptor(PID pid) => Service.GetDescriptor(pid);
 
-    public SignalFrame Dispatch(SignalFrame signal) => Dispatch(signal);
+    public SignalFrame Dispatch(SignalFrame signal) => Service.Dispatch(signal);
 
-    public IEnumerable<ProcessDescriptor> List(int processorID)=> List(processorID);
+    public IEnumerable<ProcessDescriptor> List(int processorID)=> Service.List(processorID);
   }
 
 }

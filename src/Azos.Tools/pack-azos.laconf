@@ -1,0 +1,98 @@
+﻿//This is a sample script which packs whole Azos/
+//you can call it like:
+// $ sky srun pack-azos.laconf
+// $ sky srun pack-azos.laconf -vars encryption=crypto.package keyhmac="base64:7LhLGGdNF_iGH2b_Ny0iKvnIcV9LojcLIAGKSsF264M86UW42jUSUTMXMxC_XnBkfxbjhqs-Xx1PlprQzBvbtA" keyaes="base64:edUJTZo818omBrLQdiDnFczw-qz5Tm69ffFiAF3Tz0Y"
+pack
+{
+  type-path="Azos.Scripting.Dsl, Azos; Azos.Scripting.Packaging.Dsl, Azos"
+
+  package-label="azos"
+  verbosity=3
+
+  do
+  {
+    name="SetupEncryption"
+    type="Azos.Security.Dsl.RegisterCryptoAlgorithm, Azos"
+    algorithm
+    {
+      name=$(~global.encryption)
+      audience=Internal
+      type="Azos.Security.HMACAESCryptoMessageAlgorithm, Azos"
+
+      //keyset=$(~global.keyset)
+      hmac{ key=$(~global.keyhmac) }
+      aes{ key=$(~global.keyaes) }
+
+
+      // To generate:  ~# sky pwd -k 512 -ne
+      //hmac{ key="base64:7LhLGGdNF_iGH2b_Ny0iKvnIcV9LojcLIAGKSsF264M86UW42jUSUTMXMxC_XnBkfxbjhqs-Xx1PlprQzBvbtA" }
+      //you can repeat hmac 512 keys
+
+      // To generate: ~# sky pwd -k 256 -ne
+      //aes{ key="base64:edUJTZo818omBrLQdiDnFczw-qz5Tm69ffFiAF3Tz0Y" }
+      //you can repeat aes keys
+    }
+  }
+
+
+  do
+  {
+    name="Install"
+    type="InstallPackage"
+    package-path="azos.apar"
+
+    install-root-path="c:\\azos\\apar"
+    target-names=""
+    verbosity=10
+    //umask=User
+  }
+
+  do{ type="Halt" }
+
+//=======================================================
+  do
+  {
+    name="Create"
+    type="CreatePackage"
+    verbosity=$(/$verbosity)
+
+    file-path="azos.apar"
+    dont-overwrite=false
+
+    label=$(/$package-label)
+    channel="sys"
+    description="Sample Azos package"
+    version-major=3
+    version-minor=101
+
+    //compression-scheme=" "
+    compression-scheme="gzip-max"
+    encryption-scheme=$(~global.encryption)
+
+    app-settings
+    {
+      a=1
+      b=2
+      custom-section{ z=yes }
+    }
+  }
+
+  do
+  {
+    name="Target"
+    type="SetTarget"
+    verbosity=$(/$verbosity)
+    target-name="azos-core"
+  }
+
+  do
+  {
+    name="Add Dlls"
+    type="AddFiles"
+    verbosity=$(/$verbosity)
+    FromPath="."
+    include-patterns="*.dll;*.xml"
+    exclude-patterns="*.apar"
+  }
+
+}

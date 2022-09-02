@@ -336,32 +336,61 @@ namespace Azos
 
     /// <summary>
     /// Runs specified process and waits for termination returning standard process output.
-    /// This is a blocking call
+    /// This is a blocking call for up to msTimeout unless the indefinite timeout is specified.
     /// </summary>
-    public static string RunAndCompleteProcess(string name, string args)
+    public static (int exitCode, string stdOut, bool hasExited, bool wasKilled) RunAndCompleteProcess(string name,
+                                                                      string args,
+                                                                      string workingDirectory = null,
+                                                                      int msTimeout = 0,
+                                                                      bool kill = true)
     {
-      string std_out = string.Empty;
+      int exitCode = -1000000000;
+      bool hasExited = false;
+      bool wasKilled = false;
+      string stdOut = string.Empty;
 
       Process p = new Process();
       p.StartInfo.FileName = name;
+      if (workingDirectory.IsNotNullOrWhiteSpace())
+      {
+        p.StartInfo.WorkingDirectory = workingDirectory;
+      }
       p.StartInfo.Arguments = args;
       p.StartInfo.UseShellExecute = false;
       p.StartInfo.CreateNoWindow = true;
       p.StartInfo.RedirectStandardOutput = true;
       p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-      p.Start();
 
+      p.Start();
       try
       {
-        std_out = p.StandardOutput.ReadToEnd();
-        p.WaitForExit();
+        stdOut = p.StandardOutput.ReadToEnd();
+        if (msTimeout > 0)
+        {
+          p.WaitForExit(msTimeout);
+        }
+        else
+        {
+          p.WaitForExit();
+        }
+
+        if (p.HasExited)
+        {
+          hasExited = true;
+          exitCode = p.ExitCode;
+        }
+        else if (kill)
+        {
+          p.Kill();
+          wasKilled = true;
+        }
       }
       finally
       {
         p.Close();
       }
 
-      return std_out;
+      return (exitCode, stdOut, hasExited, wasKilled);
     }
 
 

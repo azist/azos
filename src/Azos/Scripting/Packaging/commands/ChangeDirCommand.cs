@@ -10,7 +10,7 @@ using System;
 namespace Azos.Scripting.Packaging
 {
   /// <summary>
-  /// Changes current directory
+  /// Changes current directory to new subdir, goes to root with '/' or level up with '..'
   /// </summary>
   [PackageCommand("bb164465-bc8c-4d08-9830-bc1418fccdbf")]
   public sealed class ChangeDirCommand : Command

@@ -82,7 +82,7 @@ namespace Azos.Wave.Filters
     public string GateNewSessionVar
     {
       get { return m_GateNewSessionVar; }
-      set { GateNewSessionVar = value; }
+      set { m_GateNewSessionVar = value; }
     }
 
     #endregion

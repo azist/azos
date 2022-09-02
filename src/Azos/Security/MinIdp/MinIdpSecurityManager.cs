@@ -196,7 +196,7 @@ namespace Azos.Security.MinIdp
 
     public Task<IEntityInfo> LookupEntityAsync(string uri)
     {
-      return null;//for now
+      return Task.FromResult<IEntityInfo>(null);//for now
     }
 
     #endregion

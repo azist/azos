@@ -3,6 +3,9 @@
   <PropertyGroup>
     <Version>$(Version)</Version>
 
+    <!-- Force C# 9.0 Compiler -->
+    <LangVersion>9.0</LangVersion>
+
     <!-- To copy referenced packages into /out -->
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 

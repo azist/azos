@@ -48,6 +48,7 @@ namespace Azos.Serialization.Bix
 
     public void WriteCollection(ICollection<byte> value) => WriteCollection(value, (bix, elm) => bix.Write(elm));
 
+//todo: Add Write(ArraySegment<byte>)
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Write(byte[] buffer) => WriteBuffer(buffer);//aliases needed for dispatch script uniformity
 

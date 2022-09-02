@@ -18,8 +18,6 @@ namespace Azos.Scripting.Packaging
   [ContentTypeSupport(PackageCommandArchiveAppender.CONTENT_TYPE_PACKAGING)]
   public sealed class PackageCommandArchiveReader : ArchiveBixReader<Command>
   {
-    public const string CONTENT_TYPE_PACKAGING = "bix/scripting-package";
-
     public PackageCommandArchiveReader(IVolume volume, IGuidTypeResolver resolver) : base(volume)
     {
       m_Resolver = resolver.NonNull(nameof(resolver));

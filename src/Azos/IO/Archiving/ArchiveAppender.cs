@@ -147,10 +147,30 @@ namespace Azos.IO.Archiving
     private MemoryStream m_Stream;
     private BixWriter m_Writer;
 
+    private long m_TotalBytesAppended;
+    private long m_TotalEntriesAppended;
+
+    public long TotalBytesAppended => m_TotalBytesAppended;
+    public long TotalEntriesAppended => m_TotalEntriesAppended;
+
+    /// <summary>
+    /// Resets Totals back to zero
+    /// </summary>
+    public virtual void ResetStats()
+    {
+      m_TotalBytesAppended = 0;
+      m_TotalEntriesAppended = 0;
+    }
+
     protected sealed override ArraySegment<byte> DoSerialize(TEntry entry)
     {
       m_Stream.SetLength(0);
       DoSerializeBix(m_Writer, entry);
+      unchecked
+      {
+        m_TotalEntriesAppended++;
+        m_TotalBytesAppended += m_Stream.Length;
+      }
       return new ArraySegment<byte>(m_Stream.GetBuffer(), 0, (int)m_Stream.Length);
     }
 

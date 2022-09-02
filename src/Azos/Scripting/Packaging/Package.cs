@@ -14,33 +14,39 @@ using Azos.IO.Archiving;
 namespace Azos.Scripting.Packaging
 {
   /// <summary>
-  /// Represents a package read from command archive on disk/memory stream etc...
+  /// Represents a package read from command archive from disk/memory stream etc...
   /// This class must be deterministically disposed
   /// </summary>
   public sealed class Package : DisposableObject
   {
-    public Package FromFile(IApplication app, string fileName)
-     => FromFile(app.NonNull(nameof(app)).SecurityManager.Cryptography, fileName);
+    public const long MAX_TOTAL_FILE_SIZE_BYTES = 5L *  1024L * 1024L * 1024L;
+    public const int MIN_CHUNK_FILE_SIZE_BYTES =       16 * 1024;
+    public const int MAX_CHUNK_FILE_SIZE_BYTES =     1024 * 1024;
+    public const int DEFAULT_CHUNK_FILE_SIZE_BYTES =  128 * 1024;
 
-    public Package FromFile(Security.ICryptoManager crypto, string fileName)
+
+    public static Package FromFile(IApplication app, string fileName, Apps.IGuidTypeResolver resolver = null)
+     => FromFile(app.NonNull(nameof(app)).SecurityManager.Cryptography, fileName, resolver);
+
+    public static Package FromFile(Security.ICryptoManager crypto, string fileName, Apps.IGuidTypeResolver resolver = null)
     {
       crypto.NonNull(nameof(crypto));
       fileName.NonBlank(nameof(fileName));
       var fileStream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
       var volume = new DefaultVolume(crypto, fileStream, ownsStream: true);
-      var result = new Package(volume);
+      var result = new Package(volume, resolver);
       return result;
     }
 
-    public Package FromStream(IApplication app, Stream stream, bool ownsStream = true)
-      => FromStream(app.NonNull(nameof(app)).SecurityManager.Cryptography, stream, ownsStream);
+    public static Package FromStream(IApplication app, Stream stream, Apps.IGuidTypeResolver resolver = null, bool ownsStream = true)
+      => FromStream(app.NonNull(nameof(app)).SecurityManager.Cryptography, stream, resolver, ownsStream);
 
-    public Package FromStream(Security.ICryptoManager crypto, Stream stream, bool ownsStream = true)
+    public static Package FromStream(Security.ICryptoManager crypto, Stream stream, Apps.IGuidTypeResolver resolver = null,  bool ownsStream = true)
     {
       crypto.NonNull(nameof(crypto));
       stream.NonNull(nameof(stream));
       var volume = new DefaultVolume(crypto, stream, ownsStream);
-      var result = new Package(volume);
+      var result = new Package(volume, resolver);
       return result;
     }
 

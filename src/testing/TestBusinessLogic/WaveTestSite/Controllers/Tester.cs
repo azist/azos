@@ -345,7 +345,7 @@ namespace WaveTestSite.Controllers
 
      private Stream downloadImage(string url)
      {
-       var webClient = new WebClient();
+       using var webClient = new WebClient();
        byte[] imageBytes = webClient.DownloadData(url);
        return new MemoryStream(imageBytes);
      }

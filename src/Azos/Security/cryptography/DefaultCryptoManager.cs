@@ -79,10 +79,21 @@ namespace Azos.Security
       return rnd;
     }
 
+    public bool RegisterAlgorithm(ICryptoMessageAlgorithmImplementation algorithm)
+    {
+      (algorithm.NonNull(nameof(algorithm)).ComponentDirector == this).IsTrue("Algorithm directed by this manager");
+      return m_MessageProtectionAlgorithms.Register(algorithm);
+    }
+
+    public bool UnregisterAlgorithm(string name)
+      => m_MessageProtectionAlgorithms.Unregister(name);
+
+    public bool UnregisterAlgorithm(ICryptoMessageAlgorithmImplementation algorithm)
+      => m_MessageProtectionAlgorithms.Unregister(algorithm);
+
     #endregion
 
     #region Protected
-
     protected override void DoConfigure(IConfigSectionNode node)
     {
       base.DoConfigure(node);
@@ -94,8 +105,6 @@ namespace Azos.Security
          throw new SecurityException("Algorithm `{0}` is already registered".Args(algo.Name));
       }
     }
-
     #endregion
   }
-
 }

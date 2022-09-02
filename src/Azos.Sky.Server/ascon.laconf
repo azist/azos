@@ -22,7 +22,7 @@
 
     bindings
     {
-      binding { name="apterm" type="Azos.Sky.Glue.AppTermBinding, Azos.Sky" }
+      binding { name="apterm" type="Azos.Sky.Glue.AppTermBinding, Azos.Sky.Server" }
       binding { name="async" type="Azos.Glue.Native.MpxBinding" }
       binding { name="sync" type="Azos.Glue.Native.SyncBinding" }
     }
