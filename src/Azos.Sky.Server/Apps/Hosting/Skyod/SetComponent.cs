@@ -9,6 +9,7 @@ using System;
 using Azos.Collections;
 using Azos.Conf;
 using Azos.Apps.Hosting.Skyod.Adapters;
+using Azos.Serialization.Bix;
 
 namespace Azos.Apps.Hosting.Skyod
 {
@@ -106,4 +107,7 @@ namespace Azos.Apps.Hosting.Skyod
       throw new NotImplementedException();
     }
   }
+
+
+
 }
