@@ -33,6 +33,8 @@ var asof = asOfUtc.DefaultAndAlignOnPolicyBoundary(App);
 
 ## <a name="GuardUtils"></a>`Azos.GuardUtils`
 
+<a href="src/Azos/GuardUtils.cs" target="blank">View Source</a>
+
 =======================================
 
 Call guard exceptions thrown by the framework to indicate violations of value constraints. 
