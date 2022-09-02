@@ -11,6 +11,8 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Azos.Apps;
+using Azos.Conf;
+using Azos.Instrumentation;
 
 namespace Azos.Collections
 {
@@ -85,6 +87,7 @@ namespace Azos.Collections
     /// When Count exceeds the limit the set asynchronously caps the total number of entries by
     /// removing the older elements. The limit does not guarantee the instantaneous or exact consistency with the Count property
     /// </summary>
+    [Config, ExternalParameter]
     public int SizeLimit
     {
       get { return m_SizeLimit; }
@@ -95,6 +98,7 @@ namespace Azos.Collections
     /// If set >0 then evicts the entries older than the specified value.
     /// Does not guarantee the exact consistency of eviction time
     /// </summary>
+    [Config, ExternalParameter]
     public int TimeLimitSec
     {
       get => m_TimeLimitSec;

@@ -23,6 +23,8 @@ namespace Azos.Apps.Hosting.Skyod
     public const string CONFIG_INSTALLATION_SECTION = "installation";
     public const string CONFIG_ACTIVATION_SECTION = "activation";
 
+    public const string CONFIG_REQUESTSET_SECTION = "requestset";
+
     internal SetComponent(SoftwareSet director, IConfigSectionNode cfg) : base(director)
     {
       cfg.NonEmpty("SetComponent cfg");
@@ -35,6 +37,11 @@ namespace Azos.Apps.Hosting.Skyod
 
       nadapter = cfg[CONFIG_ACTIVATION_SECTION].NonEmpty($"Attribute ${CONFIG_ACTIVATION_SECTION}");
       m_Activation = FactoryUtils.MakeDirectedComponent<ActivationAdapter>(this, nadapter, typeof(DefaultHgovOsProcessActivator), new[] { nadapter });
+
+      var nrset = cfg[CONFIG_REQUESTSET_SECTION];
+      m_SetPersistence = new GuidSetFilePersistenceHandler(this, nrset);
+      m_ProcessedRequestIds = new CappedSet<Guid>(this, null, m_SetPersistence);
+      ConfigAttribute.Apply(m_SetPersistence, nrset);
     }
 
     protected override void Destructor()
@@ -42,6 +49,8 @@ namespace Azos.Apps.Hosting.Skyod
       base.Destructor();
       DisposeAndNull(ref m_Installation);
       DisposeAndNull(ref m_Activation);
+      DisposeAndNull(ref m_ProcessedRequestIds);
+      DisposeAndNull(ref m_SetPersistence);
     }
 
     private readonly string m_Name;
@@ -49,6 +58,8 @@ namespace Azos.Apps.Hosting.Skyod
 
     private InstallationAdapter m_Installation;
     private ActivationAdapter m_Activation;
+    private GuidSetFilePersistenceHandler m_SetPersistence;
+    private CappedSet<Guid> m_ProcessedRequestIds;
 
     [Config]
     private bool m_IsManagedInstall;
@@ -100,12 +111,7 @@ namespace Azos.Apps.Hosting.Skyod
     /// </summary>
     public ActivationAdapter Activation => this.NonDisposed(nameof(SetComponent)).m_Activation;
 
-    public bool TryRegisterNewAdapterRequest(Guid id)
-    {
-      //This needs to WRITE TO DISK
-      //Maybe add a FileBackedSet<T>(Func<T, string> representAsString())//written to text file
-      throw new NotImplementedException();
-    }
+    public bool TryRegisterNewAdapterRequest(Guid id) => m_ProcessedRequestIds.Put(id);
   }
 
 
