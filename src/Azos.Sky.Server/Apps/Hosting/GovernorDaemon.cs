@@ -29,11 +29,13 @@ namespace Azos.Apps.Hosting
     public GovernorDaemon(IApplication app) : base(app)
     {
       m_Applications = new OrderedRegistry<App>();
+      App.Singletons.GetOrCreate(() => this).created.IsTrue("Single HGov instance");
     }
 
     protected override void Destructor()
     {
       base.Destructor();
+      App.Singletons.Remove<GovernorDaemon>();
       DisposeAndNull(ref m_Chain);
     }
 

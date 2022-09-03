@@ -1,0 +1,94 @@
+﻿/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+using Azos.Serialization.JSON;
+using Azos.Wave.Mvc;
+
+namespace Azos.Apps.Hosting.Web
+{
+  /// <summary>
+  /// Host Governor APIs
+  /// </summary>
+  public class HGov : ApiProtocolController
+  {
+    public object Info()
+    {
+      var gov = App.Singletons.Get<GovernorDaemon>().NonNull(nameof(GovernorDaemon));
+      var info = getHGovInfo(gov);
+      return GetLogicResult(info);
+    }
+
+    [ActionOnPost]
+    public object Stop()
+    {
+      ((IApplicationImplementation)App).Stop();
+      return GetLogicResult("Stopped");
+    }
+
+    private JsonDataMap getHGovInfo(GovernorDaemon gov)
+    {
+      var result = new JsonDataMap();
+
+      result["name"] = gov.Name;
+      result["csid"] = gov.ComponentSID;
+      result["sipc_port"] = gov.AssignedSipcServerPort;
+      result["logl"] = gov.ComponentEffectiveLogLevel;
+      result["csd"] = gov.ComponentStartTime;
+      result["instr"] = gov.InstrumentationEnabled;
+      result["sipc_start_port"] = gov.ServerStartPort;
+      result["sipc_start_port"] = gov.ServerEndPort;
+      result["service_descr"] = gov.ServiceDescription;
+      result["status"] = gov.Status;
+      result["sstatus_descr"] = gov.StatusDescription;
+      result["app_start_time"] = gov.App.StartTime;
+      result["app_utc_now"] = gov.App.TimeSource.UTCNow;
+      result["app_id"] = gov.App.AppId;
+      result["app_instance_id"] = gov.App.InstanceId;
+      result["app_cloud_origin"] = gov.App.CloudOrigin;
+      result["app_descr"] = gov.App.Description;
+      result["app_environment"] = gov.App.EnvironmentName;
+
+      var apps = new List<JsonDataMap>();
+
+
+      result["apps"] = apps;
+      foreach(var one in gov.Applications)
+      {
+        var map = new JsonDataMap();
+        map["name"] = one.Name;
+        map["order"] = one.Order;
+        map["sid"] = one.ComponentSID;
+        map["status_descr"] = one.StatusDescription;
+        map["service_descr"] = one.ServiceDescription;
+        map["last_start"] = one.LastStartAttemptUtc;
+        map["failed"] = one.Failed;
+        map["fail_utc"] = one.FailUtc;
+        map["fail_reason"] = one.FailReason;
+        map["optional"] = one.Optional;
+
+        if (one.Connection != null)
+        {
+          map["conn_state"] = one.Connection.State;
+          map["conn_name"] = one.Connection.Name;
+          map["conn_start_utc"] = one.Connection.StartUtc;
+          map["conn_last_recv_utc"] = one.Connection.LastReceiveUtc;
+          map["conn_last_send_utc"] = one.Connection.LastSendUtc;
+        }
+
+        apps.Add(map);
+      }
+
+      return result;
+    }
+
+  }
+}
