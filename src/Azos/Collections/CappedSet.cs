@@ -214,7 +214,7 @@ namespace Azos.Collections
 
     private void persistOneBucket(bool sync, int idxBucket, IEnumerable<KeyValuePair<T, DateTime>> data)
     {
-      if (m_Persistence != null) return;
+      if (m_Persistence == null) return;
 
       if (sync != m_Persistence.IsAsync)
       {
