@@ -20,10 +20,10 @@ namespace Azos.Apps.Hosting.Web
   /// </summary>
   public class HGov : ApiProtocolController
   {
-    public object Info()
+    public object Info(int level = 0)
     {
       var gov = App.Singletons.Get<GovernorDaemon>().NonNull(nameof(GovernorDaemon));
-      var info = getHGovInfo(gov);
+      var info = getHGovInfo(gov, level);
       return GetLogicResult(info);
     }
 
@@ -34,28 +34,36 @@ namespace Azos.Apps.Hosting.Web
       return GetLogicResult("Stopped");
     }
 
-    private JsonDataMap getHGovInfo(GovernorDaemon gov)
+    private JsonDataMap getHGovInfo(GovernorDaemon gov, int level)
     {
       var result = new JsonDataMap();
 
-      result["name"] = gov.Name;
       result["csid"] = gov.ComponentSID;
-      result["sipc_port"] = gov.AssignedSipcServerPort;
-      result["logl"] = gov.ComponentEffectiveLogLevel;
       result["csd"] = gov.ComponentStartTime;
-      result["instr"] = gov.InstrumentationEnabled;
-      result["sipc_start_port"] = gov.ServerStartPort;
-      result["sipc_start_port"] = gov.ServerEndPort;
-      result["service_descr"] = gov.ServiceDescription;
+      result["name"] = gov.Name;
       result["status"] = gov.Status;
       result["sstatus_descr"] = gov.StatusDescription;
-      result["app_start_time"] = gov.App.StartTime;
-      result["app_utc_now"] = gov.App.TimeSource.UTCNow;
-      result["app_id"] = gov.App.AppId;
-      result["app_instance_id"] = gov.App.InstanceId;
-      result["app_cloud_origin"] = gov.App.CloudOrigin;
-      result["app_descr"] = gov.App.Description;
-      result["app_environment"] = gov.App.EnvironmentName;
+      result["service_descr"] = gov.ServiceDescription;
+
+      if (level > 0)
+      {
+        result["logl"] = gov.ComponentEffectiveLogLevel;
+        result["sipc_port"] = gov.AssignedSipcServerPort;
+        result["sipc_start_port"] = gov.ServerStartPort;
+        result["sipc_start_port"] = gov.ServerEndPort;
+        result["instr"] = gov.InstrumentationEnabled;
+      }
+
+      if (level > 1)
+      {
+        result["app_start_time"] = gov.App.StartTime;
+        result["app_utc_now"] = gov.App.TimeSource.UTCNow;
+        result["app_id"] = gov.App.AppId;
+        result["app_instance_id"] = gov.App.InstanceId;
+        result["app_cloud_origin"] = gov.App.CloudOrigin;
+        result["app_descr"] = gov.App.Description;
+        result["app_environment"] = gov.App.EnvironmentName;
+      }
 
       var apps = new List<JsonDataMap>();
 
@@ -75,7 +83,7 @@ namespace Azos.Apps.Hosting.Web
         map["fail_reason"] = one.FailReason;
         map["optional"] = one.Optional;
 
-        if (one.Connection != null)
+        if (level > 0 && one.Connection != null)
         {
           map["conn_state"] = one.Connection.State;
           map["conn_name"] = one.Connection.Name;
@@ -84,11 +92,16 @@ namespace Azos.Apps.Hosting.Web
           map["conn_last_send_utc"] = one.Connection.LastSendUtc;
         }
 
+        if (level > 1)
+        {
+          map["activation_start_section"] = one.StartSection;
+          map["activation_stop_section"] = one.StopSection;
+        }
+
         apps.Add(map);
       }
 
       return result;
     }
-
   }
 }
