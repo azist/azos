@@ -1,6 +1,6 @@
 @echo on
 
-set VER=3.0.0.5
+set VER=3.0.0.6
 set HEADLINE=HGov Wip
 call build-all Release %VER%
 

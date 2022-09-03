@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using Azos.Platform;
 using Azos.Security;
 using Azos.Serialization.JSON;
 using Azos.Wave.Mvc;
@@ -42,6 +42,9 @@ namespace Azos.Apps.Hosting.Web
     {
       var result = new JsonDataMap();
 
+      result["host"] = Computer.HostName;
+      result["os"] = Computer.OSFamily;
+      result["net-signature"] = Computer.UniqueNetworkSignature;
       result["cmp_sid"] = gov.ComponentSID;
       result["cmp_start"] = gov.ComponentStartTime;
       result["name"] = gov.Name;
