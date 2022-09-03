@@ -27,7 +27,8 @@ namespace Azos.Apps.Hosting.Web
     {
       var gov = App.Singletons.Get<GovernorDaemon>().NonNull(nameof(GovernorDaemon));
       var info = getHGovInfo(gov, level);
-      return GetLogicResult(info);
+      var result = GetLogicResult(info);
+      return new JsonResult(result, JsonWritingOptions.PrettyPrintRowsAsMap);//so it is easier for humans
     }
 
     [ActionOnPost]
@@ -41,16 +42,16 @@ namespace Azos.Apps.Hosting.Web
     {
       var result = new JsonDataMap();
 
-      result["csid"] = gov.ComponentSID;
-      result["csd"] = gov.ComponentStartTime;
+      result["cmp_sid"] = gov.ComponentSID;
+      result["cmp_start"] = gov.ComponentStartTime;
       result["name"] = gov.Name;
       result["status"] = gov.Status;
-      result["sstatus_descr"] = gov.StatusDescription;
+      result["status_descr"] = gov.StatusDescription;
       result["service_descr"] = gov.ServiceDescription;
 
       if (level > 0)
       {
-        result["logl"] = gov.ComponentEffectiveLogLevel;
+        result["cmp_effective_log"] = gov.ComponentEffectiveLogLevel;
         result["sipc_port"] = gov.AssignedSipcServerPort;
         result["sipc_start_port"] = gov.ServerStartPort;
         result["sipc_start_port"] = gov.ServerEndPort;
