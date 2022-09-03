@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.0.0.3
-set HEADLINE=HttpStatusException and Bixas
+set VER=3.0.0.4
+set HEADLINE=HGov Wip
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
@@ -33,7 +33,7 @@ nuget pack Azos.AuthKit.nuspec -Version %VER% %WARNING% -OutputDirectory "%OUT%"
 nuget pack Azos.AuthKit.Server.nuspec -Version %VER% %WARNING% -OutputDirectory "%OUT%" -Properties icon="%ICON%";headline="%HEADLINE%"
 nuget pack Azos.AuthKit.Server.MySql.nuspec -Version %VER% %WARNING% -OutputDirectory "%OUT%" -Properties icon="%ICON%";headline="%HEADLINE%"
 
-rem goto :FINISH
+goto :FINISH
 rem --------------------------
 
 nuget push "%OUT%\Azos.%VER%.nupkg" %AZIST_NUGET_API_KEY% 
