@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Azos.Security;
 using Azos.Serialization.JSON;
 using Azos.Wave.Mvc;
 
@@ -18,8 +19,10 @@ namespace Azos.Apps.Hosting.Web
   /// <summary>
   /// Host Governor APIs
   /// </summary>
+  [SystemAdministratorPermission(AccessLevel.ADVANCED)]
   public class HGov : ApiProtocolController
   {
+    [ActionOnGet]
     public object Info(int level = 0)
     {
       var gov = App.Singletons.Get<GovernorDaemon>().NonNull(nameof(GovernorDaemon));
