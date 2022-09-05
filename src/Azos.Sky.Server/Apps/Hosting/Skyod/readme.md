@@ -53,4 +53,36 @@ Example tree, using a fictional `Z9` system moniker:
          - iv
 ```
 
+Installation on-disk structure:
+```
+ ~/sky     <==== $SKY_HOME
+   /skyod - skyod install directory
+     /bin
+        /cfg...
+        skyod.exe
+        Azos.dll, Azos.Sky.dll, Azos.Wave.dll, Azos.Sky.Server.dll
+     /logs
+        skyod
+          yyymmdd-skyod-gen-csv.log
+     /data
+        /install //<=== Installer root directory
+          x-package-id.apar // downloaded package files
+          package-list.json // list of locally installed packages AND current package
+
+   /cmp-x // e.g. "z9-sys" for "Z9" system-related component
+     /bin === link ==> ./bin-current-pkg-id (Symbolic link)
+     /bin-x-pkg-id  // <===== This is where skyod unpacks apar files
+        /cfg...
+        azh.exe
+        hgov.sky
+        Azos.dll, Azos.Sky.dll, Azos.Wave.dll...
+        Biz.dll, Biz.Server.dll, Cmp.dll...
+        skyod.install.manifest.json 
+     /logs
+        app-x
+          yyymmdd-app-x-gen-csv.log
+     /data
+     /gdid
+```
+
 
