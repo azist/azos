@@ -42,7 +42,6 @@ namespace Azos.Apps.Hosting.Skyod.Adapters
 
     protected sealed override async Task<AdapterResponse> DoExecRequestAsync(AdapterRequest request)
     {
-      ComponentDirector.IsManagedActivation.IsTrue("Support managed activation");
       var response = await DoExecActivationRequest(request.CastTo<ActivationRequest>());
       return response;
     }

@@ -5,9 +5,6 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Azos.Apps.Hosting.Skyod.Adapters
@@ -18,9 +15,30 @@ namespace Azos.Apps.Hosting.Skyod.Adapters
     {
     }
 
-    protected override Task<InstallationResponse> DoExecActivationRequest(InstallationRequest request)
+    private Task<InstallationGetCurrentPackageResponse> doGetCurrentPackageRequest(InstallationGetCurrentPackageRequest request)
     {
-      throw new NotImplementedException();
+      return null;
+    }
+
+    private Task<InstallationGetPackageListResponse> doGetPackageListRequest(InstallationGetPackageListRequest request)
+    {
+      return null;
+    }
+
+    private Task<InstallationGetRepositoryPackageListResponse> doGetRepositoryPackageListRequest(InstallationGetRepositoryPackageListRequest request)
+    {
+      return null;
+    }
+
+
+    private Task<InstallationDownloadPackageResponse> doDownloadPackageRequest(InstallationDownloadPackageRequest request)
+    {
+      return null;
+    }
+
+    private Task<InstallationInstallPackageResponse> doInstallPackageRequest(InstallationInstallPackageRequest request)
+    {
+      return null;
     }
   }
 }

@@ -21,6 +21,7 @@ namespace Azos.Apps.Hosting.Skyod
     public const string CONFIG_COMPONENT_SECTION = "component";
     public const string CONFIG_INSTALLATION_SECTION = "installation";
     public const string CONFIG_ACTIVATION_SECTION = "activation";
+    public const string CONFIG_REQUESTSET_SECTION = "requestset";
 
     internal SetComponent(SoftwareSet director, IConfigSectionNode cfg) : base(director)
     {
@@ -29,11 +30,32 @@ namespace Azos.Apps.Hosting.Skyod
       m_Order = cfg.Of(Configuration.CONFIG_ORDER_ATTR).NonEmpty($"{nameof(SetComponent)}.{Configuration.CONFIG_ORDER_ATTR}").ValueAsInt();
       ConfigAttribute.Apply(this, cfg);
 
-      var nadapter = cfg[CONFIG_INSTALLATION_SECTION].NonEmpty($"Attribute ${CONFIG_INSTALLATION_SECTION}");
-      m_Installation = FactoryUtils.MakeDirectedComponent<InstallationAdapter>(this, nadapter, typeof(DefaultAzosPackageInstaller), new []{ nadapter });
+      var nadapter = cfg[CONFIG_INSTALLATION_SECTION];
+      if (nadapter.Exists)
+      {
+        m_Installation = FactoryUtils.MakeDirectedComponent<InstallationAdapter>(this, nadapter, typeof(DefaultAzosPackageInstaller), new []{ nadapter });
+      }
 
-      nadapter = cfg[CONFIG_ACTIVATION_SECTION].NonEmpty($"Attribute ${CONFIG_ACTIVATION_SECTION}");
-      m_Activation = FactoryUtils.MakeDirectedComponent<ActivationAdapter>(this, nadapter, typeof(DefaultHgovOsProcessActivator), new[] { nadapter });
+      nadapter = cfg[CONFIG_ACTIVATION_SECTION];
+      if (nadapter.Exists)
+      {
+        m_Activation = FactoryUtils.MakeDirectedComponent<ActivationAdapter>(this, nadapter, typeof(DefaultHgovOsProcessActivator), new[] { nadapter });
+      }
+
+      var nrset = cfg[CONFIG_REQUESTSET_SECTION];
+      m_SetPersistence = new GuidSetFilePersistenceHandler(this, nrset);
+      m_ProcessedRequestIds = new CappedSet<Guid>(this, null, m_SetPersistence);
+      ConfigAttribute.Apply(m_SetPersistence, nrset);
+
+      m_SubordinateHosts = new OrderedRegistry<SubordinateHost>();
+
+      foreach (var nhost in cfg.ChildrenNamed(SubordinateHost.CONFIG_SUBORDINATE_HOST_SECTION))
+      {
+        var host = FactoryUtils.MakeDirectedComponent<SubordinateHost>(this, nhost, typeof(SetComponent), new[] { nhost });
+        m_SubordinateHosts.Register(host).IsTrue("Unique subordinate host `{0}`".Args(host.Name));
+      }
+
+      (!IsLocal && m_SubordinateHosts.Count == 0).IsTrue("Subordinate hosts required when no local footprint");
     }
 
     protected override void Destructor()
@@ -41,6 +63,10 @@ namespace Azos.Apps.Hosting.Skyod
       base.Destructor();
       DisposeAndNull(ref m_Installation);
       DisposeAndNull(ref m_Activation);
+      DisposeAndNull(ref m_ProcessedRequestIds);
+      DisposeAndNull(ref m_SetPersistence);
+      m_SubordinateHosts.ForEach(h => this.DontLeak(() => h.Dispose()));
+      m_SubordinateHosts.Clear();
     }
 
     private readonly string m_Name;
@@ -48,15 +74,9 @@ namespace Azos.Apps.Hosting.Skyod
 
     private InstallationAdapter m_Installation;
     private ActivationAdapter m_Activation;
-
-    [Config]
-    private bool m_IsManagedInstall;
-
-    [Config]
-    private bool m_IsManagedActivation;
-
-    [Config]
-    private bool m_IsManagedStatus;
+    private GuidSetFilePersistenceHandler m_SetPersistence;
+    private CappedSet<Guid> m_ProcessedRequestIds;
+    private OrderedRegistry<SubordinateHost> m_SubordinateHosts;
 
 
     /// <summary>
@@ -74,36 +94,28 @@ namespace Azos.Apps.Hosting.Skyod
 
 
     /// <summary>
-    /// True when component can be (re)installed
-    /// </summary>
-    public bool IsManagedInstall => m_IsManagedInstall;
-
-    /// <summary>
-    /// True when component can be started/stopped
-    /// </summary>
-    public bool IsManagedActivation => m_IsManagedActivation;
-
-    /// <summary>
-    /// True when component status gets scanned
-    /// </summary>
-    public bool IsManagedStatus => m_IsManagedStatus;
-
-    /// <summary>
     /// Handles installation functionality
     /// </summary>
     public InstallationAdapter Installation => this.NonDisposed(nameof(SetComponent)).m_Installation;
-
 
     /// <summary>
     /// Handles activation functionality
     /// </summary>
     public ActivationAdapter Activation => this.NonDisposed(nameof(SetComponent)).m_Activation;
 
-    public bool TryRegisterNewAdapterRequest(Guid id)
-    {
-      //This needs to WRITE TO DISK
-      //Maybe add a FileBackedSet<T>(Func<T, string> representAsString())//written to text file
-      throw new NotImplementedException();
-    }
+
+    /// <summary>
+    /// True when this component has any kind of local presence, such as installation or activation of software locally.
+    /// False when this SetComponent does not have any local footprint and is only listed for the purpose
+    /// of subordinate host management
+    /// </summary>
+    public bool IsLocal => m_Installation != null || m_Activation != null;
+
+    /// <summary>
+    /// Hosts subordinate to this one
+    /// </summary>
+    public IOrderedRegistry<SubordinateHost> SubordinateHosts => m_SubordinateHosts;
+
+    public bool TryRegisterNewAdapterRequest(Guid id) => m_ProcessedRequestIds.Put(id);
   }
 }

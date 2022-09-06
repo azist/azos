@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading.Tasks;
 using Azos.Data;
 using Azos.Serialization.Bix;
@@ -19,7 +20,6 @@ namespace Azos.Apps.Hosting.Skyod.Adapters
   {
     protected InstallationAdapter(SetComponent director) : base(director)
     {
-
     }
 
     public override IEnumerable<Type> SupportedRequestTypes
@@ -37,12 +37,33 @@ namespace Azos.Apps.Hosting.Skyod.Adapters
 
     protected sealed override async Task<AdapterResponse> DoExecRequestAsync(AdapterRequest request)
     {
-      ComponentDirector.IsManagedInstall.IsTrue("Support managed installation");
       var response = await DoExecActivationRequest(request.CastTo<InstallationRequest>());
       return response;
     }
 
-    protected abstract Task<InstallationResponse> DoExecActivationRequest(InstallationRequest request);
+    protected virtual async Task<InstallationResponse> DoExecActivationRequest(InstallationRequest request)
+    {
+      var tself = GetType();
+      var tr = request.NonNull(nameof(request)).GetType();
+      var mi = tself.GetMethod("do_{0}".Args(tr.Name.Substring("Installation".Length)), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic, new []{tr});
+
+      if (mi == null) throw "{0} handler for {1}".Args(tself.DisplayNameWithExpandedGenericArgs(), tr.DisplayNameWithExpandedGenericArgs()).IsNotFound();
+
+      try
+      {
+        var task = mi.Invoke(this, new[]{request}) as Task;
+
+        await task;
+
+        var (ok, result) = TaskUtils.TryGetCompletedTaskResultAsObject(task);
+        ok.IsTrue();
+        return result.CastTo<InstallationResponse>();
+      }
+      catch(TargetInvocationException tie)
+      {
+        throw new AppHostingException("Request processing failure: "+ tie.InnerException.ToMessageWithType(), tie.InnerException);
+      }
+    }
   }
 
 

@@ -21,9 +21,11 @@ It performs the following tasks:
 ## Definitions
 * **Managed** software - is installed, updated, spawn/re-spawn/ stopped/controlled using the `skyod` daemon
 * A **software set** is a logically-isolated set of **software set components** which get managed
-* Every software set component has an entry point. 
+* Every software set component has one entry point
 * For managed system components an entry point is a `governor daemon` instance which spawns subordinate applications
 * For unmanaged components (e.g. MongoDb server) an entry point is batch/shell script
+* A component has `is-local: bool` when true - requires to set adapters; when false requires subordinate nodes
+* A component has `auto-start: bool`, if false it must be started manually otherwise activated via activator
 * Every component has an `IComponentActivator`
 * Software sets are NOT inter-dependent
 * SetComponents ARE inter-dependent (ordered)
@@ -49,6 +51,38 @@ Example tree, using a fictional `Z9` system moniker:
          - ar
          - ap
          - iv
+```
+
+Installation on-disk structure:
+```
+ ~/sky     <==== $SKY_HOME
+   /skyod - skyod install directory
+     /bin
+        /cfg...
+        skyod.exe
+        Azos.dll, Azos.Sky.dll, Azos.Wave.dll, Azos.Sky.Server.dll
+     /logs
+        skyod
+          yyymmdd-skyod-gen-csv.log
+     /data
+        /install //<=== Installer root directory
+          x-package-id.apar // downloaded package files
+          package-list.json // list of locally installed packages AND current package
+
+   /cmp-x // e.g. "z9-sys" for "Z9" system-related component
+     /bin === link ==> ./bin-current-pkg-id (Symbolic link)
+     /bin-x-pkg-id  // <===== This is where skyod unpacks apar files
+        /cfg...
+        azh.exe
+        hgov.sky
+        Azos.dll, Azos.Sky.dll, Azos.Wave.dll...
+        Biz.dll, Biz.Server.dll, Cmp.dll...
+        skyod.install.manifest.json 
+     /logs
+        app-x
+          yyymmdd-app-x-gen-csv.log
+     /data
+     /gdid
 ```
 
 
