@@ -9,6 +9,7 @@ using System;
 using Azos.Collections;
 using Azos.Conf;
 using Azos.Apps.Hosting.Skyod.Adapters;
+using System.IO;
 
 namespace Azos.Apps.Hosting.Skyod
 {
@@ -28,6 +29,9 @@ namespace Azos.Apps.Hosting.Skyod
       cfg.NonEmpty("SetComponent cfg");
       m_Name = cfg.ValOf(Configuration.CONFIG_NAME_ATTR).NonBlank($"{nameof(SetComponent)}.{Configuration.CONFIG_NAME_ATTR}");
       m_Order = cfg.Of(Configuration.CONFIG_ORDER_ATTR).NonEmpty($"{nameof(SetComponent)}.{Configuration.CONFIG_ORDER_ATTR}").ValueAsInt();
+
+      Constraints.CheckComponentName(m_Name, "{0}.{1}".Args(nameof(SetComponent), nameof(Name)));
+
       ConfigAttribute.Apply(this, cfg);
 
       var nadapter = cfg[CONFIG_INSTALLATION_SECTION];
@@ -112,10 +116,20 @@ namespace Azos.Apps.Hosting.Skyod
     public bool IsLocal => m_Installation != null || m_Activation != null;
 
     /// <summary>
+    /// Root directory for this software set component <seealso cref="EnsureRootDirectory"/>
+    /// </summary>
+    public string RootDirectory => Path.Combine(ComponentDirector.RootDirectory, Name);
+
+    /// <summary>
     /// Hosts subordinate to this one
     /// </summary>
     public IOrderedRegistry<SubordinateHost> SubordinateHosts => m_SubordinateHosts;
 
     public bool TryRegisterNewAdapterRequest(Guid id) => m_ProcessedRequestIds.Put(id);
+
+    /// <summary>
+    /// Ensures that `RootDirectory` is created locally and returns its DirectoryInfo
+    /// </summary>
+    public DirectoryInfo EnsureRootDirectory() => Directory.CreateDirectory(RootDirectory);
   }
 }
