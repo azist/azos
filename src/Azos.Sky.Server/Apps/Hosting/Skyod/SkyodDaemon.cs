@@ -50,6 +50,7 @@ namespace Azos.Apps.Hosting.Skyod
     private Daemon m_Chain;
 
     private string m_SoftwareRootDirectory;
+    private string m_DataRootDirectory;
 
     public override string ComponentLogTopic => Sky.SysConsts.LOG_TOPIC_SKYOD;
 
@@ -68,6 +69,20 @@ namespace Azos.Apps.Hosting.Skyod
       {
         CheckDaemonInactive();
         m_SoftwareRootDirectory = value;
+      }
+    }
+
+    /// <summary>
+    /// Data directory e.g. where downloaded packages are stored
+    /// </summary>
+    [Config, ExternalParameter]
+    public string DataRootDirectory
+    {
+      get => m_DataRootDirectory;
+      set
+      {
+        CheckDaemonInactive();
+        m_DataRootDirectory = value;
       }
     }
 
@@ -104,6 +119,7 @@ namespace Azos.Apps.Hosting.Skyod
 
       (m_Sets.Count > 0).IsTrue("Configured software sets");
       (m_SoftwareRootDirectory.IsNotNullOrWhiteSpace() && Directory.Exists(m_SoftwareRootDirectory)).IsTrue("Software root dir `{0}`".Args(m_SoftwareRootDirectory));
+      (m_DataRootDirectory.IsNotNullOrWhiteSpace() && Directory.Exists(m_DataRootDirectory)).IsTrue("Data root dir `{0}`".Args(m_DataRootDirectory));
 
       if (m_Chain != null)
       {

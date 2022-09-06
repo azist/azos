@@ -7,16 +7,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-using Azos.Apps;
-using Azos.Data;
 using Azos.Serialization.Bix;
-using Azos.Serialization.JSON;
 
 namespace Azos.Apps.Hosting.Skyod.Adapters
 {
@@ -24,12 +16,11 @@ namespace Azos.Apps.Hosting.Skyod.Adapters
   /// <summary>
   /// Outlines protocol for activities related to software component activation and lifetime management
   /// </summary>
-  public abstract class ActivationAdapter : AdapterBase
+  public abstract class ActivationAdapter : AdapterBase<ActivationRequest, ActivationResponse>
   {
     protected ActivationAdapter(SetComponent director) : base(director)
     {
     }
-
 
     public override IEnumerable<Type> SupportedRequestTypes
     {
@@ -39,15 +30,6 @@ namespace Azos.Apps.Hosting.Skyod.Adapters
         yield return typeof(ActivationStopRequest);
       }
     }
-
-    protected sealed override async Task<AdapterResponse> DoExecRequestAsync(AdapterRequest request)
-    {
-      var response = await DoExecActivationRequest(request.CastTo<ActivationRequest>());
-      return response;
-    }
-
-    protected abstract Task<ActivationResponse> DoExecActivationRequest(ActivationRequest request);
-
   }
 
   public abstract class ActivationRequest : AdapterRequest{ }

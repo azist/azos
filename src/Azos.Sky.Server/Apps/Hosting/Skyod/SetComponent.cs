@@ -96,6 +96,11 @@ namespace Azos.Apps.Hosting.Skyod
 
     public override string ComponentLogTopic => Sky.SysConsts.LOG_TOPIC_SKYOD;
 
+    /// <summary>
+    /// References Skyod daemon instance which is a root of this software set containing components
+    /// </summary>
+    public SkyodDaemon SkyodDaemon => ComponentDirector.SkyodDaemon;
+
 
     /// <summary>
     /// Handles installation functionality

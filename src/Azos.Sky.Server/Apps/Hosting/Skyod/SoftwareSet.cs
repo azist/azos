@@ -55,9 +55,14 @@ namespace Azos.Apps.Hosting.Skyod
     public string Name => m_Name;
 
     /// <summary>
+    /// References Skyod daemon instance which is a root of this software set containing components
+    /// </summary>
+    public SkyodDaemon SkyodDaemon => ComponentDirector;
+
+    /// <summary>
     /// Root directory for this software set
     /// </summary>
-    public string RootDirectory => Path.Combine(this.ComponentDirector.SoftwareRootDirectory, Name);
+    public string RootDirectory => Path.Combine(SkyodDaemon.SoftwareRootDirectory, Name);
 
     public IOrderedRegistry<SetComponent> Components => m_Components;
 
