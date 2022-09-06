@@ -1,4 +1,4 @@
-# **Azos Framework** Quick Start Cheat Sheet for Developers
+# **Azos Framework** Utility Extension Method Reference
 
 - [GuardUtils](#GuardUtils)
 - [DateUtils](#DateUtils)
@@ -11,30 +11,9 @@
 - [ObjectValueConversion](#ObjectValueConversion)
 
 
-## G8 `CommonExtensions`
-
-=======================================
-
-Extension methods commonly used on both client and server tiers
-
----
-
-### `DefaultAndAlignOnPolicyBoundary`
-
-Defaults Utc timestamp value from app time source when the supplied one is null, then
-aligns the supplied or defaulted timestamp on the `G8Consts.POLICY_REFRESH_WINDOW_MINUTES` (120 minutes)
-boundary
-
-```csharp
-var asof = asOfUtc.DefaultAndAlignOnPolicyBoundary(App);
-```
-
----
-
-
 ## <span id="GuardUtils">`Azos.GuardUtils`</span>
 
-<a href="src/Azos/GuardUtils.cs" target="_blank">View Source</a>
+<a href="Azos/GuardUtils.cs" target="_blank">View Source</a>
 
 =======================================
 
@@ -142,7 +121,7 @@ var utcWhen = when.ToUniversalTime().IsTrue(v => v >= UNIX_EPOCH_START_DATE, "da
 
 ## <span id="DateUtils">`Azos.DateUtils`</span>
 
-<a href="src/Azos/DateUtils.cs" target="_blank">View Source</a>
+<a href="Azos/DateUtils.cs" target="_blank">View Source</a>
 
 =======================================
 
@@ -227,7 +206,7 @@ var timeDiffString = createdAt.ApproximateTimeDistance(app.TimeSource.UTCNow);
 
 ## <span id="IOUtils">`Azos.IOUtils`</span>
 
-<a href="src/Azos/IOUtils.cs" target="_blank">View Source</a>
+<a href="Azos/IOUtils.cs" target="_blank">View Source</a>
 
 =======================================
 
@@ -258,7 +237,7 @@ var keyBuffer = keyString.FromWebSafeBase64();
 
 ## <span id="CoreUtils">`Azos.CoreUtils`</span>
 
-<a href="src/Azos/CoreUtils.cs" target="_blank">View Source</a>
+<a href="Azos/CoreUtils.cs" target="_blank">View Source</a>
 
 =======================================
 
@@ -343,7 +322,7 @@ var now = App.GetUtcNow();
 
 ## <span id="DataEntryUtils">`Azos.Text.DataEntryUtils`</span>
 
-<a href="src/Azos/Text/DataEntryUtils.cs" target="_blank">View Source</a>
+<a href="Azos/Text/DataEntryUtils.cs" target="_blank">View Source</a>
 
 =======================================
 
@@ -402,7 +381,7 @@ Aver.AreEqual(55521910305187, DataEntryUtils.PhoneNumberToLong("555-219-1030x518
 
 ## <span id="Text.Utils">`Azos.Text.Utils`</span>
 
-<a href="src/Azos/Text/Utils.cs" target="_blank">View Source</a>
+<a href="Azos/Text/Utils.cs" target="_blank">View Source</a>
 
 =======================================
 
@@ -454,7 +433,7 @@ Aver.IsTrue("We shall overcome".MatchPattern("*********overCOME", senseCase: fal
 
 ## <span id="CollectionUtils">`Azos.CollectionUtils`</span>
 
-<a href="src/Azos/CollectionUtils.cs" target="_blank">View Source</a>
+<a href="Azos/CollectionUtils.cs" target="_blank">View Source</a>
 
 =======================================
 
@@ -526,7 +505,7 @@ var allSteps = startStep.ToEnumerable(runStep, shutdownStep, finalizeStep);
 
 ## <span id="StringValueConversion">`Azos.Data.StringValueConversion`</span>
 
-<a href="https://github.com/azist/azos/blob/master/src/Azos/Data/StringValueConversion.cs" target="_blank">View Source</a>
+<a href="Azos/Data/StringValueConversion.cs" target="_blank">View Source</a>
 
 =======================================
 
@@ -860,7 +839,7 @@ double amt = "-10.0".AsType(typeof(double));
 
 ## <span id="ObjectValueConversion">`Azos.Data.ObjectValueConversion`</span>
 
-<a href="src/Azos/Data/ObjectValueConversion.cs" target="_blank">View Source</a>
+<a href="Azos/Data/ObjectValueConversion.cs" target="_blank">View Source</a>
 
 =======================================
 
