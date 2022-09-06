@@ -8,6 +8,7 @@
 - [Text.Utils](#Text.Utils)
 - [CollectionUtils](#CollectionUtils)
 - [StringValueConversion](#StringValueConversion)
+- [ObjectValueConversion](#ObjectValueConversion)
 
 
 ## G8 `CommonExtensions`
@@ -31,9 +32,7 @@ var asof = asOfUtc.DefaultAndAlignOnPolicyBoundary(App);
 ---
 
 
-## <a name="GuardUtils"></a>`Azos.GuardUtils`
-
-<a href="https://github.com/azist/azos/blob/master/src/Azos/GuardUtils.cs" target="_blank">View Source</a>
+## <span id="GuardUtils">`Azos.GuardUtils`</span>
 
 <a href="src/Azos/GuardUtils.cs" target="_blank">View Source</a>
 
@@ -141,9 +140,9 @@ var utcWhen = when.ToUniversalTime().IsTrue(v => v >= UNIX_EPOCH_START_DATE, "da
 
 ---
 
-## <a name="DateUtils"></a>`Azos.DateUtils`
+## <span id="DateUtils">`Azos.DateUtils`</span>
 
-<a href="https://github.com/azist/azos/blob/master/src/Azos/DateUtils.cs" target="_blank">View Source</a>
+<a href="src/Azos/DateUtils.cs" target="_blank">View Source</a>
 
 =======================================
 
@@ -226,9 +225,9 @@ var timeDiffString = createdAt.ApproximateTimeDistance(app.TimeSource.UTCNow);
 
 ---
 
-## <a name="IOUtils"></a>`Azos.IOUtils`
+## <span id="IOUtils">`Azos.IOUtils`</span>
 
-<a href="https://github.com/azist/azos/blob/master/src/Azos/IOUtils.cs" target="_blank">View Source</a>
+<a href="src/Azos/IOUtils.cs" target="_blank">View Source</a>
 
 =======================================
 
@@ -257,9 +256,9 @@ var keyBuffer = keyString.FromWebSafeBase64();
 
 ---
 
-## <a name="CoreUtils"></a>`Azos.CoreUtils`
+## <span id="CoreUtils">`Azos.CoreUtils`</span>
 
-<a href="https://github.com/azist/azos/blob/master/src/Azos/CoreUtils.cs" target="_blank">View Source</a>
+<a href="src/Azos/CoreUtils.cs" target="_blank">View Source</a>
 
 =======================================
 
@@ -342,9 +341,9 @@ var now = App.GetUtcNow();
 
 ---
 
-## <a name="DataEntryUtils"></a>`Azos.Text.DataEntryUtils`
+## <span id="DataEntryUtils">`Azos.Text.DataEntryUtils`</span>
 
-<a href="https://github.com/azist/azos/blob/master/src/Azos/Text/DataEntryUtils.cs" target="_blank">View Source</a>
+<a href="src/Azos/Text/DataEntryUtils.cs" target="_blank">View Source</a>
 
 =======================================
 
@@ -401,9 +400,9 @@ Aver.AreEqual(55521910305187, DataEntryUtils.PhoneNumberToLong("555-219-1030x518
 
 ---
 
-## <a name="Text.Utils"></a>`Azos.Text.Utils`
+## <span id="Text.Utils">`Azos.Text.Utils`</span>
 
-<a href="https://github.com/azist/azos/blob/master/src/Azos/Text/Utils.cs" target="_blank">View Source</a>
+<a href="src/Azos/Text/Utils.cs" target="_blank">View Source</a>
 
 =======================================
 
@@ -453,9 +452,9 @@ Aver.IsTrue("We shall overcome".MatchPattern("*********overCOME", senseCase: fal
 
 ---
 
-## <a name="CollectionUtils"></a>`Azos.CollectionUtils`
+## <span id="CollectionUtils">`Azos.CollectionUtils`</span>
 
-<a href="https://github.com/azist/azos/blob/master/src/Azos/CollectionUtils.cs" target="_blank">View Source</a>
+<a href="src/Azos/CollectionUtils.cs" target="_blank">View Source</a>
 
 =======================================
 
@@ -525,7 +524,7 @@ var allSteps = startStep.ToEnumerable(runStep, shutdownStep, finalizeStep);
 
 
 
-## <a name="StringValueConversion"></a>`Azos.Data.StringValueConversion`
+## <span id="StringValueConversion">`Azos.Data.StringValueConversion`</span>
 
 <a href="https://github.com/azist/azos/blob/master/src/Azos/Data/StringValueConversion.cs" target="_blank">View Source</a>
 
@@ -859,5 +858,387 @@ double amt = "-10.0".AsType(typeof(double));
 ```
 
 
+## <span id="ObjectValueConversion">`Azos.Data.ObjectValueConversion`</span>
+
+<a href="src/Azos/Data/ObjectValueConversion.cs" target="_blank">View Source</a>
+
+=======================================
+
+Provides extension methods for converting object values to different scalar types
+
+---
+
+### `AsString`
+
+```csharp
+string valueDisplay = objectValue.AsString("<NULL>", ConvertErrorHandling.Throw);
+```
+
+### `AsNonNullOrEmptyString`
+
+```csharp
+string valueDisplay = objectValue.AsString();
+```
+
+### `AsLaconicConfig`
+
+```csharp
+ConfigSectionNode root = ("meta{"+content+"}").AsLaconicConfig(handling: ConvertErrorHandling.Throw);
+```
+
+### `AsJSONConfig`
+
+```csharp
+ConfigSectionNode nlsNode = ("{r:"+nlsConf+"}").AsJSONConfig(wrapRootName: null, handling: ConvertErrorHandling.Throw);
+```
+
+### `AsXMLConfig`
+
+```csharp
+var src = @"
+<app a=""1"">3
+  <a v=""123""/>
+</app>
+";
+
+ConfigSectionNode cfg = src.AsXMLConfig(handling: ConvertErrorHandling.Throw);
+```
+
+### `AsChar`
+
+```csharp
+char charVal = "x".AsChar(handling : ConvertErrorHandling.Throw);
+```
+
+### `AsChar`
+
+```csharp
+char? charVal = objectVal.AsNullableChar(dflt : null, handling : ConvertErrorHandling.ReturnDefault);
+```
+
+### `AsByte`
+
+```csharp
+long numObj = 254L;
+byte byteVal = numObj.AsByte(handling : ConvertErrorHandling.Throw);
+```
+
+### `AsNullableByte`
+
+```csharp
+long? numObj = null;
+byte? byteVal = numObj.AsNullableByte();
+```
+
+### `AsSByte`
+
+```csharp
+long numObj = 254L;
+sbyte sbyteVal = numObj.AsSByte(handling : ConvertErrorHandling.Throw);
+```
+
+### `AsNullableSByte`
+
+```csharp
+long? numObj = null;
+sbyte? sbyteVal = numObj.AsNullableSByte();
+```
+
+### `AsShort`
+
+```csharp
+long numObj = 32_000L;
+short shortVal = numObj.AsShort();
+```
+
+### `AsNullableShort`
+
+```csharp
+long? numObj = null;
+short? shortVal = numObj.AsNullableShort();
+```
+
+### `AsUShort`
+
+```csharp
+long numObj = 32_000L;
+ushort ushortVal = numObj.AsUShort();
+```
+
+### `AsNullableUShort`
+
+```csharp
+long? numObj = null;
+ushort? ushortVal = numObj.AsNullableUShort();
+```
+
+### `AsInt`
+
+```csharp
+long numObj = 150_000L;
+int intVal = numObj.AsInt();
+```
+
+### `AsNullableInt`
+
+```csharp
+long? numObj = null;
+int? intVal = numObj.AsNullableInt();
+```
+
+### `AsUInt`
+
+```csharp
+ulong numObj = 150_000UL;
+uint uintVal = numObj.AsUInt();
+```
+
+### `AsNullableUInt`
+
+```csharp
+ulong? numObj = null;
+uint? uintVal = numObj.AsNullableUInt();
+```
+
+### `AsLong`
+
+```csharp
+int numObj = 250_000;
+long longVal = numObj.AsLong();
+```
+
+### `AsNullableLong`
+
+```csharp
+int? numObj = null;
+long? longVal = numObj.AsNullableLong();
+```
+
+### `AsULong`
+
+```csharp
+uint numObj = 250_000U;
+ulong ulongVal = numObj.AsULong();
+```
+
+### `AsNullableULong`
+
+```csharp
+uint? numObj = null;
+ulong? ulongVal = numObj.AsNullableULong();
+```
+
+### `AsDouble`
+
+```csharp
+decimal numObj = 250_000.55M;
+double doubleVal = numObj.AsDouble();
+```
+
+### `AsNullableDouble`
+
+```csharp
+decimal? numObj = null;
+double? doubleVal = numObj.AsNullableDouble();
+```
+
+### `AsFloat`
+
+```csharp
+decimal numObj = 500.55M;
+float floatVal = numObj.AsFloat();
+```
+
+### `AsNullableFloat`
+
+```csharp
+decimal? numObj = null;
+float? floatVal = numObj.AsNullableFloat();
+```
 
 
+### `AsDecimal`
+
+```csharp
+double numObj = 500.55D;
+decimal decimalVal = numObj.AsDecimal();
+```
+
+### `AsNullableFloat`
+
+```csharp
+double? numObj = null;
+decimal? decimalVal = numObj.AsNullableFloat();
+```
+
+
+### `TriStateBool` enum
+
+```csharp
+/// <summary>
+/// A "hack" enum used to provide tri-state checkbox functionality in some systems, i.e. HTML checkmarks
+/// do not understand "nulls". This is a surrogate type not used in server-side programming
+/// </summary>
+public enum TriStateBool { Unspecified = 0, False = 1, True = 2 }
+```
+
+### `AsNullableBool`
+
+```csharp
+TriStateBool boolObj = TriStateBool.Unspecified;
+bool? boolVal = numObj.AsNullableBool();
+```
+
+### `AsBool`
+
+```csharp
+double numObj = 1D;
+bool boolVal = numObj.AsBool();
+```
+
+### `AsNullableBool`
+
+```csharp
+double? numObj = null;
+decimal? boolVal = numObj.AsNullableBool();
+```
+
+### `AsGUID`
+
+```csharp
+Guid? guidObj = null;
+Guid guidVal = guidObj.AsGUID(Guid.Empty);
+```
+
+### `AsNullableGUID`
+
+```csharp
+byte[]? guidObj = null;
+Guid? guidVal = guidObj.AsNullableGUID();
+```
+
+### `AsDateTime`
+
+```csharp
+long numObj = utcDate?.ToSecondsSinceUnixEpochStart();
+DateTime dateVal = numObj.AsDateTime();
+```
+
+### `AsDateTime`
+
+```csharp
+long? numObj = null;
+DateTime dateVal = numObj.AsDateTime(App.GetUtcNow(), styles : System.Globalization.DateTimeStyles.AssumeUniversal);
+```
+
+### `AsNullableDateTime`
+
+```csharp
+int? numObj = null;
+DateTime? dateVal = numObj.AsNullableDateTime();
+```
+
+### `AsGDID`
+
+```csharp
+long numObj = 4000000000L;
+GDID gdidVal = numObj.AsGDID();
+```
+
+### `AsGDID`
+
+```csharp
+long? numObj = null;
+GDID gdidVal = numObj.AsGDID(GDID.ZERO, ConvertErrorHandling.ReturnDefault);
+```
+
+### `AsNullableGDID`
+
+```csharp
+long? numObj = null;
+GDID? gdidVal = numObj.AsNullableGDID();
+```
+
+### `AsTimeSpan`
+
+```csharp
+int secondsObj = 120;
+TimeSpan timeVal = secondsObj.AsTimeSpan();
+```
+
+### `AsTimeSpan`
+
+```csharp
+int? secondsObj = null;
+TimeSpan timeVal = secondsObj.AsTimeSpan(TimeSpan.Zero);
+```
+
+### `AsNullableTimeSpan`
+
+```csharp
+int? secondsObj = null;
+TimeSpan? timeVal = secondsObj.AsNullableTimeSpan();
+```
+
+### `AsEnum<TEnum>`
+
+```csharp
+var cmdTypeObj = (byte)CmdType.Write;
+CmdType cmdTypeVal = cmdTypeObj.AsEnum();
+```
+
+### `AsNullableEnum<TEnum>`
+
+```csharp
+string cmdTypeObj = null;
+CmdType? cmdTypeVal = cmdTypeObj.AsNullableEnum();
+```
+
+### `AsUri`
+
+```csharp
+object uriObj = "https://example.com";
+Uri uriVal = uriObj.AsUri();
+```
+
+### `AsAtom`
+
+```csharp
+object atomObj = Atom.Encode("abc123").ID;
+Atom atomVal = atomObj.AsAtom();
+```
+
+### `AsAtom`
+
+```csharp
+object atomObj = "abc123";
+Atom atomVal = atomObj.AsAtom(Atom.ZERO);
+```
+
+### `AsNullableAtom`
+
+```csharp
+object? atomObj = null;
+Atom? atomVal = atomObj.AsNullableAtom();
+```
+
+### `AsEntityId`
+
+```csharp
+object eidObj = "vendor.gdid@ecom::1234";
+EntityId eidVal = eidObj.AsEntityId();
+```
+
+### `AsEntityId`
+
+```csharp
+object eidObj = "vendor.gdid@ecom::1234";
+EntityId eidVal = eidObj.AsEntityId(EntityId.EMPTY);
+```
+
+### `AsNullableEntityId`
+
+```csharp
+object? eidObj = null;
+EntityId? eidVal = eidObj.AsNullableEntityId();
+```
