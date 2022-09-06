@@ -44,6 +44,8 @@ namespace Azos.Apps.Hosting.Skyod.Adapters
   [Schema(Description = "Data contract for adapter responses sent after processing AdapterRequests")]
   public abstract class AdapterResponse : AdapterDoc
   {
+    public static TResponse MakeNew<TResponse>(AdapterRequest request) where TResponse : AdapterResponse, new()
+    => new TResponse { Id = request.Id };
   }
 
 
