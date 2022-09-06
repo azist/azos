@@ -3,6 +3,7 @@
 ## General Overview
 * [Azos Design Philosophy](philosophy.md)
 * [Naming Conventions](naming-conventions.md)
+* [Utility and Extension Methods](utils-extensions-reference.md)
 * Building
 * Testing
   * Unit Testing overview + `Aver` library
