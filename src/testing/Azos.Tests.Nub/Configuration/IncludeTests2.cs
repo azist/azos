@@ -8,6 +8,7 @@ using Azos.Apps;
 using Azos.Conf;
 using Azos.Data;
 using Azos.Scripting;
+using System.Linq;
 
 namespace Azos.Tests.Nub.Configuration
 {
@@ -74,6 +75,7 @@ namespace Azos.Tests.Nub.Configuration
         process-includes=--include
         --include
         {
+          name=""SectionA""
           override=true //<------------------
           provider{ type='Azos.Tests.Nub.Configuration.IncludeTests2+CustomProviderWithSections, Azos.Tests.Nub'}
         }
@@ -95,10 +97,49 @@ namespace Azos.Tests.Nub.Configuration
       cfg.ToLaconicString().See();
 
       Aver.IsTrue(cfg["SectionA"].Exists);
+      Aver.AreEqual(1, cfg["SectionA"].ValOf("a").AsInt());
+      Aver.AreEqual(-2, cfg["SectionA"].ValOf("b").AsInt());
+
       Aver.AreEqual(1, cfg.ValOf("a").AsInt());
       Aver.AreEqual(-2, cfg.ValOf("b").AsInt());
 
       Aver.AreEqual(1, cfg["sub-a"].ValOf("x").AsInt());
+      Aver.AreEqual(1, cfg.ChildrenNamed("sub-a").Count());
+      Aver.AreEqual(2, cfg["sub-b"].ValOf("x").AsInt());
+      Aver.AreEqual(900, cfg["sub-c"]["sub-c-a"].ValOf("z").AsInt());
+    }
+
+    [Run]
+    public void ProcessAppIncludesWithOverrides_02()
+    {
+      var cfg = @"app
+      {
+        process-includes=--include
+
+        --include
+        {
+          override=true //<-----------------------------------
+          provider{ type='Azos.Tests.Nub.Configuration.IncludeTests2+CustomProviderWithSections, Azos.Tests.Nub'}
+        }
+
+        a=7
+        b=8
+        sub-a{ name=i1 }
+        sub-a{ name=i2 }
+      }".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
+
+      //When injecting config from the .ctor the process includes is not applied automatically
+      CommonApplicationLogic.ProcessAllExistingConfigurationIncludes(cfg);
+
+      cfg.ToLaconicString().See();
+
+      Aver.AreEqual(1, cfg.ValOf("a").AsInt());
+      Aver.AreEqual(-2, cfg.ValOf("b").AsInt());
+
+      Aver.AreEqual(3, cfg.ChildrenNamed("sub-a").Count());
+      Aver.AreEqual(-555, cfg.ChildrenNamed("sub-a").Skip(0).First().ValOf("x").AsInt(-555));
+      Aver.AreEqual(-555, cfg.ChildrenNamed("sub-a").Skip(1).First().ValOf("x").AsInt(-555));
+      Aver.AreEqual(1, cfg.ChildrenNamed("sub-a").Skip(2).First().ValOf("x").AsInt(-555));
       Aver.AreEqual(2, cfg["sub-b"].ValOf("x").AsInt());
       Aver.AreEqual(900, cfg["sub-c"]["sub-c-a"].ValOf("z").AsInt());
     }
