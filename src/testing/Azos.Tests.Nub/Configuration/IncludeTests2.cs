@@ -65,16 +65,65 @@ namespace Azos.Tests.Nub.Configuration
       Aver.AreEqual(-2, cfg["SectionB"].ValOf("b").AsInt());
     }
 
+
+    [Run]
+    public void ProcessAppIncludesWithOverrides_01()
+    {
+      var cfg = @"app
+      {
+        process-includes=--include
+        --include
+        {
+          name=app
+          override=true //<------------------
+          provider{ type='Azos.Tests.Nub.Configuration.IncludeTests2+CustomProviderWithSections, Azos.Tests.Nub'}
+        }
+
+        --include
+        {
+          name=app
+          override=true //<-----------------------------------
+          provider{ type='Azos.Tests.Nub.Configuration.IncludeTests2+CustomProviderWithSections, Azos.Tests.Nub'}
+        }
+
+        a=7
+        b=8
+        sub-a{ }
+      }".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
+
+      //When injecting config from the .ctor the process includes is not applied automatically
+      CommonApplicationLogic.ProcessAllExistingConfigurationIncludes(cfg);
+
+      cfg.ToLaconicString().See();
+
+      Aver.IsTrue(cfg["SectionA"].Exists);
+      Aver.AreEqual(1, cfg.ValOf("a").AsInt());
+      Aver.AreEqual(-2, cfg.ValOf("b").AsInt());
+
+      Aver.AreEqual(1, cfg["sub-a"].ValOf("x").AsInt());
+      Aver.AreEqual(2, cfg["sub-b"].ValOf("x").AsInt());
+      Aver.AreEqual(900, cfg["sub-c"]["sub-c-a"].ValOf("z").AsInt());
+    }
+
     public class CustomProvider : IConfigNodeProvider
     {
       public void Configure(IConfigSectionNode node) { }
-
       public ConfigSectionNode ProvideConfigNode(object context = null)
       {
         return @"root{ a=1 b=-2 }".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
       }
-
     }
+
+    public class CustomProviderWithSections : IConfigNodeProvider
+    {
+      public void Configure(IConfigSectionNode node) { }
+      public ConfigSectionNode ProvideConfigNode(object context = null)
+      {
+        return @"root{ a=1 b=-2 sub-a{ x=1 } sub-b{ x=2 } sub-c{ sub-c-a{ z=900 } } }".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
+      }
+    }
+
+
 
     [Run]
     public void ProcessAppIncludeCopies()
