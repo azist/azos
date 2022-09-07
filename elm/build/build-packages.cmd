@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.0.0.6
-set HEADLINE=HGov Wip
+set VER=3.0.0.7
+set HEADLINE=Response.AddHeader()
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
