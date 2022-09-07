@@ -18,6 +18,8 @@ using Azos.Serialization.JSON;
 using Microsoft.Net.Http.Headers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Azos.Wave
 {
@@ -94,6 +96,13 @@ namespace Azos.Wave
     #endregion
 
     #region Properties
+
+    /// <summary>
+    /// Provides access to ASP.Net response object
+    /// </summary>
+    public HttpResponse AspResponse => m_AspResponse;
+
+
     /// <summary>
     /// Returns true if some output has been performed
     /// </summary>
@@ -355,10 +364,16 @@ namespace Azos.Wave
     }
 
     /// <summary>
-    /// Adds Http header
+    /// Adds Http header value/s
     /// </summary>
     public void AddHeader(string name, string value)
       => Headers.Add(name.NonBlank(nameof(name)), value.NonNull(nameof(value)));
+
+    public void AddHeader(string name, IEnumerable<string> values)
+      => Headers.Add(name.NonBlank(nameof(name)), new StringValues(values.NonNull(nameof(values)) is string[] sa ? sa : values.ToArray()));
+
+    public void AddHeader(string name, StringValues values)
+      => Headers.Add(name.NonBlank(nameof(name)), values);
 
     /// <summary>
     /// Appends cookie to the response

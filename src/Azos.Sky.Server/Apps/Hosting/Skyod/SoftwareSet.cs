@@ -5,7 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
-
+using System.IO;
 using Azos.Collections;
 using Azos.Conf;
 
@@ -22,7 +22,12 @@ namespace Azos.Apps.Hosting.Skyod
     internal SoftwareSet(SkyodDaemon director, IConfigSectionNode cfg) : base(director)
     {
       cfg.NonEmpty("SoftwareSet cfg");
-      m_Name = cfg.ValOf(Configuration.CONFIG_NAME_ATTR).NonBlank($"{nameof(SoftwareSet)}.{Configuration.CONFIG_NAME_ATTR}");
+      m_Name = cfg.ValOf(Configuration.CONFIG_NAME_ATTR)
+                  .NonBlank($"{nameof(SoftwareSet)}.{Configuration.CONFIG_NAME_ATTR}");
+
+      Constraints.CheckComponentName(m_Name, "{0}.{1}".Args(nameof(SoftwareSet), nameof(Name)));
+
+      Atom.TryEncode(m_Name, out _).IsTrue();
       m_Components = new OrderedRegistry<SetComponent>();
 
       foreach(var ncmp in cfg.ChildrenNamed(SetComponent.CONFIG_COMPONENT_SECTION))
@@ -49,6 +54,15 @@ namespace Azos.Apps.Hosting.Skyod
     /// </summary>
     public string Name => m_Name;
 
+    /// <summary>
+    /// References Skyod daemon instance which is a root of this software set containing components
+    /// </summary>
+    public SkyodDaemon SkyodDaemon => ComponentDirector;
+
+    /// <summary>
+    /// Root directory for this software set
+    /// </summary>
+    public string RootDirectory => Path.Combine(SkyodDaemon.SoftwareRootDirectory, Name);
 
     public IOrderedRegistry<SetComponent> Components => m_Components;
 

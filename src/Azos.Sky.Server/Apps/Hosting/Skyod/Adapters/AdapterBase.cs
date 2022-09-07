@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -43,18 +44,24 @@ namespace Azos.Apps.Hosting.Skyod.Adapters
   [Schema(Description = "Data contract for adapter responses sent after processing AdapterRequests")]
   public abstract class AdapterResponse : AdapterDoc
   {
+    public static TResponse MakeNew<TResponse>(AdapterRequest request) where TResponse : AdapterResponse, new()
+    => new TResponse { Id = request.Id };
   }
 
 
   public abstract class AdapterBase : ApplicationComponent<SetComponent>
   {
-
     protected AdapterBase(SetComponent director) : base(director)
     {
     }
 
     public override string ComponentLogTopic => Sky.SysConsts.LOG_TOPIC_SKYOD;
 
+
+    /// <summary>
+    /// References Skyod daemon instance which is a root of this software set containing components
+    /// </summary>
+    public SkyodDaemon SkyodDaemon => ComponentDirector.SkyodDaemon;
 
     public abstract IEnumerable<Type> SupportedRequestTypes { get; }
 
@@ -78,4 +85,42 @@ namespace Azos.Apps.Hosting.Skyod.Adapters
   }
 
 
+  public abstract class AdapterBase<TRequest, TResponse> : AdapterBase where TRequest : AdapterRequest where TResponse : AdapterResponse
+  {
+    protected AdapterBase(SetComponent director) : base(director){ }
+
+
+    protected sealed override async Task<AdapterResponse> DoExecRequestAsync(AdapterRequest request)
+    {
+      var response = await DoExecInstallationRequest(request.CastTo<TRequest>());
+      return response;
+    }
+
+    protected virtual async Task<TResponse> DoExecInstallationRequest(TRequest request)
+    {
+      var tself = GetType();
+      var tr = request.NonNull(nameof(request)).GetType();
+
+      var trn = tr.Name.Replace("Activation", string.Empty).Replace("Installation", string.Empty);
+
+      var mi = tself.GetMethod($"do{trn}", BindingFlags.Instance | BindingFlags.NonPublic, new[] { tr });
+
+      if (mi == null) throw "{0} handler for {1}".Args(tself.DisplayNameWithExpandedGenericArgs(), tr.DisplayNameWithExpandedGenericArgs()).IsNotFound();
+
+      try
+      {
+        var task = mi.Invoke(this, new[] { request }) as Task;
+
+        await task;
+
+        var (ok, result) = TaskUtils.TryGetCompletedTaskResultAsObject(task);
+        ok.IsTrue();
+        return result.CastTo<TResponse>();
+      }
+      catch (TargetInvocationException tie)
+      {
+        throw new AppHostingException("Request processing failure: " + tie.InnerException.ToMessageWithType(), tie.InnerException);
+      }
+    }
+  }
 }

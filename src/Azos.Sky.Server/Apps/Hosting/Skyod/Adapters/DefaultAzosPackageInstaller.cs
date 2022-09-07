@@ -15,9 +15,11 @@ namespace Azos.Apps.Hosting.Skyod.Adapters
     {
     }
 
-    private Task<InstallationGetCurrentPackageResponse> doGetCurrentPackageRequest(InstallationGetCurrentPackageRequest request)
+    private async Task<InstallationGetCurrentPackageResponse> doGetCurrentPackageRequest(InstallationGetCurrentPackageRequest request)
     {
-      return null;
+      var result =  AdapterResponse.MakeNew<InstallationGetCurrentPackageResponse>(request);
+      result.PackageInfo = new PackageInfo();
+      return result;
     }
 
     private Task<InstallationGetPackageListResponse> doGetPackageListRequest(InstallationGetPackageListRequest request)

@@ -18,9 +18,6 @@ namespace Azos.Apps.Hosting.Skyod.Adapters
     {
     }
 
-    protected override Task<ActivationResponse> DoExecActivationRequest(ActivationRequest request)
-    {
-      throw new NotImplementedException();
-    }
+
   }
 }

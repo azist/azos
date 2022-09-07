@@ -5,6 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading;
 
@@ -48,10 +49,42 @@ namespace Azos.Apps.Hosting.Skyod
     private AutoResetEvent m_Wait;
     private Daemon m_Chain;
 
+    private string m_SoftwareRootDirectory;
+    private string m_DataRootDirectory;
+
     public override string ComponentLogTopic => Sky.SysConsts.LOG_TOPIC_SKYOD;
 
     [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
     public override bool InstrumentationEnabled { get; set; }
+
+
+    /// <summary>
+    /// Directory which software sets install under, e.g. '/home/sky'
+    /// </summary>
+    [Config, ExternalParameter]
+    public string SoftwareRootDirectory
+    {
+      get => m_SoftwareRootDirectory;
+      set
+      {
+        CheckDaemonInactive();
+        m_SoftwareRootDirectory = value;
+      }
+    }
+
+    /// <summary>
+    /// Data directory e.g. where downloaded packages are stored
+    /// </summary>
+    [Config, ExternalParameter]
+    public string DataRootDirectory
+    {
+      get => m_DataRootDirectory;
+      set
+      {
+        CheckDaemonInactive();
+        m_DataRootDirectory = value;
+      }
+    }
 
     protected override void DoConfigure(IConfigSectionNode node)
     {
@@ -85,6 +118,8 @@ namespace Azos.Apps.Hosting.Skyod
       base.DoStart();
 
       (m_Sets.Count > 0).IsTrue("Configured software sets");
+      (m_SoftwareRootDirectory.IsNotNullOrWhiteSpace() && Directory.Exists(m_SoftwareRootDirectory)).IsTrue("Software root dir `{0}`".Args(m_SoftwareRootDirectory));
+      (m_DataRootDirectory.IsNotNullOrWhiteSpace() && Directory.Exists(m_DataRootDirectory)).IsTrue("Data root dir `{0}`".Args(m_DataRootDirectory));
 
       if (m_Chain != null)
       {
