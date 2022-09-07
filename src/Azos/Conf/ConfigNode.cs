@@ -1721,6 +1721,7 @@ namespace Azos.Conf
       if (isOverride)
       {
         this.Delete();
+        other.Name = Parent.Name;
         Parent.OverrideBy(other, overrideRules);
         return;
       }

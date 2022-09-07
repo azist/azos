@@ -74,14 +74,12 @@ namespace Azos.Tests.Nub.Configuration
         process-includes=--include
         --include
         {
-          name=app
           override=true //<------------------
           provider{ type='Azos.Tests.Nub.Configuration.IncludeTests2+CustomProviderWithSections, Azos.Tests.Nub'}
         }
 
         --include
         {
-          name=app
           override=true //<-----------------------------------
           provider{ type='Azos.Tests.Nub.Configuration.IncludeTests2+CustomProviderWithSections, Azos.Tests.Nub'}
         }
