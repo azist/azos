@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.0.0.8
-set HEADLINE=#767
+set VER=3.0.0.9
+set HEADLINE=#767 pre-process-all-includes
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

@@ -36,6 +36,7 @@ namespace Azos.Conf
     public const string CONFIG_INCLUDE_PRAGMA_REQUIRED_ATTR = "required";
     public const string CONFIG_INCLUDE_PRAGMA_COPY_ATTR = "copy";
     public const string CONFIG_INCLUDE_PRAGMA_OVERRIDE_ATTR = "override";
+    public const string CONFIG_INCLUDE_PRAGMA_PREPROCESS_ALL_INCLUDES_ATTR = "pre-process-all-includes";
 
     public const string DEFAULT_VAR_ESCAPE = "$(###)";
     public const string DEFAULT_VAR_START = "$(";
