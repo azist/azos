@@ -153,7 +153,8 @@ namespace Azos.Tests.Nub.Configuration
 
         --include
         {
-          provider{ type='Azos.Tests.Nub.Configuration.IncludeTests2+CustomProvider_1, Azos.Tests.Nub' pre-process-all-includes=true}
+          pre-process-all-includes=true //<=================
+          provider{ type='Azos.Tests.Nub.Configuration.IncludeTests2+CustomProvider_1, Azos.Tests.Nub' }
         }
 
         --include
@@ -175,8 +176,8 @@ namespace Azos.Tests.Nub.Configuration
       Aver.AreEqual(3, machine.ValOf("x3").AsInt());
 
       var sub = machine["sub"];
-      Aver.AreEqual(2, machine.ValOf("y").AsInt());
-      Aver.AreEqual(3, machine.ValOf("z").AsInt());
+      Aver.AreEqual(2, sub.ValOf("y").AsInt());
+      Aver.AreEqual(3, sub.ValOf("z").AsInt());
     }
 
 
@@ -213,7 +214,7 @@ namespace Azos.Tests.Nub.Configuration
       public void Configure(IConfigSectionNode node) { }
       public ConfigSectionNode ProvideConfigNode(object context = null)
       {
-        return @"tree{ sub{ name=a y=2 } }".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
+        return @"tree{ sub{ y=2 } }".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
       }
     }
 
@@ -222,7 +223,7 @@ namespace Azos.Tests.Nub.Configuration
       public void Configure(IConfigSectionNode node) { }
       public ConfigSectionNode ProvideConfigNode(object context = null)
       {
-        return @"root{ machine{ x3=3  sub{ name=a z=3 } }}".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
+        return @"root{ machine{ x3=3  sub{ z=3 } }}".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
       }
     }
 
