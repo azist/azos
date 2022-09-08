@@ -144,6 +144,42 @@ namespace Azos.Tests.Nub.Configuration
       Aver.AreEqual(900, cfg["sub-c"]["sub-c-a"].ValOf("z").AsInt());
     }
 
+    [Run]
+    public void ProcessAppIncludesWithOverrides_03()
+    {
+      var cfg = @"app
+      {
+        process-includes=--include
+
+        --include
+        {
+          provider{ type='Azos.Tests.Nub.Configuration.IncludeTests2+CustomProvider_1, Azos.Tests.Nub' pre-process-all-includes=true}
+        }
+
+        --include
+        {
+          override=true //<-----------------------------------
+          provider{ type='Azos.Tests.Nub.Configuration.IncludeTests2+CustomProvider_3, Azos.Tests.Nub' override=true}
+        }
+      }".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
+
+      //When injecting config from the .ctor the process includes is not applied automatically
+      CommonApplicationLogic.ProcessAllExistingConfigurationIncludes(cfg);
+
+      cfg.ToLaconicString().See();
+
+      var machine = cfg["machine"];
+
+      Aver.IsTrue(machine.Exists);
+      Aver.AreEqual(1, machine.ValOf("x").AsInt());
+      Aver.AreEqual(3, machine.ValOf("x3").AsInt());
+
+      var sub = machine["sub"];
+      Aver.AreEqual(2, machine.ValOf("y").AsInt());
+      Aver.AreEqual(3, machine.ValOf("z").AsInt());
+    }
+
+
     public class CustomProvider : IConfigNodeProvider
     {
       public void Configure(IConfigSectionNode node) { }
@@ -159,6 +195,34 @@ namespace Azos.Tests.Nub.Configuration
       public ConfigSectionNode ProvideConfigNode(object context = null)
       {
         return @"root{ a=1 b=-2 sub-a{ x=1 } sub-b{ x=2 } sub-c{ sub-c-a{ z=900 } } }".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
+      }
+    }
+
+
+    public class CustomProvider_1 : IConfigNodeProvider
+    {
+      public void Configure(IConfigSectionNode node) { }
+      public ConfigSectionNode ProvideConfigNode(object context = null)
+      {
+        return @"root{ machine{ x=1 --include { provider{ type='Azos.Tests.Nub.Configuration.IncludeTests2+CustomProvider_2, Azos.Tests.Nub'}  }   } }".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
+      }
+    }
+
+    public class CustomProvider_2 : IConfigNodeProvider
+    {
+      public void Configure(IConfigSectionNode node) { }
+      public ConfigSectionNode ProvideConfigNode(object context = null)
+      {
+        return @"tree{ sub{ name=a y=2 } }".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
+      }
+    }
+
+    public class CustomProvider_3 : IConfigNodeProvider
+    {
+      public void Configure(IConfigSectionNode node) { }
+      public ConfigSectionNode ProvideConfigNode(object context = null)
+      {
+        return @"root{ machine{ x3=3  sub{ name=a z=3 } }}".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
       }
     }
 

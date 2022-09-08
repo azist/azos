@@ -1395,27 +1395,38 @@ namespace Azos.Conf
       }
     }
 
+    [ThreadStatic] private static int ts_Depth_ProcessAllExistingIncludes;
+
+
     /// <summary>
     /// Calls ProcessIncludePragmas(recurse: true)in a loop until all includes are processed or max nesting depth is exceeded.
-    /// For all practical reasons the nesting level should not exceed 7 levels.
+    /// For all practical reasons the nesting level should not exceed 16 levels.
+    /// This call is not logically thread-safe, it must be called from the main thread in the app
     /// </summary>
     /// <param name="configLevelName">Optional logic name of config level which gets included in exception text in case of error</param>
     /// <param name="includePragma">Optional include pragma section name. If null, the default is used</param>
     /// <param name="overrideRules">Used when includes are override=true</param>
     public void ProcessAllExistingIncludes(string configLevelName = null, string includePragma = null, NodeOverrideRules overrideRules = null)
     {
-      const int MAX_INCLUDE_DEPTH = 7;
+      const int MAX_INCLUDE_DEPTH = 16;
 
       if (configLevelName.IsNullOrWhiteSpace()) configLevelName = StringConsts.UNKNOWN_STRING;
       try
       {
-        for (int count = 0; ProcessIncludePragmas(true, includePragma, overrideRules); count++)
-          if (count >= MAX_INCLUDE_DEPTH)
+        ts_Depth_ProcessAllExistingIncludes++;
+        if (ts_Depth_ProcessAllExistingIncludes > MAX_INCLUDE_DEPTH)
             throw new ConfigException(StringConsts.CONFIG_INCLUDE_PRAGMA_DEPTH_ERROR.Args(MAX_INCLUDE_DEPTH));
+
+        var found = ProcessIncludePragmas(true, includePragma, overrideRules);
+        if (found) ProcessAllExistingIncludes(configLevelName, includePragma, overrideRules);
       }
       catch (Exception error)
       {
         throw new ConfigException(StringConsts.CONFIGURATION_INCLUDE_PRAGMA_ERROR.Args(configLevelName, error.ToMessageWithType()), error);
+      }
+      finally
+      {
+        ts_Depth_ProcessAllExistingIncludes--;
       }
     }
 
@@ -1464,7 +1475,7 @@ namespace Azos.Conf
       {
         if (child.IsSameName(includePragma))
         {
-          var (included, isOverride) = getIncludedNode(child);
+          var (included, isOverride) = getIncludedNode(child, overrideRules);
           if (included != null)
           {
             child.include(included, isOverride, overrideRules);
@@ -1479,7 +1490,7 @@ namespace Azos.Conf
         }
 
         if (recurse)
-          result |= child.ProcessIncludePragmas(recurse, includePragma);
+          result |= child.ProcessIncludePragmas(recurse, includePragma, overrideRules);
       }
 
       return result;
@@ -1601,7 +1612,7 @@ namespace Azos.Conf
 
     #region .pvt .impl
 
-    private (ConfigSectionNode node, bool isOverride) getIncludedNode(ConfigSectionNode pragma)
+    private (ConfigSectionNode node, bool isOverride) getIncludedNode(ConfigSectionNode pragma, NodeOverrideRules overrideRules)
     {
       try
       {
@@ -1609,6 +1620,14 @@ namespace Azos.Conf
 
         if (root == null)
           return (null, isOverride);
+
+        //#767 20220908 Dkh+Jpk ProcessIncludes immediate expansion
+        if (pragma.Of(Configuration.CONFIG_INCLUDE_PRAGMA_PREPROCESS_ALL_INCLUDES_ATTR).ValueAsBool(false))
+        {
+          root.ProcessAllExistingIncludes(pragma.RootPath, pragma.Name, overrideRules);
+        }
+        //-------------
+
 
         //name section wrap
         var asname = pragma.AttrByName(Configuration.CONFIG_NAME_ATTR).ValueAsString();
