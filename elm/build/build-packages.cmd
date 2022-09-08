@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.0.0.7
-set HEADLINE=Response.AddHeader()
+set VER=3.0.0.8
+set HEADLINE=#767
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

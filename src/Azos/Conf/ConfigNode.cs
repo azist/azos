@@ -1401,14 +1401,15 @@ namespace Azos.Conf
     /// </summary>
     /// <param name="configLevelName">Optional logic name of config level which gets included in exception text in case of error</param>
     /// <param name="includePragma">Optional include pragma section name. If null, the default is used</param>
-    public void ProcessAllExistingIncludes(string configLevelName = null, string includePragma = null)
+    /// <param name="overrideRules">Used when includes are override=true</param>
+    public void ProcessAllExistingIncludes(string configLevelName = null, string includePragma = null, NodeOverrideRules overrideRules = null)
     {
       const int MAX_INCLUDE_DEPTH = 7;
 
       if (configLevelName.IsNullOrWhiteSpace()) configLevelName = StringConsts.UNKNOWN_STRING;
       try
       {
-        for (int count = 0; ProcessIncludePragmas(true, includePragma); count++)
+        for (int count = 0; ProcessIncludePragmas(true, includePragma, overrideRules); count++)
           if (count >= MAX_INCLUDE_DEPTH)
             throw new ConfigException(StringConsts.CONFIG_INCLUDE_PRAGMA_DEPTH_ERROR.Args(MAX_INCLUDE_DEPTH));
       }
@@ -1431,6 +1432,7 @@ namespace Azos.Conf
     /// </summary>
     /// <param name="recurse">True to process inner nodes</param>
     /// <param name="includePragma">Pragma section name, '_include' by default</param>
+    /// <param name="overrideRules">Used if include is override=true</param>
     /// <returns>True if pragmas were found</returns>
     /// <example>
     ///  azos
@@ -1450,7 +1452,7 @@ namespace Azos.Conf
     ///    }
     ///  }
     /// </example>
-    public bool ProcessIncludePragmas(bool recurse, string includePragma = null)
+    public bool ProcessIncludePragmas(bool recurse, string includePragma = null, NodeOverrideRules overrideRules = null)
     {
       if (includePragma.IsNullOrWhiteSpace())
         includePragma = Configuration.DEFAULT_CONFIG_INCLUDE_PRAGMA;
@@ -1462,14 +1464,16 @@ namespace Azos.Conf
       {
         if (child.IsSameName(includePragma))
         {
-          var included = getIncludedNode(child);
+          var (included, isOverride) = getIncludedNode(child);
           if (included != null)
           {
-            child.include(included);
+            child.include(included, isOverride, overrideRules);
             result = true;
           }
           else
+          {
             child.Delete();
+          }
 
           continue;
         }
@@ -1597,14 +1601,14 @@ namespace Azos.Conf
 
     #region .pvt .impl
 
-    private ConfigSectionNode getIncludedNode(ConfigSectionNode pragma)
+    private (ConfigSectionNode node, bool isOverride) getIncludedNode(ConfigSectionNode pragma)
     {
       try
       {
-        var root = getIncludedNodeRoot(pragma);
+        var (root, isOverride) = getIncludedNodeRoot(pragma);
 
         if (root == null)
-          return null;
+          return (null, isOverride);
 
         //name section wrap
         var asname = pragma.AttrByName(Configuration.CONFIG_NAME_ATTR).ValueAsString();
@@ -1616,7 +1620,7 @@ namespace Azos.Conf
           root = wrap.Root;
         }
 
-        return root;
+        return (root, isOverride);
       }
       catch (Exception inner)
       {
@@ -1624,8 +1628,9 @@ namespace Azos.Conf
       }
     }
 
-    private ConfigSectionNode getIncludedNodeRoot(ConfigSectionNode pragma)
+    private (ConfigSectionNode node, bool isOverride) getIncludedNodeRoot(ConfigSectionNode pragma)
     {
+      var isOverride = pragma.AttrByName(Configuration.CONFIG_INCLUDE_PRAGMA_OVERRIDE_ATTR).ValueAsBool(false);
       var copyPath = pragma.AttrByName(Configuration.CONFIG_INCLUDE_PRAGMA_COPY_ATTR).Value;
 
       var ndProvider = pragma[Configuration.CONFIG_INCLUDE_PRAGMA_PROVIDER_SECTION];
@@ -1640,7 +1645,7 @@ namespace Azos.Conf
                                           Configuration.CONFIG_INCLUDE_PRAGMA_COPY_ATTR));
 
         var root = pragma.NavigateSection(copyPath);
-        return root.Exists ? root : null;
+        return (root.Exists ? root : null, isOverride);
       }
 
       if (fileName.IsNullOrWhiteSpace() && !ndProvider.Exists)
@@ -1661,7 +1666,7 @@ namespace Azos.Conf
 
           if (required && root == null) throw new ConfigException("'{0}'.ProvideConfigNode() returned null".Args(provider.GetType().FullName));
 
-          return root;
+          return (root, isOverride);
         }
         finally
         {
@@ -1694,7 +1699,7 @@ namespace Azos.Conf
           if (file == null)
           {
             if (required) throw new ConfigException("Referenced file '{0}' does not exist".Args(fileName));
-            return null;
+            return (null, isOverride);
           }
 
           source = file.ReadAllText();
@@ -1705,15 +1710,23 @@ namespace Azos.Conf
 
           var root = Configuration.ProviderLoadFromString(source, fmt, Configuration.CONFIG_LACONIC_FORMAT).Root;
 
-          return root;
+          return (root, isOverride);
         }
       }
     }
 
-    internal void include(ConfigSectionNode other)
+    internal void include(ConfigSectionNode other, bool isOverride, NodeOverrideRules overrideRules)
     {
+      //#767 20220907 DKh+Jpk merging config files with overrides needed for testing
+      if (isOverride)
+      {
+        this.Delete();
+        other.Name = Parent.Name;
+        Parent.OverrideBy(other, overrideRules);
+        return;
+      }
+      //---------------
       checkCanModify();
-
       var oattrs = other.Attributes;
       var ochildren = other.Children;
 
