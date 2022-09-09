@@ -92,11 +92,11 @@ namespace Azos.Apps.Hosting.Skyod.Adapters
 
     protected sealed override async Task<AdapterResponse> DoExecRequestAsync(AdapterRequest request)
     {
-      var response = await DoExecInstallationRequest(request.CastTo<TRequest>());
+      var response = await DoExecTRequestAsync(request.CastTo<TRequest>());
       return response;
     }
 
-    protected virtual async Task<TResponse> DoExecInstallationRequest(TRequest request)
+    protected virtual async Task<TResponse> DoExecTRequestAsync(TRequest request)
     {
       var tself = GetType();
       var tr = request.NonNull(nameof(request)).GetType();
@@ -111,7 +111,7 @@ namespace Azos.Apps.Hosting.Skyod.Adapters
       {
         var task = mi.Invoke(this, new[] { request }) as Task;
 
-        await task;
+        await task.ConfigureAwait(false);
 
         var (ok, result) = TaskUtils.TryGetCompletedTaskResultAsObject(task);
         ok.IsTrue();

@@ -6,10 +6,13 @@
 
 using System;
 
-using Azos.Collections;
-using Azos.Conf;
-using Azos.Apps.Hosting.Skyod.Adapters;
 using System.IO;
+using System.Threading.Tasks;
+
+using Azos.Conf;
+using Azos.Collections;
+using Azos.Text;
+using Azos.Apps.Hosting.Skyod.Adapters;
 
 namespace Azos.Apps.Hosting.Skyod
 {
@@ -136,5 +139,44 @@ namespace Azos.Apps.Hosting.Skyod
     /// Ensures that `RootDirectory` is created locally and returns its DirectoryInfo
     /// </summary>
     public DirectoryInfo EnsureRootDirectory() => Directory.CreateDirectory(RootDirectory);
+
+
+    private async Task<int> broadcast(AdapterRequest request, string broadcastHostMask)
+    {
+      var matches = 0;
+      foreach (var shost in SubordinateHosts.OrderedValues)
+      {
+        if (broadcastHostMask.IsNotNullOrWhiteSpace() && !shost.Name.MatchPattern(broadcastHostMask)) continue;
+        matches ++;
+
+        //get HttpClient for shost.SkyodRootUri
+        //await Client.PostDataMap(request);
+        //push result into shost.Log(....) so we can see individual responses
+      }
+
+      return matches;
+    }
+
+    /// <summary>
+    /// This is what we call from controller
+    /// </summary>
+    public async Task<AdapterResponse> ExecAdapterRequestAsync(AdapterRequest request, string broadcastHostMask = null)
+    {
+      var matches = await broadcast(request, broadcastHostMask);
+      //todo Status log matches, use correltation guid from request ID
+
+      if (request is InstallationRequest ireq)
+      {
+        return await Installation.ExecRequestAsync(ireq);
+      }
+
+      if (request is ActivationRequest areq)
+      {
+        return await Activation.ExecRequestAsync(areq);
+      }
+
+      return null;
+    }
+
   }
 }
