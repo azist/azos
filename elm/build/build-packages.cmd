@@ -1,6 +1,6 @@
 @echo on
 
-set VER=3.0.0.10
+set VER=3.0.0.12
 set HEADLINE=Microsoft SQL client
 call build-all Release %VER%
 

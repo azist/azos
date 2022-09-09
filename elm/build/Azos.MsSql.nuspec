@@ -18,6 +18,7 @@
     <dependencies>
       <dependency id="Azos" version="$version$" />
       <dependency id="System.Data.SqlClient" version="4.6.0" />
+      <dependency id="Microsoft.Data.SqlClient" version="5.0.0" />
     </dependencies>
     
   </metadata>
