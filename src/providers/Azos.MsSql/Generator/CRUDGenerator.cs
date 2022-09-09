@@ -9,16 +9,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Data;
 
 using Azos.Serialization.JSON;
-using System.Data.SqlClient;
-using System.Data;
+using Microsoft.Data.SqlClient;
 
 namespace Azos.Data.Access.MsSql
 {
   internal static class CRUDGenerator
   {
-
       public static async Task<int> CRUDInsert(MsSqlDataStoreBase store, SqlConnection cnn, SqlTransaction trans, Doc doc, FieldFilterFunc filter)
       {
         try

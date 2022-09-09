@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.0.0.9
-set HEADLINE=#767 pre-process-all-includes
+set VER=3.0.0.10
+set HEADLINE=Microsoft SQL client
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
