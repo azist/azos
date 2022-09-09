@@ -12,7 +12,7 @@ using Azos.Serialization.JSON;
 using Azos.Web;
 using Azos.Security;
 
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 
 namespace Azos.Data.Access.MsSql.Instrumentation
 {

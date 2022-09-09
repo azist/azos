@@ -14,7 +14,7 @@ using Azos.Data;
 using Azos.Data.Access.MsSql;
 using Azos.Scripting;
 
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 
 namespace Azos.Tests.Integration.CRUD
 {

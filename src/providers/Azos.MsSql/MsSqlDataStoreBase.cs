@@ -13,7 +13,7 @@ using Azos.Conf;
 using Azos.Data.Modeling;
 using Azos.Instrumentation;
 
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using Azos.Security;
 
 namespace Azos.Data.Access.MsSql
