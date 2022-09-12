@@ -44,8 +44,14 @@ namespace Azos.Apps.Hosting.Skyod.Web
     [ActionOnPost(Name = "exec")]
     public async Task<object> ExecAsync(string soft, string component, Adapters.AdapterRequest request)
     {
-      var cmp = SkyodDaemon.Sets[soft.NonBlank(nameof(soft))].NonNull(nameof(soft))
-                           .Components[component.NonBlank(nameof(component))].NonNull(nameof(component));
+      var softwareSet = SkyodDaemon.Sets[soft.NonBlank(nameof(soft))];
+
+      if (softwareSet == null) throw "Software set `{0}`".Args(soft).IsNotFound();
+
+      var cmp = softwareSet.Components[component.NonBlank(nameof(component))];
+
+      if (cmp == null) throw "Component `{0}`".Args(component).IsNotFound();
+
       var got = await cmp.ExecAdapterRequestAsync(request);
       return GetLogicResult(got);
     }

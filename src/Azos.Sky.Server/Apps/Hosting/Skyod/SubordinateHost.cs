@@ -38,6 +38,8 @@ namespace Azos.Apps.Hosting.Skyod
     private readonly string m_Name;
     private readonly int m_Order;
 
+    //private HttpClient m_Client;
+
     public override string ComponentLogTopic => Sky.SysConsts.LOG_TOPIC_SKYOD;
 
     /// <summary>
