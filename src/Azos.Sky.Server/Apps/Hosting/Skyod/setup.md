@@ -1,6 +1,8 @@
 ﻿# OS Daemon Setup
 
-See also [readme.md](readme.md).
+See also:
+- [Skyod readme.md](readme.md).
+- https://www.digitalocean.com/community/tutorials/how-to-install-apache-kafka-on-ubuntu-20-04
 
 You can follow instructions here to set-up container (e.g. Docker) image or build a Linux machine using manual or automated process (e.g. Ansible).
 
@@ -40,7 +42,26 @@ $ pwd
 $ mkdir skyod
 ```
 
+### Step 3 - setup Systemd files to auto-start the node
+SKY_HOME
 
+### Step 4 - Testing
+
+### Step 5 - Server Hardening
+
+We would want to restrict the `sky` user for now.
+
+```bash
+# Lock the sky users password using the passwd command. 
+# This makes sure that nobody can directly log into the server using this account
+$ sudo passwd sky -l
+
+# Now, only root or sudo can log-in as sky
+$ sudo su - sky
+
+# To unlock the `sky` account, shall a need arise in future
+$ sudo passwd sky -u
+```
 
 
 
