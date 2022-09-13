@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.0.0.12
-set HEADLINE=Microsoft SQL client
+set VER=3.0.0.20
+set HEADLINE=Wip skyod
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

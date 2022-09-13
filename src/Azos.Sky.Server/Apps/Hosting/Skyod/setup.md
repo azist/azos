@@ -31,7 +31,7 @@ $ sudo adduser sky
 $ sudo adduser sky sudo
 
 # `sky` user is now ready. Log into the account using su:
-$ su -l kafka
+$ su -l sky
 ```
 
 
