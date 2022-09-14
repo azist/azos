@@ -44,9 +44,11 @@ namespace Azos.Apps.Hosting
   /// </summary>
   public sealed class ProcessAppActivator : ApplicationComponent<GovernorDaemon>, IAppActivator
   {
-    public const string CONFIG_START_EXE_PATH_ATTR = "exe-path";
-    public const string CONFIG_START_EXE_NAME_ATTR = "exe-name";
-    public const string CONFIG_START_EXE_ARGS_ATTR = "exe-args";
+    public const string CONFIG_START_WORKING_DIRECTORY_ATTR = "working-directory";
+    public const string CONFIG_START_EXECUTABLE_ATTR = "executable";
+    public const string CONFIG_START_EXECUTABLE_ARGS_ATTR = "args";
+    public const string CONFIG_START_HGOV_ARGS_PRAGMA = "hgov-args-pragma";
+    public const string PRAGMA_HGOV_DEFAULT = "{{gov}}";
 
     internal sealed class ProcessContext : IAppActivatorContext
     {
@@ -70,40 +72,47 @@ namespace Azos.Apps.Hosting
 
       WriteLogFromHere(MessageType.Trace, "Initiating app `{0}` start".Args(app.Name), related: rel);
 
-      var govDirective = "{0}://{1}:{2}".Args(BootArgs.GOV_BINDING, ComponentDirector.AssignedSipcServerPort, app.Name);
 
-      var rootExeDir = app.StartSection.ValOf(CONFIG_START_EXE_PATH_ATTR).Default("./");
-      var exeFile = app.StartSection.ValOf(CONFIG_START_EXE_NAME_ATTR);
-      var exeArgs = "\"{0}\" {1}".Args(govDirective, app.StartSection.ValOf(CONFIG_START_EXE_ARGS_ATTR));
+      var workingDirectory = app.StartSection.ValOf(CONFIG_START_WORKING_DIRECTORY_ATTR).Default(string.Empty);
+      var exeFile = app.StartSection.ValOf(CONFIG_START_EXECUTABLE_ATTR);
+      var exeArgs = app.StartSection.ValOf(CONFIG_START_EXECUTABLE_ARGS_ATTR);
+
+      var govPragma = app.StartSection.ValOf(CONFIG_START_HGOV_ARGS_PRAGMA).Default(PRAGMA_HGOV_DEFAULT);
+
+      if (exeArgs.IsNotNullOrWhiteSpace() && exeArgs.IndexOf(govPragma, StringComparison.Ordinal) >=0)
+      {
+        var govDirective = "{0}://{1}:{2}".Args(BootArgs.GOV_BINDING, ComponentDirector.AssignedSipcServerPort, app.Name);
+        exeArgs = exeArgs.Replace(govPragma, govDirective, StringComparison.Ordinal);
+      }
 
       if (exeFile.IsNullOrWhiteSpace())
       {
-        var reason = "App failure: `{0}` process exe image attribute `${1}` is missing ".Args(app.Name, CONFIG_START_EXE_NAME_ATTR);
+        var reason = "App failure: `{0}` process exe image attribute `${1}` is missing ".Args(app.Name, CONFIG_START_EXECUTABLE_ATTR);
         WriteLogFromHere(MessageType.CatastrophicError, text: reason, related: rel);
         app.Fail(reason);
         return false;
       }
 
-
-      var exeFullPath = Path.Combine(rootExeDir, exeFile);
-
-      WriteLogFromHere(MessageType.Trace, "Set directories".Args(app.Name), related: rel, pars: (new { exeFullPath, exeArgs }).ToJson());
-
-      if (!File.Exists(exeFullPath))
+      if (workingDirectory.IsNotNullOrWhiteSpace() && !Directory.Exists(workingDirectory))
       {
-        var reason = "App failure: `{0}` process exe image `{1}` does not exist".Args(app.Name, exeFullPath);
+        var reason = "App failure: `{0}` process working directory `{1}` does not exist".Args(app.Name, workingDirectory);
         WriteLogFromHere(MessageType.CatastrophicError, text: reason, related: rel);
         app.Fail(reason);
         return false;
       }
+
+      WriteLogFromHere(MessageType.Trace, "Set directories".Args(app.Name), related: rel, pars: (new { workingDirectory, exeFile, exeArgs }).ToJson());
 
       var process = new Process();
       app.ActivationContext = new ProcessContext(process);//link context
       app.LastStartAttemptUtc = App.TimeSource.UTCNow;
 
-      process.StartInfo.FileName = exeFullPath;
-      process.StartInfo.WorkingDirectory = rootExeDir;
+      process.StartInfo.FileName = exeFile;
+      process.StartInfo.WorkingDirectory = workingDirectory;
       process.StartInfo.Arguments = exeArgs;//todo: In .Net 5+ use ArgumentList instead which properly handles platform specific escapes
+
+      //Unix shell scripts are considered real executables by the operating system (OS). This means it is not required
+      //to set UseShellExecute. This approach is unlike Windows .bat files, which need the Windows shell to find the interpreter.
       process.StartInfo.UseShellExecute = false;
       process.StartInfo.CreateNoWindow = true;
       process.StartInfo.RedirectStandardInput = false;
