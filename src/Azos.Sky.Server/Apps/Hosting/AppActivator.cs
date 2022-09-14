@@ -47,8 +47,10 @@ namespace Azos.Apps.Hosting
     public const string CONFIG_START_WORKING_DIRECTORY_ATTR = "working-directory";
     public const string CONFIG_START_EXECUTABLE_ATTR = "executable";
     public const string CONFIG_START_EXECUTABLE_ARGS_ATTR = "args";
-    public const string CONFIG_START_HGOV_ARGS_PRAGMA = "hgov-args-pragma";
+    public const string CONFIG_START_HGOV_ARGS_PRAGMA_ATTR = "hgov-args-pragma";
     public const string PRAGMA_HGOV_DEFAULT = "{{gov}}";
+
+    public const string CONFIG_STOP_KILL_ENTIRE_PROCESS_TREE_ATTR = "kill-entire-process-tree";
 
     internal sealed class ProcessContext : IAppActivatorContext
     {
@@ -74,18 +76,18 @@ namespace Azos.Apps.Hosting
 
 
       var workingDirectory = app.StartSection.ValOf(CONFIG_START_WORKING_DIRECTORY_ATTR).Default(string.Empty);
-      var exeFile = app.StartSection.ValOf(CONFIG_START_EXECUTABLE_ATTR);
-      var exeArgs = app.StartSection.ValOf(CONFIG_START_EXECUTABLE_ARGS_ATTR);
+      var executable = app.StartSection.ValOf(CONFIG_START_EXECUTABLE_ATTR);
+      var executableArgs = app.StartSection.ValOf(CONFIG_START_EXECUTABLE_ARGS_ATTR);
 
-      var govPragma = app.StartSection.ValOf(CONFIG_START_HGOV_ARGS_PRAGMA).Default(PRAGMA_HGOV_DEFAULT);
+      var govPragma = app.StartSection.ValOf(CONFIG_START_HGOV_ARGS_PRAGMA_ATTR).Default(PRAGMA_HGOV_DEFAULT);
 
-      if (exeArgs.IsNotNullOrWhiteSpace() && exeArgs.IndexOf(govPragma, StringComparison.Ordinal) >=0)
+      if (executableArgs.IsNotNullOrWhiteSpace() && executableArgs.IndexOf(govPragma, StringComparison.Ordinal) >=0)
       {
         var govDirective = "{0}://{1}:{2}".Args(BootArgs.GOV_BINDING, ComponentDirector.AssignedSipcServerPort, app.Name);
-        exeArgs = exeArgs.Replace(govPragma, govDirective, StringComparison.Ordinal);
+        executableArgs = executableArgs.Replace(govPragma, govDirective, StringComparison.Ordinal);
       }
 
-      if (exeFile.IsNullOrWhiteSpace())
+      if (executable.IsNullOrWhiteSpace())
       {
         var reason = "App failure: `{0}` process exe image attribute `${1}` is missing ".Args(app.Name, CONFIG_START_EXECUTABLE_ATTR);
         WriteLogFromHere(MessageType.CatastrophicError, text: reason, related: rel);
@@ -101,15 +103,21 @@ namespace Azos.Apps.Hosting
         return false;
       }
 
-      WriteLogFromHere(MessageType.Trace, "Set directories".Args(app.Name), related: rel, pars: (new { workingDirectory, exeFile, exeArgs }).ToJson());
+      WriteLogFromHere(MessageType.Trace, "Set directories".Args(app.Name), related: rel, pars: (new { workingDirectory, executable, executableArgs }).ToJson());
 
       var process = new Process();
       app.ActivationContext = new ProcessContext(process);//link context
       app.LastStartAttemptUtc = App.TimeSource.UTCNow;
 
-      process.StartInfo.FileName = exeFile;
-      process.StartInfo.WorkingDirectory = workingDirectory;
-      process.StartInfo.Arguments = exeArgs;//todo: In .Net 5+ use ArgumentList instead which properly handles platform specific escapes
+      process.StartInfo.FileName = executable;
+      if (workingDirectory != null)
+      {
+        process.StartInfo.WorkingDirectory = workingDirectory;
+      }
+      if (executableArgs != null)
+      {
+        process.StartInfo.Arguments = executableArgs;//todo: In .Net 5+ use ArgumentList instead which properly handles platform specific escapes
+      }
 
       //Unix shell scripts are considered real executables by the operating system (OS). This means it is not required
       //to set UseShellExecute. This approach is unlike Windows .bat files, which need the Windows shell to find the interpreter.
@@ -159,6 +167,8 @@ namespace Azos.Apps.Hosting
 
       WriteLogFromHere(MessageType.Trace, "Will wait for subordinate process to stop for {0} sec".Args(app.StopTimeoutSec), related: rel);
 
+      var killEntireTree = app.StopSection.Of(CONFIG_STOP_KILL_ENTIRE_PROCESS_TREE_ATTR).ValueAsBool(false);
+
       var startUtc = App.TimeSource.UTCNow;
       while(true)
       {
@@ -172,7 +182,11 @@ namespace Azos.Apps.Hosting
 
           try
           {
-            process.Kill();
+            if (killEntireTree) //#772
+              process.Kill(true);
+            else
+              process.Kill();
+
             WriteLogFromHere(MessageType.WarningExpectation, "Killed(`{0}`)".Args(app.Name), related: rel);
           }
           catch(Exception error)
