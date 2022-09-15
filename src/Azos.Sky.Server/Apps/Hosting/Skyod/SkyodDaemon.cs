@@ -29,11 +29,13 @@ namespace Azos.Apps.Hosting.Skyod
     public SkyodDaemon(IApplication app) : base(app)
     {
       m_Sets = new Registry<SoftwareSet>();
+      App.Singletons.GetOrCreate(() => this).created.IsTrue("Single SkyodDaemon instance");
     }
 
     protected override void Destructor()
     {
       base.Destructor();
+      App.Singletons.Remove<SkyodDaemon>();
       cleanup();
     }
 
@@ -57,6 +59,11 @@ namespace Azos.Apps.Hosting.Skyod
     [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
     public override bool InstrumentationEnabled { get; set; }
 
+
+    /// <summary>
+    /// Software sets
+    /// </summary>
+    public IRegistry<SoftwareSet> Sets => m_Sets;
 
     /// <summary>
     /// Directory which software sets install under, e.g. '/home/sky'

@@ -90,4 +90,6 @@ Installation on-disk structure:
        /gdid
 ```
 
+See also [OS System Setup](setup.md) which covers the steps of container/image/or manual setup of the host OS.
+
 

@@ -38,10 +38,12 @@ namespace Azos.Apps.Hosting.Skyod
     private readonly string m_Name;
     private readonly int m_Order;
 
+    //private HttpClient m_Client;
+
     public override string ComponentLogTopic => Sky.SysConsts.LOG_TOPIC_SKYOD;
 
     /// <summary>
-    /// Unique software component name. Package labels must start from the set name e.g. `[x9-biz]-20220801-181200.apar`
+    /// Unique logical host name
     /// </summary>
     public string Name => m_Name;
 
