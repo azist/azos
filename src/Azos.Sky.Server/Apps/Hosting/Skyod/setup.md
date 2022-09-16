@@ -45,7 +45,7 @@ $ pwd
 # make directory for skyod
 $ mkdir skyod
 $ cd skyod
-$ mkdir bin logs data
+$ mkdir bin cms gdid logs data
 $ cd bin
 
 ... copy your skyod package under /home/sky/bin
