@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.0.0.22
-set HEADLINE=#771 Vfs wip
+set VER=3.0.0.24
+set HEADLINE=#775 Wave qury match
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
