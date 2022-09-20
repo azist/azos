@@ -1,6 +1,6 @@
 @echo on
 
-set VER=3.0.0.25
+set VER=3.0.0.26
 set HEADLINE=#776 WebConsole wmbedded resource paths
 call build-all Release %VER%
 

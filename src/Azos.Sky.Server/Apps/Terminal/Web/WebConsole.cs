@@ -37,7 +37,7 @@ namespace Azos.Apps.Terminal.Web
                  .Replace("[:ENV:]", esc(App.EnvironmentName));
 
       WorkContext.Response.ContentType = ContentType.HTML;
-      await WorkContext.Response.WriteAsync(html).ConfigureAwait(false);
+      await WorkContext.Response.WriteAsync(html, false).ConfigureAwait(false);
     }
 
     [ActionOnPost(Name = "connection")]
