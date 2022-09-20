@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.0.0.21
-set HEADLINE=#772 appactivator
+set VER=3.0.0.22
+set HEADLINE=#771 Vfs wip
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

@@ -161,39 +161,62 @@ namespace Azos.Apps.Hosting
 
     private static int governedConsoleMainBody(BootArgs args)
     {
-      Console.CancelKeyPress += (_, e) => {
+      var tracePoint = "a0";
+
+      Console.CancelKeyPress += (_, e) =>
+      {
+        tracePoint = "c10";
         var app = s_Application;//capture
         if (app != null)
         {
+          tracePoint = "c20";
           app.Stop();
+          tracePoint = "c30";
           e.Cancel = true;
+          tracePoint = "c40";
         }
       };
 
+      tracePoint = "a10";
+
       try
       {
+        tracePoint = "a20";
         try
         {
+          tracePoint = "a30";
           Start(args);
+          tracePoint = "a40";
 
           //blocks until application is running
-          while(true)
+          while (true)
           {
+            tracePoint = "a50";
             var stopped = s_Application.WaitForStopOrShutdown(5000);
             if (stopped) break;
           }
+          tracePoint = "a60";
         }
         finally
         {
+          tracePoint = "a70";
           Stop();
+          tracePoint = "a80";
         }
+
+        tracePoint = "a90";
 
         return 0;
       }
-      catch (Exception error)
+      catch (Exception error)//Last resort
       {
         var wrap = new WrappedExceptionData(error, true);
-        var errorContent = "App Root exception, details: \n" + wrap.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
+
+        var errorContent = "Written out by: {0}; @ tracepoint: `{1}`; \n Application root exception, details: \n {2}"
+                               .Args(nameof(ApplicationHostProgramBody),
+                                     tracePoint,
+                                     wrap.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap));
+
         var crashFile = "{0:yyyyMMdd-HHmmssff}-{1}-{2}.crash.log".Args(
                                DateTime.Now,
                                System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
@@ -201,7 +224,23 @@ namespace Azos.Apps.Hosting
 
         try
         {
-          System.IO.File.WriteAllText(crashFile, errorContent);
+          try
+          {
+            var sky_home = System.Environment.GetEnvironmentVariable(CoreConsts.SKY_HOME);
+            System.IO.Directory.Exists(sky_home).IsTrue();
+            var path1 = System.IO.Path.Combine(sky_home, crashFile);
+            System.IO.File.WriteAllText(path1, errorContent);
+          }
+          catch
+          {
+            try
+            {
+              var path2 = crashFile;
+              System.IO.File.WriteAllText(path2, errorContent);
+            }
+            catch{ }
+          }
+
           Console.WriteLine(errorContent);
         }
         catch{ }
