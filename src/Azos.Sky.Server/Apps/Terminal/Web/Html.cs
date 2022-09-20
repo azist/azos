@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Azos.Sky.Apps.Terminal.Web
+namespace Azos.Apps.Terminal.Web
 {
   internal class Html
   {

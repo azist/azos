@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.0.0.24
-set HEADLINE=#775 Wave qury match
+set VER=3.0.0.25
+set HEADLINE=#776 WebConsole wmbedded resource paths
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
