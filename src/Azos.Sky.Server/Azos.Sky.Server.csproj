@@ -23,9 +23,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Apps\Terminal\Web\Console.htm" />
+    <EmbeddedResource Include="Apps\Terminal\Web\Console.htm">
+      <LogicalName>Azos.Apps.Terminal.Web.Console.htm</LogicalName>
+    </EmbeddedResource>
+
+    <EmbeddedResource Include="Chronicle\Server\Web\LogView.htm">
+      <LogicalName>Azos.Sky.Chronicle.Server.Web.LogView.htm</LogicalName>
+    </EmbeddedResource>
+
     <EmbeddedResource Include="BUILD_INFO.txt" />
-    <EmbeddedResource Include="Chronicle\Server\Web\LogView.htm" />
     <EmbeddedResource Include="Hosts\agdida\Welcome.txt" />
     <EmbeddedResource Include="Tools\agm\Help.txt" />
     <EmbeddedResource Include="Tools\agm\Welcome.txt" />

@@ -9,8 +9,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
+
+using Microsoft.AspNetCore.Http;
 
 using Azos.Apps;
+using Azos.Data;
 using Azos.Conf;
 using Azos.Collections;
 using Azos.Log;
@@ -19,8 +23,6 @@ using Azos.Instrumentation;
 using Azos.Serialization.JSON;
 
 using Azos.Wave.Filters;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 
 namespace Azos.Wave
 {
@@ -96,18 +98,51 @@ namespace Azos.Wave
 
         var host = node.Of("host", "host-name").Value;
         if (host.IsNotNullOrWhiteSpace()) m_HostName = new HostString(host);
+
+        var bports = node.Of("ports").Value;
+        if (bports.IsNotNullOrWhiteSpace())
+        {
+          m_BoundPorts = bports.Split(",", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                               .Select(one => one.AsInt(0))
+                               .Where(one => one > 0 && one <= 0xffff).ToArray();
+        }
       }
 
       private HostString  m_HostName;
+      private int[] m_BoundPorts;
 
       [Config] public string Name { get; private set; }
       [Config] public int Order { get; private set; }
 
+      /// <summary>
+      /// When set matches the host name and optionally a single port number
+      /// </summary>
       public HostString HostName => m_HostName;
+
+      /// <summary>
+      /// When set matches the incoming traffic with any of the listed port numbers.
+      /// The check is performed after the HostName check
+      /// </summary>
+      public IEnumerable<int> BoundPorts => m_BoundPorts;
 
       public bool Make(HttpContext httpContext)
       {
-        if (m_HostName.HasValue && !httpContext.Request.Host.Equals(m_HostName)) return false;
+        if (m_HostName.HasValue)
+        {
+          if (m_HostName.Host.EqualsIgnoreCase(httpContext.Request.Host.Host)) return false;
+          if (m_HostName.Port.HasValue && httpContext.Request.Host.Port != m_HostName.Port) return false;
+        }
+
+        //match just on ports
+        if (m_BoundPorts != null)
+        {
+          for(var i=0; i< m_BoundPorts.Length; i++)
+          {
+            if (httpContext.Request.Host.Port == m_BoundPorts[i]) return true;
+          }
+          return false;
+        }
+
         return true;
       }
 

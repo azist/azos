@@ -49,7 +49,7 @@ namespace Azos.Sky.Chronicle.Server.Web
 
 
       WorkContext.Response.ContentType = ContentType.HTML;
-      await WorkContext.Response.WriteAsync(html).ConfigureAwait(false);
+      await WorkContext.Response.WriteAsync(html, false).ConfigureAwait(false);
     }
 
 

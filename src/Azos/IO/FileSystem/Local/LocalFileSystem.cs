@@ -76,8 +76,11 @@ namespace Azos.IO.FileSystem.Local
       {
         if (fullPath.IsNullOrWhiteSpace()) return new string[0];
 
-        var idx = fullPath.IndexOf(Path.VolumeSeparatorChar);
-        if (idx >= 0) fullPath = (idx + 1 == fullPath.Length) ? string.Empty : fullPath.Substring(idx + 1);
+        if (Platform.Computer.OSFamily == Platform.OSFamily.Windows)
+        {
+          var idx = fullPath.IndexOf(Path.VolumeSeparatorChar);
+          if (idx >= 0) fullPath = (idx + 1 == fullPath.Length) ? string.Empty : fullPath.Substring(idx + 1);
+        }
 
         var segs = fullPath.Split(Path.DirectorySeparatorChar,
                                   Path.AltDirectorySeparatorChar)
@@ -126,8 +129,9 @@ namespace Azos.IO.FileSystem.Local
         {
           var di = new DirectoryInfo(path);
           //20210209 Fix #424
+          //20220919 Fix #771
           var parentPath = di.Parent != null ? di.Parent.FullName : null;
-          return new FileSystemDirectory(session, parentPath==null ? di.Name : parentPath, parentPath==null ? @"\" : di.Name, new FSH{m_Info=di});
+          return new FileSystemDirectory(session, parentPath, di.Name, new FSH{m_Info=di});
         }
         return null;
       }

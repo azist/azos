@@ -29,7 +29,7 @@ namespace Azos.Apps.Terminal.Web
                                          .Replace(">","&gt;");
 
       WorkContext.NeedsSession();
-      var html = typeof(Sky.Apps.Terminal.Web.Html).GetText("Console.htm");
+      var html = typeof(Azos.Apps.Terminal.Web.Html).GetText("Console.htm");
 
       html = html.Replace("[:USER:]", esc(WorkContext.Session.User.Name))
                  .Replace("[:APP:]", esc(App.AppId.Value))
@@ -37,7 +37,7 @@ namespace Azos.Apps.Terminal.Web
                  .Replace("[:ENV:]", esc(App.EnvironmentName));
 
       WorkContext.Response.ContentType = ContentType.HTML;
-      await WorkContext.Response.WriteAsync(html).ConfigureAwait(false);
+      await WorkContext.Response.WriteAsync(html, false).ConfigureAwait(false);
     }
 
     [ActionOnPost(Name = "connection")]
