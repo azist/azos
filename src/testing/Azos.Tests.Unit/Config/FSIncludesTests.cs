@@ -201,13 +201,13 @@ app
         [Run]
         public void Include_Provider()
         {
-          var conf =@"
+          var conf = @"
 myapp
 {
   _include
   {
     name=WithNewName
-    provider{ type='Azos.Tests.Unit.Config.Includes+TeztConfigNodeProvider, Azos.Tests.Unit'}
+    provider{ type='Azos.Tests.Unit.Config.FSIncludesTests+TeztConfigNodeProvider, Azos.Tests.Unit'}
   }
 
   city{ name='Cleveland'}
@@ -215,7 +215,7 @@ myapp
   _include
   {
     //without name
-    provider{ type='Azos.Tests.Unit.Config.Includes+TeztConfigNodeProvider, Azos.Tests.Unit'}
+    provider{ type='Azos.Tests.Unit.Config.FSIncludesTests+TeztConfigNodeProvider, Azos.Tests.Unit'}
   }
 }".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
 

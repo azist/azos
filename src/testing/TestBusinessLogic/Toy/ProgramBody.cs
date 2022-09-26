@@ -4,8 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Diagnostics;
 
 using Azos;
@@ -16,6 +14,7 @@ using Azos.Platform;
 
 namespace TestBusinessLogic.Toy
 {
+  [Azos.Platform.ProcessActivation.ProgramBody("toy", Description = "[T]est [o]f [Y]our code")]
   public static class ProgramBody
   {
     public static void Main(string[] args)
@@ -50,6 +49,13 @@ namespace TestBusinessLogic.Toy
       using(var app = new AzosApplication(args, null))
       {
         Console.WriteLine("...app container is up");
+
+        Console.CancelKeyPress += (_, e) =>
+        {
+          app.Stop();
+          ((IApplicationImplementation)ExecutionContext.Application).Stop();
+          e.Cancel = true;
+        };
 
         Console.WriteLine("Effective config: ");
         Console.WriteLine( app.ConfigRoot.ToLaconicString(Azos.CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint) );
@@ -109,8 +115,6 @@ namespace TestBusinessLogic.Toy
           using(var ws = new WaveServer(app))
           {
             ws.Configure(null);
-
-            ws.IgnoreClientWriteErrors = false;
 
             ws.Start();
             Console.WriteLine("Web server started");

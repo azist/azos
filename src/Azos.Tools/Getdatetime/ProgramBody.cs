@@ -9,6 +9,7 @@ using System;
 namespace Azos.Tools.Getdatetime
 {
 
+  [Platform.ProcessActivation.ProgramBody("getdatetime,gdt", Description = "Get formatted date time")]
   public static class ProgramBody
   {
     public static void Main(string[] args)

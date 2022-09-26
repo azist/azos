@@ -196,7 +196,7 @@ namespace Azos.Security.MinIdp
 
     public Task<IEntityInfo> LookupEntityAsync(string uri)
     {
-      return null;//for now
+      return Task.FromResult<IEntityInfo>(null);//for now
     }
 
     #endregion
@@ -231,8 +231,22 @@ namespace Azos.Security.MinIdp
       }
 
       var props = data.Props?.Content;
-      //make a copy
-      ConfigVector userProps = props.IsNotNullOrWhiteSpace() ? new ConfigVector(props) : null;
+
+      //making a copy of ConfigProps
+      ConfigVector userProps = null;
+      if (props.IsNotNullOrWhiteSpace())
+      {
+        try
+        {
+          userProps = new ConfigVector(props);
+          var _ = userProps.Node;
+        }
+        catch (Exception error)
+        {
+          WriteLog(MessageType.Error, nameof(MakeOkUser), "User properties could not be read for `{0}`@`{1}`".Args(credentials, Realm), error);
+        }
+      }
+
 
       return new User(credentials,
                       data.SysToken,
@@ -266,11 +280,17 @@ namespace Azos.Security.MinIdp
       if (data.Realm != Realm) return null;
       if (!CheckDates(data)) return null;
 
-      using (var password = cred.SecurePassword)
+      //The provider password is optional, e.g. for token-based providers like:  `fbk::6Hw9_90jnHjskxCtwuwru2k804Op`
+      if (data.LoginPassword.IsNotNullOrWhiteSpace())
       {
-        cred.Forget();
-        var pass = m_PasswordManager.Verify(password, HashedPassword.FromString(data.LoginPassword), out var needRehash);
-        if (!pass) return null;
+        if (cred.Password.IsNullOrWhiteSpace()) return null;
+
+        using (var password = cred.SecurePassword)
+        {
+          cred.Forget();
+          var pass = m_PasswordManager.Verify(password, HashedPassword.FromString(data.LoginPassword), out var needRehash);
+          if (!pass) return null;
+        }
       }
 
       return MakeOkUser(cred, data);

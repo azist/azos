@@ -135,7 +135,7 @@ namespace Azos.Data.Idgen
     public IEnumerable<ISequenceInfo> GetSequenceInfos(string scopeName)
     {
       var scope = m_Scopes[scopeName.NonBlank(nameof(scopeName))];
-      if (scope==null) Enumerable.Empty<ISequenceInfo>();
+      if (scope==null) return Enumerable.Empty<ISequenceInfo>();
       return scope.Sequences.Values;
     }
 

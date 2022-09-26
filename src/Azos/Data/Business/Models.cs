@@ -143,4 +143,25 @@ namespace Azos.Data.Business
   {
   }
 
+
+  /// <summary>
+  /// Marker interface for requests which generate responses.
+  /// The concept is similar to filters, difference is in the intent.
+  /// The HTTP response codes are always 200, even when the response is null, this is because
+  /// request/response is treated more like RPC and does not rely on HTTP response code semantics
+  /// </summary>
+  public interface IBusinessRequestModel : IBusinessFormModel
+  {
+  }
+
+  /// <summary>
+  /// Represents a model for requests which generate responses.
+  /// The concept is similar to filters, difference is in the intent.
+  /// The HTTP response codes are always 200, even when the response is null, this is because
+  /// request/response is treated more like RPC and does not rely on HTTP response code semantics
+  /// </summary>
+  public abstract class RequestModel<TResponse> : FormModel<TResponse>, IBusinessRequestModel
+  {
+  }
+
 }

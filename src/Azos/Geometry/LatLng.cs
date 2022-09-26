@@ -8,7 +8,7 @@ using System;
 using System.Collections;
 using System.IO;
 using System.Linq;
-
+using Azos.Conf;
 using Azos.Data;
 using Azos.Serialization.JSON;
 
@@ -17,7 +17,7 @@ namespace Azos.Geometry
   /// <summary>
   /// Represents a named position on the Earth map
   /// </summary>
-  public struct LatLng : IEquatable<LatLng>, Collections.INamed, IJsonReadable, IJsonWritable
+  public struct LatLng : IEquatable<LatLng>, Collections.INamed, IJsonReadable, IJsonWritable, IConfigurationPersistent
   {
     public const double MIN_LAT = -90.0d;
     public const double MAX_LAT = +90.0d;
@@ -38,6 +38,24 @@ namespace Azos.Geometry
     private double m_Lat;
     private double m_Lng;
 
+    [ConfigCtor]
+    public LatLng(IConfigSectionNode cfg)
+    {
+      m_Name = cfg.NonNull(nameof(cfg)).ValOf("name");
+      m_Lat = 0d;
+      m_Lng = 0d;
+      Lat = cfg.Of("lat").ValueAsDouble();
+      Lng = cfg.Of("lng").ValueAsDouble();
+    }
+
+    public ConfigSectionNode PersistConfiguration(ConfigSectionNode parentNode, string name)
+    {
+      var result = parentNode.NonEmpty(nameof(parentNode)).AddChildNode(name);
+      result.AddAttributeNode("name", Name);
+      result.AddAttributeNode("lat", Lat);
+      result.AddAttributeNode("lng", Lng);
+      return result;
+    }
 
     public LatLng(double lat, double lng, string name = null)
     {
@@ -218,6 +236,8 @@ namespace Azos.Geometry
       JsonWriter.WriteMap(wri, nestingLevel, options, new DictionaryEntry("name", m_Name),
                                                       new DictionaryEntry("location", "{0}, {1}".Args(ComponentToString(Lat), ComponentToString(Lng))));
     }
+
+
   }
 
 }

@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 
 using Azos.Conf;
 using Azos.CodeAnalysis.Source;
@@ -113,6 +114,9 @@ namespace Azos.Serialization.JSON
     public static IJsonDataObject DeserializeDataObject(Stream stream, Encoding encoding = null, bool caseSensitiveMaps = true)
      => deserializeObject(ReaderBackend.DeserializeFromJson(stream, caseSensitiveMaps, encoding));
 
+    public static Task<object> DeserializeAsync(Stream stream, Encoding encoding = null, bool caseSensitiveMaps = true)
+     => ReaderBackend.DeserializeFromJsonAsync(stream, caseSensitiveMaps, encoding);
+
     public static IJsonDataObject DeserializeDataObject(string source, bool caseSensitiveMaps = true)
      => deserializeObject(ReaderBackend.DeserializeFromJson(source, caseSensitiveMaps));
 
@@ -122,8 +126,17 @@ namespace Azos.Serialization.JSON
           return deserializeObject(ReaderBackend.DeserializeFromJson(fs, caseSensitiveMaps, encoding));
     }
 
+    public static async Task<object> DeserializeFromFileAsync(string filePath, Encoding encoding = null, bool caseSensitiveMaps = true)
+    {
+      using var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+      return await ReaderBackend.DeserializeFromJsonAsync(fs, caseSensitiveMaps, encoding).ConfigureAwait(false);
+    }
+
     public static IJsonDataObject DeserializeDataObject(ISourceText source, bool caseSensitiveMaps = true)
-     => deserializeObject(ReaderBackend.DeserializeFromJson(source, caseSensitiveMaps));
+      => deserializeObject(ReaderBackend.DeserializeFromJson(source, caseSensitiveMaps));
+
+    public static Task<object> DeserializeAsync(ISourceText source, bool caseSensitiveMaps = true)
+      => ReaderBackend.DeserializeFromJsonAsync(source, caseSensitiveMaps);
 
 
     /// <summary>
@@ -144,10 +157,10 @@ namespace Azos.Serialization.JSON
 
     /// <summary>
     /// Converts JSONMap into typed data document of the requested type.
-    /// The requested type must be derived from Azos.Data.TypedDoc.
-    /// The extra data found in JSON map will be placed in AmorphousData dictionary if the row implements IAmorphousData, discarded otherwise.
+    /// The requested type must be derived from <see cref="Azos.Data.TypedDoc"/>.
+    /// The extra data found in JSON map will be placed in AmorphousData dictionary if the doc implements IAmorphousData, discarded otherwise.
     /// Note: This method provides "the best match" and does not guarantee that all data will/can be converted from JSON, i.e.
-    ///  it can only convert one dimensional arrays and Lists of either primitive or TypeRow-derived entries
+    ///  it can only convert one dimensional arrays and Lists of either primitive or TypeDoc-derived entries
     /// </summary>
     /// <param name="type">TypedDoc subtype to convert into</param>
     /// <param name="jsonMap">JSON data to convert into data doc</param>
@@ -170,8 +183,8 @@ namespace Azos.Serialization.JSON
 
     /// <summary>
     /// Converts JSONMap into typed data document of the requested type.
-    /// The requested type must be derived from Azos.Data.TypedDoc.
-    /// The extra data found in JSON map will be placed in AmorphousData dictionary if the row implements IAmorphousData, discarded otherwise.
+    /// The requested type must be derived from <see cref="Azos.Data.TypedDoc"/>.
+    /// The extra data found in JSON map will be placed in AmorphousData dictionary if the doc implements IAmorphousData, discarded otherwise.
     /// Note: This method provides "the best match" and does not guarantee that all data will/can be converted from JSON, i.e.
     ///  it can only convert one dimensional arrays and Lists of either primitive or TypeRow-derived entries
     /// </summary>
@@ -187,7 +200,7 @@ namespace Azos.Serialization.JSON
     }
 
     /// <summary>
-    /// Generic version of ToDoc(Type...)/>
+    /// Generic version of ToDoc(Type...)
     /// </summary>
     /// <typeparam name="T">TypedDoc</typeparam>
     public static T ToDoc<T>(JsonDataMap jsonMap, bool fromUI = true, DocReadOptions? options = null) where T: TypedDoc
@@ -196,7 +209,7 @@ namespace Azos.Serialization.JSON
     }
 
     /// <summary>
-    /// Generic version of ToDoc(Type, JSONDataMap, DocReadOptions)/>
+    /// Generic version of ToDoc(Type, JSONDataMap, DocReadOptions)
     /// </summary>
     /// <typeparam name="T">TypedDoc</typeparam>
     public static T ToDoc<T>(string json, bool fromUI = true, DocReadOptions? options = null) where T : TypedDoc
@@ -207,8 +220,8 @@ namespace Azos.Serialization.JSON
 
 
     /// <summary>
-    /// Converts JSONMap into supplied row instance.
-    /// The extra data found in JSON map will be placed in AmorphousData dictionary if the row implements IAmorphousData, discarded otherwise.
+    /// Converts JSONMap into supplied data document instance.
+    /// The extra data found in JSON map will be placed in AmorphousData dictionary if the doc implements IAmorphousData, discarded otherwise.
     /// Note: This method provides "the best match" and does not guarantee that all data will/can be converted from JSON, i.e.
     ///  it can only convert one dimensional arrays and Lists of either primitive or TypeRow-derived entries
     /// </summary>
@@ -225,7 +238,7 @@ namespace Azos.Serialization.JSON
 
     /// <summary>
     /// Converts JSONMap into supplied row instance.
-    /// The extra data found in JSON map will be placed in AmorphousData dictionary if the row implements IAmorphousData, discarded otherwise.
+    /// The extra data found in JSON map will be placed in AmorphousData dictionary if the doc implements IAmorphousData, discarded otherwise.
     /// Note: This method provides "the best match" and does not guarantee that all data will/can be converted from JSON, i.e.
     ///  it can only convert one dimensional arrays and Lists of either primitive or TypeRow-derived entries
     /// </summary>
@@ -546,12 +559,11 @@ namespace Azos.Serialization.JSON
         var data = root as IJsonDataObject;
 
         if (data == null)
-          data = new JsonDataMap{{"value", root}};
+          data = new JsonDataMap{ {"value", root} };
 
         return data;
     }
 
     #endregion
-
   }
 }

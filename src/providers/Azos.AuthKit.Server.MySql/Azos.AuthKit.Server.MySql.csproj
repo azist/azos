@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <Description>Azos.AuthKit.Server.MySql - AuthKit implementations related t MySql backed store technology</Description>
   </PropertyGroup>
 
@@ -19,10 +19,14 @@
 
   <ItemGroup>
     <None Remove="Queries/**/*.sql" />
+    <None Remove="ddl/**/*.sql" />
+    <None Remove="bootstrap/**/*.sql" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Queries/**/*.sql" />
+    <EmbeddedResource Include="ddl/**/*.sql" />
+    <EmbeddedResource Include="bootstrap/**/*.sql" />
   </ItemGroup>
 
   <ItemGroup>

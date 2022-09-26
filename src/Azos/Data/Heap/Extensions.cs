@@ -25,7 +25,7 @@ namespace Azos.Data.Heap
     }
 
     public static async Task<T> GetAsync<T>(this IHeap heap, ObjectRef obj, INode node = null) where T : HeapObject
-      => await heap.GetSpace<T>().GetAsync(obj, node);
+      => await heap.GetSpace<T>().GetAsync(obj, node).ConfigureAwait(false);
 
 
     public static async Task<SaveResult<ChangeResult>> SetAsync<T>(this IHeap heap,
@@ -33,7 +33,7 @@ namespace Azos.Data.Heap
                                                                    WriteFlags flags = WriteFlags.None,
                                                                    Guid idempotencyToken = default(Guid),
                                                                    INode node = null) where T : HeapObject
-      => await heap.GetSpace<T>().SetAsync(instance, flags, idempotencyToken, node);
+      => await heap.GetSpace<T>().SetAsync(instance, flags, idempotencyToken, node).ConfigureAwait(false);
 
 
     public static async Task<SaveResult<ChangeResult>> DeleteAsync<T>(this IHeap heap,
@@ -41,17 +41,17 @@ namespace Azos.Data.Heap
                                                                       WriteFlags flags = WriteFlags.None,
                                                                       Guid idempotencyToken = default(Guid),
                                                                       INode node = null) where T : HeapObject
-      => await heap.GetSpace<T>().DeleteAsync(obj, flags, idempotencyToken, node);
+      => await heap.GetSpace<T>().DeleteAsync(obj, flags, idempotencyToken, node).ConfigureAwait(false);
 
 
     public static async Task<SaveResult<object>> ExecResultAsync(this IHeap heap, HeapRequest query, Guid idempotencyToken = default(Guid), INode node = null)
     {
       var atr = HeapAttribute.Lookup<HeapProcAttribute>(query.NonNull(nameof(query)).GetType());
       var area = heap.NonNull(nameof(heap))[atr.Area];
-      return await area.ExecuteAsync(query, idempotencyToken, node);
+      return await area.ExecuteAsync(query, idempotencyToken, node).ConfigureAwait(false);
     }
 
     public static async Task<T> ExecAsync<T>(this IHeap heap, HeapRequest<T> query, Guid idempotencyToken = default(Guid), INode node = null)
-      => (await ExecResultAsync(heap, query, idempotencyToken, node)).GetResult().CastTo<T>();
+      => (await ExecResultAsync(heap, query, idempotencyToken, node).ConfigureAwait(false)).GetResult().CastTo<T>();
   }
 }

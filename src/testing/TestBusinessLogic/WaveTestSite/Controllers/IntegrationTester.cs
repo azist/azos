@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-
+using System.Threading.Tasks;
 using Azos;
 using Azos.Data;
 using Azos.Security;
@@ -267,56 +267,57 @@ namespace WaveTestSite.Controllers
 
 
     [Action]
-    public void MultipartByteArray(string field, string text, byte[] bin)
+    public async Task MultipartByteArray(string field, string text, byte[] bin)
     {
       var fld = Encoding.UTF8.GetBytes(field);
       var txt = Encoding.UTF8.GetBytes(text);
-      var output = WorkContext.Response.GetDirectOutputStreamForWriting();
-      output.Write(fld, 0, fld.Length);
-      output.Write(txt, 0, txt.Length);
-      output.Write(bin, 0, bin.Length);
+      var output = await WorkContext.Response.GetDirectOutputStreamForWritingAsync();
+      await output.WriteAsync(fld, 0, fld.Length);
+      await output.WriteAsync(txt, 0, txt.Length);
+      await output.WriteAsync(bin, 0, bin.Length);
     }
 
     [Action]
-    public void MultipartMap(JsonDataMap map)
+    public async Task MultipartMap(JsonDataMap map)
     {
       var fld = Encoding.UTF8.GetBytes(map["field"].AsString());
       var txt = Encoding.UTF8.GetBytes(map["text"].AsString());
       var bin = map["bin"] as byte[];
-      var output = WorkContext.Response.GetDirectOutputStreamForWriting();
-      output.Write(fld, 0, fld.Length);
-      output.Write(txt, 0, txt.Length);
-      output.Write(bin, 0, bin.Length);
+      var output = await WorkContext.Response.GetDirectOutputStreamForWritingAsync();
+      await output.WriteAsync(fld, 0, fld.Length);
+      await output.WriteAsync(txt, 0, txt.Length);
+      await output.WriteAsync(bin, 0, bin.Length);
     }
 
     [Action]
-    public void MultipartRow(MultipartTestDoc doc)
+    public async Task MultipartRow(MultipartTestDoc doc)
     {
       var fld = Encoding.UTF8.GetBytes(doc.Field);
       var txt = Encoding.UTF8.GetBytes(doc.Text);
       var bin = doc.Bin;
-      var output = WorkContext.Response.GetDirectOutputStreamForWriting();
-      output.Write(fld, 0, fld.Length);
-      output.Write(txt, 0, txt.Length);
-      output.Write(bin, 0, bin.Length);
+      var output = await WorkContext.Response.GetDirectOutputStreamForWritingAsync();
+      await output.WriteAsync(fld, 0, fld.Length);
+      await output.WriteAsync(txt, 0, txt.Length);
+      await output.WriteAsync(bin, 0, bin.Length);
     }
 
     [Action]
-    public void MultipartStream(string field, string text, Stream bin)
+    public async Task MultipartStream(string field, string text, Stream bin)
     {
       var fld = Encoding.UTF8.GetBytes(field);
       var txt = Encoding.UTF8.GetBytes(text);
-      var output = WorkContext.Response.GetDirectOutputStreamForWriting();
-      output.Write(fld, 0, fld.Length);
-      output.Write(txt, 0, txt.Length);
+      var output = await WorkContext.Response.GetDirectOutputStreamForWritingAsync();
+      await output.WriteAsync(fld, 0, fld.Length);
+      await output.WriteAsync(txt, 0, txt.Length);
       bin.CopyTo(output);
     }
 
     [Action]
-    public void MultipartEncoding(string field)
+    public async Task MultipartEncoding(string field)
     {
       var fld = Encoding.GetEncoding(1251).GetBytes(field);
-      WorkContext.Response.GetDirectOutputStreamForWriting().Write(fld, 0, fld.Length);
+      var stream = await WorkContext.Response.GetDirectOutputStreamForWritingAsync();
+      await stream.WriteAsync(fld, 0, fld.Length);
     }
 
     //protected override System.Reflection.MethodInfo FindMatchingAction(Azos.Wave.WorkContext work, string action, out object[] args)

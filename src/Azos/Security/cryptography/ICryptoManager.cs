@@ -152,6 +152,13 @@ namespace Azos.Security
 
   public interface ICryptoManagerImplementation : ICryptoManager, IDisposable, IConfigurable, IInstrumentable, IDaemon
   {
+    /// <summary>
+    /// Tries to register algorithm with the manager returning true if algorithm was added,
+    /// false if the manager already has an algorithm with such name
+    /// </summary>
+    bool RegisterAlgorithm(ICryptoMessageAlgorithmImplementation algorithm);
+    bool UnregisterAlgorithm(string name);
+    bool UnregisterAlgorithm(ICryptoMessageAlgorithmImplementation algorithm);
   }
 
 

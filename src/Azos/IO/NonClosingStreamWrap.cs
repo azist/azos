@@ -95,8 +95,5 @@ namespace Azos.IO
     {
       Target.Write(buffer, offset, count);
     }
-
-
-
   }
 }

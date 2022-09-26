@@ -19,6 +19,7 @@ namespace Azos.Tools.Gluec
     /// <summary>
     /// Glue compiler tool entry point
     /// </summary>
+    [Platform.ProcessActivation.ProgramBody("gluec", Description = "Glue compiler")]
     public static class ProgramBody
     {
         public static void Main(string[] args)

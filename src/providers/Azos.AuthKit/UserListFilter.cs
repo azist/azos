@@ -23,8 +23,11 @@ namespace Azos.AuthKit
   [Schema(Description = "Describes filter form object for user account search")]
   public sealed class UserListFilter : FilterModel<IEnumerable<UserInfo>>
   {
-    [Field(required: true, description: @"User realm - required value")]
-    public Atom Realm { get; set; }
+    /// <summary>
+    /// Realm is an implicit ambient context which drives security checks,
+    /// therefore here we provide a convenience accessor only.
+    /// </summary>
+    public Atom Realm => Ambient.CurrentCallSession.GetAtomDataContextName();
 
     [Field(description: @"User GDID (immutable primary key)")]
     public GDID Gdid { get; set; }

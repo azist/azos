@@ -28,6 +28,7 @@ namespace Azos.Security.MinIdp.Instrumentation
     [Config] public string Name { get; set; }
     [Config] public string Description { get; set; }
     [Config] public string Note { get; set; }
+    [Config] public string Props { get; set; }
 
 
     public override ExternalCallResponse Describe()
@@ -47,6 +48,7 @@ namespace Azos.Security.MinIdp.Instrumentation
     Name='name'//string
     Description='descr'//string
     Note='note text'//string
+    Props='{r: {claims: [{""license.plate"",""EWT-2233""},{""vin"",""b82W2437A578BC5123""}]}}'
   }
 ```");
 
@@ -75,6 +77,12 @@ namespace Azos.Security.MinIdp.Instrumentation
         if (Note.Length > BsonDataModel.MAX_NOTE_LEN) throw new CallGuardException(GetType().Name, "Note", "`$Note` is over {0}".Args(BsonDataModel.MAX_NOTE_LEN)) { Code = -2007 };
       }
       else Note = string.Empty;
+
+      if (Props.IsNotNullOrWhiteSpace())
+      {
+        if (Props.Length > BsonDataModel.MAX_PROPS_LEN) throw new CallGuardException(GetType().Name, "Props", "`$Props` is over {0}".Args(BsonDataModel.MAX_PROPS_LEN)) { Code = -2008 };
+      }
+      else Props = string.Empty;
     }
 
     protected override object ExecuteBody()
@@ -93,6 +101,7 @@ namespace Azos.Security.MinIdp.Instrumentation
         user.Set(new BSONStringElement(BsonDataModel.FLD_NAME, Name));
         user.Set(new BSONStringElement(BsonDataModel.FLD_DESCRIPTION, Description));
         user.Set(new BSONStringElement(BsonDataModel.FLD_NOTE, Note));
+        user.Set(new BSONStringElement(BsonDataModel.FLD_PROPS, Props));
 
         var cr = cusr.Save(user);
         Aver.IsNull(cr.WriteErrors, cr.WriteErrors?.FirstOrDefault().Message);

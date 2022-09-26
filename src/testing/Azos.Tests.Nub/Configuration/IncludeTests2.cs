@@ -8,6 +8,7 @@ using Azos.Apps;
 using Azos.Conf;
 using Azos.Data;
 using Azos.Scripting;
+using System.Linq;
 
 namespace Azos.Tests.Nub.Configuration
 {
@@ -65,16 +66,168 @@ namespace Azos.Tests.Nub.Configuration
       Aver.AreEqual(-2, cfg["SectionB"].ValOf("b").AsInt());
     }
 
+
+    [Run]
+    public void ProcessAppIncludesWithOverrides_01()
+    {
+      var cfg = @"app
+      {
+        process-includes=--include
+        --include
+        {
+          name=""SectionA""
+          override=true //<------------------
+          provider{ type='Azos.Tests.Nub.Configuration.IncludeTests2+CustomProviderWithSections, Azos.Tests.Nub'}
+        }
+
+        --include
+        {
+          override=true //<-----------------------------------
+          provider{ type='Azos.Tests.Nub.Configuration.IncludeTests2+CustomProviderWithSections, Azos.Tests.Nub'}
+        }
+
+        a=7
+        b=8
+        sub-a{ }
+      }".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
+
+      //When injecting config from the .ctor the process includes is not applied automatically
+      CommonApplicationLogic.ProcessAllExistingConfigurationIncludes(cfg);
+
+      cfg.ToLaconicString().See();
+
+      Aver.IsTrue(cfg["SectionA"].Exists);
+      Aver.AreEqual(1, cfg["SectionA"].ValOf("a").AsInt());
+      Aver.AreEqual(-2, cfg["SectionA"].ValOf("b").AsInt());
+
+      Aver.AreEqual(1, cfg.ValOf("a").AsInt());
+      Aver.AreEqual(-2, cfg.ValOf("b").AsInt());
+
+      Aver.AreEqual(1, cfg["sub-a"].ValOf("x").AsInt());
+      Aver.AreEqual(1, cfg.ChildrenNamed("sub-a").Count());
+      Aver.AreEqual(2, cfg["sub-b"].ValOf("x").AsInt());
+      Aver.AreEqual(900, cfg["sub-c"]["sub-c-a"].ValOf("z").AsInt());
+    }
+
+    [Run]
+    public void ProcessAppIncludesWithOverrides_02()
+    {
+      var cfg = @"app
+      {
+        process-includes=--include
+
+        --include
+        {
+          override=true //<-----------------------------------
+          provider{ type='Azos.Tests.Nub.Configuration.IncludeTests2+CustomProviderWithSections, Azos.Tests.Nub'}
+        }
+
+        a=7
+        b=8
+        sub-a{ name=i1 }
+        sub-a{ name=i2 }
+      }".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
+
+      //When injecting config from the .ctor the process includes is not applied automatically
+      CommonApplicationLogic.ProcessAllExistingConfigurationIncludes(cfg);
+
+      cfg.ToLaconicString().See();
+
+      Aver.AreEqual(1, cfg.ValOf("a").AsInt());
+      Aver.AreEqual(-2, cfg.ValOf("b").AsInt());
+
+      Aver.AreEqual(3, cfg.ChildrenNamed("sub-a").Count());
+      Aver.AreEqual(-555, cfg.ChildrenNamed("sub-a").Skip(0).First().ValOf("x").AsInt(-555));
+      Aver.AreEqual(-555, cfg.ChildrenNamed("sub-a").Skip(1).First().ValOf("x").AsInt(-555));
+      Aver.AreEqual(1, cfg.ChildrenNamed("sub-a").Skip(2).First().ValOf("x").AsInt(-555));
+      Aver.AreEqual(2, cfg["sub-b"].ValOf("x").AsInt());
+      Aver.AreEqual(900, cfg["sub-c"]["sub-c-a"].ValOf("z").AsInt());
+    }
+
+    [Run]
+    public void ProcessAppIncludesWithOverrides_03()
+    {
+      var cfg = @"app
+      {
+        process-includes=--include
+
+        --include
+        {
+          pre-process-all-includes=true //<=================
+          provider{ type='Azos.Tests.Nub.Configuration.IncludeTests2+CustomProvider_1, Azos.Tests.Nub' }
+        }
+
+        --include
+        {
+          override=true //<-----------------------------------
+          provider{ type='Azos.Tests.Nub.Configuration.IncludeTests2+CustomProvider_3, Azos.Tests.Nub' override=true}
+        }
+      }".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
+
+      //When injecting config from the .ctor the process includes is not applied automatically
+      CommonApplicationLogic.ProcessAllExistingConfigurationIncludes(cfg);
+
+      cfg.ToLaconicString().See();
+
+      var machine = cfg["machine"];
+
+      Aver.IsTrue(machine.Exists);
+      Aver.AreEqual(1, machine.ValOf("x").AsInt());
+      Aver.AreEqual(3, machine.ValOf("x3").AsInt());
+
+      var sub = machine["sub"];
+      Aver.AreEqual(2, sub.ValOf("y").AsInt());
+      Aver.AreEqual(3, sub.ValOf("z").AsInt());
+    }
+
+
     public class CustomProvider : IConfigNodeProvider
     {
       public void Configure(IConfigSectionNode node) { }
-
       public ConfigSectionNode ProvideConfigNode(object context = null)
       {
         return @"root{ a=1 b=-2 }".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
       }
-
     }
+
+    public class CustomProviderWithSections : IConfigNodeProvider
+    {
+      public void Configure(IConfigSectionNode node) { }
+      public ConfigSectionNode ProvideConfigNode(object context = null)
+      {
+        return @"root{ a=1 b=-2 sub-a{ x=1 } sub-b{ x=2 } sub-c{ sub-c-a{ z=900 } } }".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
+      }
+    }
+
+
+    public class CustomProvider_1 : IConfigNodeProvider
+    {
+      public void Configure(IConfigSectionNode node) { }
+      public ConfigSectionNode ProvideConfigNode(object context = null)
+      {
+        return @"root{ machine{ x=1 --include { provider{ type='Azos.Tests.Nub.Configuration.IncludeTests2+CustomProvider_2, Azos.Tests.Nub'}  }   } }".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
+      }
+    }
+
+    public class CustomProvider_2 : IConfigNodeProvider
+    {
+      public void Configure(IConfigSectionNode node) { }
+      public ConfigSectionNode ProvideConfigNode(object context = null)
+      {
+        return @"tree{ sub{ y=2 } }".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
+      }
+    }
+
+    public class CustomProvider_3 : IConfigNodeProvider
+    {
+      public void Configure(IConfigSectionNode node) { }
+      public ConfigSectionNode ProvideConfigNode(object context = null)
+      {
+        return @"root{ machine{ x3=3  sub{ z=3 } }}".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
+      }
+    }
+
+
 
     [Run]
     public void ProcessAppIncludeCopies()

@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Azos.Wave.Mvc
 {
@@ -105,62 +106,89 @@ namespace Azos.Wave.Mvc
       ///  return result via 'out result' parameter.
       ///  The default implementation calls ActionFilters
       /// </summary>
-      protected internal virtual bool BeforeActionInvocation(WorkContext work, string action, MethodInfo method, object[] args, ref object result)
+      protected internal virtual async ValueTask<(bool, object)> BeforeActionInvocationAsync(WorkContext work, string action, MethodInfo method, object[] args, object result)
       {
-          //1 Class-level
-          var filters = GetActionFilters(GetType());
-          if (filters!=null)
-           for(var i=0; i<filters.Length; i++)
-            if (filters[i].BeforeActionInvocation(this, work, action, method, args, ref result)) return true;
+        bool handled;
 
-          //2 Method Level
-          filters = GetActionFilters(method);
-          if (filters!=null)
-           for(var i=0; i<filters.Length; i++)
-            if (filters[i].BeforeActionInvocation(this, work, action, method, args, ref result)) return true;
+        //1 Class-level
+        var filters = GetActionFilters(GetType());
+        if (filters!=null)
+        {
+          foreach(var filter in filters)
+          {
+            (handled, result) = await filter.BeforeActionInvocationAsync(this, work, action, method, args, result).ConfigureAwait(false);
+            if (handled) return (true, result);
+          }
+        }
 
-          result = null;
-          return false;
+        //2 Method Level
+        filters = GetActionFilters(method);
+        if (filters != null)
+        {
+          foreach (var filter in filters)
+          {
+            (handled, result) = await filter.BeforeActionInvocationAsync(this, work, action, method, args, result).ConfigureAwait(false);
+            if (handled) return (true, result);
+          }
+        }
+
+        return (false, null);
       }
 
       /// <summary>
       /// Override to add logic/filtering right after the invocation of action method. Must return the result (which can be altered/filtered).
       /// The default implementation calls ActionFilters
       /// </summary>
-      protected internal virtual object AfterActionInvocation(WorkContext work, string action, MethodInfo method, object[] args, object result)
+      protected internal virtual async ValueTask<(bool, object)> AfterActionInvocationAsync(WorkContext work, string action, MethodInfo method, object[] args, object result)
       {
-         //1 Method Level
-         var filters = GetActionFilters(method);
-         if (filters!=null)
-           for(var i=filters.Length-1; i>=0; i--)
-            if (filters[i].AfterActionInvocation(this, work, action, method, args, ref result)) return result;
+        bool handled;
 
-         //2 Class Level
-         filters = GetActionFilters(GetType());
-         if (filters!=null)
-           for(var i=filters.Length-1; i>=0; i--)
-            if (filters[i].AfterActionInvocation(this, work, action, method, args, ref result)) return result;
+        //1 Method Level
+        var filters = GetActionFilters(method);
+        if (filters!=null)
+        {
+          for(var i=filters.Length-1; i>=0; i--)
+          {
+            var filter = filters[i];
+            (handled, result) = await filter.AfterActionInvocationAsync(this, work, action, method, args, result).ConfigureAwait(false);
+            if (handled) return (true, result);
+          }
+        }
 
-         return result;
+        //2 Class Level
+        filters = GetActionFilters(GetType());
+        if (filters != null)
+        {
+          for (var i = filters.Length - 1; i >= 0; i--)
+          {
+            var filter = filters[i];
+            (handled, result) = await filter.AfterActionInvocationAsync(this, work, action, method, args, result).ConfigureAwait(false);
+            if (handled) return (true, result);
+          }
+        }
+
+        return (false, result);
       }
 
 
       /// <summary>
       /// Override to add logic/filtering finally after the invocation of action method
       /// </summary>
-      protected internal virtual void ActionInvocationFinally(WorkContext work, string action, MethodInfo method, object[] args, object result)
+      protected internal virtual async ValueTask<object> ActionInvocationFinally(WorkContext work, string action, MethodInfo method, object[] args, object result)
       {
          //1 Method Level
          var filters = GetActionFilters(method);
          if (filters!=null)
            for(var i=filters.Length-1; i>=0; i--)
-             filters[i].ActionInvocationFinally(this, work, action, method, args, ref result);
+             result = await filters[i].ActionInvocationFinallyAsync(this, work, action, method, args, result);
 
          //2 Class Level
          filters = GetActionFilters(GetType());
          if (filters!=null)
            for(var i=filters.Length-1; i>=0; i--)
-             filters[i].ActionInvocationFinally(this, work, action, method, args, ref result);
+             result = await filters[i].ActionInvocationFinallyAsync(this, work, action, method, args, result);
+
+         return result;
       }
 
   }

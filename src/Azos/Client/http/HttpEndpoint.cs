@@ -22,7 +22,7 @@ namespace Azos.Client
   public class HttpEndpoint : EndpointBase<HttpService>, IHttpEndpoint
   {
     /// <summary>
-    /// Implements internal HttpClient wrapper which supports various aspects (e.g. IDistributedCallFlowAspect)
+    /// Implements internal HttpClient wrapper which supports various aspects (e.g. IAuthImpersonationAspect, IDistributedCallFlowAspect etc.)
     /// </summary>
     internal class ClientWithAspects : HttpClient, WebCallExtensions.IDistributedCallFlowAspect, WebCallExtensions.IAuthImpersonationAspect
     {
@@ -36,10 +36,23 @@ namespace Azos.Client
       public DistributedCallFlow GetDistributedCallFlow()
         => Endpoint.EnableDistributedCallFlow ? ExecutionContext.CallFlow as DistributedCallFlow : null;
 
-      public string GetAuthImpersonationHeader()
+      public async Task<string> GetAuthImpersonationHeaderAsync(Func<object> fGetIdentityContext)
       {
         if (!Endpoint.AuthImpersonate) return null;//turned off
-        return Ambient.CurrentCallUser.MakeSysTokenAuthHeader().Value;
+
+        var aspectName = Endpoint.AuthAspectName;
+
+        if (aspectName.IsNullOrWhiteSpace())//Use SYS TOKEN
+        {
+          return Ambient.CurrentCallUser.MakeSysTokenAuthHeader().Value;
+        }
+
+        //Use ASPECT
+        var aspect = Endpoint.TryGetAspect<IHttpAuthAspect>(aspectName);
+        aspect.NonNull("IHttpAuthApsect: " + aspectName);
+        var identityContext = fGetIdentityContext != null ? fGetIdentityContext() : null;
+        var result = await aspect.ObtainAuthorizationHeaderAsync(Endpoint, identityContext).ConfigureAwait(false);
+        return result;
       }
     }
 
@@ -99,11 +112,17 @@ namespace Azos.Client
     public string AuthHeader { get; internal set; }
 
     /// <summary>
-    /// When set to true, attaches Authorization header with `SysToken` scheme and sysAuthToken content, overriding
-    /// the AuthHeader value (if any)
+    /// When set to true, attaches Authorization header either with `SysToken` scheme and sysAuthToken content, overriding
+    /// the AuthHeader value (if any); OR if HttpAuthAspectName is set delegates header value acquisition to that named aspect instance
     /// </summary>
     [Config]
     public bool AuthImpersonate { get; internal set; }
+
+    /// <summary>
+    /// When set, enables acquisition of AUTH header value from IHttpAuthAspect with the specified name
+    /// </summary>
+    [Config]
+    public string AuthAspectName { get; internal set; }
 
     /// <summary>
     /// When set, overrides the standard HTTP `Authorization` header name when impersonation is used

@@ -1,0 +1,20 @@
+﻿sky
+{
+  load-from{ path="./" } //load dlls from current working directory
+  //load-from{path="/opt/bin/sky/bin"} //load dlls from custom location
+
+  assembly
+  {
+    file="*Azos.Tools.dll"
+    file="*Azos.Sky.Server.dll"
+    //exclude-file="*.dll"
+
+    types="*"
+    //exclude-types="Namespace.*.Type"
+  }
+
+  assembly
+  {
+    file="*TestBusinessLogic.dll"  types="*"
+  }
+}

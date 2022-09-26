@@ -19,9 +19,12 @@ namespace Azos
     public const string FLOW_NO_REF_CYCLES_VIOLATION_ERROR = "State machine '{0}' caused violation of NoRefCycles constraint. Most likely the object graph has cycles which are either not supported or the operation body failed to check for presence of the reference in the set";
 
     public const string APP_SET_MEMORY_MODEL_ERROR =
-      "The App.SetMemoryModel() method must be called at process entry point before the app container allocation";
+      "The Ambient.SetMemoryModel() method must be called at process entry point before the app container allocation";
 
-        public const string OBJECT_DISPOSED_ERROR =
+    public const string APP_SET_PROCESS_NAME_ERROR =
+      "The Ambient.SetProcessName() method must be called at process entry point before the app container allocation";
+
+    public const string OBJECT_DISPOSED_ERROR =
             "Object '{0}' instance was already disposed";
 
         public const string OBJECT_WAS_NOT_DETERMINISTICALLY_DISPOSED_ERROR =
@@ -467,7 +470,7 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
         "Guarded method '{0}' clause '{1}' may not be type cast to '{2}'";
 
     public const string GUARDED_CONFIG_NODE_CLAUSE_MAY_NOT_BE_EMPTY_ERROR =
-        "Guarded method '{0}' config node clause '{1}' may not be null or empty";
+        "Guarded method '{0}' config node clause '{1}' may not be null or empty but it is not defined in the supplied config context";
 
     public const string GUARDED_STRING_CLAUSE_MAY_NOT_BE_BLANK_ERROR =
         "Guarded method '{0}' string clause '{1}' may not be null or blank/whitespace";
@@ -483,6 +486,9 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
 
     public const string GUARDED_CLAUSE_CONDITION_ERROR =
         "Guarded method '{0}' clause '{1}' failed condition check";
+
+    public const string GUARDED_CLAUSE_VALIDATION_ERROR =
+        "Guarded method '{0}' clause '{1}' failed validation check: {2}";
 
     public const string STREAM_READ_EOF_ERROR =
         "Stream EOF before operation could complete: ";
@@ -1074,6 +1080,8 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string HTTP_CLIENT_CALL_FAILED = "Call to {0} on `{1}` eventually failed; {2} endpoints tried; See .InnerException";
 
     public const string HTTP_CLIENT_CALL_ASSIGMENT_ERROR = "HttpService .Call() can not be made due to invalid endpoint assignments: {0}";
+
+    public const string HTTP_CLIENT_DUPLICATE_ASPECT_CONFIG_ERROR = "Duplicate named aspect `{0}` on `{1}`";
 
     public const string WEB_CALL_RETURN_JSONMAP_ERROR = "The received content is not representable as JsonDataMap: '{0}..'";
     public const string WEB_CALL_UNSUCCESSFUL_ERROR = "Web call to `...{0}` was unsuccessful: HTTP {1} - {2}";

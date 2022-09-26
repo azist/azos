@@ -29,16 +29,10 @@ namespace Azos.AuthKit
                                                 Constraints.ETP_LOGIN,
                                                 Constraints.SCH_GDID, Gdid.ToString());
     /// <summary>
-    /// User login realm set only on insert. Must be null/not supplied for update
-    /// </summary>
-    [Field(required: true, Description = "User login realm set only on insert. Must be null/not supplied for update")]
-    public Atom? Realm { get; set; }
-
-    /// <summary>
     /// User account Gdid
     /// </summary>
     [Field(required: true, Description = "User login Gdid")]
-    public GDID UserId { get; set; }
+    public GDID G_User { get; set; }
 
     /// <summary>
     /// Login access level demotion (level down)
@@ -80,7 +74,7 @@ namespace Azos.AuthKit
     /// When login privilege takes effect
     /// </summary>
     [Field(required: true, Description = "When login privilege takes effect")]
-    public DateRange ValidSpanUtc { get; set; }
+    public DateRange? ValidSpanUtc { get; set; }
 
     /// <summary>
     /// Properties such as tree connections (e.g. roles) and claims
@@ -98,6 +92,21 @@ namespace Azos.AuthKit
            Description = "Login-specific Rights override or null for default rights")]
     public ConfigVector Rights { get; set; }
 
+    /// <inheritdoc/>
+    public override ValidState Validate(ValidState state, string scope = null)
+    {
+      state = base.Validate(state, scope);
+
+      if (state.ShouldContinue)
+      {
+        if (ValidSpanUtc.HasValue && (!ValidSpanUtc.Value.Start.HasValue || !ValidSpanUtc.Value.End.HasValue))
+          state = new ValidState(state, new FieldValidationException(nameof(ValidSpanUtc), "Either Start/End unassigned"));
+      }
+
+      return state;
+    }
+
+    /// <inheritdoc/>
     protected override async Task<ValidState> DoAfterValidateOnSaveAsync(ValidState state)
     {
       var result = await base.DoAfterValidateOnSaveAsync(state).ConfigureAwait(false);
@@ -105,20 +114,10 @@ namespace Azos.AuthKit
 
       state = await m_SaveLogic.ValidateLoginAsync(this, state).ConfigureAwait(false);
 
-      if (FormMode == FormMode.Update)
-      {
-        if (Realm.HasValue && !Realm.Value.IsZero)
-        {
-          return new ValidState(state, new FieldValidationException(this, nameof(Realm),
-             "`Realm` field value may not be provided for entity UPDATES as it is immutable. " +
-             "If you are trying to re-use the same `UserEtity` instance for an update, " +
-             "set its `Realm` field value to null first to signify the intent"));
-        }
-      }
-
       return result;
     }
 
+    /// <inheritdoc/>
     protected override async Task<ChangeResult> SaveBody(IIdpUserCoreLogic logic)
      => await logic.SaveLoginAsync(this).ConfigureAwait(false);
   }

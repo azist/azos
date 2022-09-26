@@ -29,12 +29,6 @@ namespace Azos.AuthKit
                                                 Constraints.ETP_USER,
                                                 Constraints.SCH_GDID, Gdid.ToString());
     /// <summary>
-    /// User account realm set only on insert. Must be null/not supplied for update
-    /// </summary>
-    [Field(required: true, Description = "User account realm set only on insert. Must be null/not supplied for update")]
-    public Atom? Realm { get; set; }
-
-    /// <summary>
     /// Name/(Screen Name)/Uri//Title of user account unique per realm
     /// </summary>
     [Field(required: true,
@@ -94,7 +88,21 @@ namespace Azos.AuthKit
            Description = "Free form text notes associated with the account")]
     public string Note { get; set; }
 
+    /// <inheritdoc/>
+    public override ValidState Validate(ValidState state, string scope = null)
+    {
+      state = base.Validate(state, scope);
 
+      if (state.ShouldContinue)
+      {
+        if (ValidSpanUtc.HasValue && (!ValidSpanUtc.Value.Start.HasValue || !ValidSpanUtc.Value.End.HasValue))
+          state = new ValidState(state, new FieldValidationException(nameof(ValidSpanUtc), "Either Start/End unassigned"));
+      }
+
+      return state;
+    }
+
+    /// <inheritdoc/>
     protected override async Task<ValidState> DoAfterValidateOnSaveAsync(ValidState state)
     {
       var result = await base.DoAfterValidateOnSaveAsync(state).ConfigureAwait(false);
@@ -102,20 +110,10 @@ namespace Azos.AuthKit
 
       state = await m_SaveLogic.ValidateUserAsync(this, state).ConfigureAwait(false);
 
-      if (FormMode == FormMode.Update)
-      {
-        if (Realm.HasValue && !Realm.Value.IsZero)
-        {
-          return new ValidState(state, new FieldValidationException(this, nameof(Realm),
-             "`Realm` field value may not be provided for entity UPDATES as it is immutable. " +
-             "If you are trying to re-use the same `UserEtity` instance for an update, " +
-             "set its `Realm` field value to null first to signify the intent"));
-        }
-      }
-
       return result;
     }
 
+    /// <inheritdoc/>
     protected override async Task<ChangeResult> SaveBody(IIdpUserCoreLogic logic)
      => await logic.SaveUserAsync(this).ConfigureAwait(false);
   }

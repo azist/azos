@@ -35,6 +35,8 @@ namespace Azos.Conf
     public const string CONFIG_INCLUDE_PRAGMA_FILE_ATTR = "file";
     public const string CONFIG_INCLUDE_PRAGMA_REQUIRED_ATTR = "required";
     public const string CONFIG_INCLUDE_PRAGMA_COPY_ATTR = "copy";
+    public const string CONFIG_INCLUDE_PRAGMA_OVERRIDE_ATTR = "override";
+    public const string CONFIG_INCLUDE_PRAGMA_PREPROCESS_ALL_INCLUDES_ATTR = "pre-process-all-includes";
 
     public const string DEFAULT_VAR_ESCAPE = "$(###)";
     public const string DEFAULT_VAR_START = "$(";
@@ -583,7 +585,7 @@ namespace Azos.Conf
     /// Existing node is deleted after this operation completes, in its place child nodes from other node are inserted
     /// preserving their existing order. Attributes of other node get merged into parent of existing node
     /// </summary>
-    public void Include(ConfigSectionNode existing, ConfigSectionNode other)
+    public void Include(ConfigSectionNode existing, ConfigSectionNode other, bool isOverride = false, NodeOverrideRules overrideRules = null)
     {
       if (!Root.Exists) return;
 
@@ -602,7 +604,7 @@ namespace Azos.Conf
       if (existing == Root)
         throw new ConfigException(StringConsts.CONFIGURATION_CAN_NOT_INCLUDE_INSTEAD_OF_ROOT_ERROR.Args(other.RootPath));
 
-      existing.include(other);
+      existing.include(other, isOverride, overrideRules);
     }
 
     /// <summary>

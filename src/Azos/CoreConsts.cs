@@ -13,6 +13,11 @@ namespace Azos
   /// </summary>
   public static class CoreConsts
   {
+    /// <summary>
+    /// SKY_HOME environment variable holds SKY root install path
+    /// </summary>
+    public const string SKY_HOME = "SKY_HOME";
+
     public const string NULL_STRING = "<null>";
 
     public const int ABS_HASH_MASK = 0x7FFFFFFF;
@@ -31,6 +36,8 @@ namespace Azos
     public const string ENVIRONMENT_LOCAL = "local";
     public const string ENVIRONMENT_DEV = "dev";
     public const string ENVIRONMENT_PROD = "prod";
+
+    public const string DEFAULT_DATA_CONTEXT_HEADER = "wv-data-ctx";
 
     public static readonly string[] ENVIRONMENTS_DEVELOPER = {ENVIRONMENT_DEV, ENVIRONMENT_LOCAL, "devel", "development", "localhost", "loc"};
 

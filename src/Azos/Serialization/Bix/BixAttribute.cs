@@ -21,4 +21,28 @@ namespace Azos.Serialization.Bix
   {
     public BixAttribute(string typeGuid) : base(typeGuid){ }
   }
+
+
+  /// <summary>
+  /// Provides a name for data document field (class property) to be included in Bix serialization/deserialization.
+  /// A field name is an Atom. If you omit the attribute on a doc prop declaration, or pass null then
+  /// the data doc field is effectively excused from Bix
+  /// </summary>
+  [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
+  public sealed class BixasAttribute : Attribute
+  {
+    public BixasAttribute(string fieldNameAtom)
+    {
+      try
+      {
+        FieldName = Atom.Encode(fieldNameAtom);
+      }
+      catch(Exception error)
+      {
+        throw new BixException("Invalid attr spec [{0}(`{1}`)]".Args(nameof(BixasAttribute), fieldNameAtom.TakeFirstChars(32, "...")), error);
+      }
+    }
+
+    public readonly Atom FieldName;
+  }
 }

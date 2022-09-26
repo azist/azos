@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "sky": {
+      "commandName": "Project",
+      "commandLineArgs": "toy wave -config toy-wave2.laconf"
+    }
+  }
+}

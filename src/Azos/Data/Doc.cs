@@ -216,7 +216,7 @@ namespace Azos.Data
     #region Public
 
     /// <summary>
-    /// In base class applies Config attribute. Useful for typed rows
+    /// In base class applies Config attribute. Useful for typed data documents
     /// </summary>
     public virtual void Configure(IConfigSectionNode node)
     {
@@ -224,15 +224,15 @@ namespace Azos.Data
     }
 
     /// <summary>
-    /// The base class does not implement this method. Override to persist row fields into config node
+    /// The base class does not implement this method. Override to persist doc fields into config node
     /// </summary>
-    public virtual void PersistConfiguration(ConfigSectionNode node)
+    public virtual ConfigSectionNode PersistConfiguration(ConfigSectionNode parentNode, string name)
     {
-      throw new NotImplementedException();
+      return ConfigAttribute.BuildNode(this, parentNode, name);
     }
 
     /// <summary>
-    /// Override to perform custom row equality comparison.
+    /// Override to perform custom doc equality comparison.
     /// Default implementation equates rows using their key fields
     /// </summary>
     public virtual bool Equals(Doc other)
@@ -245,6 +245,7 @@ namespace Azos.Data
         var obj1 = this[fdef.Order];
         var obj2 = other[fdef.Order];
         if (obj1 == null && obj2 == null) continue;
+        if (obj1 == null || obj2 == null) return false;
         if (!obj1.Equals(obj2)) return false;
       }
 

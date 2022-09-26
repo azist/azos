@@ -103,7 +103,9 @@ namespace Azos.IO.Console
       {
         if (m_Aborted) return;
         m_Line = line;
+#pragma warning disable SYSLIB0006 // Type or member is obsolete
         m_Thread.Abort();
+#pragma warning restore SYSLIB0006 // Type or member is obsolete
         m_Aborted = true;
       }
 

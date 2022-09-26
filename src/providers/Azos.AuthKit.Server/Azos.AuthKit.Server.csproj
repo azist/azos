@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <Description>Azos.AuthKit - IDP/Authorization Server</Description>
   </PropertyGroup>
 
@@ -19,9 +19,7 @@
 
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Azos.Sky\Azos.Sky.csproj" />
     <ProjectReference Include="..\..\Azos.Wave\Azos.Wave.csproj" />
-    <ProjectReference Include="..\..\Azos.Web\Azos.Web.csproj" />
     <ProjectReference Include="..\Azos.AuthKit\Azos.AuthKit.csproj" />
   </ItemGroup>
 

@@ -20,6 +20,8 @@ using Azos.Data;
 
 using WaveTestSite.Pages;
 using Azos.Serialization.Bix;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace WaveTestSite.Controllers
 {
@@ -29,6 +31,20 @@ namespace WaveTestSite.Controllers
   [ApiControllerDoc(BaseUri ="/mvc/tester", Title = "Tester", Description ="Testing controller")]
   public class Tester : Controller
   {
+      [Action]
+      public object Story(bool buffered = false, int len = 500)
+      {
+        WorkContext.Response.Buffered = buffered;
+        return Azos.Text.NaturalTextGenerator.Generate(len.KeepBetween(1, 128*1024));
+      }
+
+      [Action]
+      public Task<object> StoryAsync(bool buffered = false, int len = 500)
+      {
+        WorkContext.Response.Buffered = buffered;
+        return Task.FromResult<object>(Azos.Text.NaturalTextGenerator.Generate(len.KeepBetween(1, 128 * 1024)));
+      }
+
       [Action, ApiEndpointDoc]
       public object AboutUs()
       {
@@ -37,7 +53,7 @@ namespace WaveTestSite.Controllers
 
 
       [Action, ApiEndpointDoc]
-      public void SlowImage(string url, int dbDelayMs = 100, int netDelayMs = 0)
+      public async Task SlowImage(string url, int dbDelayMs = 100, int netDelayMs = 0)
       {
         WorkContext.Response.ContentType = Azos.Web.ContentType.JPEG;
         WorkContext.Response.SetCacheControlHeaders(Azos.Web.CacheControl.PrivateMaxAgeSec(2), false);
@@ -46,7 +62,7 @@ namespace WaveTestSite.Controllers
         Thread.Sleep(dbDelayMs);
 
         // get image from url or make random image
-        var stream = WorkContext.Response.GetDirectOutputStreamForWriting();
+        var stream = await WorkContext.Response.GetDirectOutputStreamForWritingAsync();
         using (var image = string.IsNullOrWhiteSpace(url) ? makeRandomImage() : downloadImage(url))
         {
           var buffer = new byte[255];
@@ -69,9 +85,9 @@ namespace WaveTestSite.Controllers
       [Action, ApiEndpointDoc]
       public object Zekret()
       {
-        var cookie = new Cookie("ZEKRET","Hello");
+        var cookie = new CookieOptions();
         cookie.Path = "/";
-        WorkContext.Response.AppendCookie(cookie);
+        WorkContext.Response.AppendCookie("ZEKRET", "Hello", cookie);
         return new Redirect("/pages/Welcome");
       }
 
@@ -329,7 +345,7 @@ namespace WaveTestSite.Controllers
 
      private Stream downloadImage(string url)
      {
-       var webClient = new WebClient();
+       using var webClient = new WebClient();
        byte[] imageBytes = webClient.DownloadData(url);
        return new MemoryStream(imageBytes);
      }

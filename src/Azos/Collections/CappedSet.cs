@@ -11,6 +11,8 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Azos.Apps;
+using Azos.Conf;
+using Azos.Instrumentation;
 
 namespace Azos.Collections
 {
@@ -22,26 +24,43 @@ namespace Azos.Collections
   {
     private class bucket : Dictionary<T, DateTime>
     {
-       public bucket(IEqualityComparer<T> comparer) : base(comparer){}
-       public DateTime m_LastLock;
-       public int m_ApproximateCount;
+      public bucket(IEqualityComparer<T> comparer) : base(comparer){}
+      public bucket(IEnumerable<KeyValuePair<T, DateTime>> collection, IEqualityComparer<T> comparer) : base(collection, comparer) { }
+      public DateTime m_LastLock;
+      public int m_ApproximateCount;
     }
 
 
     #region .ctor
 
-    public CappedSet(IApplication app, IEqualityComparer<T> comparer = null) : base(app) => ctor(comparer);
-    public CappedSet(IApplicationComponent director, IEqualityComparer<T> comparer = null) : base(director) => ctor(comparer);
+    public CappedSet(IApplication app, IEqualityComparer<T> comparer = null, ICappedSetPersistenceHandler<T> persistence = null) : base(app) => ctor(comparer, persistence);
+    public CappedSet(IApplicationComponent director, IEqualityComparer<T> comparer = null, ICappedSetPersistenceHandler<T> persistence = null) : base(director) => ctor(comparer, persistence);
 
-    private void ctor(IEqualityComparer<T> comparer = null)
+    private void ctor(IEqualityComparer<T> comparer, ICappedSetPersistenceHandler<T> persistence)
     {
       m_Comparer = comparer ?? EqualityComparer<T>.Default;
       m_Data = new bucket[BUCKET_COUNT];
+      m_Persistence = persistence;
 
       for (var i = 0; i < m_Data.Length; i++)
-        m_Data[i] = new bucket(m_Comparer);
+      {
+        bucket one = null;
+        if (m_Persistence != null)
+        {
+          var existing = m_Persistence.GetInitBucketData(i);
+          one = new bucket(existing, m_Comparer);
+        }
+        else
+        {
+          one = new bucket(m_Comparer);
+        }
+
+        m_Data[i] = one;
+      }//for
 
       Task.Delay(VISIT_GRANULARITY_MS).ContinueWith(_ => visit());
+
+      Thread.MemoryBarrier();
     }
 
     #endregion
@@ -51,6 +70,7 @@ namespace Azos.Collections
     private const int BUCKET_COUNT = 251;
     private const int VISIT_GRANULARITY_MS = 5000;
     private const int MUST_LOCK_BUCKET_SEC = 179;
+    private ICappedSetPersistenceHandler<T> m_Persistence;
     private IEqualityComparer<T> m_Comparer;
     private int m_SizeLimit;
     private int m_TimeLimitSec;
@@ -67,6 +87,7 @@ namespace Azos.Collections
     /// When Count exceeds the limit the set asynchronously caps the total number of entries by
     /// removing the older elements. The limit does not guarantee the instantaneous or exact consistency with the Count property
     /// </summary>
+    [Config, ExternalParameter]
     public int SizeLimit
     {
       get { return m_SizeLimit; }
@@ -77,6 +98,7 @@ namespace Azos.Collections
     /// If set >0 then evicts the entries older than the specified value.
     /// Does not guarantee the exact consistency of eviction time
     /// </summary>
+    [Config, ExternalParameter]
     public int TimeLimitSec
     {
       get => m_TimeLimitSec;
@@ -97,11 +119,12 @@ namespace Azos.Collections
     /// </summary>
     public bool Put(T item)
     {
-      var data = getBucket(item);
+      var (i, data) = getBucket(item);
       lock (data)
       {
         if (data.ContainsKey(item)) return false;
         data.Add(item, App.TimeSource.UTCNow);
+        persistOneBucket(true, i, data);
         return true;
       }
     }
@@ -111,7 +134,7 @@ namespace Azos.Collections
     /// </summary>
     public bool Get(T item, out DateTime createDate)
     {
-      var data = getBucket(item);
+      var (i, data) = getBucket(item);
       lock (data)
         return data.TryGetValue(item, out createDate);
     }
@@ -121,7 +144,7 @@ namespace Azos.Collections
     /// </summary>
     public bool Contains(T item)
     {
-      var data = getBucket(item);
+      var (_, data) = getBucket(item);
       lock (data)
         return data.ContainsKey(item);
     }
@@ -131,9 +154,13 @@ namespace Azos.Collections
     /// </summary>
     public bool Remove(T item)
     {
-      var data = getBucket(item);
+      var (i, data) = getBucket(item);
       lock (data)
-        return data.Remove(item);
+      {
+        if (!data.Remove(item)) return false;
+        persistOneBucket(true, i, data);
+      }
+      return true;
     }
 
     /// <summary>
@@ -141,8 +168,15 @@ namespace Azos.Collections
     /// </summary>
     public void Clear()
     {
-      foreach (var d in m_Data)
-        lock (d) d.Clear();
+      for(var i=0; i< m_Data.Length; i++)
+      {
+        var one = m_Data[i];
+        lock(one)
+        {
+          one.Clear();
+          persistOneBucket(true, i, one);
+        }
+      }
     }
 
     public IEnumerator<KeyValuePair<T, DateTime>> GetEnumerator() => all.GetEnumerator();
@@ -171,11 +205,21 @@ namespace Azos.Collections
       }
     }
 
-    private bucket getBucket(T item)
+    private (int i, bucket d) getBucket(T item)
     {
       var hc = m_Comparer.GetHashCode(item);
       var i = (hc & CoreConsts.ABS_HASH_MASK) % m_Data.Length;
-      return m_Data[i];
+      return (i, m_Data[i]);
+    }
+
+    private void persistOneBucket(bool sync, int idxBucket, IEnumerable<KeyValuePair<T, DateTime>> data)
+    {
+      if (m_Persistence == null) return;
+
+      if (sync != m_Persistence.IsAsync)
+      {
+        m_Persistence.PersistBucketData(idxBucket, data);
+      }
     }
 
     private void visit()
@@ -245,6 +289,8 @@ namespace Azos.Collections
 
           toDelete.ForEach( k => dict.Remove(k) );
           dict.m_ApproximateCount = dict.Count;
+
+          persistOneBucket(false, i, dict);
         }
         finally
         {

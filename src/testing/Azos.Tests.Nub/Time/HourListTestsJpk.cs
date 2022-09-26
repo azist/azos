@@ -56,14 +56,14 @@ namespace Azos.Tests.Nub.Time
       Aver.AreEqual(1440, got.Spans.First().DurationMinutes);
     }
 
-    [Run]
-    [Throws(ExceptionType = typeof(TimeException))]
-    public void Day_Zero1MinTo24Hour1Min()
-    {
-      var got = new HourList("0:01-24:01");
-      var span = got.Spans.First();
-      got.Spans.Count().See();
-    }
+    //[Run]
+    //[Throws(ExceptionType = typeof(TimeException))]
+    //public void Day_Zero1MinTo24Hour1Min()
+    //{
+    //  var got = new HourList("0:01-24:01");
+    //  var span = got.Spans.First();
+    //  got.Spans.Count().See();
+    //}
 
     [Run]
     public void Day_ZeroTo23Hour()
@@ -78,12 +78,83 @@ namespace Azos.Tests.Nub.Time
       Aver.AreEqual(1380, got.Spans.First().DurationMinutes);
     }
 
+    //[Run]
+    //[Throws(ExceptionType =typeof(TimeException))]
+    //public void Throw_OnOverlap()
+    //{
+    //  var got = new HourList("22:66-23");
+    //  Aver.AreEqual(1, got.Spans.Count());
+    //}
+
+
     [Run]
-    [Throws(ExceptionType =typeof(TimeException))]
-    public void Throw_OnOverlap()
+    public void CaryToNextDayPM()
     {
-      var got = new HourList("22:66-23");
+      var got = new HourList("23-1pm");
       Aver.AreEqual(1, got.Spans.Count());
+      Aver.AreEqual(60 * 23, got.Spans.First().StartMinute);
+      Aver.AreEqual(14 * 60, got.Spans.First().DurationMinutes);
+      got.See();
+    }
+
+
+    [Run]
+    public void CaryToNextDayPMtoPM()
+    {
+      var got = new HourList("11pm-1pm");
+      Aver.AreEqual(1, got.Spans.Count());
+      Aver.AreEqual(60 * 23, got.Spans.First().StartMinute);
+      Aver.AreEqual(14 * 60, got.Spans.First().DurationMinutes);
+      got.See();
+    }
+
+
+    [Run]
+    public void MidnightToNoonAMtoPM()
+    {
+      var got = new HourList("12am-12pm");
+      Aver.AreEqual(1, got.Spans.Count());
+      Aver.AreEqual(0, got.Spans.First().StartMinute);
+      Aver.AreEqual(HourList.MINUTES_PER_HALFDAY, got.Spans.First().FinishMinute);
+      Aver.AreEqual(12 * 60, got.Spans.First().DurationMinutes);
+      got.See();
+    }
+
+    [Run]
+    public void IsCoveredOnCaryToNextDay()
+    {
+      var got = new HourList("23-1pm, 13:30-6pm");
+
+      Aver.AreEqual((int)(60 * 13.5d), got.Spans.First().StartMinute);
+      Aver.AreEqual((int)(4.5d * 60), got.Spans.First().DurationMinutes);
+
+      var noon = new DateTime(1980, 1, 1,     12, 00, 00, DateTimeKind.Utc);
+      Aver.IsFalse( got.IsCovered(noon) );
+      Aver.IsTrue(got.IsCovered(noon, isTheNextDay: true));
+
+
+      var twelveFortyFivePM = DateTime.Today.AddHours(12.75);
+      Aver.IsFalse(got.IsCovered(twelveFortyFivePM));
+      Aver.IsTrue(got.IsCovered(twelveFortyFivePM, true));
+
+      var oneFifteenPM = DateTime.Today.AddHours(13.25);
+      Aver.IsFalse(got.IsCovered(oneFifteenPM));
+      Aver.IsFalse(got.IsCovered(oneFifteenPM, true));
+
+      var twoFifteenPM = DateTime.Today.AddHours(14.25);
+      Aver.IsTrue(got.IsCovered(twoFifteenPM));
+      Aver.IsTrue(got.IsCovered(twoFifteenPM, false));
+      Aver.IsFalse(got.IsCovered(twoFifteenPM, true));
+
+      var sevenPM = DateTime.Today.AddHours(19);
+      Aver.IsFalse(got.IsCovered(sevenPM));
+      Aver.IsFalse(got.IsCovered(sevenPM, true));
+
+      var elevenFifteenPM = DateTime.Today.AddHours(23);
+      Aver.IsTrue(got.IsCovered(elevenFifteenPM));
+      Aver.IsFalse(got.IsCovered(elevenFifteenPM, true));
+
+      got.See();
     }
 
   }

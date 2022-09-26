@@ -18,6 +18,7 @@ namespace Azos.Tools.Rsc
     /// <summary>
     /// Program body (entry point) for Relation Schema Compiler tool
     /// </summary>
+    [Platform.ProcessActivation.ProgramBody("rsc", Description = "Relational schema compiler")]
     public static class ProgramBody
     {
         public static void Main(string[] args)

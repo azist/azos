@@ -52,6 +52,53 @@ namespace Azos
     }
 
     /// <summary>
+    /// Returns all attribute nodes of the specified node having the specified name
+    /// </summary>
+    public static IEnumerable<IConfigAttrNode> AttributesNamed(this IConfigSectionNode node, string attributeName)
+    {
+      attributeName.NonBlank(nameof(attributeName));
+      if (node == null) return Enumerable.Empty<IConfigAttrNode>();
+      return node.Attributes.Where(a => a.IsSameName(attributeName));
+    }
+
+    /// <summary>
+    /// Iterates through all child nodes of the section and invokes MakeAndConfigure on each talking
+    /// into consideration their polymorphic sub-type
+    /// </summary>
+    public static IEnumerable<T> MakeAndConfigureChildren<T>(this IConfigSectionNode node, string sectionName = null, Type defaultType = null) where T : IConfigurable
+    {
+      if (node == null) yield break;
+
+      if (sectionName.IsNullOrWhiteSpace())
+      {
+        sectionName = typeof(T).Name.ToLowerInvariant();
+      }
+
+      foreach (var cnode in node.ChildrenNamed(sectionName))
+        yield return FactoryUtils.MakeAndConfigure<T>(cnode, defaultType);
+    }
+
+    /// <summary>
+    /// Iterates through all child nodes of the section and invokes T.ctor on each
+    /// </summary>
+    public static IEnumerable<T> MakeAndConfigureChildrenOfSpecific<T>(this IConfigSectionNode node, string sectionName = null) where T : IConfigurable, new()
+    {
+      if (node == null) yield break;
+
+      if (sectionName.IsNullOrWhiteSpace())
+      {
+        sectionName = typeof(T).Name.ToLowerInvariant();
+      }
+
+      foreach (var cnode in node.ChildrenNamed(sectionName))
+      {
+        var one = new T();
+        one.Configure(cnode);
+        yield return one;
+      }
+    }
+
+    /// <summary>
     /// Converts dictionary into configuration where every original node gets represented as a sub-section of config's root
     /// </summary>
     public static Configuration ToConfigSections(this IDictionary<string, object> dict)
@@ -112,19 +159,21 @@ namespace Azos
     /// <summary>
     ///  Evaluates variables in a context of optional variable resolver and macro runner
     /// </summary>
-    public static string EvaluateVars(this string line, IEnvironmentVariableResolver envResolver = null, IMacroRunner macroRunner = null)
+    public static string EvaluateVars(this string line, IEnvironmentVariableResolver envResolver = null, IMacroRunner macroRunner = null, string varStart = null, string varEnd = null, bool recurse = true)
     {
       var config = new MemoryConfiguration();
+      if (varStart.IsNotNullOrWhiteSpace()) config.Variable_START = varStart;
+      if (varEnd.IsNotNullOrWhiteSpace()) config.Variable_END = varEnd;
       config.Create();
       config.EnvironmentVarResolver = envResolver;
       config.MacroRunner = macroRunner;
-      return EvaluateVarsInConfigScope(line, config);
+      return EvaluateVarsInConfigScope(line, config, recurse);
     }
 
     /// <summary>
     ///  Evaluates variables in a context of optional configuration supplied as config object
     /// </summary>
-    public static string EvaluateVarsInConfigScope(this string line, Configuration scopeConfig = null)
+    public static string EvaluateVarsInConfigScope(this string line, Configuration scopeConfig = null, bool recurse = true)
     {
       if (scopeConfig == null)
       {
@@ -132,7 +181,7 @@ namespace Azos
         scopeConfig.Create();
       }
 
-      return scopeConfig.Root.EvaluateValueVariables(line);
+      return scopeConfig.Root.EvaluateValueVariables(line, recurse);
     }
 
     /// <summary>
@@ -212,6 +261,69 @@ namespace Azos
     /// </summary>
     public static string ValOf(this IConfigSectionNode node, string attrName1, string attrName2, string attrName3) => node.Of(attrName1, attrName2, attrName3).Value;
 
+    /// <summary>
+    /// Builds a JsonDataMap (json object suitable for wire serialization) from a config snippet
+    /// which sets JSON object keys to attribute/section names and values being transformed via fSet function.
+    /// Config attribute values get added to json map as scalar values, whereas section nodes get added as sub-objects.
+    /// Inclusion of config node name in a pair of square brackets`[n]` instructs the system to treat an item as an array element
+    /// </summary>
+    /// <param name="snippet">A configuration snippet which defines a template/structure of how to build a JSON object </param>
+    /// <param name="obj">An object instance, you may pre-load some keys before this call</param>
+    /// <param name="fSet">A field set function which transforms the values on set</param>
+    public static void BuildJsonObjectFromConfigSnippet(this IConfigSectionNode snippet, JsonDataMap obj, Func<object, object> fSet)
+    {
+      snippet.NonNull(nameof(snippet));
+      obj.NonNull(nameof(obj));
+      fSet.NonNull(nameof(fSet));
 
+      string asArray(string n) => (n.Length > 2 && n[0] == '[' && n[n.Length - 1] == ']') ? n.Substring(1, n.Length - 2) : null;
+
+      foreach (var scalar in snippet.Attributes)
+      {
+        var val = fSet(scalar.Value);
+        var arr = asArray(scalar.Name);
+        if (arr != null)//array
+        {
+          var arri = obj[arr] as JsonDataArray;
+          if (arri == null) obj[arr] = arri = new JsonDataArray();
+          arri.Add(val);
+        }
+        else
+        {
+          obj[scalar.Name] = val;
+        }
+      }
+
+      foreach (var composite in snippet.Children)
+      {
+        var arr = asArray(composite.Name);
+
+        var isScalarArrayElement = arr != null && composite.Value != null && !(composite.HasAttributes || composite.HasChildren);
+
+        object val = composite.Value;
+
+        if (isScalarArrayElement)
+        {
+          val = fSet(val);
+        }
+        else
+        {
+          var mapval = new JsonDataMap(true);
+          val = mapval;
+          BuildJsonObjectFromConfigSnippet(composite, mapval, fSet);
+        }
+
+        if (arr != null)//array
+        {
+          var arri = obj[arr] as JsonDataArray;
+          if (arri == null) obj[arr] = arri = new JsonDataArray();
+          arri.Add(val);
+        }
+        else
+        {
+          obj[composite.Name] = val;
+        }
+      }
+    }
   }
 }

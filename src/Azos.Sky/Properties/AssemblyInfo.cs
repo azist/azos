@@ -6,7 +6,5 @@
 using System;
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("Azos.Sky.WebManager")]
-[assembly: InternalsVisibleTo("WinFormsTestSky")]
 [assembly: InternalsVisibleTo("Azos.Tests.Unit")]
 [assembly: InternalsVisibleTo("Azos.Tests.Integration")]

@@ -102,7 +102,8 @@
         environment-name="PROD"
         instrumentation-enabled=true
 
-        prefix{ name="http://+:8080/" }
+
+        match{ host-name="localhost:8080"}
 
         default-error-handler
         {
@@ -140,9 +141,9 @@
             }
         }
 
-        dispatcher
-        {
-           // type="Azos.Wave.MultithreadedDispatcher"
+     root-handler
+     {
+
 
 // filter
 // {
@@ -282,6 +283,36 @@
 
                 match{ path="conf/forest/{type}/{mvc-action}" var{query-name="*"} }
             }
+
+//**************** AUTHKIT TESTING
+  handler
+  {
+    order=12
+    name="minidp.apis"
+    type="Azos.Wave.Handlers.MvcHandler, Azos.Wave"
+    type-location{ assembly="Azos.Wave.dll" ns{ name="Azos.Security.MinIdp*"}}
+
+    log-level=Debug
+
+    match{ order=1 path="/v1/minidp/{type}/{mvc-action}/{id}" var{query-name="*"} }
+    match{ order=2 path="/minidp/{type}/{mvc-action}/{id}"    var{query-name="*"} }
+  }
+
+
+  handler
+  {
+    order=15
+    name="idp.apis"
+    type="Azos.Wave.Handlers.MvcHandler, Azos.Wave"
+    type-location{ assembly="Azos.AuthKit.Server.dll" ns{ name="Azos.AuthKit.Server.Web"}}
+
+    log-level=Debug
+
+    match{ order=1 path="/v1/idp/{type}/{mvc-action}/{id}" var{query-name="*"} }
+    match{ order=2 path="/idp/{type}/{mvc-action}/{id}"    var{query-name="*"} }
+  }
+//**************** AUTHKIT TESTING
+
 
 
             handler
@@ -442,8 +473,7 @@
                 }
             }
 
-
-        }//dispatcher
+      }//handler root
     }//server
   }//wave
 
@@ -582,9 +612,19 @@
             handler-location{ns="Azos.MySql.ConfForest.Queries, Azos.MySql"}
           }
 
-        }
-      }
-    }
-  }
+        }//forest
+      }//data
+    }//module
 
+    module
+    {
+      name="kestrel"
+      type="Azos.Wave.Kestrel.KestrelServerModule, Azos.Wave.Kestrel"
+
+      host
+      {
+        listen-any-ip-port=8080
+      }
+    }//module
+  }
 }

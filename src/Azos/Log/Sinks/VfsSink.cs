@@ -64,7 +64,7 @@ namespace Azos.Log.Sinks
       DisposeAndNull(ref m_Session);
       DisposeAndNull(ref m_Fs);
 
-      m_Fs = FactoryUtils.MakeAndConfigureComponent<FileSystem>(App, fsNode, typeof(IO.FileSystem.Local.LocalFileSystem));
+      m_Fs = FactoryUtils.MakeAndConfigureDirectedComponent<FileSystem>(this, fsNode, typeof(IO.FileSystem.Local.LocalFileSystem));
 
       var pnode = fsNode[CONFIG_FS_CONNECT_PARAMS_SECTION];
 

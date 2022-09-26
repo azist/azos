@@ -187,7 +187,7 @@ namespace Azos.Wave.Mvc
     {
       const string TSCH = "type-schemas";
       const string TSKU = "type-skus";
-      if (id.IsNullOrWhiteSpace()) throw HTTPStatusException.BadRequest_400("No id");
+      if (id.IsNullOrWhiteSpace()) throw Web.HTTPStatusException.BadRequest_400("No id");
 
       IConfigSectionNode data = Data[TSCH][id];
       if (!data.Exists)

@@ -9,7 +9,7 @@ using System.IO;
 
 namespace buildinfo
 {
-  /* CORE UTILITY must be foirst build artifact in build graph, must not use any references */
+  /* CORE UTILITY must be a first-build artifact in build graph, must not use any references */
   public static class ProgramBody
   {
     public static void Main(string[] args)

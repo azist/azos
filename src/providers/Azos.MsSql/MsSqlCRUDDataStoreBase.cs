@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 using Azos.Apps;
 using Azos.Conf;
 
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 
 namespace Azos.Data.Access.MsSql
 {

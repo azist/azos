@@ -21,7 +21,7 @@ namespace Azos.Serialization.JSON
     /// Warning: ISO codes are CASE sensitive
     /// </summary>
     [Serializable]
-    public struct NLSMap : IEnumerable<KeyValuePair<string, NLSMap.NDPair>>, IEquatable<NLSMap>,  IJsonWritable, IJsonReadable, IRequiredCheck
+    public struct NLSMap : IEnumerable<KeyValuePair<string, NLSMap.NDPair>>, IEquatable<NLSMap>,  IJsonWritable, IJsonReadable, IRequiredCheck, IConfigurationPersistent
     {
       //There are roughly 6,500 spoken languages in the world today.
       //However, about 2,000 of those languages have fewer than 1,000 speakers
@@ -115,12 +115,28 @@ namespace Azos.Serialization.JSON
       /// <summary>
       /// Makes NLSMap out of conf node: eng{n='Cucumber' d='It is green'} deu{n='Gurke' d='Es ist grün'}
       /// </summary>
+      [ConfigCtor]
       public NLSMap(IConfigSectionNode nlsNode)
       {
         m_Data = null;
         if (nlsNode==null || !nlsNode.Exists) return;
         ctor(nlsNode);
       }
+
+      public ConfigSectionNode PersistConfiguration(ConfigSectionNode parentNode, string name)
+      {
+        var node = parentNode.NonNull(nameof(parentNode))
+                             .AddChildNode(name.NonBlank(nameof(name)));
+
+        foreach(var pair in m_Data)
+        {
+          var entry = node.AddChildNode(pair.ISO.Value);
+          entry.AddAttributeNode("n", pair.Name);
+          entry.AddAttributeNode("d", pair.Description);
+        }
+        return node;
+      }
+
 
       private void ctor(IConfigSectionNode nlsNode)
       {

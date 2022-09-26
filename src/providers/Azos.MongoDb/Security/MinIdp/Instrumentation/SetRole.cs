@@ -54,7 +54,7 @@ namespace Azos.Security.MinIdp.Instrumentation
 
         try
         {
-          Rights = Acl.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw);
+          Rights = Acl.AsLaconicConfig(handling: Azos.Data.ConvertErrorHandling.Throw);
         }
         catch(Exception error)
         {

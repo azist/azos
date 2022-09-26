@@ -183,5 +183,29 @@ namespace Azos
 
       return result;
     }
+
+    /// <summary>
+    /// Tries to obtain a session.DataContextName as a valid Atom value.
+    /// Returns Atom.ZERO if the value is not valid or supplied
+    /// </summary>
+    public static Atom TryGetAtomDataContextName(this ISession session)
+    {
+      if (session == null) return Atom.ZERO;
+      var raw = session.DataContextName;
+      if (raw.IsNullOrWhiteSpace()) return Atom.ZERO;
+      if (Atom.TryEncode(raw, out Atom result)) return result;
+      return Atom.ZERO;
+    }
+
+    /// <summary>
+    /// Requires a valid for session.DataContextName convertable to Atom.
+    /// Throws CallGuardException if a valid Atom value could not be obtained
+    /// </summary>
+    public static Atom GetAtomDataContextName(this ISession session)
+    {
+      var result = session.TryGetAtomDataContextName();
+      (!result.IsZero).IsTrue("Valid Atom DataContext");
+      return result;
+    }
   }
 }

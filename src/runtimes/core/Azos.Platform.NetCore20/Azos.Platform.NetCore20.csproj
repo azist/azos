@@ -2,16 +2,16 @@
 
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
-    <Description>NFX - .Net Core Platform Abstraction Layer</Description>
+    <TargetFramework>net6.0</TargetFramework>
+    <Description>Azos - .Net Core Platform Abstraction Layer</Description>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\..\..\..\out\Debug\run-core</OutputPath>
+    <OutputPath>..\..\..\..\out\Debug</OutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>..\..\..\..\out\Release\run-core</OutputPath>
+    <OutputPath>..\..\..\..\out\Release</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>

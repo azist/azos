@@ -7,10 +7,10 @@
 using System.Threading.Tasks;
 
 using Azos.Apps.Injection;
-using Azos.Security.Web;
+using Azos.Security.Sky;
 using Azos.Wave.Mvc;
 
-namespace Azos.Web.Messaging.Services.Server
+namespace Azos.Sky.Messaging.Services.Server
 {
   /// <summary>
   /// Provides API controller service for Web Messaging functionality
@@ -67,7 +67,7 @@ namespace Azos.Web.Messaging.Services.Server
       RequestHeaders = new[] { "Accept: application/json (required)" },
       ResponseContent = "Json with message content without attachment bodies",
       RequestQueryParameters = new[] { "msgId: id of message that was assigned on message send" },
-      TypeSchemas = new[] { typeof(Azos.Web.Messaging.Message) }
+      TypeSchemas = new[] { typeof(Azos.Sky.Messaging.Message) }
     )]
     [MessagingPermission(MessagingAccessLevel.QueryOwn)]
     [ActionOnGet(Name = "message"), AcceptsJson]
@@ -82,7 +82,7 @@ namespace Azos.Web.Messaging.Services.Server
       ResponseContent = "Json with message attachment content body",
       RequestQueryParameters = new[] { "msgId: id of message that was assigned on message send",
                                        "attId: int sequence of attachment in the message" },
-      TypeSchemas = new[] { typeof(Azos.Web.Messaging.Message), typeof(Azos.Web.Messaging.Message.Attachment) }
+      TypeSchemas = new[] { typeof(Azos.Sky.Messaging.Message), typeof(Azos.Sky.Messaging.Message.Attachment) }
     )]
     [MessagingPermission(MessagingAccessLevel.QueryOwn)]
     [ActionOnGet(Name = "attachment"), AcceptsJson]
@@ -96,7 +96,7 @@ namespace Azos.Web.Messaging.Services.Server
       RequestHeaders = new[] { "Accept: application/json (required)" },
       ResponseContent = "Json with message log",
       RequestQueryParameters = new[] { "msgId: id of message that was assigned on message send"},
-      TypeSchemas = new[] { typeof(Azos.Web.Messaging.Message), typeof(MessageStatusLog) }
+      TypeSchemas = new[] { typeof(Azos.Sky.Messaging.Message), typeof(MessageStatusLog) }
     )]
     [MessagingPermission(MessagingAccessLevel.QueryOwn)]
     [ActionOnGet(Name = "status"), AcceptsJson]

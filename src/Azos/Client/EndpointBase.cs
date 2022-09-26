@@ -5,7 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
-
+using System.Linq;
 using Azos.Apps;
 using Azos.Collections;
 using Azos.Conf;
@@ -18,8 +18,43 @@ namespace Azos.Client
   public abstract class EndpointBase<TService> : ApplicationComponent<TService>, IEndpointImplementation where TService : IServiceImplementation
   {
     protected EndpointBase(TService service, IConfigSectionNode conf) : base(service)
+      => ctor(conf.NonEmpty(nameof(conf)));
+
+    private void ctor(IConfigSectionNode conf)
     {
-      ConfigAttribute.Apply(this, conf.NonEmpty(nameof(conf)));
+      ConfigAttribute.Apply(this, conf);
+      BuildAspects(conf);
+    }
+
+    protected override void Destructor()
+    {
+      CleanupAspects();
+      base.Destructor();
+    }
+
+    protected void CleanupAspects()
+    {
+      var was = System.Threading.Interlocked.Exchange(ref m_Aspects, null);
+      if (was == null) return;
+      was.ForEach(asp => DisposeIfDisposableAndNull(ref asp));
+    }
+
+    /// <summary>
+    /// Override to build aspects list. The default implementation reads them from config
+    /// </summary>
+    protected virtual void BuildAspects(IConfigSectionNode conf)
+    {
+      CleanupAspects();
+      m_Aspects = new OrderedRegistry<IAspect>(caseSensitive: false);
+      foreach (var nas in conf.ChildrenNamed(AspectBase.CONFIG_ASPECT_SECTION))
+      {
+        var aspect = FactoryUtils.Make<IAspect>(nas, args: new object[] { this, nas });
+        if (!m_Aspects.Register(aspect))
+        {
+          throw new ClientException(StringConsts.HTTP_CLIENT_DUPLICATE_ASPECT_CONFIG_ERROR
+                                                .Args(aspect.Name, GetType().DisplayNameWithExpandedGenericArgs()));
+        }
+      }
     }
 
     [Config] protected Atom m_Network;
@@ -40,8 +75,7 @@ namespace Azos.Client
     IService IEndpoint.Service => ComponentDirector;
     public TService    Service => ComponentDirector;
 
-    IOrderedRegistry<IAspect> IEndpoint.Aspects => m_Aspects;
-    public OrderedRegistry<IAspect> Aspects => m_Aspects;
+    public IOrderedRegistry<IAspect> Aspects => m_Aspects;
 
     public virtual Atom Network => m_Network;
 
@@ -91,6 +125,27 @@ namespace Azos.Client
       m_StatusMsg = statusMsg.Default("Reset brkr");
       m_CircuitBreakerTimeStampUtc = null;
       return true;
+    }
+
+    public TAspect TryGetAspect<TAspect>(string name = null, bool notInherited = false) where TAspect : class, IAspect
+    {
+      var result = findAspect<TAspect>(m_Aspects, name);
+      if (result != null) return result;
+      if (notInherited) return null;
+      result = findAspect<TAspect>(Service.Aspects, name);
+      return result;
+    }
+
+    private static TAspect findAspect<TAspect>(IOrderedRegistry<IAspect> where, string name) where TAspect : class, IAspect
+    {
+      TAspect result;
+
+      if (name.IsNotNullOrWhiteSpace())
+        result = where[name] as TAspect;
+      else
+        result = where.OrderedValues.OfType<TAspect>().FirstOrDefault();
+
+      return result;
     }
 
   }

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <Description>Azos - Tools Assembly</Description>
   </PropertyGroup>
 
@@ -29,6 +29,10 @@
     <None Remove="Phash\Welcome.txt" />
     <None Remove="Rsc\Help.txt" />
     <None Remove="Rsc\Welcome.txt" />
+    <None Remove="Srun\Help.txt" />
+    <None Remove="Srun\Welcome.txt" />
+    <None Remove="Wport\Help.txt" />
+    <None Remove="Wport\Welcome.txt" />
   </ItemGroup>
 
   <ItemGroup>
@@ -49,8 +53,12 @@
     <EmbeddedResource Include="Phash\Welcome.txt" />
     <EmbeddedResource Include="Rsc\Help.txt" />
     <EmbeddedResource Include="Rsc\Welcome.txt" />
+    <EmbeddedResource Include="Srun\Help.txt" />
+    <EmbeddedResource Include="Srun\Welcome.txt" />
     <EmbeddedResource Include="Trun\Help.txt" />
     <EmbeddedResource Include="Trun\Welcome.txt" />
+    <EmbeddedResource Include="Wport\Help.txt" />
+    <EmbeddedResource Include="Wport\Welcome.txt" />
   </ItemGroup>
 
   <ItemGroup>
@@ -58,6 +66,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="pack-azos.laconf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="sky.laconf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="trun.laconf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

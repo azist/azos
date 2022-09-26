@@ -1,17 +1,32 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <ServerGarbageCollection>true</ServerGarbageCollection>
+
+
+    <UseAppHost>True</UseAppHost> <!-- FALSE = get rid of EXE -->
+
+    <!--
+    By Default, dotnet build uses platform that it runs on, we will rebild like:
+    $ dotnet build ....buildinfo.csproj -r win-x64
+    $ dotnet build ....buildinfo.csproj -r linux-x64
+    instead of the below:
+
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
+    <RuntimeIdentifiers>linux-x64;win-x64</RuntimeIdentifiers>
+    -->
+    <SelfContained>false</SelfContained>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\..\..\..\out\Debug\run-core</OutputPath>
+    <OutputPath>..\..\..\..\out\Debug</OutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>..\..\..\..\out\Release\run-core</OutputPath>
+    <OutputPath>..\..\..\..\out\Release</OutputPath>
   </PropertyGroup>
 
 </Project>

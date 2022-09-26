@@ -21,6 +21,7 @@ namespace Azos.Tools.Ntc
     /// <summary>
     /// NTC tool entry point
     /// </summary>
+    [Platform.ProcessActivation.ProgramBody("ntc", Description = "Template compiler")]
     public static class ProgramBody
     {
         public static void Main(string[] args)

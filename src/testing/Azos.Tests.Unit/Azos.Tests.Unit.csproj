@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <Description>Azos - Base Unit Tests Assembly (not to deploy)</Description>
   </PropertyGroup>
 
@@ -24,9 +24,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Azos.Sky.Server\Azos.Sky.Server.csproj" />
     <ProjectReference Include="..\..\Azos.Sky\Azos.Sky.csproj" />
     <ProjectReference Include="..\..\Azos.Wave\Azos.Wave.csproj" />
-    <ProjectReference Include="..\..\Azos.Web\Azos.Web.csproj" />
     <ProjectReference Include="..\..\Azos\Azos.csproj" />
   </ItemGroup>
 

@@ -155,6 +155,14 @@ namespace Azos
     }
 
     /// <summary>
+    /// Converts a DateTime value into an ISO8601-compatible formatted string
+    /// for roundtripping e.g.: '1981-08-26T12:23:55.2340000'
+    /// </summary>
+    public static string ToRoundtripIso8601String(this DateTime value)
+     => value.ToString("O", System.Globalization.CultureInfo.InvariantCulture);
+
+
+    /// <summary>
     /// Returns an approximate string representation of the point in time relative to this one,
     /// in the most suitable scale, that is:  "1 year ago" or "in 1 year"; "45 minutes ago" or "in 45 minutes". Supports ISO_LANG=eng only
     /// </summary>

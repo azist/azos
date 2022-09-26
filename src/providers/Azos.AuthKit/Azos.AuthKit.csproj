@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <Description>Azos.AuthKit - IDP/Authorization</Description>
   </PropertyGroup>
 
@@ -21,6 +21,11 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Azos.Sky\Azos.Sky.csproj" />
     <ProjectReference Include="..\..\Azos\Azos.csproj" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Folder Include="rest\" />
   </ItemGroup>
 
 </Project>

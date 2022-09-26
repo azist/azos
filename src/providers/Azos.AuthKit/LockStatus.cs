@@ -30,15 +30,20 @@ namespace Azos.AuthKit
     public EntityId TargetEntity { get; set; }
 
     /// <summary>
-    /// Lock timestamp range, if set the login is inactive past that timestamp, until LOCK_END_UTC
+    /// Requires a target entity address of GDID
     /// </summary>
-    [Field(Description = "Lock timestamp range, if set the account is inactive past that timestamp, until LOCK_END_UTC")]
+    public GDID TargetEntityGdid => Constraints.AsValidLockEntityId(TargetEntity).HasRequiredValue();
+
+    /// <summary>
+    /// Lock timestamp range, if set the login is inactive past that timestamp, until LOCK_END_UTC if null then there is no lock on the entity
+    /// </summary>
+    [Field(Description = "Lock timestamp range, if set the account is inactive past that timestamp, until LOCK_END_UTC, if null then there is no lock on the entity")]
     public DateRange? LockSpanUtc { get; set; }
 
     /// <summary>
-    /// Who locked the login
+    /// Who locked the user account or login
     /// </summary>
-    [Field(Description = "Who locked the user account")]
+    [Field(Description = "Who locked the user account or login")]
     public EntityId? LockActor { get; set; }
 
     /// <summary>
@@ -50,12 +55,13 @@ namespace Azos.AuthKit
 
     [Inject] IIdpUserCoreLogic m_Logic;
 
+    /// <inheritdoc/>
     public override ValidState Validate(ValidState state, string scope = null)
     {
       state =  base.Validate(state, scope);
       if (state.ShouldStop) return state;
 
-      var gtarget = Constraints.IsLockEntityIdValid(TargetEntity);
+      var gtarget = Constraints.AsValidLockEntityId(TargetEntity);
       if (gtarget.IsZero)
       {
         state = new ValidState(state, new FieldValidationException(this, nameof(TargetEntity), "The field must contain valid auth kit lockable entity id"));
@@ -64,6 +70,7 @@ namespace Azos.AuthKit
       return state;
     }
 
+    /// <inheritdoc/>
     protected async override Task<SaveResult<ChangeResult>> DoSaveAsync()
       => new SaveResult<ChangeResult>(await m_Logic.SetLockStatusAsync(this).ConfigureAwait(false));
   }

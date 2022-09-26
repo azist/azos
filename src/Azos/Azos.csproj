@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.1</TargetFrameworks>
     <Description>Azos - Core Framework Assembly</Description>
   </PropertyGroup>
 

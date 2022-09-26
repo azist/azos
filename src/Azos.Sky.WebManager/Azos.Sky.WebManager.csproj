@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <Description>Azos - Sky Operating System Web Manager Assembly</Description>
   </PropertyGroup>
 
@@ -27,10 +27,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Azos.Sky.Server\Azos.Sky.Server.csproj" />
     <ProjectReference Include="..\Azos.Wave\Azos.Wave.csproj" />
-    <ProjectReference Include="..\Azos.Web\Azos.Web.csproj" />
     <ProjectReference Include="..\Azos\Azos.csproj" />
-    <ProjectReference Include="..\Azos.Sky\Azos.Sky.csproj" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

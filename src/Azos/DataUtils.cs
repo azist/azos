@@ -197,6 +197,21 @@ namespace Azos
     /// <returns>New instance of VersionInfo with generated GDID and other fields stamped from context</returns>
     public static VersionInfo MakeVersionInfo(this IApplication app, string gdidScopeName, string gdidSeqName, FormMode mode)
     {
+      var gver = app.GetGdidProvider()
+                       .GenerateOneGdid(gdidScopeName, gdidSeqName);
+
+      return MakeVersionInfo(app, gver, mode);
+    }
+
+    /// <summary>
+    /// Creates new version stamp - an instance of VersionInfo object initialized with callers context
+    /// </summary>
+    /// <param name="app">Operation context</param>
+    /// <param name="gVersion">GDID allocated externally</param>
+    /// <param name="mode">Form model mode</param>
+    /// <returns>New instance of VersionInfo with generated GDID and other fields stamped from context</returns>
+    public static VersionInfo MakeVersionInfo(this IApplication app, GDID gVersion, FormMode mode)
+    {
       var state = VersionInfo.DataState.Undefined;
       switch (mode)
       {
@@ -208,8 +223,7 @@ namespace Azos
 
       var result = new VersionInfo
       {
-        G_Version = app.GetGdidProvider()
-                       .GenerateOneGdid(gdidScopeName, gdidSeqName),
+        G_Version = gVersion,
         State = state,
         Utc = app.GetUtcNow(),
         Origin = app.GetCloudOrigin(),

@@ -16,6 +16,7 @@ namespace Azos.Tools.Licupd
   /// <summary>
   /// Lic block updater
   /// </summary>
+  [Platform.ProcessActivation.ProgramBody("licupd", Description = "License text updater")]
   public static class ProgramBody
   {
     public static void Main(string[] str_args)

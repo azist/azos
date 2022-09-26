@@ -18,23 +18,23 @@ namespace Azos.Wave
       public const string DISPATCHER_NOT_THIS_SERVER_ERROR =
         "Error assigning WaveServer.Dispatcher. The supplied dispatcher instance was not created to be directed by this server instance";
 
-      public const string SERVER_NO_PREFIXES_ERROR =
-        "WaveServer '{0}' can not start as there are no prefixes defined";
+      public const string SERVER_NO_MATCHES_ERROR =
+        "WaveServer '{0}' can not start as there are no traffic matches defined";
 
       public const string SERVER_COULD_NOT_GET_REGISTERED_ERROR =
         "WaveServer '{0}' can not start as there is already a global instance with such name";
 
-      public const string WRONG_DISPATCHER_FILTER_REGISTRATION_ERROR =
-        "Can not register a filter '{0}' because it does not belong to this dispatcher";
+      public const string WRONG_HANDLER_FILTER_REGISTRATION_ERROR =
+        "Can not register a filter '{0}' because it does not belong to this handler";
 
-      public const string WRONG_DISPATCHER_FILTER_UNREGISTRATION_ERROR =
-        "Can not unregister a filter '{0}' because it does not belong to this dispatcher";
+      public const string WRONG_HANDLER_FILTER_UNREGISTRATION_ERROR =
+        "Can not unregister a filter '{0}' because it does not belong to this handler";
 
-      public const string WRONG_DISPATCHER_HANDLER_REGISTRATION_ERROR =
-        "Can not register a handler '{0}' because it does not belong to this dispatcher";
+      public const string WRONG_HANDLER_HANDLER_REGISTRATION_ERROR =
+        "Can not register a handler '{0}' because it does not belong to this handler";
 
-      public const string WRONG_DISPATCHER_HANDLER_UNREGISTRATION_ERROR =
-        "Can not unregister a handler '{0}' because it does not belong to this dispatcher";
+      public const string WRONG_HANDLER_HANDLER_UNREGISTRATION_ERROR =
+        "Can not unregister a handler '{0}' because it does not belong to this handler";
 
       public const string NO_HANDLER_ERROR = "No suitable work handler could be matched";
 
@@ -75,11 +75,14 @@ namespace Azos.Wave
       public const string CONFIG_DUPLICATE_HANDLER_NAME_ERROR =
         "Handler '{0}' is specified more than once in config";
 
-      public const string CONFIG_DUPLICATE_FILTER_NAME_ERROR =
-        "Filter '{0}' is specified more than once in config";
+    public const string CONFIG_SERVER_DUPLICATE_MATCH_NAME_ERROR =
+      "Match '{0}' is specified more than once in server '{1}' config";
 
-      public const string CONFIG_HANDLER_DUPLICATE_MATCH_NAME_ERROR =
-        "Match '{0}' is specified more than once in handler config";
+    public const string CONFIG_DUPLICATE_MATCH_NAME_ERROR =
+        "Match '{0}' is specified more than once in '{1}' config";
+
+      public const string CONFIG_DUPLICATE_FILTER_NAME_ERROR =
+        "Filter '{0}' is specified more than once in handler '{1}' config";
 
       public const string CONFIG_COMPOSITE_MATCH_DUPLICATE_MATCH_NAME_ERROR =
         "Match '{0}' is specified more than once in composite match config";
@@ -154,8 +157,5 @@ namespace Azos.Wave
 
       public const string CONFIG_PORTAL_LOCALIZATION_FILE_ERROR =  "Portal '{0}' points to localization message file '{1}' which could not be read: {2}";
 
-
-      public const string CMS_ID_ERROR =
-        "Got invalid ContentId `{0}`='{1}'. Only the following characters are permitted in CMS ContentId: 'a-z|A-Z|0-9|.|-|_' and be no longer than {2} chars. May not start with `.`";
   }
 }

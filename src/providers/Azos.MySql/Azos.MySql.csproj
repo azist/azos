@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <Description>Azos - MySql Data Access Assembly</Description>
   </PropertyGroup>
 
@@ -28,10 +28,12 @@
 
   <ItemGroup>
     <None Remove="ConfForest/Queries/**/*.sql" />
+    <None Remove="ConfForest/ddl/**/*.sql" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="ConfForest/Queries/**/*.sql" />
+    <EmbeddedResource Include="ConfForest/ddl/**/*.sql" />
   </ItemGroup>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">

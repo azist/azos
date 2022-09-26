@@ -12,9 +12,13 @@ using Azos.Apps;
 using Azos.Apps.Injection;
 using Azos.AuthKit.Events;
 using Azos.Conf;
+using Azos.Conf.Forest;
 using Azos.Data;
 using Azos.Data.Access;
+using Azos.Data.Business;
 using Azos.Security;
+using Azos.Security.Authkit;
+using Azos.Security.Config;
 using Azos.Security.MinIdp;
 
 namespace Azos.AuthKit.Server
@@ -29,8 +33,25 @@ namespace Azos.AuthKit.Server
     public IdpUserCoreCrudDataLogic(IApplication application) : base(application) { }
     public IdpUserCoreCrudDataLogic(IModule parent) : base(parent) { }
 
+    public static Permission[] SEC_USER_VIEW = new []
+    {
+      new UserManagementPermission(UserManagementAccessLevel.View)
+    };
+
+    public static Permission[] SEC_USER_CHANGE = new[]
+    {
+      new UserManagementPermission(UserManagementAccessLevel.Change)
+    };
+
+    public static Permission[] SEC_USER_DELETE = new[]
+    {
+      new UserManagementPermission(UserManagementAccessLevel.Delete)
+    };
+
     [Inject] IIdpHandlerLogic m_Handler;
     private ICrudDataStoreImplementation m_Data;
+
+    [Inject] private IForestLogic m_Forest;
 
     private ICrudDataStore Data => m_Data.NonDisposed(nameof(m_Data));
 
@@ -38,9 +59,20 @@ namespace Azos.AuthKit.Server
 
     public override bool IsHardcodedModule => false;
 
-    public override string ComponentLogTopic => throw new NotImplementedException();
+    public override string ComponentLogTopic => CoreConsts.SECURITY_TOPIC;
 
-    public ICryptoMessageAlgorithm MessageProtectionAlgorithm => throw new NotImplementedException();
+    [Config("$msg-algo;$msg-algorithm")]
+    public string MessageProtectionAlgorithmName { get; set; }
+
+    public ICryptoMessageAlgorithm MessageProtectionAlgorithm => MessageProtectionAlgorithmName.IsNullOrWhiteSpace() ? null :
+                                                                      App.SecurityManager
+                                                                         .Cryptography
+                                                                         .MessageProtectionAlgorithms[MessageProtectionAlgorithmName]
+                                                                         .NonNull("Algo `{0}`".Args(MessageProtectionAlgorithmName))
+                                                                         .IsTrue(a => a.Audience == CryptoMessageAlgorithmAudience.Internal &&
+                                                                                      a.Flags.HasFlag(CryptoMessageAlgorithmFlags.Cipher) &&
+                                                                                      a.Flags.HasFlag(CryptoMessageAlgorithmFlags.CanUnprotect),
+                                                                                      "Algo `{0}` !internal !cipher".Args(MessageProtectionAlgorithmName));
 
     #region Module Lifecycle
 
@@ -79,57 +111,122 @@ namespace Azos.AuthKit.Server
     //+   File: Azos.MogoDb.dll::/Security/MinIdp/MinIdpMongoDbStore.cs                              +
     //+==============================================================================================+
 
+    /// <inheritdoc/>
     public async Task<MinIdpUserData> GetByIdAsync(Atom realm, string id, AuthenticationRequestContext ctx)
     {
       if (id.IsNullOrWhiteSpace()) return null;//bad user
-      var eid = m_Handler.ParseId(id);
+
+      setAmbientRealm(realm);
+
+      var (pvd, eid) = m_Handler.ParseId(id);
+
+      var actx = m_Handler.MakeNewUserAuthenticationContext(ctx);
+      actx.LoginId = eid;
+      actx.Provider = pvd;
 
       //Lookup by:
       //(`REALM`, `ID`, `TID`, `PROVIDER`);.
       // by executing CRUD query against ICrudDataStore (which needs to be configured as a part of this class)
-      var qry = new Query<MinIdpUserData>("MinIdp.GetById")
+      var qry = new Query<Doc>("MinIdp.GetById")
       {
-        new Query.Param("realm", realm),
-        new Query.Param("id", eid)
+        new Query.Param("ctx", actx)
       };
-      return await Data.LoadDocAsync(qry).ConfigureAwait(false);
+
+      await Data.LoadDocAsync(qry).ConfigureAwait(false);
+
+      if (!actx.HasResult) return null;
+
+      m_Handler.MakeSystemTokenData(actx);
+      await m_Handler.ApplyEffectivePoliciesAsync(actx).ConfigureAwait(false);
+      if (!actx.HasResult) return null;
+      return actx.MakeResult();
     }
 
+    /// <inheritdoc/>
     public async Task<MinIdpUserData> GetByUriAsync(Atom realm, string uri, AuthenticationRequestContext ctx)
     {
       if (uri.IsNullOrWhiteSpace()) return null;//bad user
 
-      var euri = m_Handler.ParseUri(uri);
+      setAmbientRealm(realm);
 
-      var qry = new Query<MinIdpUserData>("MinIdp.GetByUserName")
+      var (pvd, eid) = m_Handler.ParseUri(uri);
+
+      var actx = m_Handler.MakeNewUserAuthenticationContext(ctx);
+      actx.LoginId = eid;
+      actx.Provider = pvd;
+
+      var qry = new Query<Doc>("MinIdp.GetById")// A URI is really a special sub-type of ID Constraints.LTP_SYS_URI = 'uri'
       {
-        new Query.Param("realm", realm),
-        new Query.Param("uname", euri)
+        new Query.Param("ctx", actx)
       };
-      return await Data.LoadDocAsync(qry).ConfigureAwait(false);
+
+      await Data.LoadDocAsync(qry).ConfigureAwait(false);
+
+      if (!actx.HasResult) return null;
+
+      m_Handler.MakeSystemTokenData(actx);
+      await m_Handler.ApplyEffectivePoliciesAsync(actx).ConfigureAwait(false);
+      if (!actx.HasResult) return null;
+      return actx.MakeResult();
     }
 
-    public Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken, AuthenticationRequestContext ctx)
+    /// <inheritdoc/>
+    public async Task<MinIdpUserData> GetBySysAsync(Atom realm, string sysToken, AuthenticationRequestContext ctx)
     {
       if (sysToken.IsNullOrWhiteSpace()) return null;//bad user
 
-      // TODO: Add system token logic
+      setAmbientRealm(realm);
 
-      throw new NotImplementedException();
+      var actx = m_Handler.MakeNewUserAuthenticationContext(ctx);
+
+      var pvd = m_Handler.TryDecodeSystemTokenData(sysToken, actx);
+      if (pvd == null) return null;//Bad token
+
+      actx.Provider = pvd;
+
+      var qry = new Query<Doc>("MinIdp.GetBySys")
+      {
+        new Query.Param("ctx", actx)
+      };
+
+      await Data.LoadDocAsync(qry).ConfigureAwait(false);
+
+      if (!actx.HasResult) return null;
+
+      //notice: No MakeSystemTokenData because we must re-use EXISTING token as-is
+      await m_Handler.ApplyEffectivePoliciesAsync(actx).ConfigureAwait(false);
+      if (!actx.HasResult) return null;
+      return actx.MakeResult();
     }
 
     #endregion
 
     #region IIdpUserCoreLogic-specifics
 
-    public Task<IEnumerable<UserInfo>> GetUserListAsync(UserListFilter filter)
+    public async Task<IEnumerable<UserInfo>> GetUserListAsync(UserListFilter filter)
     {
-      throw new NotImplementedException();
+      App.Authorize(SEC_USER_VIEW);
+
+      var qry = new Query<UserInfo>("Admin.GetUserList")
+      {
+        new Query.Param("filter", filter)
+      };
+
+      var result = await Data.LoadEnumerableAsync(qry).ConfigureAwait(false);
+      return result;
     }
 
-    public Task<IEnumerable<LoginInfo>> GetLoginsAsync(GDID gUser)
+    public async Task<IEnumerable<LoginInfo>> GetLoginsAsync(GDID gUser)
     {
-      throw new NotImplementedException();
+      App.Authorize(SEC_USER_VIEW);
+
+      var qry = new Query<LoginInfo>("Admin.GetLogins")
+      {
+        new Query.Param("gUser", gUser)
+      };
+
+      var result = await Data.LoadEnumerableAsync(qry).ConfigureAwait(false);
+      return result;
     }
 
     public Task<ChangeResult> ApplyLoginEventAsync(LoginEvent what)
@@ -137,35 +234,86 @@ namespace Azos.AuthKit.Server
       throw new NotImplementedException();
     }
 
-    public Task<ValidState> ValidateUserAsync(UserEntity user, ValidState state)
+    public async Task<ValidState> ValidateUserAsync(UserEntity user, ValidState state)
     {
-      throw new NotImplementedException();
+      // we will need to check user exists props, right, org unit etc.
+
+      if (user.OrgUnit.HasValue)
+      {
+        using (var scope = new SecurityFlowScope(TreePermission.SYSTEM_USE_FLAG))
+        {
+          var idNode = m_Handler.GetIdpConfigTreeNodePath(user.Realm, user.OrgUnit);
+          var tNode = await m_Forest.GetNodeInfoAsync(idNode).ConfigureAwait(false);
+          if (tNode == null) state = new ValidState(state, new FieldValidationException(nameof(UserEntity), "OrgUnit was not found"));
+        }
+      }
+
+      // return state
+      return state;
     }
 
-    public Task<ChangeResult> SaveUserAsync(UserEntity user)
+    public async Task<ChangeResult> SaveUserAsync(UserEntity user)
     {
-      throw new NotImplementedException();
+      App.Authorize(SEC_USER_CHANGE);
+
+      var qry = new Query<EntityChangeInfo>("Admin.SaveUser")
+      {
+        new Query.Param("u", user)
+      };
+
+      var change = await Data.IdpExecuteAsync(qry);
+      return new ChangeResult(ChangeResult.ChangeType.Processed, 1, "Saved", change);
     }
 
     public Task<ValidState> ValidateLoginAsync(LoginEntity login, ValidState state)
     {
-      throw new NotImplementedException();
+      // we will need to check user exists exists props, right, org unit etc.
+
+      // return state
+      return Task.FromResult(state);
     }
 
-    public Task<ChangeResult> SaveLoginAsync(LoginEntity login)
+    public async Task<ChangeResult> SaveLoginAsync(LoginEntity login)
     {
-      throw new NotImplementedException();
+      App.Authorize(SEC_USER_CHANGE);
+
+      var qry = new Query<EntityChangeInfo>("Admin.SaveLogin")
+      {
+        new Query.Param("l", login)
+      };
+
+      var change = await Data.IdpExecuteAsync(qry);
+      return new ChangeResult(ChangeResult.ChangeType.Processed, 1, "Saved", change);
     }
 
-    public Task<ChangeResult> SetLockStatusAsync(LockStatus status)
+    public async Task<ChangeResult> SetLockStatusAsync(LockStatus status)
     {
-      throw new NotImplementedException();
+      App.Authorize(SEC_USER_CHANGE);
+
+      var qry = new Query<EntityChangeInfo>("Admin.SetLock")
+      {
+        new Query.Param("l", status)
+      };
+
+      var change = await Data.IdpExecuteAsync(qry);
+      return new ChangeResult(ChangeResult.ChangeType.Processed, 1, "Saved", change);
     }
 
     #endregion
 
     #region pvt
 
+    // Since realm is an implicit security context we need to set it explicitly
+    private void setAmbientRealm(Atom realm)
+    {
+      var session = Ambient.CurrentCallSession;
+      if(session is NOPSession)
+      {
+        session = new BaseSession(Guid.NewGuid(), App.Random.NextRandomUnsignedLong);
+        ExecutionContext.__SetThreadLevelSessionContext(session);
+      }
+      session.DataContextName = realm.Value;
+    }
 
     #endregion
   }

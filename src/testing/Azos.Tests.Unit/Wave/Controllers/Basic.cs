@@ -12,10 +12,10 @@ namespace Azos.Tests.Unit.Wave.Controllers
     public object ActionPlainText() => "Response in plain text";
 
     [Action]
-    public void ActionVoidPlainTextWrite()
+    public Task ActionVoidPlainTextWrite()
     {
       WorkContext.Response.ContentType = ContentType.TEXT;
-      WorkContext.Response.Write("0123456789");
+      return WorkContext.Response.WriteAsync("0123456789");
     }
 
     [Action]
@@ -23,7 +23,7 @@ namespace Azos.Tests.Unit.Wave.Controllers
     {
       WorkContext.Response.ContentType = ContentType.TEXT;
       await Task.Delay(250);
-      WorkContext.Response.Write("0123456789");
+      await WorkContext.Response.WriteAsync("0123456789");
       await Task.Delay(250);
     }
 
@@ -31,10 +31,10 @@ namespace Azos.Tests.Unit.Wave.Controllers
     public object ActionObjectLiteral() => new {a = 1, b = true, d = new DateTime(1980, 1, 1)};
 
     [Action]
-    public void ActionHardCodedHtml()
+    public Task ActionHardCodedHtml()
     {
       WorkContext.Response.ContentType = ContentType.HTML;
-      WorkContext.Response.Write("<h1>Hello HTML</h1>");
+      return WorkContext.Response.WriteAsync("<h1>Hello HTML</h1>");
     }
 
     [Action(Name = "pmatch", Order = 10000)]//the last one - catch all

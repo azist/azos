@@ -5,6 +5,8 @@
 </FILE_LICENSE>*/
 
 
+using System.Threading.Tasks;
+
 namespace Azos.Wave.Mvc
 {
   /// <summary>
@@ -12,7 +14,6 @@ namespace Azos.Wave.Mvc
   /// </summary>
   public interface IActionResult
   {
-     void Execute(Controller controller, WorkContext work);
+     Task ExecuteAsync(Controller controller, WorkContext work);
   }
-
 }

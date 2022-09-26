@@ -104,10 +104,15 @@ namespace Azos.Apps
         if (s_Application!=null && !s_Application.AllowNesting)
           throw new AzosException(StringConsts.APP_CONTAINER_NESTING_ERROR.Args(application.GetType().FullName, s_Application.GetType().FullName));
 
-        if (s_Application!=null)
+        if (s_Application != null)
+        {
           s_AppStack.Push( s_Application );
+        }
 
         s_Application = application;
+
+        //root app AZ#676
+        ats_Session.__EnsureInit();//explicitly initialize the root-most call flow AZ#676
       }
     }
 

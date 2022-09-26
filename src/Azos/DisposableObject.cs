@@ -6,6 +6,7 @@
 using System;
 using System.Runtime.Serialization;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Azos
 {
@@ -20,7 +21,7 @@ namespace Azos
     /// For advanced use. Returns true when object is being disposed by a finalizer called from CLR GC.
     /// You may want to check for this flag in Destructor() to bypass some deallocation as the
     /// condition is equivalent to typical Dispose(false) pattern, however it indicates a possible memory leak
-    /// as all entities implementing IDisposable must be deterministically deallocated using a call to .Dispose() and
+    /// as all entities implementing IDisposable must be deterministically deallocated using a call to either .Dispose() or .DisposeAsync() and
     /// system finalizers should NEVER run
     /// </summary>
     /// <remarks>
@@ -37,7 +38,7 @@ namespace Azos
   /// The .Dispose() pattern is implemented in a thread-safe way
   /// </summary>
   [Serializable]
-  public abstract class DisposableObject : IDisposableLifecycle
+  public abstract class DisposableObject : IDisposableLifecycle, IAsyncDisposable
   {
     private const int STATE_ALIVE = 0;
     private const int STATE_DISPOSED_USER = 1;
@@ -59,6 +60,31 @@ namespace Azos
     }
 
     /// <summary>
+    /// Checks to see if the IAsyncDisposable reference is not null and sets it to null in a thread-safe way then calls DisposeAsync()
+    /// </summary>
+    public static ValueTask DisposeAndNullAsync<T>(ref T obj) where T : class, IAsyncDisposable
+      => DisposeAndNullAsync(ref obj, out var _);
+
+    /// <summary>
+    /// Checks to see if the IAsyncDisposable reference is not null and sets it to null in a thread-safe way then calls DisposeAsync().
+    /// Returns false if it is already null or not the original reference captured at the invocation
+    /// </summary>
+    public static ValueTask DisposeAndNullAsync<T>(ref T obj, out bool disposed) where T : class, IAsyncDisposable
+    {
+      var original = obj;
+      var was = Interlocked.CompareExchange(ref obj, null, original);
+      if (was == null || !object.ReferenceEquals(was, original))
+      {
+        disposed = false;
+        return new ValueTask(Task.CompletedTask);
+      }
+
+      disposed = true;
+      return was.DisposeAsync();
+    }
+
+
+    /// <summary>
     /// Checks to see if the reference is not null and sets it to null in a thread-safe way then calls Dispose()
     /// if the reference is IDisposable.
     /// Returns false if it is already null or not the original reference or the original reference is not IDisposable
@@ -77,6 +103,45 @@ namespace Azos
 
       return false;
     }
+
+    /// <summary>
+    /// Checks to see if the reference is not null and sets it to null in a thread-safe way then calls DisposeAsync()
+    /// if the reference is IAsyncDisposable or Dispose() if it is IDisposable.
+    /// </summary>
+    public static ValueTask DisposeIfDisposableAndNullAsync<T>(ref T obj) where T : class
+      => DisposeIfDisposableAndNullAsync(ref obj, out var _);
+
+    /// <summary>
+    /// Checks to see if the reference is not null and sets it to null in a thread-safe way then calls DisposeAsync()
+    /// if the reference is IAsyncDisposable or Dispose() if it is IDisposable.
+    /// Returns false if it is already null or not the original reference or the original reference is not IAsyncDisposable/IDipsosable
+    /// </summary>
+    public static ValueTask DisposeIfDisposableAndNullAsync<T>(ref T obj, out bool disposed) where T : class
+    {
+      var original = obj;
+      var was = Interlocked.CompareExchange(ref obj, null, original);
+      if (was == null || !object.ReferenceEquals(was, original))
+      {
+        disposed = false;
+        return new ValueTask(Task.CompletedTask);
+      }
+
+      if (was is IAsyncDisposable adisposable)
+      {
+        disposed = true;
+        return adisposable.DisposeAsync();
+      }
+
+      if (was is IDisposable disposable)
+      {
+        disposed = true;
+        disposable.Dispose();
+        return new ValueTask(Task.CompletedTask);
+      }
+
+      disposed = false;
+      return new ValueTask(Task.CompletedTask);
+    }
     #endregion
 
     #region .ctor / .dctor
@@ -90,7 +155,6 @@ namespace Azos
         Destructor();
       }
     }
-
     #endregion
 
     #region Private Fields
@@ -121,13 +185,29 @@ namespace Azos
     /// <remarks>
     /// This method is called as the result of both the deterministic .Dispose() call by user code
     /// and non-deterministic system finalizer invocations. The typical MS `.Dispose(bool)` pattern is not used on purpose because
-    /// all object implementing `IDisposable` must be deallocated ONLY via a call to `Dispose()` and
+    /// all objects implementing `IDisposable` must be deallocated ONLY via a call to `Dispose()` and
     /// invocation of system finalizer is considered to be a memory leak in Azos.
     /// You could check the <seealso cref="IDisposableLifecycle.DisposedByFinalizer"/> property,
     /// however this is considered to be a special case such as reporting of memory leaks using instrumentation/gauges
     /// </remarks>
     protected virtual void Destructor()
     {
+    }
+
+    /// <summary>
+    /// Works on behalf of <see cref="IAsyncDisposable"/> allowing for efficient async-first
+    /// deterministic mechanism for implementing types.
+    /// Override to perform custom type ASYNC finalization akin to sync one.
+    /// The default implementation delegates work to synchronous <see cref="Destructor"/>, this way
+    /// the logical system integrity is not violated by introduction of <see cref="IAsyncDisposable"/> interface,
+    /// however if you need a true asynchronous finalization, then this method MUST be overriden in a concrete class.
+    /// Warning: a synchronous <see cref="Destructor"/> must ALWAYS be implemented as it may be called by
+    /// a CLR GC finalizer which does not call async methods.
+    /// </summary>
+    protected virtual ValueTask DestructorAsync()
+    {
+      Destructor();
+      return new ValueTask(Task.CompletedTask);
     }
 
     /// <summary>
@@ -153,6 +233,27 @@ namespace Azos
         try
         {
           Destructor();
+        }
+        finally
+        {
+          GC.SuppressFinalize(this);
+        }
+      }
+    }
+    #endregion
+
+    #region IAsyncDisposable Members
+    /// <summary>
+    /// Deterministically disposes this object in a thread-safe way.
+    /// DO NOT TRY TO OVERRIDE this method, override DestructorAsync() instead
+    /// </summary>
+    public async ValueTask DisposeAsync()
+    {
+      if (STATE_ALIVE == Interlocked.CompareExchange(ref m_DisposeState, STATE_DISPOSED_USER, STATE_ALIVE))
+      {
+        try
+        {
+          await DestructorAsync().ConfigureAwait(false);
         }
         finally
         {

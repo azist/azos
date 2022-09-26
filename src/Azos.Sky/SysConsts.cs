@@ -61,6 +61,7 @@ namespace Azos.Sky
 
     public const string LOG_TOPIC_METABASE = "mtbs";
     public const string LOG_TOPIC_APP_MANAGEMENT = "AppMgmt";
+    public const string LOG_TOPIC_SKYOD = "skyod";
     public const string LOG_TOPIC_HOST_GOV = "hgov";
     public const string LOG_TOPIC_ZONE_GOV = "zgov";
     public const string LOG_TOPIC_LOCKING = "lck";
@@ -204,7 +205,8 @@ namespace Azos.Sky
             (char)0,
             (char)0x0d,
             (char)0x0a,
-            Metabase.Metabank.HOST_DYNAMIC_SUFFIX_SEPARATOR,
+            #warning refactor
+            '~',//Metabase.Metabank.HOST_DYNAMIC_SUFFIX_SEPARATOR,
             '@', '#', ',' , ';' , ':' , '%', '&',
             '/' , '\\' , '\'' , '"' , '|' ,
             '*' , '?',

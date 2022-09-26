@@ -5,7 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
-
+using Azos.Time;
 using MySqlConnector;
 
 namespace Azos.Data.Access.MySql
@@ -43,6 +43,13 @@ namespace Azos.Data.Access.MySql
       return val.AsNullableAtom(dflt, handling);
     }
 
+    public static Guid? AsGuidField(this MySqlDataReader reader, string fld, Guid? dflt = null, ConvertErrorHandling handling = ConvertErrorHandling.ReturnDefault)
+    {
+      var val = reader[fld];
+      if (val is DBNull) return null;
+      return val.AsGUID(dflt ?? Guid.Empty, handling);
+    }
+
     public static EntityId? AsEntityIdField(this MySqlDataReader reader, string fld, EntityId? dflt = null, ConvertErrorHandling handling = ConvertErrorHandling.ReturnDefault)
     {
       var val = reader[fld];
@@ -74,7 +81,26 @@ namespace Azos.Data.Access.MySql
         styles = CoreConsts.UTC_TIMESTAMP_STYLES;
       }
 
+      if(val is DateTime d &&
+        (styles.Value.HasFlag(System.Globalization.DateTimeStyles.AssumeUniversal) ||
+        styles.Value.HasFlag(System.Globalization.DateTimeStyles.AdjustToUniversal))) // 20220302 dkh
+      {
+        val = new DateTime(d.Ticks, DateTimeKind.Utc);
+      }
+
       return val.AsNullableDateTime(dflt, handling, styles.Value);
+    }
+
+    public static DateRange? AsDateRangeFields(this MySqlDataReader reader,
+                                           string fldStart,
+                                           string fldEnd,
+                                           DateTime? dfltStart = null,
+                                           DateTime? dfltEnd = null,
+                                           ConvertErrorHandling handling = ConvertErrorHandling.ReturnDefault,
+                                           System.Globalization.DateTimeStyles? styles = null)
+    {
+      return new DateRange(reader.AsDateTimeField(fldStart, dfltStart, handling, styles),
+                           reader.AsDateTimeField(fldEnd, dfltEnd, handling, styles));
     }
 
     public static int? AsIntField(this MySqlDataReader reader, string fld, int? dflt = null, ConvertErrorHandling handling = ConvertErrorHandling.ReturnDefault)
