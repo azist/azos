@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.0.0.26
-set HEADLINE=#776 WebConsole wmbedded resource paths
+set VER=3.0.0.27
+set HEADLINE=#778, #779 Config enhancements
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
