@@ -1959,10 +1959,9 @@ namespace Azos.Conf
 
       var ENV_MOD = m_Configuration.Variable_ENV_MOD;
 
-      var original = name;
-
-      if (name.StartsWith(ENV_MOD))
+      if (name.StartsWith(ENV_MOD))//ENV VARIABLE    $(~!SKY_HOME)
       {
+        var original = name;
         name = name.Replace(ENV_MOD, string.Empty);
 
         var isreq = false;
@@ -1975,7 +1974,9 @@ namespace Azos.Conf
         var result = string.Empty;
 
         if (name.IsNotNullOrWhiteSpace())
-         result = m_Configuration.ResolveEnvironmentVar(name) ?? string.Empty;
+        {
+          result = m_Configuration.ResolveEnvironmentVar(name) ?? string.Empty;
+        }
 
         if (isreq && result.IsNullOrWhiteSpace())
         {
