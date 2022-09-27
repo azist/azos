@@ -1959,10 +1959,30 @@ namespace Azos.Conf
 
       var ENV_MOD = m_Configuration.Variable_ENV_MOD;
 
+      var original = name;
+
       if (name.StartsWith(ENV_MOD))
       {
         name = name.Replace(ENV_MOD, string.Empty);
-        return m_Configuration.ResolveEnvironmentVar(name) ?? string.Empty;
+
+        var isreq = false;
+        if (name.StartsWith("!"))
+        {
+          isreq = true;
+          name = name.Length > 1 ? name.Substring(1) : string.Empty;
+        }
+
+        var result = string.Empty;
+
+        if (name.IsNotNullOrWhiteSpace())
+         result = m_Configuration.ResolveEnvironmentVar(name) ?? string.Empty;
+
+        if (isreq && result.IsNullOrWhiteSpace())
+        {
+          throw new ConfigException(StringConsts.CONFIGURATION_ENV_VAR_REQUIRED_ERROR.Args(original));
+        }
+
+        return result;
       }
       else
         return Navigate(name).Value ?? string.Empty;

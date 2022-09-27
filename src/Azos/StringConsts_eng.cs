@@ -147,6 +147,8 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
 
         public const string CONFIGURATION_NAVIGATION_REQUIRED_ERROR = "Bad navigation: path '{0}' requires node but did not land at an existing node";
 
+        public const string CONFIGURATION_ENV_VAR_REQUIRED_ERROR = "Variable ref '{0}' requires value but returned nothing";
+
         public const string CONFIGURATION_PATH_SEGMENT_NOT_SECTION_ERROR = "Bad navigation: path segment '{0}' in path '{1}' can not be navigated to because its parent is not a section node ";
 
         public const string CONFIGURATION_PATH_INDEXER_ERROR = "Bad navigation: path '{0}' contains bad indexer specification '{1}'";
