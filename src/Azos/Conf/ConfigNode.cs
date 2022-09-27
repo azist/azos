@@ -1696,6 +1696,20 @@ namespace Azos.Conf
 
       //2 Try to get content form the file system
       var ndFs = pragma[Configuration.CONFIG_INCLUDE_PRAGMA_FS_SECTION];
+
+      //20220927 DKh #779
+      if (!ndFs.Exists) //load from local file if "fs" section is not declared
+      {
+        if (!File.Exists(fileName))
+        {
+          if (required) throw new ConfigException("Referenced local file '{0}' does not exist".Args(fileName));
+          return (null, isOverride);
+        }
+
+        var root = Configuration.ProviderLoadFromFile(fileName).Root;
+        return (root, isOverride);
+      }
+
       //todo: Future, pool file system instances, do not allocate FS on every get, maybe create a module for FS?
       using (var fs = FactoryUtils.MakeAndConfigureComponent<IFileSystemImplementation>(Configuration.Application,
                                                                                        ndFs,
