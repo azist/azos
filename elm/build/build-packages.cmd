@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.0.0.27
-set HEADLINE=#778, #779 Config enhancements
+set VER=3.0.0.28
+set HEADLINE=#780 daemon cmdlets and activation vars
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
