@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.0.0.29
-set HEADLINE=#780 add ENV cmdlet
+set VER=3.0.0.30
+set HEADLINE=#780 rt factory mthod
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
