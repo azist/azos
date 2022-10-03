@@ -144,7 +144,7 @@ namespace Azos.Apps.Terminal.Cmdlets
         }
 
         sb.AppendLine();
-        sb.AppendLine("<f color=white>NOTE:<f color=darkgray> For management use CMAN instead as it allows to set more parameters");
+        sb.AppendLine("<f color=white>NOTE:<f color=darkgray> For management use MANC instead as it allows to set more parameters");
         sb.AppendLine("<pop>");
 
         return sb.ToString();
