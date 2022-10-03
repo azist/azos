@@ -34,6 +34,7 @@ namespace Azos.IO.Sipc
 
     public const string CMD_PING = "ping;";
     public const string CMD_STOP = "stop;";
+    public const string CMD_GC = "gc;";
     public const string CMD_DISCONNECT = "disconnect;";
 
 
