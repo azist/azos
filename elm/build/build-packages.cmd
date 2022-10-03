@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.0.0.28
-set HEADLINE=#780 daemon cmdlets and activation vars
+set VER=3.0.0.29
+set HEADLINE=#780 add ENV cmdlet
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
