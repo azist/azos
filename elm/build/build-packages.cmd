@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.0.0.30
-set HEADLINE=#780 rt factory mthod
+set VER=3.0.0.31
+set HEADLINE=#781
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
