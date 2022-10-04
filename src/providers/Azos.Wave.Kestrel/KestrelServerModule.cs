@@ -90,7 +90,15 @@ namespace Azos.Wave.Kestrel
           {
             OK = false,
             status = 503,
-            description = "Request was not handled by any Wave server instance"
+            description = "Request was not handled by any Wave server instance",
+            headers = new
+            {
+              host = context?.Request?.Host,
+              x_forwarded_host = context?.Request?.Headers["X-Forwarded-Host"],
+              x_forwarded_proto = context?.Request?.Headers["X-Forwarded-Proto"],
+              x_forwarded_for = context?.Request?.Headers["X-Forwarded-For"],
+              origin = context?.Request.Headers.Origin
+            }
           }).ConfigureAwait(false);
         }
       }
