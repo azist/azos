@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.0.0.31
-set HEADLINE=#781
+set VER=3.0.0.32
+set HEADLINE=#782
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
