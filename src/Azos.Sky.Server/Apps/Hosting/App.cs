@@ -220,5 +220,13 @@ namespace Azos.Apps.Hosting
       m_FailReason = reason.Default("<Unspecified>");
     }
 
+    /// <summary>
+    /// If connection is active, sends GC command returning true on success
+    /// </summary>
+    public bool InduceGc()
+    {
+      var cnn = Connection;
+      return cnn != null ? cnn.Send(Azos.IO.Sipc.Protocol.CMD_GC) : false;
+    }
   }
 }
