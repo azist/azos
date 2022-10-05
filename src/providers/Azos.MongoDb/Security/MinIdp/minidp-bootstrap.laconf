@@ -2,12 +2,13 @@
 //then execute in remote console.
 //IMPORTANT: if you run the script via a "lower" environment (not an IDP server), then component
 //management command will apply it to ALL nodes in cluster
+//NOTE: Remove this node if you are running this directly against the IDP server
 manc
 {
   name=minidp
   call
   {
-    exec
+    exec   //NOTE: Remove this node if you are running this directly against the IDP server
     {
 //===============================================================
 

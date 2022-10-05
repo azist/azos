@@ -106,10 +106,19 @@ namespace Azos.Wave
                                .Select(one => one.AsInt(0))
                                .Where(one => one > 0 && one <= 0xffff).ToArray();
         }
+
+        var hsegs = node.Of("host-segments").Value;
+        if (hsegs.IsNotNullOrWhiteSpace())
+        {
+          m_HostSegments = hsegs.Split(",", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                                .Select(one => one.Trim())
+                                .Where(one => one.IsNotNullOrWhiteSpace()).ToArray();
+        }
       }
 
       private HostString  m_HostName;
       private int[] m_BoundPorts;
+      private string[] m_HostSegments;
 
       [Config] public string Name { get; private set; }
       [Config] public int Order { get; private set; }
@@ -125,22 +134,56 @@ namespace Azos.Wave
       /// </summary>
       public IEnumerable<int> BoundPorts => m_BoundPorts;
 
+      /// <summary>
+      /// When set matches the incoming traffic with any of the listed host segments.
+      /// The check is performed after the HostName check
+      /// </summary>
+      public IEnumerable<string> HostSegments => m_HostSegments;
+
       public bool Make(HttpContext httpContext)
       {
         if (m_HostName.HasValue)
         {
-          if (m_HostName.Host.EqualsIgnoreCase(httpContext.Request.Host.Host)) return false;
+          if (!m_HostName.Host.EqualsIgnoreCase(httpContext.Request.Host.Host)) return false;
           if (m_HostName.Port.HasValue && httpContext.Request.Host.Port != m_HostName.Port) return false;
         }
 
         //match just on ports
         if (m_BoundPorts != null)
         {
-          for(var i=0; i< m_BoundPorts.Length; i++)
+          var any = false;
+          var iport = httpContext.Request.Host.Port ?? 0;
+          if (iport > 0)
           {
-            if (httpContext.Request.Host.Port == m_BoundPorts[i]) return true;
+            for (var i=0; i< m_BoundPorts.Length; i++)
+            {
+              if (iport == m_BoundPorts[i])
+              {
+                any = true;
+                break;
+              }
+            }
           }
-          return false;
+          if (!any) return false;
+        }
+
+        //match on partial host segment presence
+        if (m_HostSegments != null)
+        {
+          var any = false;
+          var hstr = httpContext.Request.Host.Host;
+          if (hstr.IsNotNullOrWhiteSpace())
+          {
+            for (var i = 0; i < m_HostSegments.Length; i++)
+            {
+              if (hstr.IndexOf(m_HostSegments[i], StringComparison.InvariantCultureIgnoreCase) > -1)
+              {
+                any = true;
+                break;
+              }
+            }
+          }
+          if (!any) return false;
         }
 
         return true;

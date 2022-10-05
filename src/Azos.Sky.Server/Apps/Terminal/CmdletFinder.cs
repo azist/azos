@@ -12,7 +12,7 @@ using System.Reflection;
 namespace Azos.Apps.Terminal
 {
   /// <summary>
-  /// Provides enumerations of well-known cmdlets and facilities to find process-specific cmdlets
+  /// Provides enumerations of well-known cmdlets and facilities discovery of process-specific cmdlets
   /// </summary>
   public static class CmdletFinder
   {

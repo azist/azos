@@ -49,6 +49,7 @@ namespace Azos.Apps.Hosting
     public const string CONFIG_START_EXECUTABLE_ARGS_ATTR = "args";
     public const string CONFIG_START_HGOV_ARGS_PRAGMA_ATTR = "hgov-args-pragma";
     public const string PRAGMA_HGOV_DEFAULT = "{{gov}}";
+    public const string CONFIG_EVARS_SECTION = "environment-vars";
 
     public const string CONFIG_STOP_KILL_ENTIRE_PROCESS_TREE_ATTR = "kill-entire-process-tree";
 
@@ -126,6 +127,11 @@ namespace Azos.Apps.Hosting
       process.StartInfo.RedirectStandardInput = false;
       process.StartInfo.RedirectStandardOutput = false;
       process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+
+      //copy env vars #780
+      app.StartSection[CONFIG_EVARS_SECTION]
+         .Attributes
+         .ForEach(atr => process.StartInfo.EnvironmentVariables[atr.Name] = atr.Value);
 
       WriteLogFromHere(MessageType.Trace, "Attemp process start".Args(app.Name), related: rel);
       try

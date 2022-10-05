@@ -48,6 +48,13 @@ namespace Azos.Apps.Hosting
         return;
       }
 
+      if (command.EqualsOrdIgnoreCase(Protocol.CMD_GC))
+      {
+        log(MessageType.InfoD, "Received GC from gov");
+        System.Threading.Tasks.Task.Run(() => GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true, true));
+        return;
+      }
+
       try
       {
         var cmd = command.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw);

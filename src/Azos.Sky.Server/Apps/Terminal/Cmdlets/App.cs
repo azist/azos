@@ -24,7 +24,6 @@ namespace Azos.Apps.Terminal.Cmdlets
 
     public App(AppRemoteTerminal terminal, IConfigSectionNode args) : base(terminal, args)
     {
-
     }
 
     public override string Execute()

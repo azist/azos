@@ -51,7 +51,7 @@ namespace Azos.Apps.Hosting
     public override bool InstrumentationEnabled { get; set; }
     public override string ComponentLogTopic => Sky.SysConsts.LOG_TOPIC_HOST_GOV;
 
-    public IRegistry<App> Applications => m_Applications;
+    public IOrderedRegistry<App> Applications => m_Applications;
 
     [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_APP)]
     public int ServerStartPort

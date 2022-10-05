@@ -71,10 +71,9 @@ namespace Azos.Apps.Hosting
           Console.WriteLine();
           Console.WriteLine("To stop the process enter 'exit' or 'stop' commands or hit <CTL+C>");
 
-          using (var term = new AppRemoteTerminal())
+          //must use FactoryUtils
+          using (var term = AppRemoteTerminal.MakeNewTerminal(s_Application))
           {
-            s_Application.InjectInto(term);
-
             #region Perform SYSTEM Implicit Grant
             //Impersonate the current call flow as local SYSTEM user.
             //Warning: this code here is a very special case: a root server console.

@@ -5,7 +5,7 @@
 </FILE_LICENSE>*/
 using System;
 using System.Diagnostics;
-
+using System.Runtime;
 using Azos.Conf;
 
 namespace Azos.Apps.Terminal.Cmdlets
@@ -19,8 +19,12 @@ namespace Azos.Apps.Terminal.Cmdlets
     public override string Execute()
     {
       var watch = Stopwatch.StartNew();
+
       var before = GC.GetTotalMemory(false);
-      GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true);
+      GC.Collect(GC.MaxGeneration,
+                 GCCollectionMode.Forced,
+                 m_Args.Of("block").ValueAsBool(true),
+                 m_Args.Of("compact").ValueAsBool(true));
 
       if (m_Args.Of("wait").ValueAsBool())
       {
@@ -29,12 +33,26 @@ namespace Azos.Apps.Terminal.Cmdlets
 
       var after = GC.GetTotalMemory(false);
       var freed = before - after;
-      return "GC took {0:n0} ms. and freed {1:n0}".Args(watch.ElapsedMilliseconds, IOUtils.FormatByteSizeWithPrefix(freed, longPfx: true));
+
+      var result = $"MaxGen:      {GC.MaxGeneration}\n" +
+                   $"IsServer:    {GCSettings.IsServerGC}\n" +
+                   $"LatencyMode: {GCSettings.LatencyMode}\n" +
+                   $"LOHCMode:    {GCSettings.LargeObjectHeapCompactionMode}\n" +
+                   $"Total process allocations:    {IOUtils.FormatByteSizeWithPrefix(GC.GetTotalAllocatedBytes(false), false)}\n" +
+                   $"-----------------------------------------------\n" +
+                   $"Elapsed:        {watch.ElapsedMilliseconds:n0} ms\n" +
+                   $"Total before:   {IOUtils.FormatByteSizeWithPrefix(before, false),12}\n" +
+                   $"Total after:    {IOUtils.FormatByteSizeWithPrefix(after, false),12}\n" +
+                   $"Total freed:    {IOUtils.FormatByteSizeWithPrefix(freed, false),12}\n ";
+
+      return result;
     }
 
     public override string GetHelp()
     {
         return @"Invokes garbage collector on all generations.
+    Pass `block=false` to avoid blocking collection;
+    Pass `compact=false` to avoid compaction;
     Pass `wait=true` to wait for pending finalizers";
     }
   }
