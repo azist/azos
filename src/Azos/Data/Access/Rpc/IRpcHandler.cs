@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using Azos.Apps;
+using Azos.Serialization.JSON;
 
 namespace Azos.Data.Access.Rpc
 {
@@ -30,7 +31,7 @@ namespace Azos.Data.Access.Rpc
     /// <summary>
     /// Executes a single data fetch RPC request against the `Session.DataContext` yielding a Doc resultset
     /// </summary>
-    Task<Rowset> ReadAsync(ReadRequest request);
+    Task<JsonDataMap> ReadAsync(ReadRequest request);
 
     /// <summary>
     /// Executes a transactional RPC request against the `Session.DataContext`

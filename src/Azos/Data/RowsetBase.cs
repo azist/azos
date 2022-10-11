@@ -551,14 +551,22 @@ namespace Azos.Data
     /// </summary>
     public void WriteAsJson(System.IO.TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
     {
+      var metadata = options != null && options.RowsetMetadata;
+      var map = WriteAsJsonIntoMap(metadata);
+      JsonWriter.WriteMap(wri, map, nestingLevel, options);
+    }
+
+    /// <summary>
+    /// Writes as json into JsonDataMap
+    /// </summary>
+    public JsonDataMap WriteAsJsonIntoMap(bool metadata)
+    {
       var tp = GetType();
 
-      var metadata = options != null && options.RowsetMetadata;
-
-      var map = new Dictionary<string, object>//A root JSON object is needed for security, as some browsers can EXECUTE a valid JSON root array
-        {
+      var map = new JsonDataMap//A root JSON object is needed for security, as some browsers can EXECUTE a valid JSON root array
+      {
           {"Rows", m_List}
-        };
+      };
 
       if (metadata)
       {
@@ -568,7 +576,7 @@ namespace Azos.Data
         map.Add("Schema", m_Schema);
       }
 
-      JsonWriter.WriteMap(wri, map, nestingLevel, options);
+      return map;
     }
 
     #endregion

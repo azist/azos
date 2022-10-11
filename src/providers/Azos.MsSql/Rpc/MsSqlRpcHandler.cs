@@ -95,7 +95,7 @@ namespace Azos.Data.Access.MsSql
 
 
 
-    public async Task<Rowset> ReadAsync(ReadRequest request)
+    public async Task<JsonDataMap> ReadAsync(ReadRequest request)
     {
       App.Authorize(PERM_READ);
 
@@ -110,7 +110,7 @@ namespace Azos.Data.Access.MsSql
         {
           result = await readAsync(connection, command, isSql).ConfigureAwait(false);
         }
-        return result;
+        return result.WriteAsJsonIntoMap(metadata: true);
       }
       catch(Exception error)
       {
