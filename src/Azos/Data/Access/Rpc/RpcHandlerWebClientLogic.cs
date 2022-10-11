@@ -13,6 +13,7 @@ using Azos.Apps;
 using Azos.Client;
 using Azos.Conf;
 using Azos.Log;
+using Azos.Security.Data;
 using Azos.Serialization.JSON;
 using Azos.Web;
 
@@ -47,7 +48,14 @@ namespace Azos.Data.Access.Rpc
     [Config]
     public string RpcHandlerServiceAddress{  get; set; }
 
-    public bool IsServerImplementation => false;
+    /// <summary>
+    /// Name of data context header. If not specified then default session data context name is assumed
+    /// </summary>
+    [Config]
+    public string DataContextHeader { get; set; }
+
+    protected static readonly DataRpcPermission PERM_READ = new DataRpcPermission(DataRpcAccessLevel.Read);
+    protected static readonly DataRpcPermission PERM_TRANSACT = new DataRpcPermission(DataRpcAccessLevel.Transact);
 
     protected override void DoConfigure(IConfigSectionNode node)
     {
@@ -80,8 +88,21 @@ namespace Azos.Data.Access.Rpc
     /// </summary
     public virtual ValidState ValidateTransactRequest(ValidState state, TransactRequest request) => state;
 
+
+    private IEnumerable<KeyValuePair<string, string>> dataContextHeader
+    {
+      get
+      {
+        var hdr = DataContextHeader.Default(CoreConsts.DEFAULT_DATA_CONTEXT_HEADER);
+        var ctx = Ambient.CurrentCallSession.DataContextName;
+        yield return new KeyValuePair<string, string>(hdr, ctx);
+      }
+    }
+
     public async Task<JsonDataMap> ReadAsync(ReadRequest request)
     {
+      App.Authorize(PERM_READ);
+
       var response = await m_Server.Call(RpcHandlerServiceAddress,
                                           nameof(IRpcHandler),
                                           new ShardKey(DateTime.UtcNow),
@@ -89,7 +110,7 @@ namespace Azos.Data.Access.Rpc
                                                                 new
                                                                 {
                                                                   request = request
-                                                                }).ConfigureAwait(false));
+                                                                }, requestHeaders: dataContextHeader).ConfigureAwait(false));
 
       var result = response.UnwrapPayloadMap();
       return result;
@@ -97,6 +118,8 @@ namespace Azos.Data.Access.Rpc
 
     public async Task<ChangeResult> TransactAsync(TransactRequest request)
     {
+      App.Authorize(PERM_TRANSACT);
+
       var response = await m_Server.Call(RpcHandlerServiceAddress,
                                           nameof(IRpcHandler),
                                           new ShardKey(DateTime.UtcNow),
@@ -104,7 +127,7 @@ namespace Azos.Data.Access.Rpc
                                                                 new
                                                                 {
                                                                   request = request
-                                                                }).ConfigureAwait(false));
+                                                                }, requestHeaders: dataContextHeader).ConfigureAwait(false));
 
       var result = response.UnwrapChangeResult();
       return result;
