@@ -109,18 +109,6 @@ namespace Azos.Wave.Kestrel
       opt.AllowSynchronousIO = true;//used by Wave for now in some legacy code path (e.g. StockHandler)
       //opt.Limits....
 
-      //Listen ON
-      //If ANY IP is defined then it takes precedence over individual ips
-      //if (ListenAnyIpPort>0)
-      //{
-      //  opt.ListenAnyIP(ListenAnyIpPort, DoListenOptions);
-      //}
-      //else
-      //{
-      //  //try individual ips
-      //  opt.Listen(ip, port, DoListenOptions);
-      //}
-
       (Bindings != null && Bindings.Any()).IsTrue("Defined bindings");
 
       foreach(var binding in Bindings)
