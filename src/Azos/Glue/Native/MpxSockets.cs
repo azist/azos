@@ -269,7 +269,7 @@ namespace Azos.Glue.Native
             if ((when - lastIdleVisit.Value).TotalMilliseconds > tMs)
             {
               Instrumentation.InactiveServerTransportClosedEvent.Happened(Transport.App.Instrumentation, Transport.Node);
-              Transport.Binding.WriteLog(LogSrc.Server, Log.MessageType.TraceGlue,
+              Transport.Binding.WriteLog(LogSrc.Server, Log.MessageType.TraceNetGlue,
                                         "Server transport on '{0}' closed idle client socket from '{1}'".Args(Transport.Node, ClientSite.Name),
                                         GetType().Name+".AcceptManagerVisit(when)");
               m_Disposing = true;//just mark for removal/Dispose

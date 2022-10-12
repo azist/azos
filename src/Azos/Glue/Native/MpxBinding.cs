@@ -330,7 +330,7 @@ namespace Azos.Glue.Native
             chunk._LastReleaseUtc = App.TimeSource.UTCNow;
 
             WriteLog(LogSrc.Any,
-                     Log.MessageType.TraceGlue,
+                     Log.MessageType.TraceNetGlue,
                      "Chunk released back to pool; Used {0} capacity {1} ".Args(chunk.stat_MaxUsedPosition, chunk.stat_MaxLength));
 
             var chunks = m_Chunks;

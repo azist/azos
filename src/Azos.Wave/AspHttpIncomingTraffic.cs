@@ -88,7 +88,8 @@ namespace Azos.Wave
         return m_Items;
       }
     }
+
+    public override string ToString() => $"AspHttpIncomingTraffic({FromAddress} -> {ToAddress}:{Service}; {Method} `{RequestURL}`)";
+
   }
-
-
 }

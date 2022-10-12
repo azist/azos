@@ -14,6 +14,7 @@ using Azos.Log;
 using Azos.Conf;
 using Azos.Collections;
 using Azos.Apps;
+using Azos.Serialization.JSON;
 
 namespace Azos.IO.Net.Gate
 {
@@ -194,6 +195,27 @@ namespace Azos.IO.Net.Gate
             rule = rItem;
             break;
           }
+        }
+
+        //Add gate logging
+        if (ComponentEffectiveLogLevel <= MessageType.TraceZ)
+        {
+          WriteLog(MessageType.TraceNetGlue, nameof(CheckTraffic), "Gate", pars: new
+          {
+            traffic = new
+            {
+              t =    traffic.GetType().DisplayNameWithExpandedGenericArgs(),
+              dir =  traffic.Direction,
+              mtd =  traffic.Method,
+              svc =  traffic.Service,
+              url =  traffic.RequestURL,
+              fadr = traffic.FromAddress,
+              tadr = traffic.ToAddress
+            },
+            group = (fromGroup ?? toGroup)?.Name,
+            rule = rule?.Name,
+            result = result
+          }.ToJson());
         }
 
         return result;
