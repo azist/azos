@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.0.0.34
-set HEADLINE=#784 add data context header
+set VER=3.0.0.35
+set HEADLINE=#785 gate traffic
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
