@@ -40,7 +40,7 @@ namespace Azos.Wave.Kestrel
 
         var sip = cfg.Of("ip").Value;
 
-        if (sip.IsNullOrWhiteSpace()) //Null = ANY IP
+        if (sip.IsNotNullOrWhiteSpace()) //Null = ANY IP
         {
           IPAddress.TryParse(sip, out var ip).IsTrue("Valid ip");
           Ip = ip;
@@ -109,15 +109,18 @@ namespace Azos.Wave.Kestrel
       opt.AllowSynchronousIO = true;//used by Wave for now in some legacy code path (e.g. StockHandler)
       //opt.Limits....
 
-      (Bindings != null && Bindings.Any()).IsTrue("Defined bindings");
-
-      foreach(var binding in Bindings)
+      var any = false;
+      foreach(var binding in Bindings.NonNull(nameof(Bindings)))
       {
+        any = true;
+
         if (binding.Ip == null) //ANY IP
           opt.ListenAnyIP(binding.Port, lopt => DoBindingListenOptions(lopt, binding));
         else
           opt.Listen(binding.Ip, binding.Port, lopt => DoBindingListenOptions(lopt,  binding));
       }
+
+      any.IsTrue("Defined bindings");
     }
 
     protected virtual void DoBindingListenOptions(ListenOptions opt, Binding binding)

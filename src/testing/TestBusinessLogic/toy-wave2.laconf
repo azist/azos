@@ -169,8 +169,10 @@
       host
       {
         //min-asp-log-level=Information
-        listen-any-ip-port=8080
+        binding{ port=8080 }
+        //binding{ port=8090 cert-file="test-certificate.pfx" cert-pwd="YourSecurePassword" }
       }
+
     }//module
 
   }//modules
