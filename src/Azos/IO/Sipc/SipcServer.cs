@@ -79,7 +79,7 @@ namespace Azos.IO.Sipc
         m_Listener = tryBind();
 
         if (m_Listener == null)
-         throw new AzosIOException("Unable to start SIPC server in the port range {0}-{1}".Args(m_StartPort, m_EndPort));
+         throw new SipcException("Unable to start SIPC server in the port range {0}-{1}".Args(m_StartPort, m_EndPort));
 
         m_Signal = new AutoResetEvent(false);
 

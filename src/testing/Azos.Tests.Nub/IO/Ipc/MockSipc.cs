@@ -51,21 +51,21 @@ namespace Azos.Tests.Nub.IO.Ipc
     {
     }
 
-    protected override void DoHandleFailure()
+    protected override void DoHandleUplinkFailure()
     {
       WasFailure = true;
     }
 
     public bool WasFailure;
     public List<(Connection con, string cmd)> Received = new List<(Connection con, string cmd)>();
-    public List<(Exception err, bool iscom)> Errors = new List<(Exception err, bool iscom)>();
+    public List<Exception> Errors = new List<Exception>();
 
 
-    protected override void DoHandleError(Exception error, bool isCommunication)
+    protected override void DoHandleUplinkError(Exception error)
     {
       lock(Errors)
       {
-        Errors.Add((error, isCommunication));
+        Errors.Add((error));
       }
     }
 

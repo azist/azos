@@ -62,16 +62,16 @@ namespace Azos.Apps.Hosting
       }
       catch(Exception error)
       {
-        log(MessageType.Error, "Unparsable cmd: {0}".Args(command.TakeFirstChars(48), ".."), error);
+        log(MessageType.CatastrophicError, "Perform cmd: {0}".Args(command.TakeFirstChars(48), ".."), error);
       }
     }
 
-    protected override void DoHandleError(Exception error, bool isCommunication)
+    protected override void DoHandleUplinkError(Exception error)
     {
-      log(MessageType.Critical, "{0} error: {1}".Args(isCommunication ? "Comm" : "Non-comm", error.ToMessageWithType()), error);
+      log(MessageType.Critical, error.ToMessageWithType(), error);
     }
 
-    protected override void DoHandleFailure()
+    protected override void DoHandleUplinkFailure()
     {
       log(MessageType.CatastrophicError, "Gov uplink failure");
       App.Stop();
