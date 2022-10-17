@@ -76,6 +76,7 @@ namespace Azos.IO.Sipc
     private DateTime m_LastReceiveUtc;
     private DateTime m_LastSendUtc;
 
+    internal System.Threading.Tasks.Task m_ServerPendingWork;
 
     public string Name           => m_Name;
     public TcpClient Client      => m_Client;

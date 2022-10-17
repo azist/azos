@@ -8,7 +8,7 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-
+using System.Threading.Tasks;
 using Azos.Collections;
 
 namespace Azos.IO.Sipc
@@ -79,7 +79,9 @@ namespace Azos.IO.Sipc
         m_Listener = tryBind();
 
         if (m_Listener == null)
-         throw new SipcException("Unable to start SIPC server in the port range {0}-{1}".Args(m_StartPort, m_EndPort));
+        {
+          throw new SipcException("Unable to start SIPC server in the port range {0}-{1}".Args(m_StartPort, m_EndPort));
+        }
 
         m_Signal = new AutoResetEvent(false);
 
@@ -162,8 +164,9 @@ namespace Azos.IO.Sipc
     private void threadBody()
     {
       const int GRANULARITY_MS = 250;
+      const int ACCEPT_BY = 8;
 
-      while(true)
+      for(int accepted = 0; true;)
       {
         var listener = m_Listener;
         if (listener == null) break;
@@ -172,8 +175,27 @@ namespace Azos.IO.Sipc
         {
           if (listener.Pending())
           {
-            var client = listener.AcceptTcpClient();
-            connect(client);
+            Task.Run(() => //asynchronously accept the connection
+            {
+              try
+              {
+                var client = listener.AcceptTcpClient();
+                connect(client);
+              }
+              catch (Exception error)
+              {
+                DoHandleError(error, true);
+              }
+            });
+
+            if (++accepted < ACCEPT_BY)
+            {
+              continue;//dont wait, keep accepting
+            }
+            else
+            {
+              accepted = 0;
+            }
           }
         }
         catch(Exception error)
@@ -182,10 +204,7 @@ namespace Azos.IO.Sipc
         }
 
         var now = DateTime.UtcNow;
-        foreach (var one in m_Connections)
-        {
-          visitOneSafe(one, now);
-        }
+        m_Connections.ForEach(one => visitOneSafe(one, now));
 
         m_Signal.WaitOne(GRANULARITY_MS);
       }//while
@@ -222,20 +241,32 @@ namespace Azos.IO.Sipc
 
     private void visitOneSafe(Connection conn, DateTime now)
     {
-      var state = conn.State;
-      if (state == ConnectionState.OK && ((now - conn.LastReceiveUtc).TotalMilliseconds > Protocol.LIMBO_TIMEOUT_MS))
-      {
-        conn.PutInLimbo();
-        return;
-      }
+      if (conn.m_ServerPendingWork != null) return;
 
-      tryReadAndHandleSafe(conn);
-
-      //ping
-      if ((now - conn.LastSendUtc).TotalMilliseconds > Protocol.PING_INTERVAL_MS)
+      conn.m_ServerPendingWork = Task.Run(() =>
       {
-        conn.Send(Protocol.CMD_PING);
-      }
+        try
+        {
+          var state = conn.State;
+          if (state == ConnectionState.OK && ((now - conn.LastReceiveUtc).TotalMilliseconds > Protocol.LIMBO_TIMEOUT_MS))
+          {
+            conn.PutInLimbo();
+            return;
+          }
+
+          tryReadAndHandleSafe(conn);
+
+          //ping
+          if ((now - conn.LastSendUtc).TotalMilliseconds > Protocol.PING_INTERVAL_MS)
+          {
+            conn.Send(Protocol.CMD_PING);
+          }
+        }
+        finally
+        {
+          conn.m_ServerPendingWork = null;
+        }
+      });
     }
 
     private void tryReadAndHandleSafe(Connection connection)
