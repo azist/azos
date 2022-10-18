@@ -118,16 +118,15 @@ namespace Azos.IO.Sipc
     }
 
     /// <summary>
-    /// Override to create a connection instance needed for your use case
+    /// Override to create or fetch existing a connection instance needed for your use case for specific client.
     /// </summary>
-    protected abstract Connection MakeNewConnection(string name, TcpClient client);
+    protected abstract Connection ObtainConnection(string name, TcpClient client, out bool isNew);
 
     /// <summary>
-    /// Override to handle exceptions, e.g. log them. Default implementation does nothing
+    /// Override to handle exceptions caused by communication, e.g. log them. Default implementation does nothing
     /// </summary>
     /// <param name="error">Error to handle</param>
-    /// <param name="isCommunication">True if error came from communication circuit (e.g. socket)</param>
-    protected virtual void DoHandleError(Exception error, bool isCommunication)
+    protected virtual void DoHandleLinkError(Exception error)
     {
     }
 
@@ -155,7 +154,7 @@ namespace Azos.IO.Sipc
         }
         catch(Exception error)
         {
-          DoHandleError(error, true);
+          DoHandleLinkError(error);
         }
       }
       return null;
@@ -184,7 +183,7 @@ namespace Azos.IO.Sipc
               }
               catch (Exception error)
               {
-                DoHandleError(error, true);
+                DoHandleLinkError(error);
               }
             });
 
@@ -200,7 +199,7 @@ namespace Azos.IO.Sipc
         }
         catch(Exception error)
         {
-          DoHandleError(error, true);
+          DoHandleLinkError(error);
         }
 
         var now = DateTime.UtcNow;
@@ -229,12 +228,13 @@ namespace Azos.IO.Sipc
       }
       catch(Exception error)
       {
-        DoHandleError(error, true);
+        DoHandleLinkError(error);
         return null;
       }
 
-      var connection = m_Connections.GetOrRegister(name, n => MakeNewConnection(n, client), name, out var wasAdded);
-      if (!wasAdded) connection.Reconnect(client);
+      var isNew = false;
+      var connection = m_Connections.GetOrRegister(name, n => ObtainConnection(n, client, out isNew), name);
+      if (!isNew) connection.Reconnect(client);
 
       return connection;
     }
@@ -262,6 +262,10 @@ namespace Azos.IO.Sipc
             conn.Send(Protocol.CMD_PING);
           }
         }
+        catch(Exception error)
+        {
+          DoHandleLinkError(error);
+        }
         finally
         {
           conn.m_ServerPendingWork = null;
@@ -276,15 +280,7 @@ namespace Azos.IO.Sipc
 
       if (command.IsNullOrWhiteSpace()) return;
 
-      try
-      {
-        DoHandleCommand(connection, command);
-      }
-      catch(Exception error)
-      {
-        DoHandleError(error, false);
-      }
+      DoHandleCommand(connection, command);
     }
-
   }
 }
