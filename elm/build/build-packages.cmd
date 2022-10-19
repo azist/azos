@@ -1,6 +1,6 @@
 @echo on
 
-set VER=3.0.0.37
+set VER=3.0.0.38
 set HEADLINE=#786 SIPC Server circuit
 call build-all Release %VER%
 
@@ -33,7 +33,7 @@ nuget pack Azos.AuthKit.nuspec -Version %VER% %WARNING% -OutputDirectory "%OUT%"
 nuget pack Azos.AuthKit.Server.nuspec -Version %VER% %WARNING% -OutputDirectory "%OUT%" -Properties icon="%ICON%";headline="%HEADLINE%"
 nuget pack Azos.AuthKit.Server.MySql.nuspec -Version %VER% %WARNING% -OutputDirectory "%OUT%" -Properties icon="%ICON%";headline="%HEADLINE%"
 
-rem goto :FINISH
+goto :FINISH
 rem --------------------------
 
 nuget push "%OUT%\Azos.%VER%.nupkg" %AZIST_NUGET_API_KEY% 

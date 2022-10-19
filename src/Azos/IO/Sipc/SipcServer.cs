@@ -193,11 +193,9 @@ namespace Azos.IO.Sipc
             {
               continue;//dont wait, keep accepting
             }
-            else
-            {
-              accepted = 0;
-            }
           }
+
+          accepted = 0;
         }
         catch(Exception error)
         {
@@ -244,27 +242,28 @@ namespace Azos.IO.Sipc
     private void visitOneSafe(Connection conn, DateTime now)
     {
       if (conn.m_ServerPendingWork != null) return;
+      if (conn.State != ConnectionState.OK && conn.State != ConnectionState.Limbo) return;
 
       conn.m_ServerPendingWork = Task.Run(() =>
       {
         try
         {
-          var state = conn.State;
-          if (state == ConnectionState.OK && ((now - conn.LastReceiveUtc).TotalMilliseconds > Protocol.LIMBO_TIMEOUT_MS))
-          {
-            conn.PutInLimbo();
-            return;
-          }
+          if (conn.State != ConnectionState.OK && conn.State != ConnectionState.Limbo) return;
 
           string command = conn.TryReceive();
-
           if (command.IsNotNullOrWhiteSpace())
           {
             DoHandleCommand(conn, command);
           }
 
+          if (conn.State == ConnectionState.OK && ((now - conn.LastReceiveUtc).TotalMilliseconds > Protocol.LIMBO_TIMEOUT_MS))
+          {
+            conn.PutInLimbo();
+            throw new SipcException("Client connection put in limbo: " + conn.ToString());
+          }
+
           //ping
-          if ((now - conn.LastSendUtc).TotalMilliseconds > Protocol.PING_INTERVAL_MS)
+          if (conn.State != ConnectionState.Torn && (now - conn.LastSendUtc).TotalMilliseconds > Protocol.PING_INTERVAL_MS)
           {
             conn.Send(Protocol.CMD_PING);
           }

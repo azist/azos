@@ -191,7 +191,7 @@ namespace Azos.IO.Sipc
 
     private void threadBody()
     {
-      const int GRANULARITY_MS = 357;
+      const int GRANULARITY_MS = 150;
       const int PROGRESSIVE_FAILURE_DELAY_MS = 800;//times 10 iterations is about 66 seconds with random margin 50%
       const float PROGRESSIVE_FAILURE_DELAY_VARIATION = 0.5f;
       const int MAX_CONSEQUITIVE_FAILURES = 10;
@@ -243,7 +243,7 @@ namespace Azos.IO.Sipc
         {
           m_Connection.PutInLimbo();
           nextReconnectAttempt = DateTime.UtcNow.AddMilliseconds(Ambient.Random.NextScaledRandomInteger(GRANULARITY_MS));
-          DoHandleUplinkError(new SipcException("Connection in limbo: " + m_Connection.ToString()));
+          DoHandleUplinkError(new SipcException("Uplink connection put in limbo: " + m_Connection.ToString()));
           continue;
         }
 
@@ -251,7 +251,6 @@ namespace Azos.IO.Sipc
 
         //if there is anything to read,
         var command = m_Connection.TryReceive();
-        //if nothing then return;
         if (command.IsNotNullOrWhiteSpace())
         {
           DoHandleCommand(m_Connection, command);
