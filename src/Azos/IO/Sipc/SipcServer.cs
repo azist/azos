@@ -49,12 +49,12 @@ namespace Azos.IO.Sipc
     /// <summary>
     /// Inclusive port range start
     /// </summary>
-    private int StartPort => m_StartPort;
+    public int StartPort => m_StartPort;
 
     /// <summary>
     /// Inclusive port range end
     /// </summary>
-    private int EndPort => m_EndPort;
+    public int EndPort => m_EndPort;
 
     /// <summary>
     /// True if the server is activated
@@ -162,10 +162,11 @@ namespace Azos.IO.Sipc
 
     private void threadBody()
     {
-      const int GRANULARITY_MS = 250;
-      const int ACCEPT_BY = 8;
+      const int THREAD_GRANULARITY_MS = 150;
+      const int ACCEPT_BY = 16;
 
-      for(int accepted = 0; true;)
+      int accepted = 0;
+      while (true)
       {
         var listener = m_Listener;
         if (listener == null) break;
@@ -174,11 +175,12 @@ namespace Azos.IO.Sipc
         {
           if (listener.Pending())
           {
+            var client = listener.AcceptTcpClient();//on a main thread
+
             Task.Run(() => //asynchronously accept the connection
             {
               try
               {
-                var client = listener.AcceptTcpClient();
                 connect(client);
               }
               catch (Exception error)
@@ -205,7 +207,7 @@ namespace Azos.IO.Sipc
         var now = DateTime.UtcNow;
         m_Connections.ForEach(one => visitOneSafe(one, now));
 
-        m_Signal.WaitOne(GRANULARITY_MS);
+        m_Signal.WaitOne(THREAD_GRANULARITY_MS);
       }//while
     }
 
@@ -254,7 +256,12 @@ namespace Azos.IO.Sipc
             return;
           }
 
-          tryReadAndHandleSafe(conn);
+          string command = conn.TryReceive();
+
+          if (command.IsNotNullOrWhiteSpace())
+          {
+            DoHandleCommand(conn, command);
+          }
 
           //ping
           if ((now - conn.LastSendUtc).TotalMilliseconds > Protocol.PING_INTERVAL_MS)
@@ -271,16 +278,6 @@ namespace Azos.IO.Sipc
           conn.m_ServerPendingWork = null;
         }
       });
-    }
-
-    private void tryReadAndHandleSafe(Connection connection)
-    {
-      //read socket if nothing then return;
-      string command = connection.TryReceive();
-
-      if (command.IsNullOrWhiteSpace()) return;
-
-      DoHandleCommand(connection, command);
     }
   }
 }
