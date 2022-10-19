@@ -241,7 +241,7 @@ namespace Azos.IO.Sipc
 
     private void visitOneSafe(Connection conn, DateTime now)
     {
-      if (conn.m_ServerPendingWork != null) return;
+      if (conn.m_ServerPendingWork != null && !conn.m_ServerPendingWork.IsCompleted) return;
       if (conn.State != ConnectionState.OK && conn.State != ConnectionState.Limbo) return;
 
       conn.m_ServerPendingWork = Task.Run(() =>
