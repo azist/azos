@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.0.0.36
-set HEADLINE=#746 Kestrel HTTPS
+set VER=3.0.0.37
+set HEADLINE=#786 SIPC Server circuit
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
