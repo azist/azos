@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.0.0.38
-set HEADLINE=#786 SIPC Server circuit
+set VER=3.0.0.39
+set HEADLINE=#786 SIPC Server circuit fix task completion
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
