@@ -317,20 +317,6 @@
 
             handler
             {
-                name="Dumper"
-                order=20
-                type="Azos.Wave.Handlers.ContextDumpHandler, Azos.Wave"
-
-                match
-                {
-                    name="Dump Status"
-                    order=2
-                    path="dump"
-                }
-            }
-
-            handler
-            {
                 name="Embedded Site"
                 order=30
                 type="WaveTestSite.Embedded.EmbeddedTestSiteHandler, TestBusinessLogic"
@@ -561,7 +547,7 @@
     module
     {
         name="gdidprovider"
-        type="Azos.Sky.Identification.GdidProviderModule, Azos.Sky"
+        type="Azos.Sky.Identification.GdidProviderModule, Azos.Sky.Server"
         log-level=$(/machine/$log-level-comp)
 
         use-local-authority=true
@@ -623,7 +609,8 @@
 
       host
       {
-        listen-any-ip-port=8080
+        binding{ port=8080}
+        binding{ port=8090 cert-file="test-certificate.pfx" cert-pwd="YourSecurePassword" }
       }
     }//module
   }

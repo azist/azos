@@ -17,6 +17,9 @@ using Microsoft.Extensions.Logging;
 using Azos.Conf;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
+using System.Net;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Azos.Wave.Kestrel
 {
@@ -26,20 +29,66 @@ namespace Azos.Wave.Kestrel
   /// </summary>
   public class HostFactory
   {
+    /// <summary>
+    /// Defines binding point which Kestrel listens on
+    /// </summary>
+    public class Binding
+    {
+      public Binding(IConfigSectionNode cfg)
+      {
+        cfg.NonEmpty(nameof(cfg));
+
+        var sip = cfg.Of("ip").Value;
+
+        if (sip.IsNotNullOrWhiteSpace()) //Null = ANY IP
+        {
+          IPAddress.TryParse(sip, out var ip).IsTrue("Valid ip");
+          Ip = ip;
+        }
+
+        int.TryParse(cfg.Of("port").Value, out var port).IsTrue("Valid port");
+        Port = port;
+
+        CertificateFile = cfg.Of("cert-file").Value;
+        CertificatePassword = cfg.Of("cert-pwd").Value;
+      }
+
+
+      public Binding(IPAddress ip, int port, string certificateFile = null, string certificatePassword = null)
+      {
+        Ip = ip;//null = ANY ip
+        Port = port.IsTrue(v => v > 0 && v < 0xffff);
+        CertificateFile = certificateFile;
+        CertificatePassword = certificatePassword;
+      }
+
+      public IPAddress Ip { get; private set; }
+      public int Port     { get; private set; }
+      public string CertificateFile { get; private set; }
+      public string CertificatePassword { get; private set; }
+    }
+
+
     public HostFactory(KestrelServerModule module, IConfigSectionNode cfg)
     {
       Module = module.NonNull(nameof(module));
-      ConfigAttribute.Apply(this, cfg);
+
+      if (cfg != null)
+      {
+        ConfigAttribute.Apply(this, cfg);
+        var bindings = new List<Binding>();
+        Bindings = bindings;
+        cfg.ChildrenNamed("binding").ForEach(one => bindings.Add(new Binding(one)));
+      }
     }
 
     public IApplication App => Module.App;
     public readonly KestrelServerModule Module;
 
-    [Config] public int ListenAnyIpPort{ get; set;}
-
     [Config(Default = LogLevel.Warning)]
     public LogLevel MinAspLogLevel{ get; set; } = LogLevel.Warning;
 
+    public IEnumerable<Binding> Bindings{ get; set; }
 
     public virtual IWebHost Make()
     {
@@ -59,7 +108,34 @@ namespace Azos.Wave.Kestrel
       opt.AddServerHeader = false;
       opt.AllowSynchronousIO = true;//used by Wave for now in some legacy code path (e.g. StockHandler)
       //opt.Limits....
-      if (ListenAnyIpPort>0) opt.ListenAnyIP(ListenAnyIpPort);
+
+      var any = false;
+      foreach(var binding in Bindings.NonNull(nameof(Bindings)))
+      {
+        any = true;
+
+        if (binding.Ip == null) //ANY IP
+          opt.ListenAnyIP(binding.Port, lopt => DoBindingListenOptions(lopt, binding));
+        else
+          opt.Listen(binding.Ip, binding.Port, lopt => DoBindingListenOptions(lopt,  binding));
+      }
+
+      any.IsTrue("Defined bindings");
+    }
+
+    protected virtual void DoBindingListenOptions(ListenOptions opt, Binding binding)
+    {
+      if (binding.CertificateFile.IsNotNullOrWhiteSpace())
+      {
+        if (binding.CertificatePassword.IsNotNullOrWhiteSpace())
+        {
+          opt.UseHttps(binding.CertificateFile, binding.CertificatePassword);
+        }
+        else
+        {
+          opt.UseHttps(binding.CertificateFile);
+        }
+      }
     }
 
     protected virtual void DoServices(IServiceCollection services)

@@ -22,7 +22,7 @@
 
       host
       {
-        listen-any-ip-port=9871
+        binding{ port=9871 }
       }
     }
   }

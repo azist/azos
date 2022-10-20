@@ -50,12 +50,13 @@ namespace Azos.Tests.Nub.Application
         Aver.IsFalse(app.ShutdownStarted);
         Aver.IsFalse(app.WaitForStopOrShutdown(10));
 
-        Task.Delay(2000).ContinueWith(_ => app.Stop());
+        Task.Delay(2_000).ContinueWith(_ => app.Stop());
 
-        int i = 0;
+        int i = 1;
         while(!app.WaitForStopOrShutdown(100)) i++;
 
-        Aver.IsTrue( i >= 19 && i<25);
+        "Took: {0}".SeeArgs(i);
+        Aver.IsTrue( i >= 18 && i < 26);
       }
     }
   }
