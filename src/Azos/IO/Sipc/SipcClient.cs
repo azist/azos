@@ -191,7 +191,7 @@ namespace Azos.IO.Sipc
 
     private void threadBody()
     {
-      const int GRANULARITY_MS = 150;
+      const int GRANULARITY_MS = 200;
       const int PROGRESSIVE_FAILURE_DELAY_MS = 800;//times 10 iterations is about 66 seconds with random margin 50%
       const float PROGRESSIVE_FAILURE_DELAY_VARIATION = 0.5f;
       const int MAX_CONSEQUITIVE_FAILURES = 10;
@@ -267,7 +267,7 @@ namespace Azos.IO.Sipc
           DoHandleUplinkError(new SipcException("Connection is !OK: " + m_Connection.ToString()));
         }
 
-        m_Signal.WaitOne(GRANULARITY_MS);
+        m_Signal.WaitOne(GRANULARITY_MS.ChangeByRndPct(0.25f));
       }//while
     }
   }

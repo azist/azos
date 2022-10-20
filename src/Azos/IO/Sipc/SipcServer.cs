@@ -162,8 +162,8 @@ namespace Azos.IO.Sipc
 
     private void threadBody()
     {
-      const int THREAD_GRANULARITY_MS = 150;
-      const int ACCEPT_BY = 16;
+      const int THREAD_GRANULARITY_MS = 200;
+      const int ACCEPT_BY = 10;
 
       int accepted = 0;
       while (true)
@@ -194,18 +194,22 @@ namespace Azos.IO.Sipc
               continue;//dont wait, keep accepting
             }
           }
-
-          accepted = 0;
         }
         catch(Exception error)
         {
           DoHandleLinkError(error);
         }
 
+
         var now = DateTime.UtcNow;
         m_Connections.ForEach(one => visitOneSafe(one, now));
 
-        m_Signal.WaitOne(THREAD_GRANULARITY_MS);
+        if (accepted == 0)
+        {
+          m_Signal.WaitOne(THREAD_GRANULARITY_MS.ChangeByRndPct(0.25f));
+        }
+
+        accepted = 0;
       }//while
     }
 
