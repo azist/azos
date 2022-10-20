@@ -52,6 +52,7 @@ namespace Azos.IO.Sipc
       m_State = ConnectionState.OK;
       m_Name = name.NonBlank(nameof(name));
       m_StartUtc = m_LastReceiveUtc = m_LastSendUtc = DateTime.UtcNow;
+      System.Threading.Thread.MemoryBarrier();
     }
 
     /// <summary>
@@ -59,9 +60,12 @@ namespace Azos.IO.Sipc
     /// </summary>
     internal void Reconnect(TcpClient client)
     {
-      m_Client = client.NonNull(nameof(client));
-      m_State = ConnectionState.OK;
-      m_LastReceiveUtc = m_LastSendUtc = DateTime.UtcNow;
+      lock(m_Lock)
+      {
+        m_Client = client.NonNull(nameof(client));
+        m_State = ConnectionState.OK;
+        m_LastReceiveUtc = m_LastSendUtc = DateTime.UtcNow;
+      }
     }
 
     private object m_Lock = new object();
@@ -72,6 +76,7 @@ namespace Azos.IO.Sipc
     private DateTime m_LastReceiveUtc;
     private DateTime m_LastSendUtc;
 
+    internal volatile System.Threading.Tasks.Task m_ServerPendingWork;
 
     public string Name           => m_Name;
     public TcpClient Client      => m_Client;
@@ -84,32 +89,38 @@ namespace Azos.IO.Sipc
     public DateTime LastActivityUtc => LastReceiveOrSendUtc > m_StartUtc ? LastReceiveOrSendUtc : m_StartUtc;
 
 
+    public override string ToString()
+     => $"{GetType().DisplayNameWithExpandedGenericArgs()}(`{Name}`) => {State} :: {LastActivityUtc}";
+
     internal void PutInLimbo()
     {
-      m_State = ConnectionState.Limbo;
+      lock(m_Lock)
+      {
+        m_State = ConnectionState.Limbo;
+      }
     }
 
     //called by a single thread at a time, does not leak
     internal string TryReceive()
     {
-      try
-      {
-        if (Client.Available <= 0) return null;
-      }
-      catch
-      {
-        m_State = ConnectionState.Torn;
-        return null;
-      }
-
       lock (m_Lock)
       {
+        try
+        {
+          if (Client.Available <= 0) return null;
+        }
+        catch
+        {
+          m_State = ConnectionState.Torn;
+          return null;
+        }
+
         if (m_State != ConnectionState.OK && m_State != ConnectionState.Limbo) return null;//failed to receive
 
         try
         {
           var result = Protocol.Receive(Client);
-          m_State = ConnectionState.OK;
+          m_State = ConnectionState.OK;//A successful receipt (of anything) gets rid of LIMBO
           m_LastReceiveUtc = DateTime.UtcNow;
           return result;
         }
@@ -137,7 +148,8 @@ namespace Azos.IO.Sipc
         try
         {
           Protocol.Send(Client, command);
-          m_State = ConnectionState.OK;
+          ////20221017 DKh #786 - Send works in OK and Limbo, but it DOES NOT put Limbo -> OK. Only Receive does that
+          ////m_State = ConnectionState.OK;
           m_LastSendUtc = DateTime.UtcNow;
           return true;
         }

@@ -131,7 +131,7 @@ namespace Azos.Platform
       }
 
       /// <summary>
-      /// Returns 0..1 random double
+      /// Returns 0..1 random double positive coefficient
       /// </summary>
       public double NextRandomDouble
       {

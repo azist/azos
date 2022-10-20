@@ -8,7 +8,7 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-
+using System.Threading.Tasks;
 using Azos.Collections;
 
 namespace Azos.IO.Sipc
@@ -49,12 +49,12 @@ namespace Azos.IO.Sipc
     /// <summary>
     /// Inclusive port range start
     /// </summary>
-    private int StartPort => m_StartPort;
+    public int StartPort => m_StartPort;
 
     /// <summary>
     /// Inclusive port range end
     /// </summary>
-    private int EndPort => m_EndPort;
+    public int EndPort => m_EndPort;
 
     /// <summary>
     /// True if the server is activated
@@ -79,7 +79,9 @@ namespace Azos.IO.Sipc
         m_Listener = tryBind();
 
         if (m_Listener == null)
-         throw new AzosIOException("Unable to start SIPC server in the port range {0}-{1}".Args(m_StartPort, m_EndPort));
+        {
+          throw new SipcException("Unable to start SIPC server in the port range {0}-{1}".Args(m_StartPort, m_EndPort));
+        }
 
         m_Signal = new AutoResetEvent(false);
 
@@ -116,16 +118,15 @@ namespace Azos.IO.Sipc
     }
 
     /// <summary>
-    /// Override to create a connection instance needed for your use case
+    /// Override to create or fetch existing a connection instance needed for your use case for specific client.
     /// </summary>
-    protected abstract Connection MakeNewConnection(string name, TcpClient client);
+    protected abstract Connection ObtainConnection(string name, TcpClient client, out bool isNew);
 
     /// <summary>
-    /// Override to handle exceptions, e.g. log them. Default implementation does nothing
+    /// Override to handle exceptions caused by communication, e.g. log them. Default implementation does nothing
     /// </summary>
     /// <param name="error">Error to handle</param>
-    /// <param name="isCommunication">True if error came from communication circuit (e.g. socket)</param>
-    protected virtual void DoHandleError(Exception error, bool isCommunication)
+    protected virtual void DoHandleLinkError(Exception error)
     {
     }
 
@@ -153,7 +154,7 @@ namespace Azos.IO.Sipc
         }
         catch(Exception error)
         {
-          DoHandleError(error, true);
+          DoHandleLinkError(error);
         }
       }
       return null;
@@ -161,9 +162,11 @@ namespace Azos.IO.Sipc
 
     private void threadBody()
     {
-      const int GRANULARITY_MS = 250;
+      const int THREAD_GRANULARITY_MS = 200;
+      const int ACCEPT_BY = 10;
 
-      while(true)
+      int accepted = 0;
+      while (true)
       {
         var listener = m_Listener;
         if (listener == null) break;
@@ -172,22 +175,41 @@ namespace Azos.IO.Sipc
         {
           if (listener.Pending())
           {
-            var client = listener.AcceptTcpClient();
-            connect(client);
+            var client = listener.AcceptTcpClient();//on a main thread
+
+            Task.Run(() => //asynchronously accept the connection
+            {
+              try
+              {
+                connect(client);
+              }
+              catch (Exception error)
+              {
+                DoHandleLinkError(error);
+              }
+            });
+
+            if (++accepted < ACCEPT_BY)
+            {
+              continue;//dont wait, keep accepting
+            }
           }
         }
         catch(Exception error)
         {
-          DoHandleError(error, true);
+          DoHandleLinkError(error);
         }
+
 
         var now = DateTime.UtcNow;
-        foreach (var one in m_Connections)
+        m_Connections.ForEach(one => visitOneSafe(one, now));
+
+        if (accepted == 0)
         {
-          visitOneSafe(one, now);
+          m_Signal.WaitOne(THREAD_GRANULARITY_MS.ChangeByRndPct(0.25f));
         }
 
-        m_Signal.WaitOne(GRANULARITY_MS);
+        accepted = 0;
       }//while
     }
 
@@ -210,50 +232,55 @@ namespace Azos.IO.Sipc
       }
       catch(Exception error)
       {
-        DoHandleError(error, true);
+        DoHandleLinkError(error);
         return null;
       }
 
-      var connection = m_Connections.GetOrRegister(name, n => MakeNewConnection(n, client), name, out var wasAdded);
-      if (!wasAdded) connection.Reconnect(client);
+      var isNew = false;
+      var connection = m_Connections.GetOrRegister(name, n => ObtainConnection(n, client, out isNew), name);
+      if (!isNew) connection.Reconnect(client);
 
       return connection;
     }
 
     private void visitOneSafe(Connection conn, DateTime now)
     {
-      var state = conn.State;
-      if (state == ConnectionState.OK && ((now - conn.LastReceiveUtc).TotalMilliseconds > Protocol.LIMBO_TIMEOUT_MS))
-      {
-        conn.PutInLimbo();
-        return;
-      }
+      if (conn.m_ServerPendingWork != null && !conn.m_ServerPendingWork.IsCompleted) return;
+      if (conn.State != ConnectionState.OK && conn.State != ConnectionState.Limbo) return;
 
-      tryReadAndHandleSafe(conn);
-
-      //ping
-      if ((now - conn.LastSendUtc).TotalMilliseconds > Protocol.PING_INTERVAL_MS)
+      conn.m_ServerPendingWork = Task.Run(() =>
       {
-        conn.Send(Protocol.CMD_PING);
-      }
+        try
+        {
+          if (conn.State != ConnectionState.OK && conn.State != ConnectionState.Limbo) return;
+
+          string command = conn.TryReceive();
+          if (command.IsNotNullOrWhiteSpace())
+          {
+            DoHandleCommand(conn, command);
+          }
+
+          if (conn.State == ConnectionState.OK && ((now - conn.LastReceiveUtc).TotalMilliseconds > Protocol.LIMBO_TIMEOUT_MS))
+          {
+            conn.PutInLimbo();
+            throw new SipcException("Client connection put in limbo: " + conn.ToString());
+          }
+
+          //ping
+          if (conn.State != ConnectionState.Torn && (now - conn.LastSendUtc).TotalMilliseconds > Protocol.PING_INTERVAL_MS)
+          {
+            conn.Send(Protocol.CMD_PING);
+          }
+        }
+        catch(Exception error)
+        {
+          DoHandleLinkError(error);
+        }
+        finally
+        {
+          conn.m_ServerPendingWork = null;
+        }
+      });
     }
-
-    private void tryReadAndHandleSafe(Connection connection)
-    {
-      //read socket if nothing then return;
-      string command = connection.TryReceive();
-
-      if (command.IsNullOrWhiteSpace()) return;
-
-      try
-      {
-        DoHandleCommand(connection, command);
-      }
-      catch(Exception error)
-      {
-        DoHandleError(error, false);
-      }
-    }
-
   }
 }

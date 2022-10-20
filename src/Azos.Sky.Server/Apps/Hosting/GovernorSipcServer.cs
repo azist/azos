@@ -22,9 +22,9 @@ namespace Azos.Apps.Hosting
 
     private readonly GovernorDaemon m_Governor;
 
-    protected override void DoHandleError(Exception error, bool isCommunication)
+    protected override void DoHandleLinkError(Exception error)
     {
-      log(MessageType.Critical, nameof(DoHandleError), "{0} error: {1}".Args(isCommunication ? "Comm" : "Non-comm", error.ToMessageWithType()), error);
+      log(MessageType.Critical, nameof(DoHandleLinkError), error.ToMessageWithType(), error);
     }
 
     protected override void DoHandleCommand(Connection connection, string command)
@@ -52,18 +52,20 @@ namespace Azos.Apps.Hosting
       }
     }
 
-    protected override Connection MakeNewConnection(string name, TcpClient client)
+    protected override Connection ObtainConnection(string name, TcpClient client, out bool isNew)
     {
       var app = m_Governor.Applications[name].NonNull("app `{0}` not found".Args(name));
 
       if (app.Connection != null)
       {
+        isNew = false;
         return app.Connection;
       }
       else
       {
         var result = new ServerAppConnection(app, client);
         app.Connection = result;
+        isNew = true;
         return result;
       }
     }

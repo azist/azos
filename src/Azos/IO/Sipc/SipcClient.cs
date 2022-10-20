@@ -8,12 +8,11 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Azos.IO.Sipc
 {
   /// <summary>
-  /// Client which connects to sipc server
+  /// Client which connects to SIPC server
   /// </summary>
   public abstract class SipcClient : DisposableObject
   {
@@ -38,6 +37,7 @@ namespace Azos.IO.Sipc
     private volatile TcpClient m_Client;
     private Thread m_Thread;
     private AutoResetEvent m_Signal;
+    private bool m_HasFailed;
 
     private Connection m_Connection;
 
@@ -62,14 +62,26 @@ namespace Azos.IO.Sipc
     /// </summary>
     public Connection Connection => m_Connection;
 
+    /// <summary>
+    /// True if connection has been established but failed and needs to be re-started if possible.
+    /// The system calls <see cref="DoHandleUplinkFailure"/> which typically tears the process, so nothing can be done in such a case
+    /// </summary>
+    public bool HasFailed => m_HasFailed;
 
+    /// <summary>
+    /// Starts the client - you MUST have server running at that time, otherwise start fails
+    /// and DoUplinkError() is NOT called
+    /// </summary>
     public void Start()
     {
       lock(m_Lock)
       {
+        m_HasFailed = false;
         m_Client = tryConnect();
         if (m_Client == null)
-         throw new AzosIOException("Unable to connect to SIPC server on port {0}".Args(m_ServerPort));
+        {
+          throw new SipcException("Unable to establish an initial connection to SIPC server on port {0}".Args(m_ServerPort));
+        }
 
         m_Connection = MakeNewConnection(m_Name, m_Client);
 
@@ -91,25 +103,29 @@ namespace Azos.IO.Sipc
           m_Connection.Send(Protocol.CMD_DISCONNECT);
         }
 
+        try
+        {
 #pragma warning disable CS0420 // A reference to a volatile field will not be treated as volatile
-        DisposeAndNull(ref m_Client);
+          DisposeAndNull(ref m_Client);
 #pragma warning restore CS0420 // A reference to a volatile field will not be treated as volatile
 
-        if (m_Signal != null)
-        {
-          m_Signal.Set();
+          if (m_Signal != null)
+          {
+            m_Signal.Set();
+          }
+
+          if (m_Thread != null)
+          {
+            m_Thread.Join();
+            m_Thread = null;
+          }
         }
-
-        if (m_Thread != null)
+        finally
         {
-          m_Thread.Join();
-          m_Thread = null;
+          m_Connection = null;
+          DisposeAndNull(ref m_Signal); //after thread Join
         }
-
-        m_Connection = null;
-
-        DisposeAndNull(ref m_Signal); //after thread Join
-      }
+      }//lock
     }
 
     /// <summary>
@@ -118,27 +134,26 @@ namespace Azos.IO.Sipc
     protected abstract Connection MakeNewConnection(string name, TcpClient client);
 
     /// <summary>
-    /// Override to handle exceptions, e.g. log them. Default implementation does nothing.
-    /// Implementation may not leak.
+    /// Override to handle uplink communication exceptions, e.g. log them. Default implementation does nothing.
+    /// !!!WARNING: Implementation may NOT LEAK.
     /// </summary>
     /// <param name="error">Error to handle</param>
-    /// <param name="isCommunication">True if error came from communication circuit (e.g. socket)</param>
-    protected virtual void DoHandleError(Exception error, bool isCommunication)
+    protected virtual void DoHandleUplinkError(Exception error)
     {
     }
 
     /// <summary>
     /// Override to handle operation failure - when the client can not communicate with
     /// server. Override will typically abort the hosting process.
-    /// This is called only once by main thread - do not block and do not leak exceptions
+    /// !!!WARNING: This is called only once by main thread - do NOT BLOCK and do NOT LEAK exceptions
     /// </summary>
-    protected virtual void DoHandleFailure()
+    protected virtual void DoHandleUplinkFailure()
     {
     }
 
     /// <summary>
     /// Override to take action on the client per received command from the server.
-    /// The handler is called on the main thread and should not leak errors
+    /// !!!WARNING: The handler is called on the main thread and should NOT LEAK errors
     /// </summary>
     /// <param name="connection">Connection which received the command</param>
     /// <param name="command">Command text</param>
@@ -162,35 +177,33 @@ namespace Azos.IO.Sipc
 
         if (ackn != "ok:{0}".Args(m_Name))
         {
-          throw new AzosIOException("Connect attempt was unacknowledged by server");
+          throw new SipcException("Connect attempt was unacknowledged by server");
         }
 
         return client;
       }
       catch(Exception error)
       {
-        DoHandleError(error, true);
+        DoHandleUplinkError(error);
       }
       return null;
     }
 
     private void threadBody()
     {
-      const int GRANULARITY_MS = 357;
-      const int PROGRESSIVE_FAILURE_DELAY_MS = 250;
+      const int GRANULARITY_MS = 200;
+      const int PROGRESSIVE_FAILURE_DELAY_MS = 800;//times 10 iterations is about 66 seconds with random margin 50%
+      const float PROGRESSIVE_FAILURE_DELAY_VARIATION = 0.5f;
       const int MAX_CONSEQUITIVE_FAILURES = 10;
 
-      var failures = 0;
+      var totalFailures = 0;
       var nextReconnectAttempt = DateTime.UtcNow;
-      while(true)
+
+      while(m_Client != null)
       {
-        var client = m_Client;
-        if (client == null) break;
-
         var now = DateTime.UtcNow;
-        var state = m_Connection.State;
 
-        if (state != ConnectionState.OK)// && state != ConnectionState.Limbo)
+        if (m_Connection.State != ConnectionState.OK)
         {
           if (now < nextReconnectAttempt)
           {
@@ -204,68 +217,58 @@ namespace Azos.IO.Sipc
             m_Client.Dispose();
             m_Client = newClient;
             m_Connection.Reconnect(newClient);
-            failures = 0;
+            totalFailures = 0;
           }
           else
           {
             //uplink lost
-            failures++;
-            if (failures > MAX_CONSEQUITIVE_FAILURES)
+            totalFailures++;
+            if (totalFailures > MAX_CONSEQUITIVE_FAILURES)
             {
-              DoHandleFailure();
+              m_HasFailed = true;
+              DoHandleUplinkFailure();
               break;//permanently tear the connection
             }
-            nextReconnectAttempt = DateTime.UtcNow.AddMilliseconds(PROGRESSIVE_FAILURE_DELAY_MS * failures);//progressive delay
+            else
+            {
+              DoHandleUplinkError(new SipcException($"Reconnection failure {totalFailures} times: {m_Connection}"));
+            }
+            nextReconnectAttempt = DateTime.UtcNow.AddMilliseconds((PROGRESSIVE_FAILURE_DELAY_MS * totalFailures).ChangeByRndPct(PROGRESSIVE_FAILURE_DELAY_VARIATION));//progressive delay
             m_Signal.WaitOne(GRANULARITY_MS);
           }
           continue;
         }
 
-        if (state == ConnectionState.OK && ((now - m_Connection.LastReceiveUtc).TotalMilliseconds > Protocol.LIMBO_TIMEOUT_MS))
+        if (m_Connection.State == ConnectionState.OK && ((now - m_Connection.LastReceiveUtc).TotalMilliseconds > Protocol.LIMBO_TIMEOUT_MS))
         {
           m_Connection.PutInLimbo();
-          nextReconnectAttempt = DateTime.UtcNow.AddMilliseconds(Protocol.LIMBO_TIMEOUT_MS);
+          nextReconnectAttempt = DateTime.UtcNow.AddMilliseconds(Ambient.Random.NextScaledRandomInteger(GRANULARITY_MS));
+          DoHandleUplinkError(new SipcException("Uplink connection put in limbo: " + m_Connection.ToString()));
           continue;
         }
 
+        //Connection is OK
 
-        try
+        //if there is anything to read,
+        var command = m_Connection.TryReceive();
+        if (command.IsNotNullOrWhiteSpace())
         {
-          tryReadAndHandleSafe(m_Connection);
-        }
-        catch(Exception error)
-        {
-          DoHandleError(error, true);
+          DoHandleCommand(m_Connection, command);
         }
 
-        //ping
-        if ((now - m_Connection.LastSendUtc).TotalMilliseconds > Protocol.PING_INTERVAL_MS)
+        //ping if it is due
+        if (m_Connection.State == ConnectionState.OK && (now - m_Connection.LastSendUtc).TotalMilliseconds > Protocol.PING_INTERVAL_MS)
         {
           m_Connection.Send(Protocol.CMD_PING);
         }
 
+        if (m_Connection.State != ConnectionState.OK)
+        {
+          DoHandleUplinkError(new SipcException("Connection is !OK: " + m_Connection.ToString()));
+        }
 
-        m_Signal.WaitOne(GRANULARITY_MS);
+        m_Signal.WaitOne(GRANULARITY_MS.ChangeByRndPct(0.25f));
       }//while
     }
-
-
-    private void tryReadAndHandleSafe(Connection connection)
-    {
-      //read socket if nothing then return;
-      string command = connection.TryReceive();
-
-      if (command.IsNullOrWhiteSpace()) return;
-
-      try
-      {
-        DoHandleCommand(connection, command);
-      }
-      catch(Exception error)
-      {
-        DoHandleError(error, false);
-      }
-    }
-
   }
 }

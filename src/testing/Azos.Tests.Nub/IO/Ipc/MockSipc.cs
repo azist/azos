@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
-using System.Text;
 
 using Azos.IO.Sipc;
 
@@ -19,15 +18,15 @@ namespace Azos.Tests.Nub.IO.Ipc
     {
     }
 
-    public List<(Connection con, string cmd)> Received = new List<(Connection con, string cmd)>();
-    public List<(Exception err, bool iscom)> Errors = new List<(Exception err, bool iscom)>();
+    public List<(Connection con, string cmd)> Received = new();
+    public List<Exception> Errors = new();
 
 
-    protected override void DoHandleError(Exception error, bool isCommunication)
+    protected override void DoHandleLinkError(Exception error)
     {
       lock(Errors)
       {
-        Errors.Add((error, isCommunication));
+        Errors.Add(error);
       }
     }
 
@@ -39,8 +38,9 @@ namespace Azos.Tests.Nub.IO.Ipc
       }
     }
 
-    protected override Connection MakeNewConnection(string name, TcpClient client)
+    protected override Connection ObtainConnection(string name, TcpClient client, out bool isNew)
     {
+      isNew = true;
       return new Connection(name, client);
     }
   }
@@ -51,21 +51,21 @@ namespace Azos.Tests.Nub.IO.Ipc
     {
     }
 
-    protected override void DoHandleFailure()
+    protected override void DoHandleUplinkFailure()
     {
       WasFailure = true;
     }
 
     public bool WasFailure;
     public List<(Connection con, string cmd)> Received = new List<(Connection con, string cmd)>();
-    public List<(Exception err, bool iscom)> Errors = new List<(Exception err, bool iscom)>();
+    public List<Exception> Errors = new List<Exception>();
 
 
-    protected override void DoHandleError(Exception error, bool isCommunication)
+    protected override void DoHandleUplinkError(Exception error)
     {
       lock(Errors)
       {
-        Errors.Add((error, isCommunication));
+        Errors.Add((error));
       }
     }
 

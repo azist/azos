@@ -47,7 +47,7 @@ namespace Azos.Data.Adlib
     [Config]
     public string AdlibServiceAddress{  get; set; }
 
-    public bool IsServerImplementation => throw new NotImplementedException();
+    public bool IsServerImplementation => false;
 
     protected override void DoConfigure(IConfigSectionNode node)
     {

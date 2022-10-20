@@ -57,9 +57,9 @@ namespace Azos.Log
     TraceSQL,
 
     /// <summary>
-    /// Emitted by Glue/Net code
+    /// Emitted by network-related or Glue-related communication code
     /// </summary>
-    TraceGlue,
+    TraceNetGlue,
 
     /// <summary>
     /// Last trace-related message type for use in trace-related max-level config setting
