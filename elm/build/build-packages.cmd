@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.0.0.40
-set HEADLINE=#786 SIPC fix
+set VER=3.0.0.41
+set HEADLINE=#791 Authkit review
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
