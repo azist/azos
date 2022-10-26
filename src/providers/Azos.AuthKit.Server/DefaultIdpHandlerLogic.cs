@@ -258,6 +258,22 @@ namespace Azos.AuthKit.Server
       using (var scope = new SecurityFlowScope(TreePermission.SYSTEM_USE_FLAG))
       {
         await applyEffectivePoliciesAsync(context).ConfigureAwait(false);
+
+        //Log
+        if (!context.HasResult && ComponentEffectiveLogLevel <= Log.MessageType.TraceErrors)
+        {
+          var parJson = new
+          {
+            r = context.Result,
+            p = context.Provider?.Name,
+            rlm = context.Realm,
+            g_u = context.G_User,
+            g_l = context.G_Login,
+            nm = context.Name
+          }.ToJson(JsonWritingOptions.CompactASCII);
+
+          WriteLog(Log.MessageType.TraceErrors, nameof(ApplyEffectivePoliciesAsync), "Bad auth", pars: parJson);
+        }
       }
     }
 
@@ -278,7 +294,8 @@ namespace Azos.AuthKit.Server
         var tNode = await m_Forest.GetNodeInfoAsync(idNode).ConfigureAwait(false);
         if(tNode == null)
         {
-          throw new Exception("What do we do here?"); // WHAT DO??????????????
+          context.SetResult(AuthContext.Outcome.Negative(-100, "OrgUnit not found", map => map["ounit"] = idNode));
+          return;
         }
         eProps.CreateFromNode(tNode.EffectiveConfig.Node);
       }
@@ -306,7 +323,8 @@ namespace Azos.AuthKit.Server
         var tNode = await m_Forest.GetNodeInfoAsync(idNode).ConfigureAwait(false);
         if (tNode == null)
         {
-          throw new Exception("What do we do here?"); // WHAT DO??????????????
+          context.SetResult(AuthContext.Outcome.Negative(-200, "Role not found", map => map["role"] = idNode));
+          return;
         }
         eRights.CreateFromNode(tNode.EffectiveConfig.Node);
       }
@@ -332,8 +350,17 @@ namespace Azos.AuthKit.Server
     {
       var now = App.GetUtcNow();
 
-      if (context.LockSpanUtc.HasValue && context.LockSpanUtc.Value.Contains(now)) context.HasResult = false;
-      if (context.LoginLockSpanUtc.HasValue && context.LoginLockSpanUtc.Value.Contains(now)) context.HasResult = false;
+      if (context.LockSpanUtc.HasValue && context.LockSpanUtc.Value.Contains(now))
+      {
+        context.SetResult(AuthContext.Outcome.Negative(-700, "User lock", map => map["lck-span"] = context.LockSpanUtc.Value));
+        return;
+      }
+
+      if (context.LoginLockSpanUtc.HasValue && context.LoginLockSpanUtc.Value.Contains(now))
+      {
+        context.SetResult(AuthContext.Outcome.Negative(-701, "Login lock", map => map["lck-span"] = context.LoginLockSpanUtc.Value));
+        return;
+      }
     }
 
   }
