@@ -123,7 +123,7 @@ namespace Azos.Data
     /// <summary>
     /// True if the EntityId value is assigned
     /// </summary>
-    public bool IsAssigned => !System.IsZero;
+    public bool IsAssigned => !System.IsZero && Address.IsNotNullOrWhiteSpace();
 
     public bool CheckRequired(string targetName) => IsAssigned;
 
