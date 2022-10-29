@@ -82,7 +82,7 @@ namespace Azos.IO.FileSystem.Packaging
 
       private static bool hasTheSameContent(IConfigSectionNode master, IConfigSectionNode comparand)
       {
-        if (master==null | comparand==null)
+        if (master==null || comparand==null)
          throw new AzosIOException(StringConsts.ARGUMENT_ERROR + "HasTheSameContent(master|comparand==null)");
 
         foreach(var mnode in master.Children)

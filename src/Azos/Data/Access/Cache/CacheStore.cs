@@ -285,7 +285,7 @@ namespace Azos.Data.Access.Cache
         var wasActive = App.Active;//remember whether app was active during start
                                    //this is needed so that CacheStore works without app container (using NOPApplication) in which case
                                    //service must be .Disposed() to stop this thread
-        while ((App.Active | !wasActive) && m_Running)
+        while ((App.Active || !wasActive) && m_Running)
         {
           try
           {
