@@ -76,12 +76,12 @@ namespace Azos.Data.Heap.Implementation
     public ISpace GetSpace(Type tObject)
      => m_Spaces.TryGetValue(tObject.IsOfType<HeapObject>(nameof(tObject)), out var space)
                    ? space
-                   : throw $"GetSpace(`{tObject.GetType().DisplayNameWithExpandedGenericArgs()})`".IsNotFound();
+                   : throw $"GetSpace(`{tObject.DisplayNameWithExpandedGenericArgs()})`".IsNotFound();
 
     public ISpace<T> GetSpace<T>() where T : HeapObject
      => m_Spaces.TryGetValue(typeof(T), out var space)
                    ? space.CastTo<ISpace<T>>()
-                   : throw $"GetSpace(`{typeof(T).GetType().DisplayNameWithExpandedGenericArgs()})`".IsNotFound();
+                   : throw $"GetSpace(`{typeof(T).DisplayNameWithExpandedGenericArgs()})`".IsNotFound();
 
     public Task<SaveResult<object>> ExecuteAsync(HeapRequest request, Guid idempotencyToken = default(Guid), INode node = null)
     {
