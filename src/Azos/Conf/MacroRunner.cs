@@ -68,6 +68,8 @@ namespace Azos.Conf
       var mi = typeof(StringValueConversion).GetMethods()
                                             .FirstOrDefault(i => i.IsStatic && i.IsPublic && i.Name == mn && i.GetParameters().Length == 2);
 
+      if (mi == null) throw new ConfigException("Macro `{0}` not found".Args(mn));
+
       object result;
       if (!string.IsNullOrWhiteSpace(dflt))
       {
@@ -76,8 +78,9 @@ namespace Azos.Conf
         result = mi.Invoke(null, new object[] { value, dval });
       }
       else
+      {
         result = mi.Invoke(null, new object[] { value, null });
-
+      }
 
       if (result == null) return string.Empty;
 
@@ -86,7 +89,6 @@ namespace Azos.Conf
       else
         return result.ToString();
     }
-
     #endregion
 
     /// <summary>
