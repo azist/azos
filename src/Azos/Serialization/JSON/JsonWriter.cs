@@ -233,7 +233,7 @@ namespace Azos.Serialization.JSON
           case '\\':  { wri.Write(@"\\"); break; }
           case '/':   { wri.Write(@"\/"); break; }
           case (char)CharCodes.Char0:     { wri.Write(@"\u0000"); break; }
-          case (char)CharCodes.AlertBell: { wri.Write(@"\u"); ((int)c).ToString("x4"); break; }
+          case (char)CharCodes.AlertBell: { wri.Write(@"\u"); wri.Write(((int)c).ToString("x4")); break; }
           case (char)CharCodes.Backspace: { wri.Write(@"\b"); break; }
           case (char)CharCodes.Formfeed:  { wri.Write(@"\f"); break; }
           case (char)CharCodes.LF:        { wri.Write(@"\n"); break; }

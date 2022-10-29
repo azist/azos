@@ -66,8 +66,8 @@ namespace Azos.Templatization
 
        private TContext m_Context;
 
-       [ThreadStatic]  private TTarget ts_Target;
-       [ThreadStatic]  private TRenderingContext ts_RenderingContext;
+       [ThreadStatic]  private static TTarget ts_Target;
+       [ThreadStatic]  private static TRenderingContext ts_RenderingContext;
 
 
        /// <summary>
