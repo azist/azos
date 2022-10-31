@@ -51,13 +51,13 @@ namespace Azos.AuthKit.Dsl
         oneUser.User.FormMode = oneUser.User.Gdid.IsZero ? FormMode.Insert : FormMode.Update;
         var userChange = await logic.SaveUserAsync(oneUser.User).ConfigureAwait(false);
         result["user"] = userChange;
-        var gUser =  EntityChangeInfo.FromChange(userChange);
+        var uci =  EntityChangeInfo.FromChangeAs<IdpEntityChangeInfo>(userChange);
 
 
         foreach (var login in oneUser.Logins)
         {
           login.FormMode = login.Gdid.IsZero ? FormMode.Insert : FormMode.Update;
-       //   login.G_User = gUser;
+          login.G_User = uci.Id_Gdid;
           loginResults.Add(await logic.SaveLoginAsync(login).ConfigureAwait(false));
         }
       }

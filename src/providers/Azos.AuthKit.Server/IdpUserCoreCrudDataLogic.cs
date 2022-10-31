@@ -256,7 +256,7 @@ namespace Azos.AuthKit.Server
     {
       App.Authorize(SEC_USER_CHANGE);
 
-      var qry = new Query<EntityChangeInfo>("Admin.SaveUser")
+      var qry = new Query<IdpEntityChangeInfo>("Admin.SaveUser")
       {
         new Query.Param("u", user)
       };
@@ -277,7 +277,7 @@ namespace Azos.AuthKit.Server
     {
       App.Authorize(SEC_USER_CHANGE);
 
-      var qry = new Query<EntityChangeInfo>("Admin.SaveLogin")
+      var qry = new Query<IdpEntityChangeInfo>("Admin.SaveLogin")
       {
         new Query.Param("l", login)
       };
@@ -290,7 +290,7 @@ namespace Azos.AuthKit.Server
     {
       App.Authorize(SEC_USER_CHANGE);
 
-      var qry = new Query<EntityChangeInfo>("Admin.SetLock")
+      var qry = new Query<IdpEntityChangeInfo>("Admin.SetLock")
       {
         new Query.Param("l", status)
       };

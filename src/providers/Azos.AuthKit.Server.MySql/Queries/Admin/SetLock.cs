@@ -26,7 +26,7 @@ namespace Azos.AuthKit.Server.MySql.Queries.Admin
 
     protected override async Task<Doc> DoExecuteProcedureParameterizedQueryAsync(MySqlCrudQueryExecutionContext ctx, Query query, LockStatus lockStatus)
     {
-      var result = new EntityChangeInfo
+      var result = new IdpEntityChangeInfo
       {
         Id = lockStatus.TargetEntity,
         Version = ctx.MakeVersionInfo(lockStatus.TargetEntityGdid, lockStatus.FormMode)
