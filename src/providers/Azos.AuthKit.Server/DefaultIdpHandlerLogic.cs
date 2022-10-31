@@ -301,7 +301,7 @@ namespace Azos.AuthKit.Server
       }
       else
       {
-        eProps.Create("idp");
+        eProps.Create(Constraints.CONFIG_PROPS_ROOT_SECTION);
       }
 
       //1. Assign PROPS =======================================

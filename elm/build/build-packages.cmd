@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.0.0.43
-set HEADLINE=#795 EntityChanges and assignment of GDID
+set VER=3.0.0.44
+set HEADLINE=#795 props root
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
