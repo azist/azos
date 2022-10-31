@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.0.0.42
-set HEADLINE=#795 AuthKit.Dsl.LoadUsers
+set VER=3.0.0.43
+set HEADLINE=#795 EntityChanges and assignment of GDID
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
