@@ -48,11 +48,16 @@ namespace Azos.AuthKit.Dsl
         var loginResults = new List<ChangeResult>();
         result["logins"] = loginResults;
 
-        result["user"] = await logic.SaveUserAsync(oneUser.User).ConfigureAwait(false);
+        oneUser.User.FormMode = oneUser.User.Gdid.IsZero ? FormMode.Insert : FormMode.Update;
+        var userChange = await logic.SaveUserAsync(oneUser.User).ConfigureAwait(false);
+        result["user"] = userChange;
+        var gUser =  EntityChangeInfo.FromChange(userChange);
 
 
         foreach (var login in oneUser.Logins)
         {
+          login.FormMode = login.Gdid.IsZero ? FormMode.Insert : FormMode.Update;
+       //   login.G_User = gUser;
           loginResults.Add(await logic.SaveLoginAsync(login).ConfigureAwait(false));
         }
       }
