@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.0.0.41
-set HEADLINE=#791 Authkit review
+set VER=3.0.0.42
+set HEADLINE=#795 AuthKit.Dsl.LoadUsers
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
