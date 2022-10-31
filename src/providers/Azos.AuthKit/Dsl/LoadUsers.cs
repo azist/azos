@@ -45,13 +45,15 @@ namespace Azos.AuthKit.Dsl
       {
         var result = new JsonDataMap();
         results.Add(result);
+        var loginResults = new List<ChangeResult>();
+        result["logins"] = loginResults;
 
         result["user"] = await logic.SaveUserAsync(oneUser.User).ConfigureAwait(false);
 
-        foreach(var login in oneUser.Logins)
-        {
 
-          result["logins"] = await logic.SaveLoginAsync(login).ConfigureAwait(false);
+        foreach (var login in oneUser.Logins)
+        {
+          loginResults.Add(await logic.SaveLoginAsync(login).ConfigureAwait(false));
         }
       }
 
