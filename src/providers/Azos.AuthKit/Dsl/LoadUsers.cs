@@ -25,7 +25,7 @@ namespace Azos.AuthKit.Dsl
     public class UserData : FragmentModel
     {
       [Field] public UserEntity User { get; set; }
-      [Field] public IEnumerable<LoginEntity> Logins { get; set;}
+      [Field] public List<LoginEntity> Logins { get; set;}
     }
 
 
