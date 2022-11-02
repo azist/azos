@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.0.0.44
-set HEADLINE=#795 props root
+set VER=3.0.0.45
+set HEADLINE=Add pdbs
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

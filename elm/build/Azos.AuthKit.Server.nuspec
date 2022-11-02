@@ -26,6 +26,14 @@
   </metadata>
 
   <files>
+    <file src="..\..\out\Release\Azos.AuthKit.Server.dll"   target="contentFiles\any\any\azos-win-x64" />
+    <file src="..\..\out\Release\Azos.AuthKit.Server.pdb"   target="contentFiles\any\any\azos-win-x64" />
+    <file src="..\..\out\Release\Azos.AuthKit.Server.xml"   target="contentFiles\any\any\azos-win-x64" />
+    
+    <file src="..\..\out\Release\Azos.AuthKit.Server.dll"   target="contentFiles\any\any\azos-linux-x64" />
+    <file src="..\..\out\Release\Azos.AuthKit.Server.pdb"   target="contentFiles\any\any\azos-linux-x64" />
+    <file src="..\..\out\Release\Azos.AuthKit.Server.xml"   target="contentFiles\any\any\azos-linux-x64" />
+  
   
     <file src="..\..\out\Release\Azos.AuthKit.Server.dll" target="lib\net6.0" />
     <file src="..\..\out\Release\Azos.AuthKit.Server.xml" target="lib\net6.0" />

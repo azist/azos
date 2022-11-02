@@ -48,6 +48,9 @@ namespace Azos.AuthKit.Dsl
         var loginResults = new List<ChangeResult>();
         result["logins"] = loginResults;
 
+        oneUser.User.NonNull("[{User....},{...},...]");
+        oneUser.Logins.NonNull("[{Logins....},{...},...]");
+
         oneUser.User.FormMode = oneUser.User.Gdid.IsZero ? FormMode.Insert : FormMode.Update;
         var userChange = await logic.SaveUserAsync(oneUser.User).ConfigureAwait(false);
         result["user"] = userChange;

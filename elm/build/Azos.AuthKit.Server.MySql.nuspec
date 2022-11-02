@@ -28,6 +28,15 @@
   </metadata>
 
   <files>
+    <file src="..\..\out\Release\Azos.AuthKit.Server.MySql.dll"   target="contentFiles\any\any\azos-win-x64" />
+    <file src="..\..\out\Release\Azos.AuthKit.Server.MySql.pdb"   target="contentFiles\any\any\azos-win-x64" />
+    <file src="..\..\out\Release\Azos.AuthKit.Server.MySql.xml"   target="contentFiles\any\any\azos-win-x64" />
+    
+    <file src="..\..\out\Release\Azos.AuthKit.Server.MySql.dll"   target="contentFiles\any\any\azos-linux-x64" />
+    <file src="..\..\out\Release\Azos.AuthKit.Server.MySql.pdb"   target="contentFiles\any\any\azos-linux-x64" />
+    <file src="..\..\out\Release\Azos.AuthKit.Server.MySql.xml"   target="contentFiles\any\any\azos-linux-x64" />
+  
+  
     <file src="..\..\out\Release\Azos.AuthKit.Server.MySql.dll" target="lib\netstandard2.1" />
     <file src="..\..\out\Release\Azos.AuthKit.Server.MySql.xml" target="lib\netstandard2.1" />
     <file src="..\..\out\Release\Azos.AuthKit.Server.MySql.pdb" target="lib\netstandard2.1" />
