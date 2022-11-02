@@ -22,6 +22,10 @@
       <dependency id="Azos.MongoDb" version="$version$" />
     </dependencies>
     
+    <contentFiles>
+      <files include="**/*" buildAction="None" copyToOutput="true" flatten="false" />
+    </contentFiles>
+    
   </metadata>
 
   <files>

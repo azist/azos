@@ -1,6 +1,6 @@
 @echo on
 
-set VER=3.0.0.45
+set VER=3.0.0.46
 set HEADLINE=Add pdbs
 call build-all Release %VER%
 

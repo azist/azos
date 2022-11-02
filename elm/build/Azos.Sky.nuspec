@@ -22,6 +22,7 @@
     <contentFiles>
       <files include="**/*" buildAction="None" copyToOutput="true" flatten="false" />
     </contentFiles>
+        
     
   </metadata>
 

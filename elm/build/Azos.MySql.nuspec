@@ -20,6 +20,10 @@
       <dependency id="MySqlConnector" version="1.3.10" />
     </dependencies>
     
+    <contentFiles>
+      <files include="**/*" buildAction="None" copyToOutput="true" flatten="false" />
+    </contentFiles>
+    
   </metadata>
 
   <files>

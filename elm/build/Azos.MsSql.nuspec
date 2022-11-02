@@ -20,6 +20,10 @@
       <dependency id="Microsoft.Data.SqlClient" version="5.0.0" />
     </dependencies>
     
+    <contentFiles>
+      <files include="**/*" buildAction="None" copyToOutput="true" flatten="false" />
+    </contentFiles>
+    
   </metadata>
 
   <files>

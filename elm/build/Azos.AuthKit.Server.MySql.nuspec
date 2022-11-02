@@ -25,6 +25,10 @@
       <dependency id="Azos.MySql" version="$version$" />
     </dependencies>
     
+    <contentFiles>
+      <files include="**/*" buildAction="None" copyToOutput="true" flatten="false" />
+    </contentFiles>
+    
   </metadata>
 
   <files>

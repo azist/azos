@@ -20,6 +20,10 @@
       <dependency id="Oracle.ManagedDataAccess.Core" version="2.18.3" />
     </dependencies>
     
+    <contentFiles>
+      <files include="**/*" buildAction="None" copyToOutput="true" flatten="false" />
+    </contentFiles>
+    
   </metadata>
 
   <files>
