@@ -172,74 +172,72 @@ namespace Azos.IO.Net.Gate
     protected virtual bool Check_FromAddrs(string address)
     {
       if (m_FromAddrs==null || address.IsNullOrWhiteSpace()) return true;
-        return m_FromAddrs.Any(s=> Azos.Text.Utils.MatchPattern(address, s));
+      return m_FromAddrs.Any(s=> Azos.Text.Utils.MatchPattern(address, s));
     }
 
     protected virtual bool Check_ToAddrs(string address)
     {
       if (m_ToAddrs==null || address.IsNullOrWhiteSpace()) return true;
-        return m_ToAddrs.Any(s=>Azos.Text.Utils.MatchPattern(address, s));
+      return m_ToAddrs.Any(s=>Azos.Text.Utils.MatchPattern(address, s));
     }
 
     protected virtual bool Check_Methods(string method)
     {
       if (m_Methods==null || method.IsNullOrWhiteSpace()) return true;
-        return m_Methods.Any(m=>string.Equals(m, method, StringComparison.OrdinalIgnoreCase));
+      return m_Methods.Any(m=>string.Equals(m, method, StringComparison.OrdinalIgnoreCase));
     }
 
     protected virtual bool Check_Services(string service)
     {
       if (m_Services==null || service.IsNullOrWhiteSpace()) return true;
-        return m_Services.Any(s=>string.Equals(s, service, StringComparison.OrdinalIgnoreCase));
+      return m_Services.Any(s=>string.Equals(s, service, StringComparison.OrdinalIgnoreCase));
     }
 
     protected virtual bool Check_URLFragments(string url)
     {
       if (m_URLFragments==null || url.IsNullOrWhiteSpace()) return true;
-        return m_URLFragments.Any(uf => Azos.Text.Utils.MatchPattern(url, uf));
+      return m_URLFragments.Any(uf => Azos.Text.Utils.MatchPattern(url, uf));
     }
 
     protected virtual bool Check_FromGroups(string fromGroup)
     {
       if (m_FromGroups==null || fromGroup.IsNullOrWhiteSpace()) return true;
-        return m_FromGroups.Any(grp => string.Equals(grp, fromGroup, StringComparison.OrdinalIgnoreCase));
+      return m_FromGroups.Any(grp => string.Equals(grp, fromGroup, StringComparison.OrdinalIgnoreCase));
     }
 
     protected virtual bool Check_ToGroups(string toGroup)
     {
       if (m_ToGroups==null || toGroup.IsNullOrWhiteSpace()) return true;
-        return m_ToGroups.Any(grp => string.Equals(grp, toGroup, StringComparison.OrdinalIgnoreCase));
+      return m_ToGroups.Any(grp => string.Equals(grp, toGroup, StringComparison.OrdinalIgnoreCase));
     }
 
 
     private bool invokeEvaluator(NetSiteState netState, Evaluator evaluator)
     {
-        if (netState==null) return false;
+      if (netState==null) return false;
 
-        string evaluated = string.Empty;
+      string evaluated = string.Empty;
 
-        lock(netState.m_Variables)
-        {
-          evaluated = evaluator.Evaluate(
-                         (varName)=>
-                         {
-                            if (varName.StartsWith(VAR_EXPRESSION_PREFIX)&&varName.Length>VAR_EXPRESSION_PREFIX.Length)
-                            {
-                               NetSiteState._value lookedUp;
-                               varName = varName.Substring(VAR_EXPRESSION_PREFIX.Length);
-                               if (netState.m_Variables.TryGetValue(varName, out lookedUp)) return lookedUp.Value.ToString();
-                               //is it important to return "0" so all expressions keep working even if the variable does not exist
-                               return "0";
-                            }
-                            return varName;
-                         });
-        }
-        if (evaluated=="1" ||  //this check for speed as AsBool() does extra conv and parses as int
-            evaluated.AsBool()) return true;
+      lock(netState.m_Variables)
+      {
+        evaluated = evaluator.Evaluate(
+                        (varName)=>
+                        {
+                          if (varName.StartsWith(VAR_EXPRESSION_PREFIX)&&varName.Length>VAR_EXPRESSION_PREFIX.Length)
+                          {
+                              NetSiteState._value lookedUp;
+                              varName = varName.Substring(VAR_EXPRESSION_PREFIX.Length);
+                              if (netState.m_Variables.TryGetValue(varName, out lookedUp)) return lookedUp.Value.ToString();
+                              //is it important to return "0" so all expressions keep working even if the variable does not exist
+                              return "0";
+                          }
+                          return varName;
+                        });
+      }
+      if (evaluated=="1" ||  //this check for speed as AsBool() does extra conv and parses as int
+          evaluated.AsBool()) return true;
 
-        return false;
+      return false;
     }
-
-
   }
 }

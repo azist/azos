@@ -181,7 +181,7 @@ namespace Azos.Conf.Forest.Server
       tree.IsAssigned.IsTrue("Assigned Tree");
       App.Authorize(new TreePermission(TreeAccessLevel.Setup, node.Id));
 
-      var qry = new Query<EntityChangeInfo>("Tree.SaveNode")
+      var qry = new Query<TreeNodeChangeInfo>("Tree.SaveNode")
       {
         new Query.Param("n", node)
       };

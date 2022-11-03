@@ -85,7 +85,7 @@ namespace Azos.Data.Access.Rpc
 
     /// <summary>
     /// Override to impose a client-side limitations on TransactRequest instances
-    /// </summary
+    /// </summary>
     public virtual ValidState ValidateTransactRequest(ValidState state, TransactRequest request) => state;
 
 

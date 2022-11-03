@@ -28,7 +28,11 @@ namespace Azos
       if (!map.ContainsKey(key)) return false;
 
       var got = map[key].AsString(null);
-      if (got==null && substring==null) return true;
+      if (got == null)
+      {
+       if (substring == null) return true;
+       return false;
+      }
 
       return got.IndexOf(substring, senseCase ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase) >=0;
     }

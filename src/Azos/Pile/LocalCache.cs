@@ -526,7 +526,7 @@ namespace Azos.Pile
                                              //this is needed so that CacheStore works without app container (using NOPApplication) in which case
                                              //service must be .Disposed() to stop this thread
                   var timer = Stopwatch.StartNew();
-                  while ((App.Active | !wasActive) && Running)
+                  while ((App.Active || !wasActive) && Running)
                   {
                     var utcNow = DateTime.UtcNow;
 

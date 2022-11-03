@@ -130,7 +130,7 @@ namespace Azos.Data
       data.AddAttributeNode("kind", fatr.Kind);
 
       data.AddAttributeNode("required", fatr.Required);
-      data.AddAttributeNode("visible", fatr.Required);
+      data.AddAttributeNode("visible", fatr.Visible);//#790 jpk
       data.AddAttributeNode("case", fatr.CharCase);
       if (fatr.Default != null) data.AddAttributeNode("default", fatr.Default);
       if (fatr.DisplayFormat.IsNotNullOrWhiteSpace()) data.AddAttributeNode("display-format", fatr.DisplayFormat);

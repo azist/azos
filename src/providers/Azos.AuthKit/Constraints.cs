@@ -61,6 +61,12 @@ namespace Azos.AuthKit
     /// </summary>
     public const string EVT_QUEUE_LOGIN = "login";
 
+
+    /// <summary>
+    /// The name of root node of props vector
+    /// </summary>
+    public const string CONFIG_PROPS_ROOT_SECTION = "props";
+
     public const string CONFIG_CLAIMS_SECTION = "claims";// props{  claims{ pub{...} } }
     public const string CONFIG_PUBLIC_SECTION = "pub";
 
