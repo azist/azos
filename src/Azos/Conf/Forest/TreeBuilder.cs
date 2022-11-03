@@ -15,16 +15,30 @@ using Azos.Data.Access;
 namespace Azos.Conf.Forest
 {
   /// <summary>
-  /// Defines action types for nodes of trres built by <see cref="TreeBuilder"/>
+  /// Defines action types for nodes of trees built by <see cref="TreeBuilder"/>
   /// </summary>
   public enum NodeActionType
   {
+    /// <summary>
+    /// The tree level must exist asof specified date.
+    /// If not present then the exception is thrown and processing aborted
+    /// </summary>
     Require = 0,
+
+    /// <summary>
+    /// Will try to fetch this level. If not found then the whole sub-tree will be skipped
+    /// </summary>
     Conditional,
-    Insert,
-    Update,
-    Save,//Upsert
-    Delete,
+
+    /// <summary>
+    /// Will insert or update (upsert) a node asof date
+    /// </summary>
+    Save,
+
+    /// <summary>
+    /// Tombstones a node as of date
+    /// </summary>
+    Delete
   }
 
 
@@ -35,8 +49,8 @@ namespace Azos.Conf.Forest
   {
     public const string CONFIG_ACTION_ATTR = "action";
     public const string CONFIG_ASOF_ATTR   = "asof";
-    public const string CONFIG_PROPS_ATTR  = "props";
-    public const string CONFIG_CONF_ATTR   = "config";
+    public const string CONFIG_PROPS_SECT  = "props";
+    public const string CONFIG_CONF_SECT   = "conf";
 
 
     public TreeBuilder(IForestSetupLogic logic)
@@ -51,18 +65,50 @@ namespace Azos.Conf.Forest
       cfgTree.NonEmpty(nameof(cfgTree));
       (!idForest.IsZero && idForest.IsValid).IsTrue("Valid forest id");
       (!idTree.IsZero && idTree.IsValid).IsTrue("Valid tree id");
-      var path = "/";
-      await DoLevelAsync(idForest, idTree, cfgTree, path);
+      var nid = new EntityId(idForest, idTree, Constraints.SCH_PATH, "/");
+      await DoLevelAsync(nid, cfgTree, "/", GDID.ZERO);
     }
 
-    protected virtual async Task DoLevelAsync(Atom idForest, Atom idTree, IConfigSectionNode cfgNode, string path)
+    protected virtual async Task DoLevelAsync(EntityId idNode,IConfigSectionNode cfgNode, string pathSeg, GDID gParent)
     {
       var action = cfgNode.Of(CONFIG_ACTION_ATTR).ValueAsEnum(NodeActionType.Require);
-      var asof = cfgNode.Of(CONFIG_ASOF_ATTR).Value.AsNullableDateTime(styles: CoreConsts.UTC_TIMESTAMP_STYLES);
-      var nid = new EntityId(idForest, idTree, Constraints.SCH_PATH, path);
-      var node = await GetExistingNodeAsync(nid, asof);
 
-      //chekc required etc...
+      var asof = m_Logic.DefaultAndAlignOnPolicyBoundary(cfgNode.Of(CONFIG_ASOF_ATTR)
+                                                                .Value
+                                                                .AsNullableDateTime(styles: CoreConsts.UTC_TIMESTAMP_STYLES),
+                                                         idNode);
+
+      var nodeInfo = await GetExistingNodeAsync(idNode, asof).ConfigureAwait(false);
+
+      TreeNode node;
+
+      if (nodeInfo == null)
+      {
+        if (action == NodeActionType.Conditional) return;//do nothing
+
+        node = new TreeNode();
+        node.FormMode = FormMode.Insert;
+        node.Forest = idNode.System;
+        node.Tree = idNode.Type;
+        node.Gdid = GDID.ZERO;
+        node.G_Parent = gParent;
+        node.PathSegment = pathSeg;
+      }
+      else
+      {
+        node = nodeInfo.CloneIntoPersistedModel();
+        node.FormMode = FormMode.Update;
+      }
+
+      var nProps = cfgNode[CONFIG_PROPS_SECT].NonEmpty("{0}/{1}".Args(cfgNode.RootPath, CONFIG_PROPS_SECT));
+      node.Properties = new ConfigVector(nProps);
+
+      var nConf = cfgNode[CONFIG_CONF_SECT].NonEmpty("{0}/{1}".Args(cfgNode.RootPath, CONFIG_CONF_SECT));
+      node.Config = new ConfigVector(nConf);
+
+      node.StartUtc = asof;
+
+      await m_Logic.SaveNodeAsync(node).ConfigureAwait(false);
     }
 
     protected virtual async Task<TreeNodeInfo> GetExistingNodeAsync(EntityId idNode, DateTime? asOfUtc)
