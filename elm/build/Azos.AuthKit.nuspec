@@ -20,9 +20,22 @@
       <dependency id="Azos.Sky" version="$version$" />
     </dependencies>
     
+    <contentFiles>
+      <files include="**/*" buildAction="None" copyToOutput="true" flatten="false" />
+    </contentFiles>
+    
   </metadata>
 
   <files>
+    <file src="..\..\out\Release\Azos.AuthKit.dll"   target="contentFiles\any\any\azos-win-x64" />
+    <file src="..\..\out\Release\Azos.AuthKit.pdb"   target="contentFiles\any\any\azos-win-x64" />
+    <file src="..\..\out\Release\Azos.AuthKit.xml"   target="contentFiles\any\any\azos-win-x64" />
+    
+    <file src="..\..\out\Release\Azos.AuthKit.dll"   target="contentFiles\any\any\azos-linux-x64" />
+    <file src="..\..\out\Release\Azos.AuthKit.pdb"   target="contentFiles\any\any\azos-linux-x64" />
+    <file src="..\..\out\Release\Azos.AuthKit.xml"   target="contentFiles\any\any\azos-linux-x64" />
+  
+  
     <file src="..\..\out\Release\Azos.AuthKit.dll" target="lib\netstandard2.1" />
     <file src="..\..\out\Release\Azos.AuthKit.xml" target="lib\netstandard2.1" />
     <file src="..\..\out\Release\Azos.AuthKit.pdb" target="lib\netstandard2.1" />

@@ -25,7 +25,7 @@ namespace Azos.MySql.ConfForest.Queries.Tree
 
     protected override async Task<Doc> DoExecuteProcedureParameterizedQueryAsync(MySqlCrudQueryExecutionContext ctx, Query query, TreeNode node)
     {
-      var result = new EntityChangeInfo
+      var result = new TreeNodeChangeInfo
       {
         Id = node.Id,
         Version = ctx.MakeVersionInfo(Constraints.ID_NS_CONFIG_FOREST_PREFIX + node.Forest.Value,

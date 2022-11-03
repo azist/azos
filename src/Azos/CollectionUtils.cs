@@ -225,7 +225,10 @@ namespace Azos
     {
       if (source == null) yield break;
       if (selector == null)
+      {
         foreach (var item in source) yield return item;
+        yield break;
+      }
 
       var set = distinctEqualityComparer!=null ? new HashSet<TKey>(distinctEqualityComparer) : new HashSet<TKey>();
       foreach(var item in source)

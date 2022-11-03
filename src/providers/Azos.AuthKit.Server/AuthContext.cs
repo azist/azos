@@ -22,10 +22,37 @@ namespace Azos.AuthKit.Server
   /// Provides transitive data used between various methods calls during user authentication.
   /// The class is paired with IIdpHandlerLogic which makes a new instance of this or
   /// appropriate derivative class.
-  /// Your auth system may extend this object also overriding <see cref="IIdpHandlerLogic.MakeNewUserAuthenticationContext(Atom, AuthenticationRequestContext)"/>
+  /// Your auth system may extend this object also overriding <see cref="IIdpHandlerLogic.MakeNewUserAuthenticationContext(AuthenticationRequestContext)"/>
   /// </summary>
   public class AuthContext
   {
+    /// <summary>
+    /// Describes auth outcome with optional JSON map details
+    /// </summary>
+    public struct Outcome
+    {
+      public static Outcome Ok() => new Outcome(true, null);
+
+      public static Outcome Ok(string description) => Ok(1, description);
+      public static Outcome Ok(int code, string description, Action<JsonDataMap> details = null)
+      {
+        var map = new JsonDataMap { { "c", code }, { "d", description } };
+        if (details != null) details(map);
+        return new Outcome(true, map);
+      }
+      public static Outcome Negative(int code, string description, Action<JsonDataMap> details = null)
+      {
+        var map = new JsonDataMap { { "c", code }, { "d", description } };
+        if (details != null) details(map);
+        return new Outcome(false, map);
+      }
+
+      private Outcome(bool ok, JsonDataMap map) {  OK = ok; Data = map; }
+      public readonly bool OK;
+      public readonly JsonDataMap Data;
+    }
+
+
     public AuthContext(Atom realm, AuthenticationRequestContext ctx)
     {
       Realm = realm.IsTrue(v => !v.IsZero && v.IsValid, "Valid realm");
@@ -35,7 +62,25 @@ namespace Azos.AuthKit.Server
     public readonly Atom Realm;
     public readonly AuthenticationRequestContext RequestContext;
 
-    public bool HasResult{ get; set; }
+    /// <summary>
+    /// ResultCodes a kin to HTTP status codes 200-300 represent success
+    /// </summary>
+    public Outcome Result {  get; private set; }
+
+    /// <summary>
+    /// True when the record indicates logically positive auth result outcome - when user is valid etc..
+    /// False when, in spite of this instance presence it does not represent a valid auth result (e.g. invalid login)
+    /// </summary>
+    public bool HasResult => Result.OK;
+
+
+    /// <summary>
+    /// Sets auth result along with short textual description
+    /// </summary>
+    public void SetResult(Outcome outcome)
+    {
+      Result = outcome;
+    }
 
     public LoginProvider Provider {  get; set; }
 

@@ -47,7 +47,7 @@ namespace Azos.AuthKit.Server.MySql.Queries.MinIdp
       verState = VersionInfo.MapCanonicalState(reader.AsStringField("LOGIN_VERSION_STATE"));
       if (!VersionInfo.IsExistingStateOf(verState)) return null; //deleted, skip this doc
 
-      ctx.HasResult = true;//FOUND!!!!!!!!!!!!
+      ctx.SetResult(AuthContext.Outcome.Ok("Found by id"));//FOUND!!!!!!!!!!!!
       ctx.G_User = reader.AsGdidField("GDID");
       ctx.SysId = ctx.G_User.ToHexString();
       ctx.OrgUnit = reader.AsStringField("ORG_UNIT");

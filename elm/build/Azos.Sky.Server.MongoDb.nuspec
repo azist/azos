@@ -22,9 +22,22 @@
       <dependency id="Azos.MongoDb" version="$version$" />
     </dependencies>
     
+    <contentFiles>
+      <files include="**/*" buildAction="None" copyToOutput="true" flatten="false" />
+    </contentFiles>
+    
   </metadata>
 
   <files>
+    <file src="..\..\out\Release\Azos.Sky.Server.MongoDb.dll"   target="contentFiles\any\any\azos-win-x64" />
+    <file src="..\..\out\Release\Azos.Sky.Server.MongoDb.pdb"   target="contentFiles\any\any\azos-win-x64" />
+    <file src="..\..\out\Release\Azos.Sky.Server.MongoDb.xml"   target="contentFiles\any\any\azos-win-x64" />
+
+    <file src="..\..\out\Release\Azos.Sky.Server.MongoDb.dll"   target="contentFiles\any\any\azos-linux-x64" />
+    <file src="..\..\out\Release\Azos.Sky.Server.MongoDb.pdb"   target="contentFiles\any\any\azos-linux-x64" />
+    <file src="..\..\out\Release\Azos.Sky.Server.MongoDb.xml"   target="contentFiles\any\any\azos-linux-x64" /> 
+  
+  
     <file src="..\..\out\Release\Azos.Sky.Server.MongoDb.dll" target="lib\net6.0" />
     <file src="..\..\out\Release\Azos.Sky.Server.MongoDb.xml" target="lib\net6.0" />
     <file src="..\..\out\Release\Azos.Sky.Server.MongoDb.pdb" target="lib\net6.0" />

@@ -19,9 +19,21 @@
       <dependency id="Azos" version="$version$" />
     </dependencies>
     
+    <contentFiles>
+      <files include="**/*" buildAction="None" copyToOutput="true" flatten="false" />
+    </contentFiles>
+    
   </metadata>
 
   <files>
+    <file src="..\..\out\Release\Azos.Media.dll"   target="contentFiles\any\any\azos-win-x64" />
+    <file src="..\..\out\Release\Azos.Media.pdb"   target="contentFiles\any\any\azos-win-x64" />
+    <file src="..\..\out\Release\Azos.Media.xml"   target="contentFiles\any\any\azos-win-x64" />
+
+    <file src="..\..\out\Release\Azos.Media.dll"   target="contentFiles\any\any\azos-linux-x64" />
+    <file src="..\..\out\Release\Azos.Media.pdb"   target="contentFiles\any\any\azos-linux-x64" />
+    <file src="..\..\out\Release\Azos.Media.xml"   target="contentFiles\any\any\azos-linux-x64" /> 
+  
     <file src="..\..\out\Release\Azos.Media.dll" target="lib\net6.0" />
     <file src="..\..\out\Release\Azos.Media.xml" target="lib\net6.0" />
     <file src="..\..\out\Release\Azos.Media.pdb" target="lib\net6.0" />
