@@ -21,7 +21,7 @@ namespace Azos.Conf.Forest
   public enum NodeActionType
   {
     /// <summary>
-    /// The tree level must exist asof specified date.
+    /// The tree level must exist asof the specified date.
     /// If not present then the exception is thrown and processing aborted
     /// </summary>
     Require = 0,
@@ -112,11 +112,13 @@ namespace Azos.Conf.Forest
         if (action == NodeActionType.Conditional) return null;//do nothing
         if (action == NodeActionType.Delete) return null;//do nothing
 
+        if (gParent.IsZero) throw new ConfigException("Root insert is prohibited");
+
         node = new TreeNode();
         node.FormMode = FormMode.Insert;
+        node.Gdid = GDID.ZERO;
         node.Forest = idNode.System;
         node.Tree = idNode.Type;
-        node.Gdid = GDID.ZERO;
         node.G_Parent = gParent;
       }
       else
@@ -140,15 +142,20 @@ namespace Azos.Conf.Forest
       node.StartUtc = asof;
       node.PathSegment = pathSeg;
 
-      await m_Logic.SaveNodeAsync(node).ConfigureAwait(false);
+      var change = await m_Logic.SaveNodeAsync(node).ConfigureAwait(false);
 
+      //We now need to re-fetch the full info by its G_VERSION - exactly that data copy
+      var treeChange = TreeNodeChangeInfo.FromChangeAs<TreeNodeChangeInfo>(change);
+      var verId = new EntityId(treeChange.Id.System, treeChange.Id.Type, Constraints.SCH_GVER, treeChange.Version.G_Version.ToHexString());
+
+      nodeInfo = await m_Logic.GetNodeInfoVersionAsync(verId).ConfigureAwait(false);
       return nodeInfo;
     }
 
     protected virtual async Task<TreeNodeInfo> GetExistingNodeAsync(EntityId idNode, DateTime? asOfUtc)
     {
-       var node = await m_Logic.GetNodeInfoAsync(idNode, asOfUtc, CacheParams.NoCache);//the freshest
-       return node;
+      var node = await m_Logic.GetNodeInfoAsync(idNode, asOfUtc, CacheParams.NoCache);//the freshest
+      return node;
     }
   }
 }
