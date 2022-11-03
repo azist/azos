@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -52,6 +53,8 @@ namespace Azos.Conf.Forest
     public const string CONFIG_PROPS_SECT  = "props";
     public const string CONFIG_CONF_SECT   = "conf";
 
+    public const string CONFIG_NODE_PREFIX_SECT = "node::";
+
 
     public TreeBuilder(IForestSetupLogic logic)
     {
@@ -66,10 +69,31 @@ namespace Azos.Conf.Forest
       (!idForest.IsZero && idForest.IsValid).IsTrue("Valid forest id");
       (!idTree.IsZero && idTree.IsValid).IsTrue("Valid tree id");
       var nid = new EntityId(idForest, idTree, Constraints.SCH_PATH, "/");
-      await DoLevelAsync(nid, cfgTree, "/", GDID.ZERO);
+      var node = await DoLevelAsync(nid, cfgTree, "/", GDID.ZERO).ConfigureAwait(false);
+
+      if (node != null)
+      {
+        await DoLevelChildrenAsync(cfgTree, node).ConfigureAwait(false);
+      }
     }
 
-    protected virtual async Task DoLevelAsync(EntityId idNode,IConfigSectionNode cfgNode, string pathSeg, GDID gParent)
+    protected async virtual Task DoLevelChildrenAsync(IConfigSectionNode cfgNode, TreeNodeInfo nodeInfo)
+    {
+      var tplChildren = cfgNode.Children
+                               .Where(c => c.Name.StartsWith(CONFIG_NODE_PREFIX_SECT) && c.Name.Length > CONFIG_NODE_PREFIX_SECT.Length)
+                               .Select(c => (cfg: c, seg: c.Name.Substring(CONFIG_NODE_PREFIX_SECT.Length).Trim()))
+                               .Where(tpl => tpl.seg.IsNotNullOrWhiteSpace());
+
+      foreach(var tplChild in tplChildren)
+      {
+        var idChildNode = new EntityId(nodeInfo.Forest, nodeInfo.Tree, Constraints.SCH_PATH, TreePath.Join(nodeInfo.FullPath, tplChild.seg));
+
+        var levelInfo = await DoLevelAsync(idChildNode, tplChild.cfg, tplChild.seg, nodeInfo.G_Parent).ConfigureAwait(false);
+        await DoLevelChildrenAsync(tplChild.cfg, levelInfo).ConfigureAwait(false);
+      }
+    }
+
+    protected virtual async Task<TreeNodeInfo> DoLevelAsync(EntityId idNode, IConfigSectionNode cfgNode, string pathSeg, GDID gParent)
     {
       var action = cfgNode.Of(CONFIG_ACTION_ATTR).ValueAsEnum(NodeActionType.Require);
 
@@ -84,7 +108,9 @@ namespace Azos.Conf.Forest
 
       if (nodeInfo == null)
       {
-        if (action == NodeActionType.Conditional) return;//do nothing
+        if (action == NodeActionType.Require) throw new ConfigException("Required node `{0}` is not found".Args(idNode));
+        if (action == NodeActionType.Conditional) return null;//do nothing
+        if (action == NodeActionType.Delete) return null;//do nothing
 
         node = new TreeNode();
         node.FormMode = FormMode.Insert;
@@ -92,23 +118,31 @@ namespace Azos.Conf.Forest
         node.Tree = idNode.Type;
         node.Gdid = GDID.ZERO;
         node.G_Parent = gParent;
-        node.PathSegment = pathSeg;
       }
       else
       {
+        if (action == NodeActionType.Require || action == NodeActionType.Conditional) return nodeInfo;
+        if (action == NodeActionType.Delete)
+        {
+          await m_Logic.DeleteNodeAsync(idNode, asof);
+          return nodeInfo;
+        }
+
         node = nodeInfo.CloneIntoPersistedModel();
         node.FormMode = FormMode.Update;
       }
 
       var nProps = cfgNode[CONFIG_PROPS_SECT].NonEmpty("{0}/{1}".Args(cfgNode.RootPath, CONFIG_PROPS_SECT));
+      var nConf  = cfgNode[CONFIG_CONF_SECT] .NonEmpty("{0}/{1}".Args(cfgNode.RootPath, CONFIG_CONF_SECT));
+
       node.Properties = new ConfigVector(nProps);
-
-      var nConf = cfgNode[CONFIG_CONF_SECT].NonEmpty("{0}/{1}".Args(cfgNode.RootPath, CONFIG_CONF_SECT));
       node.Config = new ConfigVector(nConf);
-
       node.StartUtc = asof;
+      node.PathSegment = pathSeg;
 
       await m_Logic.SaveNodeAsync(node).ConfigureAwait(false);
+
+      return nodeInfo;
     }
 
     protected virtual async Task<TreeNodeInfo> GetExistingNodeAsync(EntityId idNode, DateTime? asOfUtc)
