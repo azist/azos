@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using Azos.Apps.Injection;
 using Azos.Data;
 using Azos.Data.Access;
 
@@ -56,12 +56,14 @@ namespace Azos.Conf.Forest
     public const string CONFIG_NODE_PREFIX_SECT = "node::";
 
 
-    public TreeBuilder(IForestSetupLogic logic)
+    public TreeBuilder(IApplication app)
     {
-      m_Logic = logic.NonDisposed(nameof(logic));
+      app.InjectInto(this);
+      m_App = app;
     }
 
-    protected readonly IForestSetupLogic m_Logic;
+    protected readonly IApplication m_App;
+    [Inject] protected IForestSetupLogic m_Logic;
 
     public async Task BuildAsync(IConfigSectionNode cfgTree, Atom idForest, Atom idTree)
     {
@@ -142,10 +144,10 @@ namespace Azos.Conf.Forest
       node.StartUtc = asof;
       node.PathSegment = pathSeg;
 
-      var change = await m_Logic.SaveNodeAsync(node).ConfigureAwait(false);
+      var saved = await node.SaveAsync(m_App).ConfigureAwait(false);
 
       //We now need to re-fetch the full info by its G_VERSION - exactly that data copy
-      var treeChange = TreeNodeChangeInfo.FromChangeAs<TreeNodeChangeInfo>(change);
+      var treeChange = TreeNodeChangeInfo.FromChangeAs<TreeNodeChangeInfo>(saved.Result);
       var verId = new EntityId(treeChange.Id.System, treeChange.Id.Type, Constraints.SCH_GVER, treeChange.Version.G_Version.ToHexString());
 
       nodeInfo = await m_Logic.GetNodeInfoVersionAsync(verId).ConfigureAwait(false);

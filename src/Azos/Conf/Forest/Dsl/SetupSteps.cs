@@ -69,7 +69,7 @@ namespace Azos.Conf.Forest.Dsl
   /// <summary>
   /// Builds a whole tree structure form a config sub-script supplied as IConfigSectionNode
   /// </summary>
-  public sealed class BuildTree : TreeStepBase
+  public sealed class BuildTree : Step
   {
     public BuildTree(StepRunner runner, IConfigSectionNode cfg, int order) : base(runner, cfg, order) { }
 
@@ -110,7 +110,7 @@ namespace Azos.Conf.Forest.Dsl
       var idForest = Eval(Forest, state).AsAtom();
       var idTree = Eval(Tree, state).AsAtom();
 
-      var builder = new TreeBuilder(Logic);
+      var builder = new TreeBuilder(App);
       await builder.BuildAsync(cfgRoot, idForest, idTree).ConfigureAwait(false);
 
       //////Runner.SetResult(got.GetResult());

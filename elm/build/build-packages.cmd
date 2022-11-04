@@ -1,6 +1,6 @@
 @echo on
 
-set VER=3.0.0.48
+set VER=3.0.0.49
 set HEADLINE=#799 Config.TreeBuilder
 call build-all Release %VER%
 
