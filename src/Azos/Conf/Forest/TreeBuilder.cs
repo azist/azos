@@ -90,7 +90,7 @@ namespace Azos.Conf.Forest
       {
         var idChildNode = new EntityId(nodeInfo.Forest, nodeInfo.Tree, Constraints.SCH_PATH, TreePath.Join(nodeInfo.FullPath, tplChild.seg));
 
-        var levelInfo = await DoLevelAsync(idChildNode, tplChild.cfg, tplChild.seg, nodeInfo.G_Parent).ConfigureAwait(false);
+        var levelInfo = await DoLevelAsync(idChildNode, tplChild.cfg, tplChild.seg, nodeInfo.Gdid).ConfigureAwait(false);
         await DoLevelChildrenAsync(tplChild.cfg, levelInfo).ConfigureAwait(false);
       }
     }
@@ -121,7 +121,6 @@ namespace Azos.Conf.Forest
         node.Gdid = GDID.ZERO;
         node.Forest = idNode.System;
         node.Tree = idNode.Type;
-        node.G_Parent = gParent;
       }
       else
       {
@@ -143,6 +142,7 @@ namespace Azos.Conf.Forest
       node.Config = new ConfigVector(nConf);
       node.StartUtc = asof;
       node.PathSegment = pathSeg;
+      node.G_Parent = gParent;
 
       var saved = await node.SaveAsync(m_App).ConfigureAwait(false);
 
