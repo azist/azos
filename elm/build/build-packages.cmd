@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.0.0.49
-set HEADLINE=#799 Config.TreeBuilder
+set VER=3.0.0.50
+set HEADLINE=#800 DynamicFlowScope for modules added to Gdid resolver
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
