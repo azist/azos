@@ -12,6 +12,8 @@ using System.Threading.Tasks;
 using Azos.Apps.Injection;
 using Azos.Data;
 using Azos.Data.Access;
+using Azos.Scripting;
+using Azos.Serialization.JSON;
 
 namespace Azos.Conf.Forest
 {
@@ -56,12 +58,14 @@ namespace Azos.Conf.Forest
     public const string CONFIG_NODE_PREFIX_SECT = "node::";
 
 
-    public TreeBuilder(IApplication app)
+    public TreeBuilder(IApplication app, bool conoutDetails)
     {
       app.InjectInto(this);
       m_App = app;
+      m_ConoutDetails = conoutDetails;
     }
 
+    protected bool m_ConoutDetails;
     protected readonly IApplication m_App;
     [Inject] protected IForestSetupLogic m_Logic;
 
@@ -106,6 +110,13 @@ namespace Azos.Conf.Forest
 
       var nodeInfo = await GetExistingNodeAsync(idNode, asof).ConfigureAwait(false);
 
+      if (m_ConoutDetails)
+      {
+        Conout.SeeArgs("Id: `{0}` Asof `{1}` Segment: `{2}` GParent: `{3}`\n" +
+                       "Returned: {4} \n\n", idNode, asof, pathSeg, gParent, nodeInfo.ToJson());
+      }
+
+
       TreeNode node;
 
       if (nodeInfo == null)
@@ -146,17 +157,15 @@ namespace Azos.Conf.Forest
 
       var saved = await node.SaveAsync(m_App).ConfigureAwait(false);
 
-      //We now need to re-fetch the full info by its G_VERSION - exactly that data copy
+      //We now need to re-fetch the full info by its id
       var treeChange = TreeNodeChangeInfo.FromChangeAs<TreeNodeChangeInfo>(saved.Result);
-      var verId = new EntityId(treeChange.Id.System, treeChange.Id.Type, Constraints.SCH_GVER, treeChange.Version.G_Version.ToHexString());
-
-      nodeInfo = await m_Logic.GetNodeInfoVersionAsync(verId).ConfigureAwait(false);
+      nodeInfo = await GetExistingNodeAsync(treeChange.Id, asof).ConfigureAwait(false);
       return nodeInfo;
     }
 
     protected virtual async Task<TreeNodeInfo> GetExistingNodeAsync(EntityId idNode, DateTime? asOfUtc)
     {
-      var node = await m_Logic.GetNodeInfoAsync(idNode, asOfUtc, CacheParams.NoCache);//the freshest
+      var node = await m_Logic.GetNodeInfoAsync(idNode, asOfUtc, CacheParams.NoCache).ConfigureAwait(false);//the freshest
       return node;
     }
   }

@@ -93,6 +93,11 @@ namespace Azos.Conf.Forest.Dsl
     /// </summary>
     [Config] public string IncludePragma { get; set; }
 
+    /// <summary>
+    /// True to output details into conout
+    /// </summary>
+    [Config] public bool PrintDetails { get; set; }
+
 
     protected override async Task<string> DoRunAsync(JsonDataMap state)
     {
@@ -110,7 +115,7 @@ namespace Azos.Conf.Forest.Dsl
       var idForest = Eval(Forest, state).AsAtom();
       var idTree = Eval(Tree, state).AsAtom();
 
-      var builder = new TreeBuilder(App);
+      var builder = new TreeBuilder(App, PrintDetails);
       await builder.BuildAsync(cfgRoot, idForest, idTree).ConfigureAwait(false);
 
       //////Runner.SetResult(got.GetResult());
