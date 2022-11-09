@@ -280,7 +280,20 @@ namespace Azos.AuthKit.Server
         {
           var parJson = new
           {
-            authContext = context
+            r = context.Result,
+            p = context.Provider?.Name,
+            rlm = context.Realm,
+            g_u = context.G_User,
+            g_l = context.G_Login,
+            nm = context.Name,
+            context.ResultRole,
+            context.ResultRoleConfig,
+            context.ResultProps,
+            context.ResultRights,
+            context.Rights,
+            context.LoginRights,
+            context.Props,
+            context.LoginProps,
           }.ToJson(JsonWritingOptions.CompactASCII);
 
           WriteLog(Log.MessageType.TraceErrors, nameof(ApplyEffectivePoliciesAsync), "Auth ctx", related: rel, pars: parJson);

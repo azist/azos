@@ -1,6 +1,6 @@
 @echo on
 
-set VER=3.0.0.56
+set VER=3.0.0.57
 set HEADLINE=#803 rights node under role config
 call build-all Release %VER%
 
