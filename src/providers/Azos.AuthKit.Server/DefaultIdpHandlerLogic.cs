@@ -260,6 +260,7 @@ namespace Azos.AuthKit.Server
         await applyEffectivePoliciesAsync(context).ConfigureAwait(false);
 
         //Log
+        var rel = Guid.NewGuid();
         if (!context.HasResult && ComponentEffectiveLogLevel <= Log.MessageType.TraceErrors)
         {
           var parJson = new
@@ -272,7 +273,17 @@ namespace Azos.AuthKit.Server
             nm = context.Name
           }.ToJson(JsonWritingOptions.CompactASCII);
 
-          WriteLog(Log.MessageType.TraceErrors, nameof(ApplyEffectivePoliciesAsync), "Bad auth", pars: parJson);
+          WriteLog(Log.MessageType.TraceErrors, nameof(ApplyEffectivePoliciesAsync), "Bad auth", related: rel, pars: parJson);
+        }
+
+        if (ComponentEffectiveLogLevel <= Log.MessageType.Trace)
+        {
+          var parJson = new
+          {
+            authContext = context
+          }.ToJson(JsonWritingOptions.CompactASCII);
+
+          WriteLog(Log.MessageType.TraceErrors, nameof(ApplyEffectivePoliciesAsync), "Auth ctx", related: rel, pars: parJson);
         }
       }
     }
