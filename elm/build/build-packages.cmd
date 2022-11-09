@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.0.0.54
-set HEADLINE=#800 Fixes
+set VER=3.0.0.55
+set HEADLINE=#803 rights node under role config
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

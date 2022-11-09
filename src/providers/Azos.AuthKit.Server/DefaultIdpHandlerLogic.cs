@@ -286,7 +286,7 @@ namespace Azos.AuthKit.Server
       // see below for next steps
 
       var eProps = new MemoryConfiguration { Application = App };
-      var eRights = new MemoryConfiguration { Application = App };
+      var eRoleConfig = new MemoryConfiguration { Application = App };
 
       if (context.OrgUnit.IsNotNullOrWhiteSpace())
       {
@@ -304,19 +304,24 @@ namespace Azos.AuthKit.Server
         eProps.Create(Constraints.CONFIG_PROPS_ROOT_SECTION);
       }
 
+
       //1. Assign PROPS =======================================
-      eProps.Root.OverrideBy(context.Props.Node);
-      if (context.LoginProps != null)
+      if (context.Props.Node != null) //user props are required, use safeguard
+      {
+        eProps.Root.OverrideBy(context.Props.Node);
+      }
+      if (context.LoginProps != null) //login props are optional
       {
         eProps.Root.OverrideBy(context.LoginProps.Node);
       }
       context.ResultProps = new ConfigVector(eProps.Root);
 
+
       //2. Assign minidp Primary role ================================================
       context.ResultRole = context.ResultProps.Node.ValOf(Constraints.CONFIG_ROLE_ATTR);
 
-      //3. Assign RIGHTS =======================================
 
+      //3. Assign RIGHTS =======================================
       if (context.ResultRole.IsNotNullOrWhiteSpace())
       {
         var idNode = GetIdpConfigTreeNodePath(context.Realm, context.ResultRole);
@@ -326,24 +331,32 @@ namespace Azos.AuthKit.Server
           context.SetResult(AuthContext.Outcome.Negative(-200, "Role not found", map => map["role"] = idNode));
           return;
         }
-        eRights.CreateFromNode(tNode.EffectiveConfig.Node);
+        eRoleConfig.CreateFromNode(tNode.EffectiveConfig.Node);
       }
       else
       {
-        eRights.Create(Rights.CONFIG_ROOT_SECTION);
+        eRoleConfig.Create(Rights.CONFIG_ROOT_SECTION);
+      }
+
+      context.ResultRoleConfig = new ConfigVector(eRoleConfig.Root);//#803
+
+      var eRightsNode = eRoleConfig.Root[Rights.CONFIG_ROOT_SECTION];
+      if (!eRightsNode.Exists)
+      {
+        eRightsNode = Configuration.NewEmptyRoot(Rights.CONFIG_ROOT_SECTION);
       }
 
       if (context.Rights != null)
       {
-        eRights.Root.OverrideBy(context.Rights.Node);
+        eRightsNode.OverrideBy(context.Rights.Node);
       }
 
       if (context.LoginRights != null)
       {
-        eRights.Root.OverrideBy(context.LoginRights.Node);
+        eRightsNode.OverrideBy(context.LoginRights.Node);
       }
 
-      context.ResultRights = new ConfigVector(eRights.Root);
+      context.ResultRights = new ConfigVector(eRightsNode);
     }
 
     private void checkLockStatus(AuthContext context)

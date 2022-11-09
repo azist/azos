@@ -121,6 +121,7 @@ namespace Azos.AuthKit.Server
     public ConfigVector LoginRights { get; set; }
 
     public string ResultRole { get; set; }
+    public ConfigVector ResultRoleConfig { get; set; }//#803
     public ConfigVector ResultRights { get; set; }
     public ConfigVector ResultProps{ get; set; }
 
