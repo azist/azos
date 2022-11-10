@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.0.0.58
-set HEADLINE=#803, #804 rights node under role config, conf tree node names
+set VER=3.0.0.59
+set HEADLINE=#805, #804, #803 rights node under role config, conf tree node names
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
