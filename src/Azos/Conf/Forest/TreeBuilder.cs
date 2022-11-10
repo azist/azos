@@ -52,8 +52,8 @@ namespace Azos.Conf.Forest
   {
     public const string CONFIG_ACTION_ATTR = "action";
     public const string CONFIG_ASOF_ATTR   = "asof";
-    public const string CONFIG_PROPS_SECT  = "props";
-    public const string CONFIG_CONF_SECT   = "conf";
+    public const string CONFIG_PROPS_SECT  = Constraints.CONFIG_PROP_ROOT_SECTION;
+    public const string CONFIG_CONF_SECT   = Constraints.CONFIG_CONF_ROOT_SECTION;
 
     public const string CONFIG_NODE_PREFIX_SECT = "node::";
 
