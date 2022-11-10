@@ -316,16 +316,43 @@ namespace Azos.AuthKit.Server
       {
         var idNode = GetIdpConfigTreeNodePath(context.Realm, context.OrgUnit);
         var tNode = await m_Forest.GetNodeInfoAsync(idNode).ConfigureAwait(false);
-        if(tNode == null)
+        if (tNode == null)
         {
           context.SetResult(AuthContext.Outcome.Negative(-100, "OrgUnit not found", map => map["ounit"] = idNode));
           return;
         }
-        eProps.CreateFromNode(tNode.EffectiveConfig.Node);
+
+        if (tNode.EffectiveConfig == null)
+        {
+          context.SetResult(AuthContext.Outcome.Negative(-101, "OrgUnit node data is missing", map => map["ounit"] = idNode));
+          return;
+        }
+
+        IConfigSectionNode nProp = null;
+        try
+        {
+          nProp = tNode.EffectiveConfig.Node[Constraints.CONFIG_PROP_ROOT_SECTION];
+        }
+        catch(Exception ex)
+        {
+          context.SetResult(AuthContext.Outcome.Negative(-102, "OrgUnit node data corrupted", map =>
+          {
+            map["ounit"] = idNode;
+            map["err"] = new WrappedExceptionData(ex, captureStack: false);
+          }));
+          return;
+        }
+
+        if (nProp != null && nProp.Exists)
+        {
+          eProps.CreateFromNode(nProp);
+        }
       }
-      else
+
+
+      if (!eProps.Root.Exists)
       {
-        eProps.Create(Constraints.CONFIG_PROPS_ROOT_SECTION);
+        eProps.Create(Constraints.CONFIG_PROP_ROOT_SECTION);
       }
 
 
@@ -355,7 +382,29 @@ namespace Azos.AuthKit.Server
           context.SetResult(AuthContext.Outcome.Negative(-200, "Role not found", map => map["role"] = idNode));
           return;
         }
-        eRoleConfig.CreateFromNode(tNode.EffectiveConfig.Node);
+
+        if (tNode.EffectiveConfig == null)
+        {
+          context.SetResult(AuthContext.Outcome.Negative(-201, "Role node data is missing", map => map["role"] = idNode));
+          return;
+        }
+
+        IConfigSectionNode nRole = null;
+        try
+        {
+          nRole = tNode.EffectiveConfig.Node;
+        }
+        catch (Exception ex)
+        {
+          context.SetResult(AuthContext.Outcome.Negative(-202, "Role node data corrupted", map =>
+          {
+            map["role"] = idNode;
+            map["err"] = new WrappedExceptionData(ex, captureStack: false);
+          }));
+          return;
+        }
+
+        eRoleConfig.CreateFromNode(nRole);
       }
       else
       {
@@ -372,12 +421,44 @@ namespace Azos.AuthKit.Server
 
       if (context.Rights != null)
       {
-        eRightsNode.OverrideBy(context.Rights.Node);
+        IConfigSectionNode nRights = null;
+        try
+        {
+          nRights = context.Rights.Node;
+        }
+        catch (Exception ex)
+        {
+          context.SetResult(AuthContext.Outcome.Negative(-203, "User.Rights node data corrupted", map =>
+          {
+            map["usrlid"] = context.LoginId;
+            map["usrn"] = context.Name;
+            map["err"] = new WrappedExceptionData(ex, captureStack: false);
+          }));
+          return;
+        }
+
+        eRightsNode.OverrideBy(nRights);
       }
 
       if (context.LoginRights != null)
       {
-        eRightsNode.OverrideBy(context.LoginRights.Node);
+        IConfigSectionNode nRights = null;
+        try
+        {
+          nRights = context.LoginRights.Node;
+        }
+        catch (Exception ex)
+        {
+          context.SetResult(AuthContext.Outcome.Negative(-204, "UserLogin.Rights node data corrupted", map =>
+          {
+            map["usrlid"] = context.LoginId;
+            map["usrn"] = context.Name;
+            map["err"] = new WrappedExceptionData(ex, captureStack: false);
+          }));
+          return;
+        }
+
+        eRightsNode.OverrideBy(nRights);
       }
 
       context.ResultRights = new ConfigVector(eRightsNode);

@@ -65,9 +65,9 @@ namespace Azos.AuthKit
     /// <summary>
     /// The name of root node of props vector
     /// </summary>
-    public const string CONFIG_PROPS_ROOT_SECTION = "props";
+    public const string CONFIG_PROP_ROOT_SECTION = "prop";
 
-    public const string CONFIG_CLAIMS_SECTION = "claims";// props{  claims{ pub{...} } }
+    public const string CONFIG_CLAIMS_SECTION = "claims";// prop{  claims{ pub{...} } }
     public const string CONFIG_PUBLIC_SECTION = "pub";
 
     public const string CONFIG_ROLE_ATTR = "role";
