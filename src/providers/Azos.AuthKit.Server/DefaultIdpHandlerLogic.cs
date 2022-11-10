@@ -296,7 +296,7 @@ namespace Azos.AuthKit.Server
             context.LoginProps,
           }.ToJson(JsonWritingOptions.CompactASCII);
 
-          WriteLog(Log.MessageType.TraceErrors, nameof(ApplyEffectivePoliciesAsync), "Auth ctx", related: rel, pars: parJson);
+          WriteLog(Log.MessageType.TraceC, nameof(ApplyEffectivePoliciesAsync), "Auth ctx", related: rel, pars: parJson);
         }
       }
     }
