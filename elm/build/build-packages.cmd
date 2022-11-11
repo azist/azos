@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.0.0.61
-set HEADLINE=#807 OrgUnit EntityId
+set VER=3.0.0.62
+set HEADLINE=#807 OrgUnit EntityId.AsString
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
