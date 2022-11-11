@@ -100,7 +100,7 @@ namespace Azos.AuthKit.Server
     public DateTime LoginStartUtc { get; set; }
     public DateTime LoginEndUtc { get; set; }
 
-    public string OrgUnit { get; set; }
+    public EntityId? OrgUnit { get; set; }
     public string ScreenName { get; set; }
     public string Name { get; set; }
     public string Description { get; set; }

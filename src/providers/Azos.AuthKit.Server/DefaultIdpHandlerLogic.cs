@@ -312,9 +312,12 @@ namespace Azos.AuthKit.Server
       var eProps = new MemoryConfiguration { Application = App };
       var eRoleConfig = new MemoryConfiguration { Application = App };
 
-      if (context.OrgUnit.IsNotNullOrWhiteSpace())
+      if (context.OrgUnit.HasValue &&
+          context.OrgUnit.Value.System == Constraints.SYS_AUTHKIT &&
+          context.OrgUnit.Value.Type == Constraints.ETP_ORGUNIT &&
+          context.OrgUnit.Value.Schema == Azos.Conf.Forest.Constraints.SCH_PATH)
       {
-        var idNode = GetIdpConfigTreeNodePath(context.Realm, context.OrgUnit);
+        var idNode = GetIdpConfigTreeNodePath(context.Realm, context.OrgUnit.Value.Address);
         var tNode = await m_Forest.GetNodeInfoAsync(idNode).ConfigureAwait(false);
         if (tNode == null)
         {

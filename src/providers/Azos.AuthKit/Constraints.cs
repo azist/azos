@@ -42,6 +42,7 @@ namespace Azos.AuthKit
     public static readonly Atom SCH_ID      = Atom.Encode("id");
     public static readonly Atom ETP_USER    = Atom.Encode("user");
     public static readonly Atom ETP_LOGIN   = Atom.Encode("login");
+    public static readonly Atom ETP_ORGUNIT = Atom.Encode("orgu");
 
 
     //System provider Login types
