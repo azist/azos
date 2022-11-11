@@ -111,25 +111,25 @@ namespace Azos.Conf.Forest.Server
       {
         var idForest = nforest.Of(Configuration.CONFIG_NAME_ATTR, "id").ValueAsAtom(Atom.ZERO);
         if (idForest.IsZero || !idForest.IsValid)
-          throw new ConfigException($"{nameof(ForestDataSource)} config `forest` section is missing a valid atom `$id`");
+          throw new ConfigForestException($"{nameof(ForestDataSource)} config `forest` section is missing a valid atom `$id`");
 
         var trees = new Registry<IDataStoreImplementation>();
         var forest = new _forest(idForest, trees);
 
         if (!m_Forests.Register(forest))
-          throw new ConfigException($"{nameof(ForestDataSource)} config duplicate section: ./forest[name='{forest.Name}']");
+          throw new ConfigForestException($"{nameof(ForestDataSource)} config duplicate section: ./forest[name='{forest.Name}']");
 
         //build trees
         foreach(var ntree in nforest.ChildrenNamed(CONFIG_TREE_SECTION))
         {
           var idTree = ntree.Of(Configuration.CONFIG_NAME_ATTR).ValueAsAtom(Atom.ZERO);
           if (idTree.IsZero || !idTree.IsValid)
-            throw new ConfigException($"{nameof(ForestDataSource)} config `tree` section is missing a valid atom `$id`");
+            throw new ConfigForestException($"{nameof(ForestDataSource)} config `tree` section is missing a valid atom `$id`");
 
           var tree = FactoryUtils.MakeAndConfigureDirectedComponent<IDataStoreImplementation>(this, ntree);
 
           if (!trees.Register(tree))
-            throw new ConfigException($"{nameof(ForestDataSource)} config duplicate section: ./forest[name='{forest.Name}']/tree['{tree.Name}']");
+            throw new ConfigForestException($"{nameof(ForestDataSource)} config duplicate section: ./forest[name='{forest.Name}']/tree['{tree.Name}']");
         }
       }
 
