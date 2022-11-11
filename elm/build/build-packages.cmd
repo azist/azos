@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.0.0.60
-set HEADLINE=#806 tree errors with path
+set VER=3.0.0.61
+set HEADLINE=#807 OrgUnit EntityId
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
