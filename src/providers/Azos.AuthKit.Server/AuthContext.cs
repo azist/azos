@@ -150,6 +150,7 @@ namespace Azos.AuthKit.Server
         Note = this.Note,
 
         Role = this.ResultRole,
+        OrgUnit = this.OrgUnit.HasValue ? this.OrgUnit.Value.AsString : null,//#809
         Props = this.ResultProps,
         Rights = this.ResultRights,
       };

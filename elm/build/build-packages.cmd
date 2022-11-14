@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.0.0.63
-set HEADLINE=#808 PersistedEntity.Id
+set VER=3.0.0.64
+set HEADLINE=#809 MinIdp.OrgUnit
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

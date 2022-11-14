@@ -360,6 +360,11 @@ namespace Azos.AuthKit.Server
 
 
       //1. Assign PROPS =======================================
+      if (context.OrgUnit.HasValue)//#809
+      {
+        eProps.Root.AddAttributeNode(Constraints.CONFIG_ORG_UNIT_ATTR, context.OrgUnit.Value.AsString);
+      }
+
       if (context.Props.Node != null) //user props are required, use safeguard
       {
         eProps.Root.OverrideBy(context.Props.Node);

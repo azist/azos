@@ -72,6 +72,7 @@ namespace Azos.AuthKit
     public const string CONFIG_PUBLIC_SECTION = "pub";
 
     public const string CONFIG_ROLE_ATTR = "role";
+    public const string CONFIG_ORG_UNIT_ATTR = "org-unit";
 
     public const int ENTITY_ID_MAX_LEN = 256;
 
