@@ -42,6 +42,7 @@ namespace Azos.AuthKit
     public static readonly Atom SCH_ID      = Atom.Encode("id");
     public static readonly Atom ETP_USER    = Atom.Encode("user");
     public static readonly Atom ETP_LOGIN   = Atom.Encode("login");
+    public static readonly Atom ETP_ORGUNIT = Atom.Encode("orgu");
 
 
     //System provider Login types
@@ -65,12 +66,13 @@ namespace Azos.AuthKit
     /// <summary>
     /// The name of root node of props vector
     /// </summary>
-    public const string CONFIG_PROPS_ROOT_SECTION = "props";
+    public const string CONFIG_PROP_ROOT_SECTION = "prop";
 
-    public const string CONFIG_CLAIMS_SECTION = "claims";// props{  claims{ pub{...} } }
+    public const string CONFIG_CLAIMS_SECTION = "claims";// prop{  claims{ pub{...} } }
     public const string CONFIG_PUBLIC_SECTION = "pub";
 
     public const string CONFIG_ROLE_ATTR = "role";
+    public const string CONFIG_ORG_UNIT_ATTR = "org-unit";
 
     public const int ENTITY_ID_MAX_LEN = 256;
 

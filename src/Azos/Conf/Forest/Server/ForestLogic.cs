@@ -248,6 +248,18 @@ namespace Azos.Conf.Forest.Server
 
     private async Task<TreeNodeInfo> getNodeByTreePath(TreePtr tree, TreePath path, DateTime asOfUtc, ICacheParams caching)
     {
+      try
+      {
+        return await getNodeByTreePathUnsafe(tree, path, asOfUtc, caching).ConfigureAwait(false);
+      }
+      catch(Exception cause)
+      {
+        throw new ConfigForestException("Error getting tree node `{0}` by `{1}` asof `{2}`: {3}".Args(tree, path, asOfUtc, cause.ToMessageWithType()), cause);
+      }
+    }
+
+    private async Task<TreeNodeInfo> getNodeByTreePathUnsafe(TreePtr tree, TreePath path, DateTime asOfUtc, ICacheParams caching)
+    {
       var tblCache = s_CacheTableName[tree];
       var keyCache = nameof(getNodeByTreePath) + path + asOfUtc.Ticks;
 
@@ -316,7 +328,20 @@ namespace Azos.Conf.Forest.Server
     }
 
 
+
     private async Task<TreeNodeInfo> getNodeByGdid(HashSet<GDID> graph, TreePtr tree, GDID gNode, DateTime asOfUtc, ICacheParams caching)
+    {
+      try
+      {
+        return await getNodeByGdidUnsafe(graph, tree, gNode, asOfUtc, caching).ConfigureAwait(false);
+      }
+      catch (Exception cause)
+      {
+        throw new ConfigForestException("Error getting tree node `{0}` by `{1}` asof `{2}`: {3}".Args(tree, gNode, asOfUtc, cause.ToMessageWithType()), cause);
+      }
+    }
+
+    private async Task<TreeNodeInfo> getNodeByGdidUnsafe(HashSet<GDID> graph, TreePtr tree, GDID gNode, DateTime asOfUtc, ICacheParams caching)
     {
       var tblCache = s_CacheTableName[tree];
       var keyCache = nameof(getNodeByGdid) + gNode.ToHexString() + asOfUtc.Ticks;
@@ -327,7 +352,7 @@ namespace Azos.Conf.Forest.Server
           if (!graph.Add(gNode))
           {
             //circular reference
-            var err = new ConfigException("Circular reference in config tree = `{0}`, gnode = `{1}`, asof = `{2}`".Args(tree, gNode, asOfUtc));
+            var err = new ConfigForestException("Circular reference in config tree = `{0}`, gnode = `{1}`, asof = `{2}`".Args(tree, gNode, asOfUtc));
             WriteLogFromHere(Log.MessageType.CatastrophicError,
                              err.Message,
                              err,

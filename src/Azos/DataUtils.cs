@@ -198,7 +198,7 @@ namespace Azos
     public static VersionInfo MakeVersionInfo(this IApplication app, string gdidScopeName, string gdidSeqName, FormMode mode)
     {
       var gver = app.GetGdidProvider()
-                       .GenerateOneGdid(gdidScopeName, gdidSeqName);
+                    .GenerateOneGdid(gdidScopeName, gdidSeqName);
 
       return MakeVersionInfo(app, gver, mode);
     }

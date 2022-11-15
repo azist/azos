@@ -82,6 +82,9 @@ namespace Azos.Security.MinIdp
     [Field] public string Name        { get; set; }//tbl_user.name   vchar(64)
     [Field] public string Description { get; set; }//tbl_user.descr  vchar(96)
     [Field] public string Role        { get; set; }//tbl.role.id   vchar 25
+
+    [Field] public string OrgUnit     { get; set; }
+
     [Field] public ConfigVector Rights      { get; set; }//tbl_role.rights  blob (256k)
     [Field] public string Note        { get; set; }//tbl_user.note  blob (4k)
 
