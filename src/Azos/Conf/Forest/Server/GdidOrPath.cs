@@ -50,7 +50,7 @@ namespace Azos.Conf.Forest.Server
         }
         else
         {
-          throw new ConfigException("Unsupported tree address schema");
+          throw new ConfigForestException("Unsupported tree address schema");
         }
       }
       catch(Exception cause)

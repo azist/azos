@@ -260,6 +260,7 @@ namespace Azos.AuthKit.Server
         await applyEffectivePoliciesAsync(context).ConfigureAwait(false);
 
         //Log
+        var rel = Guid.NewGuid();
         if (!context.HasResult && ComponentEffectiveLogLevel <= Log.MessageType.TraceErrors)
         {
           var parJson = new
@@ -272,7 +273,30 @@ namespace Azos.AuthKit.Server
             nm = context.Name
           }.ToJson(JsonWritingOptions.CompactASCII);
 
-          WriteLog(Log.MessageType.TraceErrors, nameof(ApplyEffectivePoliciesAsync), "Bad auth", pars: parJson);
+          WriteLog(Log.MessageType.TraceErrors, nameof(ApplyEffectivePoliciesAsync), "Bad auth", related: rel, pars: parJson);
+        }
+
+        if (ComponentEffectiveLogLevel <= Log.MessageType.Trace)
+        {
+          var parJson = new
+          {
+            r = context.Result,
+            p = context.Provider?.Name,
+            rlm = context.Realm,
+            g_u = context.G_User,
+            g_l = context.G_Login,
+            nm = context.Name,
+            context.ResultRole,
+            context.ResultRoleConfig,
+            context.ResultProps,
+            context.ResultRights,
+            context.Rights,
+            context.LoginRights,
+            context.Props,
+            context.LoginProps,
+          }.ToJson(JsonWritingOptions.CompactASCII);
+
+          WriteLog(Log.MessageType.TraceC, nameof(ApplyEffectivePoliciesAsync), "Auth ctx", related: rel, pars: parJson);
         }
       }
     }
@@ -286,37 +310,77 @@ namespace Azos.AuthKit.Server
       // see below for next steps
 
       var eProps = new MemoryConfiguration { Application = App };
-      var eRights = new MemoryConfiguration { Application = App };
+      var eRoleConfig = new MemoryConfiguration { Application = App };
 
-      if (context.OrgUnit.IsNotNullOrWhiteSpace())
+      if (context.OrgUnit.HasValue &&
+          context.OrgUnit.Value.System == Constraints.SYS_AUTHKIT &&
+          context.OrgUnit.Value.Type == Constraints.ETP_ORGUNIT &&
+          context.OrgUnit.Value.Schema == Azos.Conf.Forest.Constraints.SCH_PATH)
       {
-        var idNode = GetIdpConfigTreeNodePath(context.Realm, context.OrgUnit);
+        var idNode = GetIdpConfigTreeNodePath(context.Realm, context.OrgUnit.Value.Address);
         var tNode = await m_Forest.GetNodeInfoAsync(idNode).ConfigureAwait(false);
-        if(tNode == null)
+        if (tNode == null)
         {
           context.SetResult(AuthContext.Outcome.Negative(-100, "OrgUnit not found", map => map["ounit"] = idNode));
           return;
         }
-        eProps.CreateFromNode(tNode.EffectiveConfig.Node);
-      }
-      else
-      {
-        eProps.Create(Constraints.CONFIG_PROPS_ROOT_SECTION);
+
+        if (tNode.EffectiveConfig == null)
+        {
+          context.SetResult(AuthContext.Outcome.Negative(-101, "OrgUnit node data is missing", map => map["ounit"] = idNode));
+          return;
+        }
+
+        IConfigSectionNode nProp = null;
+        try
+        {
+          nProp = tNode.EffectiveConfig.Node[Constraints.CONFIG_PROP_ROOT_SECTION];
+        }
+        catch(Exception ex)
+        {
+          context.SetResult(AuthContext.Outcome.Negative(-102, "OrgUnit node data corrupted", map =>
+          {
+            map["ounit"] = idNode;
+            map["err"] = new WrappedExceptionData(ex, captureStack: false);
+          }));
+          return;
+        }
+
+        if (nProp != null && nProp.Exists)
+        {
+          eProps.CreateFromNode(nProp);
+        }
       }
 
+
+      if (!eProps.Root.Exists)
+      {
+        eProps.Create(Constraints.CONFIG_PROP_ROOT_SECTION);
+      }
+
+
       //1. Assign PROPS =======================================
-      eProps.Root.OverrideBy(context.Props.Node);
-      if (context.LoginProps != null)
+      if (context.OrgUnit.HasValue)//#809
+      {
+        eProps.Root.AddAttributeNode(Constraints.CONFIG_ORG_UNIT_ATTR, context.OrgUnit.Value.AsString);
+      }
+
+      if (context.Props.Node != null) //user props are required, use safeguard
+      {
+        eProps.Root.OverrideBy(context.Props.Node);
+      }
+      if (context.LoginProps != null) //login props are optional
       {
         eProps.Root.OverrideBy(context.LoginProps.Node);
       }
       context.ResultProps = new ConfigVector(eProps.Root);
 
+
       //2. Assign minidp Primary role ================================================
       context.ResultRole = context.ResultProps.Node.ValOf(Constraints.CONFIG_ROLE_ATTR);
 
-      //3. Assign RIGHTS =======================================
 
+      //3. Assign RIGHTS =======================================
       if (context.ResultRole.IsNotNullOrWhiteSpace())
       {
         var idNode = GetIdpConfigTreeNodePath(context.Realm, context.ResultRole);
@@ -326,24 +390,86 @@ namespace Azos.AuthKit.Server
           context.SetResult(AuthContext.Outcome.Negative(-200, "Role not found", map => map["role"] = idNode));
           return;
         }
-        eRights.CreateFromNode(tNode.EffectiveConfig.Node);
+
+        if (tNode.EffectiveConfig == null)
+        {
+          context.SetResult(AuthContext.Outcome.Negative(-201, "Role node data is missing", map => map["role"] = idNode));
+          return;
+        }
+
+        IConfigSectionNode nRole = null;
+        try
+        {
+          nRole = tNode.EffectiveConfig.Node;
+        }
+        catch (Exception ex)
+        {
+          context.SetResult(AuthContext.Outcome.Negative(-202, "Role node data corrupted", map =>
+          {
+            map["role"] = idNode;
+            map["err"] = new WrappedExceptionData(ex, captureStack: false);
+          }));
+          return;
+        }
+
+        eRoleConfig.CreateFromNode(nRole);
       }
       else
       {
-        eRights.Create(Rights.CONFIG_ROOT_SECTION);
+        eRoleConfig.Create(Rights.CONFIG_ROOT_SECTION);
+      }
+
+      context.ResultRoleConfig = new ConfigVector(eRoleConfig.Root);//#803
+
+      var eRightsNode = eRoleConfig.Root[Rights.CONFIG_ROOT_SECTION];
+      if (!eRightsNode.Exists)
+      {
+        eRightsNode = Configuration.NewEmptyRoot(Rights.CONFIG_ROOT_SECTION);
       }
 
       if (context.Rights != null)
       {
-        eRights.Root.OverrideBy(context.Rights.Node);
+        IConfigSectionNode nRights = null;
+        try
+        {
+          nRights = context.Rights.Node;
+        }
+        catch (Exception ex)
+        {
+          context.SetResult(AuthContext.Outcome.Negative(-203, "User.Rights node data corrupted", map =>
+          {
+            map["usrlid"] = context.LoginId;
+            map["usrn"] = context.Name;
+            map["err"] = new WrappedExceptionData(ex, captureStack: false);
+          }));
+          return;
+        }
+
+        eRightsNode.OverrideBy(nRights);
       }
 
       if (context.LoginRights != null)
       {
-        eRights.Root.OverrideBy(context.LoginRights.Node);
+        IConfigSectionNode nRights = null;
+        try
+        {
+          nRights = context.LoginRights.Node;
+        }
+        catch (Exception ex)
+        {
+          context.SetResult(AuthContext.Outcome.Negative(-204, "UserLogin.Rights node data corrupted", map =>
+          {
+            map["usrlid"] = context.LoginId;
+            map["usrn"] = context.Name;
+            map["err"] = new WrappedExceptionData(ex, captureStack: false);
+          }));
+          return;
+        }
+
+        eRightsNode.OverrideBy(nRights);
       }
 
-      context.ResultRights = new ConfigVector(eRights.Root);
+      context.ResultRights = new ConfigVector(eRightsNode);
     }
 
     private void checkLockStatus(AuthContext context)

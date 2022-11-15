@@ -392,7 +392,20 @@ namespace Azos
     /// Returns IGdidProvider
     /// </summary>
     public static IGdidProvider GetGdidProvider(this IApplication app)
-     => app.NonNull(nameof(app)).ModuleRoot.Get<IGdidProviderModule>().Provider;
+    {
+      //1 - search the app space
+      var module = app.NonNull(nameof(app)).ModuleRoot.TryGet<IGdidProviderModule>();
+
+      //2 - search the dynamic scope
+      if (module == null)
+      {
+        module = Apps.Injection.DynamicModuleFlowScope.Find(typeof(IGdidProviderModule), null) as IGdidProviderModule;
+      }
+
+      module.NonNull("Required `IGdidProviderModule` module installed in app or dynamic scope");
+
+      return module.Provider;
+    }
 
   }
 }

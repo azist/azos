@@ -69,7 +69,7 @@ namespace Azos.AuthKit.Server.MySql.Queries.Admin
       cmd.Parameters.AddWithValue("description", user.Description);
       cmd.Parameters.AddWithValue("start_utc", validSpan.Start);
       cmd.Parameters.AddWithValue("end_utc", validSpan.End);
-      cmd.Parameters.AddWithValue("org_unit", user.OrgUnit.HasValue ? user.OrgUnit.Value.AsString() : null); // should we pass null here?
+      cmd.Parameters.AddWithValue("org_unit", user.OrgUnit.HasValue ? user.OrgUnit.Value.AsString : null); // should we pass null here?
       cmd.Parameters.AddWithValue("props", user.Props.Content);
       cmd.Parameters.AddWithValue("rights", user.Rights?.Content);
       cmd.Parameters.AddWithValue("note", user.Note);

@@ -115,6 +115,39 @@ namespace Azos.Conf.Forest
       return result;
     }
 
+    public override ValidState Validate(ValidState state, string scope = null)
+    {
+      //1. - base validation first, including proper parsing of content in .Properties and .Config
+      state = base.Validate(state, scope);
+
+      //2. - assert conf tree root node names
+      if (state.ShouldContinue)
+      {
+        if (Properties != null)
+        {
+          IConfigSectionNode node = null;
+          try{ node = Properties.Node; } catch{ /*these checks are needed because the properties may not have valid content in case of batch validation*/ }
+          if (node != null && !node.IsSameName(Constraints.CONFIG_PROP_ROOT_SECTION))
+          {
+            state = new ValidState(state, new FieldValidationException(this, nameof(Properties), $"Node.Properties root node must be called `{Constraints.CONFIG_PROP_ROOT_SECTION}`"));
+          }
+        }
+
+        if (Config != null)
+        {
+          IConfigSectionNode node = null;
+          try { node = Config.Node; } catch { /*these checks are needed because the config may not have valid content in case of batch validation*/ }
+          if (node != null && !node.IsSameName(Constraints.CONFIG_CONF_ROOT_SECTION))
+          {
+            state = new ValidState(state, new FieldValidationException(this, nameof(Properties), $"Node.Config root node must be called `{Constraints.CONFIG_CONF_ROOT_SECTION}`"));
+          }
+        }
+      }
+
+      return state;
+    }
+
+
     protected override async Task<ValidState> DoAfterValidateOnSaveAsync(ValidState state)
     {
       var result = await base.DoAfterValidateOnSaveAsync(state).ConfigureAwait(false);

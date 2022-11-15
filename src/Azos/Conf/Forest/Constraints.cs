@@ -38,8 +38,11 @@ namespace Azos.Conf.Forest
     public const int SEGMENT_MIN_LEN = 1;
     public const int SEGMENT_MAX_LEN = 64;
 
-    public const int CONFIG_MIN_LEN = 6; // {r:{}}
+    public const int CONFIG_MIN_LEN = 9; // {conf:{}}
     public const int CONFIG_MAX_LEN = 512 * 1024;
+
+    public const string CONFIG_PROP_ROOT_SECTION = "prop";
+    public const string CONFIG_CONF_ROOT_SECTION = "conf";
 
     public const int DEFAULT_POLICY_REFRESH_WINDOW_MINUTES = 10;
 

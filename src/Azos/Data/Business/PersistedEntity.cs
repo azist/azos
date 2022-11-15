@@ -56,7 +56,7 @@ namespace Azos.Data.Business
     /// Excuses GDID from required validation until later, as it is generated on server on insert only
     /// </summary>
     public override ValidState ValidateField(ValidState state, Schema.FieldDef fdef, string scope = null)
-      => fdef.Name == nameof(Gdid) ? state : base.ValidateField(state, fdef, scope);
+      => fdef.Name == nameof(Gdid) || fdef.Name == nameof(Id) ? state : base.ValidateField(state, fdef, scope);
 
 
     protected override async Task<ValidState> DoAfterValidateOnSaveAsync(ValidState state)

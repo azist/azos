@@ -100,7 +100,7 @@ namespace Azos.AuthKit.Server
     public DateTime LoginStartUtc { get; set; }
     public DateTime LoginEndUtc { get; set; }
 
-    public string OrgUnit { get; set; }
+    public EntityId? OrgUnit { get; set; }
     public string ScreenName { get; set; }
     public string Name { get; set; }
     public string Description { get; set; }
@@ -121,6 +121,7 @@ namespace Azos.AuthKit.Server
     public ConfigVector LoginRights { get; set; }
 
     public string ResultRole { get; set; }
+    public ConfigVector ResultRoleConfig { get; set; }//#803
     public ConfigVector ResultRights { get; set; }
     public ConfigVector ResultProps{ get; set; }
 
@@ -149,6 +150,7 @@ namespace Azos.AuthKit.Server
         Note = this.Note,
 
         Role = this.ResultRole,
+        OrgUnit = this.OrgUnit.HasValue ? this.OrgUnit.Value.AsString : null,//#809
         Props = this.ResultProps,
         Rights = this.ResultRights,
       };
