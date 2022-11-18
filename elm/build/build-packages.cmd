@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.0.0.64
-set HEADLINE=#809 MinIdp.OrgUnit
+set VER=3.0.0.65
+set HEADLINE=#810 #811 AuthKit rights tree root
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

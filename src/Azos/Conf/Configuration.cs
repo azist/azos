@@ -68,6 +68,16 @@ namespace Azos.Conf
     }
 
     /// <summary>
+    /// Creates a new Laconic format configuration from another config node
+    /// </summary>
+    public static LaconicConfiguration FromAnotherNode(IConfigSectionNode another) //#811
+    {
+      var cfg = new LaconicConfiguration();
+      cfg.CreateFromNode(another.NonNull(nameof(another)));
+      return cfg;
+    }
+
+    /// <summary>
     /// Returns all configuration file formats (file extensions without '.') supported
     /// by ProviderLoadFromFile/ProviderLoadFromAnySupportedFormatFile/ProviderLoadFromString
     /// </summary>

@@ -360,6 +360,8 @@ namespace Azos.AuthKit.Server
 
 
       //1. Assign PROPS =======================================
+      eProps.Root.AddAttributeNode(Constraints.CONFIG_G_USER_ATTR, context.G_User.ToString());//E:A:C  #810
+
       if (context.OrgUnit.HasValue)//#809
       {
         eProps.Root.AddAttributeNode(Constraints.CONFIG_ORG_UNIT_ATTR, context.OrgUnit.Value.AsString);
@@ -469,7 +471,7 @@ namespace Azos.AuthKit.Server
         eRightsNode.OverrideBy(nRights);
       }
 
-      context.ResultRights = new ConfigVector(eRightsNode);
+      context.ResultRights = new ConfigVector(Configuration.FromAnotherNode(eRightsNode).Root); //#811
     }
 
     private void checkLockStatus(AuthContext context)
