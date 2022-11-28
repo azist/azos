@@ -52,7 +52,7 @@ namespace Azos.Security
 
       if (concat.IsNullOrWhiteSpace()) return null;
 
-      var i = concat.IndexOf(':');
+      var i = concat.LastIndexOf(':');//AZ #812
       if (i < 0) return new IDPasswordCredentials(concat, null);
 
       var id = i == 0 ? null : concat.Substring(0, i);
