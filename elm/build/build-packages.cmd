@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.0.0.66
-set HEADLINE=#801 #812 Basic auth with entityid
+set VER=3.0.0.67
+set HEADLINE=#814 with in includes
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
