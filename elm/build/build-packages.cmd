@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.0.0.65
-set HEADLINE=#810 #811 AuthKit rights tree root
+set VER=3.0.0.66
+set HEADLINE=#801 #812 Basic auth with entityid
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
