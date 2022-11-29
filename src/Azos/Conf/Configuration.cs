@@ -37,6 +37,7 @@ namespace Azos.Conf
     public const string CONFIG_INCLUDE_PRAGMA_COPY_ATTR = "copy";
     public const string CONFIG_INCLUDE_PRAGMA_OVERRIDE_ATTR = "override";
     public const string CONFIG_INCLUDE_PRAGMA_PREPROCESS_ALL_INCLUDES_ATTR = "pre-process-all-includes";
+    public const string CONFIG_INCLUDE_PRAGMA_WITH_SECTION = "with";
 
     public const string DEFAULT_VAR_ESCAPE = "$(###)";
     public const string DEFAULT_VAR_START = "$(";
@@ -65,6 +66,16 @@ namespace Azos.Conf
       var cfg = new LaconicConfiguration();
       cfg.Create(name);
       return cfg.Root;
+    }
+
+    /// <summary>
+    /// Creates a new Laconic format configuration from another config node
+    /// </summary>
+    public static LaconicConfiguration FromAnotherNode(IConfigSectionNode another) //#811
+    {
+      var cfg = new LaconicConfiguration();
+      cfg.CreateFromNode(another.NonNull(nameof(another)));
+      return cfg;
     }
 
     /// <summary>

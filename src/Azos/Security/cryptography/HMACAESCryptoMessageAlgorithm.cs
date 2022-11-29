@@ -117,30 +117,29 @@ namespace Azos.Security
       try
       {
         data = new ArraySegment<byte>(protectedMessage.NonBlank(nameof(protectedMessage)).FromWebSafeBase64());
+        return Unprotect(data); //Az #801
       }
       catch (Exception error)
       {
         WriteLog(Log.MessageType.TraceErrors, nameof(UnprotectFromString), "Leaked on bad message: " + error.ToMessageWithType(), error);
         return null;
       }
-
-      return Unprotect(data);
     }
 
     public override byte[] Unprotect(ArraySegment<byte> protectedMessage)
     {
-      protectedMessage.Array.NonNull(nameof(protectedMessage));
-      if (protectedMessage.Count < HDR_LEN + 1)
-        throw new SecurityException(StringConsts.ARGUMENT_ERROR + "{0}.Unprotect(protectedMessage.Count < {1})".Args(GetType().Name, HDR_LEN));
-
-      var iv = new byte[IV_LEN];
-      var hmac = new byte[HMAC_LEN];
-      Array.Copy(protectedMessage.Array, protectedMessage.Offset, iv, 0, IV_LEN);
-      Array.Copy(protectedMessage.Array, protectedMessage.Offset + IV_LEN, hmac, 0, HMAC_LEN);
-      var keys = getKeys(iv);
-
-      try
+      try //AZ #801
       {
+        protectedMessage.Array.NonNull(nameof(protectedMessage));
+        if (protectedMessage.Count < HDR_LEN + 1)
+          throw new SecurityException(StringConsts.ARGUMENT_ERROR + "{0}.Unprotect(protectedMessage.Count < {1})".Args(GetType().Name, HDR_LEN));
+
+        var iv = new byte[IV_LEN];
+        var hmac = new byte[HMAC_LEN];
+        Array.Copy(protectedMessage.Array, protectedMessage.Offset, iv, 0, IV_LEN);
+        Array.Copy(protectedMessage.Array, protectedMessage.Offset + IV_LEN, hmac, 0, HMAC_LEN);
+        var keys = getKeys(iv);
+
         using (var aes = makeAES())
         {
           using (var decrypt = aes.CreateDecryptor(keys.aes, iv))
