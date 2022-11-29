@@ -1621,6 +1621,21 @@ namespace Azos.Conf
         if (root == null)
           return (null, isOverride);
 
+        //#814 with
+        var with = pragma[Configuration.CONFIG_INCLUDE_PRAGMA_WITH_SECTION];
+        if (with.Exists)
+        {
+          foreach(var anode in with.Attributes)
+          {
+            var existing = root.AttrByName(anode.Name);
+            if (existing.Exists)
+              existing.Value = anode.EvaluatedValue;
+            else
+              root.AddAttributeNode(anode.Name, anode.Value);//<==== EVALUATE value right now!!!
+          }
+        }
+        //#814 -------------------
+
         //#767 20220908 Dkh+Jpk ProcessIncludes immediate expansion
         if (pragma.Of(Configuration.CONFIG_INCLUDE_PRAGMA_PREPROCESS_ALL_INCLUDES_ATTR).ValueAsBool(false))
         {

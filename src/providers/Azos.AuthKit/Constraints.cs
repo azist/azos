@@ -71,6 +71,7 @@ namespace Azos.AuthKit
     public const string CONFIG_CLAIMS_SECTION = "claims";// prop{  claims{ pub{...} } }
     public const string CONFIG_PUBLIC_SECTION = "pub";
 
+    public const string CONFIG_G_USER_ATTR = "g-user";
     public const string CONFIG_ROLE_ATTR = "role";
     public const string CONFIG_ORG_UNIT_ATTR = "org-unit";
 
