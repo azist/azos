@@ -167,6 +167,7 @@ namespace Azos.Security.Services
       loginFlow.ClientState        = flow["st"].AsString();
 
       //5. Check user credentials for the subject
+      id = PreProcessSubjectIdCredentials(id);//#815
       var subjcred = new IDPasswordCredentials(id, pwd);
       var oauthCtx = new AuthenticationRequestContext
       {
@@ -224,6 +225,12 @@ namespace Azos.Security.Services
       //8B. Generate result, such as JSON or next step in the flow Form
       return RespondWithAuthorizeResult(flow["sd"].AsLong(), loginFlow, error: null);
     }
+
+    /// <summary>
+    /// Override to implement inference like try to determine if this is a phone number or an email or somethng else,
+    /// returning a properly-typed  an EntityId et.
+    /// </summary>
+    protected virtual string PreProcessSubjectIdCredentials(string id) => id;
 
 
     [ApiEndpointDoc(
