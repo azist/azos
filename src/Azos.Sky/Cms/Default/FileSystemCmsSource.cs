@@ -50,7 +50,8 @@ namespace Azos.Sky.Cms.Default
     public const string CONFIG_ROOT_PATH_ATTR = "root-path";
     public const string CONFIG_SESSION_CONNECT_PARAMS_SECTION = "session-connect-params";
 
-    public string PORTAL_CONFIG_FILE = "portal.laconf";
+    public const string PORTAL_CONFIG_FILE = "portal.laconf";
+    public const string AUTH_FILE = "$auth";
 
     public const string CONFIG_ACL_ROOT = "access";
 
@@ -293,7 +294,7 @@ namespace Azos.Sky.Cms.Default
 
     private async Task<IConfigSectionNode> getAclDescriptor(FileSystemSession fss, params string[] pathSegs)
     {
-      var fullPath = m_FS.CombinePaths(m_FSRootPath, pathSegs) + ".auth";
+      var fullPath = m_FS.CombinePaths(m_FSRootPath, pathSegs) + AUTH_FILE;
       var aclFile = await fss.GetItemAsync(fullPath).ConfigureAwait(false) as FileSystemFile;
 
       if (aclFile == null) return null;//nothing
