@@ -150,7 +150,17 @@ namespace Azos.Sky.Cms.Default
     public async Task<Content> GetContentAsync(ContentId id, Atom? isoLang = null, ICacheParams caching = null)
     {
       if (!id.IsAssigned)
+      {
         throw new CmsException($"{StringConsts.ARGUMENT_ERROR} {nameof(CmsFacade)}.{nameof(GetContentAsync)}(!id.IsAssigned)");
+      }
+
+      //#817 ----------- AUTHORIZATION --------------
+      var failedPermission = await m_Source.CheckContentAccessAsync(id).ConfigureAwait(false);
+      if (failedPermission != null)
+      {
+        throw new Security.AuthorizationException(StringConsts.CMS_CONTENT_ACCESS_DENIED.Args(failedPermission.FullPath));
+      }
+      //---------------------------------------------
 
       if (!isoLang.HasValue || isoLang.Value.IsZero) isoLang = this.DefaultGlobalLanguage.ISO;
 

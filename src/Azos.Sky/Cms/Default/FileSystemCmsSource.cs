@@ -16,6 +16,7 @@ using Azos.Log;
 using Azos.IO.FileSystem;
 using Azos.Security;
 using Azos.Web;
+using System.Threading;
 
 namespace Azos.Sky.Cms.Default
 {
@@ -51,11 +52,29 @@ namespace Azos.Sky.Cms.Default
 
     public string PORTAL_CONFIG_FILE = "portal.laconf";
 
-    public FileSystemCmsSource(ICmsFacade facade) : base(facade)
+    public const string CONFIG_ACL_ROOT = "access";
+
+    private struct acl
     {
+      public acl(DateTime utc, IEnumerable<Permission> perms)
+      {
+        Utc = utc; Permissions = perms;
+      }
+      public DateTime Utc;
+      public IEnumerable<Permission> Permissions;
     }
 
 
+    public FileSystemCmsSource(ICmsFacade facade) : base(facade)
+    {
+      const int BUCKET_COUNT = 37;//prime
+      m_AuthCache = new Dictionary<ContentId, acl>[BUCKET_COUNT];
+      for(var i=0; i< m_AuthCache.Length; i++) m_AuthCache[i]  = new Dictionary<ContentId, acl>();
+      Thread.MemoryBarrier();
+    }
+
+
+    private Dictionary<ContentId, acl>[] m_AuthCache;
     private FileSystem m_FS;
     private FileSystemSessionConnectParams m_FSConnectParams;
     private string m_FSRootPath;
@@ -203,6 +222,94 @@ namespace Azos.Sky.Cms.Default
                                  createDate: createDate,
                                  modifyDate: modifyDate);
         return result;
+      }
+    }
+
+
+    /// <summary>
+    /// Returns failing permission when the caller does not have sufficient authorized access to the specified content
+    /// </summary>
+    public async Task<Permission> CheckContentAccessAsync(ContentId id)
+    {
+      var demand = await getContentPermissionsAsync(id).ConfigureAwait(false);
+      var failed = Permission.FindAuthorizationFailingPermission(App.SecurityManager, demand);
+      return failed;
+    }
+
+    //from cache, or calculates
+    private async ValueTask<IEnumerable<Permission>> getContentPermissionsAsync(ContentId id)
+    {
+      const int ACL_LIFE_MS = 5 * 60 * 1000;
+
+      var bucket = m_AuthCache[(id.GetHashCode() & CoreConsts.ABS_HASH_MASK) % m_AuthCache.Length];
+
+      acl result;
+
+      var utc = DateTime.UtcNow;
+
+      lock(bucket)
+      {
+        if (bucket.TryGetValue(id, out result) && (utc - result.Utc).TotalMilliseconds < ACL_LIFE_MS)
+        {
+          return result.Permissions;
+        }
+      }
+
+      result = new acl(utc, await calculateEffectivePermissionsAsync(id).ConfigureAwait(false));
+
+      lock(bucket)
+      {
+        bucket[id] = result;
+      }
+
+      return result.Permissions;
+    }
+
+    private async Task<IEnumerable<Permission>> calculateEffectivePermissionsAsync(ContentId id)
+    {
+      try
+      {
+        using (var fss = m_FS.StartSession(m_FSConnectParams))
+        {
+          var cfgRoot   = await getAclDescriptor(fss);
+          var cfgPortal = await getAclDescriptor(fss, id.Portal);
+          var cfgNs     = await getAclDescriptor(fss, id.Portal, id.Namespace);
+          var cfgBlock  = await getAclDescriptor(fss, id.Portal, id.Namespace, id.Block);
+
+          var effective = Configuration.NewEmptyRoot(CONFIG_ACL_ROOT);
+          if (cfgRoot != null)   effective.OverrideBy(cfgRoot);
+          if (cfgPortal != null) effective.OverrideBy(cfgPortal);
+          if (cfgNs != null)     effective.OverrideBy(cfgNs);
+          if (cfgBlock != null)  effective.OverrideBy(cfgBlock);
+          return Permission.MultipleFromConf(effective);
+        }
+      }
+      catch
+      {
+        //demand the very high permission in case of ACL being broken
+        return new Azos.Security.SystemAdministratorPermission(AccessLevel.ADVANCED).ToEnumerable();
+      }
+    }
+
+    private async Task<IConfigSectionNode> getAclDescriptor(FileSystemSession fss, params string[] pathSegs)
+    {
+      var fullPath = m_FS.CombinePaths(m_FSRootPath, pathSegs) + ".auth";
+      var aclFile = await fss.GetItemAsync(fullPath).ConfigureAwait(false) as FileSystemFile;
+
+      if (aclFile == null) return null;//nothing
+
+      var raw = await aclFile.ReadAllTextAsync().ConfigureAwait(false);
+
+      try
+      {
+        var result = raw.AsLaconicConfig(wrapRootName: CONFIG_ACL_ROOT, handling: ConvertErrorHandling.Throw);
+        result.Name = CONFIG_ACL_ROOT;
+        return result;
+      }
+      catch(Exception error)
+      {
+        WriteLogFromHere(MessageType.CriticalAlert, $"Error while reading {nameof(FileSystemCmsSource)}.ACL `{fullPath}`: {error.ToMessageWithType()}", error);
+        throw;
       }
     }
 

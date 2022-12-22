@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Azos.Apps;
 using Azos.Conf;
 using Azos.Data;
+using Azos.Security;
 
 namespace Azos.Sky.Cms.Default
 {
@@ -24,6 +25,11 @@ namespace Azos.Sky.Cms.Default
     /// </summary>
     /// <remarks>Implementation does not need to cache the result, as the caller does the caching already</remarks>
     Task<Dictionary<string, IEnumerable<LangInfo>>> FetchAllLangDataAsync();
+
+    /// <summary>
+    /// Returns failing permission when the caller does not have sufficient authorized access to the specified content
+    /// </summary>
+    Task<Permission> CheckContentAccessAsync(ContentId id);
 
     /// <summary>
     /// Fetches content from the backing source
