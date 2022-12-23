@@ -17,6 +17,7 @@ using Azos.IO.FileSystem;
 using Azos.Security;
 using Azos.Web;
 using System.Threading;
+using Azos.Serialization.JSON;
 
 namespace Azos.Sky.Cms.Default
 {
@@ -268,6 +269,11 @@ namespace Azos.Sky.Cms.Default
 
     private async Task<IEnumerable<Permission>> calculateEffectivePermissionsAsync(ContentId id)
     {
+      var dbg = ComponentEffectiveLogLevel < MessageType.Trace;
+      var rel = Guid.NewGuid();
+
+      if (dbg) WriteLogFromHere(MessageType.Debug, "Calc content ACL", pars: id.ToString(), related: rel);
+
       try
       {
         using (var fss = m_FS.StartSession(m_FSConnectParams))
@@ -278,11 +284,38 @@ namespace Azos.Sky.Cms.Default
           var cfgBlock  = await getAclDescriptor(fss, id.Portal, id.Namespace, id.Block);
 
           var effective = Configuration.NewEmptyRoot(CONFIG_ACL_ROOT);
-          if (cfgRoot != null)   effective.OverrideBy(cfgRoot);
-          if (cfgPortal != null) effective.OverrideBy(cfgPortal);
-          if (cfgNs != null)     effective.OverrideBy(cfgNs);
-          if (cfgBlock != null)  effective.OverrideBy(cfgBlock);
-          return Permission.MultipleFromConf(effective);
+
+          if (cfgRoot != null)
+          {
+            effective.OverrideBy(cfgRoot);
+            if (dbg) WriteLogFromHere(MessageType.Debug, "cfgRoot", pars: cfgRoot.ToLaconicString(), related: rel);
+          }
+
+          if (cfgPortal != null)
+          {
+            effective.OverrideBy(cfgPortal);
+            if (dbg) WriteLogFromHere(MessageType.Debug, "cfgPortal", pars: cfgPortal.ToLaconicString(), related: rel);
+          }
+
+          if (cfgNs != null)
+          {
+            effective.OverrideBy(cfgNs);
+            if (dbg) WriteLogFromHere(MessageType.Debug, "cfgNs", pars: cfgNs.ToLaconicString(), related: rel);
+          }
+
+          if (cfgBlock != null)
+          {
+            effective.OverrideBy(cfgBlock);
+            if (dbg) WriteLogFromHere(MessageType.Debug, "cfgBlock", pars: cfgBlock.ToLaconicString(), related: rel);
+          }
+
+          if (dbg) WriteLogFromHere(MessageType.Debug, "Effective ACL conf", pars: effective.ToLaconicString(), related: rel);
+
+          var result = Permission.MultipleFromConf(effective);
+
+          if (dbg) WriteLogFromHere(MessageType.Debug, "ACL Perms", pars: result.ToJson(), related: rel);
+
+          return result;
         }
       }
       catch
