@@ -1,6 +1,6 @@
 @echo on
 
-set VER=3.0.0.70
+set VER=3.0.0.71
 set HEADLINE=#817 Cms acl tracing
 call build-all Release %VER%
 

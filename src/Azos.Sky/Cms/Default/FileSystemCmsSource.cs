@@ -278,10 +278,10 @@ namespace Azos.Sky.Cms.Default
       {
         using (var fss = m_FS.StartSession(m_FSConnectParams))
         {
-          var cfgRoot   = await getAclDescriptor(fss);
-          var cfgPortal = await getAclDescriptor(fss, id.Portal);
-          var cfgNs     = await getAclDescriptor(fss, id.Portal, id.Namespace);
-          var cfgBlock  = await getAclDescriptor(fss, id.Portal, id.Namespace, id.Block);
+          var cfgRoot   = await getAclDescriptor(fss, false);
+          var cfgPortal = await getAclDescriptor(fss, false, id.Portal);
+          var cfgNs     = await getAclDescriptor(fss, false, id.Portal, id.Namespace);
+          var cfgBlock  = await getAclDescriptor(fss, true, id.Portal, id.Namespace, id.Block);
 
           var effective = Configuration.NewEmptyRoot(CONFIG_ACL_ROOT);
 
@@ -325,9 +325,11 @@ namespace Azos.Sky.Cms.Default
       }
     }
 
-    private async Task<IConfigSectionNode> getAclDescriptor(FileSystemSession fss, params string[] pathSegs)
+    private async Task<IConfigSectionNode> getAclDescriptor(FileSystemSession fss, bool isBlock, params string[] pathSegs)
     {
-      var fullPath = m_FS.CombinePaths(m_FSRootPath, pathSegs) + AUTH_FILE;
+      var fullPath = isBlock ? m_FS.CombinePaths(m_FSRootPath, pathSegs) + AUTH_FILE                    //  /root/portal/ns/block$auth
+                             : m_FS.CombinePaths( m_FS.CombinePaths(m_FSRootPath, pathSegs), AUTH_FILE);//  /root/portal/ns/$auth
+
       var aclFile = await fss.GetItemAsync(fullPath).ConfigureAwait(false) as FileSystemFile;
 
       if (aclFile == null) return null;//nothing
