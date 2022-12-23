@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.0.0.68
-set HEADLINE=#815 PreProcessSubjectIdCredentials hook
+set VER=3.0.0.69
+set HEADLINE=#817 Cms security
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
