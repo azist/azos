@@ -29,6 +29,7 @@ namespace Azos.Data.Access.Rpc.Server
     [ApiEndpointDoc(
       Title = "POST - Executes read request",
       Description = "Executes read request by posting request body into this endpoint",
+      DocAnchor = "### /data/rpc/handler/reader POST",
       ResponseContent = "Json data",
       RequestBody = "JSON payload {request: ReadRequest}",
       Methods = new[] { "POST: posts ReadRequest body" },
@@ -64,6 +65,7 @@ namespace Azos.Data.Access.Rpc.Server
     [ApiEndpointDoc(
       Title = "POST - Executes transaction request",
       Description = "Executes transaction request by posting request body into this endpoint",
+      DocAnchor = "### /data/rpc/handler/transaction POST",
       ResponseContent = "Json data",
       RequestBody = "JSON payload {request: TransactRequest}",
       Methods = new[] { "POST: posts TransactRequest body" },
