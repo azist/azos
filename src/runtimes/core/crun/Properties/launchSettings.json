@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "crun": {
-      "commandName": "Project",
-      "commandLineArgs": "echo -r text=\"jello world\" ru=\"mir zhele\""
-    }
-  }
-}
