@@ -40,7 +40,7 @@ namespace Azos.Conf.Forest.Server
     [ApiEndpointDoc(
       Title = "GET - Retrieves a list of trees",
       Description = "Gets a list of tree names of a specified forest as of the specified timestamp.",
-      DocAnchor = "### /conf/forest/tree-list/ GET",
+      DocAnchor = "### /conf/forest/tree/tree-list/ GET",
       RequestQueryParameters = new[]{
             "forest=Forest Atom of the node to retrieve"},
       ResponseContent = "Http 200 / JSON representation of {OK: true, data: [Atom]} or Http 404 {OK: false, data: null}",
@@ -57,7 +57,7 @@ namespace Azos.Conf.Forest.Server
     [ApiEndpointDoc(
       Title = "GET - Retrieves a list of child nodes for the specified tree node",
       Description = "Retrieves a list of child nodes headers (node info without config content) for the specified tree node as of the specified timestamp.",
-      DocAnchor = "### /conf/forest/node-list/ GET",
+      DocAnchor = "### /conf/forest/tree/node-list/ GET",
       RequestQueryParameters = new[]{
         "idparent=EntytyId of a parent node to retrieve child nodes for",
         "asofutc=Nullable timestamp as of which to retrieve the list. Null denotes UTC now (default)"},
