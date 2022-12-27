@@ -19,8 +19,6 @@
     <None Remove="Arow\Help.txt" />
     <None Remove="Arow\Welcome.txt" />
     <None Remove="BUILD_INFO.txt" />
-    <None Remove="Crun\Help.txt" />
-    <None Remove="Crun\Welcome.txt" />
     <None Remove="Gluec\Help.txt" />
     <None Remove="Gluec\Welcome.txt" />
     <None Remove="Ntc\Help.txt" />
@@ -43,8 +41,6 @@
     <EmbeddedResource Include="Arow\Help.txt" />
     <EmbeddedResource Include="Arow\Welcome.txt" />
     <EmbeddedResource Include="BUILD_INFO.txt" />
-    <EmbeddedResource Include="Crun\Help.txt" />
-    <EmbeddedResource Include="Crun\Welcome.txt" />
     <EmbeddedResource Include="Gluec\Help.txt" />
     <EmbeddedResource Include="Gluec\Welcome.txt" />
     <EmbeddedResource Include="Ntc\Help.txt" />
