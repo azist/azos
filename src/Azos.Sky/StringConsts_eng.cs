@@ -40,6 +40,8 @@ namespace Azos.Sky
     public const string CMS_ID_ERROR =
        "Got invalid ContentId `{0}`='{1}'. Only the following characters are permitted in CMS ContentId: 'a-z|A-Z|0-9|.|-|_' and be no longer than {2} chars. May not start with `.`";
 
+    public const string CMS_CONTENT_ACCESS_DENIED = "Content access denied: {0}";
+
     public const string PERMISSION_DESCRIPTION_RemoteTerminalOperatorPermission =
       "Controls whether users can access remote terminals";
 

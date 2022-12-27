@@ -70,6 +70,11 @@ namespace Azos.Sky.Cms.Default
       return result;
     }
 
+    /// <summary>
+    /// Returns failing permission when the caller does not have sufficient authorized access to the specified content
+    /// </summary>
+    public Task<Permission> CheckContentAccessAsync(ContentId id) => Task.FromResult<Permission>(null);
+
     public async Task<Content> FetchContentAsync(ContentId id, Atom isoLang, DateTime utcNow, ICacheParams caching)
     {
       id.HasRequiredValue(nameof(id));

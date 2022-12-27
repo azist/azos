@@ -106,6 +106,17 @@ namespace Azos.Security
     /// </summary>
     public static IEnumerable<Permission> All(params Permission[] permissions) => permissions!=null ? permissions : Enumerable.Empty<Permission>();
 
+
+    public static Permission FindAuthorizationFailingPermission(ISecurityManager secman, IEnumerable<Permission> permissions, ISession session = null, GetSessionFunc getSessionFunc = null)
+    {
+      secman.NonNull(nameof(secman));
+      if (permissions == null) return null;
+      if (session == null && permissions.Any() && getSessionFunc != null) session = getSessionFunc();
+      var failed = permissions.FirstOrDefault(perm => perm != null && !perm.Check(secman, session));
+      return failed;
+    }
+
+
     /// <summary>
     /// Guards the action represented by enumerable of permissions by checking all permissions and throwing exception if
     /// any of authorization attributes do not pass
@@ -116,15 +127,11 @@ namespace Azos.Security
                                                ISession session = null,
                                                GetSessionFunc getSessionFunc = null)
     {
-      if (permissions==null) return;
-
-
-      if (session==null && permissions.Any() && getSessionFunc!=null) session = getSessionFunc();
-
-      var failed = permissions.FirstOrDefault(perm => perm!=null && !perm.Check(secman, session));
-
-      if (failed!=null)
+      var failed = FindAuthorizationFailingPermission(secman, permissions, session, getSessionFunc);
+      if (failed != null)
+      {
         throw new AuthorizationException(string.Format(StringConsts.SECURITY_AUTHROIZATION_ERROR, failed,  actionName ?? CoreConsts.UNKNOWN));
+      }
     }
 
     /// <summary>

@@ -38,16 +38,21 @@ namespace Azos.Sky.Cms
     /// <returns>Enumerable of LangInfo entries throws if portal is not found</returns>
     Task<IEnumerable<LangInfo>> GetAllSupportedLanguagesAsync(string portal);
 
-
     /// <summary>
-    /// Retrieves a content block by the specified id per optional lang iso code
+    /// Retrieves a content block by the specified id per optional lang iso code.
+    /// Note: The caller authorization is checked per target resource permissions requirement (if any)
     /// </summary>
     /// <param name="id">ContentID of a block to retrieve</param>
     /// <param name="isoLang">Iso language code for content, if null then default language (Generic English) is returned</param>
     /// <param name="caching">Optional cache handling specification</param>
-    /// <returns>Content or Null if it is not found</returns>
-    /// <remarks>Tries to synchronously take the request from cache, and then fires up an async IO call</remarks>
+    /// <returns>
+    /// Content or Null if it is not found. Authorization exceptions if caller
+    /// does not have permissions required (if any) by the target content
+    /// </returns>
+    /// <remarks>
+    /// Checks authorization, then tries to synchronously take the request from cache, and when not found locally
+    /// only then fires up an async IO call
+    /// </remarks>
     Task<Content> GetContentAsync(ContentId id, Atom? isoLang = null, ICacheParams caching = null);
   }
-
 }
