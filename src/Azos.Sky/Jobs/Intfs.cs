@@ -1,6 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
+
 using System.Threading.Tasks;
 
 using Azos.Apps;
@@ -10,20 +16,28 @@ namespace Azos.Sky.Jobs
 {
   public interface IJobManager
   {
-   // Task<JobId> StartJob(JobStartArgs args)
-   // Task<JobInfo> QueryJob(JobQueryArgs args)
+    // Task<JobId> StartJob(JobStartArgs args)
+    // Task<JobInfo> QueryJob(JobQueryArgs args)
+
+    // Task<JobId> SendSignal(Signal signal)
   }
 
   public interface IJobManagerLogic : IJobManager, IModuleImplementation
   {
   }
 
-  public interface IJobStateStore
+  public interface IWorkManager
   {
-    //IEnumerable<WorkItem> GetWorkSegment(int worker);
+    Task CreateWorkItemAsync();
 
-    ////called by worker to update the store
-    //void CommitWorkItem(int worker, JobId id, Datime nextSlice, JsonDataMap state);
+
+    ///// <summary>
+    ///// Only one worker in a work set gets particular work
+    ///// </summary>
+    //Task<WorkItem[]> CheckoutNextWorkSegmentAsync(Worker worker);
+
+    //////called by worker to update the store
+    //Task CommitWorkItemAsync(Worker worker, WorkItem work);
   }
 
 
