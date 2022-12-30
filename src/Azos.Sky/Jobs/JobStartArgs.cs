@@ -62,13 +62,13 @@ namespace Azos.Sky.Jobs
 
     [Field(Required = true,
            Description = "Job start parameters. These values are immutable for the lifetime of a job instance " +
-           "(not to be confused with Job state which IS mutable)")]
+           "(not to be confused with Job STATE which IS mutable)")]
     public JobParameters Parameters{ get; set; }
 
     /// <summary>
-    /// Indexable tags used for future flow item searches
+    /// Indexable tags used for future flow job searches. Tags are immutable beyond job start
     /// </summary>
-    [Field(required: true, maxLength: MAX_TAG_COUNT, Description = "Indexable tags used for future job searches")]
+    [Field(required: true, maxLength: MAX_TAG_COUNT, Description = "Indexable tags used for future flow job searches. Tags are immutable beyond job start")]
     public List<Data.Adlib.Tag> Tags { get; set; }
   }
 }
