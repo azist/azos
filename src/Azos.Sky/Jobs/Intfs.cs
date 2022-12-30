@@ -11,17 +11,28 @@ using System.Threading.Tasks;
 
 using Azos.Apps;
 using Azos.Data;
+using Azos.Data.Business;
 
 namespace Azos.Sky.Jobs
 {
+  /// <summary>
+  /// Performs job management tasks such as starting and querying jobs, sending signals etc.
+  /// </summary>
   public interface IJobManager
   {
-    void AllocJobId();
+    /// <summary>
+    /// Reserves a job id by runspace.
+    /// You may need to know JobIds before you start them, e.g. you may need
+    /// to pass future JobId into another data structure, and if it fails, abort creating a job
+    /// </summary>
+    JobId AllocateJobId(Atom runspace);//  sys-log:0:8:43647826346
 
-    // Task<JobId> StartJob(JobStartArgs args)
-    // Task<JobInfo> QueryJob(JobQueryArgs args)
 
-    // Task<JobId> SendSignal(Signal signal)
+ //   Task<JobInfo> StartJobAsync(JobStartArgs args);
+
+//     Task<IEnumerable<JobInfo>> GetJobListAsync(JobFilter args);
+
+//     Task<JobInfo> SendSignalAsync(JobId idJob, Signal signal);
   }
 
   public interface IJobManagerLogic : IJobManager, IModuleImplementation
@@ -40,24 +51,6 @@ namespace Azos.Sky.Jobs
 
     //////called by worker to update the store
     //Task CommitWorkItemAsync(Worker worker, WorkItem work);
-  }
-
-
-
-  public class JobStartArgs
-  {
-    [Field(Description = "Uniquely identifies the type of process image which backs this job execution. " +
-                         "In CLR runtime, this maps to a descendant type of a `Job` class via BIX mapping")]
-    public Guid ProcessImage { get; set; }
-
-
-    [Field(Description = "Optionally, ensures sequential processing of jobs within the same strand, that is:" +
-                         " no more than a single job instance of the same strand ever executes in the system origin (cloud partition) concurrently." +
-                         "Strands can only be defined at job start and are afterwards immutable")]
-    public string Strand { get; set; }
-
-    //tags are immutable once job is launched - see adlib/formflow
-    //public tag[] Tags
   }
 
 

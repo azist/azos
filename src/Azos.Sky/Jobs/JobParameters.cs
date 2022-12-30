@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Text;
 
 using Azos.Data;
+using Azos.Data.Business;
 using Azos.Serialization.Bix;
 using Azos.Serialization.JSON;
 
@@ -16,7 +17,7 @@ namespace Azos.Sky.Jobs
 {
   [Schema(Description="Immutable bag of values supplied at the job creation")]
   [BixJsonHandler(ThrowOnUnresolvedType = true)]
-  public abstract class JobParameters : AmorphousTypedDoc
+  public abstract class JobParameters : TransientModel
   {
     public override bool AmorphousDataEnabled => true;
 
