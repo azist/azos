@@ -16,6 +16,8 @@ namespace Azos.Sky.Jobs
 {
   public interface IJobManager
   {
+    void AllocJobId();
+
     // Task<JobId> StartJob(JobStartArgs args)
     // Task<JobInfo> QueryJob(JobQueryArgs args)
 
@@ -56,13 +58,6 @@ namespace Azos.Sky.Jobs
 
     //tags are immutable once job is launched - see adlib/formflow
     //public tag[] Tags
-  }
-
-
-  public struct JobId
-  {
-    public readonly GDID Gdid;
-
   }
 
 
