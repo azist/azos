@@ -22,6 +22,7 @@ namespace Azos.Sky.Jobs
   {
     public const int MAX_TAG_COUNT = 32;
     public const int MAX_STRAND_LEN = 250;
+    public const int MAX_DESCRIPTION_LEN = 100;
 
     [Field(Required = true,
            Description = "Unique JobId obtained from a call to `AllocateJobId()`. This job must not have started yet")]
@@ -43,6 +44,20 @@ namespace Azos.Sky.Jobs
 
     [Field(Required = false, Description = "When is the job scheduled to start execution, if null then job runs asap")]
     public DateTime? ScheduledStartUtc { get; set; }
+
+
+    [Field(Required = false,
+           Description = "What has caused this job to be created")]
+    public EntityId? Initiator { get; set; }
+
+    [Field(Required = false,
+           Description = "Optionally establishes an ownership of this job")]
+    public EntityId? Owner { get; set; }
+
+    [Field(Required = false,
+           MaxLength = MAX_DESCRIPTION_LEN,
+           Description = "Optionally provides a short job description")]
+    public string Description { get; set; }
 
 
     [Field(Required = true,
