@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.0.0.71
-set HEADLINE=#817 Cms acl tracing
+set VER=3.0.0.72
+set HEADLINE=Latest sync
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
