@@ -1,11 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-/*<FILE_LICENSE>
+﻿/*<FILE_LICENSE>
  * Azos (A to Z Application Operating System) Framework
  * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
+
+using System;
+using System.Collections.Generic;
+using System.Text;
 
 using System.Threading.Tasks;
 
@@ -15,6 +16,51 @@ using Azos.Data.Business;
 
 namespace Azos.Sky.Jobs
 {
+
+  public enum JobStatus
+  {
+    /// <summary>
+    /// The job was created but ts status has not been determined yet
+    /// </summary>
+    Undefined = 0,
+
+    /// <summary>
+    /// The job has been created but has not started (yet)
+    /// </summary>
+    Created,
+
+    /// <summary>
+    /// The job is running
+    /// </summary>
+    Started,
+
+    /// <summary>
+    /// Paused jobs skip their time slices but still react to signals (e.g. termination), contrast with Suspended mode
+    /// </summary>
+    Paused,
+
+    /// <summary>
+    /// Suspended jobs do not react to signals and do not execute their time slices
+    /// </summary>
+    Suspended,
+
+    /// <summary>
+    /// The job has finished normally
+    /// </summary>
+    Finished = 0x1FFFF,
+
+    /// <summary>
+    /// The job has finished abnormally with unhandled exception
+    /// </summary>
+    Crashed = -1,
+
+    /// <summary>
+    /// The job has finished abnormally due to signal intervention, e.g. manual termination or call to Abort("reason");
+    /// </summary>
+    Aborted = -2
+  }
+
+
   /// <summary>
   /// Performs job management tasks such as starting and querying jobs, sending signals etc.
   /// </summary>
@@ -27,8 +73,7 @@ namespace Azos.Sky.Jobs
     /// </summary>
     JobId AllocateJobId(Atom runspace);//  sys-log:0:8:43647826346
 
-
- //   Task<JobInfo> StartJobAsync(JobStartArgs args);
+    Task<JobInfo> StartJobAsync(JobStartArgs args);
 
 //     Task<IEnumerable<JobInfo>> GetJobListAsync(JobFilter args);
 
