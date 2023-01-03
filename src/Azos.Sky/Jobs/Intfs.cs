@@ -78,7 +78,7 @@ namespace Azos.Sky.Jobs
 
     Task<JobInfo> StartJobAsync(JobStartArgs args);
 
-  //  Task<IEnumerable<JobInfo>> GetJobListAsync(JobFilter args);
+    Task<IEnumerable<JobInfo>> GetJobListAsync(JobFilter args);
 
     Task<JobInfo>       GetJobInfoAsync(JobId idJob);
     Task<JobParameters> GetJobParametersAsync(JobId idJob);
