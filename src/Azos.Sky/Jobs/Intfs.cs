@@ -13,10 +13,13 @@ using System.Threading.Tasks;
 using Azos.Apps;
 using Azos.Data;
 using Azos.Data.Business;
+using Azos.Serialization.JSON;
 
 namespace Azos.Sky.Jobs
 {
-
+  /// <summary>
+  /// Job statuses
+  /// </summary>
   public enum JobStatus
   {
     /// <summary>
@@ -75,9 +78,14 @@ namespace Azos.Sky.Jobs
 
     Task<JobInfo> StartJobAsync(JobStartArgs args);
 
-//     Task<IEnumerable<JobInfo>> GetJobListAsync(JobFilter args);
+  //  Task<IEnumerable<JobInfo>> GetJobListAsync(JobFilter args);
 
-//     Task<JobInfo> SendSignalAsync(JobId idJob, Signal signal);
+    Task<JobInfo>       GetJobInfoAsync(JobId idJob);
+    Task<JobParameters> GetJobParametersAsync(JobId idJob);
+    Task<JobResult>     GetJobResultAsync(JobId idJob);
+    Task<State>         GetJobStateAsync(JobId idJob);
+    Task                LoadJobStateSlotAsync(JobId idJob, State.Slot slot);
+    Task<SignalResult>  SendSignalAsync(Signal signal);
   }
 
   public interface IJobManagerLogic : IJobManager, IModuleImplementation

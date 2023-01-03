@@ -15,12 +15,9 @@ using Azos.Serialization.JSON;
 
 namespace Azos.Sky.Jobs
 {
-  [Schema(Description="Immutable bag of values supplied at the job creation")]
   [BixJsonHandler(ThrowOnUnresolvedType = true)]
-  public abstract class JobParameters : TransientModel
+  public abstract class JobParameterBase : TransientModel
   {
-    public override bool AmorphousDataEnabled => true;
-
     /// <summary>
     /// Adds type code using BIX, so the system will add Guids from <see cref="Azos.Serialization.Bix.BixAttribute"/>
     /// which are used for both binary and json polymorphism
@@ -34,6 +31,16 @@ namespace Azos.Sky.Jobs
 
       base.AddJsonSerializerField(def, options, jsonMap, name, value);
     }
+  }
+
+  [Schema(Description = "Immutable bag of values supplied at the job creation")]
+  public abstract class JobParameters : JobParameterBase
+  {
+  }
+
+  [Schema(Description = "Immutable bag of values created as the result of job execution")]
+  public abstract class JobResult : JobParameterBase
+  {
   }
 
 }

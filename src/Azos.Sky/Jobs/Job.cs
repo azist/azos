@@ -30,7 +30,9 @@ namespace Azos.Sky.Jobs
     public abstract Task<TimeSpan?> ExecuteSliceAsync(/*IJobRuntime*/);
   }
 
-  public abstract class Job<TParameters, TState> : Job where TState : State
+  public abstract class Job<TParameters, TResult, TState> : Job where TParameters : JobParameters
+                                                                where TResult : JobResult
+                                                                where TState : State
   {
 
     /// <summary>

@@ -24,7 +24,7 @@ namespace Azos.Sky.Jobs
   /// The system does this slot-by-slot significantly improving overall performance.
   /// Particular job state implementations derive their own classes which reflect the required business logic
   /// </summary>
-  public abstract class State
+  public class State
   {
     /// <summary>
     /// Describes how slot data has changed

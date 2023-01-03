@@ -9,10 +9,42 @@ using System.Collections.Generic;
 using System.Text;
 
 using Azos.Data;
+using Azos.Data.Business;
+using Azos.Serialization.Bix;
+using Azos.Serialization.JSON;
 
 namespace Azos.Sky.Jobs
 {
-  public abstract class Signal : TypedDoc
+
+  [BixJsonHandler(ThrowOnUnresolvedType = true)]
+  public abstract class SignalBase : TransientModel
+  {
+
+    [Field(Required = true,
+           Description = "Unique JobId obtained from a call to `AllocateJobId()`. This job must not have started yet")]
+    public JobId JobId { get; set; }
+
+    /// <summary>
+    /// Adds type code using BIX, so the system will add Guids from <see cref="Azos.Serialization.Bix.BixAttribute"/>
+    /// which are used for both binary and json polymorphism
+    /// </summary>
+    protected override void AddJsonSerializerField(Schema.FieldDef def, JsonWritingOptions options, Dictionary<string, object> jsonMap, string name, object value)
+    {
+      if (def?.Order == 0)
+      {
+        BixJsonHandler.EmitJsonBixDiscriminator(this, jsonMap);
+      }
+
+      base.AddJsonSerializerField(def, options, jsonMap, name, value);
+    }
+  }
+
+
+  public abstract class Signal : SignalBase
+  {
+  }
+
+  public abstract class SignalResult : SignalBase
   {
   }
 }

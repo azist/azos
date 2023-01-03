@@ -13,6 +13,7 @@ using Azos.Apps;
 using Azos.Data;
 using Azos.Data.Business;
 using Azos.Serialization.Bix;
+using Azos.Serialization.JSON;
 
 namespace Azos.Sky.Jobs
 {
@@ -87,6 +88,5 @@ namespace Azos.Sky.Jobs
            Description = "Indexable tags used for future flow job searches. Tags are immutable beyond job start")]
     public List<Data.Adlib.Tag> Tags { get; set; }
 
-    //Details = null
   }
 }
