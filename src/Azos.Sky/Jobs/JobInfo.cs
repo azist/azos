@@ -27,6 +27,10 @@ namespace Azos.Sky.Jobs
     [Field(Required = true, Description = "Job Guid used for log and other correlation token")]
     public Guid JobGuid { get; set; }
 
+    [Field(Required = true,
+          Description = "Defines what cloud origin (cluster partition) this job belongs to and runs")]
+    public Atom Origin { get; set; }
+
     [Field(Required = true, Description = "Current job status")]
     public JobStatus JobStatus { get; set; }
 

@@ -25,6 +25,10 @@ namespace Azos.Sky.Jobs
     public JobId JobId { get; set; }
 
     [Field(Required = true,
+          Description = "Defines what cloud origin (cluster partition) this job belongs to and runs")]
+    public Atom Origin { get; set; }
+
+    [Field(Required = true,
            Description = "Uniquely identifies the type of process image which backs this job execution. " +
                          "In CLR runtime, this maps to a descendant type of a `Job` class via BIX mapping")]
     public Guid ImageTypeId { get; set; }
