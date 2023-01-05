@@ -61,6 +61,12 @@ namespace Azos.Sky.Jobs
                          "Strands can only be defined at job start and are afterwards immutable")]
     public string Strand { get; set; }
 
+    [Field(Required = false,
+           MaxLength = Constraints.MAX_DESCRIPTION_LEN,
+           Description = "Describes who execution session is impersonated as or null if it is executed under a system account. " +
+                         "Note: this is a descriptive string for humans, not a token which can be used to perform any auth functionality")]
+    public string ImpersonationTitle{ get; set; }
+
 
     [Field(Required = true,
            MaxLength = Constraints.MAX_DESCRIPTION_LEN,

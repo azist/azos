@@ -42,6 +42,13 @@ namespace Azos.Sky.Jobs
     public string Strand { get; set; }
 
 
+    [Field(Required = false,
+           MaxLength = Constraints.MAX_IMPERSONATE_LEN,
+           Description = "Optionally, include principal references, such as URI credentials which impersonate the job execution context. " +
+                         "Do not include `IdPasswordCredentials`, as only password-less credentials are supported")]
+    public EntityId? ImpersonateAs { get; set; }
+
+
     [Field(Required = false, Description = "When is the job scheduled to start execution, if null then job runs asap")]
     public DateTime? ScheduledStartUtc { get; set; }
 
