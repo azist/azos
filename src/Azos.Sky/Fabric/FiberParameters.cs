@@ -16,7 +16,7 @@ using Azos.Serialization.JSON;
 namespace Azos.Sky.Fabric
 {
   [BixJsonHandler(ThrowOnUnresolvedType = true)]
-  public abstract class JobParameterBase : TransientModel
+  public abstract class FiberParameterBase : TransientModel
   {
     /// <summary>
     /// Adds type code using BIX, so the system will add Guids from <see cref="Azos.Serialization.Bix.BixAttribute"/>
@@ -34,12 +34,12 @@ namespace Azos.Sky.Fabric
   }
 
   [Schema(Description = "Immutable bag of values supplied at the job creation")]
-  public abstract class FiberParameters : JobParameterBase
+  public abstract class FiberParameters : FiberParameterBase
   {
   }
 
-  [Schema(Description = "Immutable bag of values created as the result of job execution")]
-  public abstract class FiberResult : JobParameterBase
+  [Schema(Description = "Immutable bag of values created as the result of fiber execution")]
+  public abstract class FiberResult : FiberParameterBase
   {
   }
 

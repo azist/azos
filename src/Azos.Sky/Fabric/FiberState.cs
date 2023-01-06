@@ -72,6 +72,9 @@ namespace Azos.Sky.Fabric
 
     private readonly Dictionary<string, Slot> m_Data = new Dictionary<string, Slot>();
 
+    private Atom m_Step;
+
+    public Atom CurrentStep => m_Step;
 
     /// <summary>
     /// Enumerates all of the named slots in this state bag

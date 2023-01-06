@@ -6,106 +6,115 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
-
 using System.Threading.Tasks;
 
 using Azos.Apps;
-using Azos.Data;
-using Azos.Data.Business;
-using Azos.Serialization.JSON;
 
 namespace Azos.Sky.Fabric
 {
   /// <summary>
-  /// Job statuses
+  /// Fiber execution statuses
   /// </summary>
   public enum FiberStatus
   {
     /// <summary>
-    /// The job was created but ts status has not been determined yet
+    /// The fiber was created but ts status has not been determined yet
     /// </summary>
     Undefined = 0,
 
     /// <summary>
-    /// The job has been created but has not started (yet)
+    /// The fiber has been created but has not started (yet)
     /// </summary>
     Created,
 
     /// <summary>
-    /// The job is running
+    /// The fiber is running
     /// </summary>
     Started,
 
     /// <summary>
-    /// Paused jobs skip their time slices but still react to signals (e.g. termination), contrast with Suspended mode
+    /// Paused fiber skip their time slices but still react to signals (e.g. termination), contrast with Suspended mode
     /// </summary>
     Paused,
 
     /// <summary>
-    /// Suspended jobs do not react to signals and do not execute their time slices
+    /// Suspended fiber do not react to signals and do not execute their time slices
     /// </summary>
     Suspended,
 
     /// <summary>
-    /// The job has finished normally
+    /// The fiber has finished normally
     /// </summary>
     Finished = 0x1FFFF,
 
     /// <summary>
-    /// The job has finished abnormally with unhandled exception
+    /// The fiber has finished abnormally with unhandled exception
     /// </summary>
     Crashed = -1,
 
     /// <summary>
-    /// The job has finished abnormally due to signal intervention, e.g. manual termination or call to Abort("reason");
+    /// The fiber has finished abnormally due to signal intervention, e.g. manual termination or call to Abort("reason");
     /// </summary>
     Aborted = -2
   }
 
 
-
-  //?????????????????????????????????
-  //Who jobs execute as?  Should we have impersonate prinicpal in job args?
-  //?????????????????????????????????
-  //?????????????????????????????????
-  //?????????????????????????????????
-  //?????????????????????????????????
-  //?????????????????????????????????
-  //?????????????????????????????????
-  //Security depends on JOB state, for example an operator X may not be able to query job which deal with payroll of their superior boss
-  // IMpersonateAs and signals use caller identity
-
-
-
-
   /// <summary>
-  /// Performs job management tasks such as starting and querying jobs, sending signals etc.
+  /// Performs fiber management tasks such as starting and querying jobs, sending signals etc.
   /// </summary>
   public interface IFiberManager
   {
     /// <summary>
     /// Returns a list of runspaces which are allowed in the system, e.g. `sys`, `biz` etc..
-    /// Runspaces partitions jobs into atom-addressable areas
+    /// Runspaces partitions fiber into atom-addressable areas
     /// </summary>
     IEnumerable<Atom> GetRunspaces();
 
     /// <summary>
-    /// Reserves a job id by runspace.
-    /// You may need to know JobIds before you start them, e.g. you may need
-    /// to pass future JobId into another data structure, and if it fails, abort creating a job
+    /// Reserves a fiber id by runspace.
+    /// You may need to know FiberIds before you start them, e.g. you may need
+    /// to pass future FiberId into another data structure, and if it fails, abort creating a fiber
     /// </summary>
     FiberId AllocateFiberId(Atom runspace);//  sys-log:0:8:43647826346
 
+    /// <summary>
+    /// Starts a fiber
+    /// </summary>
     Task<FiberInfo> StartFiberAsync(FiberStartArgs args);
 
+    /// <summary>
+    /// Filters fiber info list
+    /// </summary>
     Task<IEnumerable<FiberInfo>> GetFiberListAsync(FiberFilter args);
 
+    /// <summary>
+    /// Returns fiber by id or null
+    /// </summary>
     Task<FiberInfo>          GetFiberInfoAsync(FiberId idFiber);
+
+    /// <summary>
+    /// Returns fiber start parameters or null if fiber not found
+    /// </summary>
     Task<FiberParameters>    GetFiberParametersAsync(FiberId idFiber);
+
+    /// <summary>
+    /// Gets fiber result or null
+    /// </summary>
     Task<FiberResult>        GetFiberResultAsync(FiberId idFiber);
+
+    /// <summary>
+    /// Returns most current fiber state
+    /// </summary>
     Task<FiberState>         GetFiberStateAsync(FiberId idFiber);
-    Task                     LoadFiberStateSlotAsync(FiberId idFiber, FiberState.Slot slot);
+
+    /// <summary>
+    /// Loads fiber state slot returning true on success, false if not found
+    /// </summary>
+    Task<bool>               LoadFiberStateSlotAsync(FiberId idFiber, FiberState.Slot slot);
+
+    /// <summary>
+    /// Sends fiber a signal
+    /// </summary>
     Task<FiberSignalResult>  SendSignalAsync(FiberSignal signal);
   }
 
@@ -113,6 +122,15 @@ namespace Azos.Sky.Fabric
   {
   }
 
+  public interface IFiberRuntime
+  {
+
+  }
+
+
+
+
+  //tbd in .Server
   public interface IWorkManager
   {
     Task CreateWorkItemAsync();
