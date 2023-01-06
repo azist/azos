@@ -17,7 +17,7 @@ using Azos.Data.Business;
 using Azos.Serialization.Bix;
 using Azos.Time;
 
-namespace Azos.Sky.Jobs
+namespace Azos.Sky.Fabric
 {
   [Schema(Description = "Job filter")]
   [Bix("5c24bf15-a4e0-4394-b9e5-a77af7d311a1")]

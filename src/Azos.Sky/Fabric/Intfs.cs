@@ -15,7 +15,7 @@ using Azos.Data;
 using Azos.Data.Business;
 using Azos.Serialization.JSON;
 
-namespace Azos.Sky.Jobs
+namespace Azos.Sky.Fabric
 {
   /// <summary>
   /// Job statuses

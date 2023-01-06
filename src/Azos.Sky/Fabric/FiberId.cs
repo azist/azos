@@ -13,7 +13,7 @@ using Azos.Data;
 using Azos.Data.Idgen;
 using Azos.Serialization.JSON;
 
-namespace Azos.Sky.Jobs
+namespace Azos.Sky.Fabric
 {
   /// <summary>
   /// Identifies a job instance

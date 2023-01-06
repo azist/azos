@@ -13,7 +13,7 @@ using Azos.Data.Business;
 using Azos.Serialization.Bix;
 using Azos.Serialization.JSON;
 
-namespace Azos.Sky.Jobs
+namespace Azos.Sky.Fabric
 {
   [BixJsonHandler(ThrowOnUnresolvedType = true)]
   public abstract class JobParameterBase : TransientModel

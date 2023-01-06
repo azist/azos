@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Azos.Sky.Jobs
+namespace Azos.Sky.Fabric
 {
   public static class Constraints
   {

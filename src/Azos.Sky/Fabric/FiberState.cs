@@ -12,7 +12,7 @@ using Azos.Data;
 using Azos.Serialization.Bix;
 using Azos.Serialization.JSON;
 
-namespace Azos.Sky.Jobs
+namespace Azos.Sky.Fabric
 {
   /// <summary>
   /// Represents an abstraction of job state which is segmented by named slots.
