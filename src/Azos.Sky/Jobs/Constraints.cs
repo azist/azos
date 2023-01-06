@@ -14,6 +14,7 @@ namespace Azos.Sky.Jobs
   {
     public const int MAX_TAG_COUNT = 32;
     public const int MAX_STRAND_LEN = 250;
+    public const int MAX_GROUP_LEN = 250;
     public const int MAX_DESCRIPTION_LEN = 100;
     public const int MAX_IMPERSONATE_LEN = 250;
   }

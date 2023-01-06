@@ -62,6 +62,13 @@ namespace Azos.Sky.Jobs
     public string Strand { get; set; }
 
     [Field(Required = false,
+           MaxLength = Constraints.MAX_GROUP_LEN,
+           Description = "Optionally, groups jobs by some correlation value. For example this can be used to group multiple jobs" +
+                         " executing on behalf of master job. Unlike Strands, Groups do not affect Job execution order/concurrency. " +
+                         "Group can only be defined at job start and is afterwards immutable")]
+    public string Group { get; set; }
+
+    [Field(Required = false,
            MaxLength = Constraints.MAX_DESCRIPTION_LEN,
            Description = "Describes who execution session is impersonated as or null if it is executed under a system account. " +
                          "Note: this is a descriptive string for humans, not a token which can be used to perform any auth functionality")]

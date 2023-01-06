@@ -41,6 +41,13 @@ namespace Azos.Sky.Jobs
                          "Strands can only be defined at job start and are afterwards immutable")]
     public string Strand { get; set; }
 
+    [Field(Required = false,
+           MaxLength = Constraints.MAX_GROUP_LEN,
+           Description = "Optionally, groups jobs by some correlation value. For example this can be used to group multiple jobs" +
+                         " executing on behalf of master job. Unlike Strands, Groups do not affect Job execution order/concurrency. " +
+                         "Group can only be defined at job start and is afterwards immutable")]
+    public string Group { get; set; }
+
 
     [Field(Required = false,
            MaxLength = Constraints.MAX_IMPERSONATE_LEN,
