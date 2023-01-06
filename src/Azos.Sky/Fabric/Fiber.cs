@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -39,14 +40,34 @@ namespace Azos.Sky.Fabric
 
 
     /// <summary>
-    /// Executes the most due slice, return the next time the job should run
+    /// Executes the most due slice, return the next time the fiber should run.
+    /// The default implementation delegates to <see cref="DefaultExecuteSliceByConventionAsync"/>
     /// </summary>
-    public abstract Task<(Atom nextStep, TimeSpan? nextTime)> ExecuteSliceAsync(Atom step);
+    public virtual Task<FiberStep> ExecuteSliceAsync() => DefaultExecuteSliceByConventionAsync();
+
+    public Task<FiberStep> DefaultExecuteSliceByConventionAsync()
+    {
+      var mn = FiberStep.CONVENTION_STEP_METHOD_NAME_PREFIX + State.CurrentStep.Value;
+
+      var mi = this.GetType().GetMethod(mn);
+      mi.NonNull("Existing method: " + mn);
+
+      Task<FiberStep> resultTask;
+      try
+      {
+        resultTask = mi.Invoke(this, null) as Task<FiberStep>;
+      }
+      catch(TargetInvocationException tie)
+      {
+        throw tie.InnerException;
+      }
+
+      return resultTask.NonNull(nameof(resultTask));
+    }
   }
 
-  public abstract class Fiber<TParameters, TResult, TState> : Fiber where TParameters : FiberParameters
-                                                                    where TResult : FiberResult
-                                                                    where TState : FiberState
+  public abstract class Fiber<TParameters, TState> : Fiber where TParameters : FiberParameters
+                                                           where TState : FiberState
   {
     protected Fiber(IFiberRuntime runtime, TParameters pars, TState state) : base(runtime, pars, state)
     {
@@ -55,10 +76,19 @@ namespace Azos.Sky.Fabric
     public new TParameters   Parameters => (TParameters)base.Parameters;
     public new TState        State =>      (TState)base.State;
 
-    public Task<FiberStep> Kaka()
+    public async Task<FiberStep> Step_Start()
     {
-      FiberStep.ContinueAfter(Kaka, TimeSpan.FromHours(0.2));
-      return null;
+      return FiberStep.Continue(Step_Email, TimeSpan.FromHours(0.2));
+    }
+
+    public async Task<FiberStep> Step_Email()
+    {
+      return FiberStep.Continue(Step_Notify, TimeSpan.FromHours(0.2));
+    }
+
+    public async Task<FiberStep> Step_Notify()
+    {
+      return FiberStep.Finish();
     }
 
   }

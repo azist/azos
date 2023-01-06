@@ -18,12 +18,12 @@ namespace Azos.Sky.Fabric
   {
     public const string CONVENTION_STEP_METHOD_NAME_PREFIX = "Step_";
 
-    public static FiberStep ContinueImmediately(Atom step) => ContinueAfter(step, TimeSpan.Zero);
-    public static FiberStep ContinueAfter(Atom step, TimeSpan interval)
+    public static FiberStep ContinueImmediately(Atom step) => Continue(step, TimeSpan.Zero);
+    public static FiberStep Continue(Atom step, TimeSpan interval)
      => new FiberStep(step.HasRequiredValue(nameof(step)).AsValid(nameof(step)), interval, null);
 
-    public static FiberStep ContinueImmediately(Func<Task<FiberStep>> stepBody) => ContinueAfter(stepBody, TimeSpan.Zero);
-    public static FiberStep ContinueAfter(Func<Task<FiberStep>> stepBody, TimeSpan interval)
+    public static FiberStep ContinueImmediately(Func<Task<FiberStep>> stepBody) => Continue(stepBody, TimeSpan.Zero);
+    public static FiberStep Continue(Func<Task<FiberStep>> stepBody, TimeSpan interval)
     {
       var fiber = stepBody.NonNull(nameof(stepBody)).Target.CastTo<Fiber>("Step body Method of `Fiber` class");
 
@@ -36,7 +36,7 @@ namespace Azos.Sky.Fabric
 
       Atom.TryEncode(stepName, out var step).IsTrue("Atom step name");
 
-      return ContinueAfter(step, interval);
+      return Continue(step, interval);
     }
 
 
