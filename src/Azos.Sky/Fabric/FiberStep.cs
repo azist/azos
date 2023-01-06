@@ -30,11 +30,11 @@ namespace Azos.Sky.Fabric
       var mn = stepBody.Method.Name;
       var i = mn.IndexOf(CONVENTION_STEP_METHOD_NAME_PREFIX);
 
-      (i==0 && i < mn.Length-1).IsTrue($"Step body method name must start with `{CONVENTION_STEP_METHOD_NAME_PREFIX}`");
+      (i==0 && i < mn.Length-1).IsTrue($"Step body method name starting with `{CONVENTION_STEP_METHOD_NAME_PREFIX}` prefix");
 
       var stepName = mn.Substring(CONVENTION_STEP_METHOD_NAME_PREFIX.Length);
 
-      Atom.TryEncode(stepName, out var step).IsTrue("Atom step name");
+      Atom.TryEncode(stepName, out var step).IsTrue("Valid atom step name");
 
       return Continue(step, interval);
     }

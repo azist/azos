@@ -13,8 +13,12 @@ using System.Threading.Tasks;
 namespace Azos.Sky.Fabric
 {
   /// <summary>
-  /// Uniform abstraction of a fiber.
-  /// All fibers inherit from this class
+  /// Provides a uniform abstraction base for Fibers.
+  /// Fibers are units of logical cooperative multi-task execution.
+  /// Unlike threads, fibers are not preempted but rather "yield" control back to their runtime using "steps"
+  /// in a coroutine-like fashion. The runtime system then persist the <see cref="FiberState"/> transitive fiber data
+  /// which gets created during fiber step execution, in a safe storage, this way fiber execution survives system restarts and crashes.
+  /// All fibers inherit from this class indirectly.
   /// </summary>
   public abstract class Fiber
   {
@@ -76,6 +80,8 @@ namespace Azos.Sky.Fabric
     public new TParameters   Parameters => (TParameters)base.Parameters;
     public new TState        State =>      (TState)base.State;
 
+
+    //EXAMPLE ONLY!!!!!!!!!!!!!
     public async Task<FiberStep> Step_Start()
     {
       return FiberStep.Continue(Step_Email, TimeSpan.FromHours(0.2));
