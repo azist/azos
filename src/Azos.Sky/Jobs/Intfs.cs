@@ -20,7 +20,7 @@ namespace Azos.Sky.Jobs
   /// <summary>
   /// Job statuses
   /// </summary>
-  public enum JobStatus
+  public enum FiberStatus
   {
     /// <summary>
     /// The job was created but ts status has not been determined yet
@@ -82,7 +82,7 @@ namespace Azos.Sky.Jobs
   /// <summary>
   /// Performs job management tasks such as starting and querying jobs, sending signals etc.
   /// </summary>
-  public interface IJobManager
+  public interface IFiberManager
   {
     /// <summary>
     /// Returns a list of runspaces which are allowed in the system, e.g. `sys`, `biz` etc..
@@ -95,21 +95,21 @@ namespace Azos.Sky.Jobs
     /// You may need to know JobIds before you start them, e.g. you may need
     /// to pass future JobId into another data structure, and if it fails, abort creating a job
     /// </summary>
-    JobId AllocateJobId(Atom runspace);//  sys-log:0:8:43647826346
+    FiberId AllocateFiberId(Atom runspace);//  sys-log:0:8:43647826346
 
-    Task<JobInfo> StartJobAsync(JobStartArgs args);
+    Task<FiberInfo> StartFiberAsync(FiberStartArgs args);
 
-    Task<IEnumerable<JobInfo>> GetJobListAsync(JobFilter args);
+    Task<IEnumerable<FiberInfo>> GetFiberListAsync(FiberFilter args);
 
-    Task<JobInfo>       GetJobInfoAsync(JobId idJob);
-    Task<JobParameters> GetJobParametersAsync(JobId idJob);
-    Task<JobResult>     GetJobResultAsync(JobId idJob);
-    Task<State>         GetJobStateAsync(JobId idJob);
-    Task                LoadJobStateSlotAsync(JobId idJob, State.Slot slot);
-    Task<SignalResult>  SendSignalAsync(Signal signal);
+    Task<FiberInfo>          GetFiberInfoAsync(FiberId idFiber);
+    Task<FiberParameters>    GetFiberParametersAsync(FiberId idFiber);
+    Task<FiberResult>        GetFiberResultAsync(FiberId idFiber);
+    Task<FiberState>         GetFiberStateAsync(FiberId idFiber);
+    Task                     LoadFiberStateSlotAsync(FiberId idFiber, FiberState.Slot slot);
+    Task<FiberSignalResult>  SendSignalAsync(FiberSignal signal);
   }
 
-  public interface IJobManagerLogic : IJobManager, IModuleImplementation
+  public interface IFiberManagerLogic : IFiberManager, IModuleImplementation
   {
   }
 

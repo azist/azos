@@ -21,13 +21,13 @@ namespace Azos.Sky.Jobs
 {
   [Schema(Description = "Job filter")]
   [Bix("5c24bf15-a4e0-4394-b9e5-a77af7d311a1")]
-  public sealed class JobFilter : FilterModel<IEnumerable<JobInfo>>
+  public sealed class FiberFilter : FilterModel<IEnumerable<FiberInfo>>
   {
     [Field(Required = false, Description = "Job id: runspace and Gdid")]
-    public JobId? JobId { get; set; }
+    public FiberId? Id { get; set; }
 
     [Field(description: "Job Guid used for log and other correlation token")]
-    public Guid? JobGuid { get; set; }
+    public Guid? FiberGuid { get; set; }
 
     [Field(description: "Defines what cloud origin (cluster partition) this job belongs to and runs")]
     public Atom? Origin { get; set; }
@@ -36,7 +36,7 @@ namespace Azos.Sky.Jobs
     public string Strand { get; set; }
 
     [Field(description: "Job status")]
-    public JobStatus? Status { get; set; }
+    public FiberStatus? Status { get; set; }
 
     [Field(description: "Uniquely identifies the type of process image which backs this job execution. " +
                         "In CLR runtime, this maps to a descendant type of a `Job` class via BIX mapping")]
@@ -63,9 +63,9 @@ namespace Azos.Sky.Jobs
     [Field(description: "Tag filter expression tree")]
     public Expression TagFilter { get; set; }
 
-    [InjectModule] IJobManagerLogic m_Logic;
+    [InjectModule] IFiberManagerLogic m_Logic;
 
-    protected async override Task<SaveResult<IEnumerable<JobInfo>>> DoSaveAsync()
-     => new SaveResult<IEnumerable<JobInfo>>(await m_Logic.GetJobListAsync(this).ConfigureAwait(false));
+    protected async override Task<SaveResult<IEnumerable<FiberInfo>>> DoSaveAsync()
+     => new SaveResult<IEnumerable<FiberInfo>>(await m_Logic.GetFiberListAsync(this).ConfigureAwait(false));
   }
 }

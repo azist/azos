@@ -24,7 +24,7 @@ namespace Azos.Sky.Jobs
   /// The system does this slot-by-slot significantly improving overall performance.
   /// Particular job state implementations derive their own classes which reflect the required business logic
   /// </summary>
-  public class State
+  public class FiberState
   {
     /// <summary>
     /// Describes how slot data has changed
@@ -89,7 +89,7 @@ namespace Azos.Sky.Jobs
     protected T Get<T>(string name) where T : Slot => Get(name) as T;
 
     /// <summary> Sets slot data </summary>
-    protected State Set(string name, Slot data)
+    protected FiberState Set(string name, Slot data)
     {
       Slot.CheckName(name);
       data.NonNull(nameof(data));
@@ -110,7 +110,7 @@ namespace Azos.Sky.Jobs
     }
 
     /// <summary> Sets slot data </summary>
-    protected State Set<T>(string name, Action<T> fset) where T : Slot, new()
+    protected FiberState Set<T>(string name, Action<T> fset) where T : Slot, new()
     {
       fset.NonNull(nameof(fset));
       var seg = Get<T>(name) ?? new T();
@@ -124,7 +124,7 @@ namespace Azos.Sky.Jobs
   /// <summary>
   /// EXAMPLE ONLY
   /// </summary>
-  public sealed class BakerState : State
+  public sealed class BakerState : FiberState
   {
     internal sealed class counts : Slot
     {

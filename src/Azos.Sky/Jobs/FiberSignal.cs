@@ -15,9 +15,15 @@ using Azos.Serialization.JSON;
 
 namespace Azos.Sky.Jobs
 {
+
   [BixJsonHandler(ThrowOnUnresolvedType = true)]
-  public abstract class JobParameterBase : TransientModel
+  public abstract class FiberSignalBase : TransientModel
   {
+
+    [Field(Required = true,
+           Description = "Unique JobId obtained from a call to `AllocateJobId()`. This job must not have started yet")]
+    public FiberId FiberId { get; set; }
+
     /// <summary>
     /// Adds type code using BIX, so the system will add Guids from <see cref="Azos.Serialization.Bix.BixAttribute"/>
     /// which are used for both binary and json polymorphism
@@ -33,14 +39,12 @@ namespace Azos.Sky.Jobs
     }
   }
 
-  [Schema(Description = "Immutable bag of values supplied at the job creation")]
-  public abstract class JobParameters : JobParameterBase
+
+  public abstract class FiberSignal : FiberSignalBase
   {
   }
 
-  [Schema(Description = "Immutable bag of values created as the result of job execution")]
-  public abstract class JobResult : JobParameterBase
+  public abstract class FiberSignalResult : FiberSignalBase
   {
   }
-
 }

@@ -18,13 +18,13 @@ namespace Azos.Sky.Jobs
   /// <summary>
   /// Identifies a job instance
   /// </summary>
-  public struct JobId : IEquatable<JobId>, IDistributedStableHashProvider, IJsonWritable, IJsonReadable, IRequiredCheck, IValidatable
+  public struct FiberId : IEquatable<FiberId>, IDistributedStableHashProvider, IJsonWritable, IJsonReadable, IRequiredCheck, IValidatable
   {
     public const string UNASSIGNED = "<?>";
 
-    public static readonly JobId EMPTY = new JobId(Atom.ZERO, GDID.ZERO);
+    public static readonly FiberId EMPTY = new FiberId(Atom.ZERO, GDID.ZERO);
 
-    public JobId(Atom rs, GDID gdid)
+    public FiberId(Atom rs, GDID gdid)
     {
       Runspace = rs;
       Gdid = gdid;
@@ -37,8 +37,8 @@ namespace Azos.Sky.Jobs
     public bool CheckRequired(string targetName) => Assigned;
     public ValidState Validate(ValidState state, string scope = null) => Runspace.Validate(state, scope.Default("<JobId.Runspace>"));
 
-    public override bool Equals(object obj) => obj is JobId other ? this.Equals(other) : false;
-    public bool Equals(JobId other) => this.Runspace == other.Runspace && this.Gdid == other.Gdid;
+    public override bool Equals(object obj) => obj is FiberId other ? this.Equals(other) : false;
+    public bool Equals(FiberId other) => this.Runspace == other.Runspace && this.Gdid == other.Gdid;
     public override int GetHashCode() => Runspace.GetHashCode() ^ Gdid.GetHashCode();
     public ulong GetDistributedStableHash() => Runspace.GetDistributedStableHash() ^ Gdid.GetDistributedStableHash();
 
@@ -56,7 +56,7 @@ namespace Azos.Sky.Jobs
       return (false, null);
     }
 
-    public static bool TryParse(string value, out JobId id)
+    public static bool TryParse(string value, out FiberId id)
     {
       id = EMPTY;
       if (value.IsNullOrWhiteSpace()) return true;
@@ -70,13 +70,13 @@ namespace Azos.Sky.Jobs
       GDID gdid;
       if (!GDID.TryParse(value.Substring(i + 1), out gdid)) return false;
 
-      id = new JobId(runspace, gdid);
+      id = new FiberId(runspace, gdid);
       return true;
     }
 
 
-    public static bool operator ==(JobId a, JobId b) => a.Equals(b);
-    public static bool operator !=(JobId a, JobId b) => !a.Equals(b);
+    public static bool operator ==(FiberId a, FiberId b) => a.Equals(b);
+    public static bool operator !=(FiberId a, FiberId b) => !a.Equals(b);
 
   }
 }

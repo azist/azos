@@ -15,10 +15,10 @@ namespace Azos.Sky.Jobs
   /// Uniform abstraction of a job.
   /// All jobs inherit from this class
   /// </summary>
-  public abstract class Job
+  public abstract class Fiber
   {
 
-    public void ApplySignal(/*IJobRuntime,*/ Signal signal)
+    public void ApplySignal(/*IJobRuntime,*/ FiberSignal signal)
     {
 
     }
@@ -30,9 +30,9 @@ namespace Azos.Sky.Jobs
     public abstract Task<TimeSpan?> ExecuteSliceAsync(/*IJobRuntime*/);
   }
 
-  public abstract class Job<TParameters, TResult, TState> : Job where TParameters : JobParameters
-                                                                where TResult : JobResult
-                                                                where TState : State
+  public abstract class Fiber<TParameters, TResult, TState> : Fiber where TParameters : FiberParameters
+                                                                where TResult : FiberResult
+                                                                where TState : FiberState
   {
 
     /// <summary>
