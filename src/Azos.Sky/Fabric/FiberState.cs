@@ -72,9 +72,13 @@ namespace Azos.Sky.Fabric
 
     private readonly Dictionary<string, Slot> m_Data = new Dictionary<string, Slot>();
 
-    private Atom m_Step;
+    private Atom m_CurrentStep;
 
-    public Atom CurrentStep => m_Step;
+    /// <summary>
+    /// Current step of fiber execution state machine. Steps are needed for cooperative multitasking;
+    /// The states are returned from fiber execution timeline.
+    /// </summary>
+    public Atom CurrentStep => m_CurrentStep;
 
     /// <summary>
     /// Enumerates all of the named slots in this state bag
