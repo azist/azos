@@ -13,54 +13,7 @@ using Azos.Apps;
 namespace Azos.Sky.Fabric
 {
   /// <summary>
-  /// Fiber execution statuses
-  /// </summary>
-  public enum FiberStatus
-  {
-    /// <summary>
-    /// The fiber was created but ts status has not been determined yet
-    /// </summary>
-    Undefined = 0,
-
-    /// <summary>
-    /// The fiber has been created but has not started (yet)
-    /// </summary>
-    Created,
-
-    /// <summary>
-    /// The fiber is running
-    /// </summary>
-    Started,
-
-    /// <summary>
-    /// Paused fiber skip their time slices but still react to signals (e.g. termination), contrast with Suspended mode
-    /// </summary>
-    Paused,
-
-    /// <summary>
-    /// Suspended fiber do not react to signals and do not execute their time slices
-    /// </summary>
-    Suspended,
-
-    /// <summary>
-    /// The fiber has finished normally
-    /// </summary>
-    Finished = 0x1FFFF,
-
-    /// <summary>
-    /// The fiber has finished abnormally with unhandled exception
-    /// </summary>
-    Crashed = -1,
-
-    /// <summary>
-    /// The fiber has finished abnormally due to signal intervention, e.g. manual termination or call to Abort("reason");
-    /// </summary>
-    Aborted = -2
-  }
-
-
-  /// <summary>
-  /// Performs fiber management tasks such as starting and querying jobs, sending signals etc.
+  /// Performs fiber management tasks such as starting and querying fibers, sending signals etc.
   /// </summary>
   public interface IFiberManager
   {
@@ -71,9 +24,9 @@ namespace Azos.Sky.Fabric
     IEnumerable<Atom> GetRunspaces();
 
     /// <summary>
-    /// Reserves a fiber id by runspace.
+    /// Reserves a new <see cref="FiberId"/> in a runspace.
     /// You may need to know FiberIds before you start them, e.g. you may need
-    /// to pass future FiberId into another data structure, and if it fails, abort creating a fiber
+    /// to pass future fiber identified by `FiberId` into another data structure, and if it fails, abort creating that fiber
     /// </summary>
     FiberId AllocateFiberId(Atom runspace);//  sys-log:0:8:43647826346
 
@@ -88,7 +41,7 @@ namespace Azos.Sky.Fabric
     Task<IEnumerable<FiberInfo>> GetFiberListAsync(FiberFilter args);
 
     /// <summary>
-    /// Returns fiber by id or null
+    /// Returns fiber information by id or null if not found
     /// </summary>
     Task<FiberInfo>          GetFiberInfoAsync(FiberId idFiber);
 
@@ -98,12 +51,12 @@ namespace Azos.Sky.Fabric
     Task<FiberParameters>    GetFiberParametersAsync(FiberId idFiber);
 
     /// <summary>
-    /// Gets fiber result or null
+    /// Gets fiber result object or null if fiber was not found or has not completed yet
     /// </summary>
     Task<FiberResult>        GetFiberResultAsync(FiberId idFiber);
 
     /// <summary>
-    /// Returns most current fiber state
+    /// Returns most current fiber state as of the time of the call
     /// </summary>
     Task<FiberState>         GetFiberStateAsync(FiberId idFiber);
 
@@ -113,9 +66,9 @@ namespace Azos.Sky.Fabric
     Task<bool>               LoadFiberStateSlotAsync(FiberId idFiber, FiberState.Slot slot);
 
     /// <summary>
-    /// Sends fiber a signal
+    /// Sends fiber a signal returning the result or null if such fiber is not found
     /// </summary>
-    Task<FiberSignalResult>  SendSignalAsync(FiberSignal signal);
+    Task<FiberSignalResponse>  SendSignalAsync(FiberSignal signal);
   }
 
   public interface IFiberManagerLogic : IFiberManager, IModuleImplementation

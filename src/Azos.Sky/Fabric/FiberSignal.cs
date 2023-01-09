@@ -47,4 +47,5 @@ namespace Azos.Sky.Fabric
   public abstract class FiberSignalResult : FiberSignalBase
   {
   }
+
 }
