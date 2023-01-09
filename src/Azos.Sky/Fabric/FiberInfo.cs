@@ -17,30 +17,30 @@ using Azos.Serialization.JSON;
 
 namespace Azos.Sky.Fabric
 {
-  [Schema(Description = "Provides job header information")]
+  [Schema(Description = "Provides fiber information")]
   [Bix("aec8ff3e-d555-46e2-8eaa-ea7d8f7cceee")]
   public sealed class FiberInfo : TransientModel
   {
-    [Field(Required = true, Description = "Unique JobId initially obtained from a call to `AllocateJobId()`")]
+    [Field(Required = true, Description = "Unique FiberId initially obtained from a call to `AllocateFiberId()`")]
     public FiberId Id { get; set; }
 
-    [Field(Required = true, Description = "Job Guid used for log and other correlation token")]
+    [Field(Required = true, Description = "Fiber Guid used for log and other correlation token")]
     public Guid FiberGuid { get; set; }
 
     [Field(Required = true,
-          Description = "Defines what cloud origin (cluster partition) this job belongs to and runs")]
+          Description = "Defines what cloud origin (cluster partition) this fiber belongs to and runs")]
     public Atom Origin { get; set; }
 
-    [Field(Required = true, Description = "Current job status")]
+    [Field(Required = true, Description = "Current fiber status")]
     public FiberStatus JobStatus { get; set; }
 
     [Field(Required = false,
            MaxLength = Constraints.MAX_DESCRIPTION_LEN,
-           Description = "Optionally provides current job status description")]
+           Description = "Optionally provides current fiber status description")]
     public string StatusDescription { get; set; }
 
 
-    [Field(Required = true, Description = "Current job status")]
+    [Field(Required = true, Description = "Current fiber status")]
     public int ExitCode { get; set; }
 
 
@@ -49,24 +49,24 @@ namespace Azos.Sky.Fabric
 
 
     [Field(Required = true,
-           Description = "Uniquely identifies the type of process image which backs this job execution. " +
-                         "In CLR runtime, this maps to a descendant type of a `Job` class via BIX mapping")]
+           Description = "Uniquely identifies the type of process image which backs this fiber execution. " +
+                         "In CLR runtime, this maps to a descendant type of a `Fiber` class via BIX mapping")]
     public Guid ImageTypeId { get; set; }
 
 
     [Field(Required = false,
            MaxLength = Constraints.MAX_STRAND_LEN,
-           Description = "Optionally, ensures sequential processing of jobs within the same strand, that is:" +
-                         " no more than a single job instance of the same strand ever executes in the system origin (cloud partition) concurrently." +
-                         "Strands can only be defined at job start and are afterwards immutable")]
+           Description = "Optionally, ensures sequential processing of fibers within the same strand, that is:" +
+                         " no more than a single fiber instance of the same strand ever executes in the system origin (cloud partition) concurrently." +
+                         "Strands can only be defined at fiber start and are afterwards immutable")]
     public string Strand { get; set; }
 
 
     [Field(Required = false,
            MaxLength = Constraints.MAX_GROUP_LEN,
-           Description = "Optionally, groups jobs by some correlation value. For example this can be used to group multiple jobs" +
-                         " executing on behalf of master job. Unlike Strands, Groups do not affect Job execution order/concurrency. " +
-                         "Group can only be defined at job start and is afterwards immutable")]
+           Description = "Optionally, groups fibers by some correlation value. For example this can be used to group multiple fibers" +
+                         " executing on behalf of master job fiber. Unlike Strands, Groups do not affect Fiber execution order/concurrency. " +
+                         "Group can only be defined at fiber start and is afterwards immutable")]
     public string Group { get; set; }
 
     [Field(Required = false,
@@ -84,21 +84,21 @@ namespace Azos.Sky.Fabric
 
     [Field(Required = true,
            MaxLength = Constraints.MAX_DESCRIPTION_LEN,
-           Description = "Optionally provides a short job description")]
+           Description = "Optionally provides a short fiber description")]
     public string Description { get; set; }
 
     [Field(Required = false,
-           Description = "What/who has caused this job to be created")]
+           Description = "What/who has caused this fiber to be created")]
     public EntityId? Initiator { get; set; }
 
     [Field(Required = false,
-           Description = "Optionally establishes an ownership of this job")]
+           Description = "Optionally establishes an ownership of this fiber")]
     public EntityId? Owner { get; set; }
 
-    [Field(Required = true, Description = "When job was created")]
+    [Field(Required = true, Description = "When fiber was created")]
     public DateTime CreateUtc { get; set; }
 
-    [Field(Required = true, Description = "When is the job scheduled to run its next time slice")]
+    [Field(Required = true, Description = "When is the fiber scheduled to run its next time slice")]
     public DateTime NextSliceUtc { get; set; }
 
     [Field(Required = true,
@@ -122,7 +122,7 @@ namespace Azos.Sky.Fabric
     /// </summary>
     [Field(required: true,
            maxLength: Constraints.MAX_TAG_COUNT,
-           Description = "Indexable tags used for future flow job searches. Tags are immutable beyond job start")]
+           Description = "Indexable tags used for future flow fiber searches. Tags are immutable beyond fiber start")]
     public List<Data.Adlib.Tag> Tags { get; set; }
 
   }

@@ -49,7 +49,7 @@ namespace Azos.Sky.Fabric
     Crashed = -1,
 
     /// <summary>
-    /// The fiber has finished abnormally due to signal intervention, e.g. manual termination or call to Abort("reason");
+    /// The fiber has finished abnormally due to signal intervention, e.g. manual termination via Kill or call to Abort("reason");
     /// </summary>
     Aborted = -2
   }

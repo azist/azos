@@ -74,6 +74,21 @@ namespace Azos.Sky.Fabric
     /// Sets a new priority 0.01 .. 100.00
     /// </summary>
     Task SetPriorityAsync(FiberId idFiber, float priority);
+
+    /// <summary>
+    /// Pauses/resumes fibers
+    /// </summary>
+    Task<FiberInfo> PauseAsync(FiberId idFiber, bool pause, string statusDescription);
+
+    /// <summary>
+    /// Suspends/resumes fibers
+    /// </summary>
+    Task<FiberInfo> SuspendAsync(FiberId idFiber, bool suspend, string statusDescription);
+
+    /// <summary>
+    /// Aborts fiber
+    /// </summary>
+    Task<FiberInfo> AbortAsync(FiberId idFiber, string statusDescription);
   }
 
   public interface IFiberManagerLogic : IFiberManager, IModuleImplementation
