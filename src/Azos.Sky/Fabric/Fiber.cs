@@ -36,30 +36,37 @@ namespace Azos.Sky.Fabric
     public FiberState      State => m_State;
 
 
-
-    public void ApplySignal(/*IJobRuntime,*/ FiberSignal signal)
+    /// <summary>
+    /// Interprets the incoming signal by performing some work and generates <see cref="FiberSignalResult"/>.
+    /// Returns null if the signal is unhandled.
+    /// The supplied <see cref="FiberSignal"/> instance is already validated by the runtime at this point
+    /// </summary>
+    public virtual Task<FiberSignalResult> ApplySignalAsync(FiberSignal signal)
     {
-
+      return Task.FromResult<FiberSignalResult>(null);
     }
-
 
     /// <summary>
     /// Executes the most due slice, return the next time the fiber should run.
     /// The default implementation delegates to <see cref="DefaultExecuteSliceByConventionAsync"/>
     /// </summary>
-    public virtual Task<FiberStep> ExecuteSliceAsync() => DefaultExecuteSliceByConventionAsync();
+    public virtual Task<FiberStep> ExecuteSliceAsync() => DefaultExecuteSliceByConventionAsync(this, State.CurrentStep);
 
-    public Task<FiberStep> DefaultExecuteSliceByConventionAsync()
+    /// <summary>
+    /// Performs by-convention invocation of a fiber "step" method for the specified instance,
+    /// defaulting the name of the method by convention to "Step_{step: atom}"
+    /// </summary>
+    protected static Task<FiberStep> DefaultExecuteSliceByConventionAsync(Fiber self, Atom step)
     {
-      var mn = FiberStep.CONVENTION_STEP_METHOD_NAME_PREFIX + State.CurrentStep.Value;
+      var mn = FiberStep.CONVENTION_STEP_METHOD_NAME_PREFIX + step.Value;
 
-      var mi = this.GetType().GetMethod(mn);
+      var mi = self.GetType().GetMethod(mn);
       mi.NonNull("Existing method: " + mn);
 
       Task<FiberStep> resultTask;
       try
       {
-        resultTask = mi.Invoke(this, null) as Task<FiberStep>;
+        resultTask = mi.Invoke(self, null) as Task<FiberStep>;
       }
       catch(TargetInvocationException tie)
       {
@@ -81,7 +88,7 @@ namespace Azos.Sky.Fabric
     public new TState        State =>      (TState)base.State;
 
 
-    //EXAMPLE ONLY!!!!!!!!!!!!!
+# region EXAMPLE ONLY!!!!!!!!!!!!!
     public async Task<FiberStep> Step_Start()
     {
       return FiberStep.Continue(Step_Email, TimeSpan.FromHours(0.2));
@@ -94,8 +101,9 @@ namespace Azos.Sky.Fabric
 
     public async Task<FiberStep> Step_Notify()
     {
-      return FiberStep.Finish();
+      return FiberStep.Finish(0);
     }
+#endregion
 
   }
 }

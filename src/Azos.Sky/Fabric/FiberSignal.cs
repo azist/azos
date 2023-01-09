@@ -47,6 +47,11 @@ namespace Azos.Sky.Fabric
   {
   }
 
+  /// <summary>
+  /// A result of <see cref="FiberSignal"/> interpretation by a fiber instance.
+  /// The instance returned in wrapped in a <see cref="FiberSignalResponse"/> tuple
+  /// along with the operation outcome specifier
+  /// </summary>
   public abstract class FiberSignalResult : FiberSignalBase
   {
   }

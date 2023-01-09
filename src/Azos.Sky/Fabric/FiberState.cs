@@ -75,8 +75,9 @@ namespace Azos.Sky.Fabric
     private Atom m_CurrentStep;
 
     /// <summary>
-    /// Current step of fiber execution state machine. Steps are needed for cooperative multitasking;
-    /// The states are returned from fiber execution timeline.
+    /// Current step of fiber execution finite state machine. Steps are needed for cooperative multitasking;
+    /// The states are returned from fiber execution slices and transition the status until the finite finished
+    /// terminal state is reached.
     /// </summary>
     public Atom CurrentStep => m_CurrentStep;
 

@@ -12,7 +12,8 @@ using System.Threading.Tasks;
 namespace Azos.Sky.Fabric
 {
   /// <summary>
-  /// Describes the execution step of the Fiber, such is the next step
+  /// Describes the execution step of the Fiber, such is the next step or that the current step was the final one.
+  /// Steps drive the fiber's finite state machine
   /// </summary>
   public struct FiberStep
   {
@@ -20,7 +21,7 @@ namespace Azos.Sky.Fabric
 
     public static FiberStep ContinueImmediately(Atom step) => Continue(step, TimeSpan.Zero);
     public static FiberStep Continue(Atom step, TimeSpan interval)
-     => new FiberStep(step.HasRequiredValue(nameof(step)).AsValid(nameof(step)), interval, null);
+     => new FiberStep(step.HasRequiredValue(nameof(step)).AsValid(nameof(step)), interval, 0, null);
 
     public static FiberStep ContinueImmediately(Func<Task<FiberStep>> stepBody) => Continue(stepBody, TimeSpan.Zero);
     public static FiberStep Continue(Func<Task<FiberStep>> stepBody, TimeSpan interval)
@@ -43,20 +44,21 @@ namespace Azos.Sky.Fabric
     /// <summary>
     /// Indicates successful execution completion without any <see cref="FiberResult"/>
     /// </summary>
-    public static FiberStep Finish() => new FiberStep(Atom.ZERO, TimeSpan.Zero, null);
+    public static FiberStep Finish(int exitCode) => new FiberStep(Atom.ZERO, TimeSpan.Zero, exitCode, null);
 
     /// <summary>
     /// Indicates successful execution completion with the specified <see cref="FiberResult"/>
     /// </summary>
-    public static FiberStep FinishWithResult(FiberResult result)
-     => new FiberStep(Atom.ZERO, TimeSpan.Zero, result.NonNull(nameof(result)));
+    public static FiberStep FinishWithResult(int exitCode, FiberResult result)
+     => new FiberStep(Atom.ZERO, TimeSpan.Zero, exitCode, result.NonNull(nameof(result)));
 
 
 
-    private FiberStep(Atom step, TimeSpan span, FiberResult result)
+    private FiberStep(Atom step, TimeSpan span, int exitCode, FiberResult result)
     {
       NextStep = step;
       NextSliceInterval = span;
+      ExitCode = exitCode;
       Result = result;
     }
 
@@ -71,7 +73,13 @@ namespace Azos.Sky.Fabric
     public readonly TimeSpan NextSliceInterval;
 
     /// <summary>
-    /// For final steps NextStep is Zero and this set to represent final step result
+    /// For final steps NextStep is Zero and this is set to represent a final step fiber exit code.
+    /// Zero for non-final (non-terminal) steps
+    /// </summary>
+    public readonly int ExitCode;
+
+    /// <summary>
+    /// For final steps NextStep is Zero and this set to represent a final step result
     /// or null for interim (non-final) steps
     /// </summary>
     public readonly FiberResult Result;
