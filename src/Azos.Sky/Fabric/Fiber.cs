@@ -24,15 +24,33 @@ namespace Azos.Sky.Fabric
   {
     protected Fiber(IFiberRuntime runtime, FiberParameters pars, FiberState state)
     {
-
+      m_Runtime    = runtime.NonNull(nameof(runtime));
+      m_Parameters = pars.NonNull(nameof(pars));
+      m_State      = state.NonNull(nameof(state));
     }
 
     private readonly IFiberRuntime m_Runtime;
     private readonly FiberParameters m_Parameters;
     private readonly FiberState m_State;
 
+    /// <summary>
+    /// References the runtime system such as the hosting process and other services which
+    /// make this fiber execute its code
+    /// </summary>
     public IFiberRuntime   Runtime =>  m_Runtime;
+
+    /// <summary>
+    /// An immutable document of parameters supplied at the fiber start.
+    /// This data may not be changed during Fiber lifespan
+    /// </summary>
     public FiberParameters Parameters => m_Parameters;
+
+    /// <summary>
+    /// A mutable state bag which gets persisted by the runtime.
+    /// This is where fiber instances keep their transitive state such as "field values", their collections etc.
+    /// The state is persisted after EVERY fiber timeslice execution.
+    /// The state object is logically divided into named areas called "slots", each keeping track of what has been changed
+    /// </summary>
     public FiberState      State => m_State;
 
 
@@ -84,26 +102,45 @@ namespace Azos.Sky.Fabric
     {
     }
 
+    /// <summary>
+    /// An immutable document of parameters supplied at the fiber start.
+    /// This data may not be changed during Fiber lifespan
+    /// </summary>
     public new TParameters   Parameters => (TParameters)base.Parameters;
+
+    /// <summary>
+    /// A mutable state bag which gets persisted by the runtime.
+    /// This is where fiber instances keep their transitive state such as "field values", their collections etc.
+    /// The state is persisted after EVERY fiber timeslice execution.
+    /// The state object is logically divided into named areas called "slots", each keeping track of what has been changed
+    /// </summary>
     public new TState        State =>      (TState)base.State;
+  }
+
+  #region EXAMPLE ONLY!!!!!!!!!!!!!
+  public class BakerFiber : Fiber<FiberParameters, BakerState>
+  {
+    public BakerFiber(IFiberRuntime runtime, FiberParameters pars, BakerState state) : base(runtime, pars, state)
+    {
+    }
 
 
-# region EXAMPLE ONLY!!!!!!!!!!!!!
     public async Task<FiberStep> Step_Start()
     {
+      State.CakeCount++;
       return FiberStep.Continue(Step_Email, TimeSpan.FromHours(0.2));
     }
 
     public async Task<FiberStep> Step_Email()
     {
-      return FiberStep.Continue(Step_Notify, TimeSpan.FromHours(0.2));
+      return FiberStep.ContinueImmediately(Step_Notify);
     }
 
     public async Task<FiberStep> Step_Notify()
     {
       return FiberStep.Finish(0);
     }
-#endregion
-
   }
+  #endregion
+
 }

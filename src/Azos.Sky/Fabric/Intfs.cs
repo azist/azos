@@ -109,9 +109,12 @@ namespace Azos.Sky.Fabric
   {
   }
 
-  public interface IFiberRuntime
+  public interface IFiberRuntime : IApplicationComponent
   {
-
+    /// <summary>
+    /// True when the runtime is launched for debugging, such as mock host
+    /// </summary>
+    bool IsDebugging { get;}
   }
 
 

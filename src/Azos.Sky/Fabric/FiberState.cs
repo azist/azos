@@ -15,19 +15,20 @@ using Azos.Serialization.JSON;
 namespace Azos.Sky.Fabric
 {
   /// <summary>
-  /// Represents an abstraction of job state which is segmented by named slots.
+  /// Represents an abstraction of fiber state which is segmented into named slots.
   /// Each slot represents a structured serializable piece of data which can be fetched/changed separately;
-  /// this is needed for efficiency for jobs which require large states.
-  /// Upon job execution, the runtime fetches pending jobs from the store along with their current state from
-  /// persisted storage, then the `ExecSlice` method is called which possibly mutates the state of a job represented by this instance.
+  /// this is needed for efficiency for fibers which require large states.
+  /// Upon fiber execution, the runtime fetches pending fiber records from the store along with their current state from
+  /// persisted storage, then the `ExecSlice` method is called which possibly mutates the state of a fiber represented by this instance.
   /// Upon return from `ExecSlice()`, the runtime inspects the state slots for mutations, saving changes (if any) into persisted storage.
   /// The system does this slot-by-slot significantly improving overall performance.
-  /// Particular job state implementations derive their own classes which reflect the required business logic
+  /// Particular fiber state implementations derive their own classes which reflect the required business logic
   /// </summary>
   public class FiberState
   {
     /// <summary>
-    /// Describes how slot data has changed
+    /// Describes how slot data has changed - this is needed for change tracking
+    /// when system saves state changes into persisted storage.
     /// </summary>
     public enum SlotMutationType
     {
@@ -37,8 +38,12 @@ namespace Azos.Sky.Fabric
     }
 
     /// <summary>
-    /// Represents an abstraction of a unit of change in job's state.
-    /// Particular job implementations derive their own classes which reflect the necessary business logic
+    /// Represents an abstraction of a unit of change in fiber's state.
+    /// Particular fiber implementations derive their own PRIVATE classes which reflect the necessary business logic.
+    /// Warning: declare slot-derived classes as private within your particular state facade.
+    /// Do not expose those classes directly to users as this may lead to inadvertent mutation of inner state
+    /// which is not tracked, instead use functional-styled data accessors which mark the whole containing slot as changed
+    /// so the system can save the changes in state into persisted storage
     /// </summary>
     public abstract class Slot : AmorphousTypedDoc
     {
@@ -82,7 +87,10 @@ namespace Azos.Sky.Fabric
     public Atom CurrentStep => m_CurrentStep;
 
     /// <summary>
-    /// Enumerates all of the named slots in this state bag
+    /// Enumerates all of the named slots in this state bag.
+    /// You should NOT use this to directly mutate the data on the slots
+    /// as this does not mark slots as modified and the changes will be lost.
+    /// Use the specific field accessors provided by your derived class instead
     /// </summary>
     public virtual IEnumerable<KeyValuePair<string, Slot>> Data => m_Data;
 
@@ -106,16 +114,6 @@ namespace Azos.Sky.Fabric
       return this;
     }
 
-    protected bool Delete(string name)
-    {
-      var slot = Get(name);
-      if (slot != null)
-      {
-        slot.MarkSlotAsDeleted();
-        return true;
-      }
-      return false;
-    }
 
     /// <summary> Sets slot data </summary>
     protected FiberState Set<T>(string name, Action<T> fset) where T : Slot, new()
@@ -126,6 +124,17 @@ namespace Azos.Sky.Fabric
       Set(name, seg);
       return this;
     }
+
+    protected bool Delete(string name)
+    {
+      var slot = Get(name);
+      if (slot != null)
+      {
+        slot.MarkSlotAsDeleted();
+        return true;
+      }
+      return false;
+    }
   }
 
 
@@ -134,14 +143,14 @@ namespace Azos.Sky.Fabric
   /// </summary>
   public sealed class BakerState : FiberState
   {
-    internal sealed class counts : Slot
+    private sealed class counts : Slot
     {
       [Field] public int DonutCount { get; set; }
 
       [Field] public int CakeCount { get; set; }
     }
 
-    internal sealed class cakeimg : Slot
+    private sealed class cakeimg : Slot
     {
       [Field] public byte[] Image { get; set; }
 
