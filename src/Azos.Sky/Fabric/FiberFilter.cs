@@ -19,43 +19,56 @@ using Azos.Time;
 
 namespace Azos.Sky.Fabric
 {
-  [Schema(Description = "Job filter")]
+  [Schema(Description = "Fiber filter")]
   [Bix("5c24bf15-a4e0-4394-b9e5-a77af7d311a1")]
   public sealed class FiberFilter : FilterModel<IEnumerable<FiberInfo>>
   {
-    [Field(Required = false, Description = "Job id: runspace and Gdid")]
+    [Field(description: "Fiber id: runspace and Gdid")]
     public FiberId? Id { get; set; }
 
-    [Field(description: "Job Guid used for log and other correlation token")]
+    [Field(description: "Fiber Guid used for log and other correlation token")]
     public Guid? FiberGuid { get; set; }
 
-    [Field(description: "Defines what cloud origin (cluster partition) this job belongs to and runs")]
+    [Field(description: "Defines what cloud origin (cluster partition) this fiber belongs to and runs")]
     public Atom? Origin { get; set; }
 
-    [Field(description: "Job strand")]
+    [Field(maxLength: Constraints.MAX_STRAND_LEN,
+           description: "Fiber strand")]
     public string Strand { get; set; }
 
-    [Field(description: "Job status")]
+    [Field(maxLength: Constraints.MAX_GROUP_LEN,
+           description: "Fiber group")]
+    public string Group { get; set; }
+
+    [Field(description: "Fiber execution status")]
     public FiberStatus? Status { get; set; }
 
-    [Field(description: "Uniquely identifies the type of process image which backs this job execution. " +
-                        "In CLR runtime, this maps to a descendant type of a `Job` class via BIX mapping")]
+    [Field(description: "Uniquely identifies the type of process image which backs this fiber execution. " +
+                        "In CLR runtime, this maps to a descendant type of a `Fiber` class via BIX mapping")]
     public Guid? ImageTypeId { get; set; }
 
-    [Field(description: "When job was created")]
+    [Field(description: "When fiber was created")]
     public DateRange? CreateUtc { get; set; }
 
-    [Field(description: "What/who has caused this job to be created")]
+    [Field(maxLength: Constraints.MAX_INITIATOR_LEN,
+           description: "What has caused this fiber to be created")]
     public EntityId? Initiator { get; set; }
 
-    [Field(description: "Optionally establishes an ownership of this job")]
+    [Field(maxLength: Constraints.MAX_OWNER_LEN,
+           description: "Optionally establishes an ownership of this fiber")]
     public EntityId? Owner { get; set; }
 
-    [Field(description: "Minimum duration of last slice exec")]
-    public int? MinLastSliceDurationMs { get; set; }
+    [Field(description: "Average execution latency minimum")]
+    public int? MinAvgLatencySec { get; set; }
 
-    [Field(description: "Maximum duration of last slice exec")]
-    public int? MaxLastSliceDurationMs { get; set; }
+    [Field(description: "Average execution latency maximum")]
+    public int? MaxAvgLatencySec { get; set; }
+
+    [Field(description: "Minimum duration of average slice exec")]
+    public int? MinAvgSliceDurationMs { get; set; }
+
+    [Field(description: "Maximum duration of average slice exec")]
+    public int? MaxAvgSliceDurationMs { get; set; }
 
     [Field(description: "Time range of next exec slice")]
     public DateRange? NextSliceUtc { get; set; }

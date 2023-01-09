@@ -5,17 +5,19 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Azos.Sky.Fabric
 {
   public static class Constraints
   {
     public const int MAX_TAG_COUNT = 32;
-    public const int MAX_STRAND_LEN = 250;
-    public const int MAX_GROUP_LEN = 250;
+    public const int MAX_STRAND_LEN = 255;
+    public const int MAX_IMPERSONATE_LEN = 255;
+
+    public const int MAX_GROUP_LEN = 127;
+    public const int MAX_INITIATOR_LEN = 127;
+    public const int MAX_OWNER_LEN = 127;
+
     public const int MAX_DESCRIPTION_LEN = 100;
-    public const int MAX_IMPERSONATE_LEN = 250;
   }
 }

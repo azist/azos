@@ -21,69 +21,68 @@ namespace Azos.Sky.Fabric
   public sealed class FiberStartArgs : TransientModel
   {
     [Field(Required = true,
-           Description = "Unique JobId obtained from a call to `AllocateJobId()`. This job must not have started yet")]
+           Description = "Unique `FiberId` obtained from a call to `AllocateFiberId()`. This fiber must NOT have started yet")]
     public FiberId Id { get; set; }
 
     [Field(Required = true,
-          Description = "Defines what cloud origin (cluster partition) this job belongs to and runs")]
+          Description = "Defines what cloud origin (cluster partition) this fiber belongs to and runs")]
     public Atom Origin { get; set; }
 
     [Field(Required = true,
-           Description = "Uniquely identifies the type of process image which backs this job execution. " +
-                         "In CLR runtime, this maps to a descendant type of a `Job` class via BIX mapping")]
+           Description = "Uniquely identifies the type of process image which backs this fiber execution. " +
+                         "In CLR runtime, this maps to a descendant type of a `Fiber` class via BIX mapping")]
     public Guid ImageTypeId { get; set; }
-
 
     [Field(Required = false,
            MaxLength = Constraints.MAX_STRAND_LEN,
-           Description = "Optionally, ensures sequential processing of jobs within the same strand, that is:" +
-                         " no more than a single job instance of the same strand ever executes in the system origin (cloud partition) concurrently." +
-                         "Strands can only be defined at job start and are afterwards immutable")]
+           Description = "Optionally, ensures sequential processing of fibers within the same strand, that is:" +
+                         " no more than a single fiber instance of the same strand ever executes in the system origin (cloud partition) concurrently." +
+                         "Strands can only be defined at fiber start and are afterwards immutable")]
     public string Strand { get; set; }
-
 
     [Field(Required = false,
            MaxLength = Constraints.MAX_GROUP_LEN,
-           Description = "Optionally, groups jobs by some correlation value. For example this can be used to group multiple jobs" +
-                         " executing on behalf of master job. Unlike Strands, Groups do not affect Job execution order/concurrency. " +
-                         "Group can only be defined at job start and is afterwards immutable")]
+           Description = "Optionally, groups fibers by some correlation value. For example this can be used to group multiple fibers" +
+                         " executing on behalf of master job fiber. Unlike Strands, Groups do not affect fiber execution order/concurrency. " +
+                         "Group can only be defined at fiber start and is afterwards immutable")]
     public string Group { get; set; }
-
 
     [Field(Required = false,
            MaxLength = Constraints.MAX_IMPERSONATE_LEN,
-           Description = "Optionally, include principal references, such as URI credentials which impersonate the job execution context. " +
-                         "Do not include `IdPasswordCredentials`, as only password-less credentials are supported")]
+           Description = "Optionally, includes principal references, such as URI credentials which impersonate the fiber execution context. " +
+                         "Do not include plain `IdPasswordCredentials`, as only password-less credentials are supported")]
     public EntityId? ImpersonateAs { get; set; }
 
-
-    [Field(Required = false, Description = "When is the job scheduled to start execution, if null then job runs asap")]
+    [Field(Required = false, Description = "When is the fiber scheduled to start execution, if null then fiber starts running ASAP")]
     public DateTime? ScheduledStartUtc { get; set; }
 
-
     [Field(Required = false,
-           Description = "What has caused this job to be created")]
+           MaxLength = Constraints.MAX_INITIATOR_LEN,
+           Description = "What has caused this fiber to be created")]
     public EntityId? Initiator { get; set; }
 
     [Field(Required = false,
-           Description = "Optionally establishes an ownership of this job")]
+           MaxLength = Constraints.MAX_OWNER_LEN,
+           Description = "Optionally establishes an ownership of this fiber")]
     public EntityId? Owner { get; set; }
 
     [Field(Required = false,
            MaxLength = Constraints.MAX_DESCRIPTION_LEN,
-           Description = "Optionally provides a short job description")]
+           Description = "Optionally provides a short fiber description")]
     public string Description { get; set; }
 
 
     [Field(Required = true,
-           Description = "Job start parameters. These values are immutable for the lifetime of a job instance " +
-           "(not to be confused with Job STATE which IS mutable)")]
+           Description = "Fiber start parameters. These values are immutable for the lifetime of a fiber instance " +
+           "(not to be confused with Fiber STATE which IS mutable)")]
     public FiberParameters Parameters{ get; set; }
 
     /// <summary>
-    /// Indexable tags used for future flow job searches. Tags are immutable beyond job start
+    /// Indexable tags used for future fiber searches. Tags are immutable beyond fiber start
     /// </summary>
-    [Field(required: true, maxLength: Constraints.MAX_TAG_COUNT, Description = "Indexable tags used for future flow job searches. Tags are immutable beyond job start")]
+    [Field(Required = true,
+           MaxLength = Constraints.MAX_TAG_COUNT,
+           Description = "Indexable tags used for future fiber searches. Tags are immutable beyond fiber start")]
     public List<Data.Adlib.Tag> Tags { get; set; }
   }
 }

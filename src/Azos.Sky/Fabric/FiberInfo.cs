@@ -94,11 +94,24 @@ namespace Azos.Sky.Fabric
     [Field(Required = true, Description = "When is the job scheduled to run its next time slice")]
     public DateTime NextSliceUtc { get; set; }
 
-    [Field(Required = true, Description = "How long the last execution slice took")]
+    [Field(Required = true,
+           Description = "Last execution latency - a difference before scheduled and actual slice start")]
+    public int LastLatencySec { get; set; }
+
+    [Field(Required = true,
+           Description = "How long the last execution slice took")]
     public int LastSliceDurationMs { get; set; }
 
+    [Field(Required = true,
+           Description = "Average execution latency - a difference before scheduled and actual slice start")]
+    public int AvgLatencySec { get; set; }
+
+    [Field(Required = true,
+           Description = "How long the average execution slice takes")]
+    public int AvgSliceDurationMs { get; set; }
+
     /// <summary>
-    /// Indexable tags used for future flow job searches. Tags are immutable beyond job start
+    /// Indexable tags used for future fiber searches. Tags are immutable beyond fiber start
     /// </summary>
     [Field(required: true,
            maxLength: Constraints.MAX_TAG_COUNT,
