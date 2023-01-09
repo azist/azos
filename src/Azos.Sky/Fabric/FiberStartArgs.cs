@@ -48,6 +48,12 @@ namespace Azos.Sky.Fabric
     public string Group { get; set; }
 
     [Field(Required = false,
+           Min = Constraints.PRIORITY_MIN,
+           Max = Constraints.PRIORITY_MAX,
+           Description = "Optionally, sets a relative priority 0.001..100.0, default is 1.0f")]
+    public float? Priority { get; set; }
+
+    [Field(Required = false,
            MaxLength = Constraints.MAX_IMPERSONATE_LEN,
            Description = "Optionally, includes principal references, such as URI credentials which impersonate the fiber execution context. " +
                          "Do not include plain `IdPasswordCredentials`, as only password-less credentials are supported")]

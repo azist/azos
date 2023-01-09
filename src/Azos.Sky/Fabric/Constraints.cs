@@ -19,5 +19,8 @@ namespace Azos.Sky.Fabric
     public const int MAX_OWNER_LEN = 127;
 
     public const int MAX_DESCRIPTION_LEN = 100;
+
+    public const float PRIORITY_MIN =   0.01f;
+    public const float PRIORITY_MAX = 100.00f;
   }
 }

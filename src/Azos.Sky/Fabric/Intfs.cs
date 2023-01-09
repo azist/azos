@@ -69,6 +69,11 @@ namespace Azos.Sky.Fabric
     /// Sends fiber a signal returning the result or null if such fiber is not found
     /// </summary>
     Task<FiberSignalResponse>  SendSignalAsync(FiberSignal signal);
+
+    /// <summary>
+    /// Sets a new priority 0.01 .. 100.00
+    /// </summary>
+    Task SetPriorityAsync(FiberId idFiber, float priority);
   }
 
   public interface IFiberManagerLogic : IFiberManager, IModuleImplementation
