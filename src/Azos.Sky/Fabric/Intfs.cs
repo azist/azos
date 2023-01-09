@@ -71,22 +71,27 @@ namespace Azos.Sky.Fabric
     Task<FiberSignalResponse>  SendSignalAsync(FiberSignal signal);
 
     /// <summary>
-    /// Sets a new priority 0.01 .. 100.00
+    /// Sets a new priority 0.01 .. 100.00. Null returned if fiber is not found
     /// </summary>
-    Task SetPriorityAsync(FiberId idFiber, float priority);
+    Task<FiberInfo> SetPriorityAsync(FiberId idFiber, float priority, string statusDescription);
 
     /// <summary>
-    /// Pauses/resumes fibers
+    /// Pauses/resumes fibers. Null returned if fiber is not found
     /// </summary>
-    Task<FiberInfo> PauseAsync(FiberId idFiber, bool pause, string statusDescription);
+    Task<FiberInfo> PauseAsync(FiberId idFiber, string statusDescription);
 
     /// <summary>
-    /// Suspends/resumes fibers
+    /// Pauses/resumes fibers. Null returned if fiber is not found
     /// </summary>
-    Task<FiberInfo> SuspendAsync(FiberId idFiber, bool suspend, string statusDescription);
+    Task<FiberInfo> SuspendAsync(FiberId idFiber, string statusDescription);
 
     /// <summary>
-    /// Aborts fiber
+    /// Suspends/resumes fibers. Null returned if fiber is not found
+    /// </summary>
+    Task<FiberInfo> ResumeAsync(FiberId idFiber, string statusDescription);
+
+    /// <summary>
+    /// Aborts fiber. Null returned if fiber is not found
     /// </summary>
     Task<FiberInfo> AbortAsync(FiberId idFiber, string statusDescription);
   }
