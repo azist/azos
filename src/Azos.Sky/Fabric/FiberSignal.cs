@@ -15,7 +15,6 @@ using Azos.Serialization.JSON;
 
 namespace Azos.Sky.Fabric
 {
-
   [BixJsonHandler(ThrowOnUnresolvedType = true)]
   public abstract class FiberSignalBase : TransientModel
   {
@@ -39,7 +38,11 @@ namespace Azos.Sky.Fabric
     }
   }
 
-
+  /// <summary>
+  /// A command object sent to fibers to perform some action immediately.
+  /// Depending on a fiber state, it can process the signal and generate <see cref="FiberSignalResult"/>
+  /// or not process it if the fiber is not found, in suspended state or does not process this type of signal
+  /// </summary>
   public abstract class FiberSignal : FiberSignalBase
   {
   }

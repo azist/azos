@@ -51,7 +51,6 @@ namespace Azos.Sky.Fabric
   }
 
 
-
   /// <summary>
   /// A tuple of (Kind[NotFound|Suspended|Responded], FiberSignalResult)
   /// </summary>
@@ -63,19 +62,32 @@ namespace Azos.Sky.Fabric
     public enum Kind
     {
       /// <summary>
+      /// The response outcome kind was not set
+      /// </summary>
+      Undefined = 0,
+
+      /// <summary>
       /// Fiber was not found and could not process signal
       /// </summary>
-      NotFound,
+      NotFound = -1,
 
       /// <summary>
       /// Fiber is suspended and not able to process signals
       /// </summary>
-      Suspended,
+      Suspended = -2,
+
+      /// <summary>
+      /// The fiber did not process the signal, e.g. wrong signal type
+      /// which fiber does not know how to handle.
+      /// Note: if the signal is malformed (e.g. missing required data)
+      /// then fiber throws a 400-based exception instead
+      /// </summary>
+      NotProcessed = -3,
 
       /// <summary>
       /// Fiber responded with <see cref="FiberSignalResult"/> object
       /// </summary>
-      Responded
+      Responded = +1
     }
 
     public FiberSignalResponse(Kind outcome, FiberSignalResult result)
@@ -90,7 +102,7 @@ namespace Azos.Sky.Fabric
     public readonly Kind Outcome;
 
     /// <summary>
-    /// The resulting object of fiber signal processing
+    /// The resulting object of fiber signal processing, null if the signal was not processed see <see cref="Outcome"/>
     /// </summary>
     public readonly FiberSignalResult Result;
   }
