@@ -61,7 +61,14 @@ namespace Azos.Sky.Fabric
     /// </summary>
     public virtual Task<FiberSignalResult> ApplySignalAsync(FiberSignal signal)
     {
-      return Task.FromResult<FiberSignalResult>(null);
+      if (signal is PingSignal ping)
+      {
+        return Task.FromResult<FiberSignalResult>(new PingSignalResult{ Echoed = ping.Echo });
+      }
+      else
+      {
+        return Task.FromResult<FiberSignalResult>(null);
+      }
     }
 
     /// <summary>
