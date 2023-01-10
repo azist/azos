@@ -4,43 +4,95 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using Azos.Apps;
+using System.Linq;
+
 namespace Azos.Security.Fabric
 {
   /// <summary>
   /// Controls the access level to chronicle service
   /// </summary>
-  public enum ChronicleAccessLevel
+  public enum FabricAccessLevel
   {
     Denied  = AccessLevel.DENIED,
 
-    /// <summary>
-    /// Can emit (write) messages, basically using the service as a client.
-    /// Most clients never go above this level as they should not be allowed to browse chronicles emitted
-    /// by other applications in the enterprise
-    /// </summary>
-    Emit    = AccessLevel.VIEW,
+    //VIEW does not apply
+    //AccessLevel.VIEW,
 
     /// <summary>
-    /// Can browse the written chronicles, this is HIGHER access level than Emit as it allows the bearer to browse
-    /// what has been written by many different applications. Use Caution granting this level
+    /// Can start, run, set result, send signals. Can not Pause/Suspend/Abort
     /// </summary>
-    Browse  = AccessLevel.VIEW_CHANGE,
+    Operate  = AccessLevel.VIEW_CHANGE,
 
     /// <summary>
-    /// Can also archive (initiate possible deletion) of old data, this is the highest level
+    /// Everything above <see cref="Operate"/>  plus: List, Pause/Suspend/Abort
     /// </summary>
-    Archive = AccessLevel.VIEW_CHANGE_DELETE
+    Manage = AccessLevel.VIEW_CHANGE_DELETE
   }
 
   /// <summary>
   /// Controls whether users can access chronicle functionality
   /// </summary>
+  /// <example>
+  /// Sample ACL:
+  /// <code>
+  /// fabric
+  /// {
+  ///   level=0
+  ///
+  ///   case
+  ///   {
+  ///     of="play,db,biz"
+  ///     level=2
+  ///   }
+  ///
+  ///   case
+  ///   {
+  ///     of= "sys"
+  ///     level = 3
+  ///   }
+  /// }
+  /// </code>
+  /// </example>
   public sealed class FabricPermission : TypedPermission
   {
-    public FabricPermission() : this(ChronicleAccessLevel.Emit) { }
+    public const string CASE_SECT = "case";
+    public const string OF_ATTR = "of";
 
-    public FabricPermission(ChronicleAccessLevel level) : base((int)level) { }
+
+    public FabricPermission() : this(FabricAccessLevel.Operate) { }
+    public FabricPermission(FabricAccessLevel level) : base((int)level) { }
+    public FabricPermission(FabricAccessLevel level, Atom runspace) : base((int)level)
+    {
+      Runspace = runspace.HasRequiredValue(nameof(runspace));
+    }
+
+    /// <summary>
+    /// Optional runspace subject protected by permission
+    /// </summary>
+    public readonly Atom Runspace;
 
     public override string Description => Azos.Sky.StringConsts.PERMISSION_DESCRIPTION_FabricPermission;
+
+    protected sealed override bool DoCheckAccessLevel(ISecurityManager secman, ISession session, AccessLevel access)
+    {
+      var level = access.Level;
+
+      if (!Runspace.IsZero)
+      {
+        var rs = Runspace.Value;
+
+        var ncase = access.Data
+                          .ChildrenNamed(CASE_SECT)
+                          .FirstOrDefault(n => n.ValOf(OF_ATTR)
+                                                .Split(',').Any(one => one.Trim().EqualsOrdSenseCase(rs)));
+        if (ncase != null)
+        {
+          level = ncase.Of(AccessLevel.CONFIG_LEVEL_ATTR).ValueAsInt(AccessLevel.DENIED);
+        }
+      }
+
+      return level >= Level;
+    }
   }
 }
