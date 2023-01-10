@@ -19,11 +19,25 @@ namespace Azos.Sky.Fabric
   {
     public const string CONVENTION_STEP_METHOD_NAME_PREFIX = "Step_";
 
+    /// <summary>
+    /// Schedules the next step time slice as soon as possible
+    /// </summary>
     public static FiberStep ContinueImmediately(Atom step) => Continue(step, TimeSpan.Zero);
+
+    /// <summary>
+    /// Schedules the next step time slice after the specified time interval
+    /// </summary>
     public static FiberStep Continue(Atom step, TimeSpan interval)
      => new FiberStep(step.HasRequiredValue(nameof(step)).AsValid(nameof(step)), interval, 0, null);
 
+    /// <summary>
+    /// Schedules the next step time slice as soon as possible
+    /// </summary>
     public static FiberStep ContinueImmediately(Func<Task<FiberStep>> stepBody) => Continue(stepBody, TimeSpan.Zero);
+
+    /// <summary>
+    /// Schedules the next step time slice after the specified time interval
+    /// </summary>
     public static FiberStep Continue(Func<Task<FiberStep>> stepBody, TimeSpan interval)
     {
       var fiber = stepBody.NonNull(nameof(stepBody)).Target.CastTo<Fiber>("Step body Method of `Fiber` class");

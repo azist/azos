@@ -95,6 +95,10 @@ namespace Azos.Sky.Fabric
     }
   }
 
+  /// <summary>
+  /// Generic version of <see cref="Fiber"/> with typed `Parameters` and `State` properties.
+  /// You should inherit your fibers from this class
+  /// </summary>
   public abstract class Fiber<TParameters, TState> : Fiber where TParameters : FiberParameters
                                                            where TState : FiberState
   {
