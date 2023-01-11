@@ -32,10 +32,6 @@ namespace Azos.Sky.Fabric
     [Field(description: "Defines what cloud origin (cluster partition) this fiber belongs to and runs")]
     public Atom? Origin { get; set; }
 
-    [Field(maxLength: Constraints.MAX_STRAND_LEN,
-           description: "Fiber strand")]
-    public string Strand { get; set; }
-
     [Field(maxLength: Constraints.MAX_GROUP_LEN,
            description: "Fiber group")]
     public string Group { get; set; }

@@ -55,14 +55,6 @@ namespace Azos.Sky.Fabric
 
 
     [Field(Required = false,
-           MaxLength = Constraints.MAX_STRAND_LEN,
-           Description = "Optionally, ensures sequential processing of fibers within the same strand, that is:" +
-                         " no more than a single fiber instance of the same strand ever executes in the system origin (cloud partition) concurrently." +
-                         "Strands can only be defined at fiber start and are afterwards immutable")]
-    public string Strand { get; set; }
-
-
-    [Field(Required = false,
            MaxLength = Constraints.MAX_GROUP_LEN,
            Description = "Optionally, groups fibers by some correlation value. For example this can be used to group multiple fibers" +
                          " executing on behalf of master job fiber. Unlike Strands, Groups do not affect Fiber execution order/concurrency. " +
