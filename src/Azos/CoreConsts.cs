@@ -136,6 +136,7 @@ namespace Azos
       public const string INSTRUMENTATION_TIMEFRAME_TOPIC = "inst.timeframe";
       public const string OBJSTORE_TOPIC = "Objstr";
       public const string INSTRUMENTATION_TOPIC = "Instr";
+      public const string FABRIC_TOPIC = "Fabric";
       public const string THROTTLINGSVC_TOPIC = "Thrtl";
       public const string SCHEDULE_TOPIC = "Sched";//Scheduled jobs, i.e. cleanup files etc...
       public const string DEBUG_TOPIC = "Debug";
