@@ -101,7 +101,7 @@ namespace Azos.Sky.Fabric
       //otherwise delagte Gdid generation to server
       throw new NotImplementedException();
 
-      return new FiberId(runspace, gFiber);
+      //return new FiberId(runspace, gFiber);
     }
 
     public Task<FiberInfo> StartFiberAsync(FiberStartArgs args)

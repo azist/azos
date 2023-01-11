@@ -22,27 +22,41 @@ namespace Azos.Sky.Fabric
   {
     public const string UNASSIGNED = "<?>";
 
-    public static readonly FiberId EMPTY = new FiberId(Atom.ZERO, GDID.ZERO);
+    public static readonly FiberId EMPTY = new FiberId(Atom.ZERO, Atom.ZERO, GDID.ZERO);
 
-    public FiberId(Atom rs, GDID gdid)
+    public FiberId(Atom rs, Atom shard, GDID gdid)
     {
       Runspace = rs;
+      MemoryShard = shard;
       Gdid = gdid;
     }
 
     public readonly Atom Runspace;
+    public readonly Atom MemoryShard;
     public readonly GDID Gdid;
 
-    public bool Assigned => !Runspace.IsZero && !Gdid.IsZero;
+    public bool Assigned => !Runspace.IsZero && !MemoryShard.IsZero && !Gdid.IsZero;
+
     public bool CheckRequired(string targetName) => Assigned;
-    public ValidState Validate(ValidState state, string scope = null) => Runspace.Validate(state, scope.Default("<JobId.Runspace>"));
+
+    public ValidState Validate(ValidState state, string scope = null)
+      => MemoryShard.Validate(Runspace.Validate(state, scope.Default("<JobId.Runspace>")), scope.Default("<JobId.MemoryShard>"));
 
     public override bool Equals(object obj) => obj is FiberId other ? this.Equals(other) : false;
-    public bool Equals(FiberId other) => this.Runspace == other.Runspace && this.Gdid == other.Gdid;
-    public override int GetHashCode() => Runspace.GetHashCode() ^ Gdid.GetHashCode();
-    public ulong GetDistributedStableHash() => Runspace.GetDistributedStableHash() ^ Gdid.GetDistributedStableHash();
 
-    public override string ToString() => Assigned ? $"{Runspace.Value}:{Gdid.ToString()}" : UNASSIGNED;// biz:0:3:27364
+    public bool Equals(FiberId other) => this.Runspace == other.Runspace &&
+                                         this.MemoryShard == other.MemoryShard &&
+                                         this.Gdid == other.Gdid;
+
+    public override int GetHashCode() => Runspace.GetHashCode() ^
+                                         MemoryShard.GetHashCode() ^
+                                         Gdid.GetHashCode();
+
+    public ulong GetDistributedStableHash() => Runspace.GetDistributedStableHash() ^
+                                               MemoryShard.GetDistributedStableHash() ^
+                                               Gdid.GetDistributedStableHash();
+
+    public override string ToString() => Assigned ? $"{Runspace.Value}:{Runspace.Value}|{Gdid.ToString()}" : UNASSIGNED;// biz:s1|0:1:2
 
     public void WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
      => JsonWriter.EncodeString(wri, ToString(), options);
@@ -70,7 +84,10 @@ namespace Azos.Sky.Fabric
       GDID gdid;
       if (!GDID.TryParse(value.Substring(i + 1), out gdid)) return false;
 
-      id = new FiberId(runspace, gdid);
+      var shard = Atom.ZERO;
+      #warning parse out!!!!
+
+      id = new FiberId(runspace, shard, gdid);
       return true;
     }
 
