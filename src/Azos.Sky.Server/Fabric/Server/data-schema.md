@@ -39,7 +39,14 @@ Runspace is the database instance
    NextSliceUtc  DATETIME not NULL,
    CurrentStep ATOM not null,
 
+   LastDurationMs int not null,
+   AvgSliceDurationMs int not null,
+
+   LastLatencyMs long not null,
+   AvgLatencyMs long not null,
+
    ExitCode   int not null,
+   Result     BIN,
    Exception  JSON TEXT,
  )
 ```

@@ -95,15 +95,15 @@ namespace Azos.Sky.Fabric
 
     [Field(Required = true,
            Description = "Last execution latency - a difference before scheduled and actual slice start")]
-    public int LastLatencySec { get; set; }
+    public long LastLatencyMs { get; set; }
+
+    [Field(Required = true,
+           Description = "Average execution latency - a difference before scheduled and actual slice start")]
+    public long AvgLatencyMs { get; set; }
 
     [Field(Required = true,
            Description = "How long the last execution slice took")]
     public int LastSliceDurationMs { get; set; }
-
-    [Field(Required = true,
-           Description = "Average execution latency - a difference before scheduled and actual slice start")]
-    public int AvgLatencySec { get; set; }
 
     [Field(Required = true,
            Description = "How long the average execution slice takes")]
