@@ -39,6 +39,6 @@ namespace Azos.Sky.Fabric.Server
     /// <summary>
     /// Checks-in fiber data and releases the lock
     /// </summary>
-    Task<bool> CheckInAsync(FiberMemory fiber);
+    Task<bool> CheckInAsync(FiberMemoryDelta fiber);
   }
 }

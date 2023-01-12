@@ -32,21 +32,48 @@ namespace Azos.Sky.Fabric.Server
   }
 
   /// <summary>
-  /// Represents a piece of TRANSITIVE virtual persisted memory which backs-up fiber execution: its start parameters, transitive state
-  /// and result object. FiberMemory gets operated on by processors.
+  /// Represents a piece of TRANSITIVE virtual persisted memory which stores fiber execution finite state machine:
+  /// its start parameters, transitive state and result object.
+  /// FiberMemory gets operated-on by processors
   /// </summary>
   public sealed class FiberMemory
   {
     private MemoryStatus m_Status;
-    private Atom m_ShardId;
+    private FiberId m_Id;
+    private byte[] m_Bin;
+
+    private ArraySegment<byte> m_BinParameters;
+    private FiberParameters m_Parameters;
+
+    private ArraySegment<byte> m_BinState;
+    private FiberState m_State;
+
 
     public MemoryStatus Status => m_Status;
+    public FiberId Id { get; set; }
+    public FiberParameters Parameters => null;// materialize(m_PareameterData);
+    public FiberState State => null;// materialize(m_StateData);
+
+
 
     /// <summary>
-    /// Which cluster shard the data resides in.
-    /// The sharding may NOT change during origin system runtime
+    /// Creates s snapshot of data changes which can be commited back into <see cref="IFiberStoreShard"/>
+    /// using <see cref="IFiberStoreShard.CheckInAsync(FiberMemoryDelta)"/>
     /// </summary>
-    public Atom ShardId => m_ShardId;
+    public FiberMemoryDelta MakeDeltaSnapshot()
+    {
+      return null;
+    }
+
+    private T materialize<T>(ref T existing, ArraySegment<byte> bin) where T : class
+    {
+      if (existing == null)
+      {
+        existing = null;// materialize(m_Bin, 0, 100);
+      }
+
+      return existing;
+    }
 
   }
 }

@@ -28,7 +28,7 @@ namespace Azos.Sky.Fabric
     /// You may need to know FiberIds before you start them, e.g. you may need
     /// to pass future fiber identified by `FiberId` into another data structure, and if it fails, abort creating that fiber
     /// </summary>
-    FiberId AllocateFiberId(Atom runspace);//  sys-log:0:8:43647826346
+    FiberId AllocateFiberId(Atom runspace);//  sys-log::a1->0:8:43647826346
 
     /// <summary>
     /// Starts a fiber
