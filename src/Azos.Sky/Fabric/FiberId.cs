@@ -56,7 +56,7 @@ namespace Azos.Sky.Fabric
                                                MemoryShard.GetDistributedStableHash() ^
                                                Gdid.GetDistributedStableHash();
 
-    public override string ToString() => Assigned ? $"{Runspace.Value}:{Runspace.Value}|{Gdid.ToString()}" : UNASSIGNED;// biz:s1|0:1:2
+    public override string ToString() => Assigned ? $"{Runspace.Value}::{MemoryShard.Value}->{Gdid.ToString()}" : UNASSIGNED;// biz::s1->0:1:2
 
     public void WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
      => JsonWriter.EncodeString(wri, ToString(), options);
@@ -76,16 +76,17 @@ namespace Azos.Sky.Fabric
       if (value.IsNullOrWhiteSpace()) return true;
       if (value.EqualsOrdSenseCase(UNASSIGNED)) return true;
 
-      // biz:0:3:27364
-      var i = value.IndexOf(':');
-      if (i < 1 || i == value.Length - 1) return false;
+      // biz::s1->0:1:2
+      var irs = value.IndexOf("::");
+      if (irs < 1 || irs == value.Length - 2) return false;
 
-      var runspace = Atom.Encode(value.Substring(0, i));
+      var ipt = value.IndexOf("->", irs + 2);
+      if (ipt < 1 || ipt == value.Length - 2) return false;
+
+      if (!Atom.TryEncode(value.Substring(0, irs), out var runspace)) return false;
+      if (!Atom.TryEncode(value.Substring(irs+2, ipt - irs - 2), out var shard)) return false;
       GDID gdid;
-      if (!GDID.TryParse(value.Substring(i + 1), out gdid)) return false;
-
-      var shard = Atom.ZERO;
-      #warning parse out!!!!
+      if (!GDID.TryParse(value.Substring(ipt + 2), out gdid)) return false;
 
       id = new FiberId(runspace, shard, gdid);
       return true;
