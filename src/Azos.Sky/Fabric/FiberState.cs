@@ -47,10 +47,6 @@ namespace Azos.Sky.Fabric
     /// </summary>
     public abstract class Slot : AmorphousTypedDoc
     {
-      public const int SLOT_NAME_MIN_LEN = 1;
-      public const int SLOT_NAME_MAX_LEN = 64;
-      public static string CheckName(string name) => name.NonBlankMinMax(SLOT_NAME_MIN_LEN, SLOT_NAME_MAX_LEN, nameof(name));
-
       public override bool AmorphousDataEnabled => true;
 
       private SlotMutationType m_SlotMutation;
@@ -75,7 +71,7 @@ namespace Azos.Sky.Fabric
       public virtual bool DoNotPreload => false;
     }
 
-    private readonly Dictionary<string, Slot> m_Data = new Dictionary<string, Slot>();
+    private readonly Dictionary<Atom, Slot> m_Data = new Dictionary<Atom, Slot>();
 
     private Atom m_CurrentStep;
 
@@ -92,42 +88,43 @@ namespace Azos.Sky.Fabric
     /// as this does not mark slots as modified and the changes will be lost.
     /// Use the specific field accessors provided by your derived class instead
     /// </summary>
-    public virtual IEnumerable<KeyValuePair<string, Slot>> Data => m_Data;
+    public virtual IEnumerable<KeyValuePair<Atom, Slot>> Data => m_Data;
 
-    /// <summary> Returns slot by name, or null if such slot does not exist </summary>
-    protected Slot Get(string name)
+    /// <summary> Returns slot by id, or null if such slot does not exist </summary>
+    protected Slot Get(Atom id)
     {
-      if (m_Data.TryGetValue(Slot.CheckName(name), out var existing)) return existing;
+      id.HasRequiredValue(nameof(id)).AsValid(nameof(id));
+      if (m_Data.TryGetValue(id, out var existing)) return existing;
       return null;
     }
 
-    /// <summary> Returns slot by name, or null if such slot does not exist </summary>
-    protected T Get<T>(string name) where T : Slot => Get(name) as T;
+    /// <summary> Returns slot by id, or null if such slot does not exist </summary>
+    protected T Get<T>(Atom id) where T : Slot => Get(id) as T;
 
     /// <summary> Sets slot data </summary>
-    protected FiberState Set(string name, Slot data)
+    protected FiberState Set(Atom id, Slot data)
     {
-      Slot.CheckName(name);
+      id.HasRequiredValue(nameof(id)).AsValid(nameof(id));
       data.NonNull(nameof(data));
       data.MarkSlotAsModified();
-      m_Data[name] = data;
+      m_Data[id] = data;
       return this;
     }
 
 
     /// <summary> Sets slot data </summary>
-    protected FiberState Set<T>(string name, Action<T> fset) where T : Slot, new()
+    protected FiberState Set<T>(Atom id, Action<T> fset) where T : Slot, new()
     {
       fset.NonNull(nameof(fset));
-      var seg = Get<T>(name) ?? new T();
+      var seg = Get<T>(id) ?? new T();
       fset(seg);
-      Set(name, seg);
+      Set(id, seg);
       return this;
     }
 
-    protected bool Delete(string name)
+    protected bool Delete(Atom id)
     {
-      var slot = Get(name);
+      var slot = Get(id);
       if (slot != null)
       {
         slot.MarkSlotAsDeleted();
@@ -157,19 +154,22 @@ namespace Azos.Sky.Fabric
       public override bool DoNotPreload => true;
     }
 
+    private static readonly Atom SLOT_DATA = Atom.Encode("d");
+
+
     public int DonutCount
     {
-      get => Get<counts>("d")?.DonutCount ?? 0;
-      set => Set<counts>("d", data => data.DonutCount = value);
+      get => Get<counts>(SLOT_DATA)?.DonutCount ?? 0;
+      set => Set<counts>(SLOT_DATA, data => data.DonutCount = value);
     }
 
     public int CakeCount
     {
-      get => Get<counts>("d")?.CakeCount ?? 0;
-      set => Set<counts>("d", data => data.CakeCount = value);
+      get => Get<counts>(SLOT_DATA)?.CakeCount ?? 0;
+      set => Set<counts>(SLOT_DATA, data => data.CakeCount = value);
     }
 
-  //  public byte[] GetImage(runtime) => Get<cakeimg>("i")?.EnsureLoaded(runtime) ?? null;
+    //  public byte[] GetImage(runtime) => Get<cakeimg>(SLOT_IMG)?.EnsureLoaded(runtime) ?? null;
 
   }
 

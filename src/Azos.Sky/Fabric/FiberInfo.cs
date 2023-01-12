@@ -32,7 +32,7 @@ namespace Azos.Sky.Fabric
     public Atom Origin { get; set; }
 
     [Field(Required = true, Description = "Current fiber status")]
-    public FiberStatus JobStatus { get; set; }
+    public FiberStatus Status { get; set; }
 
     [Field(Required = false,
            MaxLength = Constraints.MAX_DESCRIPTION_LEN,
