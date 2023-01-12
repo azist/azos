@@ -32,7 +32,7 @@ namespace Azos.Sky.Fabric
     public Atom Origin { get; set; }
 
     [Field(Required = true, Description = "Current fiber status")]
-    public FiberStatus JobStatus { get; set; }
+    public FiberStatus Status { get; set; }
 
     [Field(Required = false,
            MaxLength = Constraints.MAX_DESCRIPTION_LEN,
@@ -52,14 +52,6 @@ namespace Azos.Sky.Fabric
            Description = "Uniquely identifies the type of process image which backs this fiber execution. " +
                          "In CLR runtime, this maps to a descendant type of a `Fiber` class via BIX mapping")]
     public Guid ImageTypeId { get; set; }
-
-
-    [Field(Required = false,
-           MaxLength = Constraints.MAX_STRAND_LEN,
-           Description = "Optionally, ensures sequential processing of fibers within the same strand, that is:" +
-                         " no more than a single fiber instance of the same strand ever executes in the system origin (cloud partition) concurrently." +
-                         "Strands can only be defined at fiber start and are afterwards immutable")]
-    public string Strand { get; set; }
 
 
     [Field(Required = false,
