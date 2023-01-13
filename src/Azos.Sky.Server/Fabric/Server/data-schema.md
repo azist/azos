@@ -26,7 +26,7 @@ Runspace is the database instance
 
 ## Table state
 ```sql
- table status -- contains mutable status data
+ table state -- contains mutable status data
  (
    G_FIBER     GDID  not null PRIMARY KEY, -- imut
 
@@ -39,10 +39,33 @@ Runspace is the database instance
    NextSliceUtc  DATETIME not NULL,
    CurrentStep ATOM not null,
 
+   LastDurationMs int not null,
+   AvgSliceDurationMs int not null,
+
+   LastLatencyMs long not null,
+   AvgLatencyMs long not null,
+
    ExitCode   int not null,
+   Result     BIN,
    Exception  JSON TEXT,
  )
 ```
+
+The scheduler statement for `IFiberStoreShard.Task<FiberMemory> CheckOutNextPendingAsync(Atom runspace, Atom procId);`
+```sql
+  select t1.* from state t1
+  where
+    (t1.Status = `Active`) and
+    (t1.NextSliceUtc <= NOW) and
+    (LockProc is null || LockUtc < ?HUNG_15MIN_AGO) and
+  --  (t1.NextSliceUtc > ?TIME_SCROLL_CURSOR)
+  order by
+    t1.NextSliceUtc ASC
+  LIMIT 250
+```
+Priority sorting is done in memory
+
+
 
 ## Table slot
 ```sql
