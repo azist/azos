@@ -7,6 +7,11 @@ can dynamically scale up or down.
 Fibers are akin to OS's processes - they represent some unit of logical execution, such as 
 system or business flows (processes) which can run for hours, days, years or even indefinitely.
 
+Fabric implements **cooperative multitasking paradigm** using fibers - they execute time slices, deterministically 
+yielding control back to the Fabric fiber runtime system ASAP (by design). These running time slices are also called 
+"steps" of execution. The Fabric system **saves fiber's transitive/private state** (called `FiberMemory`) into persisted 
+storage upon each slice execution.
+
 Fabric fibers have the following traits/properties:
 1. Conceptually similar to OS process with a single main thread
 2. Fibers are FSM - Finite State Machines with well define terminal status: Created|Started|Paused|Suspended|Finished|Crashed|Aborted
@@ -24,10 +29,6 @@ Fabric fibers have the following traits/properties:
 12. There is **no need to lock (synchronize) state** in a fiber as the Fabric guarantees that within its origin (home cluster partition) only
     one processor executes any given fiber at any given time 
 
-Fabric implements **cooperative multitasking paradigm** using fibers - they execute time slices, deterministically 
-yielding control back to the Fabric fiber runtime system ASAP (by design). These running time slices are also called 
-"steps" of execution. The Fabric system **saves fiber's transitive/private state** (called `FiberMemory`) into persisted 
-storage upon each slice execution. 
 
 > This is somewhat similar to a concept of co-routines or `yield return` or `await` in C#, creating a `cutpoint`
 > in code. The difference is that Fabric fibers can execute in clusters of processor nodes and they survive
