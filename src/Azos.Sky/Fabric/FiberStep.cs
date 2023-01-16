@@ -21,7 +21,7 @@ namespace Azos.Sky.Fabric
   {
     public const string CONVENTION_STEP_METHOD_NAME_PREFIX = "Step_";
 
-    private static readonly FiniteSetLookup<(Type t, Atom s), MethodInfo> CACHE =
+    private static readonly FiniteSetLookup<(Type t, Atom s), MethodInfo> STEP_MI_CACHE =
       new (one =>
       {
         var mn = FiberStep.CONVENTION_STEP_METHOD_NAME_PREFIX + one.s.Value;
@@ -41,10 +41,10 @@ namespace Azos.Sky.Fabric
     /// </summary>
     public static MethodInfo GetMethodForStepByConvention(Type fiberType, Atom step)
     {
-      var result = CACHE[(
-                          fiberType.IsOfType<Fiber>(nameof(fiberType)),
-                          step.HasRequiredValue(nameof(step)).AsValid(nameof(step))
-                         )];
+      var result = STEP_MI_CACHE[(
+                     fiberType.IsOfType<Fiber>(nameof(fiberType)),
+                     step.HasRequiredValue(nameof(step)).AsValid(nameof(step))
+                   )];
       return result;
     }
 
