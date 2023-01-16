@@ -14,9 +14,9 @@ storage upon each slice execution.
 
 Fabric fibers have the following traits/properties:
 1. Conceptually similar to OS process with a single main thread
-2. Fibers are FSM - Finite State Machines with well define terminal status: Created|Started|Paused|Suspended|Finished|Crashed|Aborted
-2. Have start parameter object (like command line args in os)
-3. **Mutable Private State** - aka `FiberMemory` like variables in code/methods which is PRESERVEDbetween serves/calls/time slices
+2. Fibers are FSM - Finite State Machines with well defined terminal status: `Created|Started|Paused|Suspended|Finished|Crashed|Aborted`
+2. They have start parameter object (like command line args in os)
+3. Fibers have **Mutable Private State** - aka `FiberMemory` like variables in code/methods which is PRESERVEDbetween serves/calls/time slices
 5. Fiber memory (state) is version upgradeable allowing for transparent data change on as-needed basis 
 4. Provides exit code: int (just like an OS process)
 6. Optionally provides a result object which can be queried
