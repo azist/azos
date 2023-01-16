@@ -16,18 +16,22 @@ Fabric fibers have the following traits/properties:
 1. Conceptually similar to OS process with a single main thread
 2. Fibers are FSM - Finite State Machines with well defined terminal status: `Created|Started|Paused|Suspended|Finished|Crashed|Aborted`
 2. They have start parameter object (like command line args in os)
-3. Fibers have **Mutable Private State** - aka `FiberMemory` like variables in code/methods which is PRESERVEDbetween serves/calls/time slices
-5. Fiber memory (state) is version upgradeable allowing for transparent data change on as-needed basis 
+3. Fibers have **Mutable Private State** - aka `FiberMemory` like variables in code/methods which is PRESERVED between serves/calls/time slices
+5. Fiber memory (state) is **version-upgradeable** allowing for transparent **data (and schema) change in time on as-needed basis** -
+   this is very important as fiber instances may be active for years, and software logic and data schema changes while fiber still runs
 4. Provides exit code: int (just like an OS process)
-6. Optionally provides a result object which can be queried
-8. Execute periodically without any external actions - called fiber time slices or "steps"
+6. Optionally provides a result object which can be queried after fiber completion
+8. **Execute periodically** without any external actions - called fiber time slices or "steps"
 9. A fiber slice should complete ASAP within seconds at most and yield control back - this is cooperative multitasking
-9. Each timeslice returns the next step and when (in what interval) it should be executed
+9. Each time slice returns the next step and when (in what interval) it should be executed
 10. Fibers can schedule to run very infrequently (e.g. once a month or once a year) compared to OS processes as their state is persisted
-11. Fibers can optionally react to signals - a way of RPC (remote procedure call), signals are processed synchronously, without waiting 
+11. Fibers can optionally **react to signals** - a way of RPC (remote procedure call), signals are processed synchronously, without waiting 
     for the next time slice
 12. There is **no need to lock (synchronize) state** in a fiber as the Fabric guarantees that within its origin (home cluster partition) only
     one processor executes any given fiber at any given time 
+13. Fiber support security authorization checks. A fiber may be created impersonating specific user/machine accounts
+15. While laying dormant, not executing (yet) scheduled slices and reacting to signals, fibers take only state storage resources 
+16. 
 
 
 > This is somewhat similar to a concept of co-routines or `yield return` or `await` in C#, creating a `cutpoint`
@@ -38,7 +42,7 @@ The system uses various techniques to optimize and ensure the timely (as schedul
 however the following should be taken into consideration
 1. Fabric by design does NOT guarantee execution of fibers just on time, hence it is NOT designed 
    for real-time/time sensitive processing
-2. Fabric scheduler executes "the most due" fibers first, effectively creating a queue
+2. Fabric scheduler executes "the most due" fibers first, effectively creating a queue of pending work
 3. If the system gets inundated with too many pending fibers while having too few processor nodes the latency would increase
 4. Fabric provides per-fiber average and instant latency measurements
 5. Since Fabric relies on cooperative multitasking, a rogue fiber implementation may not yield control back to processor
