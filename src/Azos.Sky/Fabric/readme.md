@@ -13,7 +13,7 @@ exit code, and exit result objects.
 Fibers execute code in two ways: 
 1. **Periodically execute** - their next scheduled time slices - upon execution, each slice returns when 
    the next execution should take place, which can be ASAP or in a future(possibly distant) or never again
-b. **React to Signals** - a form of close to real-time RPC returning a signal response
+2. **React to Signals** - a form of close to real-time RPC returning a signal response
 
 
 Fabric implements **cooperative multitasking paradigm** using fibers - they execute time slices, deterministically 
