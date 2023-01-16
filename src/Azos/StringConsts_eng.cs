@@ -459,6 +459,9 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string GUARDED_CLAUSE_NO_REQUIRED_VALUE_ERROR =
         "Guarded method '{0}' clause '{1}' is missing required value";
 
+    public const string GUARDED_CLAUSE_ATOM_VALUE_ZERO_INVALID_ERROR =
+        "Guarded method '{0}' clause '{1}' atom value is zero or invalid";
+
     public const string GUARDED_CLAUSE_MAY_NOT_BE_DISPOSED_ERROR =
         "Guarded method '{0}' clause '{1}' is already disposed";
 

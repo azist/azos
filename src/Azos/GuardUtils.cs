@@ -610,5 +610,29 @@ namespace Azos
 
       return value.AsValid(name, state, scope, callFile, callLine, callMember);
     }
+
+
+    /// <summary>
+    /// Ensures that an atom value is non-zero and valid
+    /// </summary>
+    public static Atom IsValidNonZero(this Atom value,
+                                      string name = null,
+                                      [CallerFilePath] string callFile = null,
+                                      [CallerLineNumber] int callLine = 0,
+                                      [CallerMemberName] string callMember = null)
+    {
+      if (value.IsZero || !value.IsValid)
+      {
+        var callSite = callSiteOf(callFile, callLine, callMember);
+        throw new CallGuardException(callSite,
+                                 name,
+                                 StringConsts.GUARDED_CLAUSE_ATOM_VALUE_ZERO_INVALID_ERROR
+                                             .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN));
+      }
+
+      return value;
+    }
+
+
   }
 }
