@@ -14,8 +14,8 @@ using Azos.Collections;
 
 namespace Azos.Sky.Fabric.Server
 {
-  public sealed class FiberRunspace : INamed
+  public sealed class FiberRunspace : IAtomNamed
   {
-    public string Name => throw new NotImplementedException();
+    public Atom Name => throw new NotImplementedException();
   }
 }

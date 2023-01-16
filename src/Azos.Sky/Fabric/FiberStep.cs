@@ -43,7 +43,7 @@ namespace Azos.Sky.Fabric
     {
       var result = STEP_MI_CACHE[(
                      fiberType.IsOfType<Fiber>(nameof(fiberType)),
-                     step.HasRequiredValue(nameof(step)).AsValid(nameof(step))
+                     step.IsValidNonZero(nameof(step))
                    )];
       return result;
     }

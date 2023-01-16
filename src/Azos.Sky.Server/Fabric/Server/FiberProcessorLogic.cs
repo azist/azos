@@ -27,7 +27,7 @@ namespace Azos.Sky.Fabric.Server
     public override string ComponentLogTopic => CoreConsts.FABRIC_TOPIC;
 
     private Atom m_Id;
-    private Registry<FiberRunspace> m_Runspaces;
+    private AtomRegistry<FiberRunspace> m_Runspaces;
 
 
     /// <summary>
@@ -35,7 +35,7 @@ namespace Azos.Sky.Fabric.Server
     /// </summary>
     public Atom Id => m_Id;
 
-    IRegistry<FiberRunspace> Runspaces => m_Runspaces;
+    IAtomRegistry<FiberRunspace> Runspaces => m_Runspaces;
 
 
 

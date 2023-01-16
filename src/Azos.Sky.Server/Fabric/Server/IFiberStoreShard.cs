@@ -17,13 +17,8 @@ namespace Azos.Sky.Fabric.Server
   /// <summary>
   /// Abstraction of fiber persisted store - where the system stores the state of fibers
   /// </summary>
-  public interface IFiberStoreShard : INamed, IApplicationComponent
+  public interface IFiberStoreShard : IAtomNamed, IApplicationComponent
   {
-    /// <summary>
-    /// Shard Id. Must be immutable for lifetime of shard
-    /// </summary>
-    Atom Id { get; }
-
     /// <summary>
     /// Starts a fiber
     /// </summary>
