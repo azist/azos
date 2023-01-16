@@ -52,15 +52,12 @@
 * Time Services and Event Scheduling
 * General-purpose [Utilities](utilities.md)
 
-## Sky Distributed OS
-* Sky App Chassis
+## Sky Distributed Cloud OS
+* [Fabric - Distributed Process Fiber framework](/src/Azos.Sky/Fabric)
 * Distributed Worker Coordination
 * [Locking](/src/Azos.Sky/Locking)
 * [Global ID Generation/GDID](/src/Azos.Sky/Identification)
 * [Event Hub](/src/Azos.Sky/EventHub)
 * [MDB - Database Router](/src/Azos.Sky/Mdb)
 * [Metabase](/src/Azos.Sky/Metabase)
-* [Distributed Workers](/src/Azos.Sky/Workers)
-  * [Processes](/src/Azos.Sky/Workers/processes.md) 
-  * [Todos](/src/Azos.Sky/Workers/todos.md)
 
