@@ -112,4 +112,9 @@ namespace Azos.Sky.Fabric.Server
     /// </summary>
     Task<bool> CheckInAsync(FiberMemoryDelta fiber);
   }
+
+  public interface IFiberStoreShardLogic : IFiberStoreShard, IModuleImplementation
+  {
+
+  }
 }

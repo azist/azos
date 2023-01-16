@@ -109,6 +109,9 @@ namespace Azos.Sky.Fabric
   {
   }
 
+  /// <summary>
+  /// Abstraction for the runtime processor component which executes fibers
+  /// </summary>
   public interface IFiberRuntime : IApplicationComponent
   {
     /// <summary>
@@ -116,22 +119,5 @@ namespace Azos.Sky.Fabric
     /// </summary>
     bool IsDebugging { get;}
   }
-
-
-  //tbd in .Server
-  public interface IWorkManager
-  {
-    Task CreateWorkItemAsync();
-
-
-    ///// <summary>
-    ///// Only one worker in a work set gets particular work
-    ///// </summary>
-    //Task<WorkItem[]> CheckoutNextWorkSegmentAsync(Worker worker);
-
-    //////called by worker to update the store
-    //Task CommitWorkItemAsync(Worker worker, WorkItem work);
-  }
-
 
 }
