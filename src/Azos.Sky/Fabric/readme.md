@@ -6,23 +6,40 @@ Fabric runs logical processes called **Fibers** on a distributed node cluster, w
 can dynamically scale up or down.
 Fibers are akin to OS's processes - they represent some unit of logical execution, such as 
 system or business flows (processes) which can run for hours, days, years or even indefinitely.
-Just like an OS process, a `Fiber` has start parameters, private execution state (aka `FiberMemory`)
+Just like an OS process, fibers have start parameters, private execution state (aka `FiberMemory`)
 exit code, and exit result objects. 
 
 
-> Fibers execute code in two ways: 
-> a. periodically execute their next scheduled time slices - upon execution, each slice returns when 
-     the next execution should take place (which can be ASAP or in a very distant future/never)
-> b. react to signals - a form of close to real-time RPC returning a signal response
+Fibers execute code in two ways: 
+1. **Periodically execute** - their next scheduled time slices - upon execution, each slice returns when 
+   the next execution should take place, which can be ASAP or in a future(possibly distant) or never again
+b. **React to Signals** - a form of close to real-time RPC returning a signal response
 
 
-Fibers implement **cooperative multitasking paradigm** - they execute time slices, yielding control back
-to the fiber runtime system ASAP (by design). These running time slices are also called "steps" of execution. 
-The Fabric system **saves fiber's transitive/private state** (called `FiberMemory`) into persisted storage upon 
-each slice execution.
+Fabric implements **cooperative multitasking paradigm** using fibers - they execute time slices, deterministically 
+yielding control back to the Fabric fiber runtime system ASAP (by design). These running time slices are also called 
+"steps" of execution. The Fabric system **saves fiber's transitive/private state** (called `FiberMemory`) into persisted 
+storage upon each slice execution. 
 
-> Fabric system is not designed for real-time (e.g. media stream) data processing, but instead is geared
-> towards long-running batch/supervisor processes which control eventual execution of complex business flows
+> This is somewhat similar to a concept of co-routines or `yield return` or `await` in C#, creating a `cutpoint`
+> in code. The difference is that Fabric fibers can execute in clusters of processor nodes and they survive
+> process restarts, their memory is version-upgradeable as the system design changes (e.g. add/remove data fields).
+
+The system uses various techniques to optimize and ensure the timely (as scheduled) invocation of fiber slice methods,
+however the following should be taken into consideration
+1. Fabric by design does NOT guarantee execution of fibers just on time, hence it is NOT designed 
+   for real-time/time sensitive processing
+2. Fabric scheduler executes "the most rdue" fibers first, effectively creating a queue
+3. If the system gets inundated with too many pending fibers while having too few processor nodes the latency would increase
+4. Fabric provides per-fiber average and instant latency measurements
+5. Since Fabric relies on cooperative multitasking, a rogue fiber implementation may not yield control back to processor
+   for a significant amount of time (10s of seconds). This is bad design as it creates coarsely-grained slices which impede
+   performance. The Fabric tries to time-out such slice tasks and may even abort a fiber for policy violation
+
+> Important: Fabric system is **not designed for real-time** (e.g. media stream) data processing, but instead is geared
+> towards long-running batch/supervisor processes which control eventual execution of complex business flows.
+> Depending on Fabric cluster load, you need to expect multi-second latency deviation in fiber scheduled execution on 
+> average
 
 ## Use Cases
 The Fabric was built with the following use cases in mind:
