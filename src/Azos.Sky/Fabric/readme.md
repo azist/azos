@@ -30,13 +30,12 @@ Fabric fibers have the following traits/properties:
 12. There is **no need to lock (synchronize) state** in a fiber as the Fabric guarantees that within its origin (home cluster partition) only
     one processor executes any given fiber at any given time 
 13. Fiber support security authorization checks. A fiber may be created impersonating specific user/machine accounts
-15. While laying dormant, not executing (yet) scheduled slices and reacting to signals, fibers take only state storage resources 
-16. 
+15. While laying dormant, not executing (yet) scheduled slices or reacting to signals, fibers require only the state storage resources 
 
 
-> This is somewhat similar to a concept of co-routines or `yield return` or `await` in C#, creating a `cutpoint`
-> in code. The difference is that Fabric fibers can execute in clusters of processor nodes and they survive
-> process restarts, their memory is version-upgradeable as the system design changes (e.g. add/remove data fields).
+> Cooperative multitasking is somewhat similar to a concept of co-routines or `yield return` or `await` in C#, creating a `cutpoint`
+> in code. The difference is that Fabric fibers can execute in clusters of processor nodes and they **survive
+> process restarts**, their **memory is version-upgradeable as the system design changes** (e.g. add/remove data fields).
 
 The system uses various techniques to optimize and ensure the timely (as scheduled) invocation of fiber slice methods,
 however the following should be taken into consideration
