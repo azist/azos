@@ -50,29 +50,34 @@ namespace Azos.Sky.Fabric.Server
     //load: number of pending fibers + CPU usage on machine
     private bool scheduleQuantum()
     {
-      bool processedSomething = false;
+      const int QUANTUM_SIZE = 100;//<=== MOVE to property instead
+      const int QUANTUM_SIZE_MAX = QUANTUM_SIZE * 1000;
 
+      var work = new List<ShardMapping>(1024);
       foreach(var runspace in m_Runspaces)
       {
-        var rsBatch = ((int)(100 * runspace.ProcessingFactor)).KeepBetween(0, 100);
+        var rsBatch = ((int)(QUANTUM_SIZE * runspace.ProcessingFactor)).KeepBetween(0, QUANTUM_SIZE_MAX);
         if (rsBatch == 0) continue;
 
         foreach(var shard in runspace.Shards)
         {
-          var shBatch = ((int)(rsBatch * shard.ProcessingFactor)).KeepBetween(0, 100);
-          if (shBatch == 0) continue;
-
-          processedSomething = true;
-          scheduleShardQuantum(runspace, shard, shBatch);
+          var shBatch = ((int)(rsBatch * shard.ProcessingFactor)).KeepBetween(0, QUANTUM_SIZE_MAX);
+          for(var i=0; i<shBatch; i++)
+          {
+            work.Add(shard);
+          }
         }
       }
 
-      return processedSomething;
+      var workQueue = work.RandomShuffle();//ensure fairness for all pieces of work across
+      scheduleShardQuantum(workQueue);
+
+      return workQueue.Count > 0;
     }
 
-    private void scheduleShardQuantum(RunspaceMapping runspace, ShardMapping shard, int count)
+    private void scheduleShardQuantum(IEnumerable<ShardMapping> workQueue)
     {
-      for(var i=0; i<count; i++)
+      foreach(var shard in workQueue)
       {
         //throttle
         while(App.Active)
@@ -85,7 +90,7 @@ namespace Azos.Sky.Fabric.Server
         }
 
         var _ = Task.Run(async () => {
-          var memory = await shard.CheckOutNextPendingAsync(runspace.Name, ProcessorId).ConfigureAwait(false);
+          var memory = await shard.CheckOutNextPendingAsync(shard.Runspace.Name, ProcessorId).ConfigureAwait(false);
           if (memory == null) return;//no pending work
 
           Interlocked.Increment(ref m_PendingCount);
@@ -102,8 +107,7 @@ namespace Azos.Sky.Fabric.Server
             m_PendingEvent.Set();
           }
         });
-
-      }//for
+      }//foreach
     }
 
     private async Task processFiberQuantum(FiberMemory memory)

@@ -26,6 +26,10 @@ namespace Azos.Sky.Fabric.Server
     /// </summary>
     public Atom Name => throw new NotImplementedException();
 
+    /// <summary>
+    /// Runspace which this hard is under
+    /// </summary>
+    public RunspaceMapping Runspace => throw new NotImplementedException();
 
     /// <summary>
     /// Specifies relative weight of this shard among others for processing
