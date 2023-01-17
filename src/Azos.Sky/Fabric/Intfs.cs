@@ -19,7 +19,7 @@ namespace Azos.Sky.Fabric
   {
     /// <summary>
     /// Returns a list of runspaces which are allowed in the system, e.g. `sys`, `biz` etc..
-    /// Runspaces partitions fiber into atom-addressable areas
+    /// Runspaces partitions fiber execution and storage zones
     /// </summary>
     IEnumerable<Atom> GetRunspaces();
 
