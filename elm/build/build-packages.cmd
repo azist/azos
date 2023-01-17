@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.0.0.72
-set HEADLINE=Latest sync
+set VER=3.0.0.1001
+set HEADLINE=Fiber Preview 1
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

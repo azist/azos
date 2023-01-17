@@ -22,16 +22,23 @@ namespace Azos.Sky.Fabric
   /// </summary>
   public abstract class Fiber
   {
-    protected Fiber(IFiberRuntime runtime, FiberParameters pars, FiberState state)
+    /// <summary>
+    /// framework internal method used by processor runtime to initialize fibers.
+    /// we don't want to have senseless constructor chaining which just creates meaningless code
+    /// </summary>
+    internal void __processor__ctor(IFiberRuntime runtime, FiberParameters pars, FiberState state)
     {
       m_Runtime    = runtime.NonNull(nameof(runtime));
       m_Parameters = pars.NonNull(nameof(pars));
       m_State      = state.NonNull(nameof(state));
+
+      //Inject all dependencies
+      runtime.App.DependencyInjector.InjectInto(this);
     }
 
-    private readonly IFiberRuntime m_Runtime;
-    private readonly FiberParameters m_Parameters;
-    private readonly FiberState m_State;
+    private IFiberRuntime m_Runtime;
+    private FiberParameters m_Parameters;
+    private FiberState m_State;
 
     /// <summary>
     /// References the runtime system such as the hosting process and other services which
@@ -73,20 +80,18 @@ namespace Azos.Sky.Fabric
 
     /// <summary>
     /// Executes the most due slice, return the next time the fiber should run.
-    /// The default implementation delegates to <see cref="DefaultExecuteSliceByConventionAsync"/>
+    /// The default implementation delegates to <see cref="DefaultExecuteSliceStepByConventionAsync"/>
     /// </summary>
-    public virtual Task<FiberStep> ExecuteSliceAsync() => DefaultExecuteSliceByConventionAsync(this, State.CurrentStep);
+    public virtual Task<FiberStep> ExecuteSliceAsync() => DefaultExecuteSliceStepByConventionAsync(this, State.CurrentStep);
 
     /// <summary>
     /// Performs by-convention invocation of a fiber "step" method for the specified instance,
     /// defaulting the name of the method by convention to "Step_{step: atom}"
     /// </summary>
-    protected static Task<FiberStep> DefaultExecuteSliceByConventionAsync(Fiber self, Atom step)
+    protected static Task<FiberStep> DefaultExecuteSliceStepByConventionAsync(Fiber self, Atom step)
     {
-      var mn = FiberStep.CONVENTION_STEP_METHOD_NAME_PREFIX + step.Value;
-
-      var mi = self.GetType().GetMethod(mn);
-      mi.NonNull("Existing method: " + mn);
+      var tself = self.NonNull(nameof(self)).GetType();
+      var mi = FiberStep.GetMethodForStepByConvention(tself, step);
 
       Task<FiberStep> resultTask;
       try
@@ -109,10 +114,6 @@ namespace Azos.Sky.Fabric
   public abstract class Fiber<TParameters, TState> : Fiber where TParameters : FiberParameters
                                                            where TState : FiberState
   {
-    protected Fiber(IFiberRuntime runtime, TParameters pars, TState state) : base(runtime, pars, state)
-    {
-    }
-
     /// <summary>
     /// An immutable document of parameters supplied at the fiber start.
     /// This data may not be changed during Fiber lifespan
@@ -131,23 +132,18 @@ namespace Azos.Sky.Fabric
   #region EXAMPLE ONLY!!!!!!!!!!!!!
   public class BakerFiber : Fiber<FiberParameters, BakerState>
   {
-    public BakerFiber(IFiberRuntime runtime, FiberParameters pars, BakerState state) : base(runtime, pars, state)
-    {
-    }
-
-
-    public async Task<FiberStep> Step_Start()
+    async Task<FiberStep> Step_Start()
     {
       State.CakeCount++;
       return FiberStep.Continue(Step_Email, TimeSpan.FromHours(0.2));
     }
 
-    public async Task<FiberStep> Step_Email()
+    async Task<FiberStep> Step_Email()
     {
       return FiberStep.ContinueImmediately(Step_Notify);
     }
 
-    public async Task<FiberStep> Step_Notify()
+    async Task<FiberStep> Step_Notify()
     {
       return FiberStep.Finish(0);
     }

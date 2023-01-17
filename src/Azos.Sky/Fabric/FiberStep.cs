@@ -4,8 +4,10 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using Azos.Platform;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,6 +20,33 @@ namespace Azos.Sky.Fabric
   public struct FiberStep
   {
     public const string CONVENTION_STEP_METHOD_NAME_PREFIX = "Step_";
+
+    private static readonly FiniteSetLookup<(Type t, Atom s), MethodInfo> STEP_MI_CACHE =
+      new (one =>
+      {
+        var mn = FiberStep.CONVENTION_STEP_METHOD_NAME_PREFIX + one.s.Value;
+        var mi = one.t.GetMethod(mn, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+        (
+          (mi != null) &&
+          (mi.GetParameters().Length == 0) &&
+          (mi.ReturnType == typeof(Task<FiberStep>))
+        ).IsTrue($"Existing step method: `public Task<FiberResult>{one.t.DisplayNameWithExpandedGenericArgs()}.{mn}()`");
+
+        return mi;
+      });
+
+    /// <summary>
+    /// Returns a method declared in a type by name according to convention: `Task(FiberResult) Step_{step}()`.
+    /// Throws if method is not found
+    /// </summary>
+    public static MethodInfo GetMethodForStepByConvention(Type fiberType, Atom step)
+    {
+      var result = STEP_MI_CACHE[(
+                     fiberType.IsOfType<Fiber>(nameof(fiberType)),
+                     step.IsValidNonZero(nameof(step))
+                   )];
+      return result;
+    }
 
     /// <summary>
     /// Schedules the next step time slice as soon as possible
