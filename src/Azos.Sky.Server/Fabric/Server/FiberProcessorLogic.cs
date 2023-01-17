@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Linq;
 
 using Azos.Apps;
 using Azos.Collections;
@@ -53,7 +54,7 @@ namespace Azos.Sky.Fabric.Server
       const int QUANTUM_SIZE = 100;//<=== MOVE to property instead
       const int QUANTUM_SIZE_MAX = QUANTUM_SIZE * 1000;
 
-      var work = new List<ShardMapping>(1024);
+      var work = new List<ShardMapping>(m_Runspaces.Sum(rs => rs.Shards.Sum(sh => QUANTUM_SIZE)));
       foreach(var runspace in m_Runspaces)
       {
         var rsBatch = ((int)(QUANTUM_SIZE * runspace.ProcessingFactor)).KeepBetween(0, QUANTUM_SIZE_MAX);
