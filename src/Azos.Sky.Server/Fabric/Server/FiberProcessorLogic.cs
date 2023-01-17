@@ -78,6 +78,8 @@ namespace Azos.Sky.Fabric.Server
         while(App.Active)
         {
           var pendingNow = Thread.VolatileRead(ref m_PendingCount);
+          //read CPU consumption here and throttle down proportionally to CPU usage
+          var cpu = Platform.Computer.CurrentProcessorUsagePct;
           if (pendingNow < 100) break;
           m_PendingEvent.WaitOne(250);
         }
@@ -112,7 +114,7 @@ namespace Azos.Sky.Fabric.Server
       //todo:  Impersonate here
       try
       {
-        var nextStep = await fiber.ExecuteSliceAsync()
+        var nextStep = await fiber.ExecuteSliceAsync() //use Timedcall.Run()   KILL LONG running tasks with auto reset timeout
                                   .ConfigureAwait(false);//<===================== FIBER SLICE gets called
       }
       catch(Exception fiberError)
