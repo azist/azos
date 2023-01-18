@@ -9,9 +9,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 using Azos.Apps;
+using Azos.Client;
 using Azos.Collections;
 using Azos.Conf;
+using Azos.Instrumentation;
 using Azos.Log;
 
 namespace Azos.Sky.Fabric.Server
@@ -23,6 +26,7 @@ namespace Azos.Sky.Fabric.Server
   public sealed class ShardMapping : ApplicationComponent<RunspaceMapping>, IAtomNamed, IFiberStoreShard
   {
     public const string CONFIG_SHARD_SECTION = "shard";
+    public const string CONFIG_SERVER_SECTION = "server";
 
 
     internal ShardMapping(RunspaceMapping runspace, IConfigSectionNode cfg) : base(runspace)
@@ -32,7 +36,18 @@ namespace Azos.Sky.Fabric.Server
       ConfigAttribute.Apply(this, cfg.NonEmpty(nameof(cfg)));
       m_Name.IsValidNonZero("Configured `name`: Atom");
 
-      //todo Service connection
+      //Service connection
+      var nServer = cfg[CONFIG_SERVER_SECTION];
+      m_Server = FactoryUtils.MakeDirectedComponent<HttpService>(this,
+                                                                 nServer,
+                                                                 typeof(HttpService),
+                                                                 new object[] { nServer });
+    }
+
+    protected override void Destructor()
+    {
+      DisposeAndNull(ref m_Server);
+      base.Destructor();
     }
 
 
@@ -40,6 +55,7 @@ namespace Azos.Sky.Fabric.Server
     private Atom m_Name;
     private float m_ProcessingFactor;
     private float m_AllocationFactor;
+    private HttpService m_Server;
 
     public override string ComponentLogTopic => CoreConsts.FABRIC_TOPIC;
 
@@ -56,6 +72,7 @@ namespace Azos.Sky.Fabric.Server
     /// <summary>
     /// Specifies relative weight of this shard among others for processing
     /// </summary>
+    [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_QUEUE, CoreConsts.EXT_PARAM_GROUP_FABRIC)]
     public float ProcessingFactor
     {
       get => m_ProcessingFactor;
@@ -65,6 +82,7 @@ namespace Azos.Sky.Fabric.Server
     /// <summary>
     /// Specifies relative weight of this shard among others for new data allocation
     /// </summary>
+    [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_QUEUE, CoreConsts.EXT_PARAM_GROUP_FABRIC)]
     public float AllocationFactor
     {
       get => m_AllocationFactor;

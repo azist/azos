@@ -31,6 +31,7 @@ namespace Azos.Sky.Fabric.Server
 
     protected override void Destructor()
     {
+      cleanupRunspaces();
       base.Destructor();
     }
 
@@ -85,10 +86,25 @@ namespace Azos.Sky.Fabric.Server
     protected override void DoConfigure(IConfigSectionNode node)
     {
       base.DoConfigure(node);
+
+      if (node == null) return;
+      cleanupRunspaces();
+      m_Runspaces = new AtomRegistry<RunspaceMapping>();
+      foreach (var nrunspace in node.ChildrenNamed(RunspaceMapping.CONFIG_RUNSPACE_SECTION))
+      {
+        var runspace = FactoryUtils.MakeDirectedComponent<RunspaceMapping>(this, nrunspace, typeof(RunspaceMapping), new[] { nrunspace });
+        m_Runspaces.Register(runspace).IsTrue($"Unique runspace name `{runspace.Name}`");
+      }
+    }
+
+    private void cleanupRunspaces()
+    {
+      m_Runspaces.ForEach(r => r.Dispose());
     }
 
     protected override void DoStart()
     {
+      (m_Runspaces.Count > 0).IsTrue("Configured runspaces");
       //todo Check preconditions
 
       m_PendingEvent = new AutoResetEvent(false);

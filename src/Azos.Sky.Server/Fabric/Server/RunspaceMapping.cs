@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using Azos.Apps;
 using Azos.Collections;
 using Azos.Conf;
+using Azos.Instrumentation;
 
 namespace Azos.Sky.Fabric.Server
 {
@@ -36,7 +37,7 @@ namespace Azos.Sky.Fabric.Server
       foreach(var nshard in cfg.ChildrenNamed(ShardMapping.CONFIG_SHARD_SECTION))
       {
         var shard = FactoryUtils.MakeDirectedComponent<ShardMapping>(this, nshard, typeof(ShardMapping), new[]{nshard});
-        m_Shards.Register(shard).IsTrue($"Unique name `{shard.Name}`");
+        m_Shards.Register(shard).IsTrue($"Unique shard name `{shard.Name}`");
       }
     }
 
@@ -57,6 +58,7 @@ namespace Azos.Sky.Fabric.Server
     /// <summary>
     /// Specifies relative weight of this runspace among others for processing
     /// </summary>
+    [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_QUEUE, CoreConsts.EXT_PARAM_GROUP_FABRIC)]
     public float ProcessingFactor
     {
       get => m_ProcessingFactor;
