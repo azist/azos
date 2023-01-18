@@ -285,5 +285,47 @@ namespace Azos.Tests.Nub
       Aver.AreArraysEquivalent(new[] { 30, 40 }, seq[3].ToArray());
     }
 
+    [Run]
+    public void ShuffleTests_1()
+    {
+      var existing = 1.ToEnumerable(3, 5, 9, 10, 20, 30, 40, 50).ToList();
+      var got = existing.RandomShuffle();
+
+      Aver.AreEqual(existing.Count, got.Count);
+      Aver.AreArraysEquivalent(existing.OrderBy(x => x).ToArray(), got.OrderBy(x => x).ToArray());
+
+      //existing.See("existing:");
+      //got.See("got");
+    }
+
+    [Run]
+    public void ShuffleTests_2()
+    {
+      var existing = Enumerable.Range(10,100).ToList();
+      var got = existing.RandomShuffle();
+
+      Aver.AreEqual(existing.Count, got.Count);
+      Aver.AreArraysEquivalent(existing.OrderBy(x => x).ToArray(), got.OrderBy(x => x).ToArray());
+
+      //existing.See("existing:");
+      //got.See("got");
+    }
+
+    [Run]
+    public void ShuffleTests_3()
+    {
+      var existing = new List<Tezt>{ new Tezt{A=0, B="Car", C=12.1d},
+                          new Tezt{A=2, B="Tzar", C=-21.7d},
+                          new Tezt{A=-3, B="Zuma", C=10000d},
+                        };
+      var got = existing.RandomShuffle();
+
+      Aver.AreEqual(existing.Count, got.Count);
+      Aver.AreArrayObjectsEquivalent(existing.OrderBy(x => x.A).ToArray(), got.OrderBy(x => x.A).ToArray());
+
+      //existing.See("existing:");
+      //got.See("got");
+    }
+
   }
 }
