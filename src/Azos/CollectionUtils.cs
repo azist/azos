@@ -187,6 +187,28 @@ namespace Azos
     }
 
     /// <summary>
+    /// Randomly shuffles a stream of items.
+    /// WARNING: This method materializes the stream into a list for shuffling, so it may hang for infinite stream sizes
+    /// </summary>
+    public static List<T> RandomShuffle<T>(this IEnumerable<T> source)
+    {
+      var list = source.NonDisposed(nameof(source))
+                       .ToList();
+
+      for(var i=0; i < list.Count; i++)
+      {
+        var i2 = Ambient.Random.NextScaledRandomInteger(0, list.Count-1);
+        if (i == i2) continue;
+        var was = list[i];
+        list[i] = list[i2];
+        list[i2] = was;
+      }
+
+      return list;
+    }
+
+
+    /// <summary>
     /// Returns a new array that contains source elements with additional elements appended at the end
     /// </summary>
     public static T[] AppendToNew<T>(this T[] source, params T[] elements)
