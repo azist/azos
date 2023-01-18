@@ -52,9 +52,9 @@ namespace Azos.Sky.Fabric.Server
     private bool scheduleQuantum()
     {
       const int QUANTUM_SIZE = 100;//<=== MOVE to property instead
-      const int QUANTUM_SIZE_MAX = QUANTUM_SIZE * 1000;
+      const int QUANTUM_SIZE_MAX = QUANTUM_SIZE * 10;
 
-      var work = new List<ShardMapping>(m_Runspaces.Sum(rs => rs.Shards.Sum(sh => QUANTUM_SIZE)));
+      var work = new List<ShardMapping>(10 * 1024);
       foreach(var runspace in m_Runspaces)
       {
         var rsBatch = ((int)(QUANTUM_SIZE * runspace.ProcessingFactor)).KeepBetween(0, QUANTUM_SIZE_MAX);
@@ -71,27 +71,34 @@ namespace Azos.Sky.Fabric.Server
       }
 
       var workQueue = work.RandomShuffle();//ensure fairness for all pieces of work across
-      scheduleShardQuantum(workQueue);
+      processQuantumQueue(workQueue);
 
       return workQueue.Count > 0;
     }
 
-    private void scheduleShardQuantum(IEnumerable<ShardMapping> workQueue)
+    private static readonly int MAX_TASKS = System.Environment.ProcessorCount * 8;
+
+    private void processQuantumQueue(IEnumerable<ShardMapping> workQueue)
     {
       foreach(var shard in workQueue)
       {
-        //throttle
+        //dynamic throttle
         while(App.Active)
         {
           var pendingNow = Thread.VolatileRead(ref m_PendingCount);
-          //read CPU consumption here and throttle down proportionally to CPU usage
           var cpu = Platform.Computer.CurrentProcessorUsagePct;
-          if (pendingNow < 100) break;
+          //read CPU consumption here and throttle down proportionally to CPU usage
+          var maxTasksNow = cpu < 45 ? MAX_TASKS : cpu < 65 ? MAX_TASKS / 2 : cpu < 85 ? MAX_TASKS / 4 : 1;
+          if (pendingNow < maxTasksNow) break;
+
+          //system is busy, wait
           m_PendingEvent.WaitOne(250);
         }
 
-        var _ = Task.Run(async () => {
-          var memory = await shard.CheckOutNextPendingAsync(shard.Runspace.Name, ProcessorId).ConfigureAwait(false);
+        //Off the thread pool, spawn a worker
+        var _ = Task.Factory.StartNew(async (s) => {
+          var todoShard = s as ShardMapping;
+          var memory = await todoShard.CheckOutNextPendingAsync(todoShard.Runspace.Name, ProcessorId).ConfigureAwait(false);
           if (memory == null) return;//no pending work
 
           Interlocked.Increment(ref m_PendingCount);
@@ -100,14 +107,14 @@ namespace Azos.Sky.Fabric.Server
             await processFiberQuantum(memory).ConfigureAwait(false);//<===================== FIBER SLICE gets called
 
             var delta = memory.MakeDeltaSnapshot();
-            await shard.CheckInAsync(delta);
+            await todoShard.CheckInAsync(delta);
           }
           finally
           {
             Interlocked.Decrement(ref m_PendingCount);
             m_PendingEvent.Set();
           }
-        });
+        }, shard, TaskCreationOptions.HideScheduler);// FiberTaskScheduler);
       }//foreach
     }
 
