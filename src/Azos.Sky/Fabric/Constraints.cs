@@ -21,5 +21,10 @@ namespace Azos.Sky.Fabric
 
     public const float PRIORITY_MIN =   0.01f;
     public const float PRIORITY_MAX = 100.00f;
+
+
+    public const float PROCESSING_FACTOR_DEFAULT = 1f;
+    public const float PROCESSING_FACTOR_MIN = 0.0f;
+    public const float PROCESSING_FACTOR_MAX = 10f;
   }
 }

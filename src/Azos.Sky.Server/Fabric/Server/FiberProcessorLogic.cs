@@ -14,6 +14,7 @@ using Azos.Apps;
 using Azos.Collections;
 using Azos.Conf;
 using Azos.Log;
+using Azos.Instrumentation;
 
 namespace Azos.Sky.Fabric.Server
 {
@@ -22,6 +23,10 @@ namespace Azos.Sky.Fabric.Server
   /// </summary>
   public sealed class FiberProcessorDaemon : Daemon, IFiberManager
   {
+    public const int QUANTUM_SIZE_DEFAULT = 32;
+    public const int QUANTUM_SIZE_MIN = 1;
+    public const int QUANTUM_SIZE_MAX = 250;
+
     public FiberProcessorDaemon(IApplicationComponent director) : base(director) { }
 
     protected override void Destructor()
@@ -37,9 +42,26 @@ namespace Azos.Sky.Fabric.Server
     private AtomRegistry<RunspaceMapping> m_Runspaces;
     private int m_PendingCount;//semaphore
 
+    private int m_QuantumSize = QUANTUM_SIZE_DEFAULT;
 
 
     public override string ComponentLogTopic => CoreConsts.FABRIC_TOPIC;
+
+    /// <summary>
+    /// Controls processor fiber scheduling mechanism by defining the size of fiber quantum -
+    /// a size of work batch which gets fibers from the store shard for a single schedule processing run.
+    /// The default value is 32
+    /// </summary>
+    [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_QUEUE, CoreConsts.EXT_PARAM_GROUP_FABRIC)]
+    public int QuantumSize
+    {
+      get => m_QuantumSize;
+      set
+      {
+        CheckDaemonInactive();
+        m_QuantumSize = value.KeepBetween(QUANTUM_SIZE_MIN, QUANTUM_SIZE_MAX);
+      }
+    }
 
     /// <summary>
     /// Processor Id. Must be immutable for lifetime of shard
@@ -58,6 +80,7 @@ namespace Azos.Sky.Fabric.Server
     public int PendingCount => Thread.VolatileRead(ref m_PendingCount);
 
 
+
     #region Daemon
     protected override void DoConfigure(IConfigSectionNode node)
     {
@@ -70,7 +93,9 @@ namespace Azos.Sky.Fabric.Server
 
       m_PendingEvent = new AutoResetEvent(false);
       m_IdleEvent = new AutoResetEvent(false);
+
       m_Thread = new Thread(threadSpin);
+      m_Thread.IsBackground = false;
       m_Thread.Name = "Main " + nameof(FiberProcessorDaemon);
       m_Thread.Start();
     }
@@ -82,7 +107,25 @@ namespace Azos.Sky.Fabric.Server
 
     protected override void DoWaitForCompleteStop()
     {
-      m_Thread?.Join();
+      var tm = Time.Timeter.StartNew();
+      for (var i=0; i < 20; i++)
+      {
+        if (PendingCount<1) break;
+        m_PendingEvent.WaitOne(1000);
+      }
+      tm.Stop();
+
+      var pc = PendingCount;
+      if (pc > 0)
+      {
+        WriteLog(MessageType.Critical,
+                 "DoWaitForCompleteStop.pending",
+                 "There are still {0} tasks unfinished even after waiting for {1:n1} sec".Args(pc, tm.ElapsedSec));
+      }
+
+
+
+      m_Thread.Join();
       DisposeAndNull(ref m_PendingEvent);
       DisposeAndNull(ref m_IdleEvent);
     }
@@ -145,18 +188,15 @@ namespace Azos.Sky.Fabric.Server
     //load: number of pending fibers + CPU usage on machine
     private void scheduleQuantum()
     {
-      const int QUANTUM_SIZE = 100;//<=== MOVE to property instead
-      const int QUANTUM_SIZE_MAX = QUANTUM_SIZE * 10;
-
       var work = new List<ShardMapping>(10 * 1024);
       foreach(var runspace in m_Runspaces)
       {
-        var rsBatch = ((int)(QUANTUM_SIZE * runspace.ProcessingFactor)).KeepBetween(0, QUANTUM_SIZE_MAX);
+        var rsBatch = (int)(QuantumSize * runspace.ProcessingFactor);
         if (rsBatch == 0) continue;
 
         foreach(var shard in runspace.Shards)
         {
-          var shBatch = ((int)(rsBatch * shard.ProcessingFactor)).KeepBetween(0, QUANTUM_SIZE_MAX);
+          var shBatch = (int)(rsBatch * shard.ProcessingFactor);
           for(var i=0; i<shBatch; i++)
           {
             work.Add(shard);

@@ -20,6 +20,9 @@ namespace Azos.Sky.Fabric.Server
   /// </summary>
   public sealed class RunspaceMapping : IAtomNamed
   {
+    private float m_ProcessingFactor = Constraints.PROCESSING_FACTOR_DEFAULT;
+
+
     /// <summary>
     /// Unique fiber namespace identifier
     /// </summary>
@@ -29,7 +32,11 @@ namespace Azos.Sky.Fabric.Server
     /// <summary>
     /// Specifies relative weight of this runspace among others for processing
     /// </summary>
-    public float ProcessingFactor { get; }
+    public float ProcessingFactor
+    {
+      get => m_ProcessingFactor;
+      private set => m_ProcessingFactor = value.KeepBetween(Constraints.PROCESSING_FACTOR_MIN, Constraints.PROCESSING_FACTOR_MAX);
+    }
 
 
     /// <summary>
