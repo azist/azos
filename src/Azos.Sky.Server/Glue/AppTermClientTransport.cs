@@ -30,13 +30,13 @@ namespace Azos.Sky.Glue
     protected override void DoEncodeRequest(MemoryStream ms, RequestMsg msg)
     {
       if (msg.Contract!=typeof(Contracts.IRemoteTerminal))
-       throw new ProtocolException(StringConsts.GLUE_BINDING_UNSUPPORTED_FUNCTION_ERROR.Args(nameof(AppTermBinding),
+       throw new ProtocolException(ServerStringConsts.GLUE_BINDING_UNSUPPORTED_FUNCTION_ERROR.Args(nameof(AppTermBinding),
                                                                                              nameof(Contracts.IRemoteTerminal),
                                                                                              msg.Contract.FullName));
 
       var request = msg as RequestAnyMsg;
       if (request==null)
-        throw new ProtocolException(StringConsts.GLUE_BINDING_UNSUPPORTED_FUNCTION_ERROR.Args(nameof(AppTermBinding),
+        throw new ProtocolException(ServerStringConsts.GLUE_BINDING_UNSUPPORTED_FUNCTION_ERROR.Args(nameof(AppTermBinding),
                                                                                               nameof(RequestAnyMsg),
                                                                                               msg.GetType().FullName));
 
@@ -56,12 +56,12 @@ namespace Azos.Sky.Glue
       if (request.HasHeaders)
       {
         if (request.Headers.Count>1)
-         throw new ProtocolException(StringConsts.GLUE_BINDING_UNSUPPORTED_FUNCTION_ERROR.Args(nameof(AppTermBinding),
+         throw new ProtocolException(ServerStringConsts.GLUE_BINDING_UNSUPPORTED_FUNCTION_ERROR.Args(nameof(AppTermBinding),
                                                                                               "1 AuthenticationHeader",
                                                                                               request.Headers.Count));
         var ahdr = request.Headers[0] as AuthenticationHeader;
         if (ahdr==null)
-          throw new ProtocolException(StringConsts.GLUE_BINDING_UNSUPPORTED_FUNCTION_ERROR.Args(nameof(AppTermBinding),
+          throw new ProtocolException(ServerStringConsts.GLUE_BINDING_UNSUPPORTED_FUNCTION_ERROR.Args(nameof(AppTermBinding),
                                                                                               "1 AuthenticationHeader",
                                                                                               request.Headers[0].GetType().FullName));
 
@@ -72,7 +72,7 @@ namespace Azos.Sky.Glue
         {
           var src = ahdr.Credentials as Azos.Security.IStringRepresentableCredentials;
           if (src==null)
-            throw new ProtocolException(StringConsts.GLUE_BINDING_UNSUPPORTED_FUNCTION_ERROR.Args(nameof(AppTermBinding),
+            throw new ProtocolException(ServerStringConsts.GLUE_BINDING_UNSUPPORTED_FUNCTION_ERROR.Args(nameof(AppTermBinding),
                                                                                               "IStringRepresentableCredentials",
                                                                                               ahdr.Credentials.GetType().FullName));
           data["auth-cred"] = src.RepresentAsString();
@@ -91,7 +91,7 @@ namespace Azos.Sky.Glue
       var data = json.JsonToDataObject() as JsonDataMap;
 
       if (data==null)
-        throw new ProtocolException(StringConsts.GLUE_BINDING_RESPONSE_ERROR.Args(nameof(AppTermBinding),"data==null"));
+        throw new ProtocolException(ServerStringConsts.GLUE_BINDING_RESPONSE_ERROR.Args(nameof(AppTermBinding),"data==null"));
 
 
       var reqID = new FID( data["request-id"].AsULong(handling: ConvertErrorHandling.Throw) );
@@ -109,7 +109,7 @@ namespace Azos.Sky.Glue
         else
           returnValue = new Contracts.RemoteTerminalInfo(map);
 
-      } else throw new ProtocolException(StringConsts.GLUE_BINDING_RESPONSE_ERROR.Args(nameof(AppTermBinding), "data.return is "+returnValue.GetType().FullName));
+      } else throw new ProtocolException(ServerStringConsts.GLUE_BINDING_RESPONSE_ERROR.Args(nameof(AppTermBinding), "data.return is "+returnValue.GetType().FullName));
 
 
       var result = new ResponseMsg(reqID, instance, returnValue);

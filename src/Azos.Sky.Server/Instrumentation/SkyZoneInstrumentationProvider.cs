@@ -207,7 +207,7 @@ namespace Azos.Sky.Instrumentation
                         var phost = App.GetMetabase().CatalogReg.NavigateHost(zgHost).ParentZoneGovernorPrimaryHost(transcendNOC: true);// if not found here, go to the NOC higher than this one
                         if (phost==null)
                         {//we came to very root - data lost
-                          log(MessageType.Error, FROM+".retryTop", StringConsts.INSTR_SEND_TELEMETRY_TOP_LOST_ERROR.Args(error.ToMessageWithType()));
+                          log(MessageType.Error, FROM+".retryTop", ServerStringConsts.INSTR_SEND_TELEMETRY_TOP_LOST_ERROR.Args(error.ToMessageWithType()));
                           break;
                         }
                         zgHost = phost.RegionPath;

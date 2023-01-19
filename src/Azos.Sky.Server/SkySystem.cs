@@ -46,7 +46,7 @@ namespace Azos.Sky
       set
       {
         if (s_MetabaseApplicationName != null || value.IsNullOrWhiteSpace())
-          throw new SkyException(StringConsts.METABASE_APP_NAME_ASSIGNMENT_ERROR);
+          throw new SkyException(ServerStringConsts.METABASE_APP_NAME_ASSIGNMENT_ERROR);
         s_MetabaseApplicationName = value;
       }
     }

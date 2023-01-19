@@ -30,7 +30,7 @@ namespace Azos.Sky.Workers.Server.Queue { partial class TodoQueueService{
          m_stat_QueueOperationErrorCount.IncrementLong(from);
       }
 
-      throw new WorkersException(StringConsts.TODO_ENQUEUE_TX_BODY_ERROR.Args(queue.Name, error.ToMessageWithType()), error);
+      throw new WorkersException(ServerStringConsts.TODO_ENQUEUE_TX_BODY_ERROR.Args(queue.Name, error.ToMessageWithType()), error);
     }
   }
 
@@ -88,7 +88,7 @@ namespace Azos.Sky.Workers.Server.Queue { partial class TodoQueueService{
         }
         catch(Exception error)
         {
-          throw new WorkersException(StringConsts.TODO_CORRELATED_MERGE_ERROR.Args(todoExisting, todoAnother, error.ToMessageWithType()), error);
+          throw new WorkersException(ServerStringConsts.TODO_CORRELATED_MERGE_ERROR.Args(todoExisting, todoAnother, error.ToMessageWithType()), error);
         }
 
         if (InstrumentationEnabled)

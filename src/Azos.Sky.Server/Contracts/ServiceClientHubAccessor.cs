@@ -40,7 +40,7 @@ namespace Azos.Sky //for convenience it is in the root SKY namespace
               }
               catch (Exception error)
               {
-                throw new Clients.SkyClientException(StringConsts.SKY_SVC_CLIENT_HUB_SINGLETON_CTOR_ERROR
+                throw new Clients.SkyClientException(ServerStringConsts.SKY_SVC_CLIENT_HUB_SINGLETON_CTOR_ERROR
                                                                  .Args(tpn, error.ToMessageWithType()), error);
               }
             }).instance;

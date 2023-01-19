@@ -34,7 +34,7 @@ namespace Azos.Sky.Coordination
       var result = TryFindAndBuild<THostSet>(setName, clusterPath, searchParent, transcendNoc);
 
       if (result==null)
-        throw new CoordinationException(StringConsts.HOST_SET_BUILDER_CONFIG_FIND_ERROR
+        throw new CoordinationException(ServerStringConsts.HOST_SET_BUILDER_CONFIG_FIND_ERROR
                                         .Args(GetType().Name, setName, clusterPath, searchParent, transcendNoc));
       return result;
     }
@@ -47,10 +47,10 @@ namespace Azos.Sky.Coordination
       where THostSet : HostSet
     {
       if (setName.IsNullOrWhiteSpace())
-        throw new CoordinationException(StringConsts.ARGUMENT_ERROR+GetType().Name+".ctor(setName==null|empty)");
+        throw new CoordinationException(ServerStringConsts.ARGUMENT_ERROR+GetType().Name+".ctor(setName==null|empty)");
 
       if (clusterPath.IsNullOrWhiteSpace())
-        throw new CoordinationException(StringConsts.ARGUMENT_ERROR + GetType().Name + ".ctor(clusterPath==null|empty)");
+        throw new CoordinationException(ServerStringConsts.ARGUMENT_ERROR + GetType().Name + ".ctor(clusterPath==null|empty)");
 
       var result = DoTryFindAndBuild<THostSet>(setName, clusterPath, searchParent, transcendNoc);
       return result;

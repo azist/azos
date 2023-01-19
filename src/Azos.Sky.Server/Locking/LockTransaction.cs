@@ -32,16 +32,16 @@ namespace Azos.Sky.Locking
                           )
     {
       if (description.IsNullOrWhiteSpace())
-       throw new LockingException(StringConsts.ARGUMENT_ERROR+GetType().FullName+".ctor(description=null|empty)");
+       throw new LockingException(ServerStringConsts.ARGUMENT_ERROR+GetType().FullName+".ctor(description=null|empty)");
 
       if (namespaceName.IsNullOrWhiteSpace())
-       throw new LockingException(StringConsts.ARGUMENT_ERROR+GetType().FullName+".ctor(namespaceName=null|empty)");
+       throw new LockingException(ServerStringConsts.ARGUMENT_ERROR+GetType().FullName+".ctor(namespaceName=null|empty)");
 
       if (minTrustLevel < 0d || minTrustLevel > 1.0d)
-       throw new LockingException(StringConsts.ARGUMENT_ERROR+GetType().FullName+".ctor(minTrustLevel must be 0d..1d)");
+       throw new LockingException(ServerStringConsts.ARGUMENT_ERROR+GetType().FullName+".ctor(minTrustLevel must be 0d..1d)");
 
       if (statements==null || statements.Length<1)
-       throw new LockingException(StringConsts.ARGUMENT_ERROR+GetType().FullName+".ctor(statements=null|empty)");
+       throw new LockingException(ServerStringConsts.ARGUMENT_ERROR+GetType().FullName+".ctor(statements=null|empty)");
 
       ID = Guid.NewGuid();
       Description = description;
@@ -61,7 +61,7 @@ namespace Azos.Sky.Locking
                           )
     {
       if (minTrustLevel < 0d || minTrustLevel > 1.0d)
-       throw new LockingException(StringConsts.ARGUMENT_ERROR+GetType().FullName+".ctor(minTrustLevel must be 0d..1d)");
+       throw new LockingException(ServerStringConsts.ARGUMENT_ERROR+GetType().FullName+".ctor(minTrustLevel must be 0d..1d)");
 
       ID = Guid.NewGuid();
       MinimumRequiredRuntimeSec = minRuntimeSec;

@@ -57,6 +57,8 @@ namespace Azos.Sky.Fabric.Server
     private float m_AllocationFactor;
     private HttpService m_Server;
 
+    internal long m_AllocationCount;
+
     public override string ComponentLogTopic => CoreConsts.FABRIC_TOPIC;
 
     /// <summary>

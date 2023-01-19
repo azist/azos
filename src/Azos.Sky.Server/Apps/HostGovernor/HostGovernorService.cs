@@ -42,7 +42,7 @@ namespace Azos.Apps.HostGovernor
       public HostGovernorService(IApplication app, bool launchedByARD, bool ardUpdateProblem) : base(app)
       {
         if (!App.Singletons.GetOrCreate(() => this).created)
-          throw new AHGOVException(Sky.StringConsts.AHGOV_INSTANCE_ALREADY_ALLOCATED_ERROR);
+          throw new AHGOVException(Sky.ServerStringConsts.AHGOV_INSTANCE_ALREADY_ALLOCATED_ERROR);
 
         m_LaunchedByARD = launchedByARD;
         m_ARDUpdateProblem = ardUpdateProblem;
@@ -286,7 +286,7 @@ namespace Azos.Apps.HostGovernor
             try
             {
               if (m_ARDUpdateProblem)
-               log(MessageType.CatastrophicError, FROM, Sky.StringConsts.AHGOV_ARD_UPDATE_PROBLEM_ERROR);
+               log(MessageType.CatastrophicError, FROM, Sky.ServerStringConsts.AHGOV_ARD_UPDATE_PROBLEM_ERROR);
               else
               {
                  if (StartupInstallCheck)

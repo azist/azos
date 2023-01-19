@@ -54,7 +54,7 @@ namespace Azos.Sky.Workers
     {
       PID parsed;
       if (!TryParse(str, out parsed))
-        throw new WorkersException(StringConsts.PID_PARSE_ERROR.Args(str));
+        throw new WorkersException(ServerStringConsts.PID_PARSE_ERROR.Args(str));
       return parsed;
     }
 

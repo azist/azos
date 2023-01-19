@@ -21,7 +21,7 @@ namespace Azos.Sky.Identification.Instrumentation
 
     public override string Description { get { return "Provides info about GDID events"; } }
 
-    public override string ValueUnitName { get { return StringConsts.UNIT_NAME_TIME; } }
+    public override string ValueUnitName { get { return ServerStringConsts.UNIT_NAME_TIME; } }
 
   }
 

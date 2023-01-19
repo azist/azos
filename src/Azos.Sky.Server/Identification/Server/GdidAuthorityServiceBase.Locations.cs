@@ -18,12 +18,12 @@ namespace Azos.Sky.Identification.Server{ public partial class GdidAuthorityServ
     protected PersistenceLocation(IConfigSectionNode node)
     {
       if (node==null)
-        throw new GdidException(StringConsts.ARGUMENT_ERROR + "PersistenceLocation(node=null)");
+        throw new GdidException(ServerStringConsts.ARGUMENT_ERROR + "PersistenceLocation(node=null)");
 
       Name  = node.AttrByName(Configuration.CONFIG_NAME_ATTR).Value;
       Order = node.AttrByName(Configuration.CONFIG_ORDER_ATTR).ValueAsInt();
       if (Name.IsNullOrWhiteSpace())
-        throw new GdidException(StringConsts.ARGUMENT_ERROR + "PersistenceLocation(name=null|empty)");
+        throw new GdidException(ServerStringConsts.ARGUMENT_ERROR + "PersistenceLocation(name=null|empty)");
     }
 
     public string Name  { get; private set; }
@@ -51,7 +51,7 @@ namespace Azos.Sky.Identification.Server{ public partial class GdidAuthorityServ
     {
       DiskPath  = node.AttrByName(CONFIG_PATH_ATTR).Value;
       if (DiskPath.IsNullOrWhiteSpace())
-        throw new GdidException(StringConsts.ARGUMENT_ERROR + "DiskPersistenceLocation(path=null|empty)");
+        throw new GdidException(ServerStringConsts.ARGUMENT_ERROR + "DiskPersistenceLocation(path=null|empty)");
 
       Fsync = node.AttrByName(CONFIG_FSYNC_ATTR).ValueAsBool(true);
     }
@@ -83,7 +83,7 @@ namespace Azos.Sky.Identification.Server{ public partial class GdidAuthorityServ
       var fname = getFileName(DiskPath, authority, scopeName, sequenceName);
 
       if (fname.Length>MAX_PATH_LENGTH)
-        throw new GdidException(StringConsts.GDIDAUTH_DISK_PATH_TOO_LONG_ERROR.Args(fname));
+        throw new GdidException(ServerStringConsts.GDIDAUTH_DISK_PATH_TOO_LONG_ERROR.Args(fname));
 
       var authDir = Path.Combine(DiskPath, AuthorityPathSeg(authority));
       if (!Directory.Exists(authDir))
@@ -135,7 +135,7 @@ namespace Azos.Sky.Identification.Server{ public partial class GdidAuthorityServ
     {
       Host  = node.AttrByName(CONFIG_HOST_ATTR).Value;
       if (Host.IsNullOrWhiteSpace())
-        throw new GdidException(StringConsts.ARGUMENT_ERROR + "RemotePersistenceLocation(host=null|empty)");
+        throw new GdidException(ServerStringConsts.ARGUMENT_ERROR + "RemotePersistenceLocation(host=null|empty)");
     }
 
     public string Host  { get; private set; }

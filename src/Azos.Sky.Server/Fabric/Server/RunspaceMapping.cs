@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Azos.Apps;
@@ -70,6 +71,24 @@ namespace Azos.Sky.Fabric.Server
     /// Returns all shard mappings for this runspace
     /// </summary>
     public IAtomRegistry<ShardMapping> Shards => m_Shards;
+
+
+    /// <summary>
+    /// Returns a shard where a new allocation should go next, depending on
+    /// <see cref="ShardMapping.AllocationFactor"/> and system state.
+    /// Null when no shards can take any allocations
+    /// </summary>
+    public ShardMapping GetShardForNewAllocation()
+    {
+      var result = Shards.Select(one => (e: one, f: one.AllocationFactor)) //make a copy
+                         .Where(one => one.f > 0)
+                         .FirstMin(one => Interlocked.Read(ref one.e.m_AllocationCount) / one.f).e;
+
+      if (result == null) return null;
+
+      Interlocked.Increment(ref result.m_AllocationCount);
+      return result;
+    }
 
   }
 }

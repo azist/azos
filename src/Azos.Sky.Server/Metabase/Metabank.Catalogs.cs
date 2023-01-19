@@ -25,7 +25,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
         internal Catalog(Metabank bank, string name)
         {
           if (bank==null || name.IsNullOrWhiteSpace())
-            throw new MetabaseException(StringConsts.ARGUMENT_ERROR + this.GetType().Name + ".ctor(bank==null|name==null|empty)");
+            throw new MetabaseException(ServerStringConsts.ARGUMENT_ERROR + this.GetType().Name + ".ctor(bank==null|name==null|empty)");
 
           Metabank = bank;
           m_Name = name;

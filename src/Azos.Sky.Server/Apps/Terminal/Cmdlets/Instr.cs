@@ -64,7 +64,7 @@ namespace Azos.Apps.Terminal.Cmdlets
                 if (App is ISkyApplication skya)
                   skya.Metabase.InstrumentationEnabled = on;
                 else
-                  throw new Sky.SkyException(Sky.StringConsts.RT_CMDLET_CAPABILITY_NOT_SKY_APP_ERROR.Args("instr."+type));
+                  throw new Sky.SkyException(Sky.ServerStringConsts.RT_CMDLET_CAPABILITY_NOT_SKY_APP_ERROR.Args("instr."+type));
                 break;
             }
 

@@ -56,7 +56,7 @@ namespace Azos.Sky.Workers
     public TodoFrame(Todo todo, int? serializer = SERIALIZER_DEFAULT)
     {
       if (todo == null)
-        throw new WorkersException(StringConsts.ARGUMENT_ERROR + "TodoFrame.ctor(todo==null)");
+        throw new WorkersException(ServerStringConsts.ARGUMENT_ERROR + "TodoFrame.ctor(todo==null)");
 
       ____CtorOriginal = todo;
 
@@ -67,7 +67,7 @@ namespace Azos.Sky.Workers
         if (serializer == SERIALIZER_DEFAULT) serializer = SERIALIZER_BSON;
         else
         if (serializer != SERIALIZER_BSON)//we only support BSON for now
-          throw new WorkersException(StringConsts.TODO_FRAME_SER_NOT_SUPPORTED_ERROR.Args(todo.GetType().Name, serializer));
+          throw new WorkersException(ServerStringConsts.TODO_FRAME_SER_NOT_SUPPORTED_ERROR.Args(todo.GetType().Name, serializer));
 
         byte[] content;
         try
@@ -77,7 +77,7 @@ namespace Azos.Sky.Workers
         }
         catch (Exception error)
         {
-          throw new WorkersException(StringConsts.TODO_FRAME_SER_ERROR.Args(todo.GetType().FullName, error.ToMessageWithType()), error);
+          throw new WorkersException(ServerStringConsts.TODO_FRAME_SER_ERROR.Args(todo.GetType().FullName, error.ToMessageWithType()), error);
         }
 
         this.Serializer = serializer.Value;
@@ -136,7 +136,7 @@ namespace Azos.Sky.Workers
 
       //4. Deserialize content
       if (Serializer!=TodoFrame.SERIALIZER_BSON) //for now only support this serializer
-        throw new WorkersException(StringConsts.TODO_FRAME_DESER_NOT_SUPPORTED_ERROR.Args(type.Name, Serializer));
+        throw new WorkersException(ServerStringConsts.TODO_FRAME_DESER_NOT_SUPPORTED_ERROR.Args(type.Name, Serializer));
 
       try
       {
@@ -145,7 +145,7 @@ namespace Azos.Sky.Workers
       }
       catch(Exception error)
       {
-        throw new WorkersException(StringConsts.TODO_FRAME_DESER_ERROR.Args(type.Name, error.ToMessageWithType()), error);
+        throw new WorkersException(ServerStringConsts.TODO_FRAME_DESER_ERROR.Args(type.Name, error.ToMessageWithType()), error);
       }
 
       return result;

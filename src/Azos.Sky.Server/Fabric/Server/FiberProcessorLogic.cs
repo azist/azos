@@ -15,13 +15,15 @@ using Azos.Collections;
 using Azos.Conf;
 using Azos.Log;
 using Azos.Instrumentation;
+using Azos.Data.Idgen;
+using Azos.Apps.Injection;
 
 namespace Azos.Sky.Fabric.Server
 {
   /// <summary>
   /// Abstraction of fiber persisted store - where the system stores the state of fibers
   /// </summary>
-  public sealed class FiberProcessorDaemon : Daemon, IFiberManager
+  public sealed class FiberProcessorDaemon : DaemonWithInstrumentation<IApplicationComponent>, IFiberManager
   {
     public const int QUANTUM_SIZE_DEFAULT = 32;
     public const int QUANTUM_SIZE_MIN = 1;
@@ -35,6 +37,9 @@ namespace Azos.Sky.Fabric.Server
       base.Destructor();
     }
 
+
+    [Inject] IGdidProviderModule m_Gdid;
+
     private Thread m_Thread;
     private AutoResetEvent m_PendingEvent;
     private AutoResetEvent m_IdleEvent;
@@ -47,6 +52,9 @@ namespace Azos.Sky.Fabric.Server
 
 
     public override string ComponentLogTopic => CoreConsts.FABRIC_TOPIC;
+
+    [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_FABRIC, CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
+    public override bool InstrumentationEnabled { get; set; }
 
     /// <summary>
     /// Controls processor fiber scheduling mechanism by defining the size of fiber quantum -
@@ -329,14 +337,27 @@ namespace Azos.Sky.Fabric.Server
     #endregion
 
     #region IFiberManager
-    public IEnumerable<Atom> GetRunspaces()
-    {
-      throw new NotImplementedException();
-    }
+    public IEnumerable<Atom> GetRunspaces() => m_Runspaces.Select(one => one.Name).ToArray();
 
     public FiberId AllocateFiberId(Atom runspace)
     {
-      throw new NotImplementedException();
+      CheckDaemonActive();
+      runspace.IsValidNonZero(nameof(runspace));
+      var rs = m_Runspaces[runspace];
+      rs.NonNull($"Runspace `{runspace}`");
+      var shard = rs.GetShardForNewAllocation();
+
+      if (shard == null)
+      {
+        throw new FabricFiberAllocationException(ServerStringConsts.FABRIC_FIBER_ALLOC_NO_SPACE_ERROR.Args());
+      }
+
+
+      //Runspaces must be in separate databases as their ids are used as sequence names
+      var gdid = m_Gdid.Provider.GenerateOneGdid(SysConsts.GDID_NS_FABRIC, runspace.Value);
+
+      var result = new FiberId(rs.Name, shard.Name, gdid);
+      return result;
     }
 
     public Task<FiberInfo> StartFiberAsync(FiberStartArgs args)

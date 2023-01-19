@@ -26,7 +26,7 @@ namespace Azos.Apps.ZoneGovernor
 
     public ZoneGovernorService Service => m_App.NonNull(nameof(m_App))
                                               .Singletons
-                                              .Get<ZoneGovernorService>() ?? throw new AZGOVException(Sky.StringConsts.AZGOV_INSTANCE_NOT_ALLOCATED_ERROR);
+                                              .Get<ZoneGovernorService>() ?? throw new AZGOVException(Sky.ServerStringConsts.AZGOV_INSTANCE_NOT_ALLOCATED_ERROR);
 
 
     public int SendTelemetry(string host, Azos.Instrumentation.Datum[] data)

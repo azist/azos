@@ -35,7 +35,7 @@ namespace Azos.Sky//for convenience it is in root namespace
               }
               catch (Exception error)
               {
-                throw new CoordinationException(StringConsts.HOST_SET_BUILDER_SINGLETON_CONFIG_ERROR
+                throw new CoordinationException(ServerStringConsts.HOST_SET_BUILDER_SINGLETON_CONFIG_ERROR
                                                             .Args(conf, error.ToMessageWithType()), error);
               }
             }).instance;

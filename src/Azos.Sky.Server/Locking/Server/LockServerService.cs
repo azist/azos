@@ -153,12 +153,12 @@ namespace Azos.Sky.Locking.Server
       Interlocked.Increment(ref m_CurrentServerCalls);
 
       if (session==null || transaction==null)
-        throw new LockingException(StringConsts.ARGUMENT_ERROR+GetType().Name+".ExecuteLockTransaction(session|transaction==null)");
+        throw new LockingException(ServerStringConsts.ARGUMENT_ERROR+GetType().Name+".ExecuteLockTransaction(session|transaction==null)");
 
       var isPing = transaction.Statements == null;
 
       if (!isPing && transaction.Namespace.IsNullOrWhiteSpace())
-        throw new LockingException(StringConsts.ARGUMENT_ERROR+GetType().Name+".ExecuteLockTransaction(transaction.Namespace==null|empty)");
+        throw new LockingException(ServerStringConsts.ARGUMENT_ERROR+GetType().Name+".ExecuteLockTransaction(transaction.Namespace==null|empty)");
 
       var sapp = App.AsSky();
       var currentTrustLevel = CurrentTrustLevel;

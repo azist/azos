@@ -109,7 +109,7 @@ namespace Azos.Sky.Workers
     public PID Allocate(string zonePath)
     {
       if (zonePath.IsNullOrWhiteSpace())
-        throw new WorkersException(StringConsts.ARGUMENT_ERROR + GetType().Name + ".AllocateMutex(zontPath=null|empty)");
+        throw new WorkersException(ServerStringConsts.ARGUMENT_ERROR + GetType().Name + ".AllocateMutex(zontPath=null|empty)");
 
       var gdid = App.GdidProvider.GenerateOneGdid(SysConsts.GDID_NS_WORKER, SysConsts.GDID_NAME_WORKER_PROCESS);
       return DoAllocate(zonePath, gdid.ToString(), true);
@@ -121,7 +121,7 @@ namespace Azos.Sky.Workers
     public PID AllocateMutex(string zonePath, string mutex)
     {
       if (zonePath.IsNullOrWhiteSpace() || mutex.IsNullOrWhiteSpace())
-        throw new WorkersException(StringConsts.ARGUMENT_ERROR + GetType().Name + ".AllocateMutex((zontPath|mutex)=null|empty)");
+        throw new WorkersException(ServerStringConsts.ARGUMENT_ERROR + GetType().Name + ".AllocateMutex((zontPath|mutex)=null|empty)");
 
       mutex = mutex.ToLowerInvariant();
 
@@ -278,12 +278,12 @@ namespace Azos.Sky.Workers
       {
         var name = cn.AttrByName(Configuration.CONFIG_NAME_ATTR).Value;
         if (name.IsNullOrWhiteSpace())
-          throw new CoordinationException(StringConsts.PM_HOSTSET_CONFIG_MISSING_NAME_ERROR);
+          throw new CoordinationException(ServerStringConsts.PM_HOSTSET_CONFIG_MISSING_NAME_ERROR);
 
         var path = cn.AttrByName(CONFIG_PATH_ATTR).Value;
 
         if (path.IsNullOrWhiteSpace())
-          throw new CoordinationException(StringConsts.PM_HOSTSET_CONFIG_PATH_MISSING_ERROR.Args(name));
+          throw new CoordinationException(ServerStringConsts.PM_HOSTSET_CONFIG_PATH_MISSING_ERROR.Args(name));
 
         var spar = cn.AttrByName(CONFIG_SEARCH_PARENT_ATTR).ValueAsBool(true);
         var tNoc = cn.AttrByName(CONFIG_TRANSCEND_NOC_ATTR).ValueAsBool(false);
@@ -291,7 +291,7 @@ namespace Azos.Sky.Workers
 
         var added = m_HostSets.Register(hset);
         if (!added)
-          throw new CoordinationException(StringConsts.PM_HOSTSET_CONFIG_DUPLICATE_NAME_ERROR.Args(name));
+          throw new CoordinationException(ServerStringConsts.PM_HOSTSET_CONFIG_DUPLICATE_NAME_ERROR.Args(name));
       }
     }
     #endregion
@@ -300,12 +300,12 @@ namespace Azos.Sky.Workers
     private HostSet getHostSet(string hostSetName)
     {
       if (hostSetName == null)
-        throw new CoordinationException(StringConsts.ARGUMENT_ERROR + "HostSetHub.EnqueueTodo(hostSetName=null|empty)");
+        throw new CoordinationException(ServerStringConsts.ARGUMENT_ERROR + "HostSetHub.EnqueueTodo(hostSetName=null|empty)");
 
       var result = m_HostSets[hostSetName];
 
       if (result == null)
-        throw new CoordinationException(StringConsts.ARGUMENT_ERROR + "HostSetHub.EnqueueTodo(hostSetName'{0}') not found".Args(hostSetName));
+        throw new CoordinationException(ServerStringConsts.ARGUMENT_ERROR + "HostSetHub.EnqueueTodo(hostSetName'{0}') not found".Args(hostSetName));
 
       return result;
     }

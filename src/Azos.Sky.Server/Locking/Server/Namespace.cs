@@ -19,7 +19,7 @@ namespace Azos.Sky.Locking.Server
     internal Namespace(IApplication app, string name)
     {
       if (name.IsNullOrWhiteSpace())
-        throw new LockingException(StringConsts.ARGUMENT_ERROR+"Namespace.ctor(name==null|empty)");
+        throw new LockingException(ServerStringConsts.ARGUMENT_ERROR+"Namespace.ctor(name==null|empty)");
 
       App = app;
 

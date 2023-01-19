@@ -172,7 +172,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
          {
             var result = this[path] as SectionRegion;
             if (result==null)
-              throw new MetabaseException(StringConsts.METABASE_REG_CATALOG_NAV_ERROR.Args("NavigateRegion()", path ?? SysConsts.NULL));
+              throw new MetabaseException(ServerStringConsts.METABASE_REG_CATALOG_NAV_ERROR.Args("NavigateRegion()", path ?? SysConsts.NULL));
             return result;
          }
 
@@ -183,7 +183,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
          {
             var result = this[path] as SectionNOC;
             if (result==null)
-              throw new MetabaseException(StringConsts.METABASE_REG_CATALOG_NAV_ERROR.Args("NavigateNOC()", path ?? SysConsts.NULL));
+              throw new MetabaseException(ServerStringConsts.METABASE_REG_CATALOG_NAV_ERROR.Args("NavigateNOC()", path ?? SysConsts.NULL));
             return result;
          }
 
@@ -194,7 +194,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
          {
             var result = this[path] as SectionZone;
             if (result==null)
-              throw new MetabaseException(StringConsts.METABASE_REG_CATALOG_NAV_ERROR.Args("NavigateZone()", path ?? SysConsts.NULL));
+              throw new MetabaseException(ServerStringConsts.METABASE_REG_CATALOG_NAV_ERROR.Args("NavigateZone()", path ?? SysConsts.NULL));
             return result;
          }
 
@@ -205,7 +205,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
          {
             var result =  this[path] as SectionHost;
             if (result==null)
-              throw new MetabaseException(StringConsts.METABASE_REG_CATALOG_NAV_ERROR.Args("NavigateHost()", path ?? SysConsts.NULL));
+              throw new MetabaseException(ServerStringConsts.METABASE_REG_CATALOG_NAV_ERROR.Args("NavigateHost()", path ?? SysConsts.NULL));
             return result;
          }
 
@@ -223,7 +223,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
            {
              if (noc.EffectiveGeoCenter.Equals(CoreConsts.DEFAULT_GEO_LOCATION))
                output.Add( new MetabaseValidationMsg(MetabaseValidationMessageType.Warning, this, noc,
-                                     StringConsts.METABASE_NOC_DEFAULT_GEO_CENTER_WARNING.Args(noc.Name, noc.EffectiveGeoCenter)) );
+                                     ServerStringConsts.METABASE_NOC_DEFAULT_GEO_CENTER_WARNING.Args(noc.Name, noc.EffectiveGeoCenter)) );
 
              output.Add(new MetabaseValidationMsg(MetabaseValidationMessageType.Info, this, noc,
                                      "Distance to '{0}' is {1}km".Args(App.GetThisHostMetabaseSection().RegionPath,

@@ -95,10 +95,10 @@ namespace Azos.Sky.Contracts
                                                                 ) where TServiceClient : class, ISkyServiceClient
     {
       if (callBody == null)
-        throw new Clients.SkyClientException(StringConsts.ARGUMENT_ERROR + typeof(ServiceClientHub).Name + ".CallWithRetry<{0}>(callBody==null)".Args(typeof(TServiceClient).Name));
+        throw new Clients.SkyClientException(ServerStringConsts.ARGUMENT_ERROR + typeof(ServiceClientHub).Name + ".CallWithRetry<{0}>(callBody==null)".Args(typeof(TServiceClient).Name));
 
       if (hosts == null || !hosts.Any())
-        throw new Clients.SkyClientException(StringConsts.ARGUMENT_ERROR + typeof(ServiceClientHub).Name + ".CallWithRetry<{0}>(hosts==null|[0])".Args(typeof(TServiceClient).Name));
+        throw new Clients.SkyClientException(ServerStringConsts.ARGUMENT_ERROR + typeof(ServiceClientHub).Name + ".CallWithRetry<{0}>(hosts==null|[0])".Args(typeof(TServiceClient).Name));
 
       foreach (var host in hosts)
       {
@@ -111,7 +111,7 @@ namespace Azos.Sky.Contracts
           {
             WriteLog(MessageType.Error,
                     nameof(CallWithRetry),
-                    StringConsts.SKY_SVC_CLIENT_HUB_RETRY_CALL_HOST_ERROR.Args(typeof(TServiceClient).FullName, host, error.ToMessageWithType()),
+                    ServerStringConsts.SKY_SVC_CLIENT_HUB_RETRY_CALL_HOST_ERROR.Args(typeof(TServiceClient).FullName, host, error.ToMessageWithType()),
                     error);
 
             Instrumentation.ServiceClientHubRetriableCallError.Happened(typeof(TServiceClient), host);
@@ -123,7 +123,7 @@ namespace Azos.Sky.Contracts
           }
       }
 
-      throw new Clients.SkyClientException(StringConsts.SKY_SVC_CLIENT_HUB_CALL_RETRY_FAILED_ERROR.Args(typeof(TServiceClient).Name, hosts.Count()));
+      throw new Clients.SkyClientException(ServerStringConsts.SKY_SVC_CLIENT_HUB_CALL_RETRY_FAILED_ERROR.Args(typeof(TServiceClient).Name, hosts.Count()));
     }
 
 
@@ -143,10 +143,10 @@ namespace Azos.Sky.Contracts
                                                      string svcName = null) where TServiceClient : class, ISkyServiceClient
     {
       if (callBody == null)
-        throw new Clients.SkyClientException(StringConsts.ARGUMENT_ERROR + typeof(ServiceClientHub).Name + ".CallWithRetry<{0}>(callBody==null)".Args(typeof(TServiceClient).Name));
+        throw new Clients.SkyClientException(ServerStringConsts.ARGUMENT_ERROR + typeof(ServiceClientHub).Name + ".CallWithRetry<{0}>(callBody==null)".Args(typeof(TServiceClient).Name));
 
       if (hosts == null || !hosts.Any())
-        throw new Clients.SkyClientException(StringConsts.ARGUMENT_ERROR + typeof(ServiceClientHub).Name + ".CallWithRetry<{0}>(hosts==null|[0])".Args(typeof(TServiceClient).Name));
+        throw new Clients.SkyClientException(ServerStringConsts.ARGUMENT_ERROR + typeof(ServiceClientHub).Name + ".CallWithRetry<{0}>(hosts==null|[0])".Args(typeof(TServiceClient).Name));
 
       foreach (var host in hosts)
       {
@@ -160,7 +160,7 @@ namespace Azos.Sky.Contracts
           {
             WriteLog(MessageType.Error,
                    nameof(CallWithRetry),
-                   StringConsts.SKY_SVC_CLIENT_HUB_RETRY_CALL_HOST_ERROR.Args(typeof(TServiceClient).FullName, host, error.ToMessageWithType()),
+                   ServerStringConsts.SKY_SVC_CLIENT_HUB_RETRY_CALL_HOST_ERROR.Args(typeof(TServiceClient).FullName, host, error.ToMessageWithType()),
                    error);
 
             Instrumentation.ServiceClientHubRetriableCallError.Happened(typeof(TServiceClient), host);
@@ -172,7 +172,7 @@ namespace Azos.Sky.Contracts
           }
       }
 
-      throw new Clients.SkyClientException(StringConsts.SKY_SVC_CLIENT_HUB_CALL_RETRY_FAILED_ERROR.Args(typeof(TServiceClient).Name, hosts.Count()));
+      throw new Clients.SkyClientException(ServerStringConsts.SKY_SVC_CLIENT_HUB_CALL_RETRY_FAILED_ERROR.Args(typeof(TServiceClient).Name, hosts.Count()));
     }
 
 
@@ -193,10 +193,10 @@ namespace Azos.Sky.Contracts
                                                                 ) where TServiceClient : class, ISkyServiceClient
     {
       if (callBody == null)
-        throw new Clients.SkyClientException(StringConsts.ARGUMENT_ERROR + typeof(ServiceClientHub).Name + ".CallWithRetry<{0}>(callBody==null)".Args(typeof(TServiceClient).Name));
+        throw new Clients.SkyClientException(ServerStringConsts.ARGUMENT_ERROR + typeof(ServiceClientHub).Name + ".CallWithRetry<{0}>(callBody==null)".Args(typeof(TServiceClient).Name));
 
       if (hosts == null || !hosts.Any())
-        throw new Clients.SkyClientException(StringConsts.ARGUMENT_ERROR + typeof(ServiceClientHub).Name + ".CallWithRetry<{0}>(hosts==null|[0])".Args(typeof(TServiceClient).Name));
+        throw new Clients.SkyClientException(ServerStringConsts.ARGUMENT_ERROR + typeof(ServiceClientHub).Name + ".CallWithRetry<{0}>(hosts==null|[0])".Args(typeof(TServiceClient).Name));
 
       var hostsCopy = hosts.ToArray();
       var hostsEnum = ((IEnumerable<string>)hostsCopy).GetEnumerator();
@@ -235,7 +235,7 @@ namespace Azos.Sky.Contracts
         {
           WriteLog(MessageType.Error,
                    nameof(CallWithRetryAsync),
-                   StringConsts.SKY_SVC_CLIENT_HUB_RETRY_CALL_HOST_ERROR.Args(typeof(TServiceClient).FullName, host, ex.ToMessageWithType()),
+                   ServerStringConsts.SKY_SVC_CLIENT_HUB_RETRY_CALL_HOST_ERROR.Args(typeof(TServiceClient).FullName, host, ex.ToMessageWithType()),
                    ex);
 
           Instrumentation.ServiceClientHubRetriableCallError.Happened(typeof(TServiceClient), host);
@@ -272,7 +272,7 @@ namespace Azos.Sky.Contracts
 
               WriteLog(MessageType.Error,
                    nameof(CallWithRetryAsync),
-                   StringConsts.SKY_SVC_CLIENT_HUB_RETRY_CALL_HOST_ERROR.Args(typeof(TServiceClient).FullName, host, innerException.ToMessageWithType()),
+                   ServerStringConsts.SKY_SVC_CLIENT_HUB_RETRY_CALL_HOST_ERROR.Args(typeof(TServiceClient).FullName, host, innerException.ToMessageWithType()),
                    innerException);
 
               Instrumentation.ServiceClientHubRetriableCallError.Happened(typeof(TServiceClient), host);
@@ -300,7 +300,7 @@ namespace Azos.Sky.Contracts
       }
 
       tcs.TrySetException(new Clients.SkyClientException(
-            StringConsts.SKY_SVC_CLIENT_HUB_CALL_RETRY_FAILED_ERROR.Args(typeof(TServiceClient).Name, hostsCount)));
+            ServerStringConsts.SKY_SVC_CLIENT_HUB_CALL_RETRY_FAILED_ERROR.Args(typeof(TServiceClient).Name, hostsCount)));
     }
 
 
@@ -341,12 +341,12 @@ namespace Azos.Sky.Contracts
       Type tcontract = typeof(TServiceClient);
 
       if (toHost.IsNullOrWhiteSpace())
-        throw new Clients.SkyClientException(StringConsts.ARGUMENT_ERROR + GetType().Name + ".GetByContract<{0}>(host==null|empty)".Args(tcontract.Name));
+        throw new Clients.SkyClientException(ServerStringConsts.ARGUMENT_ERROR + GetType().Name + ".GetByContract<{0}>(host==null|empty)".Args(tcontract.Name));
 
       if (fromHost.IsNullOrWhiteSpace()) fromHost = App.HostName;
 
       if (fromHost.IsNullOrWhiteSpace())
-        throw new Clients.SkyClientException(StringConsts.ARGUMENT_ERROR + GetType().Name + ".GetByContract<{0}>(fromHost==null|empty & AgnySystem is not avail)".Args(tcontract.Name));
+        throw new Clients.SkyClientException(ServerStringConsts.ARGUMENT_ERROR + GetType().Name + ".GetByContract<{0}>(fromHost==null|empty & AgnySystem is not avail)".Args(tcontract.Name));
 
 
       ContractMapping mapping = MapContractToImplementation(tcontract);
@@ -370,12 +370,12 @@ namespace Azos.Sky.Contracts
       Type tcontract = typeof(TServiceClient);
 
       if (toHost.IsNullOrWhiteSpace())
-        throw new Clients.SkyClientException(StringConsts.ARGUMENT_ERROR + GetType().Name + ".TestByContract<{0}>(host==null|empty)".Args(tcontract.Name));
+        throw new Clients.SkyClientException(ServerStringConsts.ARGUMENT_ERROR + GetType().Name + ".TestByContract<{0}>(host==null|empty)".Args(tcontract.Name));
 
       if (fromHost.IsNullOrWhiteSpace()) fromHost = App.HostName;
 
       if (fromHost.IsNullOrWhiteSpace())
-        throw new Clients.SkyClientException(StringConsts.ARGUMENT_ERROR + GetType().Name + ".TestByContract<{0}>(fromHost==null|empty & SkySystem is not avail)".Args(tcontract.Name));
+        throw new Clients.SkyClientException(ServerStringConsts.ARGUMENT_ERROR + GetType().Name + ".TestByContract<{0}>(fromHost==null|empty & SkySystem is not avail)".Args(tcontract.Name));
 
 
       ContractMapping mapping = MapContractToImplementation(tcontract);
@@ -396,7 +396,7 @@ namespace Azos.Sky.Contracts
       }
       catch (Exception error)
       {
-        throw new Clients.SkyClientException(StringConsts.SKY_SVC_CLIENT_HUB_MAPPING_ERROR.Args(tContract.FullName, error.ToMessageWithType()), error);
+        throw new Clients.SkyClientException(ServerStringConsts.SKY_SVC_CLIENT_HUB_MAPPING_ERROR.Args(tContract.FullName, error.ToMessageWithType()), error);
       }
     }
 
@@ -405,7 +405,7 @@ namespace Azos.Sky.Contracts
       try { return DoResolveNetworkService(mapping, toHost, fromHost, svcName, out isGlobal); }
       catch (Exception error)
       {
-        throw new Clients.SkyClientException(StringConsts.SKY_SVC_CLIENT_HUB_NET_RESOLVE_ERROR.Args(mapping, error.ToMessageWithType()), error);
+        throw new Clients.SkyClientException(ServerStringConsts.SKY_SVC_CLIENT_HUB_NET_RESOLVE_ERROR.Args(mapping, error.ToMessageWithType()), error);
       }
     }
 
@@ -414,7 +414,7 @@ namespace Azos.Sky.Contracts
       try { return DoMakeClientInstance<TServiceClient>(mapping, isGlobal, node); }
       catch (Exception error)
       {
-        throw new Clients.SkyClientException(StringConsts.SKY_SVC_CLIENT_HUB_MAKE_INSTANCE_ERROR.Args(mapping, error.ToMessageWithType()), error);
+        throw new Clients.SkyClientException(ServerStringConsts.SKY_SVC_CLIENT_HUB_MAKE_INSTANCE_ERROR.Args(mapping, error.ToMessageWithType()), error);
       }
     }
 
@@ -423,7 +423,7 @@ namespace Azos.Sky.Contracts
       try { DoSetupClientInstance(mapping, isGlobal, instance, toHost, fromHost); }
       catch (Exception error)
       {
-        throw new Clients.SkyClientException(StringConsts.SKY_SVC_CLIENT_HUB_SETUP_INSTANCE_ERROR.Args(mapping, error.ToMessageWithType()), error);
+        throw new Clients.SkyClientException(ServerStringConsts.SKY_SVC_CLIENT_HUB_SETUP_INSTANCE_ERROR.Args(mapping, error.ToMessageWithType()), error);
       }
     }
 

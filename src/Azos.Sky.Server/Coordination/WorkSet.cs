@@ -33,7 +33,7 @@ namespace Azos.Sky.Coordination
     protected WorkSet(IApplication app,  string path, string name) : base(app)
     {
       if (name.IsNullOrWhiteSpace())
-        throw new CoordinationException(StringConsts.ARGUMENT_ERROR+"WorkSet.ctor(name=null|empty)");
+        throw new CoordinationException(ServerStringConsts.ARGUMENT_ERROR+"WorkSet.ctor(name=null|empty)");
 
       if (path.IsNullOrWhiteSpace())
         path = App.GetThisHostMetabaseSection().ParentZone.RegionPath;

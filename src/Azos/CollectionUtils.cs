@@ -114,7 +114,11 @@ namespace Azos
       }
     }
 
-
+    /// <summary>
+    /// Returns an item from a sequence which has the minimum (the smallest) comparand value according to the comparand
+    /// selector function. Returns default(TResult) if the sequence is empty.
+    /// A sequence of a single element returns that element
+    /// </summary>
     public static TResult FirstMin<TResult, TComparand>(this IEnumerable<TResult> source,
                                                         Func<TResult, TComparand> selector) where TComparand: IComparable
     {
@@ -122,7 +126,11 @@ namespace Azos
       return source.FirstMin(selector, out dummy);
     }
 
-
+    /// <summary>
+    /// Returns an item from a sequence which has the minimum (the smallest) comparand value according to the comparand
+    /// selector function. Returns default(TResult) if the sequence is empty.
+    /// A sequence of a single element returns that element
+    /// </summary>
     public static TResult FirstMin<TResult, TComparand>(this IEnumerable<TResult> source,
                                                         Func<TResult, TComparand> selector,
                                                         out TComparand minComparand) where TComparand: IComparable
@@ -130,7 +138,11 @@ namespace Azos
       return firstMinMax(true, source, selector, out minComparand);
     }
 
-
+    /// <summary>
+    /// Returns an item from a sequence which has the maximum (the largest) comparand value according to the comparand
+    /// selector function. Returns default(TResult) if the sequence is empty.
+    /// A sequence of a single element returns that element
+    /// </summary>
     public static TResult FirstMax<TResult, TComparand>(this IEnumerable<TResult> source,
                                                         Func<TResult, TComparand> selector) where TComparand: IComparable
     {
@@ -138,7 +150,11 @@ namespace Azos
       return source.FirstMax(selector, out dummy);
     }
 
-
+    /// <summary>
+    /// Returns an item from a sequence which has the maximum (the largest) comparand value according to the comparand
+    /// selector function. Returns default(TResult) if the sequence is empty.
+    /// A sequence of a single element returns that element
+    /// </summary>
     public static TResult FirstMax<TResult, TComparand>(this IEnumerable<TResult> source,
                                                         Func<TResult, TComparand> selector,
                                                         out TComparand maxComparand) where TComparand: IComparable
@@ -146,21 +162,21 @@ namespace Azos
       return firstMinMax(false, source, selector, out maxComparand);
     }
 
-    private static TResult firstMinMax<TResult, TComparand>(bool min,
-                                                        IEnumerable<TResult> source,
-                                                        Func<TResult, TComparand> selector,
-                                                        out TComparand latchedComparand) where TComparand: IComparable
+    private static TResult firstMinMax<TResult, TComparand>(bool ismin,
+                                                            IEnumerable<TResult> source,
+                                                            Func<TResult, TComparand> selector,
+                                                            out TComparand latchedComparand) where TComparand: IComparable
     {
       var latchedResult = default(TResult);
       latchedComparand = default(TComparand);
 
       if (source==null || selector==null) return latchedResult;
 
-      bool was = false;
+      var was = false;
       foreach(var elm in source)
       {
         var c = selector(elm);
-        if (!was || (min ? c.CompareTo(latchedComparand)<0 : c.CompareTo(latchedComparand)>0))
+        if (!was || (ismin ? c.CompareTo(latchedComparand)<0 : c.CompareTo(latchedComparand)>0))
         {
           latchedResult = elm;
           latchedComparand = c;

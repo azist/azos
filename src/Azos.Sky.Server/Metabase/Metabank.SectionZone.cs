@@ -193,20 +193,20 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
             {
               var id = hn.AttrByName(CONFIG_PROCESSOR_HOST_ID_ATTR).ValueAsNullableInt(null);
               if (!id.HasValue)
-                throw new MetabaseException(StringConsts.METABASE_PROCESSOR_SET_MISSING_ATTRIBUTE_ERROR.Args(CONFIG_PROCESSOR_HOST_ID_ATTR));
+                throw new MetabaseException(ServerStringConsts.METABASE_PROCESSOR_SET_MISSING_ATTRIBUTE_ERROR.Args(CONFIG_PROCESSOR_HOST_ID_ATTR));
 
               var primaryHostPath = RegCatalog.JoinPathSegments(RegionPath, hn.AttrByName(CONFIG_PROCESSOR_HOST_PRIMARY_PATH_ATTR).Value);
               var primaryHost = Catalog.NavigateHost(primaryHostPath);
               if (!primaryHost.IsProcessHost)
-                throw new MetabaseException(StringConsts.METABASE_PROCESSOR_SET_HOST_IS_NOT_PROCESSOR_HOST_ERROR.Args(id.Value));
+                throw new MetabaseException(ServerStringConsts.METABASE_PROCESSOR_SET_HOST_IS_NOT_PROCESSOR_HOST_ERROR.Args(id.Value));
 
               var seondaryHostPath = RegCatalog.JoinPathSegments(RegionPath, hn.AttrByName(CONFIG_PROCESSOR_HOST_SECONDARY_PATH_ATTR).Value);
               var secondaryHost = Catalog.NavigateHost(seondaryHostPath);
               if (!secondaryHost.IsProcessHost)
-                throw new MetabaseException(StringConsts.METABASE_PROCESSOR_SET_HOST_IS_NOT_PROCESSOR_HOST_ERROR.Args(id.Value));
+                throw new MetabaseException(ServerStringConsts.METABASE_PROCESSOR_SET_HOST_IS_NOT_PROCESSOR_HOST_ERROR.Args(id.Value));
 
               if (m_ProcessorMap.ContainsKey(id.Value))
-                throw new MetabaseException(StringConsts.METABASE_PROCESSOR_SET_DUPLICATE_ATTRIBUTE_ERROR.Args(CONFIG_PROCESSOR_HOST_ID_ATTR));
+                throw new MetabaseException(ServerStringConsts.METABASE_PROCESSOR_SET_DUPLICATE_ATTRIBUTE_ERROR.Args(CONFIG_PROCESSOR_HOST_ID_ATTR));
               m_ProcessorMap.Add(id.Value, new[] { primaryHost, secondaryHost });
             }
           }
@@ -246,7 +246,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
         var hosts = TryGetProcessorHostsByID(id);
 
         if (hosts == null)
-          throw new MetabaseException(StringConsts.METABASE_ZONE_COULD_NOT_FIND_PROCESSOR_HOST_ERROR.Args(RegionPath, id));
+          throw new MetabaseException(ServerStringConsts.METABASE_ZONE_COULD_NOT_FIND_PROCESSOR_HOST_ERROR.Args(RegionPath, id));
 
         return hosts;
       }

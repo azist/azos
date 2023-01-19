@@ -112,7 +112,7 @@ namespace Azos.Sky.Workers.Server
         Log(MessageType.CatastrophicError, "Spawn", error.ToMessageWithType(), error);
 
         // TODO: fix exception
-        throw new WorkersException(StringConsts.TODO_ENQUEUE_TX_BODY_ERROR.Args(error.ToMessageWithType()), error);
+        throw new WorkersException(ServerStringConsts.TODO_ENQUEUE_TX_BODY_ERROR.Args(error.ToMessageWithType()), error);
       }
     }
 
@@ -173,7 +173,7 @@ namespace Azos.Sky.Workers.Server
         Log(MessageType.CatastrophicError, "Update", error.ToMessageWithType(), error);
 
         // TODO fix exception
-        throw new WorkersException(StringConsts.TODO_ENQUEUE_TX_BODY_ERROR.Args(error.ToMessageWithType()), error);
+        throw new WorkersException(ServerStringConsts.TODO_ENQUEUE_TX_BODY_ERROR.Args(error.ToMessageWithType()), error);
       }
     }
 
@@ -198,7 +198,7 @@ namespace Azos.Sky.Workers.Server
         Log(MessageType.CatastrophicError, "Finalize", error.ToMessageWithType(), error);
 
         // TODO fix exception
-        throw new WorkersException(StringConsts.TODO_ENQUEUE_TX_BODY_ERROR.Args(error.ToMessageWithType()), error);
+        throw new WorkersException(ServerStringConsts.TODO_ENQUEUE_TX_BODY_ERROR.Args(error.ToMessageWithType()), error);
       }
     }
 
@@ -290,7 +290,7 @@ namespace Azos.Sky.Workers.Server
         catch (Exception error)
         {
           // TODO : fix exception
-          throw new WorkersException(StringConsts.TODO_CORRELATED_MERGE_ERROR.Args(processExisting, processAnother, error.ToMessageWithType()), error);
+          throw new WorkersException(ServerStringConsts.TODO_CORRELATED_MERGE_ERROR.Args(processExisting, processAnother, error.ToMessageWithType()), error);
         }
       }
       finally

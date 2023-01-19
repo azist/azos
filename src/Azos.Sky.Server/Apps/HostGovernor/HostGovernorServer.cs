@@ -19,7 +19,7 @@ namespace Azos.Apps.HostGovernor
 
     public HostGovernorService Service => m_App.NonNull(nameof(m_App))
                                                .Singletons
-                                               .Get<HostGovernorService>() ?? throw new AHGOVException(Sky.StringConsts.AHGOV_INSTANCE_NOT_ALLOCATED_ERROR);
+                                               .Get<HostGovernorService>() ?? throw new AHGOVException(Sky.ServerStringConsts.AHGOV_INSTANCE_NOT_ALLOCATED_ERROR);
 
     public Sky.Contracts.HostInfo GetHostInfo() => Service.GetHostInfo();
     public void Ping() => Service.Ping();

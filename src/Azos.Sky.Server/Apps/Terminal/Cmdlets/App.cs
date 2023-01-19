@@ -34,7 +34,7 @@ namespace Azos.Apps.Terminal.Cmdlets
       {
         App.Authorize(new SystemAdministratorPermission(AccessLevel.ADVANCED));
 
-        var text = Sky.StringConsts.APPL_CMD_STOPPING_INFO.Args(m_Terminal.Name, m_Terminal.WhenConnected, m_Terminal.Who);
+        var text = Sky.ServerStringConsts.APPL_CMD_STOPPING_INFO.Args(m_Terminal.Name, m_Terminal.WhenConnected, m_Terminal.Who);
         App.Log.Write( new Azos.Log.Message
         {
             Type = Azos.Log.MessageType.Warning,

@@ -40,7 +40,7 @@ namespace Azos.Sky.Locking.Server
        /// </summary>
        public int Commit()
        {
-         if (!m_Changing) throw new LockingException(StringConsts.INTERNAL_IMPLEMENTATION_ERROR + "DataSlot.Commit(!changing)");
+         if (!m_Changing) throw new LockingException(ServerStringConsts.INTERNAL_IMPLEMENTATION_ERROR + "DataSlot.Commit(!changing)");
 
          var nowCount = m_Data!=null? m_Data.Count : 0;
          var wasCount = m_RollbackData!=null? m_RollbackData.Count : 0;
@@ -53,7 +53,7 @@ namespace Azos.Sky.Locking.Server
 
        public void Rollback()
        {
-         if (!m_Changing) throw new LockingException(StringConsts.INTERNAL_IMPLEMENTATION_ERROR + "DataSlot.Rollback(!changing)");
+         if (!m_Changing) throw new LockingException(ServerStringConsts.INTERNAL_IMPLEMENTATION_ERROR + "DataSlot.Rollback(!changing)");
          m_Data = m_RollbackData;
          m_RollbackData = null;
          m_Changing = false;
@@ -112,7 +112,7 @@ namespace Azos.Sky.Locking.Server
     internal Table(Namespace ns, string name)
     {
       if (ns==null || name.IsNullOrWhiteSpace())
-        throw new LockingException(StringConsts.ARGUMENT_ERROR+"Table.ctor(ns==null | name==null|empty)");
+        throw new LockingException(ServerStringConsts.ARGUMENT_ERROR+"Table.ctor(ns==null | name==null|empty)");
 
       m_Namespace = ns;
       m_Name = name;
