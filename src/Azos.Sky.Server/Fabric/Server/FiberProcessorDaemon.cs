@@ -25,21 +25,42 @@ namespace Azos.Sky.Fabric.Server
   /// </summary>
   public sealed class FiberProcessorDaemon : DaemonWithInstrumentation<IApplicationComponent>, IFiberManager
   {
+    public const int VERSION_YYYYMMDD = 20230101;
+
     public const int QUANTUM_SIZE_DEFAULT = 32;
     public const int QUANTUM_SIZE_MIN = 1;
     public const int QUANTUM_SIZE_MAX = 250;
 
-    public FiberProcessorDaemon(IApplicationComponent director) : base(director) { }
+    private static readonly int MAX_TASKS = Environment.ProcessorCount * 8;
+
+    private sealed class daemonRuntime : ApplicationComponent<FiberProcessorDaemon>, IFiberRuntime
+    {
+      public daemonRuntime(FiberProcessorDaemon director) : base(director){ }
+      public override string ComponentLogTopic => CoreConsts.FABRIC_TOPIC;
+
+      public int   Version => VERSION_YYYYMMDD;
+      public float SystemLoadCoefficient => ComponentDirector.SystemLoadCoefficient;
+      public bool  IsRunning => ComponentDirector.Running;
+      public bool  IsDebugging => false;
+    }
+
+
+    public FiberProcessorDaemon(IApplicationComponent director) : base(director)
+    {
+      m_Runtime = new daemonRuntime(this);
+    }
 
     protected override void Destructor()
     {
       cleanupRunspaces();
+      DisposeAndNull(ref m_Runtime);
       base.Destructor();
     }
 
 
     [Inject] IGdidProviderModule m_Gdid;
 
+    private daemonRuntime m_Runtime;
     private Thread m_Thread;
     private AutoResetEvent m_PendingEvent;
     private AutoResetEvent m_IdleEvent;
@@ -88,6 +109,43 @@ namespace Azos.Sky.Fabric.Server
     /// </summary>
     public int PendingCount => Thread.VolatileRead(ref m_PendingCount);
 
+    /// <summary>
+    /// Returns an averaged current system load coefficient expressed as [0..1].
+    /// 1.0 represents full system availability (e.g. low CPU/ram consumption),
+    /// 0.0 represents system being maxed-out of resources.
+    /// Fibers may sometimes query this number to postpone/reschedule processing of slices
+    /// with heavy activity
+    /// </summary>
+    public float SystemLoadCoefficient
+    {
+      get
+      {
+        var ram = Azos.Platform.Computer.GetMemoryStatus().LoadPct;
+        var cpu = Azos.Platform.Computer.CurrentProcessorUsagePct;
+        var wl = (PendingCount / (float)MAX_TASKS).KeepBetween(0.0f, 1.0f);
+
+
+        var result = 1.0f;
+
+        if (ram > 90) return 0f;
+        else if (ram > 80) result -= 0.90f;
+        else if (ram > 70) result -= 0.60f;
+        else if (ram > 60) result -= 0.32f;
+        else if (ram > 50) result -= 0.05f;
+
+        if (cpu > 95) return 0f;
+        else if (cpu > 80) result -= 0.75f;
+        else if (cpu > 70) result -= 0.60f;
+        else if (cpu > 50) result -= 0.18f;
+
+        if (result > 0 &&  wl > .5f)
+        {
+          result *= (1f - wl);
+        }
+
+        return result.AtMinimum(0.0f);
+      }
+    }
 
 
     #region Daemon
@@ -232,7 +290,7 @@ namespace Azos.Sky.Fabric.Server
       processQuantumQueue(workQueue);
     }
 
-    private static readonly int MAX_TASKS = System.Environment.ProcessorCount * 8;
+
 
     private void processQuantumQueue(IEnumerable<ShardMapping> workQueue)
     {
@@ -319,8 +377,10 @@ namespace Azos.Sky.Fabric.Server
 
     private async Task processFiberQuantumCore(FiberMemory memory)
     {
-      Fiber fiber = null;//Allocate dyn from proccess image id
-   //   fiber.__processor__ctor(runtime, pars, state);
+      Type tFiber = null;//Allocate dyn from proccess image id
+
+      var fiber = (Fiber)Serialization.SerializationUtils.MakeNewObjectInstance(tFiber);
+    //  fiber.__processor__ctor(runtime, pars, state);
 
       //todo:  Impersonate here
       try

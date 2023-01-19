@@ -38,8 +38,6 @@ namespace Azos.Sky.Fabric
       base.Destructor();
     }
 
-    [Inject(Optional = true)] IGdidProviderModule m_Gdid;
-
     private HttpService m_Server;
 
 
@@ -91,12 +89,12 @@ namespace Azos.Sky.Fabric
       runspace.HasRequiredValue(nameof(runspace))
               .AsValid(nameof(runspace));
 
-      GDID gFiber;
-      if (m_Gdid != null)
-      {
-        //use local Gdid generator
-        //gFiber = ......
-      }
+      //////GDID gFiber;
+      //////if (m_Gdid != null)
+      //////{
+      //////  //use local Gdid generator
+      //////  //gFiber = ......
+      //////}
 
       //otherwise delagte Gdid generation to server
       throw new NotImplementedException();
