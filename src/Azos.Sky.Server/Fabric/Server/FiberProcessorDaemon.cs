@@ -57,7 +57,7 @@ namespace Azos.Sky.Fabric.Server
       base.Destructor();
     }
 
-
+    [Inject] ISystemLoadMonitor<SysLoadSample> m_SysLoadMonitor;
     [Inject] IGdidProviderModule m_Gdid;
 
     private daemonRuntime m_Runtime;
@@ -120,8 +120,10 @@ namespace Azos.Sky.Fabric.Server
     {
       get
       {
-        var ram = Azos.Platform.Computer.GetMemoryStatus().LoadPct;
-        var cpu = Azos.Platform.Computer.CurrentProcessorUsagePct;
+        var sysLoad = m_SysLoadMonitor.DefaultAverage;
+        var cpu = sysLoad.CpuLoadPercent * 100;
+        var ram = sysLoad.RamLoadPercent * 100;
+
         var wl = (PendingCount / (float)MAX_TASKS).KeepBetween(0.0f, 1.0f);
 
 
@@ -300,7 +302,9 @@ namespace Azos.Sky.Fabric.Server
         while(this.Running)
         {
           var pendingNow = Thread.VolatileRead(ref m_PendingCount);
-          var cpu = Platform.Computer.CurrentProcessorUsagePct; //USE EMA filter
+          var sysLoad = m_SysLoadMonitor.DefaultAverage;
+          var cpu = sysLoad.CpuLoadPercent * 100;
+
           //read CPU consumption here and throttle down proportionally to CPU usage
           var maxTasksNow = cpu < 45 ? MAX_TASKS : cpu < 65 ? MAX_TASKS / 2 : cpu < 85 ? MAX_TASKS / 4 : 1;
           if (pendingNow < maxTasksNow) break;

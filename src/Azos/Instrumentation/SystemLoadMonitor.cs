@@ -69,6 +69,11 @@ namespace Azos.Instrumentation
     IAtomRegistry<TSample> Averages { get; }
 
     /// <summary>
+    /// Returns load monitoring sample averaged using default settings
+    /// </summary>
+    TSample DefaultAverage { get; }
+
+    /// <summary>
     /// Returns the most current system load sample without averaging
     /// </summary>
     TSample CurrentSample { get; }
@@ -95,6 +100,7 @@ namespace Azos.Instrumentation
 
     public TSample CurrentSample => m_Current;
     public IAtomRegistry<TSample> Averages => m_Averages;
+    public TSample DefaultAverage => m_Averages[SysLoadSample.DEFAULT_AVERAGE_NAME];
 
     protected override void DoConfigure(IConfigSectionNode node)
     {
@@ -108,13 +114,12 @@ namespace Azos.Instrumentation
           m_Averages.Register(avg).IsTrue("Unique avg name  `{0}`".Args(avg.Name));
         }
       }
-
-      var sysDefault = MakeSample(SysLoadSample.DEFAULT_AVERAGE_NAME, SysLoadSample.DEFAULT_AVERAGE_FACTOR);
-      m_Averages.RegisterOrReplace(sysDefault);
     }
 
     protected override bool DoApplicationAfterInit()
     {
+      var sysDefault = MakeSample(SysLoadSample.DEFAULT_AVERAGE_NAME, SysLoadSample.DEFAULT_AVERAGE_FACTOR);
+      m_Averages.RegisterOrReplace(sysDefault);
       m_Scheduled = Task.Factory.StartNew(() => takeScheduledMeasureAsync());
       return base.DoApplicationAfterInit();
     }
