@@ -238,5 +238,9 @@ Performance
 
     }
 
+    private void btnEMA_Click(object sender, EventArgs e)
+    {
+      new EMAForm().Show();
+    }
   }
 }

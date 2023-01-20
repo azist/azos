@@ -24,9 +24,6 @@ namespace Azos.Instrumentation
     public static readonly Atom CURRENT = Atom.Encode("current");
     public const string CONFIG_AVERAGE_SECTION = "average";
 
-    public static readonly Atom DEFAULT_AVERAGE_NAME = Atom.Encode("DEFAULT");
-    public const double DEFAULT_AVERAGE_FACTOR = 0.02d;
-
     public SysLoadSample(Atom name, double emaFactor)
     {
       m_Name = name.IsValidNonZero(nameof(name));
@@ -81,7 +78,15 @@ namespace Azos.Instrumentation
 
   public abstract class SystemLoadMonitor<TSample> : ModuleBase, ISystemLoadMonitor<TSample> where TSample : SysLoadSample
   {
-    public SystemLoadMonitor(IApplication app) : base(app)
+    public const int DELAY_MS = 500;
+    public const double DEFAULT_AVERAGE_FACTOR = 0.09898d;//depends on delay ms
+    public static readonly Atom DEFAULT_AVERAGE_NAME = Atom.Encode("DEFAULT");
+
+
+    public SystemLoadMonitor(IApplication app) : base(app) => ctor();
+    public SystemLoadMonitor(IModule parent) : base(parent) => ctor();
+
+    private void ctor()
     {
       m_Current = MakeSample(SysLoadSample.CURRENT, 0d);
       m_Averages = new AtomRegistry<TSample>();
@@ -100,7 +105,7 @@ namespace Azos.Instrumentation
 
     public TSample CurrentSample => m_Current;
     public IAtomRegistry<TSample> Averages => m_Averages;
-    public TSample DefaultAverage => m_Averages[SysLoadSample.DEFAULT_AVERAGE_NAME];
+    public TSample DefaultAverage => m_Averages[DEFAULT_AVERAGE_NAME];
 
     protected override void DoConfigure(IConfigSectionNode node)
     {
@@ -118,7 +123,7 @@ namespace Azos.Instrumentation
 
     protected override bool DoApplicationAfterInit()
     {
-      var sysDefault = MakeSample(SysLoadSample.DEFAULT_AVERAGE_NAME, SysLoadSample.DEFAULT_AVERAGE_FACTOR);
+      var sysDefault = MakeSample(DEFAULT_AVERAGE_NAME, DEFAULT_AVERAGE_FACTOR);
       m_Averages.RegisterOrReplace(sysDefault);
       m_Scheduled = Task.Factory.StartNew(() => takeScheduledMeasureAsync());
       return base.DoApplicationAfterInit();
@@ -139,7 +144,7 @@ namespace Azos.Instrumentation
       {
         if (App.Active)
         {
-          m_Scheduled = Task.Delay(500).ContinueWith(_ => takeScheduledMeasureAsync());
+          m_Scheduled = Task.Delay(DELAY_MS).ContinueWith(_ => takeScheduledMeasureAsync());
         }
       }
     }
@@ -178,6 +183,7 @@ namespace Azos.Instrumentation
   public class DefaultSystemLoadMonitor : SystemLoadMonitor<SysLoadSample>
   {
     public DefaultSystemLoadMonitor(IApplication app) : base(app){ }
+    public DefaultSystemLoadMonitor(IModule parent) : base(parent){ }
 
     protected override SysLoadSample MakeSample(Atom name, double emaFactor) => new SysLoadSample(name, emaFactor);
 

@@ -71,13 +71,13 @@
      file-name="{0:yyyyMMdd}-$($name).FAIL.csv.log"
     />
 
-    <sink
+    <!--sink
      type="Azos.Log.Sinks.ArchiveSink, Azos"
      name="archive"
      path="$(/$log-root)"
      file-name="{0:yyyyMMdd}-$($name).arch.lar"
      ArchivePageSizeBytes="1"
-    />
+    / -->
   </log>
 <!--
     <sink  type="$(/$log-csv)"
@@ -323,5 +323,13 @@
       </sink>
     </sink>
   </messaging>
+
+  <modules>
+    <module
+      name="load"
+      type="Azos.Instrumentation.DefaultSystemLoadMonitor, Azos"
+    >
+    </module>
+  </modules>
 
 </app>

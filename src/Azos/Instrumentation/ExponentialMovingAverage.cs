@@ -28,7 +28,7 @@ namespace Azos.Instrumentation
     /// <summary>
     /// Modifies EMA value in-place by adding a new sample, e.g.:  `EmaDouble.AddNext(ref m_AverageSize, 12.5d);`
     /// </summary>
-    public void AddNext(ref EmaDouble ema, double sample)
+    public static void AddNext(ref EmaDouble ema, double sample)
     {
       ema = ema.AddNext(sample);
     }
@@ -73,7 +73,7 @@ namespace Azos.Instrumentation
     /// <summary>
     /// Modifies EMA value in-place by adding a new sample, e.g.:  `EmaDouble.AddNext(ref m_AverageSize, 12.5d);`
     /// </summary>
-    public void AddNext(ref EmaDecimal ema, decimal sample)
+    public static void AddNext(ref EmaDecimal ema, decimal sample)
     {
       ema = ema.AddNext(sample);
     }
