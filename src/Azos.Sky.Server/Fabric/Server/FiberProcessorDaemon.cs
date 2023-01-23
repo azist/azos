@@ -31,6 +31,10 @@ namespace Azos.Sky.Fabric.Server
     public const int QUANTUM_SIZE_MIN = 1;
     public const int QUANTUM_SIZE_MAX = 250;
 
+    public const int SHUTDOWN_TIMEOUT_SEC_DEFAULT = 25;
+    public const int SHUTDOWN_TIMEOUT_SEC_MIN = 0;
+    public const int SHUTDOWN_TIMEOUT_SEC_MAX = 10 * 60;
+
     private static readonly int MAX_TASKS = Environment.ProcessorCount * 8;
 
     private sealed class daemonRuntime : ApplicationComponent<FiberProcessorDaemon>, IFiberRuntime
@@ -70,7 +74,7 @@ namespace Azos.Sky.Fabric.Server
     private int m_PendingCount;//semaphore
 
     private int m_QuantumSize = QUANTUM_SIZE_DEFAULT;
-
+    private int m_ShutdownTimeoutSec = SHUTDOWN_TIMEOUT_SEC_DEFAULT;
 
     public override string ComponentLogTopic => CoreConsts.FABRIC_TOPIC;
 
@@ -82,7 +86,7 @@ namespace Azos.Sky.Fabric.Server
     /// a size of work batch which gets fibers from the store shard for a single schedule processing run.
     /// The default value is 32
     /// </summary>
-    [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_QUEUE, CoreConsts.EXT_PARAM_GROUP_FABRIC)]
+    [Config(Default = QUANTUM_SIZE_DEFAULT), ExternalParameter(CoreConsts.EXT_PARAM_GROUP_QUEUE, CoreConsts.EXT_PARAM_GROUP_FABRIC)]
     public int QuantumSize
     {
       get => m_QuantumSize;
@@ -103,6 +107,18 @@ namespace Azos.Sky.Fabric.Server
     /// </summary>
     public IAtomRegistry<RunspaceMapping> Runspaces => m_Runspaces;
 
+    public override int ExpectedShutdownDurationMs => ShutdownTimeoutSec * 1000;
+
+    /// <summary>
+    /// Specifies how long it takes to shut down the processing daemon, 20 sec is the default
+    /// </summary>
+    [Config(Default = SHUTDOWN_TIMEOUT_SEC_DEFAULT), ExternalParameter(CoreConsts.EXT_PARAM_GROUP_FABRIC)]
+    public int ShutdownTimeoutSec
+    {
+      get => m_ShutdownTimeoutSec;
+      set => m_ShutdownTimeoutSec.KeepBetween(SHUTDOWN_TIMEOUT_SEC_MIN,
+                                              SHUTDOWN_TIMEOUT_SEC_MAX);
+    }
 
     /// <summary>
     /// Returns a number of Fiber quanta being executed by the processor right now
@@ -187,15 +203,16 @@ namespace Azos.Sky.Fabric.Server
     protected override void DoSignalStop()
     {
       m_IdleEvent.Set();
+      m_PendingEvent.Set();
     }
 
     protected override void DoWaitForCompleteStop()
     {
       var tm = Time.Timeter.StartNew();
-      for (var i=0; i < 20; i++)
+      var timeout = ShutdownTimeoutSec;
+      while (PendingCount > 0 || (timeout > 0 && tm.ElapsedSec > timeout))
       {
-        if (PendingCount<1) break;
-        m_PendingEvent.WaitOne(1000);
+        m_PendingEvent.WaitOne(200);
       }
       tm.Stop();
 
@@ -204,7 +221,7 @@ namespace Azos.Sky.Fabric.Server
       {
         WriteLog(MessageType.Critical,
                  "DoWaitForCompleteStop.pending",
-                 "There are still {0} tasks unfinished even after waiting for {1:n1} sec".Args(pc, tm.ElapsedSec));
+                 "There are still {0} tasks unfinished even after waiting over the max timeout of {1} for {2:n1} sec".Args(pc, timeout, tm.ElapsedSec));
       }
 
 
@@ -303,25 +320,30 @@ namespace Azos.Sky.Fabric.Server
         {
           var pendingNow = Thread.VolatileRead(ref m_PendingCount);
           var sysLoad = m_SysLoadMonitor.DefaultAverage;
-          var cpu = sysLoad.CpuLoadPercent * 100;
+          var cpu = sysLoad.CpuLoadPercent;
 
           //read CPU consumption here and throttle down proportionally to CPU usage
-          var maxTasksNow = cpu < 45 ? MAX_TASKS : cpu < 65 ? MAX_TASKS / 2 : cpu < 85 ? MAX_TASKS / 4 : 1;
+          var maxTasksNow = cpu < 0.45 ? MAX_TASKS : cpu < 0.65 ? MAX_TASKS / 2 : cpu < 0.85 ? MAX_TASKS / 8 : 1;
           if (pendingNow < maxTasksNow) break;
 
           //system is busy, wait
           m_PendingEvent.WaitOne(250);
         }
 
-        //Of the thread pool, spawn a worker
-        Task.Factory.StartNew(s => processFiberQuantum((ShardMapping)s),
-                              shard,
-                              TaskCreationOptions.HideScheduler);// FiberTaskScheduler);
+        if (this.Running)
+        {
+          //Of the thread pool, spawn a worker
+          Task.Factory.StartNew(s => processFiberQuantum((ShardMapping)s),
+                                shard,
+                                TaskCreationOptions.HideScheduler);// FiberTaskScheduler);
+        }
       }//foreach
     }
 
     private async Task processFiberQuantum(ShardMapping shard)
     {
+      if (!this.Running) return;
+
       var rel = Guid.NewGuid();
       try
       {
@@ -339,18 +361,19 @@ namespace Azos.Sky.Fabric.Server
 
     private async Task processFiberQuantumUnsafe(ShardMapping shard, Guid logRel)
     {
-      Interlocked.Increment(ref m_PendingCount);
+      Interlocked.Increment(ref m_PendingCount); //Semaphore
       try
       {
         var memory = await shard.CheckOutNextPendingAsync(shard.Runspace.Name, ProcessorId).ConfigureAwait(false);
         if (memory == null) return;//no pending work
+        if (!Running) return;//not running anymore
 
         await processFiberQuantumCore(memory).ConfigureAwait(false);//<===================== FIBER SLICE gets called
 
         var delta = memory.MakeDeltaSnapshot();
 
         var saveErrorCount = 0;
-        while(this.Running)
+        while(true)
         {
           try
           {
@@ -359,7 +382,8 @@ namespace Azos.Sky.Fabric.Server
           }
           catch(Exception saveError)
           {
-            if (saveErrorCount++ > 3) throw;
+            var maxRetries = Running ? 5 : 3;
+            if (saveErrorCount++ > maxRetries) throw;
 
             WriteLog(MessageType.CriticalAlert,
                      "processFiberQuantumUnsafe.save",
@@ -367,9 +391,10 @@ namespace Azos.Sky.Fabric.Server
                      saveError,
                      related: logRel);
 
-            await Task.Delay(1000).ConfigureAwait(false);
+            var msPause = Running ? (saveErrorCount * 1000) : 100;
+            await Task.Delay(msPause.ChangeByRndPct(0.25f)).ConfigureAwait(false);
           }
-        }
+        }//while
       }
       finally
       {
@@ -381,6 +406,8 @@ namespace Azos.Sky.Fabric.Server
 
     private async Task processFiberQuantumCore(FiberMemory memory)
     {
+     // memory.ImageTypeId;
+
       Type tFiber = null;//Allocate dyn from proccess image id
 
       var fiber = (Fiber)Serialization.SerializationUtils.MakeNewObjectInstance(tFiber);

@@ -28,7 +28,7 @@ namespace Azos.Sky.Fabric.Server
     /// The memory is locked by some other processor and memory representation may be incomplete.
     /// You may NOT change this memory at this time
     /// </summary>
-    LockedSomeoneElse
+    LockedForSomeoneElse
   }
 
   /// <summary>
@@ -51,6 +51,9 @@ namespace Azos.Sky.Fabric.Server
 
     public MemoryStatus Status => m_Status;
     public FiberId Id { get; set; }
+
+    public Guid ImageTypeId => throw new NotImplementedException();
+
     public FiberParameters Parameters => null;// materialize(m_PareameterData);
     public FiberState State => null;// materialize(m_StateData);
 

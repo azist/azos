@@ -5,17 +5,27 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Azos.Instrumentation
 {
-
+  /// <summary>
+  /// Facilitates EMA calculations
+  /// </summary>
   public static class EmaUtils
   {
+    /// <summary>
+    /// Calculates Exponential Moving Average
+    /// </summary>
     public static double Ema(this double avg, double sample, double factor) => (factor * sample) + ((1.0d - factor) * avg);
+
+    /// <summary>
+    /// Calculates Exponential Moving Average
+    /// </summary>
     public static decimal Ema(this decimal avg, decimal sample, decimal factor) => (factor * sample) + ((1.0m - factor) * avg);
 
+    /// <summary>
+    /// Calculates Exponential Moving Average
+    /// </summary>
     public static long Ema(this long avg, long sample, double factor) => (long)((factor * sample) + ((1.0d - factor) * avg));
   }
 

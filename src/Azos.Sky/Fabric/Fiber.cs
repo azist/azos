@@ -4,6 +4,7 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using Azos.Serialization.Slim;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -20,6 +21,7 @@ namespace Azos.Sky.Fabric
   /// which gets created during fiber step execution, in a safe storage, this way fiber execution survives system restarts and crashes.
   /// All fibers inherit from this class indirectly.
   /// </summary>
+  [SlimSerializationProhibited]
   public abstract class Fiber
   {
     /// <summary>

@@ -179,13 +179,15 @@ namespace Azos.Instrumentation
 
   }
 
-
+  /// <summary>
+  /// Default implementation for <see cref="ISystemLoadMonitor{TSample}"/>
+  /// which is based on <see cref="Computer"/> class to measure CPU and RAM
+  /// </summary>
   public class DefaultSystemLoadMonitor : SystemLoadMonitor<SysLoadSample>
   {
     public DefaultSystemLoadMonitor(IApplication app) : base(app){ }
     public DefaultSystemLoadMonitor(IModule parent) : base(parent){ }
 
     protected override SysLoadSample MakeSample(Atom name, double emaFactor) => new SysLoadSample(name, emaFactor);
-
   }
 }
