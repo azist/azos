@@ -438,8 +438,8 @@ namespace Azos.Sky.Fabric.Server
 
       var (_, alreadyExisted) = m_UnknownImageGuids.GetWithFlag(guid);
       if (alreadyExisted) return;
-      var error = new FabricException("Unknown process id: " + guid);
-      WriteLog(MessageType.CatastrophicError, nameof(reportUnknownImage), error.ToMessageWithType(), error, pars: new{ guid }.ToJson() );
+      var error = new FabricException("Fiber image type id `{0}` is unresolved. Check processor assembly mappings under `../{1}`".Args(guid, CONFIG_IMAGE_RESOLVER_SECTION));
+      WriteLog(MessageType.CatastrophicError, nameof(reportUnknownImage), error.ToMessageWithType(), error, pars: new{ imageTypeId = guid }.ToJson() );
     }
 
 
