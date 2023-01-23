@@ -17,6 +17,8 @@ using Azos.Log;
 using Azos.Instrumentation;
 using Azos.Data.Idgen;
 using Azos.Apps.Injection;
+using Azos.Platform;
+using Azos.Serialization.JSON;
 
 namespace Azos.Sky.Fabric.Server
 {
@@ -380,7 +382,13 @@ namespace Azos.Sky.Fabric.Server
         if (memory == null) return;//no pending work
         if (!Running) return;//not running anymore
 
-        await processFiberQuantumCore(memory).ConfigureAwait(false);//<===================== FIBER SLICE gets called
+        var wasHandled = await processFiberQuantumCore(memory).ConfigureAwait(false);//<===================== FIBER SLICE gets called
+
+        if (!wasHandled)
+        {
+          await shard.UndoCheckoutAsync(memory.Id).ConfigureAwait(false);
+          return;//get out asap
+        }
 
         var delta = memory.MakeDeltaSnapshot();
 
@@ -415,14 +423,34 @@ namespace Azos.Sky.Fabric.Server
       }
     }
 
+    private DateTime m_UnknownImageGuidsLastReset;
+    private FiniteSetLookup<Guid, bool> m_UnknownImageGuids = new FiniteSetLookup<Guid, bool>(_ => true);
+    private void reportUnknownImage(Guid guid)
+    {
+      //Every 30 minutes the system forgets what GUIS it already notified about and it keeps
+      //nagging logs as long as execution of fibers with unknown images continues
+      var now = DateTime.UtcNow;
+      if ((now - m_UnknownImageGuidsLastReset).TotalMinutes > 30)
+      {
+        m_UnknownImageGuidsLastReset = now;
+        m_UnknownImageGuids.Purge();
+      }
 
-    private async Task processFiberQuantumCore(FiberMemory memory)
+      var (_, alreadyExisted) = m_UnknownImageGuids.GetWithFlag(guid);
+      if (alreadyExisted) return;
+      var error = new FabricException("Unknown process id: " + guid);
+      WriteLog(MessageType.CatastrophicError, nameof(reportUnknownImage), error.ToMessageWithType(), error, pars: new{ guid }.ToJson() );
+    }
+
+
+    private async Task<bool> processFiberQuantumCore(FiberMemory memory)
     {
       //Determine the type
       var tFiber = m_ImageTypeResolver.TryResolve(memory.ImageTypeId);
       if (tFiber == null)//image not found
       {
-
+        reportUnknownImage(memory.ImageTypeId);//send CatastrophicError event
+        return false;//do nothing
       }
 
       var fiber = (Fiber)Serialization.SerializationUtils.MakeNewObjectInstance(tFiber);
@@ -439,6 +467,8 @@ namespace Azos.Sky.Fabric.Server
         //crash fiber
         //write to memory state the exception details to crash fiber
       }
+
+      return true;
     }
     #endregion
 

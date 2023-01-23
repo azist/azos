@@ -168,6 +168,11 @@ namespace Azos.Sky.Fabric.Server
       throw new NotImplementedException();
     }
 
+    public Task UndoCheckoutAsync(FiberId idFiber)
+    {
+      throw new NotImplementedException();
+    }
+
     #endregion
   }
 }

@@ -78,13 +78,18 @@ namespace Azos.Platform
     /// <summary>
     /// Tries to find a TValue by key in the set. If TKey is not present, then invokes a AddItem function
     /// </summary>
-    public TValue Get(TKey key)
+    public TValue Get(TKey key) => GetWithFlag(key).value;
+
+    /// <summary>
+    /// Tries to find a TValue by key in the set. If TKey is not present, then invokes a AddItem function
+    /// </summary>
+    public (TValue value, bool preExisted) GetWithFlag(TKey key)
     {
-      if (m_Data.TryGetValue(key, out var result)) return result; //lock free lookup
+      if (m_Data.TryGetValue(key, out var result)) return (result, true); //lock free lookup
 
       lock(m_Lock)
       {
-        if (m_Data.TryGetValue(key, out result)) return result;//2nd check is under the lock
+        if (m_Data.TryGetValue(key, out result)) return (result, true);//2nd check is under the lock
 
         (m_Data.Count < MAX_ENTRIES).IsTrue(MAX_ENTRIES_CONDITION);
 
@@ -96,7 +101,7 @@ namespace Azos.Platform
         m_Data = cache;//atomic
       }
 
-      return result;
+      return (result, false);
     }
 
     /// <summary>
