@@ -27,6 +27,9 @@ namespace Azos.Sky.Fabric.Server
   {
     public const int VERSION_YYYYMMDD = 20230101;
 
+    public const string CONFIG_IMAGE_RESOLVER_SECTION = "image-resolver";
+
+
     public const int QUANTUM_SIZE_DEFAULT = 32;
     public const int QUANTUM_SIZE_MIN = 1;
     public const int QUANTUM_SIZE_MAX = 250;
@@ -52,6 +55,7 @@ namespace Azos.Sky.Fabric.Server
     public FiberProcessorDaemon(IApplicationComponent director) : base(director)
     {
       m_Runtime = new daemonRuntime(this);
+
     }
 
     protected override void Destructor()
@@ -65,6 +69,7 @@ namespace Azos.Sky.Fabric.Server
     [Inject] IGdidProviderModule m_Gdid;
 
     private daemonRuntime m_Runtime;
+    private GuidTypeResolver<Fiber, FiberImageAttribute> m_ImageTypeResolver;
     private Thread m_Thread;
     private AutoResetEvent m_PendingEvent;
     private AutoResetEvent m_IdleEvent;
@@ -75,6 +80,8 @@ namespace Azos.Sky.Fabric.Server
 
     private int m_QuantumSize = QUANTUM_SIZE_DEFAULT;
     private int m_ShutdownTimeoutSec = SHUTDOWN_TIMEOUT_SEC_DEFAULT;
+
+
 
     public override string ComponentLogTopic => CoreConsts.FABRIC_TOPIC;
 
@@ -179,6 +186,8 @@ namespace Azos.Sky.Fabric.Server
         var runspace = FactoryUtils.MakeDirectedComponent<RunspaceMapping>(this, nrunspace, typeof(RunspaceMapping), new[] { nrunspace });
         m_Runspaces.Register(runspace).IsTrue($"Unique runspace name `{runspace.Name}`");
       }
+
+      m_ImageTypeResolver = new GuidTypeResolver<Fiber, FiberImageAttribute>(node[CONFIG_IMAGE_RESOLVER_SECTION]);
     }
 
     private void cleanupRunspaces()
@@ -189,6 +198,9 @@ namespace Azos.Sky.Fabric.Server
     protected override void DoStart()
     {
       (m_Runspaces.Count > 0).IsTrue("Configured runspaces");
+      m_ImageTypeResolver.NonNull($"Configured `{CONFIG_IMAGE_RESOLVER_SECTION}`")
+                         .HasAnyEntries.IsTrue("Image type mappings");
+
       //todo Check preconditions
 
       m_PendingEvent = new AutoResetEvent(false);
@@ -406,9 +418,12 @@ namespace Azos.Sky.Fabric.Server
 
     private async Task processFiberQuantumCore(FiberMemory memory)
     {
-     // memory.ImageTypeId;
+      //Determine the type
+      var tFiber = m_ImageTypeResolver.TryResolve(memory.ImageTypeId);
+      if (tFiber == null)//image not found
+      {
 
-      Type tFiber = null;//Allocate dyn from proccess image id
+      }
 
       var fiber = (Fiber)Serialization.SerializationUtils.MakeNewObjectInstance(tFiber);
     //  fiber.__processor__ctor(runtime, pars, state);

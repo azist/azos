@@ -96,6 +96,8 @@ namespace Azos.Apps
     private volatile Dictionary<Guid, Type> m_Cache1;
     private volatile Dictionary<Fguid, Type> m_Cache2;
 
+    public bool HasAnyEntries => m_Cache1.Count > 0;
+
 
     public void AddTypes(IEnumerable<(Guid id, Type type)> batch, bool throwDups = true)
     {
