@@ -389,20 +389,19 @@ namespace Azos.Sky.Fabric.Server
 
     private async Task processFiberQuantumUnsafe(ShardMapping shard, Guid logRel)
     {
-      Interlocked.Increment(ref m_PendingCount); //Semaphore
+      FiberMemory memory = null;
+      Interlocked.Increment(ref m_PendingCount); //Semaphore throttle
       try
       {
-        var memory = await shard.CheckOutNextPendingAsync(shard.Runspace.Name, ProcessorId).ConfigureAwait(false);
+        if (!Running) return;//not running anymore
+
+        //Next line can take time (e.g. 1+ sec) to complete
+        memory = await shard.CheckOutNextPendingAsync(shard.Runspace.Name, ProcessorId).ConfigureAwait(false);
         if (memory == null) return;//no pending work
         if (!Running) return;//not running anymore
 
         var wasHandled = await processFiberQuantumCore(memory).ConfigureAwait(false);//<===================== FIBER SLICE gets called
-
-        if (!wasHandled)
-        {
-          await shard.UndoCheckoutAsync(memory.Id).ConfigureAwait(false);
-          return;//get out asap
-        }
+        if (!wasHandled) return;//get out asap
 
         var delta = memory.MakeDeltaSnapshot();
 
@@ -412,6 +411,7 @@ namespace Azos.Sky.Fabric.Server
           try
           {
             await shard.CheckInAsync(delta).ConfigureAwait(false);
+            memory = null;//check-in successful
             break;
           }
           catch(Exception saveError)
@@ -432,8 +432,26 @@ namespace Azos.Sky.Fabric.Server
       }
       finally
       {
+        #region ---- Undo checked out (if any) and dec throttle ----
+        try
+        {
+          if (memory != null)
+          {
+            await shard.UndoCheckoutAsync(memory.Id).ConfigureAwait(false);
+          }
+        }
+        catch(Exception error)
+        {
+          WriteLog(MessageType.CriticalAlert,
+                    "prcQUnsf.fin.UndoCheckout",
+                    "Leak: " + error.ToMessageWithType(),
+                    error,
+                    related: logRel);
+        }
+
         Interlocked.Decrement(ref m_PendingCount);
         m_PendingEvent.Set();
+        #endregion -------------------------------------------------
       }
     }
 
@@ -529,7 +547,7 @@ namespace Azos.Sky.Fabric.Server
       return true;
     }
 
-    // Should this be moved into a policy
+    // Should this be moved into a policy in future
     private Credentials mapEntityCredentials(EntityId eid)
     {
       if (eid.Type == Constraints.SEC_CREDENTIALS_BASIC)
