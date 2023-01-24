@@ -60,6 +60,18 @@ namespace Azos.Sky.Fabric.Server
 
     public EntityId? ImpersonateAs { get; }
 
+
+    /// <summary>
+    /// Marks memory as failed with the specified exception.
+    /// This memory can not be used anymore but to save the crash delta.
+    /// Crashes are permanent - once fiber crashes - it fails permanently
+    /// </summary>
+    public void Crash(Exception error)
+    {
+
+    }
+
+
     /// <summary>
     /// Creates s snapshot of data changes which can be commited back into <see cref="IFiberStoreShard"/>
     /// using <see cref="IFiberStoreShard.CheckInAsync(FiberMemoryDelta)"/>

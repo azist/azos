@@ -167,6 +167,11 @@ namespace Azos.Sky.Fabric
       throw new NotImplementedException();
     }
 
+    public Task<FiberInfo> RecoverAsync(FiberId idFiber, bool pause, string statusDescription)
+    {
+      throw new NotImplementedException();
+    }
+
     #endregion
   }
 }

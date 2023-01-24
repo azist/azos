@@ -496,6 +496,8 @@ namespace Azos.Sky.Fabric.Server
                  error.ToMessageWithType(),
                  error,
                  pars: new { imageTypeId = memory.ImageTypeId, t = tFiber.DisplayNameWithExpandedGenericArgs() }.ToJson());
+
+        return false;
       }
 
       //3. - Impersonate the call flow
@@ -516,8 +518,7 @@ namespace Azos.Sky.Fabric.Server
       }
       catch(Exception fiberError)
       {
-        //crash fiber
-        //write to memory state the exception details to crash fiber
+        memory.Crash(fiberError);
       }
       finally
       {
@@ -629,6 +630,12 @@ namespace Azos.Sky.Fabric.Server
     {
       throw new NotImplementedException();
     }
+
+    public Task<FiberInfo> RecoverAsync(FiberId idFiber, bool pause, string statusDescription)
+    {
+      throw new NotImplementedException();
+    }
+
     #endregion
   }
 }
