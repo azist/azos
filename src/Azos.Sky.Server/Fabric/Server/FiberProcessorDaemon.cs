@@ -19,6 +19,8 @@ using Azos.Data.Idgen;
 using Azos.Apps.Injection;
 using Azos.Platform;
 using Azos.Serialization.JSON;
+using Azos.Security;
+using Azos.Data;
 
 namespace Azos.Sky.Fabric.Server
 {
@@ -82,13 +84,24 @@ namespace Azos.Sky.Fabric.Server
 
     private int m_QuantumSize = QUANTUM_SIZE_DEFAULT;
     private int m_ShutdownTimeoutSec = SHUTDOWN_TIMEOUT_SEC_DEFAULT;
-
+    private EntityId m_DefaultSecurityAccount;
 
 
     public override string ComponentLogTopic => CoreConsts.FABRIC_TOPIC;
 
     [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_FABRIC, CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
     public override bool InstrumentationEnabled { get; set; }
+
+    /// <summary>
+    /// Default account is used for execution of fibers when fibers do not impersonate as someone else
+    /// </summary>
+    [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_SECURITY, CoreConsts.EXT_PARAM_GROUP_FABRIC)]
+    public EntityId DefaultSecurityAccount
+    {
+      get => m_DefaultSecurityAccount;
+      set => m_DefaultSecurityAccount = value.HasRequiredValue(nameof(DefaultSecurityAccount));
+    }
+
 
     /// <summary>
     /// Controls processor fiber scheduling mechanism by defining the size of fiber quantum -
@@ -101,13 +114,12 @@ namespace Azos.Sky.Fabric.Server
       get => m_QuantumSize;
       set
       {
-        CheckDaemonInactive();
         m_QuantumSize = value.KeepBetween(QUANTUM_SIZE_MIN, QUANTUM_SIZE_MAX);
       }
     }
 
     /// <summary>
-    /// Processor Id. Must be immutable for lifetime of shard
+    /// Processor Id. Must be immutable for lifetime of processor
     /// </summary>
     public Atom ProcessorId => m_ProcessorId;
 
@@ -202,6 +214,8 @@ namespace Azos.Sky.Fabric.Server
       (m_Runspaces.Count > 0).IsTrue("Configured runspaces");
       m_ImageTypeResolver.NonNull($"Configured `{CONFIG_IMAGE_RESOLVER_SECTION}`")
                          .HasAnyEntries.IsTrue("Image type mappings");
+
+      m_DefaultSecurityAccount.HasRequiredValue(nameof(DefaultSecurityAccount));
 
       //todo Check preconditions
 
@@ -440,14 +454,21 @@ namespace Azos.Sky.Fabric.Server
       if (alreadyExisted) return;
 
       //DO NOT throw the error! just log it with maximum criticality
-      var error = new FabricException("Fiber image type id `{0}` is unresolved. Check processor assembly mappings under `../{1}`".Args(guid, CONFIG_IMAGE_RESOLVER_SECTION));
-      WriteLog(MessageType.CatastrophicError, nameof(reportUnknownImage), error.ToMessageWithType(), error, pars: new{ imageTypeId = guid }.ToJson() );
+      var error = new FabricProcessorException("Fiber image type id `{0}` is unresolved. Check processor assembly mappings under `../{1}`".Args(
+                                                 guid,
+                                                 CONFIG_IMAGE_RESOLVER_SECTION));
+
+      WriteLog(MessageType.CatastrophicError,
+               nameof(reportUnknownImage),
+               error.ToMessageWithType(),
+               error,
+               pars: new{ imageTypeId = guid }.ToJson() );
     }
 
 
     private async Task<bool> processFiberQuantumCore(FiberMemory memory)
     {
-      //Determine the type
+      //1. - Determine the CLR type
       var tFiber = m_ImageTypeResolver.TryResolve(memory.ImageTypeId);
       if (tFiber == null)//image not found
       {
@@ -455,23 +476,69 @@ namespace Azos.Sky.Fabric.Server
         return false;//do nothing
       }
 
-      var fiber = (Fiber)Serialization.SerializationUtils.MakeNewObjectInstance(tFiber);
-    //  fiber.__processor__ctor(runtime, pars, state);
-
-      //todo:  Impersonate here
+      //2. - Allocate the fiber instance
+      Fiber fiber = null;
       try
       {
-        var nextStep = await fiber.ExecuteSliceAsync() //use Timedcall.Run()   KILL LONG running tasks with auto reset timeout
-                                  .ConfigureAwait(false);//<===================== FIBER SLICE gets called
+        fiber = (Fiber)Serialization.SerializationUtils.MakeNewObjectInstance(tFiber);
+        fiber.__processor__ctor(m_Runtime, memory.Parameters, memory.State);
+      }
+      catch(Exception allocationError)
+      {
+        //DO NOT throw the error! just log it with maximum criticality
+        var error = new FabricProcessorException("Fiber image type id `{0}` resolved to `{1}` leaked init error: {2}".Args(
+                                                    memory.ImageTypeId,
+                                                    tFiber.DisplayNameWithExpandedGenericArgs(),
+                                                    allocationError.ToMessageWithType()), allocationError);
+
+        WriteLog(MessageType.Critical,
+                 nameof(processFiberQuantumCore),
+                 error.ToMessageWithType(),
+                 error,
+                 pars: new { imageTypeId = memory.ImageTypeId, t = tFiber.DisplayNameWithExpandedGenericArgs() }.ToJson());
+      }
+
+      //3. - Impersonate the call flow
+      Credentials credentials = mapEntityCredentials(memory.ImpersonateAs ?? m_DefaultSecurityAccount);
+      var user = await App.SecurityManager.AuthenticateAsync(credentials).ConfigureAwait(false);
+
+      //inject session for Fiber
+      var session = new BaseSession(Guid.NewGuid(), App.Random.NextRandomUnsignedLong);
+      session.User = user;
+      Azos.Apps.ExecutionContext.__SetThreadLevelSessionContext(session);
+
+      //4. - Invoke Fiber slice
+      try
+      {
+        Permission.AuthorizeAndGuardAction(App.SecurityManager, tFiber);
+        var nextStep = await fiber.ExecuteSliceAsync() //<===================== FIBER SLICE gets called
+                                  .ConfigureAwait(false);
       }
       catch(Exception fiberError)
       {
         //crash fiber
         //write to memory state the exception details to crash fiber
       }
+      finally
+      {
+        //reset identity
+        Azos.Apps.ExecutionContext.__SetThreadLevelSessionContext(null);
+      }
 
       return true;
     }
+
+    // Should this be moved into a policy
+    private Credentials mapEntityCredentials(EntityId eid)
+    {
+      if (eid.Type == Constraints.SEC_CREDENTIALS_BASIC)
+      {
+        return IDPasswordCredentials.FromBasicAuth(eid.Address);
+      }
+
+      return new EntityUriCredentials(eid.Address);
+    }
+
     #endregion
 
     #region IFiberManager

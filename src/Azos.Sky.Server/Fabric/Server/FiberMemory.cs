@@ -4,6 +4,7 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using Azos.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -57,7 +58,7 @@ namespace Azos.Sky.Fabric.Server
     public FiberParameters Parameters => null;// materialize(m_PareameterData);
     public FiberState State => null;// materialize(m_StateData);
 
-
+    public EntityId? ImpersonateAs { get; }
 
     /// <summary>
     /// Creates s snapshot of data changes which can be commited back into <see cref="IFiberStoreShard"/>

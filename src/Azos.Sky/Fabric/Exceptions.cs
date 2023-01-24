@@ -35,4 +35,16 @@ namespace Azos.Sky.Fabric
     public int HttpStatusCode => 404;
     public string HttpStatusDescription => "Fiber allocation space not found";
   }
+
+  /// <summary>
+  /// Thrown to indicate error conditions in processor nodes
+  /// </summary>
+  [Serializable]
+  public class FabricProcessorException : FabricException
+  {
+    public FabricProcessorException() : base() { }
+    public FabricProcessorException(string message) : base(message) { }
+    public FabricProcessorException(string message, Exception inner) : base(message, inner) { }
+    protected FabricProcessorException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+  }
 }

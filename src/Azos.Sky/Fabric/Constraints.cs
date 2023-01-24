@@ -30,5 +30,8 @@ namespace Azos.Sky.Fabric
     public const float ALLOCATION_FACTOR_DEFAULT = 1f;
     public const float ALLOCATION_FACTOR_MIN = 0.0f;
     public const float ALLOCATION_FACTOR_MAX = 4f;
+
+
+    public static readonly Atom SEC_CREDENTIALS_BASIC = Atom.Encode("basic");
   }
 }

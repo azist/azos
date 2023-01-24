@@ -5,11 +5,14 @@
 </FILE_LICENSE>*/
 
 using Azos.Apps;
+using Azos.Apps.Injection;
+using Azos.Security;
 using Azos.Serialization.Slim;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Azos.Sky.Fabric
@@ -74,7 +77,6 @@ namespace Azos.Sky.Fabric
     /// </summary>
     public FiberState      State => m_State;
 
-
     /// <summary>
     /// Interprets the incoming signal by performing some work and generates <see cref="FiberSignalResult"/>.
     /// Returns null if the signal is unhandled.
@@ -100,12 +102,16 @@ namespace Azos.Sky.Fabric
 
     /// <summary>
     /// Performs by-convention invocation of a fiber "step" method for the specified instance,
-    /// defaulting the name of the method by convention to "Step_{step: atom}"
+    /// defaulting the name of the method by convention to "Step_{step: atom}".
+    /// This method checks permissions
     /// </summary>
     protected static Task<FiberStep> DefaultExecuteSliceStepByConventionAsync(Fiber self, Atom step)
     {
       var tself = self.NonNull(nameof(self)).GetType();
       var mi = FiberStep.GetMethodForStepByConvention(tself, step);
+
+      //check method-level permissions
+      Permission.AuthorizeAndGuardAction(self.Runtime.App.SecurityManager, mi);
 
       Task<FiberStep> resultTask;
       try
