@@ -1992,6 +1992,100 @@ namespace Azos.Tests.Nub.Serialization
 
     #endregion
 
+    #region EntityId
+    [Run]
+    public void EntityId_01()
+    {
+      EntityId v = default(EntityId);
+      testScalar(v, w => w.Write(v), r => r.ReadEntityId(), 4);
+
+      v = new EntityId(Atom.Encode("1"), Atom.Encode("2"), Atom.Encode("3"), "abcd");
+      testScalar(v, w => w.Write(v), r => r.ReadEntityId(), 3 + 1 + 1 + 4);
+
+      v = new EntityId(Atom.Encode("sysoper1"), Atom.Encode("sysoper2"), Atom.Encode("sysoper3"), "abcdefghjsdiahfiuhadsuihfuisahdifuhasuidhfoiusahfiohsuifoashfousohasuioishusahfuhs");
+      testScalar(v, w => w.Write(v), r => r.ReadEntityId());
+    }
+
+    [Run]
+    public void EntityId_02_Nullable()
+    {
+      EntityId? v = null;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableEntityId(), 1);
+
+      v = new EntityId(Atom.Encode("1"), Atom.Encode("2"), Atom.Encode("3"), "abcd");
+      testScalar(v, w => w.Write(v), r => r.ReadNullableEntityId(),1    +    3 + 1 + 1 + 4);
+
+      v = new EntityId(Atom.Encode("sysoper1"), Atom.Encode("sysoper2"), Atom.Encode("sysoper3"), "abcdefghjsdiahfiuhadsuihfuisahdifuhasuidhfoiusahfiohsuifoashfousohasuioishusahfuhs");
+      testScalar(v, w => w.Write(v), r => r.ReadNullableEntityId());
+    }
+
+    [Run]
+    public void EntityId_03_Collection()
+    {
+      List<EntityId> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadEntityIdCollection<List<EntityId>>(), 1);
+
+      v = new List<EntityId>
+      {
+        new EntityId(Atom.Encode("1"), Atom.Encode("2"), Atom.Encode("3"), "abcd"),
+        new EntityId(Atom.Encode("5"), Atom.Encode("9"), Atom.Encode("0"), "decibelllla")
+      };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadEntityIdCollection<List<EntityId>>());
+    }
+
+
+    [Run]
+    public void EntityId_04_CollectionNullable()
+    {
+      List<EntityId?> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableEntityIdCollection<List<EntityId?>>(), 1);
+
+      v = new List<EntityId?>
+      {
+        null, null,
+        new EntityId(Atom.Encode("1"), Atom.Encode("2"), Atom.Encode("3"), "abcd"),
+        null,
+        new EntityId(Atom.Encode("5"), Atom.Encode("9"), Atom.Encode("0"), "decibelllla"),
+        new EntityId(Atom.Encode("53"), Atom.Encode("39"), Atom.Encode("100"), "korbolla"),
+        new EntityId(Atom.Encode("35"), Atom.Encode("19"), Atom.Encode("1b0"), "morrah")
+      };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableEntityIdCollection<List<EntityId?>>());
+    }
+
+    [Run]
+    public void EntityId_05_Array()
+    {
+      EntityId[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadEntityIdArray(), 1);
+
+      v = new EntityId[]
+      {
+        new EntityId(Atom.Encode("1"), Atom.Encode("2"), Atom.Encode("3"), "abcd"),
+        new EntityId(Atom.Encode("5"), Atom.Encode("9"), Atom.Encode("0"), "decibelllla")
+      };
+      testArray(v, w => w.Write(v), r => r.ReadEntityIdArray());
+    }
+
+    [Run]
+    public void EntityId_06_ArrayNullable()
+    {
+      EntityId?[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadNullableEntityIdArray(), 1);
+
+      v = new EntityId?[]
+      {
+        null, null,
+        new EntityId(Atom.Encode("1"), Atom.Encode("2"), Atom.Encode("3"), "abcd"),
+        null,
+        new EntityId(Atom.Encode("5"), Atom.Encode("9"), Atom.Encode("0"), "decibelllla"),
+        new EntityId(Atom.Encode("53"), Atom.Encode("39"), Atom.Encode("100"), "korbolla"),
+        new EntityId(Atom.Encode("35"), Atom.Encode("19"), Atom.Encode("1b0"), "morrah")
+      };
+      testArray(v, w => w.Write(v), r => r.ReadNullableEntityIdArray());
+    }
+
+    #endregion
+
     #region JSON
     [Run]
     public void Json_01()

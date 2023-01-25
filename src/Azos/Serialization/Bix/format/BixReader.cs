@@ -1410,7 +1410,7 @@ namespace Azos.Serialization.Bix
 
     #region EntityId
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public EntityId ReadEntityId() => new EntityId(ReadAtom(), ReadAtom(), ReadAtom(), ReadString());
+    public EntityId ReadEntityId() => new EntityId(ReadString(), ReadAtom(), ReadAtom(), ReadAtom());
 
     public EntityId? ReadNullableEntityId()
     {

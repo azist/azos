@@ -38,6 +38,15 @@ namespace Azos.Data
     /// <summary> Empty/Unassigned instance </summary>
     public static readonly EntityId EMPTY = new EntityId();
 
+    // Unsafe initializes an instance from deser, not for use from user code
+    internal EntityId(string ____address, Atom sys, Atom type, Atom schema)
+    {
+      System = sys;
+      Type = type;
+      Schema = schema;
+      Address = ____address;
+    }
+
     /// <summary>
     /// Initializes an instance
     /// </summary>

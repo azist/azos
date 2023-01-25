@@ -1460,10 +1460,10 @@ namespace Azos.Serialization.Bix
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Write(EntityId value)
     {
+      Write(value.Address);
       Write(value.System);
       Write(value.Type);
       Write(value.Schema);
-      Write(value.Address);
     }
 
     public void Write(EntityId? value)
