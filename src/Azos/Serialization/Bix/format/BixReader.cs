@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
-
+using Azos.Data;
 using Azos.Serialization.JSON;
 
 namespace Azos.Serialization.Bix
@@ -1403,6 +1403,55 @@ namespace Azos.Serialization.Bix
 
       for (int i = 0; i < len; i++)
         result[i] = ReadNullableAtom();
+
+      return result;
+    }
+    #endregion
+
+    #region EntityId
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public EntityId ReadEntityId() => new EntityId(ReadAtom(), ReadAtom(), ReadAtom(), ReadString());
+
+    public EntityId? ReadNullableEntityId()
+    {
+      if (ReadBool()) return ReadEntityId();
+      return null;
+    }
+
+    public TCollection ReadEntityIdCollection<TCollection>() where TCollection : class, ICollection<EntityId>, new()
+    => ReadCollection<TCollection, EntityId>(bix => bix.ReadEntityId());
+
+    public EntityId[] ReadEntityIdArray()
+    {
+      if (!ReadBool()) return null;
+
+      var len = ReadUint();
+      if (len > Format.MAX_ENTITYID_ARRAY_LEN)
+        throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "entityid", Format.MAX_ENTITYID_ARRAY_LEN));
+
+      var result = new EntityId[len];
+
+      for (int i = 0; i < len; i++)
+        result[i] = ReadEntityId();
+
+      return result;
+    }
+
+    public TCollection ReadNullableEntityIdCollection<TCollection>() where TCollection : class, ICollection<EntityId?>, new()
+      => ReadCollection<TCollection, EntityId?>(bix => bix.ReadNullableEntityId());
+
+    public EntityId?[] ReadNullableEntityIdArray()
+    {
+      if (!ReadBool()) return null;
+
+      var len = ReadUint();
+      if (len > Format.MAX_ENTITYID_ARRAY_LEN)
+        throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "entityid?", Format.MAX_ENTITYID_ARRAY_LEN));
+
+      var result = new EntityId?[len];
+
+      for (int i = 0; i < len; i++)
+        result[i] = ReadNullableEntityId();
 
       return result;
     }

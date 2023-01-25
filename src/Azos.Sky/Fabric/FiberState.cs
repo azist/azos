@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 using Azos.Data;
@@ -71,9 +72,28 @@ namespace Azos.Sky.Fabric
       public virtual bool DoNotPreload => false;
     }
 
-    private readonly Dictionary<Atom, Slot> m_Data = new Dictionary<Atom, Slot>();
+    /// <summary>
+    /// Deserializes an instance from bin stream polymorphically
+    /// using Bix type discriminator
+    /// </summary>
+    public static FiberState Deserialize(BixReader reader)
+    {
+      throw new NotImplementedException();
+    }
+
+    /// <summary>
+    /// Deserializes an instance from bin stream polymorphically
+    /// using Bix type discriminator
+    /// </summary>
+    public void Serialize(BixWriter writer)
+    {
+      throw new NotImplementedException();
+    }
+
 
     private Atom m_CurrentStep;
+    private readonly Dictionary<Atom, Slot> m_Data = new Dictionary<Atom, Slot>();
+
 
     /// <summary>
     /// Current step of fiber execution finite state machine. Steps are needed for cooperative multitasking;
@@ -81,6 +101,11 @@ namespace Azos.Sky.Fabric
     /// terminal state is reached.
     /// </summary>
     public Atom CurrentStep => m_CurrentStep;
+
+    /// <summary>
+    /// True when any of slots have changed
+    /// </summary>
+    public bool SlotsHaveChanges => m_Data.Any(one => one.Value.SlotMutation != SlotMutationType.Unchanged);
 
     /// <summary>
     /// Enumerates all of the named slots in this state bag.

@@ -179,6 +179,13 @@ namespace Azos.Serialization.Bix
       {typeof(Atom?[])                     ,                   (w, v) => Write(w, (Atom?[])v)                 },
       {typeof(ICollection<Atom>)           ,                   (w, v) => Write(w, (ICollection<Atom>)v)       },
       {typeof(ICollection<Atom?>)          ,                   (w, v) => Write(w, (ICollection<Atom?>)v)      },
+
+      {typeof(EntityId)                        ,                   (w, v) => Write(w, (EntityId)v)                    },
+      {typeof(EntityId?)                       ,                   (w, v) => Write(w, (EntityId?)v)                   },
+      {typeof(EntityId[])                      ,                   (w, v) => Write(w, (EntityId[])v)                  },
+      {typeof(EntityId?[])                     ,                   (w, v) => Write(w, (EntityId?[])v)                 },
+      {typeof(ICollection<EntityId>)           ,                   (w, v) => Write(w, (ICollection<EntityId>)v)       },
+      {typeof(ICollection<EntityId?>)          ,                   (w, v) => Write(w, (ICollection<EntityId?>)v)      },
     };
 
 
@@ -821,6 +828,35 @@ namespace Azos.Serialization.Bix
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteField(BixWriter writer, ulong name, ICollection<Atom?> value) { writer.Write(name); Write(writer, value); }
     #endregion
+
+    #region EntityId
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Write(BixWriter writer, EntityId value) { writer.Write(TypeCode.EntityId); writer.Write(value); }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Write(BixWriter writer, EntityId? value) { writer.Write(TypeCode.EntityIdNull); writer.Write(value); }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Write(BixWriter writer, EntityId[] value) { writer.Write(TypeCode.Array); writer.Write(TypeCode.EntityId); writer.Write(value); }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Write(BixWriter writer, EntityId?[] value) { writer.Write(TypeCode.Array); writer.Write(TypeCode.EntityIdNull); writer.Write(value); }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Write(BixWriter writer, ICollection<EntityId> value) { writer.Write(TypeCode.Collection); writer.Write(TypeCode.EntityId); writer.WriteCollection(value); }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Write(BixWriter writer, ICollection<EntityId?> value) { writer.Write(TypeCode.Collection); writer.Write(TypeCode.EntityIdNull); writer.WriteCollection(value); }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void WriteField(BixWriter writer, ulong name, EntityId value) { writer.Write(name); Write(writer, value); }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void WriteField(BixWriter writer, ulong name, EntityId? value) { writer.Write(name); Write(writer, value); }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void WriteField(BixWriter writer, ulong name, EntityId[] value) { writer.Write(name); Write(writer, value); }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void WriteField(BixWriter writer, ulong name, EntityId?[] value) { writer.Write(name); Write(writer, value); }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void WriteField(BixWriter writer, ulong name, ICollection<EntityId> value) { writer.Write(name); Write(writer, value); }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void WriteField(BixWriter writer, ulong name, ICollection<EntityId?> value) { writer.Write(name); Write(writer, value); }
+    #endregion
+
 
     #region JSON / Object
     public static void WriteJson(BixWriter writer, object value, BixContext ctx) { writer.Write(TypeCode.JsonObject); writer.WriteJson(value, ctx.TargetName); }

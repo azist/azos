@@ -397,13 +397,13 @@ namespace Azos.Sky.Fabric.Server
 
         //Next line can take time (e.g. 1+ sec) to complete
         memory = await shard.CheckOutNextPendingAsync(shard.Runspace.Name, ProcessorId).ConfigureAwait(false);
-        if (memory == null) return;//no pending work
+        if (memory == null || memory.Status != MemoryStatus.LockedForCaller) return;//no pending work
         if (!Running) return;//not running anymore
 
-        var wasHandled = await processFiberQuantumCore(memory).ConfigureAwait(false);//<===================== FIBER SLICE gets called
+        var (wasHandled, nextStep) = await processFiberQuantumCore(memory).ConfigureAwait(false);//<===================== FIBER SLICE gets called
         if (!wasHandled) return;//get out asap
 
-        var delta = memory.MakeDeltaSnapshot();
+        var delta = memory.MakeDeltaSnapshot(nextStep);
 
         var saveErrorCount = 0;
         while(true)
@@ -435,7 +435,7 @@ namespace Azos.Sky.Fabric.Server
         #region ---- Undo checked out (if any) and dec throttle ----
         try
         {
-          if (memory != null)
+          if (memory != null && memory.Status == MemoryStatus.LockedForCaller)
           {
             await shard.UndoCheckoutAsync(memory.Id).ConfigureAwait(false);
           }
@@ -484,14 +484,14 @@ namespace Azos.Sky.Fabric.Server
     }
 
 
-    private async Task<bool> processFiberQuantumCore(FiberMemory memory)
+    private async Task<(bool handled, FiberStep? next)> processFiberQuantumCore(FiberMemory memory)
     {
       //1. - Determine the CLR type
       var tFiber = m_ImageTypeResolver.TryResolve(memory.ImageTypeId);
       if (tFiber == null)//image not found
       {
         reportUnknownImage(memory.ImageTypeId);//send CatastrophicError event
-        return false;//do nothing
+        return (false, null);//do nothing
       }
 
       //2. - Allocate the fiber instance
@@ -515,7 +515,7 @@ namespace Azos.Sky.Fabric.Server
                  error,
                  pars: new { imageTypeId = memory.ImageTypeId, t = tFiber.DisplayNameWithExpandedGenericArgs() }.ToJson());
 
-        return false;
+        return (false, null);
       }
 
       //3. - Impersonate the call flow
@@ -528,11 +528,12 @@ namespace Azos.Sky.Fabric.Server
       Azos.Apps.ExecutionContext.__SetThreadLevelSessionContext(session);
 
       //4. - Invoke Fiber slice
+      FiberStep? nextStep = null;
       try
       {
         Permission.AuthorizeAndGuardAction(App.SecurityManager, tFiber);
-        var nextStep = await fiber.ExecuteSliceAsync() //<===================== FIBER SLICE gets called
-                                  .ConfigureAwait(false);
+        nextStep = await fiber.ExecuteSliceAsync() //<===================== FIBER SLICE gets called
+                              .ConfigureAwait(false);
       }
       catch(Exception fiberError)
       {
@@ -544,7 +545,7 @@ namespace Azos.Sky.Fabric.Server
         Azos.Apps.ExecutionContext.__SetThreadLevelSessionContext(null);
       }
 
-      return true;
+      return (true, nextStep);
     }
 
     // Should this be moved into a policy in future

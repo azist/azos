@@ -21,6 +21,8 @@ namespace Azos.Sky.Fabric
   {
     public const string CONVENTION_STEP_METHOD_NAME_PREFIX = "Step_";
 
+    public static readonly FiberStep ZERO = new FiberStep();
+
     private static readonly FiniteSetLookup<(Type t, Atom s), MethodInfo> STEP_MI_CACHE =
       new (one =>
       {

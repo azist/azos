@@ -61,6 +61,9 @@ namespace Azos.Serialization.Bix
     Atom,
     AtomNull,
 
+    EntityId,
+    EntityIdNull,
+
     Bool,
     BoolNull,
 
