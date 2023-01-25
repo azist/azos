@@ -516,7 +516,8 @@ namespace Azos.Sky.Fabric.Server
       {
         var tState = FIBER_STATE_TYPES_MAP_CACHE[tFiber].NonNull("TState != null");
         fiber = (Fiber)Serialization.SerializationUtils.MakeNewObjectInstance(tFiber);
-        fiber.__processor__ctor(m_Runtime, memory.Parameters, memory.State);
+        //obtain state and parameters  materialize(TParams, tState);
+        fiber.__processor__ctor(m_Runtime, null /*memory.Parameters*/, null/*memory.State*/);
       }
       catch(Exception allocationError)
       {

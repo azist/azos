@@ -72,24 +72,6 @@ namespace Azos.Sky.Fabric
       public virtual bool DoNotPreload => false;
     }
 
-    /// <summary>
-    /// Deserializes an instance from bin stream polymorphically
-    /// using Bix type discriminator
-    /// </summary>
-    public static FiberState Deserialize(BixReader reader)
-    {
-      throw new NotImplementedException();
-    }
-
-    /// <summary>
-    /// Deserializes an instance from bin stream polymorphically
-    /// using Bix type discriminator
-    /// </summary>
-    public void Serialize(BixWriter writer)
-    {
-      throw new NotImplementedException();
-    }
-
 
     private Atom m_CurrentStep;
     private readonly Dictionary<Atom, Slot> m_Data = new Dictionary<Atom, Slot>();

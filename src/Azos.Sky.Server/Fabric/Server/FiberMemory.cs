@@ -49,15 +49,16 @@ namespace Azos.Sky.Fabric.Server
     {
       m_Version     = reader.ReadInt();
       m_Status      = (MemoryStatus)reader.ReadByte();
-      m_Id          = new FiberId(reader.ReadAtom(), reader.ReadAtom(), reader.ReadGDID());
+
+      m_Id          = new FiberId(reader.ReadAtom(),
+                                  reader.ReadAtom(),
+                                  reader.ReadGDID());
+
       m_ImageTypeId = reader.ReadGuid();
-
-      //todo: Future use Bix instead of JSON
-      m_Parameters  = JsonReader.ToDoc<FiberParameters>(reader.ReadJson() as JsonDataMap, fromUI: false, JsonReader.DocReadOptions.BindByCode);
-
-      m_State       = FiberState.Deserialize(reader);
-
       m_ImpersonateAs = reader.ReadNullableEntityId();
+      m_Buffer = reader.ReadBuffer();
+      m_StateOffset = reader.ReadInt();
+      (m_StateOffset >= 0 && m_StateOffset < m_Buffer.Length).IsTrue("stateOffset bounds");
     }
 
     /// <summary>
@@ -69,26 +70,24 @@ namespace Azos.Sky.Fabric.Server
     {
       writer.Write(m_Version);
       writer.Write((byte)m_Status);
+
       writer.Write(m_Id.Runspace);
       writer.Write(m_Id.MemoryShard);
       writer.Write(m_Id.Gdid);
+
       writer.Write(m_ImageTypeId);
-
-      //todo: Future use bix
-      writer.WriteJson(m_Parameters, "*");
-
-      m_State.Serialize(writer);
       writer.Write(m_ImpersonateAs);
+      writer.WriteBuffer(m_Buffer);
+      writer.Write(m_StateOffset);
     }
 
     private int m_Version;
     private MemoryStatus m_Status;
     private FiberId m_Id;
     private Guid m_ImageTypeId;
-    private FiberParameters m_Parameters;
-    private FiberState m_State;
     private EntityId? m_ImpersonateAs;
-
+    private byte[] m_Buffer;
+    private int m_StateOffset;
     private Exception m_CrashException;
 
 
@@ -96,9 +95,9 @@ namespace Azos.Sky.Fabric.Server
     public MemoryStatus Status => m_Status;
     public FiberId Id => m_Id;
     public Guid ImageTypeId => m_ImageTypeId;
-    public FiberParameters Parameters => m_Parameters;
-    public FiberState State => m_State;
     public EntityId? ImpersonateAs => m_ImpersonateAs;
+    public byte[] Buffer => m_Buffer;
+    public int StateOffset => m_StateOffset;
 
     /// <summary>
     /// Error which crashed this memory, or null if not crashed
@@ -109,7 +108,7 @@ namespace Azos.Sky.Fabric.Server
     /// <summary>
     /// True when this memory has any changes such as changes in state or a crash
     /// </summary>
-    public bool HasDelta => m_CrashException != null || State.SlotsHaveChanges;
+    public bool HasDelta(FiberState state) => m_CrashException != null|| state.SlotsHaveChanges;
 
     /// <summary>
     /// Marks memory as failed with the specified exception.
