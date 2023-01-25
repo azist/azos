@@ -47,4 +47,16 @@ namespace Azos.Sky.Fabric
     public FabricProcessorException(string message, Exception inner) : base(message, inner) { }
     protected FabricProcessorException(SerializationInfo info, StreamingContext context) : base(info, context) { }
   }
+
+  /// <summary>
+  /// Thrown to indicate errors when fibers are not derived from <see cref="Fiber{TParameters, TState}"/>
+  /// </summary>
+  [Serializable]
+  public class FabricFiberDeclarationException : FabricException
+  {
+    public FabricFiberDeclarationException() : base() { }
+    public FabricFiberDeclarationException(string message) : base(message) { }
+    public FabricFiberDeclarationException(string message, Exception inner) : base(message, inner) { }
+    protected FabricFiberDeclarationException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+  }
 }

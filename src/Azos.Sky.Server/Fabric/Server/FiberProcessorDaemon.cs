@@ -483,6 +483,22 @@ namespace Azos.Sky.Fabric.Server
                pars: new{ imageTypeId = guid }.ToJson() );
     }
 
+    private static readonly FiniteSetLookup<Type, Type> FIBER_STATE_TYPES_MAP_CACHE = new FiniteSetLookup<Type, Type>( tfiber =>
+    {
+      Type tancestor = tfiber;
+      while(tancestor != null && tancestor != typeof(object))
+      {
+        if (tancestor.GetGenericTypeDefinition() == typeof(Fiber<,>))
+        {
+          return tancestor.GetGenericArguments()[1].IsOfType<FiberState>("TState : FiberState");
+        }
+        tancestor = tancestor.BaseType;
+      }
+
+      throw new FabricFiberDeclarationException("Not able to determine TState of `{0}` which must descend from Fiber<TParams, TState>"
+                                                .Args(tfiber.DisplayNameWithExpandedGenericArgs()));
+    });
+
 
     private async Task<(bool handled, FiberStep? next)> processFiberQuantumCore(FiberMemory memory)
     {
@@ -498,6 +514,7 @@ namespace Azos.Sky.Fabric.Server
       Fiber fiber = null;
       try
       {
+        var tState = FIBER_STATE_TYPES_MAP_CACHE[tFiber].NonNull("TState != null");
         fiber = (Fiber)Serialization.SerializationUtils.MakeNewObjectInstance(tFiber);
         fiber.__processor__ctor(m_Runtime, memory.Parameters, memory.State);
       }
