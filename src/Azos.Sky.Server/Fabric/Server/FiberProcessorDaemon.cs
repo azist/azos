@@ -483,14 +483,17 @@ namespace Azos.Sky.Fabric.Server
                pars: new{ imageTypeId = guid }.ToJson() );
     }
 
-    private static readonly FiniteSetLookup<Type, Type> FIBER_STATE_TYPES_MAP_CACHE = new FiniteSetLookup<Type, Type>( tfiber =>
+    private static readonly FiniteSetLookup<Type, (Type tp, Type ts)> FIBER_STATE_TYPES_MAP_CACHE = new FiniteSetLookup<Type, (Type, Type)>( tfiber =>
     {
       Type tancestor = tfiber;
       while(tancestor != null && tancestor != typeof(object))
       {
         if (tancestor.GetGenericTypeDefinition() == typeof(Fiber<,>))
         {
-          return tancestor.GetGenericArguments()[1].IsOfType<FiberState>("TState : FiberState");
+          var gargs = tancestor.GetGenericArguments();
+          var tp = gargs[0].IsOfType<FiberParameters>("TParams : FiberParameters");
+          var ts = gargs[1].IsOfType<FiberState>("TState : FiberState");
+          return (tp, ts);
         }
         tancestor = tancestor.BaseType;
       }
@@ -514,7 +517,7 @@ namespace Azos.Sky.Fabric.Server
       Fiber fiber = null;
       try
       {
-        var tState = FIBER_STATE_TYPES_MAP_CACHE[tFiber].NonNull("TState != null");
+        var (tParemeters, tState) = FIBER_STATE_TYPES_MAP_CACHE[tFiber];
         fiber = (Fiber)Serialization.SerializationUtils.MakeNewObjectInstance(tFiber);
         //obtain state and parameters  materialize(TParams, tState);
         fiber.__processor__ctor(m_Runtime, null /*memory.Parameters*/, null/*memory.State*/);
