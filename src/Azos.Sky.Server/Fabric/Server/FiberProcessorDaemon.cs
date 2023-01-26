@@ -498,7 +498,7 @@ namespace Azos.Sky.Fabric.Server
         tancestor = tancestor.BaseType;
       }
 
-      throw new FabricFiberDeclarationException("Not able to determine TState of `{0}` which must descend from Fiber<TParams, TState>"
+      throw new FabricFiberDeclarationException("Not able to determine TParams/TState of `{0}` which must descend from Fiber<TParams, TState>"
                                                 .Args(tfiber.DisplayNameWithExpandedGenericArgs()));
     });
 

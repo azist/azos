@@ -9,6 +9,7 @@ using Azos.Serialization.Bix;
 using Azos.Serialization.JSON;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -134,7 +135,19 @@ namespace Azos.Sky.Fabric.Server
 
     public (FiberParameters pars, FiberState state) Unpack(Type tParameters, Type tState)
     {
-      return (null, null);
+      using var ms = new MemoryStream(m_Buffer);
+
+      var pars = (FiberParameters)Serialization.SerializationUtils.MakeNewObjectInstance(tParameters);
+      //todo: Replace with Bix in future
+      var map = JsonReader.DeserializeDataObject(ms) as JsonDataMap;
+      JsonReader.ToDoc(pars, map, fromUI: false, JsonReader.DocReadOptions.BindByCode);
+
+      //the position here should be set by JsonReader above
+      (ms.Position == m_StateOffset).IsTrue("Proper buffer position offset");
+
+      var state = (FiberState)Serialization.SerializationUtils.MakeNewObjectInstance(tState);
+      state.__fromStream(ms, m_Version);
+      return (pars, state);
     }
 
   }

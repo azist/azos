@@ -20,7 +20,7 @@ namespace Azos.Serialization.Bix
   {
     public BixReader(Stream stream) => m_Stream = stream;
 
-    private readonly Stream m_Stream;
+    internal readonly Stream m_Stream;
 
     public bool IsAssigned => m_Stream != null;
 

@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -23,7 +24,8 @@ namespace Azos.Sky.Fabric
   /// persisted storage, then the `ExecSlice` method is called which possibly mutates the state of a fiber represented by this instance.
   /// Upon return from `ExecSlice()`, the runtime inspects the state slots for mutations, saving changes (if any) into persisted storage.
   /// The system does this slot-by-slot significantly improving overall performance.
-  /// Particular fiber state implementations derive their own classes which reflect the required business logic
+  /// Particular fiber state implementations derive their own classes which reflect the required business logic.
+  /// WARNING: This class is not thread safe
   /// </summary>
   public class FiberState
   {
@@ -72,9 +74,49 @@ namespace Azos.Sky.Fabric
       public virtual bool DoNotPreload => false;
     }
 
+    internal void __fromStream(Stream stream, int version)
+    {
+      m_MemoryVersion = version;
+      var reader = new BixReader(stream);
+      m_CurrentStep = reader.ReadAtom();
 
+      var slotCount = reader.ReadInt();
+      (slotCount <= Constraints.MAX_STATE_SLOT_COUNT).IsTrue("Bound check: slot count <= MAX_SLOT_COUNT");
+
+      m_Data.Clear();
+      for(var i=0; i < slotCount; i++)
+      {
+        var slotId = reader.ReadAtom();
+        var slotData = reader.ReadBuffer();
+        m_Data[slotId] = slotData;
+      }
+    }
+
+    private int m_MemoryVersion;
     private Atom m_CurrentStep;
-    private readonly Dictionary<Atom, Slot> m_Data = new Dictionary<Atom, Slot>();
+    private readonly Dictionary<Atom, object> m_Data = new Dictionary<Atom, object>();//Variant data type - stores either byte[] or Slot
+
+    // Unpacks Slot from variant data type which either stores byte[] or already unpacked slot
+    // null if key does not exist
+    private Slot getSlot(Dictionary<Atom, object> data, Atom key)
+    {
+      if (!data.TryGetValue(key, out var got)) return null;
+
+      if (got is Slot slot) return slot;
+      if (got is byte[] buf)
+      {
+        //todo: deserialize using BIX
+        //if m_MemroyVersion < 100 then use_json else use_bix
+
+        using var scope = new BixReaderBufferScope(buf);
+        var json = scope.Reader.ReadString();
+        var slotFromJson = JsonReader.ToDoc<Slot>(json, fromUI: false, JsonReader.DocReadOptions.BindByCode);
+        data[key] = slotFromJson;
+        return slotFromJson;
+      }
+
+      throw new FabricException("Implementation exception: ! slot and !byte[]");
+    }
 
 
     /// <summary>
@@ -87,22 +129,31 @@ namespace Azos.Sky.Fabric
     /// <summary>
     /// True when any of slots have changed
     /// </summary>
-    public bool SlotsHaveChanges => m_Data.Any(one => one.Value.SlotMutation != SlotMutationType.Unchanged);
+    public bool SlotsHaveChanges => MaterializedData.Any(one => one.Value.SlotMutation != SlotMutationType.Unchanged);
 
     /// <summary>
-    /// Enumerates all of the named slots in this state bag.
+    /// Enumerates all of the named slots in this state bag which have materialized -have been accessed.
+    /// The slots that have not be gotten or written are NOt returned.
     /// You should NOT use this to directly mutate the data on the slots
     /// as this does not mark slots as modified and the changes will be lost.
     /// Use the specific field accessors provided by your derived class instead
     /// </summary>
-    public virtual IEnumerable<KeyValuePair<Atom, Slot>> Data => m_Data;
+    public virtual IEnumerable<KeyValuePair<Atom, Slot>> MaterializedData
+    {
+      get
+      {
+        foreach(var kvp in m_Data)
+        {
+          if (kvp.Value is Slot slot) yield return new KeyValuePair<Atom, Slot>(kvp.Key, slot);
+        }
+      }
+    }
 
     /// <summary> Returns slot by id, or null if such slot does not exist </summary>
     protected Slot Get(Atom id)
     {
-      id.HasRequiredValue(nameof(id)).AsValid(nameof(id));
-      if (m_Data.TryGetValue(id, out var existing)) return existing;
-      return null;
+      id.IsValidNonZero(nameof(id));
+      return getSlot(m_Data, id);
     }
 
     /// <summary> Returns slot by id, or null if such slot does not exist </summary>
@@ -111,7 +162,7 @@ namespace Azos.Sky.Fabric
     /// <summary> Sets slot data </summary>
     protected FiberState Set(Atom id, Slot data)
     {
-      id.HasRequiredValue(nameof(id)).AsValid(nameof(id));
+      id.IsValidNonZero(nameof(id));
       data.NonNull(nameof(data));
       data.MarkSlotAsModified();
       m_Data[id] = data;

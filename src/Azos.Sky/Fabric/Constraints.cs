@@ -11,6 +11,7 @@ namespace Azos.Sky.Fabric
   public static class Constraints
   {
     public const int MAX_TAG_COUNT = 32;
+    public const int MAX_STATE_SLOT_COUNT = 128;
     public const int MAX_IMPERSONATE_LEN = 255;
 
     public const int MAX_GROUP_LEN = 127;
