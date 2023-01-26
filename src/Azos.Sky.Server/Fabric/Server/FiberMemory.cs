@@ -90,7 +90,6 @@ namespace Azos.Sky.Fabric.Server
     private int m_StateOffset;
     private Exception m_CrashException;
 
-
     public int Version => m_Version;
     public MemoryStatus Status => m_Status;
     public FiberId Id => m_Id;
@@ -131,6 +130,11 @@ namespace Azos.Sky.Fabric.Server
     {
       (m_Status == MemoryStatus.LockedForCaller).IsTrue("Delta obtained for LockedForCaller memory");
       return null;
+    }
+
+    public (FiberParameters pars, FiberState state) Unpack(Type tParameters, Type tState)
+    {
+      return (null, null);
     }
 
   }

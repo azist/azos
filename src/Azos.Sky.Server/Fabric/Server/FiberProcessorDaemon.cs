@@ -517,10 +517,17 @@ namespace Azos.Sky.Fabric.Server
       Fiber fiber = null;
       try
       {
-        var (tParemeters, tState) = FIBER_STATE_TYPES_MAP_CACHE[tFiber];
+        //Resolve types of Fiber generic arguments
+        var (tParameters, tState) = FIBER_STATE_TYPES_MAP_CACHE[tFiber];
+
+        //Deserialize parameters and state
+        var (fiberParameters, fiberState) = memory.Unpack(tParameters, tState);
+
+        //Make fiber
         fiber = (Fiber)Serialization.SerializationUtils.MakeNewObjectInstance(tFiber);
-        //obtain state and parameters  materialize(TParams, tState);
-        fiber.__processor__ctor(m_Runtime, null /*memory.Parameters*/, null/*memory.State*/);
+
+        //Init inject
+        fiber.__processor__ctor(m_Runtime, fiberParameters, fiberState);
       }
       catch(Exception allocationError)
       {
