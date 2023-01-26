@@ -127,10 +127,34 @@ namespace Azos.Sky.Fabric.Server
     /// This only succeeds if the <see cref="Status"/> is <see cref="MemoryStatus.LockedForCaller"/>
     /// otherwise Delta can not be obtained
     /// </summary>
-    public FiberMemoryDelta MakeDeltaSnapshot(FiberStep? nextStep)
+    public FiberMemoryDelta MakeDeltaSnapshot(FiberStep? nextStep, FiberState currentState)
     {
       (m_Status == MemoryStatus.LockedForCaller).IsTrue("Delta obtained for LockedForCaller memory");
-      return null;
+
+      var result = new FiberMemoryDelta
+      {
+        Version = Constraints.MEMORY_FORMAT_VERSION,
+        Id = m_Id
+      };
+
+      var crash = m_CrashException;
+      if (crash == null && !nextStep.HasValue) crash = new FabricException("Unspecified next step");
+
+      if (crash != null)
+      {
+        result.Crash = new WrappedExceptionData(crash, true, true);
+      }
+      else
+      {
+        var nxt = nextStep.Value;
+        result.NextStep = nxt.NextStep;
+        result.NextSliceInterval = nxt.NextSliceInterval;
+        result.ExitCode = nxt.ExitCode;
+        result.Result = nxt.Result;
+        result.Changes = currentState.SlotChanges.ToArray();
+      }
+
+      return  result;
     }
 
     public (FiberParameters pars, FiberState state) Unpack(Type tParameters, Type tState)

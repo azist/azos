@@ -400,10 +400,10 @@ namespace Azos.Sky.Fabric.Server
         if (memory == null || memory.Status != MemoryStatus.LockedForCaller) return;//no pending work
         if (!Running) return;//not running anymore
 
-        var (wasHandled, nextStep) = await processFiberQuantumCore(memory).ConfigureAwait(false);//<===================== FIBER SLICE gets called
+        var (wasHandled, nextStep, fiberState) = await processFiberQuantumCore(memory).ConfigureAwait(false);//<===================== FIBER SLICE gets called
         if (!wasHandled) return;//get out asap
 
-        var delta = memory.MakeDeltaSnapshot(nextStep);
+        var delta = memory.MakeDeltaSnapshot(nextStep, fiberState);
 
         var saveErrorCount = 0;
         while(true)
@@ -503,14 +503,14 @@ namespace Azos.Sky.Fabric.Server
     });
 
 
-    private async Task<(bool handled, FiberStep? next)> processFiberQuantumCore(FiberMemory memory)
+    private async Task<(bool handled, FiberStep? next, FiberState state)> processFiberQuantumCore(FiberMemory memory)
     {
       //1. - Determine the CLR type
       var tFiber = m_ImageTypeResolver.TryResolve(memory.ImageTypeId);
       if (tFiber == null)//image not found
       {
         reportUnknownImage(memory.ImageTypeId);//send CatastrophicError event
-        return (false, null);//do nothing
+        return (false, null, null);//do nothing
       }
 
       //2. - Allocate the fiber instance
@@ -543,7 +543,7 @@ namespace Azos.Sky.Fabric.Server
                  error,
                  pars: new { imageTypeId = memory.ImageTypeId, t = tFiber.DisplayNameWithExpandedGenericArgs() }.ToJson());
 
-        return (false, null);
+        return (false, null, null);
       }
 
       //3. - Impersonate the call flow
@@ -573,7 +573,7 @@ namespace Azos.Sky.Fabric.Server
         Azos.Apps.ExecutionContext.__SetThreadLevelSessionContext(null);
       }
 
-      return (true, nextStep);
+      return (true, nextStep, fiber.State);
     }
 
     // Should this be moved into a policy in future

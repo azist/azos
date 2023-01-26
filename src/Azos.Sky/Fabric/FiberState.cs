@@ -107,7 +107,6 @@ namespace Azos.Sky.Fabric
       {
         //todo: deserialize using BIX
         //if m_MemroyVersion < 100 then use_json else use_bix
-
         using var scope = new BixReaderBufferScope(buf);
         var json = scope.Reader.ReadString();
         var slotFromJson = JsonReader.ToDoc<Slot>(json, fromUI: false, JsonReader.DocReadOptions.BindByCode);
@@ -129,7 +128,12 @@ namespace Azos.Sky.Fabric
     /// <summary>
     /// True when any of slots have changed
     /// </summary>
-    public bool SlotsHaveChanges => MaterializedData.Any(one => one.Value.SlotMutation != SlotMutationType.Unchanged);
+    public bool SlotsHaveChanges => SlotChanges.Any();
+
+    /// <summary>
+    /// Slots that have changes
+    /// </summary>
+    public IEnumerable<KeyValuePair<Atom, Slot>> SlotChanges => MaterializedData.Where(one => one.Value.SlotMutation != SlotMutationType.Unchanged);
 
     /// <summary>
     /// Enumerates all of the named slots in this state bag which have materialized -have been accessed.
