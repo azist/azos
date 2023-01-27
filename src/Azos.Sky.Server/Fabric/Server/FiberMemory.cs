@@ -42,6 +42,25 @@ namespace Azos.Sky.Fabric.Server
   /// </summary>
   public sealed class FiberMemory
   {
+    public FiberMemory(
+              int          version,
+              MemoryStatus status,
+              FiberId      id,
+              Guid         imageTypeId,
+              EntityId?    impersonateAs,
+              byte[]       buffer,
+              int          stateOffset)
+    {
+      m_Version        =   version.IsTrue(v => v <= Constraints.MEMORY_FORMAT_VERSION);
+      m_Status         =   status;
+      m_Id             =   id;
+      m_ImageTypeId    =   imageTypeId;
+      m_ImpersonateAs  =   impersonateAs;
+      m_Buffer         =   buffer.NonNull(nameof(buffer));
+      m_StateOffset    =   stateOffset.IsTrue(v => v >= 0 && v < m_Buffer.Length);
+    }
+
+
     /// <summary>
     /// Called by processors: reads memory from flat bin content produced by shard.
     /// Shards never read this back as they read <see cref="FiberMemoryDelta"/> instead
@@ -115,7 +134,7 @@ namespace Azos.Sky.Fabric.Server
     /// <summary>
     /// True when this memory has any changes such as changes in state or a crash
     /// </summary>
-    public bool HasDelta(FiberState state) => m_CrashException != null|| state.SlotsHaveChanges;
+    public bool HasDelta(FiberState state) => m_CrashException != null|| state.NonNull(nameof(state)).SlotsHaveChanges;
 
     /// <summary>
     /// Marks memory as failed with the specified exception.

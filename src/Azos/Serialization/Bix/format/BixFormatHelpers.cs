@@ -60,18 +60,29 @@ namespace Azos.Serialization.Bix
   /// </summary>
   public struct BixWriterBufferScope : IDisposable
   {
-    public BixWriterBufferScope(int capacity = 0)
+    public static BixWriterBufferScope DefaultCapacity => new BixWriterBufferScope(16 * 1024);
+
+    public BixWriterBufferScope(int capacity)
     {
       m_Stream = new MemoryStream(capacity.KeepBetween(0, 8 * 1024 * 1024));
-      Writer = new BixWriter(m_Stream);
+      m_Writer = new BixWriter(m_Stream);
     }
 
     private readonly MemoryStream m_Stream;
-    public readonly BixWriter Writer;
+    public readonly BixWriter m_Writer;
 
-    public byte[] Buffer => m_Stream.ToArray();
+    public BixWriter Writer
+    {
+      get
+      {
+        m_Writer.IsAssigned.IsTrue("Assigned");
+        return m_Writer;
+      }
+    }
 
-    public void Dispose() => m_Stream.Dispose();
+    public byte[] Buffer => m_Stream.NonNull("Stream").ToArray();
+
+    public void Dispose() => m_Stream?.Dispose();
   }
 
 }
