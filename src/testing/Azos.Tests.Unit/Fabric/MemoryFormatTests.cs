@@ -98,9 +98,6 @@ namespace Azos.Tests.Unit.Fabric
       //shard calls
       var mem = new FiberMemory(1, MemoryStatus.LockedForCaller, fid, Guid.NewGuid(), null, pars, state);
 
-
-
-
       using var wscope = BixWriterBufferScope.DefaultCapacity;
 
       mem.WriteOneWay(wscope.Writer, 1);//Serialize by SHARD
@@ -120,19 +117,41 @@ namespace Azos.Tests.Unit.Fabric
       Aver.AreArraysEquivalent(mem.Buffer, got.Buffer);
       got.See("MEMORY:");
 
-      var (gotPars, gotState) = got.UnpackBuffer(typeof(TeztParams), typeof(TeztState));
+      var (p, s) = got.UnpackBuffer(typeof(TeztParams), typeof(TeztState));
+
+      var gotPars = p as TeztParams;
+      var gotState = s as TeztState;
+
+      Aver.IsNotNull(gotPars);
+      Aver.IsNotNull(gotState);
+
 
       //todo compare what I have in: gotPars, gotState
       gotPars.See("PARAMETERS:");
-      gotState.See("STATE before accesing it:");
+      gotState.See("STATE before accessing it:");
 
-      "Last name: {0}".SeeArgs(((TeztState)gotState).LastName);
+      "Last name: {0}".SeeArgs(gotState.LastName);
 
       gotState.See("STATE after accessing 1 slot:");
 
-      "Attachment name: {0}".SeeArgs(((TeztState)gotState).AttachmentName);
+      "Attachment name: {0}".SeeArgs(gotState.AttachmentName);
 
       gotState.See("STATE after accessing 2 slot:");
+
+      Aver.AreNotSameRef(pars, gotPars);
+      Aver.AreNotSameRef(state, gotState);
+
+      Aver.AreEqual(pars.Int1, gotPars.Int1);
+      Aver.AreEqual(pars.Bool1, gotPars.Bool1);
+      Aver.AreEqual(pars.String1, gotPars.String1);
+
+      Aver.AreEqual(state.FirstName, gotState.FirstName);
+      Aver.AreEqual(state.LastName, gotState.LastName);
+      Aver.AreEqual(state.DOB, gotState.DOB);
+      Aver.AreEqual(state.AccountNumber, gotState.AccountNumber);
+
+      Aver.AreArraysEquivalent(state.AttachmentContent, gotState.AttachmentContent);
+      Aver.AreEqual(state.AttachmentName, gotState.AttachmentName);
     }
 
   }
