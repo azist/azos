@@ -22,11 +22,11 @@ namespace Azos.Tests.Unit.Fabric
   public class MemoryFormatTests
   {
     [Run]
-    public void Test01_RawSerDeser_withoutpack()
+    public void Test01_RawSerDeser_withoutpack_NoImpersonate()
     {
       var fid = new FiberId(Atom.Encode("sys"), Atom.Encode("s1"), new GDID(0, 1, 1));
       var bin = new byte[]{ 1, 2, 3 };
-      var mem = new FiberMemory(1, MemoryStatus.LockedForCaller, fid, Guid.NewGuid(), null, bin, 1);
+      var mem = new FiberMemory(1, MemoryStatus.LockedForCaller, fid, Guid.NewGuid(), null, bin);
 
       using var wscope = BixWriterBufferScope.DefaultCapacity;
 
@@ -40,7 +40,30 @@ namespace Azos.Tests.Unit.Fabric
       Aver.AreEqual(mem.ImageTypeId, got.ImageTypeId);
       Aver.AreEqual(mem.ImpersonateAs, got.ImpersonateAs);
       Aver.AreArraysEquivalent(mem.Buffer, got.Buffer);
-      Aver.AreEqual(mem.StateOffset, got.StateOffset);
+      got.See();
+    }
+
+    [Run]
+    public void Test02_RawSerDeser_withoutpack_Impersonate()
+    {
+      var fid = new FiberId(Atom.Encode("sys"), Atom.Encode("s1"), new GDID(0, 1, 1));
+      var mikoyan = new EntityId(Atom.Encode("idp"), Atom.Encode("id"), Atom.ZERO, "mikoyan.ashot.kalgy");
+      var bin = new byte[] { 1, 2, 3 };
+      var mem = new FiberMemory(1, MemoryStatus.LockedForCaller, fid, Guid.NewGuid(), mikoyan, bin);
+
+      using var wscope = BixWriterBufferScope.DefaultCapacity;
+
+      mem.WriteOneWay(wscope.Writer, 1);//Serialize by SHARD
+
+      using var rscope = new BixReaderBufferScope(wscope.Buffer);
+      var got = new FiberMemory(rscope.Reader);//Read by processor
+
+      Aver.AreEqual(mem.Id, got.Id);
+      Aver.IsTrue(mem.Status == got.Status);
+      Aver.AreEqual(mem.ImageTypeId, got.ImageTypeId);
+      Aver.AreEqual(mem.ImpersonateAs, got.ImpersonateAs);
+      Aver.AreArraysEquivalent(mem.Buffer, got.Buffer);
+      Aver.AreEqual("mikoyan.ashot.kalgy", got.ImpersonateAs.Value.Address);
       got.See();
     }
   }

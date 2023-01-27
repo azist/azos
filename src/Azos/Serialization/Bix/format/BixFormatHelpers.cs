@@ -15,20 +15,23 @@ namespace Azos.Serialization.Bix
 {
   /// <summary>
   /// Creates a read scope around pre-allocated buffer.
+  /// The scopes can be nested each preserving their own state.
   /// It must be deterministically disposed with a call to <see cref="Dispose"/> (or using).
   /// The scope is 100% synchronous
   /// </summary>
   public struct BixReaderBufferScope : IDisposable
   {
     [ThreadStatic] private static BufferSegmentReadingStream ts_Stream;
+
     private static BufferSegmentReadingStream getStream()
     {
       var result = ts_Stream;
       if (result == null)
       {
         result = new BufferSegmentReadingStream();
-        ts_Stream = result;
       }
+
+      ts_Stream = null;
       return result;
     }
 
@@ -50,11 +53,18 @@ namespace Azos.Serialization.Bix
 
     public readonly BixReader Reader;
 
-    public void Dispose() => ((BufferSegmentReadingStream)Reader.m_Stream).UnbindBuffer();
+    public void Dispose()
+    {
+      if (Reader.m_Stream == null) return;
+      var was = (BufferSegmentReadingStream)Reader.m_Stream;
+      was.UnbindBuffer();
+      ts_Stream = was;
+    }
   }
 
   /// <summary>
   /// Creates a write scope around dynamically-allocated buffer.
+  /// The scopes can be nested each preserving their own state.
   /// It must be deterministically disposed with a call to <see cref="Dispose"/> (or using).
   /// The scope is 100% synchronous. Use <see cref="Buffer"/> to get a copy of what has been written
   /// </summary>
@@ -80,7 +90,14 @@ namespace Azos.Serialization.Bix
       }
     }
 
-    public byte[] Buffer => m_Stream.NonNull("Stream").ToArray();
+    public void Reset()
+    {
+      m_Stream.NonNull(nameof(m_Stream));
+      m_Stream.Position = 0;
+      m_Stream.SetLength(0);
+    }
+
+    public byte[] Buffer => m_Stream.NonNull(nameof(m_Stream)).ToArray();
 
     public void Dispose() => m_Stream?.Dispose();
   }

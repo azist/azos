@@ -74,10 +74,9 @@ namespace Azos.Sky.Fabric
       public virtual bool DoNotPreload => false;
     }
 
-    internal void __fromStream(Stream stream, int version)
+    internal void __fromStream(BixReader reader, int version)
     {
       m_MemoryVersion = version;
-      var reader = new BixReader(stream);
       m_CurrentStep = reader.ReadAtom();
 
       var slotCount = reader.ReadInt();
@@ -89,6 +88,22 @@ namespace Azos.Sky.Fabric
         var slotId = reader.ReadAtom();
         var slotData = reader.ReadBuffer();
         m_Data[slotId] = slotData;
+      }
+    }
+
+    internal void __toStream(BixWriter writer, int memoryVersion)
+    {
+      writer.Write(m_CurrentStep);
+      writer.Write(m_Data.Count);
+      using var wbuf = BixWriterBufferScope.DefaultCapacity;
+      foreach(var kvp in m_Data)
+      {
+        writer.Write(kvp.Key);
+
+        var json = JsonWriter.Write(kvp.Value, JsonWritingOptions.CompactRowsAsMap);
+        wbuf.Reset();
+        wbuf.Writer.Write(json);
+        writer.WriteBuffer(wbuf.Buffer);
       }
     }
 

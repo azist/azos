@@ -48,8 +48,7 @@ namespace Azos.Sky.Fabric.Server
               FiberId      id,
               Guid         imageTypeId,
               EntityId?    impersonateAs,
-              byte[]       buffer,
-              int          stateOffset)
+              byte[]       buffer)
     {
       m_Version        =   version.IsTrue(v => v <= Constraints.MEMORY_FORMAT_VERSION);
       m_Status         =   status;
@@ -57,7 +56,6 @@ namespace Azos.Sky.Fabric.Server
       m_ImageTypeId    =   imageTypeId;
       m_ImpersonateAs  =   impersonateAs;
       m_Buffer         =   buffer.NonNull(nameof(buffer));
-      m_StateOffset    =   stateOffset.IsTrue(v => v >= 0 && v < m_Buffer.Length);
     }
 
 
@@ -81,8 +79,6 @@ namespace Azos.Sky.Fabric.Server
       m_ImageTypeId = reader.ReadGuid();
       m_ImpersonateAs = reader.ReadNullableEntityId();
       m_Buffer = reader.ReadBuffer();
-      m_StateOffset = reader.ReadInt();
-      (m_StateOffset >= 0 && m_StateOffset < m_Buffer.Length).IsTrue("stateOffset bounds");
     }
 
     /// <summary>
@@ -105,7 +101,6 @@ namespace Azos.Sky.Fabric.Server
       writer.Write(m_ImageTypeId);
       writer.Write(m_ImpersonateAs);
       writer.WriteBuffer(m_Buffer);
-      writer.Write(m_StateOffset);
     }
 
     private int m_Version;
@@ -114,7 +109,6 @@ namespace Azos.Sky.Fabric.Server
     private Guid m_ImageTypeId;
     private EntityId? m_ImpersonateAs;
     private byte[] m_Buffer;
-    private int m_StateOffset;
     private Exception m_CrashException;
 
     public int Version => m_Version;
@@ -123,7 +117,6 @@ namespace Azos.Sky.Fabric.Server
     public Guid ImageTypeId => m_ImageTypeId;
     public EntityId? ImpersonateAs => m_ImpersonateAs;
     public byte[] Buffer => m_Buffer;
-    public int StateOffset => m_StateOffset;
 
     /// <summary>
     /// Error which crashed this memory, or null if not crashed
@@ -189,21 +182,32 @@ namespace Azos.Sky.Fabric.Server
     /// </summary>
     public (FiberParameters pars, FiberState state) Unpack(Type tParameters, Type tState)
     {
-      using var ms = new MemoryStream(m_Buffer);
-
       var pars = (FiberParameters)Serialization.SerializationUtils.MakeNewObjectInstance(tParameters);
 
-      //todo: Replace with Bix in future, use Version to conditional call one or another
-      var map = JsonReader.DeserializeDataObject(ms) as JsonDataMap;
-      JsonReader.ToDoc(pars, map, fromUI: false, JsonReader.DocReadOptions.BindByCode);
+      using var rscope = new BixReaderBufferScope(m_Buffer);
 
-      //the position here should be set by JsonReader above
-      (ms.Position == m_StateOffset).IsTrue("Proper buffer position offset");
+      //todo: Replace with Bix in future, use Version to conditional call one or another
+      var json = rscope.Reader.ReadString();
+      JsonReader.ToDoc(pars, json, fromUI: false, JsonReader.DocReadOptions.BindByCode);
 
       var state = (FiberState)Serialization.SerializationUtils.MakeNewObjectInstance(tState);
-      state.__fromStream(ms, m_Version);
+      state.__fromStream(rscope.Reader, m_Version);
+
       return (pars, state);
     }
+
+    public byte[] Pack(FiberParameters pars, FiberState state, int formatVersion)
+    {
+      using var wscope = BixWriterBufferScope.DefaultCapacity;
+      int offset = 0;
+      var json = JsonWriter.Write(pars, JsonWritingOptions.CompactRowsAsMap);
+      wscope.Writer.Write(json);
+
+      state.__toStream(wscope.Writer, formatVersion);
+
+      return wscope.Buffer;
+    }
+
 
   }
 }
