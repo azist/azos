@@ -48,6 +48,7 @@ namespace Azos.Sky.Fabric
     /// which is not tracked, instead use functional-styled data accessors which mark the whole containing slot as changed
     /// so the system can save the changes in state into persisted storage
     /// </summary>
+    [BixJsonHandler(ThrowOnUnresolvedType = true)]
     public abstract class Slot : AmorphousTypedDoc
     {
       public override bool AmorphousDataEnabled => true;
@@ -72,6 +73,20 @@ namespace Azos.Sky.Fabric
       /// only WHEN needed according to specific job state control logic (e.g. customer image content, call history list etc.)
       /// </summary>
       public virtual bool DoNotPreload => false;
+
+      /// <summary>
+      /// Adds type code using BIX, so the system will add Guids from <see cref="Azos.Serialization.Bix.BixAttribute"/>
+      /// which are used for both binary and json polymorphism
+      /// </summary>
+      protected override void AddJsonSerializerField(Schema.FieldDef def, JsonWritingOptions options, Dictionary<string, object> jsonMap, string name, object value)
+      {
+        if (def?.Order == 0)
+        {
+          BixJsonHandler.EmitJsonBixDiscriminator(this, jsonMap);
+        }
+
+        base.AddJsonSerializerField(def, options, jsonMap, name, value);
+      }
     }
 
     internal void __fromStream(BixReader reader, int version)

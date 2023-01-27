@@ -19,8 +19,14 @@ using Azos.Sky.Fabric.Server;
 namespace Azos.Tests.Unit.Fabric
 {
   [Runnable]
-  public class MemoryFormatTests
+  public class MemoryFormatTests : IRunnableHook
   {
+    public void Prologue(Runner runner, FID id)
+    {
+       Bixer.RegisterTypeSerializationCores(System.Reflection.Assembly.GetExecutingAssembly());
+    }
+    public bool Epilogue(Runner runner, FID id, Exception error) => false;
+
     [Run]
     public void Test01_RawSerDeser_withoutpack_NoImpersonate()
     {
@@ -66,5 +72,68 @@ namespace Azos.Tests.Unit.Fabric
       Aver.AreEqual("mikoyan.ashot.kalgy", got.ImpersonateAs.Value.Address);
       got.See();
     }
+
+    [Run]
+    public void Test03_RawSerDeser_withSlots()
+    {
+      var fid = new FiberId(Atom.Encode("sys"), Atom.Encode("s1"), new GDID(0, 1, 1));
+
+      var pars = new TeztParams()
+      {
+        Int1 = 3456789,
+         Bool1 = true,
+          String1 = "Apple Cider Vinegar Pooking"
+      };
+
+      var state= new TeztState()
+      {
+         FirstName = "Cheese",
+         LastName = "Burgerman",
+         AccountNumber = 12345,
+         DOB = new DateTime(2000, 12, 07, 14, 23, 09, DateTimeKind.Utc)
+      };
+
+      state.SetAttachment("profilepic.jpg", new byte[]{0,1,2,3,4,5,6,7,8,9});
+
+      //shard calls
+      var mem = new FiberMemory(1, MemoryStatus.LockedForCaller, fid, Guid.NewGuid(), null, pars, state);
+
+
+
+
+      using var wscope = BixWriterBufferScope.DefaultCapacity;
+
+      mem.WriteOneWay(wscope.Writer, 1);//Serialize by SHARD
+
+      var rawWireData = wscope.Buffer;
+
+      "Raw data to be sent over the wire is: {0} bytes".SeeArgs(rawWireData.Length);
+
+
+      using var rscope = new BixReaderBufferScope(rawWireData);
+      var got = new FiberMemory(rscope.Reader);//Read by processor
+
+      Aver.AreEqual(mem.Id, got.Id);
+      Aver.IsTrue(mem.Status == got.Status);
+      Aver.AreEqual(mem.ImageTypeId, got.ImageTypeId);
+      Aver.AreEqual(mem.ImpersonateAs, got.ImpersonateAs);
+      Aver.AreArraysEquivalent(mem.Buffer, got.Buffer);
+      got.See("MEMORY:");
+
+      var (gotPars, gotState) = got.UnpackBuffer(typeof(TeztParams), typeof(TeztState));
+
+      //todo compare what I have in: gotPars, gotState
+      gotPars.See("PARAMETERS:");
+      gotState.See("STATE before accesing it:");
+
+      "Last name: {0}".SeeArgs(((TeztState)gotState).LastName);
+
+      gotState.See("STATE after accessing 1 slot:");
+
+      "Attachment name: {0}".SeeArgs(((TeztState)gotState).AttachmentName);
+
+      gotState.See("STATE after accessing 2 slot:");
+    }
+
   }
 }

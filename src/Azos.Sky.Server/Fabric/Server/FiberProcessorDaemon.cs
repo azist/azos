@@ -521,7 +521,7 @@ namespace Azos.Sky.Fabric.Server
         var (tParameters, tState) = FIBER_STATE_TYPES_MAP_CACHE[tFiber];
 
         //Deserialize parameters and state
-        var (fiberParameters, fiberState) = memory.Unpack(tParameters, tState);
+        var (fiberParameters, fiberState) = memory.UnpackBuffer(tParameters, tState);
 
         //Make fiber
         fiber = (Fiber)Serialization.SerializationUtils.MakeNewObjectInstance(tFiber);

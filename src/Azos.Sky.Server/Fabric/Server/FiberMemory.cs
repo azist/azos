@@ -43,6 +43,24 @@ namespace Azos.Sky.Fabric.Server
   public sealed class FiberMemory
   {
     public FiberMemory(
+              int version,
+              MemoryStatus status,
+              FiberId id,
+              Guid imageTypeId,
+              EntityId? impersonateAs,
+              FiberParameters pars,
+              FiberState state)
+    {
+      m_Version = version.IsTrue(v => v <= Constraints.MEMORY_FORMAT_VERSION);
+      m_Status = status;
+      m_Id = id;
+      m_ImageTypeId = imageTypeId;
+      m_ImpersonateAs = impersonateAs;
+      m_Buffer = packBuffer(pars, state, m_Version);
+    }
+
+
+    public FiberMemory(
               int          version,
               MemoryStatus status,
               FiberId      id,
@@ -180,7 +198,7 @@ namespace Azos.Sky.Fabric.Server
     /// Materializes raw buffer into <see cref="FiberParameters"/> and <see cref="FiberState"/> of the specified types.
     /// You can use <see cref="Version"/> to perform backward-compatible upgrades of serialization methods
     /// </summary>
-    public (FiberParameters pars, FiberState state) Unpack(Type tParameters, Type tState)
+    public (FiberParameters pars, FiberState state) UnpackBuffer(Type tParameters, Type tState)
     {
       var pars = (FiberParameters)Serialization.SerializationUtils.MakeNewObjectInstance(tParameters);
 
@@ -196,10 +214,9 @@ namespace Azos.Sky.Fabric.Server
       return (pars, state);
     }
 
-    public byte[] Pack(FiberParameters pars, FiberState state, int formatVersion)
+    private static byte[] packBuffer(FiberParameters pars, FiberState state, int formatVersion)
     {
       using var wscope = BixWriterBufferScope.DefaultCapacity;
-      int offset = 0;
       var json = JsonWriter.Write(pars, JsonWritingOptions.CompactRowsAsMap);
       wscope.Writer.Write(json);
 
