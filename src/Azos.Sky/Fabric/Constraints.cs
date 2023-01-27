@@ -10,6 +10,13 @@ namespace Azos.Sky.Fabric
 {
   public static class Constraints
   {
+    /// <summary>
+    /// Memory format version describes the methods/protocols/serializers used to pack/unpack
+    /// memory representations into/from byte[].
+    /// Writers take version  parameter to write out in specific format.
+    /// Readers read the first version tag and then change their reading strategy as of that version
+    /// Assumption: versions are always backward-compatible, e.g. a written version 9 can be processed by reader version 9 or higher, but not lower than 9.
+    /// </summary>
     public const int MEMORY_FORMAT_VERSION = 1;
 
     public const int MAX_TAG_COUNT = 32;

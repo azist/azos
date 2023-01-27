@@ -28,6 +28,10 @@ namespace Azos.Sky.Fabric.Server
     public FiberMemoryDelta(BixReader reader)
     {
       Version = reader.ReadInt();
+
+      (Version <= Constraints.MEMORY_FORMAT_VERSION).IsTrue("Wire Version <= MEMORY_FORMAT_VERSION");
+
+
       Id = new FiberId(reader.ReadAtom(),
                        reader.ReadAtom(),
                        reader.ReadGDID());
@@ -63,13 +67,15 @@ namespace Azos.Sky.Fabric.Server
     }
 
     /// <summary>
-    /// Called by memory shard: writes binary representation of this class one-way that is:
-    /// it can only be read back by <see cref="FiberMemory(BixReader)"/>.
-    /// The changes to memory are NOT communicated back using this method, instead <see cref="FiberMemoryDelta"/> is used
+    /// Processor ===&gt; Shard<br/>
+    /// Called by processor: writes binary representation of this class one-way that is:
+    /// it can only be read back by <see cref="FiberMemoryDelta(BixReader)"/>.
+    /// The changes to memory are NOT communicated back using this method, instead <see cref="FiberMemory"/> is used
     /// </summary>
-    public void WriteOneWay(BixWriter writer)
+    public void WriteOneWay(BixWriter writer, int formatVersion)
     {
-      writer.Write(Version);
+      (formatVersion <= Constraints.MEMORY_FORMAT_VERSION).IsTrue("Wire Version <= MEMORY_FORMAT_VERSION");
+      writer.Write(formatVersion);
 
       writer.Write(Id.Runspace);
       writer.Write(Id.MemoryShard);

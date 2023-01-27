@@ -49,6 +49,10 @@ namespace Azos.Sky.Fabric.Server
     public FiberMemory(BixReader reader)
     {
       m_Version     = reader.ReadInt();
+
+      (m_Version <= Constraints.MEMORY_FORMAT_VERSION).IsTrue("Wire Version <= MEMORY_FORMAT_VERSION");
+
+
       m_Status      = (MemoryStatus)reader.ReadByte();
 
       m_Id          = new FiberId(reader.ReadAtom(),
@@ -63,13 +67,16 @@ namespace Azos.Sky.Fabric.Server
     }
 
     /// <summary>
+    /// Processor &lt;=== Shard<br/>
     /// Called by memory shard: writes binary representation of this class one-way that is:
     /// it can only be read back by <see cref="FiberMemory(BixReader)"/>.
     /// The changes to memory are NOT communicated back using this method, instead <see cref="FiberMemoryDelta"/> is used
     /// </summary>
-    public void WriteOneWay(BixWriter writer)
+    public void WriteOneWay(BixWriter writer, int formatVersion)
     {
-      writer.Write(m_Version);
+      (formatVersion <= Constraints.MEMORY_FORMAT_VERSION).IsTrue("Wire Version <= MEMORY_FORMAT_VERSION");
+      writer.Write(formatVersion);
+
       writer.Write((byte)m_Status);
 
       writer.Write(m_Id.Runspace);
@@ -157,12 +164,17 @@ namespace Azos.Sky.Fabric.Server
       return  result;
     }
 
+    /// <summary>
+    /// Materializes raw buffer into <see cref="FiberParameters"/> and <see cref="FiberState"/> of the specified types.
+    /// You can use <see cref="Version"/> to perform backward-compatible upgrades of serialization methods
+    /// </summary>
     public (FiberParameters pars, FiberState state) Unpack(Type tParameters, Type tState)
     {
       using var ms = new MemoryStream(m_Buffer);
 
       var pars = (FiberParameters)Serialization.SerializationUtils.MakeNewObjectInstance(tParameters);
-      //todo: Replace with Bix in future
+
+      //todo: Replace with Bix in future, use Version to conditional call one or another
       var map = JsonReader.DeserializeDataObject(ms) as JsonDataMap;
       JsonReader.ToDoc(pars, map, fromUI: false, JsonReader.DocReadOptions.BindByCode);
 
