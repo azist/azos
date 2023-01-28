@@ -53,6 +53,8 @@ namespace Azos.Serialization.Bix
 
     public readonly BixReader Reader;
 
+    public void Reset() => ((BufferSegmentReadingStream)Reader.m_Stream).UnsafeReset();
+
     public void Dispose()
     {
       if (Reader.m_Stream == null) return;

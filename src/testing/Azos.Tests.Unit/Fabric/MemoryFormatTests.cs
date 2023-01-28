@@ -15,6 +15,7 @@ using Azos.Scripting;
 using Azos.Serialization.Bix;
 using Azos.Sky.Fabric;
 using Azos.Sky.Fabric.Server;
+using Azos.Time;
 
 namespace Azos.Tests.Unit.Fabric
 {
@@ -152,6 +153,69 @@ namespace Azos.Tests.Unit.Fabric
 
       Aver.AreArraysEquivalent(state.AttachmentContent, gotState.AttachmentContent);
       Aver.AreEqual(state.AttachmentName, gotState.AttachmentName);
+    }
+
+    [Run("cnt=100")]
+    [Run("cnt=1000")]
+    [Run("cnt=250000")]
+    public void Test04_RawSerDeser_Benchmark(int cnt)
+    {
+      var fid = new FiberId(Atom.Encode("sys"), Atom.Encode("s1"), new GDID(0, 1, 1));
+
+      var pars = new TeztParams()
+      {
+        Int1 = 3456789,
+        Bool1 = true,
+        String1 = "Apple Cider Vinegar Pooking"
+      };
+
+      var state = new TeztState()
+      {
+        FirstName = "Cheesergohman",
+        LastName = "Burgermaninochertof Khan Piu Vivo",
+        AccountNumber = 1234567,
+        DOB = new DateTime(2000, 12, 07, 14, 23, 09, DateTimeKind.Utc)
+      };
+
+      state.SetAttachment("profilepic.jpg", new byte[23000]);
+
+      //shard calls
+      var mem = new FiberMemory(1, MemoryStatus.LockedForCaller, fid, Guid.NewGuid(), null, pars, state);
+
+      using var wscope = BixWriterBufferScope.DefaultCapacity;
+
+      mem.WriteOneWay(wscope.Writer, 1);//warm up
+
+      var timerWrite = Timeter.StartNew();
+      for(var i=0; i<cnt; i++)
+      {
+        wscope.Reset();
+        mem.WriteOneWay(wscope.Writer, 1);
+      }
+      timerWrite.Stop();
+
+      var rawWireData = wscope.Buffer;
+
+      "Raw data to be sent over the wire is: {0} bytes".SeeArgs(rawWireData.Length);
+
+
+      using var rscope = new BixReaderBufferScope(rawWireData);
+      var got = new FiberMemory(rscope.Reader);//Read by processor
+      var timerRead = Timeter.StartNew();
+      for (var i = 0; i < cnt; i++)
+      {
+        rscope.Reset();
+        got = new FiberMemory(rscope.Reader);
+      }
+      timerRead.Stop();
+
+      "Did {0} reads at {1:n0} ops/sec and writes at {2:n0} ops/sec".SeeArgs(cnt, cnt / timerRead.ElapsedSec, cnt / timerWrite.ElapsedSec);
+
+      Aver.AreEqual(mem.Id, got.Id);
+      Aver.IsTrue(mem.Status == got.Status);
+      Aver.AreEqual(mem.ImageTypeId, got.ImageTypeId);
+      Aver.AreEqual(mem.ImpersonateAs, got.ImpersonateAs);
+      Aver.AreArraysEquivalent(mem.Buffer, got.Buffer);
     }
 
   }
