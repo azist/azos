@@ -14,6 +14,13 @@ namespace Azos.Apps
   public interface IGuidTypeResolver
   {
     /// <summary>
+    /// True when the instance has more than zero entries (and can resolve something),
+    /// vs being blank. This is sometimes needed to check for absence of proper configuration
+    /// upon dependent service start
+    /// </summary>
+    bool HasAnyEntries { get; }
+
+    /// <summary>
     /// Tries to resolves the GUID into type or returns null
     /// </summary>
     Type TryResolve(Guid guid);

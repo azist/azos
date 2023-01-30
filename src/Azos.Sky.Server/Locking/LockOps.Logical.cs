@@ -73,7 +73,7 @@ namespace Azos.Sky.Locking
                       internal NotOp(OperatorOp operand)
                       {
                         if (operand==null)
-                          throw new LockingException(StringConsts.ARGUMENT_ERROR+"Not(operand=null)");
+                          throw new LockingException(ServerStringConsts.ARGUMENT_ERROR+"Not(operand=null)");
 
                         Operand = operand;
                       }
@@ -107,7 +107,7 @@ namespace Azos.Sky.Locking
                       internal ExistsOp(string table, string var, object value, bool ignoreThisSession)
                       {
                         if (table.IsNullOrWhiteSpace() || var.IsNullOrWhiteSpace())
-                          throw new LockingException(StringConsts.ARGUMENT_ERROR+"Exists(table|var=null|empty)");
+                          throw new LockingException(ServerStringConsts.ARGUMENT_ERROR+"Exists(table|var=null|empty)");
 
                         Table = table;
                         Var = var;

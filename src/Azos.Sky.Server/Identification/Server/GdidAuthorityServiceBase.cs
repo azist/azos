@@ -59,7 +59,7 @@ namespace Azos.Sky.Identification.Server
           }
           catch(Exception error)
           {
-            throw new GdidException(StringConsts.GDIDAUTH_ID_DATA_PARSING_ERROR.Args(content, error.ToMessageWithType()), error);
+            throw new GdidException(ServerStringConsts.GDIDAUTH_ID_DATA_PARSING_ERROR.Args(content, error.ToMessageWithType()), error);
           }
         }
 
@@ -93,7 +93,7 @@ namespace Azos.Sky.Identification.Server
       {
         if (name.IsNullOrWhiteSpace() ||
             name.Length>MAX_NAME_LENGTH)
-            throw new Data.ValidationException(StringConsts.GDIDAUTH_NAME_INVALID_LEN_ERROR.Args(name, MAX_NAME_LENGTH));
+            throw new Data.ValidationException(ServerStringConsts.GDIDAUTH_NAME_INVALID_LEN_ERROR.Args(name, MAX_NAME_LENGTH));
 
         for(var i=0; i<name.Length; i++)
         {
@@ -102,7 +102,7 @@ namespace Azos.Sky.Identification.Server
           if (c>='A' && c<='Z') continue;
           if (c>='a' && c<='z') continue;
           if (i!=0 && (c=='_'||c=='.'||c=='-') && i!=name.Length-1) continue;
-          throw new Data.ValidationException(StringConsts.GDIDAUTH_NAME_INVALID_CHARS_ERROR.Args(name));
+          throw new Data.ValidationException(ServerStringConsts.GDIDAUTH_NAME_INVALID_CHARS_ERROR.Args(name));
         }
       }
 
@@ -167,7 +167,7 @@ namespace Azos.Sky.Identification.Server
          }
 
         if (error!=null)
-          throw new GdidException(StringConsts.GDIDAUTH_LOCATIONS_CONFIG_ERROR + error);
+          throw new GdidException(ServerStringConsts.GDIDAUTH_LOCATIONS_CONFIG_ERROR + error);
       }
 
       //blocking call and throws if can not write to any devices
@@ -212,7 +212,7 @@ namespace Azos.Sky.Identification.Server
 
         if (totalFailure)
         {
-          var txt = StringConsts.GDIDAUTH_LOCATION_PERSISTENCE_FAILURE_ERROR + ( errors!=null ? errors.ToString() : "no locations");
+          var txt = ServerStringConsts.GDIDAUTH_LOCATION_PERSISTENCE_FAILURE_ERROR + ( errors!=null ? errors.ToString() : "no locations");
 
           WriteLog(MessageType.CatastrophicError, nameof(WriteToLocations), txt, null, guid);
 
@@ -267,7 +267,7 @@ namespace Azos.Sky.Identification.Server
 
         if (!result.HasValue && onlyErrors)
         {
-          var txt = StringConsts.GDIDAUTH_LOCATIONS_READ_FAILURE_ERROR + ( errors!=null ? errors.ToString() : "no locations");
+          var txt = ServerStringConsts.GDIDAUTH_LOCATIONS_READ_FAILURE_ERROR + ( errors!=null ? errors.ToString() : "no locations");
 
           WriteLog(MessageType.CatastrophicError, nameof(ReadFromLocations), txt, null, guid);
 

@@ -18,7 +18,7 @@ namespace Azos.Sky.Workers
     public TodoQueueAttribute(string queueName, string typeGuid) : base(typeGuid)
     {
       if (queueName.IsNullOrWhiteSpace())
-        throw new WorkersException(StringConsts.ARGUMENT_ERROR + GetType().FullName + ".ctor(queueName=null|empty)");
+        throw new WorkersException(ServerStringConsts.ARGUMENT_ERROR + GetType().FullName + ".ctor(queueName=null|empty)");
 
       QueueName = queueName;
     }

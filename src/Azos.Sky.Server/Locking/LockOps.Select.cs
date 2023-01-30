@@ -58,7 +58,7 @@ namespace Azos.Sky.Locking
             internal SelectOperatorValueOp(string intoName, OperatorOp operand) : base(intoName)
             {
               if (operand==null)
-                    throw new LockingException(StringConsts.ARGUMENT_ERROR+"SelectOperatorValue(operand=null)");
+                    throw new LockingException(ServerStringConsts.ARGUMENT_ERROR+"SelectOperatorValue(operand=null)");
 
               Operand = operand;
             }
@@ -99,7 +99,7 @@ namespace Azos.Sky.Locking
             internal SelectVarValueOp(string intoName, string table, string var, bool ignoreThisSession, bool abortIfNotFound, bool selectMany) : base(intoName)
             {
               if (table.IsNullOrWhiteSpace() || var.IsNullOrWhiteSpace())
-                    throw new LockingException(StringConsts.ARGUMENT_ERROR+"SelectVarValue(table|name=null|empty)");
+                    throw new LockingException(ServerStringConsts.ARGUMENT_ERROR+"SelectVarValue(table|name=null|empty)");
 
               Table = table;
               Var = var;

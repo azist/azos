@@ -38,7 +38,7 @@ namespace Azos.Sky.Locking
                 public BinaryOperatorOp(OperatorOp lop, OperatorOp rop)
                 {
                   if (lop==null||rop==null)
-                   throw new LockingException(StringConsts.ARGUMENT_ERROR+"BinOp(lop|rop=null)");
+                   throw new LockingException(ServerStringConsts.ARGUMENT_ERROR+"BinOp(lop|rop=null)");
 
                   LeftOperand = lop;
                   RightOperand = rop;
@@ -79,7 +79,7 @@ namespace Azos.Sky.Locking
         public ChangeOp(string table, string var) : base()
         {
           if (table.IsNullOrWhiteSpace() || var.IsNullOrWhiteSpace())
-                throw new LockingException(StringConsts.ARGUMENT_ERROR+"Change(table|var==null|empty)");
+                throw new LockingException(ServerStringConsts.ARGUMENT_ERROR+"Change(table|var==null|empty)");
 
           Table = table;
           Var = var;
@@ -102,7 +102,7 @@ namespace Azos.Sky.Locking
         public SelectOp(string intoName)
         {
           if (intoName.IsNullOrWhiteSpace() )
-                throw new LockingException(StringConsts.ARGUMENT_ERROR+"Select(intoName=null|empty)");
+                throw new LockingException(ServerStringConsts.ARGUMENT_ERROR+"Select(intoName=null|empty)");
 
           IntoName = intoName;
         }

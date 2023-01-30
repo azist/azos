@@ -98,7 +98,7 @@ namespace Azos.Sky.Metabase
         fsSessionParams = new FileSystemSessionConnectParams();
 
       if (fileSystem==null || fsSessionParams==null)
-        throw new MetabaseException(StringConsts.ARGUMENT_ERROR+"Metabank.ctor(fileSystem|fsSessionParams==null)");
+        throw new MetabaseException(ServerStringConsts.ARGUMENT_ERROR+"Metabank.ctor(fileSystem|fsSessionParams==null)");
 
       using (var session = ctorFS(fileSystem, fsSessionParams, rootPath))
       {
@@ -151,7 +151,7 @@ namespace Azos.Sky.Metabase
       }
       catch(Exception error)
       {
-        throw new MetabaseException(StringConsts.METABASE_FS_CONNECTION_ERROR.Args(fileSystem.GetType().FullName,
+        throw new MetabaseException(ServerStringConsts.METABASE_FS_CONNECTION_ERROR.Args(fileSystem.GetType().FullName,
                                                                                     fileSystem.Name,
                                                                                     fsSessionParams.ToString(),
                                                                                     error.ToMessageWithType()
@@ -468,15 +468,15 @@ namespace Azos.Sky.Metabase
 
           if (fromHost.IsNullOrWhiteSpace())
           {
-            output.Add( new MetabaseValidationMsg(MetabaseValidationMessageType.Error, null, null, StringConsts.METABASE_VALIDATION_WRONG_HOST_ERROR.Args("null|empty")) );
+            output.Add( new MetabaseValidationMsg(MetabaseValidationMessageType.Error, null, null, ServerStringConsts.METABASE_VALIDATION_WRONG_HOST_ERROR.Args("null|empty")) );
             return;
           }
 
           var host = CatalogReg[fromHost] as SectionHost;
           if (host==null)
           {
-            output.Add( new MetabaseValidationMsg(MetabaseValidationMessageType.Error, null, null, StringConsts.METABASE_VALIDATION_WRONG_HOST_ERROR.Args(fromHost)) );
-            output.Add( new MetabaseValidationMsg(MetabaseValidationMessageType.Info, null, null, StringConsts.METABASE_VALIDATION_WRONG_HOST_INFO.Args(BootConfLoader.ENV_VAR_HOST_NAME)) );
+            output.Add( new MetabaseValidationMsg(MetabaseValidationMessageType.Error, null, null, ServerStringConsts.METABASE_VALIDATION_WRONG_HOST_ERROR.Args(fromHost)) );
+            output.Add( new MetabaseValidationMsg(MetabaseValidationMessageType.Info, null, null, ServerStringConsts.METABASE_VALIDATION_WRONG_HOST_INFO.Args(BootConfLoader.ENV_VAR_HOST_NAME)) );
           }
 
           validateMetabase(ctx);
@@ -498,10 +498,10 @@ namespace Azos.Sky.Metabase
           var list = OSConfNodes.Where(n=>n.IsSameNameAttr(osName)).ToList();
 
           if (list.Count==0)
-            throw new MetabaseException(StringConsts.METABASE_PLATFORMS_OS_NOT_DEFINED_ERROR.Args(osName));
+            throw new MetabaseException(ServerStringConsts.METABASE_PLATFORMS_OS_NOT_DEFINED_ERROR.Args(osName));
 
           if (list.Count>1)
-            throw new MetabaseException(StringConsts.METABASE_PLATFORMS_OS_DUPLICATION_ERROR.Args(osName));
+            throw new MetabaseException(ServerStringConsts.METABASE_PLATFORMS_OS_DUPLICATION_ERROR.Args(osName));
 
           return list[0];
         }
@@ -531,7 +531,7 @@ namespace Azos.Sky.Metabase
         {
           var net = NetworkConfNodes.FirstOrDefault(n=>n.IsSameNameAttr(netName));
           if (net==null)
-            throw new MetabaseException(StringConsts.METABASE_NAMED_NETWORK_NOT_FOUND_ERROR.Args(netName ?? SysConsts.NULL));
+            throw new MetabaseException(ServerStringConsts.METABASE_NAMED_NETWORK_NOT_FOUND_ERROR.Args(netName ?? SysConsts.NULL));
           return net;
         }
 
@@ -573,7 +573,7 @@ namespace Azos.Sky.Metabase
           }
           catch(Exception error)
           {
-            throw new MetabaseException(StringConsts.METABASE_NETWORK_CONFIG_ERROR+"GetNetworkSvcNodes({0}): {1}".Args(netName, error.ToMessageWithType(), error));
+            throw new MetabaseException(ServerStringConsts.METABASE_NETWORK_CONFIG_ERROR+"GetNetworkSvcNodes({0}): {1}".Args(netName, error.ToMessageWithType(), error));
           }
         }
 
@@ -597,7 +597,7 @@ namespace Azos.Sky.Metabase
           }
           catch(Exception error)
           {
-            throw new MetabaseException(StringConsts.METABASE_NETWORK_CONFIG_ERROR+"GetNetworkGroupNodes({0}): {1}".Args(netName, error.ToMessageWithType(), error));
+            throw new MetabaseException(ServerStringConsts.METABASE_NETWORK_CONFIG_ERROR+"GetNetworkGroupNodes({0}): {1}".Args(netName, error.ToMessageWithType(), error));
           }
         }
 
@@ -624,7 +624,7 @@ namespace Azos.Sky.Metabase
           }
           catch(Exception error)
           {
-            throw new MetabaseException(StringConsts.METABASE_NETWORK_CONFIG_ERROR+"GetNetworkSvcBindingNodes({0},{1}): {2}".Args(netName, svcName, error.ToMessageWithType(), error));
+            throw new MetabaseException(ServerStringConsts.METABASE_NETWORK_CONFIG_ERROR+"GetNetworkSvcBindingNodes({0},{1}): {2}".Args(netName, svcName, error.ToMessageWithType(), error));
           }
         }
 
@@ -644,7 +644,7 @@ namespace Azos.Sky.Metabase
         {
           var net = this.GetNetworkSvcNodes(netName).FirstOrDefault(n=>n.IsSameNameAttr(svcName));
           if (net==null)
-            throw new MetabaseException(StringConsts.METABASE_NAMED_NETWORK_SVC_NOT_FOUND_ERROR.Args(netName ?? SysConsts.NULL, svcName ?? SysConsts.NULL));
+            throw new MetabaseException(ServerStringConsts.METABASE_NAMED_NETWORK_SVC_NOT_FOUND_ERROR.Args(netName ?? SysConsts.NULL, svcName ?? SysConsts.NULL));
           return net;
         }
 
@@ -655,7 +655,7 @@ namespace Azos.Sky.Metabase
         {
           var net = this.GetNetworkGroupNodes(netName).FirstOrDefault(n=>n.IsSameNameAttr(groupName));
           if (net==null)
-            throw new MetabaseException(StringConsts.METABASE_NAMED_NETWORK_GRP_NOT_FOUND_ERROR.Args(netName ?? SysConsts.NULL, groupName ?? SysConsts.NULL));
+            throw new MetabaseException(ServerStringConsts.METABASE_NAMED_NETWORK_GRP_NOT_FOUND_ERROR.Args(netName ?? SysConsts.NULL, groupName ?? SysConsts.NULL));
           return net;
         }
 
@@ -719,7 +719,7 @@ namespace Azos.Sky.Metabase
             }
           }
           if (require)
-            throw new MetabaseException(StringConsts.METABASE_FILE_NOT_FOUND_ERROR.Args(path));
+            throw new MetabaseException(ServerStringConsts.METABASE_FILE_NOT_FOUND_ERROR.Args(path));
           else
           {
             var result = new MemoryConfiguration();
@@ -732,7 +732,7 @@ namespace Azos.Sky.Metabase
         }
         catch(Exception error)
         {
-          throw new MetabaseException(StringConsts.METABASE_CONFIG_LOAD_ERROR.Args(path ?? SysConsts.UNKNOWN_ENTITY, error.ToMessageWithType()), error);
+          throw new MetabaseException(ServerStringConsts.METABASE_CONFIG_LOAD_ERROR.Args(path ?? SysConsts.UNKNOWN_ENTITY, error.ToMessageWithType()), error);
         }
       }
 
@@ -743,7 +743,7 @@ namespace Azos.Sky.Metabase
         {
           var file = session[path] as FileSystemFile;
 
-          if (file==null) throw new MetabaseException(StringConsts.METABASE_FILE_NOT_FOUND_EXACT_ERROR.Args(path));
+          if (file==null) throw new MetabaseException(ServerStringConsts.METABASE_FILE_NOT_FOUND_EXACT_ERROR.Args(path));
 
           using(file)
           {
@@ -757,7 +757,7 @@ namespace Azos.Sky.Metabase
         }
         catch(Exception error)
         {
-          throw new MetabaseException(StringConsts.METABASE_CONFIG_LOAD_ERROR.Args(path ?? SysConsts.UNKNOWN_ENTITY, error.ToMessageWithType()), error);
+          throw new MetabaseException(ServerStringConsts.METABASE_CONFIG_LOAD_ERROR.Args(path ?? SysConsts.UNKNOWN_ENTITY, error.ToMessageWithType()), error);
         }
       }
 
@@ -884,7 +884,7 @@ namespace Azos.Sky.Metabase
           var catPath = m_FS.CombinePaths(m_FSRootPath, path);
           var catDir = session[catPath] as FileSystemDirectory;
 
-          if (catDir==null) throw new MetabaseException(StringConsts.METABASE_PATH_NOT_FOUND_ERROR.Args(operationName, catPath));
+          if (catDir==null) throw new MetabaseException(ServerStringConsts.METABASE_PATH_NOT_FOUND_ERROR.Args(operationName, catPath));
 
           T result;
           try

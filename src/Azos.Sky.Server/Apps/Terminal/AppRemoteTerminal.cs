@@ -196,7 +196,7 @@ namespace Azos.Apps.Terminal
       var tp = Cmdlets.FirstOrDefault(cmd => cmd.Name.EqualsIgnoreCase(cname));
 
       if (tp == null)
-        return Sky.StringConsts.RT_CMDLET_DONTKNOW_ERROR.Args(cname);
+        return Sky.ServerStringConsts.RT_CMDLET_DONTKNOW_ERROR.Args(cname);
 
       //Check cmdlet security
       Permission.AuthorizeAndGuardAction(App.SecurityManager, tp);
@@ -204,7 +204,7 @@ namespace Azos.Apps.Terminal
 
       var cmdlet = Activator.CreateInstance(tp, this, command) as Cmdlet;
       if (cmdlet == null)
-        throw new SkyException(Sky.StringConsts.RT_CMDLET_ACTIVATION_ERROR.Args(cname));
+        throw new SkyException(Sky.ServerStringConsts.RT_CMDLET_ACTIVATION_ERROR.Args(cname));
 
       using (cmdlet)
       {

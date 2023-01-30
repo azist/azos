@@ -88,7 +88,7 @@ namespace Azos.Sky.Locking
       if (!Running) return LockTransactionResult.CallFailed;
 
       if (session==null || transaction==null)
-      throw new LockingException(StringConsts.ARGUMENT_ERROR+GetType().Name+".ExecuteLockTransaction(session|tran==null)");
+      throw new LockingException(ServerStringConsts.ARGUMENT_ERROR+GetType().Name+".ExecuteLockTransaction(session|tran==null)");
 
       checkSessionExists(session);
 
@@ -103,7 +103,7 @@ namespace Azos.Sky.Locking
       if (!Running) return Task.FromResult(LockTransactionResult.CallFailed);
 
       if (session==null || transaction==null)
-        throw new LockingException(StringConsts.ARGUMENT_ERROR+GetType().Name+".ExecuteLockTransactionAsync(session|tran==null)");
+        throw new LockingException(ServerStringConsts.ARGUMENT_ERROR+GetType().Name+".ExecuteLockTransactionAsync(session|tran==null)");
 
       checkSessionExists(session);
 
@@ -119,7 +119,7 @@ namespace Azos.Sky.Locking
       if (!Running) return false;
 
       if (session==null)
-        throw new LockingException(StringConsts.ARGUMENT_ERROR+GetType().Name+".EndLockSession(session==null)");
+        throw new LockingException(ServerStringConsts.ARGUMENT_ERROR+GetType().Name+".EndLockSession(session==null)");
 
       checkSessionExists(session);
 
@@ -136,7 +136,7 @@ namespace Azos.Sky.Locking
       if (!Running) return Task.FromResult(false);
 
       if (session==null)
-        throw new LockingException(StringConsts.ARGUMENT_ERROR+GetType().Name+".EndLockSessionAsync(session==null)");
+        throw new LockingException(ServerStringConsts.ARGUMENT_ERROR+GetType().Name+".EndLockSessionAsync(session==null)");
 
       checkSessionExists(session);
 
@@ -180,7 +180,7 @@ namespace Azos.Sky.Locking
     private void checkSessionExists(LockSession session)
     {
       var s = this[session.ID];
-      if (s==null) throw new LockingException(StringConsts.LOCK_SESSION_NOT_ACTIVE_ERROR.Args(session.ID, session.Description));
+      if (s==null) throw new LockingException(ServerStringConsts.LOCK_SESSION_NOT_ACTIVE_ERROR.Args(session.ID, session.Description));
     }
 
     private void dumpStats()

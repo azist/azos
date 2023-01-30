@@ -126,23 +126,23 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
          base.Validate(ctx);
 
          if (!Packages.Any())
-           ctx.Output.Add( new MetabaseValidationMsg(MetabaseValidationMessageType.Warning, Catalog, this, StringConsts.METABASE_NO_APP_PACKAGES_WARNING.Args(Name) ) );
+           ctx.Output.Add( new MetabaseValidationMsg(MetabaseValidationMessageType.Warning, Catalog, this, ServerStringConsts.METABASE_NO_APP_PACKAGES_WARNING.Args(Name) ) );
 
          if (Packages.Count() != Packages.Distinct().Count())
-           ctx.Output.Add( new MetabaseValidationMsg(MetabaseValidationMessageType.Error, Catalog, this, StringConsts.METABASE_APP_PACKAGE_REDECLARED_ERROR.Args(Name) ) );
+           ctx.Output.Add( new MetabaseValidationMsg(MetabaseValidationMessageType.Error, Catalog, this, ServerStringConsts.METABASE_APP_PACKAGE_REDECLARED_ERROR.Args(Name) ) );
 
          foreach(var ap in Packages)
          {
             if (ap.Name.IsNullOrEmpty())
             {
-             ctx.Output.Add( new MetabaseValidationMsg(MetabaseValidationMessageType.Error, Catalog, this, StringConsts.METABASE_APP_PACKAGE_BLANK_NAME_ERROR.Args(Name) ) );
+             ctx.Output.Add( new MetabaseValidationMsg(MetabaseValidationMessageType.Error, Catalog, this, ServerStringConsts.METABASE_APP_PACKAGE_BLANK_NAME_ERROR.Args(Name) ) );
              continue;
             }
 
             var refed = Metabank.CatalogBin.Packages.Where(pi=> Metabank.INVSTRCMP.Equals(pi.Name, ap.Name)).Select(pi=>pi.Name).FirstOrDefault();
 
             if (refed==null)
-             ctx.Output.Add( new MetabaseValidationMsg(MetabaseValidationMessageType.Error, Catalog, this, StringConsts.METABASE_APP_PACKAGE_NOT_FOUND_IN_BIN_CATALOG_ERROR.Args(Name, ap.Name) ) );
+             ctx.Output.Add( new MetabaseValidationMsg(MetabaseValidationMessageType.Error, Catalog, this, ServerStringConsts.METABASE_APP_PACKAGE_NOT_FOUND_IN_BIN_CATALOG_ERROR.Args(Name, ap.Name) ) );
          }
       }
 
@@ -164,7 +164,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
                                                                 (pi.IsAnyOS || Metabank.INVSTRCMP.Equals(pi.OS, os))
                                                          ).OrderBy(pi => -pi.Specificity).FirstOrDefault();//highest first
             if (match==null)
-             throw new MetabaseException(StringConsts.METABASE_APP_DOES_NOT_HAVE_MATCHING_BIN_ERROR.Args(Name, ap.Name, ap.Version, os));
+             throw new MetabaseException(ServerStringConsts.METABASE_APP_DOES_NOT_HAVE_MATCHING_BIN_ERROR.Args(Name, ap.Name, ap.Version, os));
 
             result.Add( new AppPackage(ap, match));
         }

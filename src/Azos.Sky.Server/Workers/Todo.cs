@@ -63,7 +63,7 @@ namespace Azos.Sky.Workers
       internal ExecuteState(int state, bool sys) { State = state; }
       public ExecuteState(int state)
       {
-        if (state <= 0) throw new WorkersException(StringConsts.ARGUMENT_ERROR + "state < 0");
+        if (state <= 0) throw new WorkersException(ServerStringConsts.ARGUMENT_ERROR + "state < 0");
         State = state;
       }
 
@@ -188,7 +188,7 @@ namespace Azos.Sky.Workers
 
         var ve = this.Validate(targetName);
         if (ve != null)
-          throw new WorkersException(StringConsts.ARGUMENT_ERROR + "Todo.ValidateAndPrepareForEnqueue(todo).validate: " + ve.ToMessageWithType(), ve);
+          throw new WorkersException(ServerStringConsts.ARGUMENT_ERROR + "Todo.ValidateAndPrepareForEnqueue(todo).validate: " + ve.ToMessageWithType(), ve);
 
       DoPrepareForEnqueuePostValidate(targetName);
     }

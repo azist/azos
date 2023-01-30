@@ -33,11 +33,11 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
                 internal PackageInfo(string fullName)
                 {
                   if (fullName.IsNullOrWhiteSpace())
-                    throw new SkyException(StringConsts.ARGUMENT_ERROR + "PackageInfo.ctor(fullName=null|empty)");
+                    throw new SkyException(ServerStringConsts.ARGUMENT_ERROR + "PackageInfo.ctor(fullName=null|empty)");
 
                   var segs = fullName.Split('.');
                   if (segs.Length<4)
-                    throw new SkyException(StringConsts.ARGUMENT_ERROR + "PackageInfo.ctor(!name.plat.os.ver)");
+                    throw new SkyException(ServerStringConsts.ARGUMENT_ERROR + "PackageInfo.ctor(!name.plat.os.ver)");
 
                   Name     = string.Join(".", segs, 0, segs.Length-3);
                   Version  = segs[segs.Length-1];
@@ -48,13 +48,13 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
                       Platform.IsNullOrWhiteSpace() ||
                       OS.IsNullOrWhiteSpace() ||
                       Version.IsNullOrWhiteSpace())
-                    throw new SkyException(StringConsts.ARGUMENT_ERROR + "PackageInfo.ctor(!name.plat.os.ver)");
+                    throw new SkyException(ServerStringConsts.ARGUMENT_ERROR + "PackageInfo.ctor(!name.plat.os.ver)");
                 }
 
                 public PackageInfo(string name, string version, string platform = ANY, string os = ANY)
                 {
                   if (name.IsNullOrWhiteSpace() || version.IsNullOrWhiteSpace())
-                    throw new SkyException(StringConsts.ARGUMENT_ERROR + "PackageInfo.ctor(name|ver=null|empty)");
+                    throw new SkyException(ServerStringConsts.ARGUMENT_ERROR + "PackageInfo.ctor(name|ver=null|empty)");
 
                   Name = name;
                   Version = version;
@@ -168,11 +168,11 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
               {
                 if(!pi.IsAnyPlatform)
                   if (!Metabank.PlatformNames.Any(pn=> Metabank.INVSTRCMP.Equals(pn, pi.Platform)))
-                   throw new MetabaseException(StringConsts.METABASE_BIN_PACKAGE_INVALID_PLATFORM_ERROR.Args(pi));
+                   throw new MetabaseException(ServerStringConsts.METABASE_BIN_PACKAGE_INVALID_PLATFORM_ERROR.Args(pi));
 
                 if(!pi.IsAnyOS)
                   if (!Metabank.OSNames.Any(on=> Metabank.INVSTRCMP.Equals(on, pi.OS)))
-                   throw new MetabaseException(StringConsts.METABASE_BIN_PACKAGE_INVALID_OS_ERROR.Args(pi));
+                   throw new MetabaseException(ServerStringConsts.METABASE_BIN_PACKAGE_INVALID_OS_ERROR.Args(pi));
               }
 
 
@@ -212,7 +212,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
                               if (mf==null)
                               {
                                 output.Add( new MetabaseValidationMsg(MetabaseValidationMessageType.Error, this, null,
-                                                                      StringConsts.METABASE_BIN_PACKAGE_MISSING_MANIFEST_ERROR
+                                                                      ServerStringConsts.METABASE_BIN_PACKAGE_MISSING_MANIFEST_ERROR
                                                                       .Args(sdn, ManifestUtils.MANIFEST_FILE_NAME), null)
                                           );
                                 continue;
@@ -223,7 +223,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
 
                               if (!ManifestUtils.HasTheSameContent(manifest, computed, oneWay: false))
                                output.Add( new MetabaseValidationMsg(MetabaseValidationMessageType.Error, this, null,
-                                                                      StringConsts.METABASE_BIN_PACKAGE_OUTDATED_MANIFEST_ERROR
+                                                                      ServerStringConsts.METABASE_BIN_PACKAGE_OUTDATED_MANIFEST_ERROR
                                                                       .Args(sdn, ManifestUtils.MANIFEST_FILE_NAME), null)
                                           );
                             }
@@ -268,7 +268,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
                               progress.Add(" + {0}".Args(appPackage.ToString()));
 
                            if (packageDir==null)
-                             throw new MetabaseException(StringConsts.METABASE_INSTALLATION_BIN_PACKAGE_NOT_FOUND_ERROR.Args(appPackage.Name, subDir));
+                             throw new MetabaseException(ServerStringConsts.METABASE_INSTALLATION_BIN_PACKAGE_NOT_FOUND_ERROR.Args(appPackage.Name, subDir));
 
                            installSet.Add(new LocalInstallation.PackageInfo(appPackage.Name, packageDir, appPackage.Path));
                         }

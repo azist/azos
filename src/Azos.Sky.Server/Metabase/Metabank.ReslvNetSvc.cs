@@ -105,7 +105,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
         }
         catch(Exception error)
         {
-          throw new MetabaseException(StringConsts.METABASE_NETWORK_SVC_RESOLVE_ERROR.Args(host, net, svc, error.ToMessageWithType()), error);
+          throw new MetabaseException(ServerStringConsts.METABASE_NETWORK_SVC_RESOLVE_ERROR.Args(host, net, svc, error.ToMessageWithType()), error);
         }
 
     }
@@ -119,12 +119,12 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
       if (host.IsNullOrWhiteSpace() ||
           net.IsNullOrWhiteSpace() ||
           svc.IsNullOrWhiteSpace())
-         throw new MetabaseException(StringConsts.ARGUMENT_ERROR + "Metabase.ResolveNetSvc(host|net|svc==null|empty)");
+         throw new MetabaseException(ServerStringConsts.ARGUMENT_ERROR + "Metabase.ResolveNetSvc(host|net|svc==null|empty)");
 
       if (fromHost.IsNullOrWhiteSpace()) fromHost = SkyApp.GetThisHostName();
 
       if (fromHost.IsNullOrWhiteSpace())
-         throw new MetabaseException(StringConsts.ARGUMENT_ERROR + "Metabase.ResolveNetSvc(fromHost==null|empty & SkySystem is not avail)");
+         throw new MetabaseException(ServerStringConsts.ARGUMENT_ERROR + "Metabase.ResolveNetSvc(fromHost==null|empty & SkySystem is not avail)");
 
       var sb = new StringBuilder();
       sb.Append(host); sb.Append(';');
@@ -153,7 +153,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
 
       if (scope==NetworkScope.NOC || scope==NetworkScope.NOCGroup)
        if (!fromh.NOC.IsLogicallyTheSame(toh.NOC))
-        throw new MetabaseException(StringConsts.METABASE_NET_SVC_RESOLVER_TARGET_NOC_INACCESSIBLE_ERROR.Args(svc, fromh.RegionPath, toh.RegionPath, net, scope));
+        throw new MetabaseException(ServerStringConsts.METABASE_NET_SVC_RESOLVER_TARGET_NOC_INACCESSIBLE_ERROR.Args(svc, fromh.RegionPath, toh.RegionPath, net, scope));
 
 
 
@@ -176,7 +176,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
         }
 
         if (!INVSTRCMP.Equals( fromPeer.Group, toPeer.Group))
-          throw new MetabaseException(StringConsts.METABASE_NET_SVC_RESOLVER_TARGET_GROUP_INACCESSIBLE_ERROR.Args(svc, fromh.RegionPath, toh.RegionPath, net, scope));
+          throw new MetabaseException(ServerStringConsts.METABASE_NET_SVC_RESOLVER_TARGET_GROUP_INACCESSIBLE_ERROR.Args(svc, fromh.RegionPath, toh.RegionPath, net, scope));
        }
 
       if (toh.Dynamic)
@@ -226,7 +226,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
               }//while
 
               if (hinfo == null)
-                throw new MetabaseException(StringConsts.METABASE_NET_SVC_RESOLVER_DYN_HOST_UNKNOWN_ERROR.Args(svc, fromh.RegionPath, toh.RegionPath, net));
+                throw new MetabaseException(ServerStringConsts.METABASE_NET_SVC_RESOLVER_DYN_HOST_UNKNOWN_ERROR.Args(svc, fromh.RegionPath, toh.RegionPath, net));
 
               var pattern = toPeer.Address + "*";
               foreach(var nic in hinfo.NetInfo.Adapters)
@@ -238,7 +238,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
                 }
               }
 
-              throw new MetabaseException(StringConsts.METABASE_NET_SVC_RESOLVER_DYN_HOST_NO_ADDR_MATCH_ERROR.Args(svc, fromh.RegionPath, toh.RegionPath, net, toPeer.Address));
+              throw new MetabaseException(ServerStringConsts.METABASE_NET_SVC_RESOLVER_DYN_HOST_NO_ADDR_MATCH_ERROR.Args(svc, fromh.RegionPath, toh.RegionPath, net, toPeer.Address));
             }
 
 
@@ -270,7 +270,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
       }
       catch(Exception error)
       {
-        throw new MetabaseException(StringConsts.METABASE_NETWORK_GET_BINDING_NODE_ERROR.Args(net, svc, binding, error.ToMessageWithType()), error);
+        throw new MetabaseException(ServerStringConsts.METABASE_NETWORK_GET_BINDING_NODE_ERROR.Args(net, svc, binding, error.ToMessageWithType()), error);
       }
     }
 

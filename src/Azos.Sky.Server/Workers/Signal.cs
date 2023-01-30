@@ -91,7 +91,7 @@ namespace Azos.Sky.Workers
 
       var ve = this.Validate(targetName);
       if (ve != null)
-        throw new WorkersException(StringConsts.ARGUMENT_ERROR + "Signal.ValidateAndPrepareForEnqueue(todo).validate: " + ve.ToMessageWithType(), ve);
+        throw new WorkersException(ServerStringConsts.ARGUMENT_ERROR + "Signal.ValidateAndPrepareForEnqueue(todo).validate: " + ve.ToMessageWithType(), ve);
 
       DoPrepareForEnqueuePostValidate(targetName);
     }

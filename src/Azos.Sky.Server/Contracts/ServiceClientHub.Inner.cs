@@ -32,7 +32,7 @@ namespace Azos.Sky.Contracts
         }
         catch (Exception error)
         {
-          throw new Clients.SkyClientException(StringConsts.SKY_SVC_CLIENT_MAPPING_CTOR_ERROR.Args(
+          throw new Clients.SkyClientException(ServerStringConsts.SKY_SVC_CLIENT_MAPPING_CTOR_ERROR.Args(
                                               config.ToLaconicString(CodeAnalysis.Laconfig.LaconfigWritingOptions.Compact),
                                               error.ToMessageWithType()), error);
         }

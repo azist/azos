@@ -41,6 +41,8 @@ namespace Azos.Sky
     public const string GDID_NS_EVENTHUB = "SYS-EventHub";
     public const string GDID_SEQ_EVENTHUB = "Event";
 
+    public const string GDID_NS_FABRIC = "SYS-Fabric";
+
     public const string GDID_NS_WORKER = "SYS-SkyWORKER";
     public const string GDID_NAME_WORKER_TODO = "TODO";
     public const string GDID_NAME_WORKER_PROCESS = "PROCESS";

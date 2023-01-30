@@ -106,6 +106,11 @@ namespace Azos.Sky.Fabric.Server
     /// Checks-in fiber data and releases the lock
     /// </summary>
     Task<bool> CheckInAsync(FiberMemoryDelta fiber);
+
+    /// <summary>
+    /// Undo checkout
+    /// </summary>
+    Task UndoCheckoutAsync(FiberId idFiber);
   }
 
   public interface IFiberStoreShardLogic : IFiberStoreShard, IModuleImplementation

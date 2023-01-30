@@ -45,7 +45,7 @@ namespace Azos.Sky.Identification.Server
     {
       //singleton is used as a mutex
       if (!App.Singletons.GetOrCreate(() => this).created)//mutex
-        throw new GdidException(StringConsts.GDIDAUTH_INSTANCE_ALREADY_ALLOCATED_ERROR);
+        throw new GdidException(ServerStringConsts.GDIDAUTH_INSTANCE_ALREADY_ALLOCATED_ERROR);
     }
 
     /// <summary>
@@ -55,7 +55,7 @@ namespace Azos.Sky.Identification.Server
     {
       //singleton is used as a mutex
       if (!App.Singletons.GetOrCreate(() => this).created)
-        throw new GdidException(StringConsts.GDIDAUTH_INSTANCE_ALREADY_ALLOCATED_ERROR);
+        throw new GdidException(ServerStringConsts.GDIDAUTH_INSTANCE_ALREADY_ALLOCATED_ERROR);
     }
 
     protected override void Destructor()
@@ -90,10 +90,10 @@ namespace Azos.Sky.Identification.Server
 
         foreach(var id in value)
           if (id<0 || id>GDID.AUTHORITY_MAX)
-            throw new GdidException(StringConsts.GDIDAUTH_IDS_INVALID_AUTHORITY_VALUE_ERROR.Args(id));
+            throw new GdidException(ServerStringConsts.GDIDAUTH_IDS_INVALID_AUTHORITY_VALUE_ERROR.Args(id));
 
         m_AuthorityIDs = value;
-        WriteLog(MessageType.Warning, "AuthorityIDs.set()", StringConsts.GDIDAUTH_AUTHORITY_ASSIGNMENT_WARNING.Args(value.ToDumpString(DumpFormat.Hex)));
+        WriteLog(MessageType.Warning, "AuthorityIDs.set()", ServerStringConsts.GDIDAUTH_AUTHORITY_ASSIGNMENT_WARNING.Args(value.ToDumpString(DumpFormat.Hex)));
       }
     }
 
@@ -106,13 +106,13 @@ namespace Azos.Sky.Identification.Server
     public GdidBlock AllocateBlock(string scopeName, string sequenceName, int blockSize, ulong? vicinity)
     {
       if (!Running)
-        throw new GdidException(StringConsts.GDIDAUTH_INSTANCE_NOT_RUNNING_ERROR);
+        throw new GdidException(ServerStringConsts.GDIDAUTH_INSTANCE_NOT_RUNNING_ERROR);
 
       CheckNameValidity(scopeName);
       CheckNameValidity(sequenceName);
 
       if (blockSize<=0)
-        throw new Data.ValidationException(StringConsts.ARGUMENT_ERROR + "AllocateBlock(blockSize<=0)");
+        throw new Data.ValidationException(ServerStringConsts.ARGUMENT_ERROR + "AllocateBlock(blockSize<=0)");
 
       scopeName = scopeName.ToUpperInvariant();//different cases for readability
       sequenceName = sequenceName.ToLowerInvariant();
@@ -132,7 +132,7 @@ namespace Azos.Sky.Identification.Server
     protected override void DoStart()
     {
       if (m_AuthorityIDs==null || m_AuthorityIDs.Length<1)
-          throw new GdidException(StringConsts.GDIDAUTH_IDS_INVALID_AUTHORITY_VALUE_ERROR.Args("<no ids>"));
+          throw new GdidException(ServerStringConsts.GDIDAUTH_IDS_INVALID_AUTHORITY_VALUE_ERROR.Args("<no ids>"));
       base.DoStart();
     }
     #endregion
@@ -179,11 +179,11 @@ namespace Azos.Sky.Identification.Server
         {
             if (era>=uint.MaxValue - 16)//ALERT, with some room
             {
-              WriteLog(MessageType.CriticalAlert, "allocate()", StringConsts.GDIDAUTH_ERA_EXHAUSTED_ALERT.Args(scopeName, sequenceName));
+              WriteLog(MessageType.CriticalAlert, "allocate()", ServerStringConsts.GDIDAUTH_ERA_EXHAUSTED_ALERT.Args(scopeName, sequenceName));
             }
             if (era==uint.MaxValue - 1) //hard stop
             {
-              var txt = StringConsts.GDIDAUTH_ERA_EXHAUSTED_ERROR.Args(scopeName, sequenceName);
+              var txt = ServerStringConsts.GDIDAUTH_ERA_EXHAUSTED_ERROR.Args(scopeName, sequenceName);
               WriteLog(MessageType.CatastrophicError, "allocate()", txt);
               throw new GdidException( txt );
             }
@@ -191,7 +191,7 @@ namespace Azos.Sky.Identification.Server
             era++;
             value = 0;
             Instrumentation.AuthEraPromotedEvent.Happened(App.Instrumentation, scopeName, sequenceName );
-            WriteLog(MessageType.Warning, "allocate()", StringConsts.GDIDAUTH_ERA_PROMOTED_WARNING.Args(scopeName, sequenceName, era));
+            WriteLog(MessageType.Warning, "allocate()", ServerStringConsts.GDIDAUTH_ERA_PROMOTED_WARNING.Args(scopeName, sequenceName, era));
         }
 
         result.Era = era;

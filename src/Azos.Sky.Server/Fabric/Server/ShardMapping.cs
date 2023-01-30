@@ -9,8 +9,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 using Azos.Apps;
+using Azos.Client;
 using Azos.Collections;
+using Azos.Conf;
+using Azos.Instrumentation;
 using Azos.Log;
 
 namespace Azos.Sky.Fabric.Server
@@ -19,71 +23,87 @@ namespace Azos.Sky.Fabric.Server
   /// Describes runspaces which are supported by the system.
   /// Runspaces partition fiber execution and storage zones
   /// </summary>
-  public sealed class ShardMapping : IAtomNamed, IFiberStoreShard
+  public sealed class ShardMapping : ApplicationComponent<RunspaceMapping>, IAtomNamed, IFiberStoreShard
   {
-    /// <summary>
-    /// Unique fiber namespace identifier
-    /// </summary>
-    public Atom Name => throw new NotImplementedException();
+    public const string CONFIG_SHARD_SECTION = "shard";
+    public const string CONFIG_SERVER_SECTION = "server";
+
+
+    internal ShardMapping(RunspaceMapping runspace, IConfigSectionNode cfg) : base(runspace)
+    {
+      m_ProcessingFactor = Constraints.PROCESSING_FACTOR_DEFAULT;
+
+      ConfigAttribute.Apply(this, cfg.NonEmpty(nameof(cfg)));
+      m_Name.IsValidNonZero("Configured `name`: Atom");
+
+      //Service connection
+      var nServer = cfg[CONFIG_SERVER_SECTION];
+      m_Server = FactoryUtils.MakeDirectedComponent<HttpService>(this,
+                                                                 nServer,
+                                                                 typeof(HttpService),
+                                                                 new object[] { nServer });
+    }
+
+    protected override void Destructor()
+    {
+      DisposeAndNull(ref m_Server);
+      base.Destructor();
+    }
+
+
+    [Config]
+    private Atom m_Name;
+    private float m_ProcessingFactor;
+    private float m_AllocationFactor;
+    private HttpService m_Server;
+
+    internal long m_AllocationCount;
+
+    public override string ComponentLogTopic => CoreConsts.FABRIC_TOPIC;
 
     /// <summary>
-    /// Runspace which this hard is under
+    /// Unique shard identifier
     /// </summary>
-    public RunspaceMapping Runspace => throw new NotImplementedException();
+    public Atom Name => m_Name;
+
+    /// <summary>
+    /// Runspace which this shard is under
+    /// </summary>
+    public RunspaceMapping Runspace => ComponentDirector;
 
     /// <summary>
     /// Specifies relative weight of this shard among others for processing
     /// </summary>
-    public float ProcessingFactor{ get; }
+    [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_QUEUE, CoreConsts.EXT_PARAM_GROUP_FABRIC)]
+    public float ProcessingFactor
+    {
+      get => m_ProcessingFactor;
+      private set => m_ProcessingFactor = value.KeepBetween(Constraints.PROCESSING_FACTOR_MIN, Constraints.PROCESSING_FACTOR_MAX);
+    }
 
     /// <summary>
     /// Specifies relative weight of this shard among others for new data allocation
     /// </summary>
-    public float AllocationFactor { get; }
-
-
-
-    public IApplication App => throw new NotImplementedException();
-
-    public ulong ComponentSID => throw new NotImplementedException();
-
-    public IApplicationComponent ComponentDirector => throw new NotImplementedException();
-
-    public DateTime ComponentStartTime => throw new NotImplementedException();
-
-    public string ComponentCommonName => throw new NotImplementedException();
-
-    public MessageType? ComponentLogLevel { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
-    public MessageType ComponentEffectiveLogLevel => throw new NotImplementedException();
-
-    public string ComponentLogTopic => throw new NotImplementedException();
-
-    public string ComponentLogFromPrefix => throw new NotImplementedException();
-
-    public int ExpectedShutdownDurationMs => throw new NotImplementedException();
-
-    public Task<FiberInfo> AbortAsync(FiberId idFiber, string statusDescription)
+    [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_QUEUE, CoreConsts.EXT_PARAM_GROUP_FABRIC)]
+    public float AllocationFactor
     {
-      throw new NotImplementedException();
+      get => m_AllocationFactor;
+      private set => m_AllocationFactor = value.KeepBetween(Constraints.ALLOCATION_FACTOR_MIN, Constraints.ALLOCATION_FACTOR_MAX);
     }
 
-    public Task<bool> CheckInAsync(FiberMemoryDelta fiber)
-    {
-      throw new NotImplementedException();
-    }
+    #region IFiberStoreShard
 
-    public Task<FiberMemory> CheckOutNextPendingAsync(Atom runspace, Atom procId)
-    {
-      throw new NotImplementedException();
-    }
-
-    public Task<FiberInfo> GetFiberInfoAsync(FiberId idFiber)
+    public Task<FiberInfo> StartFiberAsync(FiberStartArgs args)
     {
       throw new NotImplementedException();
     }
 
     public Task<IEnumerable<FiberInfo>> GetFiberListAsync(FiberFilter args)
+    {
+      throw new NotImplementedException();
+    }
+
+    public Task<FiberInfo> GetFiberInfoAsync(FiberId idFiber)
     {
       throw new NotImplementedException();
     }
@@ -108,22 +128,12 @@ namespace Azos.Sky.Fabric.Server
       throw new NotImplementedException();
     }
 
-    public Task<FiberInfo> PauseAsync(FiberId idFiber, string statusDescription)
-    {
-      throw new NotImplementedException();
-    }
-
-    public Task<FiberInfo> ResumeAsync(FiberId idFiber, string statusDescription)
-    {
-      throw new NotImplementedException();
-    }
-
     public Task<FiberInfo> SetPriorityAsync(FiberId idFiber, float priority, string statusDescription)
     {
       throw new NotImplementedException();
     }
 
-    public Task<FiberInfo> StartFiberAsync(FiberStartArgs args)
+    public Task<FiberInfo> PauseAsync(FiberId idFiber, string statusDescription)
     {
       throw new NotImplementedException();
     }
@@ -133,9 +143,36 @@ namespace Azos.Sky.Fabric.Server
       throw new NotImplementedException();
     }
 
+    public Task<FiberInfo> ResumeAsync(FiberId idFiber, string statusDescription)
+    {
+      throw new NotImplementedException();
+    }
+
+    public Task<FiberInfo> AbortAsync(FiberId idFiber, string statusDescription)
+    {
+      throw new NotImplementedException();
+    }
+
+    public Task<FiberMemory> CheckOutNextPendingAsync(Atom runspace, Atom procId)
+    {
+      throw new NotImplementedException();
+    }
+
     public Task<FiberMemory> TryCheckOutSpecificAsync(FiberId idFiber, Atom procId)
     {
       throw new NotImplementedException();
     }
+
+    public Task<bool> CheckInAsync(FiberMemoryDelta fiber)
+    {
+      throw new NotImplementedException();
+    }
+
+    public Task UndoCheckoutAsync(FiberId idFiber)
+    {
+      throw new NotImplementedException();
+    }
+
+    #endregion
   }
 }

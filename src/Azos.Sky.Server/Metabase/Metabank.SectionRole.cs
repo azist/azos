@@ -106,13 +106,13 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
             if (app==null)
             {
               ctx.Output.Add( new MetabaseValidationMsg(MetabaseValidationMessageType.Error, Catalog, this,
-                                                    StringConsts.METABASE_VALIDATION_ROLE_APP_ERROR.Args(Name, appName)) );
+                                                    ServerStringConsts.METABASE_VALIDATION_ROLE_APP_ERROR.Args(Name, appName)) );
               continue;
             }
 
             if (appInfo.ExeFile.IsNullOrWhiteSpace() && app.ExeFile.IsNullOrWhiteSpace())
               ctx.Output.Add( new MetabaseValidationMsg(MetabaseValidationMessageType.Error, Catalog, this,
-                                                    StringConsts.METABASE_VALIDATION_ROLE_APP_EXE_MISSING_ERROR.Args(Name, appName, Metabank.CONFIG_EXE_FILE_ATTR)) );
+                                                    ServerStringConsts.METABASE_VALIDATION_ROLE_APP_EXE_MISSING_ERROR.Args(Name, appName, Metabank.CONFIG_EXE_FILE_ATTR)) );
           }
           catch(Exception error)
           {

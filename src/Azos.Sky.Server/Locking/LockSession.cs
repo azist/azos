@@ -61,10 +61,10 @@ namespace Azos.Sky.Locking
      internal LockSession(ILockManagerImplementation manager, string path, object shardingID, string description = null, int? maxAgeSec = null)
      {
        if (path.IsNullOrWhiteSpace())
-          throw new LockingException(StringConsts.ARGUMENT_ERROR+"LockSession.ctor(path==null|empty)");
+          throw new LockingException(ServerStringConsts.ARGUMENT_ERROR+"LockSession.ctor(path==null|empty)");
 
        if (shardingID==null)
-          throw new LockingException(StringConsts.ARGUMENT_ERROR+"LockSession.ctor(shardingID==null)");
+          throw new LockingException(ServerStringConsts.ARGUMENT_ERROR+"LockSession.ctor(shardingID==null)");
 
        Data = new Server.LockSessionData(new LockSessionID( null ), description, maxAgeSec);
        Manager = manager;
@@ -82,7 +82,7 @@ namespace Azos.Sky.Locking
                             .ToArray();
 
          if (primaryZgovs.Length<1)
-          throw new LockingException(StringConsts.LOCK_SESSION_PATH_LEVEL_NO_ZGOVS_ERROR.Args(Path));
+          throw new LockingException(ServerStringConsts.LOCK_SESSION_PATH_LEVEL_NO_ZGOVS_ERROR.Args(Path));
 
          var failoverZgovs = zone
                              .FindNearestParentZoneGovernors(iAmZoneGovernor: false, filter: (host) => host.IsZGovLockFailover,  transcendNOC: true)
@@ -93,7 +93,7 @@ namespace Azos.Sky.Locking
              (primaryZgovs.Length!=failoverZgovs.Length ||
               !primaryZgovs[0].ParentZone.IsLogicallyTheSame( failoverZgovs[0].ParentZone ))
              )
-          throw new LockingException(StringConsts.LOCK_SESSION_ZGOV_SETUP_ERROR.Args(primaryZgovs[0].ParentZone.RegionPath));
+          throw new LockingException(ServerStringConsts.LOCK_SESSION_ZGOV_SETUP_ERROR.Args(primaryZgovs[0].ParentZone.RegionPath));
 
          var idx = (shardingHash & CoreConsts.ABS_HASH_MASK) % primaryZgovs.Length;
          ServerHostPrimary = primaryZgovs[idx].RegionPath;
@@ -104,7 +104,7 @@ namespace Azos.Sky.Locking
        }
        catch(Exception error)
        {
-         throw new LockingException(StringConsts.LOCK_SESSION_PATH_ERROR.Args(Path, error.ToMessageWithType() ) ,error);
+         throw new LockingException(ServerStringConsts.LOCK_SESSION_PATH_ERROR.Args(Path, error.ToMessageWithType() ) ,error);
        }
      }
 

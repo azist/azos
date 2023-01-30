@@ -200,10 +200,10 @@ namespace Azos.Apps.HostGovernor
       }
 
       if (m_Process.HasExited)
-        throw new AHGOVException(Sky.StringConsts.AHGOV_APP_PROCESS_CRASHED_AT_STARTUP_ERROR.Args(Name, exe, args));
+        throw new AHGOVException(Sky.ServerStringConsts.AHGOV_APP_PROCESS_CRASHED_AT_STARTUP_ERROR.Args(Name, exe, args));
 
       if (m_Process.StandardOutput==null)
-        throw new AHGOVException(Sky.StringConsts.AHGOV_APP_PROCESS_STD_OUT_NULL_ERROR.Args(Name, exe, args));
+        throw new AHGOVException(Sky.ServerStringConsts.AHGOV_APP_PROCESS_STD_OUT_NULL_ERROR.Args(Name, exe, args));
 
       if (!m_Process.StandardOutput.EndOfStream)
       {
@@ -216,7 +216,7 @@ namespace Azos.Apps.HostGovernor
           }
       }
 
-      throw new AHGOVException(Sky.StringConsts.AHGOV_APP_PROCESS_NO_SUCCESS_AT_STARTUP_ERROR.Args(Name, exe, args));
+      throw new AHGOVException(Sky.ServerStringConsts.AHGOV_APP_PROCESS_NO_SUCCESS_AT_STARTUP_ERROR.Args(Name, exe, args));
     }
 
     private void closeProcess()

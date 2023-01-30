@@ -41,7 +41,7 @@ namespace Azos.Sky.Locking
                 internal AssertOp(OperatorOp condition)
                 {
                  if (condition==null)
-                        throw new LockingException(StringConsts.ARGUMENT_ERROR+"Assert(condition=null)");
+                        throw new LockingException(ServerStringConsts.ARGUMENT_ERROR+"Assert(condition=null)");
 
                  Condition = condition;
                 }
@@ -75,7 +75,7 @@ namespace Azos.Sky.Locking
                 internal AnywayContinueAfterOp(ChangeOp operation, bool resetAbort)
                 {
                  if (operation==null)
-                        throw new LockingException(StringConsts.ARGUMENT_ERROR+"AnywayContinueAfter(operation=null)");
+                        throw new LockingException(ServerStringConsts.ARGUMENT_ERROR+"AnywayContinueAfter(operation=null)");
                  Operation = operation;
                 }
 
@@ -110,7 +110,7 @@ namespace Azos.Sky.Locking
                 internal BlockOp(StatementOp[] statements)
                 {
                  if (statements==null || statements.Length<1)
-                        throw new LockingException(StringConsts.ARGUMENT_ERROR+"BlockOp(statements=null|0)");
+                        throw new LockingException(ServerStringConsts.ARGUMENT_ERROR+"BlockOp(statements=null|0)");
                  Statements = statements;
                 }
 
@@ -147,7 +147,7 @@ namespace Azos.Sky.Locking
           internal IfOp(OperatorOp condition, StatementOp then, StatementOp elze)
           {
             if (condition==null || then==null)
-                  throw new LockingException(StringConsts.ARGUMENT_ERROR+"IfOp(condition|then==null)");
+                  throw new LockingException(ServerStringConsts.ARGUMENT_ERROR+"IfOp(condition|then==null)");
             Condition = condition;
             Then = then;
             Else = elze;

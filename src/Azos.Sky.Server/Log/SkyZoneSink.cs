@@ -95,7 +95,7 @@ namespace Azos.Sky.Log
       }
       catch (Exception error)
       {
-        WriteLog(MessageType.Error, ".flush()", StringConsts.LOG_SEND_TOP_LOST_ERROR.Args(error.ToMessageWithType()));
+        WriteLog(MessageType.Error, ".flush()", ServerStringConsts.LOG_SEND_TOP_LOST_ERROR.Args(error.ToMessageWithType()));
       }
       finally
       {

@@ -9,7 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
-
+using Azos.Data;
 using Azos.Serialization.JSON;
 
 namespace Azos.Serialization.Bix
@@ -1455,6 +1455,68 @@ namespace Azos.Serialization.Bix
         Write(value[i]);
     }
     #endregion
+
+    #region EntityId
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Write(EntityId value)
+    {
+      Write(value.Address);
+      Write(value.System);
+      Write(value.Type);
+      Write(value.Schema);
+    }
+
+    public void Write(EntityId? value)
+    {
+      if (value.HasValue)
+      {
+        Write(true);
+        Write(value.Value);
+        return;
+      }
+      Write(false);
+    }
+
+    public void WriteCollection(ICollection<EntityId> value) => WriteCollection(value, (bix, elm) => bix.Write(elm));
+    public void Write(EntityId[] value)
+    {
+      if (value == null)
+      {
+        Write(false);
+        return;
+      }
+      Write(true);
+
+      var len = value.Length;
+      if (len > Format.MAX_ENTITYID_ARRAY_LEN)
+        throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "entityid", Format.MAX_ENTITYID_ARRAY_LEN));
+
+      Write((uint)len);
+      for (int i = 0; i < len; i++)
+        Write(value[i]);
+    }
+
+
+    public void WriteCollection(ICollection<EntityId?> value) => WriteCollection(value, (bix, elm) => bix.Write(elm));
+    public void Write(EntityId?[] value)
+    {
+      if (value == null)
+      {
+        Write(false);
+        return;
+      }
+      Write(true);
+
+      var len = value.Length;
+      if (len > Format.MAX_ENTITYID_ARRAY_LEN)
+        throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "entityid?", Format.MAX_ENTITYID_ARRAY_LEN));
+
+      Write((uint)len);
+      for (int i = 0; i < len; i++)
+        Write(value[i]);
+    }
+    #endregion
+
 
     #region JSON (object)
     public void WriteJson(object value, string targetName)

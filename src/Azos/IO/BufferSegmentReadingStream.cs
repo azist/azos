@@ -57,6 +57,14 @@ namespace Azos.IO
     }
 
     /// <summary>
+    /// Restarts reading of already bound buffer from start (as of originally bound offset and count)
+    /// </summary>
+    public void UnsafeReset()
+    {
+      m_Position = 0;
+    }
+
+    /// <summary>
     /// Sets byte[] as stream source this method does the same as BindBuffer without extra if statements, correct data is expected to be supplied
     /// </summary>
     public void UnsafeBindBuffer(ArraySegment<byte> segment)

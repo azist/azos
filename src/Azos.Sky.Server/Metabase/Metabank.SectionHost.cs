@@ -51,7 +51,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
       {
         get
         {
-          throw new MetabaseException(StringConsts.METABASE_INVALID_OPERTATION_ERROR + "SectionHost.navigate[{0}]".Args(name));
+          throw new MetabaseException(ServerStringConsts.METABASE_INVALID_OPERTATION_ERROR + "SectionHost.navigate[{0}]".Args(name));
         }
       }
 
@@ -69,7 +69,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
          {
             var result = Metabank.CatalogApp.Roles[RoleName];
             if (result==null)
-              throw new MetabaseException(StringConsts.METABASE_BAD_HOST_ROLE_ERROR.Args(RegionPath, RoleName));
+              throw new MetabaseException(ServerStringConsts.METABASE_BAD_HOST_ROLE_ERROR.Args(RegionPath, RoleName));
 
             return result;
          }
@@ -84,7 +84,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
         {
             var result = this.LevelConfig.AttrByName(CONFIG_OS_ATTR).Value;
             if (result.IsNullOrWhiteSpace())
-              throw new MetabaseException(StringConsts.METABASE_HOST_MISSING_OS_ATTR_ERROR.Args(RegionPath));
+              throw new MetabaseException(ServerStringConsts.METABASE_HOST_MISSING_OS_ATTR_ERROR.Args(RegionPath));
 
             //check that OS is registered in the list
             Metabank.GetOSConfNode(result);
@@ -177,7 +177,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
          }
          catch(Exception error)
          {
-            throw new MetabaseException(StringConsts.METABASE_EFFECTIVE_APP_CONFIG_ERROR.Args(appName, RegionPath, error.ToMessageWithType()), error);
+            throw new MetabaseException(ServerStringConsts.METABASE_EFFECTIVE_APP_CONFIG_ERROR.Args(appName, RegionPath, error.ToMessageWithType()), error);
          }
 
          Metabank.cachePut(CACHE_TABLE, CACHE_KEY, result);
@@ -202,7 +202,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
          }
          catch(Exception error)
          {
-            throw new MetabaseException(StringConsts.METABASE_APP_PACKAGES_ERROR.Args(appName, RegionPath, error.ToMessageWithType()), error);
+            throw new MetabaseException(ServerStringConsts.METABASE_APP_PACKAGES_ERROR.Args(appName, RegionPath, error.ToMessageWithType()), error);
          }
 
          Metabank.cachePut(CACHE_TABLE, CACHE_KEY, result);
@@ -348,14 +348,14 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
            var role = this.Role;
 
            if (!role.AppNames.Any(an => INVSTRCMP.Equals(an, appName)))
-             throw new MetabaseException(StringConsts.METABASE_HOST_ROLE_APP_MISMATCH_ERROR.Args(appName, RoleName));
+             throw new MetabaseException(ServerStringConsts.METABASE_HOST_ROLE_APP_MISMATCH_ERROR.Args(appName, RoleName));
 
            derivation.Add( new configLevel(role, role.AnyAppConfig) );
 
            //App level
            var app = Metabank.CatalogApp.Applications[appName];
            if (app==null)
-             throw new MetabaseException(StringConsts.METABASE_BAD_HOST_APP_ERROR.Args(appName));
+             throw new MetabaseException(ServerStringConsts.METABASE_BAD_HOST_APP_ERROR.Args(appName));
 
            derivation.Add(new configLevel(app, app.AnyAppConfig));
 
@@ -383,7 +383,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
           }
           catch (Exception error)
           {
-            throw new MetabaseException(StringConsts.METABASE_EFFECTIVE_APP_CONFIG_OVERRIDE_ERROR.Args(clevel.From.ToString(), error.ToMessageWithType()), error);
+            throw new MetabaseException(ServerStringConsts.METABASE_EFFECTIVE_APP_CONFIG_OVERRIDE_ERROR.Args(clevel.From.ToString(), error.ToMessageWithType()), error);
           }
         }
 
@@ -404,10 +404,10 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
       {
          var role = this.Role;
          if (!role.AppNames.Any(an => INVSTRCMP.Equals(an, appName)))
-             throw new MetabaseException(StringConsts.METABASE_HOST_ROLE_APP_MISMATCH_ERROR.Args(appName, RoleName));
+             throw new MetabaseException(ServerStringConsts.METABASE_HOST_ROLE_APP_MISMATCH_ERROR.Args(appName, RoleName));
          var app = Metabank.CatalogApp.Applications[appName];
          if (app==null)
-             throw new MetabaseException(StringConsts.METABASE_BAD_HOST_APP_ERROR.Args(appName));
+             throw new MetabaseException(ServerStringConsts.METABASE_BAD_HOST_APP_ERROR.Args(appName));
 
          return app.MatchPackageBinaries(this.OS);
       }

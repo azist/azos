@@ -24,7 +24,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
         protected Section(Catalog catalog, string name, string path, FileSystemSession session)
         {
           if (name.IsNullOrWhiteSpace() || catalog==null || path.IsNullOrWhiteSpace())
-            throw new MetabaseException(StringConsts.ARGUMENT_ERROR + GetType().Name+".ctor(catalog|name|path==null|empty");
+            throw new MetabaseException(ServerStringConsts.ARGUMENT_ERROR + GetType().Name+".ctor(catalog|name|path==null|empty");
           Catalog = catalog;
           Metabank = catalog.Metabank;
           m_Name = name;
@@ -33,14 +33,14 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
           m_LevelConfig = Metabank.getConfigFromFile(session, Metabank.JoinPaths(path, Metabank.CONFIG_SECTION_LEVEL_FILE)).Root;
 
           if (!m_LevelConfig.IsSameName(RootNodeName))
-            throw new MetabaseException(StringConsts.METABASE_METADATA_CTOR_1_ERROR.Args(GetType().Name, RootNodeName, m_LevelConfig.Name));
+            throw new MetabaseException(ServerStringConsts.METABASE_METADATA_CTOR_1_ERROR.Args(GetType().Name, RootNodeName, m_LevelConfig.Name));
 
           var cn = m_LevelConfig.AttrByName(Metabank.CONFIG_NAME_ATTR);
           if ( !cn.Exists || !m_LevelConfig.IsSameNameAttr(name))
-            throw new MetabaseException(StringConsts.METABASE_METADATA_CTOR_2_ERROR.Args(GetType().Name, name, cn.ValueAsString(SysConsts.UNKNOWN_ENTITY)));
+            throw new MetabaseException(ServerStringConsts.METABASE_METADATA_CTOR_2_ERROR.Args(GetType().Name, name, cn.ValueAsString(SysConsts.UNKNOWN_ENTITY)));
 
           if (!name.IsValidName())
-            throw new MetabaseException(StringConsts.METABASE_METADATA_CTOR_3_ERROR.Args(GetType().Name, name, path));
+            throw new MetabaseException(ServerStringConsts.METABASE_METADATA_CTOR_3_ERROR.Args(GetType().Name, name, path));
 
           Metabank.includeCommonConfig(m_LevelConfig);
           m_LevelConfig.ResetModified();
@@ -113,7 +113,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
            if (m_AnyAppConfig!=null)
             if (!m_AnyAppConfig.IsSameName(Metabank.RootAppConfig))
              ctx.Output.Add( new MetabaseValidationMsg(MetabaseValidationMessageType.Error, Catalog, this,
-                         StringConsts.METABASE_VALIDATION_APP_CONFIG_ROOT_MISMTACH_ERROR.Args(m_AnyAppConfig.Name)) );
+                         ServerStringConsts.METABASE_VALIDATION_APP_CONFIG_ROOT_MISMTACH_ERROR.Args(m_AnyAppConfig.Name)) );
         }
 
     }
@@ -142,7 +142,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
 
                           var app = this.Metabank.CatalogApp.Applications[appName];
                           if (app==null)
-                           throw new MetabaseException(StringConsts.METABASE_APP_CONFIG_APP_DOESNT_EXIST_ERROR.Args(path, fn, appName));
+                           throw new MetabaseException(ServerStringConsts.METABASE_APP_CONFIG_APP_DOESNT_EXIST_ERROR.Args(path, fn, appName));
 
                           var config = Metabank.getConfigFromExistingFile(session, Metabank.JoinPaths(dir.Path, fn)).Root;
                           result.Add(appName, config);
@@ -175,7 +175,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
              if (root!=null)
               if (!root.IsSameName(Metabank.RootAppConfig))
                ctx.Output.Add( new MetabaseValidationMsg(MetabaseValidationMessageType.Error, Catalog, this,
-                           StringConsts.METABASE_VALIDATION_APP_CONFIG_ROOT_MISMTACH_ERROR.Args(name+"."+root.Name)) );
+                           ServerStringConsts.METABASE_VALIDATION_APP_CONFIG_ROOT_MISMTACH_ERROR.Args(name+"."+root.Name)) );
            }
         }
 

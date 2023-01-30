@@ -321,7 +321,7 @@ namespace Azos.Sky.Identification
       set
       {
         if (m_BlockWasAllocated)
-          throw new GdidException(StringConsts.GDIDGEN_SET_TESTING_ERROR);
+          throw new GdidException(ServerStringConsts.GDIDGEN_SET_TESTING_ERROR);
         m_TestingAuthorityNode = value;
       }
     }
@@ -351,7 +351,7 @@ namespace Azos.Sky.Identification
     public IEnumerable<SequenceInfo> GetSequenceInfos(string scopeName)
     {
       if (scopeName==null)
-        throw new GdidException(StringConsts.ARGUMENT_ERROR+GetType().Name+".GetSequenceInfos(scopeName=null)");
+        throw new GdidException(ServerStringConsts.ARGUMENT_ERROR+GetType().Name+".GetSequenceInfos(scopeName=null)");
 
       if (m_ScopePrefix.IsNotNullOrWhiteSpace())
         scopeName = m_ScopePrefix + scopeName;
@@ -402,7 +402,7 @@ namespace Azos.Sky.Identification
     public GDID GenerateOneGdid(string scopeName, string sequenceName, int blockSize=0, ulong? vicinity = GDID.COUNTER_MAX, bool noLWM = false)
     {
       if (scopeName==null || sequenceName==null)
-        throw new GdidException(StringConsts.ARGUMENT_ERROR+GetType().Name+".GenerateOneGDID(scopeName|sequenceName=null)");
+        throw new GdidException(ServerStringConsts.ARGUMENT_ERROR+GetType().Name+".GenerateOneGDID(scopeName|sequenceName=null)");
 
       if (m_ScopePrefix.IsNotNullOrWhiteSpace()) scopeName = m_ScopePrefix + scopeName;
       if (m_SequencePrefix.IsNotNullOrWhiteSpace()) sequenceName = m_SequencePrefix + sequenceName;
@@ -488,10 +488,10 @@ namespace Azos.Sky.Identification
     public GDID[] TryGenerateManyConsecutiveGdids(string scopeName, string sequenceName, int gdidCount, ulong? vicinity = GDID.COUNTER_MAX, bool noLWM = false)
     {
       if (scopeName==null || sequenceName==null)
-        throw new GdidException(StringConsts.ARGUMENT_ERROR+GetType().Name+".TryGenerateManyConsecutiveGDIDs(scopeName|sequenceName=null)");
+        throw new GdidException(ServerStringConsts.ARGUMENT_ERROR+GetType().Name+".TryGenerateManyConsecutiveGDIDs(scopeName|sequenceName=null)");
 
       if (gdidCount<=0)
-        throw new GdidException(StringConsts.ARGUMENT_ERROR+GetType().Name+".TryGenerateManyConsecutiveGDIDs(gdidCount<=0)");
+        throw new GdidException(ServerStringConsts.ARGUMENT_ERROR+GetType().Name+".TryGenerateManyConsecutiveGDIDs(gdidCount<=0)");
 
       if (m_ScopePrefix.IsNotNullOrWhiteSpace()) scopeName = m_ScopePrefix + scopeName;
       if (m_SequencePrefix.IsNotNullOrWhiteSpace()) sequenceName = m_SequencePrefix + sequenceName;
@@ -632,9 +632,9 @@ namespace Azos.Sky.Identification
       if (result==null)
       {
         if (list.IsNullOrWhiteSpace()) list = "<none>";
-        WriteLog(MessageType.Emergency, nameof(allocateBlockInSystem), StringConsts.GDIDGEN_ALL_AUTHORITIES_FAILED_ERROR + list, related: batch);
+        WriteLog(MessageType.Emergency, nameof(allocateBlockInSystem), ServerStringConsts.GDIDGEN_ALL_AUTHORITIES_FAILED_ERROR + list, related: batch);
         Instrumentation.AllocBlockRequestFailureEvent.Happened(App.Instrumentation, scopeName, sequenceName);
-        throw new GdidException(StringConsts.GDIDGEN_ALL_AUTHORITIES_FAILED_ERROR + list);
+        throw new GdidException(ServerStringConsts.GDIDGEN_ALL_AUTHORITIES_FAILED_ERROR + list);
       }
 
       return result;

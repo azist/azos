@@ -52,7 +52,7 @@ namespace Azos.Apps.ZoneGovernor
     public ZoneGovernorService(IApplication app) : base(app)
     {
       if (!App.Singletons.GetOrCreate(() => this).created)
-        throw new AZGOVException(Sky.StringConsts.AZGOV_INSTANCE_ALREADY_ALLOCATED_ERROR);
+        throw new AZGOVException(Sky.ServerStringConsts.AZGOV_INSTANCE_ALREADY_ALLOCATED_ERROR);
 
       m_SubInstr = new InstrumentationDaemon(this);
       m_SubInstrReductionLevels = new Dictionary<string,int>();
@@ -531,11 +531,11 @@ namespace Azos.Apps.ZoneGovernor
       {
         var shost = App.Metabase.CatalogReg.NavigateHost(host.Name);
         if (!shost.HasDirectOrIndirectParentZoneGovernor(App.GetThisHostMetabaseSection(), iAmZoneGovernor: false, transcendNOC: false))
-          throw new AZGOVException(Sky.StringConsts.AZGOV_REGISTER_SUBORDINATE_HOST_PARENT_ERROR.Args(App.HostName, host.Name));
+          throw new AZGOVException(Sky.ServerStringConsts.AZGOV_REGISTER_SUBORDINATE_HOST_PARENT_ERROR.Args(App.HostName, host.Name));
       }
       catch (Exception error)
       {
-        throw new AZGOVException(Sky.StringConsts.AZGOV_REGISTER_SUBORDINATE_HOST_ERROR.Args(host.Name, error.ToMessageWithType()), error);
+        throw new AZGOVException(Sky.ServerStringConsts.AZGOV_REGISTER_SUBORDINATE_HOST_ERROR.Args(host.Name, error.ToMessageWithType()), error);
       }
 
       m_SubHosts.RegisterOrReplace(host);

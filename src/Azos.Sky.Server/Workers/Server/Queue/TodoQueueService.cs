@@ -134,12 +134,12 @@ namespace Azos.Sky.Workers.Server.Queue
         if (attr==null) attr = todoAttr;
 
         if (attr.QueueName != todoAttr.QueueName)
-          throw new WorkersException(StringConsts.TODO_QUEUE_ENQUEUE_DIFFERENT_ERROR);
+          throw new WorkersException(ServerStringConsts.TODO_QUEUE_ENQUEUE_DIFFERENT_ERROR);
       }
 
       var queue = m_Queues[attr.QueueName];
       if (queue == null)
-        throw new WorkersException(StringConsts.TODO_QUEUE_NOT_FOUND_ERROR.Args(attr.QueueName));
+        throw new WorkersException(ServerStringConsts.TODO_QUEUE_NOT_FOUND_ERROR.Args(attr.QueueName));
 
 
       if (InstrumentationEnabled)
@@ -159,7 +159,7 @@ namespace Azos.Sky.Workers.Server.Queue
     #region .pvt
     private void check(Todo todo)
     {
-      if (todo == null) throw new WorkersException(StringConsts.ARGUMENT_ERROR + "Todo.ValidateAndPrepareForEnqueue(todo==null)");
+      if (todo == null) throw new WorkersException(ServerStringConsts.ARGUMENT_ERROR + "Todo.ValidateAndPrepareForEnqueue(todo==null)");
 
       todo.ValidateAndPrepareForEnqueue(null);
     }

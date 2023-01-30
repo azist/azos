@@ -37,6 +37,8 @@ namespace Azos.Serialization.Bix
     public const int MAX_AMOUNT_ARRAY_LEN = MAX_BYTE_ARRAY_LEN / 16;
     public const int MAX_COLLECTION_LEN = 64 * 1024;
 
+    public const int MAX_ENTITYID_ARRAY_LEN = MAX_BYTE_ARRAY_LEN / 64; //((3atoms * 8bytes) + 40);
+
 
     public const int STR_BUF_SZ = 96 * 1024;// ensure placement in LOH
                                             // in many business cases bix writes pretty big chunks of text, e.g.:

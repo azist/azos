@@ -51,13 +51,13 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
            if (path.IsNullOrWhiteSpace()) return null;
            var zone = Catalog[path] as SectionZone;
            if (zone==null)
-             throw new MetabaseException(StringConsts.METABASE_REG_NOC_PARENT_NOC_ZONE_ERROR.Args(Name, path));
+             throw new MetabaseException(ServerStringConsts.METABASE_REG_NOC_PARENT_NOC_ZONE_ERROR.Args(Name, path));
 
            if (Catalog.CountMatchingPathSegments(zone, this)<1)
-            throw new MetabaseException(StringConsts.METABASE_REG_NOC_PARENT_NOC_ZONE_NO_ROOT_ERROR.Args(Name, path));
+            throw new MetabaseException(ServerStringConsts.METABASE_REG_NOC_PARENT_NOC_ZONE_NO_ROOT_ERROR.Args(Name, path));
 
            if (zone.NOC.SectionsOnPath.Count()>=this.SectionsOnPath.Count())
-            throw new MetabaseException(StringConsts.METABASE_REG_NOC_PARENT_NOC_ZONE_LEVEL_ERROR.Args(Name, path));
+            throw new MetabaseException(ServerStringConsts.METABASE_REG_NOC_PARENT_NOC_ZONE_LEVEL_ERROR.Args(Name, path));
 
            return zone;
         }

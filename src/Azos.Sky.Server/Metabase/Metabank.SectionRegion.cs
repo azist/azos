@@ -30,7 +30,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
          }
          catch(Exception error)
          {
-           throw new MetabaseException(StringConsts.METABASE_REG_GEO_CENTER_ERROR.Args(GetType().Name, name, gc, error.ToMessageWithType()));
+           throw new MetabaseException(ServerStringConsts.METABASE_REG_GEO_CENTER_ERROR.Args(GetType().Name, name, gc, error.ToMessageWithType()));
          }
       }
 
@@ -221,7 +221,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
                 !anode.IsSameName(CONFIG_NETWORK_ROUTING_TO_GROUP_ATTR)
                )
            ctx.Output.Add( new MetabaseValidationMsg(MetabaseValidationMessageType.Warning, Catalog, this,
-                          StringConsts.METABASE_NETWORK_REGION_ROUTING_ATTR_UNRECOGNIZED_WARNING.Args(RegionPath, anode.Name) ) );
+                          ServerStringConsts.METABASE_NETWORK_REGION_ROUTING_ATTR_UNRECOGNIZED_WARNING.Args(RegionPath, anode.Name) ) );
 
 
 
@@ -238,7 +238,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
           if (toaddr.IsNullOrWhiteSpace() &&
               toport.IsNullOrWhiteSpace() &&
               togroup.IsNullOrWhiteSpace())
-           ctx.Output.Add( new MetabaseValidationMsg(MetabaseValidationMessageType.Error, Catalog, this, StringConsts.METABASE_NETWORK_REGION_ROUTING_EMPTY_ROUTE_ASSIGNMENT_ERROR.Args(RegionPath) ) );
+           ctx.Output.Add( new MetabaseValidationMsg(MetabaseValidationMessageType.Error, Catalog, this, ServerStringConsts.METABASE_NETWORK_REGION_ROUTING_EMPTY_ROUTE_ASSIGNMENT_ERROR.Args(RegionPath) ) );
 
           if (net.IsNotNullOrEmpty())
           {
@@ -279,7 +279,7 @@ namespace Azos.Sky.Metabase{ public sealed partial class Metabank{
           {
             var reg = Metabank.CatalogReg[from];
             if (reg==null)
-             ctx.Output.Add( new MetabaseValidationMsg(MetabaseValidationMessageType.Error, Catalog, this, StringConsts.METABASE_NETWORK_REGION_ROUTING_FROM_PATH_ERROR.Args(RegionPath, from) ) );
+             ctx.Output.Add( new MetabaseValidationMsg(MetabaseValidationMessageType.Error, Catalog, this, ServerStringConsts.METABASE_NETWORK_REGION_ROUTING_FROM_PATH_ERROR.Args(RegionPath, from) ) );
           }
 
 

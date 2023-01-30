@@ -6,7 +6,7 @@
 
 namespace Azos.Sky
 {
-  internal static class StringConsts
+  internal static class ServerStringConsts
   {
     public const string ARGUMENT_ERROR = "Argument error: ";
     public const string COMPONENT_NAME_EMPTY_ERROR = "Component name can not be empty";
@@ -421,5 +421,9 @@ namespace Azos.Sky
 
     public const string WM_SERVICE_NO_CHANNELS_ERROR = "{0} service start error - no channels configured";
     public const string WM_SERVICE_DUPLICATE_CHANNEL_ERROR = "{0} service config error - duplicate channel name '{0}'";
+
+    public const string FABRIC_FIBER_ALLOC_NO_SPACE_ERROR =
+      "Could not allocate FiberId in runspace `{0}` as no shards are available for new fiber allocation.\n" +
+      " Revise server processor config or try another server processor node which may have more shards mapped.";
   }
 }

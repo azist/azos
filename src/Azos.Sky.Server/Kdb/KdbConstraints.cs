@@ -13,18 +13,18 @@ namespace Azos.Sky.Kdb
 
     public static void CheckKey(byte[] key, string opName)
     {
-      if (key == null || key.Length == 0) throw new KdbException(StringConsts.KDB_KEY_IS_NULL_OR_EMPTY_ERROR.Args(opName));
+      if (key == null || key.Length == 0) throw new KdbException(ServerStringConsts.KDB_KEY_IS_NULL_OR_EMPTY_ERROR.Args(opName));
 
       var len = key.Length;
-      if (len > MAX_KEY_LEN) throw new KdbException(StringConsts.KDB_KEY_MAX_LEN_ERROR.Args(opName, len, MAX_KEY_LEN));
+      if (len > MAX_KEY_LEN) throw new KdbException(ServerStringConsts.KDB_KEY_MAX_LEN_ERROR.Args(opName, len, MAX_KEY_LEN));
     }
 
     public static void CheckTableName(string table, string opName)
     {
-      if (table.IsNullOrWhiteSpace()) throw new KdbException(StringConsts.KDB_TABLE_IS_NULL_OR_EMPTY_ERROR.Args(opName));
+      if (table.IsNullOrWhiteSpace()) throw new KdbException(ServerStringConsts.KDB_TABLE_IS_NULL_OR_EMPTY_ERROR.Args(opName));
 
       var len = table.Length;
-      if (len > MAX_TABLE_NAME_LEN) throw new KdbException(StringConsts.KDB_TABLE_MAX_LEN_ERROR.Args(opName, len, MAX_TABLE_NAME_LEN));
+      if (len > MAX_TABLE_NAME_LEN) throw new KdbException(ServerStringConsts.KDB_TABLE_MAX_LEN_ERROR.Args(opName, len, MAX_TABLE_NAME_LEN));
       for(var i = 0; i < len; i++)
       {
         var c = table[i];
@@ -33,7 +33,7 @@ namespace Azos.Sky.Kdb
             (i > 0 && c >= '0' && c <= '9') ||
             c == '_') continue;
 
-        throw new KdbException(StringConsts.KDB_TABLE_CHARACTER_ERROR.Args(opName, table));
+        throw new KdbException(ServerStringConsts.KDB_TABLE_CHARACTER_ERROR.Args(opName, table));
       }
     }
 

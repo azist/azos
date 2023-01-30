@@ -4,14 +4,30 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using Azos.Apps;
+using Azos.Apps.Injection;
+using Azos.Security;
+using Azos.Serialization.Slim;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Azos.Sky.Fabric
 {
+  /// <summary>
+  /// Sets GUID type id for Fiber images - classes which get allocated and ran by processors.
+  /// Processors look up classes derived from <see cref="Fiber{TParameters, TState}"/> by Guid
+  /// </summary>
+  [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+  public sealed class FiberImageAttribute : GuidTypeAttribute
+  {
+    public FiberImageAttribute(string typeGuid) : base(typeGuid) { }
+  }
+
+
   /// <summary>
   /// Provides a uniform abstraction base for Fibers.
   /// Fibers are units of logical cooperative multi-task execution.
@@ -20,6 +36,7 @@ namespace Azos.Sky.Fabric
   /// which gets created during fiber step execution, in a safe storage, this way fiber execution survives system restarts and crashes.
   /// All fibers inherit from this class indirectly.
   /// </summary>
+  [SlimSerializationProhibited]
   public abstract class Fiber
   {
     /// <summary>
@@ -60,7 +77,6 @@ namespace Azos.Sky.Fabric
     /// </summary>
     public FiberState      State => m_State;
 
-
     /// <summary>
     /// Interprets the incoming signal by performing some work and generates <see cref="FiberSignalResult"/>.
     /// Returns null if the signal is unhandled.
@@ -86,12 +102,16 @@ namespace Azos.Sky.Fabric
 
     /// <summary>
     /// Performs by-convention invocation of a fiber "step" method for the specified instance,
-    /// defaulting the name of the method by convention to "Step_{step: atom}"
+    /// defaulting the name of the method by convention to "Step_{step: atom}".
+    /// This method checks permissions
     /// </summary>
     protected static Task<FiberStep> DefaultExecuteSliceStepByConventionAsync(Fiber self, Atom step)
     {
       var tself = self.NonNull(nameof(self)).GetType();
       var mi = FiberStep.GetMethodForStepByConvention(tself, step);
+
+      //check method-level permissions
+      Permission.AuthorizeAndGuardAction(self.Runtime.App.SecurityManager, mi);
 
       Task<FiberStep> resultTask;
       try
@@ -130,6 +150,7 @@ namespace Azos.Sky.Fabric
   }
 
   #region EXAMPLE ONLY!!!!!!!!!!!!!
+  [FiberImage("a52be5f3-1d88-4597-b99c-0f1231bbcbce")]
   public class BakerFiber : Fiber<FiberParameters, BakerState>
   {
     async Task<FiberStep> Step_Start()

@@ -95,10 +95,11 @@ namespace Azos
     public const string EXT_PARAM_GROUP_SHIPPING = "shipping";
     public const string EXT_PARAM_GROUP_SECURITY = "security";
     public const string EXT_PARAM_GROUP_SOCIAL = "social";
+    public const string EXT_PARAM_GROUP_FABRIC = "fabric";
     #endregion
 
     #region Code Analysis
-      public const string CS_LANGUAGE = "C#";
+    public const string CS_LANGUAGE = "C#";
       public const string CS_EXTENSION = ".cs";
 
       public const string JS_LANGUAGE = "JavaScript";
