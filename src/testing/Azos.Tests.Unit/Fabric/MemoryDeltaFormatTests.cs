@@ -278,5 +278,83 @@ namespace Azos.Tests.Unit.Fabric
       Aver.AreEqual("windows.bmp", gotDelta.Changes[1].Value.CastTo<TeztState.AttachmentSlot>().AttachmentName);
       Aver.AreEqual(5, gotDelta.Changes[1].Value.CastTo<TeztState.AttachmentSlot>().AttachContent.Length);
     }
+
+    [Run]
+    public void Test04_Roundtrip_Crash()
+    {
+      var fid = new FiberId(Atom.Encode("sys"), Atom.Encode("s1"), new GDID(7, 12, 1234567890));
+      var pars = new TeztParams
+      {
+        Bool1 = true,
+        Int1 = 123456,
+        String1 = "BoltJolt"
+      };
+
+      var state = new TeztState();
+      state.FirstName = "Alex";
+      state.LastName = "Rooster";
+      state.DOB = new DateTime(1980, 1, 2, 14, 15, 00, DateTimeKind.Utc);
+      state.AccountNumber = 987654321;
+      state.SetAttachment("hockey_fun.jpeg", new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5 });
+      var mem = new FiberMemory(1, MemoryStatus.LockedForCaller, fid, Guid.NewGuid(), null, pars, state);//this packs buffer
+
+      using var wscope = BixWriterBufferScope.DefaultCapacity;
+      mem.WriteOneWay(wscope.Writer, 1);//Serialize by SHARD
+
+      using var rscope = new BixReaderBufferScope(wscope.Buffer);
+      var got = new FiberMemory(rscope.Reader);//Read by processor
+
+      Aver.AreEqual(mem.Id, got.Id);
+      Aver.IsTrue(mem.Status == got.Status);
+      Aver.AreEqual(mem.ImageTypeId, got.ImageTypeId);
+      Aver.AreEqual(mem.ImpersonateAs, got.ImpersonateAs);
+      Aver.AreArraysEquivalent(mem.Buffer, got.Buffer);
+      got.See();
+      var (gotParsBase, gotStateBase) = got.UnpackBuffer(typeof(TeztParams), typeof(TeztState));
+      var (gotPars, gotState) = (gotParsBase.CastTo<TeztParams>(), gotStateBase.CastTo<TeztState>());
+      Aver.AreEqual(pars.Int1, gotPars.Int1);
+      Aver.AreEqual(pars.String1, gotPars.String1);
+      Aver.AreEqual(state.AccountNumber, gotState.AccountNumber);
+      Aver.AreEqual(state.AttachmentName, gotState.AttachmentName);
+      Aver.AreArraysEquivalent(state.AttachmentContent, gotState.AttachmentContent);
+
+      //==== We are in processor pretending to use state now
+
+      Aver.IsFalse(got.HasDelta(gotState));
+      got.Crash(new FabricException("Problem X"));//crash memory
+
+      var delta = got.MakeDeltaSnapshot(FiberStep.Finish(321), gotState);
+
+      Aver.IsTrue(delta.NextStep.IsZero);
+      Aver.AreEqual(new TimeSpan(0), delta.NextSliceInterval);
+      Aver.IsNull(delta.Changes);
+      Aver.IsNull(delta.Result);
+      Aver.IsNotNull(delta.Crash);
+      Aver.AreEqual(0, delta.ExitCode);
+
+      wscope.Reset();
+      delta.WriteOneWay(wscope.Writer, 1);//written by processor
+
+      var wire = wscope.Buffer;
+      "{0} bytes of delta wired back to shard".SeeArgs(wire.Length);
+
+      using var rscope2 = new BixReaderBufferScope(wire);
+      var gotDelta = new FiberMemoryDelta(rscope2.Reader);//read back by shard
+
+      gotDelta.See("Got delta: ");
+
+      Aver.AreEqual(mem.Id, gotDelta.Id);
+      Aver.AreEqual(got.Id, gotDelta.Id);
+
+
+      Aver.IsTrue(gotDelta.NextStep.IsZero);
+      Aver.AreEqual(new TimeSpan(0), gotDelta.NextSliceInterval);
+      Aver.IsNull(gotDelta.Changes);
+      Aver.IsNull(gotDelta.Result);
+      Aver.AreEqual(0, gotDelta.ExitCode);
+      Aver.IsNotNull(gotDelta.Crash);
+
+      Aver.AreEqual("Problem X", gotDelta.Crash.Message);
+    }
   }
 }
