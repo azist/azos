@@ -87,6 +87,10 @@ namespace Azos.Sky.Fabric.Server
         writer.Write(json);
         return;
       }
+      else
+      {
+        writer.Write((string)null);
+      }
 
       writer.Write(NextStep);
       writer.Write(NextSliceInterval);
@@ -105,7 +109,7 @@ namespace Azos.Sky.Fabric.Server
       {
         var change = Changes[i];
         writer.Write(change.Key);
-        JsonWriter.Write(change.Value, JsonWritingOptions.CompactRowsAsMap);
+        writer.Write(JsonWriter.Write(change.Value, JsonWritingOptions.CompactRowsAsMap));
       }
     }
 
