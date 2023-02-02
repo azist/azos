@@ -77,6 +77,30 @@ namespace Azos.Sky.Fabric
     /// </summary>
     public FiberState      State => m_State;
 
+
+
+    /// <summary>
+    /// Fiber processor log writer.
+    /// Logging depends on <see cref="IApplicationComponent.ComponentEffectiveLogLevel"/> of the processor runtime
+    /// </summary>
+    public Guid WriteLog(Azos.Log.MessageType type,
+                         string from,
+                         string text,
+                         Exception error = null,
+                         Guid? related = null,
+                         string pars = null,
+                         [System.Runtime.CompilerServices.CallerFilePath] string file = null,
+                         [System.Runtime.CompilerServices.CallerLineNumber] int src = 0)
+    {
+      var rtc = Runtime.CastTo<ApplicationComponent>("Runtime is AC");
+
+      var ff = $"{GetType().DisplayNameWithExpandedGenericArgs()}(`{State.CurrentStep}`)";
+      from = from.IsNotNullOrWhiteSpace() ? $"{ff}.{from}" : ff;
+
+      return rtc.WriteLog(type, from, text, error, related, pars, file, src);
+    }
+
+
     /// <summary>
     /// Interprets the incoming signal by performing some work and generates <see cref="FiberSignalResult"/>.
     /// Returns null if the signal is unhandled.

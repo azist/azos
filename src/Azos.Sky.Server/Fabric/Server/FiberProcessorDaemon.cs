@@ -49,6 +49,9 @@ namespace Azos.Sky.Fabric.Server
       public daemonRuntime(FiberProcessorDaemon director) : base(director){ }
       public override string ComponentLogTopic => CoreConsts.FABRIC_TOPIC;
 
+      public override MessageType ComponentEffectiveLogLevel => ComponentDirector.ComponentEffectiveLogLevel;
+      public override string ComponentLogFromPrefix => $"@{ComponentSID}:FabProcNode(`{ComponentDirector.ProcessorId}`).";
+
       public int   Version => VERSION_YYYYMMDD;
       public float SystemLoadCoefficient => ComponentDirector.SystemLoadCoefficient;
       public bool  IsRunning => ComponentDirector.Running;
