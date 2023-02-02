@@ -49,6 +49,18 @@ namespace Azos.Sky.Fabric
   }
 
   /// <summary>
+  /// Thrown to indicate state validation error
+  /// </summary>
+  [Serializable]
+  public class FabricStateValidationException : FabricProcessorException
+  {
+    public FabricStateValidationException() : base() { }
+    public FabricStateValidationException(string message) : base(message) { }
+    public FabricStateValidationException(string message, Exception inner) : base(message, inner) { }
+    protected FabricStateValidationException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+  }
+
+  /// <summary>
   /// Thrown to indicate errors when fibers are not derived from <see cref="Fiber{TParameters, TState}"/>
   /// </summary>
   [Serializable]

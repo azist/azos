@@ -162,10 +162,12 @@ namespace Azos.Sky.Fabric.Server
     /// Creates s snapshot of data changes which can be commited back into <see cref="IFiberStoreShard"/>
     /// using <see cref="IFiberStoreShard.CheckInAsync(FiberMemoryDelta)"/>.
     /// This only succeeds if the <see cref="Status"/> is <see cref="MemoryStatus.LockedForCaller"/>
-    /// otherwise Delta can not be obtained
+    /// otherwise Delta can not be obtained.
+    /// Performs validation and throws if slots are in invalid state
     /// </summary>
-    public FiberMemoryDelta MakeDeltaSnapshot(FiberStep? nextStep, FiberState currentState)
+    public FiberMemoryDelta MakeDeltaSnapshot(IApplication app, FiberStep? nextStep, FiberState currentState)
     {
+      app.NonNull(nameof(app));
       (m_Status == MemoryStatus.LockedForCaller).IsTrue("Delta obtained for LockedForCaller memory");
 
       var result = new FiberMemoryDelta
@@ -188,7 +190,24 @@ namespace Azos.Sky.Fabric.Server
         result.NextSliceInterval = nxt.NextSliceInterval;
         result.ExitCode = nxt.ExitCode;
         result.Result = nxt.Result;
-        result.Changes = currentState.SlotChanges.ToArray();
+
+        var changes = currentState.SlotChanges.ToArray();
+        foreach(var change in changes)
+        {
+          app.InjectInto(change.Value);
+
+          var error = change.Value.Validate();
+          if (error != null)
+          {
+            throw new FabricStateValidationException(
+              "Validation error for state slot `{0}.{1}` validation failed: {2}".Args(
+                 currentState.GetType().DisplayNameWithExpandedGenericArgs(),
+                 change.Value.GetType().DisplayNameWithExpandedGenericArgs(),
+              error.ToMessageWithType()), error);
+          }
+        }
+
+        result.Changes = changes;
       }
 
       return  result;
