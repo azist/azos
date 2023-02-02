@@ -403,10 +403,16 @@ namespace Azos.Sky.Fabric.Server
         if (memory == null || memory.Status != MemoryStatus.LockedForCaller) return;//no pending work
         if (!Running) return;//not running anymore
 
+        //=======================================
+        //=======================================
+        //=======================================
         var (wasHandled, nextStep, fiberState) = await processFiberQuantumCore(memory).ConfigureAwait(false);//<===================== FIBER SLICE gets called
         if (!wasHandled) return;//get out asap
+        //=======================================
+        //=======================================
+        //=======================================
 
-        var delta = memory.MakeDeltaSnapshot(App, nextStep, fiberState);//this can throw on invalid state
+        var delta = memory.MakeDeltaSnapshot(nextStep, fiberState);//this can throw on invalid state
 
         var saveErrorCount = 0;
         while(true)

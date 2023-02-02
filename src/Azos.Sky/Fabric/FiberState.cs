@@ -18,14 +18,18 @@ namespace Azos.Sky.Fabric
 {
   /// <summary>
   /// Represents an abstraction of fiber state which is segmented into named slots.
-  /// Each slot represents a structured serializable piece of data which can be fetched/changed separately;
-  /// this is needed for efficiency for fibers which require large states.
+  /// Each slot is a DTO - a structured serializable piece of data which can be fetched/changed piece-by-piece individually on an as-needed basis;
+  /// this is important for efficiency for fibers which require large DTO states.
+  /// <br/>
+  ///  ATTENTION: This class should NOT have any business logic beyond slot data management, and validation without relying on any 3rd party dependencies
+  /// <br/>
   /// Upon fiber execution, the runtime fetches pending fiber records from the store along with their current state from
   /// persisted storage, then the `ExecSlice` method is called which possibly mutates the state of a fiber represented by this instance.
   /// Upon return from `ExecSlice()`, the runtime inspects the state slots for mutations, saving changes (if any) into persisted storage.
-  /// The system does this slot-by-slot significantly improving overall performance.
+  /// The system does this slot-by-slot significantly improving overall performance in most cases when not the whole state changes all the time.
   /// Particular fiber state implementations derive their own classes which reflect the required business logic.
-  /// WARNING: This class is not thread safe
+  /// <br/>
+  /// WARNING: The objects of this class are designed as structured DTO and are not intended to be used for business rules , and are not thread safe
   /// </summary>
   public class FiberState
   {
@@ -42,11 +46,15 @@ namespace Azos.Sky.Fabric
 
     /// <summary>
     /// Represents an abstraction of a unit of change in fiber's state.
-    /// Particular fiber implementations derive their own PRIVATE classes which reflect the necessary business logic.
-    /// Warning: declare slot-derived classes as private within your particular state facade.
-    /// Do not expose those classes directly to users as this may lead to inadvertent mutation of inner state
-    /// which is not tracked, instead use functional-styled data accessors which mark the whole containing slot as changed
-    /// so the system can save the changes in state into persisted storage
+    /// Particular fiber implementations derive their own PRIVATE classes which reflect the necessary business field structure.
+    /// <br/>
+    /// WARNING: declare slot-derived classes as private within your particular state facade.
+    /// <br/>
+    /// Do not expose these classes directly to users as this may lead to inadvertent mutation of inner state
+    /// which is not tracked, instead use functional-styled data accessors <see cref="FiberState.Get{T}(Atom)"/> and <see cref="FiberState.Set{T}(Atom, Action{T})"/>
+    /// which mark the whole containing slot as changed so the system can save the changes in state into persisted storage.
+    /// <br/>
+    /// WARNING: The objects of this class are designed as structured DTO and are not intended to be used for business rules, and are not thread safe
     /// </summary>
     [BixJsonHandler(ThrowOnUnresolvedType = true)]
     public abstract class Slot : AmorphousTypedDoc

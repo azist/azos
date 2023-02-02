@@ -73,7 +73,7 @@ namespace Azos.Tests.Unit.Fabric
       gotState.AccountNumber = 223322;//mutate state <====================
       Aver.IsTrue(got.HasDelta(gotState));
 
-      var delta = got.MakeDeltaSnapshot(NOPApplication.Instance, FiberStep.ContinueImmediately(Atom.Encode("step2")), gotState);
+      var delta = got.MakeDeltaSnapshot(FiberStep.ContinueImmediately(Atom.Encode("step2")), gotState);
 
       Aver.AreEqual("step2", delta.NextStep.Value);
       Aver.AreEqual(new TimeSpan(0), delta.NextSliceInterval);
@@ -156,7 +156,7 @@ namespace Azos.Tests.Unit.Fabric
         String1 = "Dallas"
       };
 
-      var delta = got.MakeDeltaSnapshot(NOPApplication.Instance, FiberStep.FinishWithResult(123, result), gotState);
+      var delta = got.MakeDeltaSnapshot(FiberStep.FinishWithResult(123, result), gotState);
 
       Aver.IsTrue(delta.NextStep.IsZero);
       Aver.AreEqual(new TimeSpan(0), delta.NextSliceInterval);
@@ -241,7 +241,7 @@ namespace Azos.Tests.Unit.Fabric
       Aver.IsTrue(got.HasDelta(gotState));
 
 
-      var delta = got.MakeDeltaSnapshot(NOPApplication.Instance, FiberStep.Finish(321), gotState);
+      var delta = got.MakeDeltaSnapshot(FiberStep.Finish(321), gotState);
 
       Aver.IsTrue(delta.NextStep.IsZero);
       Aver.AreEqual(new TimeSpan(0), delta.NextSliceInterval);
@@ -323,7 +323,7 @@ namespace Azos.Tests.Unit.Fabric
       Aver.IsFalse(got.HasDelta(gotState));
       got.Crash(new FabricException("Problem X"));//crash memory
 
-      var delta = got.MakeDeltaSnapshot(NOPApplication.Instance, FiberStep.Finish(321), gotState);
+      var delta = got.MakeDeltaSnapshot(FiberStep.Finish(321), gotState);
 
       Aver.IsTrue(delta.NextStep.IsZero);
       Aver.AreEqual(new TimeSpan(0), delta.NextSliceInterval);

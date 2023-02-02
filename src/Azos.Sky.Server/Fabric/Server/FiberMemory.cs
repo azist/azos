@@ -165,9 +165,8 @@ namespace Azos.Sky.Fabric.Server
     /// otherwise Delta can not be obtained.
     /// Performs validation and throws if slots are in invalid state
     /// </summary>
-    public FiberMemoryDelta MakeDeltaSnapshot(IApplication app, FiberStep? nextStep, FiberState currentState)
+    public FiberMemoryDelta MakeDeltaSnapshot(FiberStep? nextStep, FiberState currentState)
     {
-      app.NonNull(nameof(app));
       (m_Status == MemoryStatus.LockedForCaller).IsTrue("Delta obtained for LockedForCaller memory");
 
       var result = new FiberMemoryDelta
@@ -194,8 +193,6 @@ namespace Azos.Sky.Fabric.Server
         var changes = currentState.SlotChanges.ToArray();
         foreach(var change in changes)
         {
-          app.InjectInto(change.Value);
-
           var error = change.Value.Validate();
           if (error != null)
           {
