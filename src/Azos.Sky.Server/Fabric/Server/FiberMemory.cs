@@ -200,10 +200,12 @@ namespace Azos.Sky.Fabric.Server
           if (error != null)
           {
             throw new FabricStateValidationException(
-              "Validation error for state slot `{0}.{1}` validation failed: {2}".Args(
-                 currentState.GetType().DisplayNameWithExpandedGenericArgs(),
-                 change.Value.GetType().DisplayNameWithExpandedGenericArgs(),
-              error.ToMessageWithType()), error);
+              "Validation error for state slot {0}.{1}(`{2}`) validation failed: {3}".Args(
+                  currentState.GetType().DisplayNameWithExpandedGenericArgs(),
+                  change.Value.GetType().DisplayNameWithExpandedGenericArgs(),
+                  change.Key,
+                  error.ToMessageWithType()),
+              error);
           }
         }
 
