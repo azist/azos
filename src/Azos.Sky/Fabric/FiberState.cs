@@ -67,17 +67,9 @@ namespace Azos.Sky.Fabric
       internal void MarkSlotAsModified() => m_SlotMutation = SlotMutationType.Modified;
       internal void MarkSlotAsDeleted() => m_SlotMutation = SlotMutationType.Deleted;
 
+      [Field(Description = "Defines a type of data change of this slot")]
       public SlotMutationType SlotMutation => m_SlotMutation;
 
-
-      /// <summary>
-      /// Override to add indexable tags per slot.
-      /// The system uses slot tags to find fibers by slots tagged with the specified values.
-      /// The default implementation returns empty tag collection.
-      /// Slot tags introduce performance overhead proportional to number of tags, so for all practical reasons
-      /// you should ONLY use tags when necessary and keep their count at minimum (2-3)
-      /// </summary>
-      public virtual IEnumerable<Data.Adlib.Tag> Tags => Enumerable.Empty<Data.Adlib.Tag>();
 
       /// <summary>
       /// True if the runtime loaded the data for this slot already.
@@ -200,6 +192,24 @@ namespace Azos.Sky.Fabric
         }
       }
     }
+
+    /// <summary>
+    /// Override this property to set indexable tags for this state.
+    /// The system uses state tags to find fibers by tagged values - this mechanism is used
+    /// in addition to fiber tags which are immutable
+    /// <br/>
+    /// Return:
+    /// <list>
+    ///   <item>null - keep existing tags as-is</item>
+    ///   <item>empty array - delete all existing tags</item>
+    ///   <item>array - replace all tags with the specified ones</item>
+    /// </list>
+    /// The default implementation returns null - keep tags as-is.<br/>
+    /// State tags introduce performance overhead proportional to number of tags, so for all practical reasons
+    /// you should ONLY use tags when necessary and keep their count at minimum (2-3)
+    /// </summary>
+    public virtual Data.Adlib.Tag[] Tags => null;
+
 
     /// <summary> Returns slot by id, or null if such slot does not exist </summary>
     protected Slot Get(Atom id)
