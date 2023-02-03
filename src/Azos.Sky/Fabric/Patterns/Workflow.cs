@@ -15,18 +15,25 @@ using Azos.Apps;
 using Azos.Apps.Injection;
 using Azos.Data;
 using Azos.Security;
+using Azos.Serialization.Bix;
+using Azos.Serialization.JSON;
 using Azos.Serialization.Slim;
 
-namespace Azos.Sky.Fabric
+namespace Azos.Sky.Fabric.Patterns
 {
   /// <summary>
   /// Sagas are multi-part processing chains with possibly compensating transactions.
   /// They represent a mixture of "Saga" design pattern with "supervisor" actor model pattern
   /// </summary>
-  public abstract class Flow<TParameters, TState> : Fiber<TParameters, TState> where TParameters : FiberParameters
-                                                                               where TState : FlowState
+  public abstract class Workflow<TParameters, TState> : Fiber<TParameters, TState> where TParameters : FiberParameters
+                                                                                   where TState : WorkflowState
   {
     //public abstract StartPhase{ get;}
+
+    //public FiberStep Loop()
+    //{
+    //
+    //}
 
     //public FiberStep CurrentPhase();
     //public FiberStep NextPhase(Atom phase);
@@ -36,29 +43,50 @@ namespace Azos.Sky.Fabric
   /// <summary>
   /// EXAMPLE ONLY
   /// </summary>
-  public abstract class FlowState : FiberState
+  public abstract class WorkflowState : FiberState
   {
-    //Only one part can be active
+    //Only one phase can be active
+    protected abstract class Current : Slot
+    {
+      [Field(Required = true, Description = "Current Phase")]
+      public Atom CurrentPhase { get; set; }
+    }
+
+
+    //Only one phase can be active
     protected abstract class Phase : Slot
     {
-      //[Field(Required = true, Description = "Current Part")]
-      //public Atom Phase { get; set; }
+      [Field(Required = true, Description = "When Phase started")]
+      public DateTime StartUtc { get;  set; }
 
-      public override bool DoNotPreload => true;
+      [Field(Required = true, Description = "Collection of work items")]
+      public List<Item> Items {  get; set; }
     }
 
     /// <summary>
     /// Items can happen simultaneously within phase
     /// </summary>
-    protected abstract class Item : Slot
+    [BixJsonHandler(ThrowOnUnresolvedType = true)]
+    protected abstract class Item : AmorphousTypedDoc
     {
       [Field(Required = true, Description = "A part which this chapter is in")]
       public Atom Phase { get; set; }
 
-      public override bool DoNotPreload => true;
+      protected override void AddJsonSerializerField(Schema.FieldDef def, JsonWritingOptions options, Dictionary<string, object> jsonMap, string name, object value)
+      {
+        if (def?.Order == 0)
+        {
+          BixJsonHandler.EmitJsonBixDiscriminator(this, jsonMap);
+        }
+
+        base.AddJsonSerializerField(def, options, jsonMap, name, value);
+      }
     }
 
     private static readonly Atom SLOT_DATA = Atom.Encode("d");
+
+
+    public Atom CurrentPhase => Get<Current>(SLOT_DATA)?.CurrentPhase ?? Atom.ZERO;
 
 
     //public int DonutCount
