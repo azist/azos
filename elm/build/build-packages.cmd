@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.0.0.1001
-set HEADLINE=Fiber Preview 1
+set VER=3.0.0.1002
+set HEADLINE=Fiber Preview 2
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
