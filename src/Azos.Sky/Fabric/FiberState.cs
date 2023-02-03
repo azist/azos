@@ -69,6 +69,16 @@ namespace Azos.Sky.Fabric
 
       public SlotMutationType SlotMutation => m_SlotMutation;
 
+
+      /// <summary>
+      /// Override to add indexable tags per slot.
+      /// The system uses slot tags to find fibers by slots tagged with the specified values.
+      /// The default implementation returns empty tag collection.
+      /// Slot tags introduce performance overhead proportional to number of tags, so for all practical reasons
+      /// you should ONLY use tags when necessary and keep their count at minimum (2-3)
+      /// </summary>
+      public virtual IEnumerable<Data.Adlib.Tag> Tags => Enumerable.Empty<Data.Adlib.Tag>();
+
       /// <summary>
       /// True if the runtime loaded the data for this slot already.
       /// Slots may request to not pre-load the data via `DoNotPreload = true`
