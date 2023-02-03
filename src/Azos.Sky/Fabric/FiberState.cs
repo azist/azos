@@ -64,11 +64,16 @@ namespace Azos.Sky.Fabric
       private SlotMutationType m_SlotMutation;
       private bool m_SlotWasLoaded;
 
+      internal void MarkSlotAsUnchanged() => m_SlotMutation = SlotMutationType.Unchanged;
       internal void MarkSlotAsModified() => m_SlotMutation = SlotMutationType.Modified;
       internal void MarkSlotAsDeleted() => m_SlotMutation = SlotMutationType.Deleted;
 
       [Field(Description = "Defines a type of data change of this slot")]
-      public SlotMutationType SlotMutation => m_SlotMutation;
+      public SlotMutationType SlotMutation
+      {
+        get => m_SlotMutation;
+        private set => m_SlotMutation = value;
+      }
 
 
       /// <summary>
@@ -209,6 +214,12 @@ namespace Azos.Sky.Fabric
     /// you should ONLY use tags when necessary and keep their count at minimum (2-3)
     /// </summary>
     public virtual Data.Adlib.Tag[] Tags => null;
+
+
+    internal void ResetAllSlotModificationFlags()
+    {
+      SlotChanges.ForEach(one => one.Value.MarkSlotAsUnchanged());
+    }
 
 
     /// <summary> Returns slot by id, or null if such slot does not exist </summary>

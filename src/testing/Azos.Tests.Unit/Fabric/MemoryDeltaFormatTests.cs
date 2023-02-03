@@ -45,6 +45,7 @@ namespace Azos.Tests.Unit.Fabric
       state.DOB = new DateTime(1980, 1, 2, 14, 15, 00, DateTimeKind.Utc);
       state.AccountNumber = 987654321;
       state.SetAttachment("donkey_fun.jpeg", new byte[]{1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5});
+      state.ResetAllSlotModificationFlags();
       var mem = new FiberMemory(1, MemoryStatus.LockedForCaller, fid, Guid.NewGuid(), null, pars, state);//this packs buffer
 
       using var wscope = BixWriterBufferScope.DefaultCapacity;
@@ -102,6 +103,7 @@ namespace Azos.Tests.Unit.Fabric
       Aver.AreEqual("d", gotDelta.Changes[0].Key.Value);
       Aver.AreEqual(223322ul, gotDelta.Changes[0].Value.CastTo<TeztState.DemographicsSlot>().AccountNumber);
       Aver.AreEqual("Booster", gotDelta.Changes[0].Value.CastTo<TeztState.DemographicsSlot>().LastName);
+      Aver.IsTrue(FiberState.SlotMutationType.Modified == gotDelta.Changes[0].Value.CastTo<TeztState.DemographicsSlot>().SlotMutation);
     }
 
 
@@ -122,6 +124,7 @@ namespace Azos.Tests.Unit.Fabric
       state.DOB = new DateTime(1980, 1, 2, 14, 15, 00, DateTimeKind.Utc);
       state.AccountNumber = 987654321;
       state.SetAttachment("hockey_fun.jpeg", new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5 });
+      state.ResetAllSlotModificationFlags();
       var mem = new FiberMemory(1, MemoryStatus.LockedForCaller, fid, Guid.NewGuid(), null, pars, state);//this packs buffer
 
       using var wscope = BixWriterBufferScope.DefaultCapacity;
@@ -190,6 +193,7 @@ namespace Azos.Tests.Unit.Fabric
       Aver.AreEqual("d", gotDelta.Changes[0].Key.Value);
       Aver.AreEqual(55166ul, gotDelta.Changes[0].Value.CastTo<TeztState.DemographicsSlot>().AccountNumber);
       Aver.AreEqual("Shuster", gotDelta.Changes[0].Value.CastTo<TeztState.DemographicsSlot>().LastName);
+      Aver.IsTrue(FiberState.SlotMutationType.Modified == gotDelta.Changes[0].Value.CastTo<TeztState.DemographicsSlot>().SlotMutation);
     }
 
 
@@ -210,6 +214,7 @@ namespace Azos.Tests.Unit.Fabric
       state.DOB = new DateTime(1980, 1, 2, 14, 15, 00, DateTimeKind.Utc);
       state.AccountNumber = 987654321;
       state.SetAttachment("hockey_fun.jpeg", new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5 });
+      state.ResetAllSlotModificationFlags();
       var mem = new FiberMemory(1, MemoryStatus.LockedForCaller, fid, Guid.NewGuid(), null, pars, state);//this packs buffer
 
       using var wscope = BixWriterBufferScope.DefaultCapacity;
@@ -238,6 +243,7 @@ namespace Azos.Tests.Unit.Fabric
       gotState.AccountNumber = 55166;//mutate state <====================
       gotState.LastName = "Monster";
       gotState.SetAttachment("windows.bmp", new byte[5]);
+      Aver.IsTrue(gotState.SlotsHaveChanges);
       Aver.IsTrue(got.HasDelta(gotState));
 
 
@@ -273,10 +279,12 @@ namespace Azos.Tests.Unit.Fabric
       Aver.AreEqual("d", gotDelta.Changes[0].Key.Value);
       Aver.AreEqual(55166ul, gotDelta.Changes[0].Value.CastTo<TeztState.DemographicsSlot>().AccountNumber);
       Aver.AreEqual("Monster", gotDelta.Changes[0].Value.CastTo<TeztState.DemographicsSlot>().LastName);
+      Aver.IsTrue(FiberState.SlotMutationType.Modified == gotDelta.Changes[0].Value.CastTo<TeztState.DemographicsSlot>().SlotMutation);
 
       Aver.AreEqual("a", gotDelta.Changes[1].Key.Value);
       Aver.AreEqual("windows.bmp", gotDelta.Changes[1].Value.CastTo<TeztState.AttachmentSlot>().AttachmentName);
       Aver.AreEqual(5, gotDelta.Changes[1].Value.CastTo<TeztState.AttachmentSlot>().AttachContent.Length);
+      Aver.IsTrue(FiberState.SlotMutationType.Modified == gotDelta.Changes[1].Value.CastTo<TeztState.AttachmentSlot>().SlotMutation);
     }
 
     [Run]
@@ -296,6 +304,7 @@ namespace Azos.Tests.Unit.Fabric
       state.DOB = new DateTime(1980, 1, 2, 14, 15, 00, DateTimeKind.Utc);
       state.AccountNumber = 987654321;
       state.SetAttachment("hockey_fun.jpeg", new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5 });
+      state.ResetAllSlotModificationFlags();
       var mem = new FiberMemory(1, MemoryStatus.LockedForCaller, fid, Guid.NewGuid(), null, pars, state);//this packs buffer
 
       using var wscope = BixWriterBufferScope.DefaultCapacity;
