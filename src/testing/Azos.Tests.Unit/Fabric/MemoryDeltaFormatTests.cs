@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,6 +14,7 @@ using Azos.Apps;
 using Azos.Data;
 using Azos.Scripting;
 using Azos.Serialization.Bix;
+using Azos.Serialization.JSON;
 using Azos.Sky.Fabric;
 using Azos.Sky.Fabric.Server;
 using Azos.Time;
@@ -96,14 +98,23 @@ namespace Azos.Tests.Unit.Fabric
 
       Aver.AreEqual("step2", gotDelta.NextStep.Value);
       Aver.AreEqual(new TimeSpan(0), gotDelta.NextSliceInterval);
-      Aver.AreEqual(1, gotDelta.Changes.Length);
+      Aver.IsNull(gotDelta.Changes);
+      Aver.IsNotNull(gotDelta.ChangesReceived);
+      Aver.AreEqual(1, gotDelta.ChangesReceived.Length);
       Aver.IsNull(gotDelta.Result);
       Aver.AreEqual(0, gotDelta.ExitCode);
 
-      Aver.AreEqual("d", gotDelta.Changes[0].Key.Value);
-      Aver.AreEqual(223322ul, gotDelta.Changes[0].Value.CastTo<TeztState.DemographicsSlot>().AccountNumber);
-      Aver.AreEqual("Booster", gotDelta.Changes[0].Value.CastTo<TeztState.DemographicsSlot>().LastName);
-      Aver.IsTrue(FiberState.SlotMutationType.Modified == gotDelta.Changes[0].Value.CastTo<TeztState.DemographicsSlot>().SlotMutation);
+      Aver.AreEqual("d", gotDelta.ChangesReceived[0].Key.Value);
+      Aver.IsNotNull(gotDelta.ChangesReceived[0].Value);
+
+      //manually deserialize content, in future this will need to be updated to reflect BIX etc...
+      var map = JsonReader.DeserializeDataObject(new MemoryStream(gotDelta.ChangesReceived[0].Value)) as JsonDataMap;
+      map.See("map");
+      var deserManually = JsonReader.ToDoc<TeztState.DemographicsSlot>(map);
+
+      Aver.AreEqual(223322ul, deserManually.AccountNumber);
+      Aver.AreEqual("Booster", deserManually.LastName);
+      Aver.IsTrue(FiberState.SlotMutationType.Modified == deserManually.SlotMutation);
     }
 
 
@@ -184,16 +195,29 @@ namespace Azos.Tests.Unit.Fabric
 
       Aver.IsTrue(gotDelta.NextStep.IsZero);
       Aver.AreEqual(new TimeSpan(0), gotDelta.NextSliceInterval);
-      Aver.AreEqual(1, gotDelta.Changes.Length);
-      Aver.IsNotNull(gotDelta.Result);
+      Aver.IsNull(gotDelta.Changes);
+      Aver.IsNotNull(gotDelta.ChangesReceived);
+      Aver.AreEqual(1, gotDelta.ChangesReceived.Length);
+      Aver.IsNull(gotDelta.Result);
+      Aver.IsNotNull(gotDelta.ResultReceivedJson);
       Aver.AreEqual(123, gotDelta.ExitCode);
-      Aver.AreEqual(result.Int1, ((TeztResult)gotDelta.Result).Int1);
-      Aver.AreEqual(result.String1, ((TeztResult)gotDelta.Result).String1);
 
-      Aver.AreEqual("d", gotDelta.Changes[0].Key.Value);
-      Aver.AreEqual(55166ul, gotDelta.Changes[0].Value.CastTo<TeztState.DemographicsSlot>().AccountNumber);
-      Aver.AreEqual("Shuster", gotDelta.Changes[0].Value.CastTo<TeztState.DemographicsSlot>().LastName);
-      Aver.IsTrue(FiberState.SlotMutationType.Modified == gotDelta.Changes[0].Value.CastTo<TeztState.DemographicsSlot>().SlotMutation);
+      var resultmap = JsonReader.DeserializeDataObject(gotDelta.ResultReceivedJson) as JsonDataMap;
+
+      Aver.AreEqual(result.Int1, resultmap["Int1"].AsInt());
+      Aver.AreEqual(result.String1, resultmap["String1"].AsString());
+
+      Aver.AreEqual("d", gotDelta.ChangesReceived[0].Key.Value);
+      Aver.IsNotNull(gotDelta.ChangesReceived[0].Value);
+
+      //manually deserialize content, in future this will need to be updated to reflect BIX etc...
+      var map = JsonReader.DeserializeDataObject(new MemoryStream(gotDelta.ChangesReceived[0].Value)) as JsonDataMap;
+      map.See("map");
+      var deserManually = JsonReader.ToDoc<TeztState.DemographicsSlot>(map);
+
+      Aver.AreEqual(55166ul, deserManually.AccountNumber);
+      Aver.AreEqual("Shuster", deserManually.LastName);
+      Aver.IsTrue(FiberState.SlotMutationType.Modified == deserManually.SlotMutation);
     }
 
 
@@ -272,19 +296,34 @@ namespace Azos.Tests.Unit.Fabric
 
       Aver.IsTrue(gotDelta.NextStep.IsZero);
       Aver.AreEqual(new TimeSpan(0), gotDelta.NextSliceInterval);
-      Aver.AreEqual(2, gotDelta.Changes.Length);
+      Aver.AreEqual(2, gotDelta.ChangesReceived.Length);
       Aver.IsNull(gotDelta.Result);
+      Aver.IsNull(gotDelta.ResultReceivedJson);
       Aver.AreEqual(321, gotDelta.ExitCode);
 
-      Aver.AreEqual("d", gotDelta.Changes[0].Key.Value);
-      Aver.AreEqual(55166ul, gotDelta.Changes[0].Value.CastTo<TeztState.DemographicsSlot>().AccountNumber);
-      Aver.AreEqual("Monster", gotDelta.Changes[0].Value.CastTo<TeztState.DemographicsSlot>().LastName);
-      Aver.IsTrue(FiberState.SlotMutationType.Modified == gotDelta.Changes[0].Value.CastTo<TeztState.DemographicsSlot>().SlotMutation);
+      Aver.AreEqual("d", gotDelta.ChangesReceived[0].Key.Value);
+      Aver.IsNotNull(gotDelta.ChangesReceived[0].Value);
 
-      Aver.AreEqual("a", gotDelta.Changes[1].Key.Value);
-      Aver.AreEqual("windows.bmp", gotDelta.Changes[1].Value.CastTo<TeztState.AttachmentSlot>().AttachmentName);
-      Aver.AreEqual(5, gotDelta.Changes[1].Value.CastTo<TeztState.AttachmentSlot>().AttachContent.Length);
-      Aver.IsTrue(FiberState.SlotMutationType.Modified == gotDelta.Changes[1].Value.CastTo<TeztState.AttachmentSlot>().SlotMutation);
+      Aver.AreEqual("a", gotDelta.ChangesReceived[1].Key.Value);
+      Aver.IsNotNull(gotDelta.ChangesReceived[1].Value);
+
+      //manually deserialize content, in future this will need to be updated to reflect BIX etc...
+      var map = JsonReader.DeserializeDataObject(new MemoryStream(gotDelta.ChangesReceived[0].Value)) as JsonDataMap;
+      map.See("map 1");
+      var deserManually = JsonReader.ToDoc<TeztState.DemographicsSlot>(map);
+
+      Aver.AreEqual(55166ul, deserManually.AccountNumber);
+      Aver.AreEqual("Monster", deserManually.LastName);
+      Aver.IsTrue(FiberState.SlotMutationType.Modified == deserManually.SlotMutation);
+
+      map = JsonReader.DeserializeDataObject(new MemoryStream(gotDelta.ChangesReceived[1].Value)) as JsonDataMap;
+      map.See("map 2");
+      var deserManually2 = JsonReader.ToDoc<TeztState.AttachmentSlot>(map);
+
+      Aver.AreEqual("windows.bmp", deserManually2.AttachmentName);
+      Aver.AreEqual(5, deserManually2.AttachContent.Length);
+      Aver.IsTrue(FiberState.SlotMutationType.Modified == deserManually2.SlotMutation);
+
     }
 
     [Run]
