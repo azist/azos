@@ -13,6 +13,7 @@ using Azos.Serialization.Bix;
 namespace Azos.Sky.Fabric.Server
 {
   /// <summary>
+  /// WARNING: This is a low-level infrastructure class that business app developers should never use!<br/>
   /// Represents a changeset made to <see cref="FiberMemory"/> object.
   /// This changeset is obtained from a call to <see cref="FiberMemory.MakeDeltaSnapshot"/>
   /// and gets commited back into <see cref="IFiberStoreShard"/> using <see cref="IFiberStoreShard.CheckInAsync(FiberMemoryDelta)"/>
@@ -120,9 +121,29 @@ namespace Azos.Sky.Fabric.Server
     public Atom NextStep              { get; internal set; }
     public TimeSpan NextSliceInterval { get; internal set; }
     public int ExitCode               { get; internal set; }
+    public WrappedExceptionData Crash { get; internal set; }
+
+    /// <summary>
+    /// Value set by processor to be serialized for shard
+    /// </summary>
     public FiberResult Result         { get; internal set; }
+
+    /// <summary>
+    /// Value set by processor to be serialized for shard
+    /// </summary>
     public KeyValuePair<Atom, FiberState.Slot>[] Changes  { get; internal set; }
 
-    public WrappedExceptionData Crash { get; internal set; }
+    /// <summary>
+    /// Since FiberResult is abstract, the memory shard receives and stores data as JSON string, as it has no
+    /// way of deserializing the CLR type that processor serialized
+    /// </summary>
+    public string ResultReceivedJson { get; internal set; }
+
+    /// <summary>
+    ///Since FiberState.Slot[] is polymorphic, the memory shard receives and stores state data as byte[], as it has no
+    /// way of deserializing the CLR type that processor serialized
+    /// </summary>
+    public KeyValuePair<Atom, byte[]>[] ChangesReceived { get; internal set; }
+
   }
 }

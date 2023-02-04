@@ -24,7 +24,8 @@ namespace Azos.Sky.Fabric.Server
     Unset = 0,
 
     /// <summary>
-    /// The memory is locked for the caller - the caller may mutate the memory and then call <see cref="IFiberStoreShard.CheckInAsync(FiberMemoryDelta)"/>
+    /// The memory is locked for the caller - the caller may mutate the memory and then call
+    /// <see cref="IFiberStoreShard.CheckInAsync(FiberMemoryDelta)"/>
     /// </summary>
     LockedForCaller = 1,
 
@@ -42,6 +43,9 @@ namespace Azos.Sky.Fabric.Server
   /// </summary>
   public sealed class FiberMemory
   {
+    /// <summary>
+    /// .ctor used by unit tests as it packs the params and the state objects
+    /// </summary>
     public FiberMemory(
               int version,
               MemoryStatus status,
@@ -59,7 +63,9 @@ namespace Azos.Sky.Fabric.Server
       m_Buffer = packBuffer(pars, state, m_Version);
     }
 
-
+    /// <summary>
+    /// .ctor used by unit tests - obtains packed payload
+    /// </summary>
     public FiberMemory(
               int          version,
               MemoryStatus status,
@@ -78,7 +84,7 @@ namespace Azos.Sky.Fabric.Server
 
 
     /// <summary>
-    /// Called by processors: reads memory from flat bin content produced by shard.
+    /// .ctor called by processors: reads memory from flat bin content produced by shard.
     /// Shards never read this back as they read <see cref="FiberMemoryDelta"/> instead
     /// </summary>
     public FiberMemory(BixReader reader)
