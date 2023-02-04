@@ -49,21 +49,17 @@ namespace Azos.Sky.Fabric.Server
       NextSliceInterval = reader.ReadTimeSpan();
       ExitCode = reader.ReadInt();
 
-      var resultJson = reader.ReadString();
-      if (resultJson != null)
-      {
-        Result = JsonReader.ToDoc<FiberResult>(resultJson, fromUI: false, JsonReader.DocReadOptions.BindByCode);
-      }
+      //Result is stored as string json deserialized into different property
+      ResultReceivedJson = reader.ReadString();//deserialize as string
 
       var changeCount = reader.ReadInt();
       (changeCount <= Constraints.MAX_STATE_SLOT_COUNT).IsTrue("max state slot count");
-      Changes = new KeyValuePair<Atom, FiberState.Slot>[changeCount];
+      ChangesReceived = new KeyValuePair<Atom, byte[]>[changeCount];
       for(var i=0; i< changeCount; i++)
       {
         var idSlot = reader.ReadAtom();
-        var slotJson = reader.ReadString();
-        var slot = JsonReader.ToDoc<FiberState.Slot>(slotJson, fromUI: false, JsonReader.DocReadOptions.BindByCode);
-        Changes[i] = new KeyValuePair<Atom, FiberState.Slot>(idSlot, slot);
+        var slotData = reader.ReadBuffer();
+        ChangesReceived[i] = new KeyValuePair<Atom,byte[]>(idSlot, slotData);
       }
     }
 
@@ -102,7 +98,7 @@ namespace Azos.Sky.Fabric.Server
       {
         resultJson = JsonWriter.Write(Result, JsonWritingOptions.CompactRowsAsMap);
       }
-      writer.Write(resultJson);
+      writer.Write(resultJson);//json string
 
       var changeCount = Changes?.Length ?? 0;
       writer.Write(changeCount);
@@ -110,7 +106,7 @@ namespace Azos.Sky.Fabric.Server
       {
         var change = Changes[i];
         writer.Write(change.Key);
-        writer.Write(JsonWriter.Write(change.Value, JsonWritingOptions.CompactRowsAsMap));
+        writer.Write(JsonWriter.WriteToBuffer(change.Value, JsonWritingOptions.CompactRowsAsMap));
       }
     }
 
