@@ -169,6 +169,19 @@ namespace Azos.Data
     public static GDID? AsNullableGDID(this string val, GDID? dflt = null)
       => ObjectValueConversion.AsNullableGDID(val, dflt);
 
+
+    public static RGDID AsRGDID(this string val, RGDID? dflt = null)
+    {
+      if (dflt.HasValue)
+        return ObjectValueConversion.AsRGDID(val, dflt.Value);
+      else
+        return ObjectValueConversion.AsRGDID(val);
+    }
+
+    public static RGDID? AsNullableRGDID(this string val, RGDID? dflt = null)
+      => ObjectValueConversion.AsNullableRGDID(val, dflt);
+
+
     public static GDIDSymbol AsGDIDSymbol(this string val, GDIDSymbol? dflt = null)
     {
       if (dflt.HasValue)
@@ -340,6 +353,7 @@ namespace Azos.Data
       {typeof(Atom)     , (val, strict) => strict ? AsAtom(val) : AsAtom(val, Atom.ZERO) },
       {typeof(EntityId) , (val, strict) => strict ? AsEntityId(val) : AsEntityId(val, EntityId.EMPTY) },
       {typeof(GDID)     , (val, strict) => strict ? GDID.Parse(val) : AsGDID(val) },
+      {typeof(RGDID)    , (val, strict) => strict ? RGDID.Parse(val) : AsRGDID(val) },
       {typeof(GDIDSymbol),
       (val, strict) =>
       {
@@ -378,6 +392,7 @@ namespace Azos.Data
       {typeof(Atom?),     (val, strict) => string.IsNullOrWhiteSpace(val) ? (Atom?)null     : (strict ? AsAtom(val) : AsAtom(val, Atom.ZERO)) },
       {typeof(EntityId?), (val, strict) => string.IsNullOrWhiteSpace(val) ? (EntityId?)null : (strict ? AsEntityId(val) : AsEntityId(val, EntityId.EMPTY)) },
       {typeof(GDID?),     (val, strict) => string.IsNullOrWhiteSpace(val) ? (GDID?)null     : (strict ? GDID.Parse(val) : AsGDID(val)) },
+      {typeof(RGDID?),    (val, strict) => string.IsNullOrWhiteSpace(val) ? (RGDID?)null     : (strict ? RGDID.Parse(val) : AsRGDID(val)) },
       {typeof(GDIDSymbol?),
       (val, strict) =>
       {

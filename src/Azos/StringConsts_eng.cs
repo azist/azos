@@ -858,6 +858,7 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string DISTRIBUTED_DATA_GDID_CTOR_ERROR = "GDID can not be created from the supplied: 'authority={0}>{1},counter={2}>{3}'";
 
     public const string DISTRIBUTED_DATA_GDID_PARSE_ERROR = "String value '{0}' can not be parsed as GDID";
+    public const string DISTRIBUTED_DATA_RGDID_PARSE_ERROR = "String value '{0}' can not be parsed as RGDID";
 
     public const string ELINK_CHAR_COMBINATION_ERROR = "ELink '{0}' could not be read as it contains an invalid combination '{1}'";
     public const string ELINK_CHAR_LENGTH_LIMIT_ERROR = "ELink '{0}...' could not be encoded/decoded as it exceeds maximum permissible length";
