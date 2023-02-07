@@ -405,6 +405,26 @@ namespace Azos.Data
           return value;
         }
 
+        // 20230207 #831 JPK,DKh, added RGDID
+        if (fdef.NonNullableType == typeof(RGDID))
+        {
+          if (tv == typeof(byte[]))
+          {
+            value = new RGDID((byte[])value);
+          }
+          else if (tv == typeof(string))
+          {
+            var sv = (string)value;
+            if (sv.IsNotNullOrWhiteSpace())
+              value = RGDID.Parse((string)value);
+            else
+              value = fdef.Type == typeof(RGDID?) ? (RGDID?)null : RGDID.ZERO;
+          }
+
+          return value;
+        }
+
+
         if (tv == typeof(GDID))
         {
           if (fdef.NonNullableType == typeof(byte[]))
