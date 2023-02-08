@@ -442,24 +442,33 @@ namespace Azos.Data.Access.MySql
 
       if (value==null) return (null, convertedDbType);
 
-      if (value is GDID)
+      if (value is GDID gdid)
       {
-        if (((GDID)value).IsZero)
+        if (gdid.IsZero)
         {
           return (null, MySqlDbType.Null);
         }
 
         if(store.FullGDIDS)
         {
-          value = (object)((GDID)value).Bytes;//be very careful with byte ordering of GDID for index optimization
+          value = (object)gdid.Bytes;//be very careful with byte ordering of GDID for index optimization
           convertedDbType = MySqlDbType.Binary;
         }
         else
         {
-          value = (object)((GDID)value).ID;
+          value = (object)gdid.ID;
           convertedDbType = MySqlDbType.UInt64;
         }
+      }
+      else if (value is RGDID rgdid)
+      {
+        if (rgdid.IsZero)
+        {
+          return (null, MySqlDbType.Null);
+        }
 
+        value = (object)rgdid.Bytes;//be very careful with byte ordering of RGDID for index optimization
+        convertedDbType = MySqlDbType.Binary;
       }
       else if (value is bool)
       {

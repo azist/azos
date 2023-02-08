@@ -72,6 +72,9 @@ namespace Azos.Sky.Fabric
     [Field(description: "Tag filter expression tree")]
     public Expression TagFilter { get; set; }
 
+    [Field(description: "State tag filter expression tree")]
+    public Expression StateTagFilter { get; set; }
+
     [InjectModule] IFiberManagerLogic m_Logic;
 
     protected async override Task<SaveResult<IEnumerable<FiberInfo>>> DoSaveAsync()

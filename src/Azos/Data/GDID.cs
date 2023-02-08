@@ -15,7 +15,7 @@ using Azos.Serialization.JSON;
 namespace Azos.Data
 {
   /// <summary>
-  /// Represents a Global Distributed ID key (key field) used in distributed databases that identify entities with a
+  /// Represents a Global Distributed ID key (key field, pronounced like "gee-did") used in distributed databases that identify entities with a
   /// combination of unsigned 32 bit integer 'Era' and unsigned 64 bit integer 'ID'.
   /// The first 32 bit integer is an 'era' in which the 'ID' (64 bit) was created, consequently
   /// a GDID is a 12 byte = 96 bit integer that can hold 2^96 = 79,228,162,514,264,337,593,543,950,336 combinations.
@@ -39,8 +39,12 @@ namespace Azos.Data
                        IJsonReadable,
                        IRequiredCheck
   {
-    private static readonly IFormatProvider INVARIANT = CultureInfo.InvariantCulture;
+    internal static readonly IFormatProvider INVARIANT = CultureInfo.InvariantCulture;
+    internal const NumberStyles ISTYLES = NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite;
+
     private static readonly string[] SAUTHORITIES = new []{"0", "1" , "2" , "3" , "4" , "5" , "6" , "7" , "8" , "9" , "10" , "11" , "12" , "13" , "14" , "15"};
+
+    public const int BYTE_SIZE = sizeof(UInt32) + sizeof(UInt64);
 
     public const UInt64 AUTHORITY_MASK = 0xf000000000000000;
     public const UInt64 COUNTER_MASK   = 0x0fffffffffffffff;//0x 0f  ff  ff  ff  ff  ff  ff  ff
@@ -77,7 +81,7 @@ namespace Azos.Data
 
     public GDID(byte[] bytes, int startIdx = 0)
     {
-      if (bytes==null || startIdx <0 || (bytes.Length-startIdx)<sizeof(uint)+sizeof(ulong))
+      if (bytes==null || startIdx <0 || (bytes.Length-startIdx) < BYTE_SIZE)
         throw new DataException(StringConsts.ARGUMENT_ERROR+"GDID.ctor(bytes==null<minsz)");
 
       Era = bytes.ReadBEUInt32(ref startIdx);
@@ -116,9 +120,9 @@ namespace Azos.Data
       { //WARNING!!! NEVER EVER CHANGE this method without considering the effect:
         // Database keys RELY on the specific byte ordering for proper tree balancing
         // MUST use BIG ENDIAN encoding  ERA, COUNTER not vice-versa
-        var result = new byte[sizeof(uint)+sizeof(ulong)];
+        var result = new byte[BYTE_SIZE];
         result.WriteBEUInt32(0, Era);
-        result.WriteBEUInt64(4, ID);
+        result.WriteBEUInt64(sizeof(UInt32), ID);
         return result;
       }
     }
@@ -129,11 +133,11 @@ namespace Azos.Data
     /// </summary>
     public void WriteIntoBuffer(byte[] buff, int startIndex = 0)
     {
-      if (buff==null || startIndex < 0 || startIndex + 12 >= buff.Length)
+      if (buff==null || startIndex < 0 || startIndex + BYTE_SIZE >= buff.Length)
         throw new DataException(StringConsts.ARGUMENT_ERROR + "GDID.WriteIntoBuffer(buff==null<minsz)");
 
       buff.WriteBEUInt32(startIndex, Era);
-      buff.WriteBEUInt64(startIndex + 4, ID);
+      buff.WriteBEUInt64(startIndex + sizeof(UInt32), ID);
     }
 
     /// <summary>
@@ -257,7 +261,7 @@ namespace Azos.Data
       return result;
     }
 
-    private static int hexDigit(char c)
+    internal static int hexDigit(char c)
     {
       var d = c - '0';
       if (d>=0 && d<=9) return d;
@@ -301,7 +305,7 @@ namespace Azos.Data
       if (ic>-1) //regular Era:Auth:Counter format
       {
         const int MIN_LEN = 5;// "0:0:0"
-        if (str.IsNullOrWhiteSpace() || str.Length<MIN_LEN) return false;
+        if (str.Length<MIN_LEN) return false;
 
         string sera, sau, sctr;
         var i1 = ic;
@@ -316,7 +320,7 @@ namespace Azos.Data
 
         sctr = str.Substring(i2+1);
 
-        const NumberStyles ISTYLES = NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite;
+
 
         uint era=0;
         if (!uint.TryParse(sera, ISTYLES, INVARIANT, out era)) return false;
@@ -340,9 +344,7 @@ namespace Azos.Data
       if (ix == 0) ix += 2;//skip 0x
       else ix = 0;
 
-      const int SZ = sizeof(uint) + sizeof(ulong);
-
-      var buf = stackalloc byte[SZ];
+      var buf = stackalloc byte[BYTE_SIZE];
       var j = 0;
       for(var i=ix; i<str.Length;)
       {
@@ -351,11 +353,11 @@ namespace Azos.Data
         var dl = hexDigit(str[i]); i++;
         if (dl<0) return false;
 
-        if (j==SZ) return false;
+        if (j == BYTE_SIZE) return false;
         buf[j] = (byte)((dh << 4) + dl);
         j++;
       }
-      if (j<SZ) return false;
+      if (j < BYTE_SIZE) return false;
 
       gdid = new GDID(buf);
       return true;

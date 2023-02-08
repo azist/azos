@@ -49,6 +49,9 @@ namespace Azos.Sky.Fabric.Server
       public daemonRuntime(FiberProcessorDaemon director) : base(director){ }
       public override string ComponentLogTopic => CoreConsts.FABRIC_TOPIC;
 
+      public override MessageType ComponentEffectiveLogLevel => ComponentDirector.ComponentEffectiveLogLevel;
+      public override string ComponentLogFromPrefix => $"@{ComponentSID}:FabProcNode(`{ComponentDirector.ProcessorId}`).";
+
       public int   Version => VERSION_YYYYMMDD;
       public float SystemLoadCoefficient => ComponentDirector.SystemLoadCoefficient;
       public bool  IsRunning => ComponentDirector.Running;
@@ -400,10 +403,16 @@ namespace Azos.Sky.Fabric.Server
         if (memory == null || memory.Status != MemoryStatus.LockedForCaller) return;//no pending work
         if (!Running) return;//not running anymore
 
+        //=======================================
+        //=======================================
+        //=======================================
         var (wasHandled, nextStep, fiberState) = await processFiberQuantumCore(memory).ConfigureAwait(false);//<===================== FIBER SLICE gets called
         if (!wasHandled) return;//get out asap
+        //=======================================
+        //=======================================
+        //=======================================
 
-        var delta = memory.MakeDeltaSnapshot(nextStep, fiberState);
+        var delta = memory.MakeDeltaSnapshot(nextStep, fiberState);//this can throw on invalid state
 
         var saveErrorCount = 0;
         while(true)

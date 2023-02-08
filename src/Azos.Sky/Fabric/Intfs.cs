@@ -158,6 +158,6 @@ namespace Azos.Sky.Fabric
     /// emails and direct emails at debugging endpoint instead, or add "TESTING" watermark
     /// </summary>
     bool IsDebugging { get; }
-  }
 
+  }
 }

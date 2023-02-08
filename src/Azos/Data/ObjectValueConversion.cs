@@ -822,6 +822,52 @@ namespace Azos.Data
       }
     }
 
+
+    public static RGDID AsRGDID(this object val)
+    {
+      if (val == null) return RGDID.ZERO;
+
+      if (val is RGDID rgdval) return rgdval;
+
+      if (val is string sval)
+      {
+        if (RGDID.TryParse(sval, out RGDID rgdid)) return rgdid;
+      }
+
+      if (val is byte[] bval) { return new RGDID(bval); }
+
+      throw new AzosException($"AsRGDID({val.GetType().DisplayNameWithExpandedGenericArgs()})");
+    }
+
+    public static RGDID AsRGDID(this object val, RGDID dflt, ConvertErrorHandling handling = ConvertErrorHandling.ReturnDefault)
+    {
+      try
+      {
+        if (val == null) return dflt;
+        return val.AsRGDID();
+      }
+      catch
+      {
+        if (handling != ConvertErrorHandling.ReturnDefault) throw;
+        return dflt;
+      }
+    }
+
+    public static RGDID? AsNullableRGDID(this object val, RGDID? dflt = null, ConvertErrorHandling handling = ConvertErrorHandling.ReturnDefault)
+    {
+      try
+      {
+        if (val == null) return null;
+        return val.AsRGDID();
+      }
+      catch
+      {
+        if (handling != ConvertErrorHandling.ReturnDefault) throw;
+        return dflt;
+      }
+    }
+
+
     //20160622 DKh
     public static GDIDSymbol AsGDIDSymbol(this object val)
     {

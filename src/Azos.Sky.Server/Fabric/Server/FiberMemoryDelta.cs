@@ -13,6 +13,7 @@ using Azos.Serialization.Bix;
 namespace Azos.Sky.Fabric.Server
 {
   /// <summary>
+  /// WARNING: This is a low-level infrastructure class that business app developers should never use!<br/>
   /// Represents a changeset made to <see cref="FiberMemory"/> object.
   /// This changeset is obtained from a call to <see cref="FiberMemory.MakeDeltaSnapshot"/>
   /// and gets commited back into <see cref="IFiberStoreShard"/> using <see cref="IFiberStoreShard.CheckInAsync(FiberMemoryDelta)"/>
@@ -48,21 +49,17 @@ namespace Azos.Sky.Fabric.Server
       NextSliceInterval = reader.ReadTimeSpan();
       ExitCode = reader.ReadInt();
 
-      var resultJson = reader.ReadString();
-      if (resultJson != null)
-      {
-        Result = JsonReader.ToDoc<FiberResult>(resultJson, fromUI: false, JsonReader.DocReadOptions.BindByCode);
-      }
+      //Result is stored as string json deserialized into different property
+      ResultReceivedJson = reader.ReadString();//deserialize as string
 
       var changeCount = reader.ReadInt();
       (changeCount <= Constraints.MAX_STATE_SLOT_COUNT).IsTrue("max state slot count");
-      Changes = new KeyValuePair<Atom, FiberState.Slot>[changeCount];
+      ChangesReceived = new KeyValuePair<Atom, byte[]>[changeCount];
       for(var i=0; i< changeCount; i++)
       {
         var idSlot = reader.ReadAtom();
-        var slotJson = reader.ReadString();
-        var slot = JsonReader.ToDoc<FiberState.Slot>(slotJson, fromUI: false, JsonReader.DocReadOptions.BindByCode);
-        Changes[i] = new KeyValuePair<Atom, FiberState.Slot>(idSlot, slot);
+        var slotData = reader.ReadBuffer();
+        ChangesReceived[i] = new KeyValuePair<Atom,byte[]>(idSlot, slotData);
       }
     }
 
@@ -87,6 +84,10 @@ namespace Azos.Sky.Fabric.Server
         writer.Write(json);
         return;
       }
+      else
+      {
+        writer.Write((string)null);
+      }
 
       writer.Write(NextStep);
       writer.Write(NextSliceInterval);
@@ -97,7 +98,7 @@ namespace Azos.Sky.Fabric.Server
       {
         resultJson = JsonWriter.Write(Result, JsonWritingOptions.CompactRowsAsMap);
       }
-      writer.Write(resultJson);
+      writer.Write(resultJson);//json string
 
       var changeCount = Changes?.Length ?? 0;
       writer.Write(changeCount);
@@ -105,7 +106,7 @@ namespace Azos.Sky.Fabric.Server
       {
         var change = Changes[i];
         writer.Write(change.Key);
-        JsonWriter.Write(change.Value, JsonWritingOptions.CompactRowsAsMap);
+        writer.Write(JsonWriter.WriteToBuffer(change.Value, JsonWritingOptions.CompactRowsAsMap));
       }
     }
 
@@ -116,9 +117,29 @@ namespace Azos.Sky.Fabric.Server
     public Atom NextStep              { get; internal set; }
     public TimeSpan NextSliceInterval { get; internal set; }
     public int ExitCode               { get; internal set; }
+    public WrappedExceptionData Crash { get; internal set; }
+
+    /// <summary>
+    /// Value set by processor to be serialized for shard
+    /// </summary>
     public FiberResult Result         { get; internal set; }
+
+    /// <summary>
+    /// Value set by processor to be serialized for shard
+    /// </summary>
     public KeyValuePair<Atom, FiberState.Slot>[] Changes  { get; internal set; }
 
-    public WrappedExceptionData Crash { get; internal set; }
+    /// <summary>
+    /// Since FiberResult is abstract, the memory shard receives and stores data as JSON string, as it has no
+    /// way of deserializing the CLR type that processor serialized
+    /// </summary>
+    public string ResultReceivedJson { get; internal set; }
+
+    /// <summary>
+    ///Since FiberState.Slot[] is polymorphic, the memory shard receives and stores state data as byte[], as it has no
+    /// way of deserializing the CLR type that processor serialized
+    /// </summary>
+    public KeyValuePair<Atom, byte[]>[] ChangesReceived { get; internal set; }
+
   }
 }

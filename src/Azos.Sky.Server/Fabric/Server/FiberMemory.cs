@@ -24,7 +24,8 @@ namespace Azos.Sky.Fabric.Server
     Unset = 0,
 
     /// <summary>
-    /// The memory is locked for the caller - the caller may mutate the memory and then call <see cref="IFiberStoreShard.CheckInAsync(FiberMemoryDelta)"/>
+    /// The memory is locked for the caller - the caller may mutate the memory and then call
+    /// <see cref="IFiberStoreShard.CheckInAsync(FiberMemoryDelta)"/>
     /// </summary>
     LockedForCaller = 1,
 
@@ -42,6 +43,9 @@ namespace Azos.Sky.Fabric.Server
   /// </summary>
   public sealed class FiberMemory
   {
+    /// <summary>
+    /// .ctor used by unit tests as it packs the params and the state objects
+    /// </summary>
     public FiberMemory(
               int version,
               MemoryStatus status,
@@ -59,7 +63,9 @@ namespace Azos.Sky.Fabric.Server
       m_Buffer = packBuffer(pars, state, m_Version);
     }
 
-
+    /// <summary>
+    /// .ctor used by unit tests - obtains packed payload
+    /// </summary>
     public FiberMemory(
               int          version,
               MemoryStatus status,
@@ -78,7 +84,7 @@ namespace Azos.Sky.Fabric.Server
 
 
     /// <summary>
-    /// Called by processors: reads memory from flat bin content produced by shard.
+    /// .ctor called by processors: reads memory from flat bin content produced by shard.
     /// Shards never read this back as they read <see cref="FiberMemoryDelta"/> instead
     /// </summary>
     public FiberMemory(BixReader reader)
@@ -162,7 +168,8 @@ namespace Azos.Sky.Fabric.Server
     /// Creates s snapshot of data changes which can be commited back into <see cref="IFiberStoreShard"/>
     /// using <see cref="IFiberStoreShard.CheckInAsync(FiberMemoryDelta)"/>.
     /// This only succeeds if the <see cref="Status"/> is <see cref="MemoryStatus.LockedForCaller"/>
-    /// otherwise Delta can not be obtained
+    /// otherwise Delta can not be obtained.
+    /// Performs validation and throws if slots are in invalid state
     /// </summary>
     public FiberMemoryDelta MakeDeltaSnapshot(FiberStep? nextStep, FiberState currentState)
     {
@@ -188,7 +195,24 @@ namespace Azos.Sky.Fabric.Server
         result.NextSliceInterval = nxt.NextSliceInterval;
         result.ExitCode = nxt.ExitCode;
         result.Result = nxt.Result;
-        result.Changes = currentState.SlotChanges.ToArray();
+
+        var changes = currentState.SlotChanges.ToArray();
+        foreach(var change in changes)
+        {
+          var error = change.Value.Validate();
+          if (error != null)
+          {
+            throw new FabricStateValidationException(
+              "Validation error for state slot {0}.{1}(`{2}`) validation failed: {3}".Args(
+                  currentState.GetType().DisplayNameWithExpandedGenericArgs(),
+                  change.Value.GetType().DisplayNameWithExpandedGenericArgs(),
+                  change.Key,
+                  error.ToMessageWithType()),
+              error);
+          }
+        }
+
+        result.Changes = changes;
       }
 
       return  result;

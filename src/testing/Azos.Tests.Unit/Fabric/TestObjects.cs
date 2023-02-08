@@ -25,13 +25,20 @@ namespace Azos.Tests.Unit.Fabric
     [Field] public string String1 { get; set; }
   }
 
+  [Bix("55322a1b-65cf-47eb-b73b-ba41caae4b7f")]
+  public sealed class TeztResult : FiberResult
+  {
+    [Field] public int Int1 { get; set; }
+    [Field] public string String1 { get; set; }
+  }
+
 
   public sealed class TeztState : FiberState
   {
     public static readonly Atom SLOT_DEMOGRAPHICS = Atom.Encode("d");
     public static readonly Atom SLOT_ATTACHMENT = Atom.Encode("a");
     [Bix("5ea4d9a4-01e5-4cd0-a38a-0ae9588a5047")]
-    sealed class DemographicsSlot : Slot
+    internal sealed class DemographicsSlot : Slot
     {
       [Field] public string FirstName { get; set; }
       [Field] public string LastName { get; set; }
@@ -40,7 +47,7 @@ namespace Azos.Tests.Unit.Fabric
     }
 
     [Bix("91bc6ce6-dcf6-4d16-942a-4acd42588118")]
-    sealed class AttachmentSlot : Slot
+    internal sealed class AttachmentSlot : Slot
     {
       [Field] public string AttachmentName { get; set; }
       [Field] public byte[] AttachContent { get; set; }
