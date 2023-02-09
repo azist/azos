@@ -1158,6 +1158,63 @@ namespace Azos.Serialization.Bix
     }
     #endregion
 
+    #region RGDID
+    public void Write(Data.RGDID value)
+    {
+      Write(value.Route);
+      Write(value.Gdid);
+    }
+
+    public void Write(Data.RGDID? value)
+    {
+      if (value.HasValue)
+      {
+        Write(true);
+        Write(value.Value);
+        return;
+      }
+      Write(false);
+    }
+
+    public void WriteCollection(ICollection<Data.RGDID> value) => WriteCollection(value, (bix, elm) => bix.Write(elm));
+    public void Write(Data.RGDID[] value)
+    {
+      if (value == null)
+      {
+        Write(false);
+        return;
+      }
+      Write(true);
+
+      var len = value.Length;
+      if (len > Format.MAX_RGDID_ARRAY_LEN)
+        throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "rgdid", Format.MAX_RGDID_ARRAY_LEN));
+
+      Write((uint)len);
+      for (int i = 0; i < len; i++)
+        Write(value[i]);
+    }
+
+    public void WriteCollection(ICollection<Data.RGDID?> value) => WriteCollection(value, (bix, elm) => bix.Write(elm));
+    public void Write(Data.RGDID?[] value)
+    {
+      if (value == null)
+      {
+        Write(false);
+        return;
+      }
+      Write(true);
+
+      var len = value.Length;
+      if (len > Format.MAX_RGDID_ARRAY_LEN)
+        throw new BixException(StringConsts.BIX_WRITE_X_ARRAY_MAX_SIZE_ERROR.Args(len, "rgdid?", Format.MAX_RGDID_ARRAY_LEN));
+
+      Write((uint)len);
+      for (int i = 0; i < len; i++)
+        this.Write(value[i]);
+    }
+    #endregion
+
     #region FID
     public void Write(FID value)
     {

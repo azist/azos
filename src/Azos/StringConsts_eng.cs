@@ -1059,6 +1059,9 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string BSON_GDID_BUFFER_ERROR =
         "Error converting GDID data buffer: {0}";
 
+    public const string BSON_RGDID_BUFFER_ERROR =
+        "Error converting RGDID data buffer: {0}";
+
     public const string BSON_GUID_BUFFER_ERROR =
         "Error converting GUID data buffer: {0}";
 
