@@ -5,11 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
-using System.Text;
 
 using Azos.Serialization.JSON;
 
@@ -73,7 +69,7 @@ namespace Azos.Data
         // MUST use BIG ENDIAN encoding  ERA, COUNTER not vice-versa
         var result = new byte[BYTE_SIZE];
         result.WriteBEUInt32(0, Route);
-        Gdid.WriteIntoBuffer(result, sizeof(UInt32));
+        Gdid.WriteIntoBufferUnsafe(result, sizeof(UInt32));
         return result;
       }
     }
@@ -87,8 +83,13 @@ namespace Azos.Data
       if (buff==null || startIndex < 0 || startIndex + BYTE_SIZE >= buff.Length)
         throw new DataException(StringConsts.ARGUMENT_ERROR + "RGDID.WriteIntoBuffer(buff==null<minsz)");
 
+      WriteIntoBufferUnsafe(buff, startIndex);
+    }
+
+    internal void WriteIntoBufferUnsafe(byte[] buff, int startIndex)
+    {
       buff.WriteBEUInt32(startIndex, Route);
-      Gdid.WriteIntoBuffer(buff, startIndex + sizeof(UInt32));
+      Gdid.WriteIntoBufferUnsafe(buff, startIndex + sizeof(UInt32));
     }
 
     /// <summary>
@@ -121,9 +122,6 @@ namespace Azos.Data
 
     public static bool operator == (RGDID x, RGDID y) => x.Equals(y);
     public static bool operator != (RGDID x, RGDID y) => !x.Equals(y);
-
-    public static implicit operator GDID(RGDID x) => x.Gdid;
-
 
     void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options)
       => JsonWriter.EncodeString(wri, ToString(), options);
@@ -179,14 +177,13 @@ namespace Azos.Data
 
         sroute = str.Substring(0, ic);
         sgdid = str.Substring(ic + 1);
-
         uint route=0;
         if (!uint.TryParse(sroute, GDID.ISTYLES, GDID.INVARIANT, out route)) return false;
 
         GDID gdid;
         if (!GDID.TryParse(sgdid, out gdid)) return false;
 
-        gdid = new RGDID(route, gdid);
+        rgdid = new RGDID(route, gdid);
         return true;
       }
 

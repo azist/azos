@@ -37,6 +37,21 @@ namespace Azos.Tests.Nub
     }
 
     [Run]
+    public void RGDID()
+    {
+      Aver.AreEqual(new RGDID(980, new GDID(5, 1, 2)), "980:5:1:2".AsRGDID());
+      Aver.AreObjectsEqual(new RGDID(980, new GDID(5, 1, 2)), "980:5:1:2".AsType(typeof(RGDID)));
+
+      Aver.AreEqual(new RGDID(980, new GDID(0, 0, 0)), "980:0:0:0".AsRGDID());
+      Aver.AreObjectsEqual(new RGDID(980, new GDID(0, 0, 0)), "980:0:0:0".AsType(typeof(RGDID)));
+
+      string ns = null;
+      Aver.IsNull(ns.AsNullableRGDID());
+      Aver.IsNull(ns.AsNullableRGDID(new RGDID(1, new Data.GDID(7, 8, 9))));
+      Aver.AreEqual(new RGDID(1, new Data.GDID(7, 8, 9)), "dewsdfwefwerf".AsNullableRGDID(new RGDID(1, new Data.GDID(7, 8, 9))));
+    }
+
+    [Run]
     public void GDIDSymbol()
     {
       var link1 = new ELink(new GDID(5, 1, 2));

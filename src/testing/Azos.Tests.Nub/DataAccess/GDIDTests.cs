@@ -59,6 +59,8 @@ namespace Azos.Tests.Nub.DataAccess
     public void GDID_6()
     {
       var gdid = new GDID(0, 0, 0);
+      Aver.IsTrue(gdid.IsZero);
+      Aver.IsFalse(gdid.CheckRequired(null));
       Aver.AreEqual(0, gdid.Authority);
       Aver.AreEqual((ulong)0, gdid.Counter);
     }

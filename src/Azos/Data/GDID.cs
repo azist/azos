@@ -136,6 +136,11 @@ namespace Azos.Data
       if (buff==null || startIndex < 0 || startIndex + BYTE_SIZE >= buff.Length)
         throw new DataException(StringConsts.ARGUMENT_ERROR + "GDID.WriteIntoBuffer(buff==null<minsz)");
 
+      WriteIntoBufferUnsafe(buff, startIndex);
+    }
+
+    internal void WriteIntoBufferUnsafe(byte[] buff, int startIndex)
+    {
       buff.WriteBEUInt32(startIndex, Era);
       buff.WriteBEUInt64(startIndex + sizeof(UInt32), ID);
     }

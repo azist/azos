@@ -572,6 +572,48 @@ namespace Azos.Tests.Nub
       Aver.AreObjectsEqual(obj, "fdwsfsdfds".AsNullableGDID(new GDID(3, 4, 5)));
     }
 
+
+    [Run]
+    public void RGDID()
+    {
+      object obj = new RGDID(123, new GDID(4, 5, 6));
+
+      Aver.AreObjectsEqual(obj, obj.AsRGDID());
+      Aver.AreObjectsEqual(obj, obj.AsRGDID(new RGDID(1, new GDID(2, 1, 1))));
+
+
+      Aver.AreObjectsEqual(obj, "123:4:5:6".AsRGDID(new RGDID(1, new GDID(2, 1, 1))));
+      Aver.AreEqual(new RGDID(1, new Data.GDID(2, 1, 1)), "3CRAP:rewtfef:4:5".AsRGDID(new RGDID(1, new Data.GDID(2, 1, 1))));
+
+      try
+      {
+        "3CRABrewtfef:4:5".AsRGDID(new RGDID(1, new Data.GDID(2, 1, 1)), handling: ConvertErrorHandling.Throw);
+        Aver.Fail(Constants.ERR_NOT_THROWN);
+      }
+      catch
+      {
+        Aver.Pass("gas");
+      }
+    }
+
+    [Run]
+    public void NullableRGDID()
+    {
+      object obj = new RGDID(12, new GDID(3, 4, 5));
+
+      Aver.AreObjectsEqual(obj, obj.AsNullableRGDID());
+      Aver.AreObjectsEqual(obj, obj.AsNullableRGDID(new RGDID(1, new GDID(30, 4, 5000))));
+
+      Aver.AreObjectsEqual(obj, "12:3:4:5".AsNullableRGDID(new RGDID(1, new GDID(30, 4, 5000))));
+      object on = null;
+      Aver.IsNull(on.AsNullableRGDID());
+
+      Aver.IsNull(on.AsNullableRGDID(new RGDID(1, new GDID(30, 4, 5000))));
+
+      Aver.AreObjectsEqual(obj, "fdwsfsdfds".AsNullableRGDID(new RGDID(12, new GDID(3, 4, 5))));
+    }
+
+
     [Run]
     public void GDIDSymbol()
     {
