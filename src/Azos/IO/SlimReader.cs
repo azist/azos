@@ -652,6 +652,22 @@ namespace Azos.IO
       return null;
     }
 
+    public override Data.RGDID ReadRGDID()
+    {
+      var route = this.ReadUInt();
+      var gdid = this.ReadGDID();
+      return new Data.RGDID(route, gdid);
+    }
+
+    public override Data.RGDID? ReadNullableRGDID()
+    {
+      var has = this.ReadBool();
+
+      if (has) return this.ReadRGDID();
+
+      return null;
+    }
+
 
     public override Azos.Glue.Protocol.TypeSpec ReadTypeSpec()
     {

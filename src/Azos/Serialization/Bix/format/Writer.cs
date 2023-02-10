@@ -145,6 +145,13 @@ namespace Azos.Serialization.Bix
       {typeof(ICollection<GDID>)           ,                   (w, v) => Write(w, (ICollection<GDID>)v)       },
       {typeof(ICollection<GDID?>)          ,                   (w, v) => Write(w, (ICollection<GDID?>)v)      },
 
+      {typeof(RGDID)                        ,                   (w, v) => Write(w, (RGDID)v)                    },
+      {typeof(RGDID?)                       ,                   (w, v) => Write(w, (RGDID?)v)                   },
+      {typeof(RGDID[])                      ,                   (w, v) => Write(w, (RGDID[])v)                  },
+      {typeof(RGDID?[])                     ,                   (w, v) => Write(w, (RGDID?[])v)                 },
+      {typeof(ICollection<RGDID>)           ,                   (w, v) => Write(w, (ICollection<RGDID>)v)       },
+      {typeof(ICollection<RGDID?>)          ,                   (w, v) => Write(w, (ICollection<RGDID?>)v)      },
+
       {typeof(FID)                        ,                   (w, v) => Write(w, (FID)v)                    },
       {typeof(FID?)                       ,                   (w, v) => Write(w, (FID?)v)                   },
       {typeof(FID[])                      ,                   (w, v) => Write(w, (FID[])v)                  },
@@ -687,6 +694,34 @@ namespace Azos.Serialization.Bix
     public static void WriteField(BixWriter writer, ulong name, ICollection<GDID> value) { writer.Write(name); Write(writer, value); }
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteField(BixWriter writer, ulong name, ICollection<GDID?> value) { writer.Write(name); Write(writer, value); }
+    #endregion
+
+    #region RGDID
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Write(BixWriter writer, RGDID value) { writer.Write(TypeCode.RGDID); writer.Write(value); }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Write(BixWriter writer, RGDID? value) { writer.Write(TypeCode.RGDIDNull); writer.Write(value); }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Write(BixWriter writer, RGDID[] value) { writer.Write(TypeCode.Array); writer.Write(TypeCode.RGDID); writer.Write(value); }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Write(BixWriter writer, RGDID?[] value) { writer.Write(TypeCode.Array); writer.Write(TypeCode.RGDIDNull); writer.Write(value); }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Write(BixWriter writer, ICollection<RGDID> value) { writer.Write(TypeCode.Collection); writer.Write(TypeCode.RGDID); writer.WriteCollection(value); }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Write(BixWriter writer, ICollection<RGDID?> value) { writer.Write(TypeCode.Collection); writer.Write(TypeCode.RGDIDNull); writer.WriteCollection(value); }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void WriteField(BixWriter writer, ulong name, RGDID value) { writer.Write(name); Write(writer, value); }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void WriteField(BixWriter writer, ulong name, RGDID? value) { writer.Write(name); Write(writer, value); }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void WriteField(BixWriter writer, ulong name, RGDID[] value) { writer.Write(name); Write(writer, value); }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void WriteField(BixWriter writer, ulong name, RGDID?[] value) { writer.Write(name); Write(writer, value); }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void WriteField(BixWriter writer, ulong name, ICollection<RGDID> value) { writer.Write(name); Write(writer, value); }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void WriteField(BixWriter writer, ulong name, ICollection<RGDID?> value) { writer.Write(name); Write(writer, value); }
     #endregion
 
     #region FID

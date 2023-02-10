@@ -125,6 +125,9 @@ namespace Azos.IO
     public abstract Data.GDID ReadGDID();
     public abstract Data.GDID? ReadNullableGDID();
 
+    public abstract Data.RGDID ReadRGDID();
+    public abstract Data.RGDID? ReadNullableRGDID();
+
     public abstract Glue.Protocol.TypeSpec ReadTypeSpec();
     public abstract Glue.Protocol.MethodSpec ReadMethodSpec();
 

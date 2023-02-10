@@ -15,24 +15,37 @@ using Azos.Serialization.JSON;
 namespace Azos.Data.Adlib
 {
   /// <summary>
-  /// Tags get added to items for indexing.
-  /// A tag can have either a string or numeric value
+  /// A tag represents a (key: Atom, value: string|long) tuple having a purposely restricted key and value domains for
+  /// efficiency and control. A tag can have either a string or long numeric value.
+  /// You can store decimal/float values as scaled longs. This is done on purpose to limit
+  /// value domain - to ensure an efficient storage and indexing of tags.
+  /// In Adlib data library, tags get added to items for indexing.
+  /// Azos uses tags in places where ad hoc properties are required.
+  /// The tags are typically used for indexing and searches
   /// </summary>
   public struct Tag : IEquatable<Tag>, IJsonReadable, IJsonWritable, IRequiredCheck, IValidatable
   {
     public Tag(Atom prop, string value)
     {
-      Prop = prop;
+      Prop = prop.IsValidNonZero(nameof(prop));
       SValue = value.NonBlankMax(Constraints.MAX_TAG_SVAL_LENGTH, nameof(value));
       NValue = 0;
     }
 
     public Tag(Atom prop, long value)
     {
-      Prop = prop;
+      Prop = prop.IsValidNonZero(nameof(prop));
       SValue = null;
       NValue = value;
     }
+
+    private Tag(Atom prop, string svalue, long lvalue)
+    {
+      Prop = prop;
+      SValue = svalue;
+      NValue = lvalue;
+    }
+
 
     public readonly Atom    Prop;
     public readonly string  SValue;
@@ -46,6 +59,15 @@ namespace Azos.Data.Adlib
 
     public ValidState Validate(ValidState state, string scope = null)
     {
+      if (Prop.IsZero || !Prop.IsValid)
+      {
+        state = new ValidState(state,
+                                new FieldValidationException(nameof(Tag),
+                                                             nameof(Prop),
+                                                             "Valid prop atom")
+                              );
+      }
+
       if (SValue != null && SValue.Length > Constraints.MAX_TAG_SVAL_LENGTH)
       {
         state = new ValidState(state,
@@ -76,11 +98,11 @@ namespace Azos.Data.Adlib
         if (!Atom.TryEncode(map["p"].AsString(), out var prop)) return (false, null);
 
         var sv = map["s"].AsString();
-        if (sv.IsNotNullOrWhiteSpace()) return (true, new Tag(prop, sv));
+        if (sv.IsNotNullOrWhiteSpace()) return (true, new Tag(prop, sv, 0));
 
         var nv = map["n"];
-        if (nv is int iv) return (true, new Tag(prop, iv));
-        if (nv is long lv) return (true, new Tag(prop, lv));
+        if (nv is int iv) return (true, new Tag(prop, null, iv));
+        if (nv is long lv) return (true, new Tag(prop, null, lv));
       }
 
       return (false, null);

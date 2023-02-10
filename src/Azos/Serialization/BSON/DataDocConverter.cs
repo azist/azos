@@ -24,105 +24,103 @@ namespace Azos.Serialization.BSON
   {
     #region CONST
 
-        public const decimal DECIMAL_LONG_MUL = 1000M;//multiplier for dec->long conversion
+    public const decimal DECIMAL_LONG_MUL = 1000M;//multiplier for dec->long conversion
 
-        public const decimal MAX_DECIMAL = 9223372036854775.807M; // +9,223,372,036,854,775.807M;
-        public const decimal MIN_DECIMAL = -9223372036854775.808M;// -9,223,372,036,854,775.808M;
+    public const decimal MAX_DECIMAL = 9223372036854775.807M; // +9,223,372,036,854,775.807M;
+    public const decimal MIN_DECIMAL = -9223372036854775.808M;// -9,223,372,036,854,775.808M;
 
-        /// <summary>
-        /// Maximum size of a byte[] field.
-        /// Large filed (> 12Mbyte) should not be stored as fields in the database
-        /// </summary>
-        public const int MAX_BYTE_BUFFER_SIZE = 12/*mb*/ * 1024 * 1024;
+    /// <summary>
+    /// Maximum size of a byte[] field.
+    /// Large filed (> 12Mbyte) should not be stored as fields in the database
+    /// </summary>
+    public const int MAX_BYTE_BUFFER_SIZE = 12/*mb*/ * 1024 * 1024;
 
-        protected static Dictionary<Type, Func<string, object, BSONElement>> s_CLRtoBSON = new Dictionary<Type,Func<string, object, BSONElement>>
-        {
-          { typeof(string),   (n, v) => n != null ? new BSONStringElement(n, (string)v) : new BSONStringElement((string)v) },
-          { typeof(bool),     (n, v) => n != null ? new BSONBooleanElement(n, (bool)v) : new BSONBooleanElement((bool)v) },
-          { typeof(int),      (n, v) => n != null ? new BSONInt32Element(n, (int)v) : new BSONInt32Element((int)v) },
-          { typeof(uint),     (n, v) => n != null ? new BSONInt64Element(n, (uint)v) : new BSONInt64Element((uint)v) },
-          { typeof(byte),     (n, v) => n != null ? new BSONInt32Element(n, (byte)v) : new BSONInt32Element((byte)v) },
-          { typeof(sbyte),    (n, v) => n != null ? new BSONInt32Element(n, (sbyte)v) : new BSONInt32Element((sbyte)v) },
-          { typeof(short),    (n, v) => n != null ? new BSONInt32Element(n, (short)v) : new BSONInt32Element((short)v) },
-          { typeof(ushort),   (n, v) => n != null ? new BSONInt32Element(n, (ushort)v) : new BSONInt32Element((ushort)v) },
-          { typeof(long),     (n, v) => n != null ? new BSONInt64Element(n, (long)v) : new BSONInt64Element((long)v) },
-          { typeof(ulong),    (n, v) => n != null ? new BSONInt64Element(n, (long)((ulong)v)) : new BSONInt64Element((long)((ulong)v)) },
-          { typeof(float),    (n, v) => n != null ? new BSONDoubleElement(n, (float)v) : new BSONDoubleElement((float)v) },
-          { typeof(double),   (n, v) => n != null ? new BSONDoubleElement(n, (double)v) : new BSONDoubleElement((double)v) },
-          { typeof(decimal),  (n, v) => Decimal_CLRtoBSON(n, (decimal)v) },
-          { typeof(Amount),   (n, v) => Amount_CLRtoBSON(n, (Amount)v) },
-          { typeof(GDID),     (n, v) => GDID_CLRtoBSON(n, (GDID)v) },
-          { typeof(DateTime), (n, v) => n != null ? new BSONDateTimeElement(n, (DateTime)v) : new BSONDateTimeElement((DateTime)v) },
-          { typeof(TimeSpan), (n, v) => n != null ? new BSONInt64Element(n, ((TimeSpan)v).Ticks) : new BSONInt64Element(((TimeSpan)v).Ticks) },
-          { typeof(Guid),     (n, v) => GUID_CLRtoBSON(n, (Guid)v) },
-          { typeof(byte[]),   (n, v) => ByteBuffer_CLRtoBSON(n, (byte[])v ) },
+    protected static Dictionary<Type, Func<string, object, BSONElement>> s_CLRtoBSON = new Dictionary<Type,Func<string, object, BSONElement>>
+    {
+      { typeof(string),   (n, v) => n != null ? new BSONStringElement(n, (string)v) : new BSONStringElement((string)v) },
+      { typeof(bool),     (n, v) => n != null ? new BSONBooleanElement(n, (bool)v) : new BSONBooleanElement((bool)v) },
+      { typeof(int),      (n, v) => n != null ? new BSONInt32Element(n, (int)v) : new BSONInt32Element((int)v) },
+      { typeof(uint),     (n, v) => n != null ? new BSONInt64Element(n, (uint)v) : new BSONInt64Element((uint)v) },
+      { typeof(byte),     (n, v) => n != null ? new BSONInt32Element(n, (byte)v) : new BSONInt32Element((byte)v) },
+      { typeof(sbyte),    (n, v) => n != null ? new BSONInt32Element(n, (sbyte)v) : new BSONInt32Element((sbyte)v) },
+      { typeof(short),    (n, v) => n != null ? new BSONInt32Element(n, (short)v) : new BSONInt32Element((short)v) },
+      { typeof(ushort),   (n, v) => n != null ? new BSONInt32Element(n, (ushort)v) : new BSONInt32Element((ushort)v) },
+      { typeof(long),     (n, v) => n != null ? new BSONInt64Element(n, (long)v) : new BSONInt64Element((long)v) },
+      { typeof(ulong),    (n, v) => n != null ? new BSONInt64Element(n, (long)((ulong)v)) : new BSONInt64Element((long)((ulong)v)) },
+      { typeof(float),    (n, v) => n != null ? new BSONDoubleElement(n, (float)v) : new BSONDoubleElement((float)v) },
+      { typeof(double),   (n, v) => n != null ? new BSONDoubleElement(n, (double)v) : new BSONDoubleElement((double)v) },
+      { typeof(decimal),  (n, v) => Decimal_CLRtoBSON(n, (decimal)v) },
+      { typeof(Amount),   (n, v) => Amount_CLRtoBSON(n, (Amount)v) },
+      { typeof(GDID),     (n, v) => GDID_CLRtoBSON(n, (GDID)v) },
+      { typeof(RGDID),    (n, v) => RGDID_CLRtoBSON(n, (RGDID)v) },
+      { typeof(DateTime), (n, v) => n != null ? new BSONDateTimeElement(n, (DateTime)v) : new BSONDateTimeElement((DateTime)v) },
+      { typeof(TimeSpan), (n, v) => n != null ? new BSONInt64Element(n, ((TimeSpan)v).Ticks) : new BSONInt64Element(((TimeSpan)v).Ticks) },
+      { typeof(Guid),     (n, v) => GUID_CLRtoBSON(n, (Guid)v) },
+      { typeof(byte[]),   (n, v) => ByteBuffer_CLRtoBSON(n, (byte[])v ) },
+      { typeof(Atom),     (n, v) => n != null ? new BSONInt64Element(n, (long)((Atom)v).ID) : new BSONInt64Element((long)((Atom)v).ID) },
+      //nullable not needed here since they are not boxed(only actual value is boxed if it is not null)
+    };
 
-          //nullable not needed here since they are not boxed(only actual value is boxed if it is not null)
-        };
-
-        protected static Dictionary<Type, Func<BSONElement, object>> s_BSONtoCLR = new Dictionary<Type,Func<BSONElement, object>>
-        {
-          { typeof(string),   (v) => ((BSONStringElement)v).Value },
-          { typeof(bool),     (v) => ((BSONBooleanElement)v).Value },
-          { typeof(int),      (v) => ((BSONInt32Element)v).Value },
-          { typeof(uint),     (v) => (uint)((BSONInt64Element)v).Value },
-          { typeof(byte),     (v) => (byte)((BSONInt32Element)v).Value },
-          { typeof(sbyte),    (v) => (sbyte)((BSONInt32Element)v).Value },
-          { typeof(short),    (v) => (short)((BSONInt32Element)v).Value },
-          { typeof(ushort),   (v) => ((BSONInt32Element)v).Value },
-          { typeof(long),     (v) => ((BSONInt64Element)v).Value },
-          { typeof(ulong),    (v) => (ulong)((BSONInt64Element)v).Value },
-          { typeof(float),    (v) => (float)((BSONDoubleElement)v).Value },
-          { typeof(double),   (v) => ((BSONDoubleElement)v).Value },
-          { typeof(decimal),  (v) => Decimal_BSONtoCLR(v) },
-          { typeof(Amount),   (v) => {  if (v is BSONDocumentElement) return Amount_BSONtoCLR((BSONDocumentElement)v); return Amount.Parse(Convert.ToString(v.ObjectValue)); }},
-          { typeof(GDID),     (v) => GDID_BSONtoCLR((BSONBinaryElement)v) },
-          { typeof(DateTime), (v) => ((BSONDateTimeElement)v).Value },
-          { typeof(TimeSpan), (v) => TimeSpan.FromTicks( ((BSONInt64Element)v).Value) },
-          { typeof(Guid),     (v) => GUID_BSONtoCLR((BSONBinaryElement)v) },
-          { typeof(byte[]),   (v) => ((BSONBinaryElement)v).Value.Data },
-          ////nullable are not needed, as BsonNull is handled already
-        };
+    protected static Dictionary<Type, Func<BSONElement, object>> s_BSONtoCLR = new Dictionary<Type,Func<BSONElement, object>>
+    {
+      { typeof(string),   (v) => ((BSONStringElement)v).Value },
+      { typeof(bool),     (v) => ((BSONBooleanElement)v).Value },
+      { typeof(int),      (v) => ((BSONInt32Element)v).Value },
+      { typeof(uint),     (v) => (uint)((BSONInt64Element)v).Value },
+      { typeof(byte),     (v) => (byte)((BSONInt32Element)v).Value },
+      { typeof(sbyte),    (v) => (sbyte)((BSONInt32Element)v).Value },
+      { typeof(short),    (v) => (short)((BSONInt32Element)v).Value },
+      { typeof(ushort),   (v) => ((BSONInt32Element)v).Value },
+      { typeof(long),     (v) => ((BSONInt64Element)v).Value },
+      { typeof(ulong),    (v) => (ulong)((BSONInt64Element)v).Value },
+      { typeof(float),    (v) => (float)((BSONDoubleElement)v).Value },
+      { typeof(double),   (v) => ((BSONDoubleElement)v).Value },
+      { typeof(decimal),  (v) => Decimal_BSONtoCLR(v) },
+      { typeof(Amount),   (v) => {  if (v is BSONDocumentElement) return Amount_BSONtoCLR((BSONDocumentElement)v); return Amount.Parse(Convert.ToString(v.ObjectValue)); }},
+      { typeof(GDID),     (v) => GDID_BSONtoCLR((BSONBinaryElement)v) },
+      { typeof(RGDID),    (v) => RGDID_BSONtoCLR((BSONBinaryElement)v) },
+      { typeof(DateTime), (v) => ((BSONDateTimeElement)v).Value },
+      { typeof(TimeSpan), (v) => TimeSpan.FromTicks( ((BSONInt64Element)v).Value) },
+      { typeof(Guid),     (v) => GUID_BSONtoCLR((BSONBinaryElement)v) },
+      { typeof(byte[]),   (v) => ((BSONBinaryElement)v).Value.Data },
+      { typeof(Atom),     (v) => new Atom((ulong)((BSONInt64Element)v).Value) },
+      ////nullable are not needed, as BsonNull is handled already
+    };
 
     #endregion
 
     #region .ctor / static
 
-        private static DataDocConverter s_DefaultInstance;
+    private static DataDocConverter s_DefaultInstance;
 
-        /// <summary>
-        /// Returns the default instance
-        /// </summary>
-        public static DataDocConverter DefaultInstance
-        {
-          get
-          {
-            if (s_DefaultInstance==null) //does not have to be thread-safe as the instance is stateless and lightweight 2nd copy is OK
-              s_DefaultInstance = new DataDocConverter();
+    /// <summary>
+    /// Returns the default instance
+    /// </summary>
+    public static DataDocConverter DefaultInstance
+    {
+      get
+      {
+        if (s_DefaultInstance==null) //does not have to be thread-safe as the instance is stateless and lightweight 2nd copy is OK
+          s_DefaultInstance = new DataDocConverter();
 
-            return s_DefaultInstance;
-          }
-        }
+        return s_DefaultInstance;
+      }
+    }
 
-        public DataDocConverter()
-        {
-          m_CLRtoBSON = new Dictionary<Type,Func<string, object,BSONElement>>(s_CLRtoBSON);
-          m_BSONtoCLR = new Dictionary<Type,Func<BSONElement,object>>(s_BSONtoCLR);
-        }
+    public DataDocConverter()
+    {
+      m_CLRtoBSON = new Dictionary<Type,Func<string, object,BSONElement>>(s_CLRtoBSON);
+      m_BSONtoCLR = new Dictionary<Type,Func<BSONElement,object>>(s_BSONtoCLR);
+    }
 
     #endregion
 
     #region Fields
-
-        protected Dictionary<Type, Func<string, object, BSONElement>> m_CLRtoBSON;
-        protected Dictionary<Type, Func<BSONElement, object>> m_BSONtoCLR;
-        private static volatile Dictionary<Schema, Dictionary<string, Schema.FieldDef>> s_TypedRowSchemaCache = new Dictionary<Schema,Dictionary<string, Schema.FieldDef>>();
-        [ThreadStatic] private static HashSet<object> ts_References;
-
+    protected Dictionary<Type, Func<string, object, BSONElement>> m_CLRtoBSON;
+    protected Dictionary<Type, Func<BSONElement, object>> m_BSONtoCLR;
+    private static volatile Dictionary<Schema, Dictionary<string, Schema.FieldDef>> s_TypedRowSchemaCache = new Dictionary<Schema,Dictionary<string, Schema.FieldDef>>();
+    [ThreadStatic] private static HashSet<object> ts_References;
     #endregion
-
-
-
 
     public virtual void Configure(IConfigSectionNode node) {}
 
@@ -433,7 +431,7 @@ namespace Azos.Serialization.BSON
     #endregion
 
 
-    #region RowToBSONDocument
+    #region DocToBSONDocument
 
       /// <summary>
       /// Converts row to BSON document suitable for storage in MONGO.DB.
@@ -620,6 +618,20 @@ namespace Azos.Serialization.BSON
           return new BSONBinary(BSONBinaryType.UserDefined, gdid.Bytes); //be very careful with byte ordering of GDID for DB key index optimization
         }
 
+        public static BSONElement RGDID_CLRtoBSON(string name, RGDID rgdid)
+        {
+          if (rgdid.IsZero) return new BSONNullElement(name);
+          var bin = RGDID_CLRtoBSONBinary(rgdid);
+          return name != null ? new BSONBinaryElement(name, bin) : new BSONBinaryElement(bin);
+        }
+
+        public static BSONBinary RGDID_CLRtoBSONBinary(RGDID rgdid)
+        {
+          //As tested on Feb 27, 2015
+          //see perf test node in GDID_CLRtoBSONBinary above
+          return new BSONBinary(BSONBinaryType.UserDefined, rgdid.Bytes); //be very careful with byte ordering of GDID for DB key index optimization
+        }
+
         public static BSONElement GUID_CLRtoBSON(string name, Guid guid)
         {
           if (guid == Guid.Empty) return new BSONNullElement(name);
@@ -701,6 +713,19 @@ namespace Azos.Serialization.BSON
           catch(Exception e)
           {
             throw new BSONException(StringConsts.BSON_GDID_BUFFER_ERROR.Args(e.ToMessageWithType()), e);
+          }
+        }
+
+        public static RGDID RGDID_BSONtoCLR(BSONBinaryElement el)
+        {
+          try
+          {
+            var buf = el.Value.Data;
+            return new RGDID(buf);
+          }
+          catch (Exception e)
+          {
+            throw new BSONException(StringConsts.BSON_RGDID_BUFFER_ERROR.Args(e.ToMessageWithType()), e);
           }
         }
 

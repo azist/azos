@@ -1134,6 +1134,62 @@ namespace Azos.Serialization.Bix
     }
     #endregion
 
+
+    #region RGDID
+    public Data.RGDID ReadRGDID()
+    {
+      var route = ReadUint();
+      var gdid = ReadGDID();
+      return new Data.RGDID(route, gdid);
+    }
+
+    public Data.RGDID? ReadNullableRGDID()
+    {
+      if (ReadBool()) return ReadRGDID();
+      return null;
+    }
+
+
+    public TCollection ReadRGDIDCollection<TCollection>() where TCollection : class, ICollection<Data.RGDID>, new()
+     => ReadCollection<TCollection, Data.RGDID>(bix => bix.ReadRGDID());
+
+    public Data.RGDID[] ReadRGDIDArray()
+    {
+      if (!ReadBool()) return null;
+
+      var len = ReadUint();
+      if (len > Format.MAX_RGDID_ARRAY_LEN)
+        throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "rgdid", Format.MAX_RGDID_ARRAY_LEN));
+
+      var result = new Data.RGDID[len];
+
+      for (int i = 0; i < len; i++)
+        result[i] = ReadRGDID();
+
+      return result;
+    }
+
+    public TCollection ReadNullableRGDIDCollection<TCollection>() where TCollection : class, ICollection<Data.RGDID?>, new()
+      => ReadCollection<TCollection, Data.RGDID?>(bix => bix.ReadNullableRGDID());
+
+    public Data.RGDID?[] ReadNullableRGDIDArray()
+    {
+      if (!ReadBool()) return null;
+
+      var len = ReadUint();
+      if (len > Format.MAX_RGDID_ARRAY_LEN)
+        throw new BixException(StringConsts.BIX_READ_X_ARRAY_MAX_SIZE_ERROR.Args(len, "rgdid?", Format.MAX_RGDID_ARRAY_LEN));
+
+      var result = new Data.RGDID?[len];
+
+      for (int i = 0; i < len; i++)
+        result[i] = ReadNullableRGDID();
+
+      return result;
+    }
+    #endregion
+
+
     #region FID
     public FID ReadFID()
     {

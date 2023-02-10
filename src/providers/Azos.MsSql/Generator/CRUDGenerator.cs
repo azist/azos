@@ -478,6 +478,16 @@ namespace Azos.Data.Access.MsSql
           convertedDbType = SqlDbType.Decimal;
         }
       }
+      else if (value is RGDID rgdid)
+      {
+        if (rgdid.IsZero)
+        {
+          return (null, SqlDbType.Binary);
+        }
+
+        value = (object)rgdid.Bytes;//be very careful with byte ordering of RGDID for index optimization
+        convertedDbType = SqlDbType.Binary;
+      }
       else if (value is bool)
       {
         if (store.StringBool)

@@ -664,6 +664,23 @@ namespace Azos.IO
       this.Write(false);
     }
 
+    public override void Write(Data.RGDID value)
+    {
+      this.Write(value.Route);
+      this.Write(value.Gdid);
+    }
+
+    public override void Write(Data.RGDID? value)
+    {
+      if (value.HasValue)
+      {
+        this.Write(true);
+        Write(value.Value);
+        return;
+      }
+      this.Write(false);
+    }
+
 
     public override void Write(Azos.Glue.Protocol.TypeSpec spec)
     {

@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.0.0.1002
-set HEADLINE=Fiber Preview 2
+set VER=3.0.0.1003
+set HEADLINE=RGDID prerelease #831
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
