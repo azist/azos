@@ -1104,8 +1104,8 @@ namespace Azos.Serialization.Bix
     public void Write(Data.GDID value)
     {
       var buf = Format.GetBuff32();
-      value.WriteIntoBuffer(buf);
-      m_Stream.Write(buf, 0, sizeof(uint) + sizeof(ulong));
+      value.WriteIntoBufferUnsafe(buf, 0);
+      m_Stream.Write(buf, 0, GDID.BYTE_SIZE);
     }
 
     public void Write(Data.GDID? value)
@@ -1161,8 +1161,9 @@ namespace Azos.Serialization.Bix
     #region RGDID
     public void Write(Data.RGDID value)
     {
-      Write(value.Route);
-      Write(value.Gdid);
+      var buf = Format.GetBuff32();
+      value.WriteIntoBufferUnsafe(buf, 0);
+      m_Stream.Write(buf, 0, RGDID.BYTE_SIZE);
     }
 
     public void Write(Data.RGDID? value)

@@ -1084,7 +1084,7 @@ namespace Azos.Serialization.Bix
     public Data.GDID ReadGDID()
     {
       var buf = Format.GetBuff32();
-      ReadFromStream(buf, sizeof(uint) + sizeof(ulong));
+      ReadFromStream(buf, GDID.BYTE_SIZE);
       return new Data.GDID(buf);
     }
 
@@ -1138,9 +1138,9 @@ namespace Azos.Serialization.Bix
     #region RGDID
     public Data.RGDID ReadRGDID()
     {
-      var route = ReadUint();
-      var gdid = ReadGDID();
-      return new Data.RGDID(route, gdid);
+      var buf = Format.GetBuff32();
+      ReadFromStream(buf, RGDID.BYTE_SIZE);
+      return new Data.RGDID(buf);
     }
 
     public Data.RGDID? ReadNullableRGDID()

@@ -1605,6 +1605,76 @@ namespace Azos.Tests.Nub.Serialization
 
     #endregion
 
+    #region RGDID
+    [Run]
+    public void RGDID_01()
+    {
+      RGDID v = RGDID.ZERO;
+      testScalar(v, w => w.Write(v), r => r.ReadRGDID(), 16);
+
+      v = new RGDID(uint.MinValue, new GDID(uint.MinValue, ulong.MinValue));
+      testScalar(v, w => w.Write(v), r => r.ReadRGDID(), 16);
+
+      v = new RGDID(uint.MaxValue, new GDID(uint.MaxValue, ulong.MaxValue));
+      testScalar(v, w => w.Write(v), r => r.ReadRGDID(), 16);
+    }
+
+    [Run]
+    public void RGDID_02_Nullable()
+    {
+      RGDID? v = null;
+      testScalar(v, w => w.Write(v), r => r.ReadNullableRGDID(), 1);
+
+      v = new RGDID(uint.MinValue, new GDID(uint.MinValue, ulong.MinValue));
+      testScalar(v, w => w.Write(v), r => r.ReadNullableRGDID(), 1 + 16);
+
+      v = new RGDID(uint.MaxValue, new GDID(uint.MaxValue, ulong.MaxValue));
+      testScalar(v, w => w.Write(v), r => r.ReadNullableRGDID(), 1 + 16);
+    }
+
+    [Run]
+    public void RGDID_03_Collection()
+    {
+      List<RGDID> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadRGDIDCollection<List<RGDID>>(), 1);
+
+      v = new List<RGDID> { new RGDID(1, new GDID(1, 1)), new RGDID(2, new GDID(3, 4)) };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadRGDIDCollection<List<RGDID>>(), 1 + 1 + 32);
+    }
+
+
+    [Run]
+    public void RGDID_04_CollectionNullable()
+    {
+      List<RGDID?> v = null;
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableRGDIDCollection<List<RGDID?>>(), 1);
+
+      v = new List<RGDID?> { new RGDID(1, new GDID(1,5)), null, new RGDID(1, new GDID(4,8)), null, new RGDID(1, new GDID(9, 2)) };
+      testCollection(v, w => w.WriteCollection(v), r => r.ReadNullableRGDIDCollection<List<RGDID?>>(), 1 + 1 + 53);
+    }
+
+    [Run]
+    public void RGDID_05_Array()
+    {
+      RGDID[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadRGDIDArray(), 1);
+
+      v = new RGDID[] { new RGDID(1, new GDID(1, 5)), new RGDID(uint.MaxValue, new GDID(1, 5)), new RGDID(0, new GDID(2, 3)) };
+      testArray(v, w => w.Write(v), r => r.ReadRGDIDArray(), 1 + 1 + 48);
+    }
+
+    [Run]
+    public void RGDID_06_ArrayNullable()
+    {
+      RGDID?[] v = null;
+      testArray(v, w => w.Write(v), r => r.ReadNullableRGDIDArray(), 1);
+
+      v = new RGDID?[] { new RGDID(1, new GDID(2, 5)), null, new RGDID(2, new GDID(1, 9)), null, new RGDID(3, new GDID(7, 12)), null };
+      testArray(v, w => w.Write(v), r => r.ReadNullableRGDIDArray(), 1 + 1 + 3 + 51);
+    }
+
+    #endregion
+
     #region FID
     [Run]
     public void FID_01()
