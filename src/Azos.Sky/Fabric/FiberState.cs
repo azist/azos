@@ -37,7 +37,7 @@ namespace Azos.Sky.Fabric
     /// Describes how slot data has changed - this is needed for change tracking
     /// when system saves state changes into persisted storage.
     /// </summary>
-    public enum SlotMutationType
+    public enum SlotMutationType : byte
     {
       Unchanged = 0,
       Modified = 1,

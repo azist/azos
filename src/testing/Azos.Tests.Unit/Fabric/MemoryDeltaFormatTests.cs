@@ -104,11 +104,11 @@ namespace Azos.Tests.Unit.Fabric
       Aver.IsNull(gotDelta.Result);
       Aver.AreEqual(0, gotDelta.ExitCode);
 
-      Aver.AreEqual("d", gotDelta.ChangesReceived[0].Key.Value);
-      Aver.IsNotNull(gotDelta.ChangesReceived[0].Value);
+      Aver.AreEqual("d", gotDelta.ChangesReceived[0].Name.Value);
+      Aver.IsNotNull(gotDelta.ChangesReceived[0].Data);
 
       //manually deserialize content, in future this will need to be updated to reflect BIX etc...
-      var map = JsonReader.DeserializeDataObject(new MemoryStream(gotDelta.ChangesReceived[0].Value)) as JsonDataMap;
+      var map = JsonReader.DeserializeDataObject(new MemoryStream(gotDelta.ChangesReceived[0].Data)) as JsonDataMap;
       map.See("map");
       var deserManually = JsonReader.ToDoc<TeztState.DemographicsSlot>(map);
 
@@ -207,11 +207,11 @@ namespace Azos.Tests.Unit.Fabric
       Aver.AreEqual(result.Int1, resultmap["Int1"].AsInt());
       Aver.AreEqual(result.String1, resultmap["String1"].AsString());
 
-      Aver.AreEqual("d", gotDelta.ChangesReceived[0].Key.Value);
-      Aver.IsNotNull(gotDelta.ChangesReceived[0].Value);
+      Aver.AreEqual("d", gotDelta.ChangesReceived[0].Name.Value);
+      Aver.IsNotNull(gotDelta.ChangesReceived[0].Data);
 
       //manually deserialize content, in future this will need to be updated to reflect BIX etc...
-      var map = JsonReader.DeserializeDataObject(new MemoryStream(gotDelta.ChangesReceived[0].Value)) as JsonDataMap;
+      var map = JsonReader.DeserializeDataObject(new MemoryStream(gotDelta.ChangesReceived[0].Data)) as JsonDataMap;
       map.See("map");
       var deserManually = JsonReader.ToDoc<TeztState.DemographicsSlot>(map);
 
@@ -301,14 +301,14 @@ namespace Azos.Tests.Unit.Fabric
       Aver.IsNull(gotDelta.ResultReceivedJson);
       Aver.AreEqual(321, gotDelta.ExitCode);
 
-      Aver.AreEqual("d", gotDelta.ChangesReceived[0].Key.Value);
-      Aver.IsNotNull(gotDelta.ChangesReceived[0].Value);
+      Aver.AreEqual("d", gotDelta.ChangesReceived[0].Name.Value);
+      Aver.IsNotNull(gotDelta.ChangesReceived[0].Data);
 
-      Aver.AreEqual("a", gotDelta.ChangesReceived[1].Key.Value);
-      Aver.IsNotNull(gotDelta.ChangesReceived[1].Value);
+      Aver.AreEqual("a", gotDelta.ChangesReceived[1].Name.Value);
+      Aver.IsNotNull(gotDelta.ChangesReceived[1].Data);
 
       //manually deserialize content, in future this will need to be updated to reflect BIX etc...
-      var map = JsonReader.DeserializeDataObject(new MemoryStream(gotDelta.ChangesReceived[0].Value)) as JsonDataMap;
+      var map = JsonReader.DeserializeDataObject(new MemoryStream(gotDelta.ChangesReceived[0].Data)) as JsonDataMap;
       map.See("map 1");
       var deserManually = JsonReader.ToDoc<TeztState.DemographicsSlot>(map);
 
@@ -316,7 +316,7 @@ namespace Azos.Tests.Unit.Fabric
       Aver.AreEqual("Monster", deserManually.LastName);
       Aver.IsTrue(FiberState.SlotMutationType.Modified == deserManually.SlotMutation);
 
-      map = JsonReader.DeserializeDataObject(new MemoryStream(gotDelta.ChangesReceived[1].Value)) as JsonDataMap;
+      map = JsonReader.DeserializeDataObject(new MemoryStream(gotDelta.ChangesReceived[1].Data)) as JsonDataMap;
       map.See("map 2");
       var deserManually2 = JsonReader.ToDoc<TeztState.AttachmentSlot>(map);
 
