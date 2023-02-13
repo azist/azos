@@ -49,6 +49,10 @@ name
    vGDID1=''
    vGDID2='1:1:123'
    vGDID3='ZAVIFA-YOLO'
+
+   vRGDID1=''
+   vRGDID2='98:1:2:123'
+
    vUri1=''
    vUri2='http://google.com'
    vAtom1=''
@@ -96,6 +100,10 @@ name
       [Config] public GDID vgdid1 { get; set; }
       [Config] public GDID vgdid2 { get; set; }
       [Config] public GDID vgdid3 { get; set; }
+
+      [Config] public RGDID vrgdid1 { get; set; }
+      [Config] public RGDID vrgdid2 { get; set; }
+
 
       [Config] public Uri vuri1 { get; set; }
       [Config] public Uri vuri2 { get; set; }
@@ -167,6 +175,9 @@ name
 
       Aver.AreEqual(GDID.ZERO, obj.vgdid1);
       Aver.AreEqual(new GDID(1, 1, 123), obj.vgdid2);
+
+      Aver.AreEqual(RGDID.ZERO, obj.vrgdid1);
+      Aver.AreEqual(new RGDID(98, new GDID(1, 2, 123)), obj.vrgdid2);//98:1:2:123
 
       Aver.IsNull(obj.vuri1);
       Aver.AreEqual("http://google.com", obj.vuri2.OriginalString);
@@ -294,6 +305,16 @@ name
 
       Aver.AreEqual(new GDID(1, 1, 123), root.AttrByName("vGDID2").ValueAsGDID(GDID.ZERO));
       Aver.AreEqual(new GDID(1, 1, 123), root.AttrByName("vGDID3").ValueAsGDID(GDID.ZERO));
+    }
+
+    [Run]
+    public void RGDIDs()
+    {
+      Aver.IsTrue(root.AttrByName("vRGDID1").ValueAsRGDID(RGDID.ZERO).IsZero);
+
+      Aver.IsFalse(root.AttrByName("vRGDID1").ValueAsNullableRGDID().HasValue);
+
+      Aver.AreEqual(new RGDID(98, new GDID(1, 2, 123)), root.AttrByName("vRGDID2").ValueAsRGDID(RGDID.ZERO));
     }
 
     [Run]

@@ -466,6 +466,20 @@ namespace Azos.Conf
     }
 
     /// <inheritdoc/>
+    public RGDID ValueAsRGDID(RGDID dflt, bool verbatim = false)
+    {
+      var val = verbatim ? VerbatimValue : Value;
+      return val.AsRGDID(dflt);
+    }
+
+    /// <inheritdoc/>
+    public RGDID? ValueAsNullableRGDID(RGDID? dflt = null, bool verbatim = false)
+    {
+      var val = verbatim ? VerbatimValue : Value;
+      return val.AsNullableRGDID(dflt);
+    }
+
+    /// <inheritdoc/>
     public DateTime ValueAsDateTime(DateTime dflt, bool verbatim = false)
     {
       var val = verbatim ? VerbatimValue : Value;

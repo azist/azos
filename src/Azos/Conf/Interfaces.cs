@@ -369,6 +369,22 @@ namespace Azos.Conf
     GDID? ValueAsNullableGDID(GDID? dflt = null, bool verbatim = false);
 
     /// <summary>
+    /// Returns node value as RGDID performing conversion if necessary.
+    /// The optional default is applied when conversion can not be made.
+    /// The method evaluates variables embedded in the node literal value unless verbatim parameter
+    /// is specified in which case the literal value is returned as-is without any evaluation
+    /// </summary>
+    RGDID ValueAsRGDID(RGDID dflt, bool verbatim = false);
+
+    /// <summary>
+    /// Returns node value as RGDID? performing conversion if necessary.
+    /// The optional default is applied when conversion can not be made.
+    /// The method evaluates variables embedded in the node literal value unless verbatim parameter
+    /// is specified in which case the literal value is returned as-is without any evaluation
+    /// </summary>
+    RGDID? ValueAsNullableRGDID(RGDID? dflt = null, bool verbatim = false);
+
+    /// <summary>
     /// Returns node value as DateTime performing conversion if necessary.
     /// The optional default is applied when conversion can not be made.
     /// The method evaluates variables embedded in the node literal value unless verbatim parameter
