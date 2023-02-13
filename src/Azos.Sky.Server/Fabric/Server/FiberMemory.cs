@@ -44,7 +44,7 @@ namespace Azos.Sky.Fabric.Server
   public sealed class FiberMemory
   {
     /// <summary>
-    /// .ctor used by unit tests as it packs the params and the state objects
+    /// .ctor used by shards as it packs the params and the state objects
     /// </summary>
     public FiberMemory(
               int version,
@@ -52,16 +52,10 @@ namespace Azos.Sky.Fabric.Server
               FiberId id,
               Guid imageTypeId,
               EntityId? impersonateAs,
-              FiberParameters pars,
-              FiberState state)
-    {
-      m_Version = version.IsTrue(v => v <= Constraints.MEMORY_FORMAT_VERSION);
-      m_Status = status;
-      m_Id = id;
-      m_ImageTypeId = imageTypeId;
-      m_ImpersonateAs = impersonateAs;
-      m_Buffer = packBuffer(pars, state, m_Version);
-    }
+              byte[] fiberParameters,
+              Atom currentStep,
+              KeyValuePair<Atom, byte[]>[] slots) :
+     this(version, status, id, imageTypeId, impersonateAs, PackBuffer(fiberParameters, currentStep, slots)) { }
 
     /// <summary>
     /// .ctor used by unit tests - obtains packed payload
@@ -219,36 +213,74 @@ namespace Azos.Sky.Fabric.Server
     }
 
     /// <summary>
+    /// Called only when fibers are created by processor.
+    /// Complementary pair with <see cref="UnpackParameters(Type, byte[])"/>
+    /// </summary>
+    public static byte[] PackParameters(FiberParameters pars)
+    {
+      using var wscope = BixWriterBufferScope.DefaultCapacity;
+      wscope.Writer.Write(Constraints.MEMORY_FORMAT_VERSION);
+
+      //todo future use bix with newer version
+      wscope.Writer.Write(JsonWriter.Write(pars, JsonWritingOptions.CompactRowsAsMap));
+
+      return wscope.Buffer;
+    }
+
+    /// <summary>
+    /// Called by processor complement of <see cref="PackParameters(FiberParameters)"/>
+    /// </summary>
+    public static FiberParameters UnpackParameters(Type tParameters, byte[] buffer)
+    {
+      tParameters.IsOfType<FiberParameters>(nameof(tParameters));
+      using var rscope = new BixReaderBufferScope(buffer);
+      var version = rscope.Reader.ReadInt();
+      (version <= Constraints.MEMORY_FORMAT_VERSION).IsTrue("Wire Version <= MEMORY_FORMAT_VERSION");
+
+      //todo future use bix with newer version
+      var json = rscope.Reader.ReadString();
+      if (json == null) return null;
+
+      var result = (FiberParameters)JsonReader.ToDoc(tParameters, json, fromUI: false, options: JsonReader.DocReadOptions.BindByCode);
+
+      return result;
+    }
+
+    /// <summary>
+    /// Used by shard - creates buffer representation from data fields in mem shard storage
+    /// </summary>
+    public static byte[] PackBuffer(byte[] fiberParameters,
+                                    Atom currentStep,
+                                    KeyValuePair<Atom, byte[]>[] slots)
+    {
+      using var wscope = BixWriterBufferScope.DefaultCapacity;
+      wscope.Writer.WriteBuffer(fiberParameters);
+      FiberState.WriteShardData(wscope.Writer, currentStep, slots);
+      return wscope.Buffer;
+    }
+
+
+    /// <summary>
     /// Materializes raw buffer into <see cref="FiberParameters"/> and <see cref="FiberState"/> of the specified types.
     /// You can use <see cref="Version"/> to perform backward-compatible upgrades of serialization methods
     /// </summary>
     public (FiberParameters pars, FiberState state) UnpackBuffer(Type tParameters, Type tState)
     {
-      var pars = (FiberParameters)Serialization.SerializationUtils.MakeNewObjectInstance(tParameters);
+      FiberParameters pars = null;
 
       using var rscope = new BixReaderBufferScope(m_Buffer);
 
-      //todo: Replace with Bix in future, use Version to conditional call one or another
-      var json = rscope.Reader.ReadString();
-      JsonReader.ToDoc(pars, json, fromUI: false, JsonReader.DocReadOptions.BindByCode);
+      var parsBuffer = rscope.Reader.ReadBuffer();
+      if (parsBuffer != null)
+      {
+        pars = UnpackParameters(tParameters, parsBuffer);
+      }
 
       var state = (FiberState)Serialization.SerializationUtils.MakeNewObjectInstance(tState);
       state.__fromStream(rscope.Reader, m_Version);
 
       return (pars, state);
     }
-
-    private static byte[] packBuffer(FiberParameters pars, FiberState state, int formatVersion)
-    {
-      using var wscope = BixWriterBufferScope.DefaultCapacity;
-      var json = JsonWriter.Write(pars, JsonWritingOptions.CompactRowsAsMap);
-      wscope.Writer.Write(json);
-
-      state.__toStream(wscope.Writer, formatVersion);
-
-      return wscope.Buffer;
-    }
-
 
   }
 }

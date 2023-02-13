@@ -106,7 +106,6 @@ namespace Azos.Sky.Fabric
 
     internal void __fromStream(BixReader reader, int version)
     {
-      m_MemoryVersion = version;
       m_CurrentStep = reader.ReadAtom();
 
       var slotCount = reader.ReadInt();
@@ -121,23 +120,23 @@ namespace Azos.Sky.Fabric
       }
     }
 
-    internal void __toStream(BixWriter writer, int memoryVersion)
+    /// <summary>
+    /// Called by shards, writes binary wire data for state to be received by FiberState-descendant.
+    /// Data is read from memory
+    /// </summary>
+    internal static void WriteShardData(BixWriter writer,
+                                        Atom currentStep,
+                                        KeyValuePair<Atom, byte[]>[] slots)
     {
-      writer.Write(m_CurrentStep);
-      writer.Write(m_Data.Count);
-      using var wbuf = BixWriterBufferScope.DefaultCapacity;
-      foreach(var kvp in m_Data)
+      writer.Write(currentStep);
+      writer.Write(slots.Length);
+      foreach(var slot in slots)
       {
-        writer.Write(kvp.Key);
-
-        var json = JsonWriter.Write(kvp.Value, JsonWritingOptions.CompactRowsAsMap);
-        wbuf.Reset();
-        wbuf.Writer.Write(json);
-        writer.WriteBuffer(wbuf.Buffer);
+        writer.Write(slot.Key);
+        writer.WriteBuffer(slot.Value);
       }
     }
 
-    private int m_MemoryVersion;
     private Atom m_CurrentStep;
     private readonly Dictionary<Atom, object> m_Data = new Dictionary<Atom, object>();//Variant data type - stores either byte[] or Slot
 
