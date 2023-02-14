@@ -49,13 +49,28 @@ namespace Azos.IO.ErrorHandling
       return adler.m_Value;
     }
 
-      /// <summary>
+    /// <summary>
     /// Computes Adler32 for byte array
     /// </summary>
     public static uint ForBytes(byte[] buff)
     {
       var adler = new Adler32();
       adler.Add( buff );
+      return adler.m_Value;
+    }
+
+    /// <summary>
+    /// Computes Adler32 for byte array
+    /// </summary>
+    public static uint ForBytes(byte[] buff, int offset) => ForBytes(buff, offset, buff.Length - offset);
+
+    /// <summary>
+    /// Computes Adler32 for byte array
+    /// </summary>
+    public static uint ForBytes(byte[] buff, int offset, int count)
+    {
+      var adler = new Adler32();
+      adler.Add(buff, offset, count);
       return adler.m_Value;
     }
 

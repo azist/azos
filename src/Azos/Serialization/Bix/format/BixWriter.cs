@@ -31,6 +31,24 @@ namespace Azos.Serialization.Bix
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Write(TypeCode type) => m_Stream.WriteByte((byte)type);
 
+    #region FIXED bits
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void WriteFixedBE32bits(uint value)
+    {
+      m_Stream.WriteByte((byte)(value >> 24));
+      m_Stream.WriteByte((byte)(value >> 16));
+      m_Stream.WriteByte((byte)(value >> 8));
+      m_Stream.WriteByte((byte)(value));
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void WriteFixedBE64bits(ulong value)
+    {
+      WriteFixedBE32bits((uint)(value >> 32));
+      WriteFixedBE32bits((uint)(value));
+    }
+    #endregion
+
     #region BYTE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Write(byte value) => m_Stream.WriteByte(value);

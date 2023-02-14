@@ -143,17 +143,33 @@ namespace Azos.Sky.Fabric
     public static byte[] PackSlot(Slot slot)
     {
       using var scope = BixWriterBufferScope.DefaultCapacity;
+      scope.Writer.WriteFixedBE32bits(0);//csum 4 bytes
       scope.Writer.Write(Constraints.MEMORY_FORMAT_VERSION);
-      //-----------------
+      //===============================================
+
       //future if (version<2) use json else use Bix
       var json = JsonWriter.Write(slot, JsonWritingOptions.CompactRowsAsMap);
       scope.Writer.Write(json);
-      return scope.Buffer;
+
+      //===============================================
+      var result = scope.Buffer;
+      var csum = IO.ErrorHandling.Adler32.ForBytes(result, sizeof(uint));
+      IOUtils.WriteBEUInt32(result, csum);
+      return result;
     }
 
     public static Slot UnpackSlot(byte[] buf)
     {
+      if (buf == null) return null;
+      (buf.Length > sizeof(uint)).IsTrue("Slot memory buffer > 4 bytes");
+
+      var csum = IO.ErrorHandling.Adler32.ForBytes(buf, sizeof(uint));
+
       using var scope = new BixReaderBufferScope(buf);
+      var gotCsum = scope.Reader.ReadFixedBE32bits();
+
+      (csum == gotCsum).IsTrue("Valid slot memory signature");
+
       var ver = scope.Reader.ReadInt();
       //-------------------
       //future, use Bix

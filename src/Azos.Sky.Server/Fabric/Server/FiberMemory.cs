@@ -216,12 +216,19 @@ namespace Azos.Sky.Fabric.Server
     public static byte[] PackParameters(FiberParameters pars)
     {
       using var wscope = BixWriterBufferScope.DefaultCapacity;
+
+      wscope.Writer.WriteFixedBE32bits(0);//csum 4 bytes
       wscope.Writer.Write(Constraints.MEMORY_FORMAT_VERSION);
+      //====================================================
 
       //todo future use bix with newer version
       wscope.Writer.Write(JsonWriter.Write(pars, JsonWritingOptions.CompactRowsAsMap));
 
-      return wscope.Buffer;
+      //====================================================
+      var result = wscope.Buffer;
+      var csum = IO.ErrorHandling.Adler32.ForBytes(result, sizeof(uint));
+      IOUtils.WriteBEUInt32(result, csum);
+      return result;
     }
 
     /// <summary>
@@ -229,8 +236,17 @@ namespace Azos.Sky.Fabric.Server
     /// </summary>
     public static FiberParameters UnpackParameters(Type tParameters, byte[] buffer)
     {
+      if (buffer == null) return null;
+      (buffer.Length > sizeof(uint)).IsTrue("Memory parameters buffer > 4 bytes");
+
+      var csum = IO.ErrorHandling.Adler32.ForBytes(buffer, sizeof(uint));
+
       tParameters.IsOfType<FiberParameters>(nameof(tParameters));
       using var rscope = new BixReaderBufferScope(buffer);
+      var gotCsum = rscope.Reader.ReadFixedBE32bits();
+
+      (csum == gotCsum).IsTrue("Valid parameter memory signature");
+
       var version = rscope.Reader.ReadInt();
       (version <= Constraints.MEMORY_FORMAT_VERSION).IsTrue("Wire Version <= MEMORY_FORMAT_VERSION");
 
@@ -250,6 +266,7 @@ namespace Azos.Sky.Fabric.Server
                                     Atom currentStep,
                                     KeyValuePair<Atom, byte[]>[] slots)
     {
+      slots.NonNull(nameof(slots));
       using var wscope = BixWriterBufferScope.DefaultCapacity;
       wscope.Writer.WriteBuffer(fiberParameters);
       FiberState.WriteShardData(wscope.Writer, currentStep, slots);

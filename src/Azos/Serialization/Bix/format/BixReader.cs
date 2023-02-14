@@ -24,6 +24,28 @@ namespace Azos.Serialization.Bix
 
     public bool IsAssigned => m_Stream != null;
 
+    #region FIXED bits
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public uint ReadFixedBE32bits()
+    {
+      uint result =
+       (((uint)ReadByte()) << 24) |
+       (((uint)ReadByte()) << 16) |
+       (((uint)ReadByte()) << 8)  |
+       ((uint)ReadByte());
+
+      return result;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public ulong ReadFixedBE64bits()
+    {
+      uint hi = ReadFixedBE32bits();
+      uint lo = ReadFixedBE32bits();
+      return ((ulong)hi << 32) | lo;
+    }
+    #endregion
+
     #region BYTE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void ReadFromStream(byte[] buffer, uint count) => ReadFromStream(buffer, (int)count);
