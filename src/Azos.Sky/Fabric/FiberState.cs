@@ -146,7 +146,7 @@ namespace Azos.Sky.Fabric
       scope.Writer.Write(Constraints.MEMORY_FORMAT_VERSION);
       //-----------------
       //future if (version<2) use json else use Bix
-      var json = JsonWriter.WriteToBuffer(slot, JsonWritingOptions.CompactRowsAsMap);
+      var json = JsonWriter.Write(slot, JsonWritingOptions.CompactRowsAsMap);
       scope.Writer.Write(json);
       return scope.Buffer;
     }
