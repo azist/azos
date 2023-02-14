@@ -32,7 +32,7 @@ namespace Azos.Sky.Fabric.Server
         Name = name;
         Mutation = slot.SlotMutation;
         NoPreload = slot.DoNotPreload;
-        Data = JsonWriter.WriteToBuffer(slot, JsonWritingOptions.CompactRowsAsMap);
+        Data = FiberState.PackSlot(slot);
       }
 
       public SlotChange(BixReader reader)

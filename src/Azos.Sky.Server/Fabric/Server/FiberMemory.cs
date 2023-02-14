@@ -105,10 +105,9 @@ namespace Azos.Sky.Fabric.Server
     /// it can only be read back by <see cref="FiberMemory(BixReader)"/>.
     /// The changes to memory are NOT communicated back using this method, instead <see cref="FiberMemoryDelta"/> is used
     /// </summary>
-    public void WriteOneWay(BixWriter writer, int formatVersion)
+    public void WriteOneWay(BixWriter writer)
     {
-      (formatVersion <= Constraints.MEMORY_FORMAT_VERSION).IsTrue("Wire Version <= MEMORY_FORMAT_VERSION");
-      writer.Write(formatVersion);
+      writer.Write(m_Version);
 
       writer.Write((byte)m_Status);
 
@@ -141,11 +140,10 @@ namespace Azos.Sky.Fabric.Server
     /// </summary>
     public Exception CrashException => m_CrashException;
 
-
     /// <summary>
     /// True when this memory has any changes such as changes in state or a crash
     /// </summary>
-    public bool HasDelta(FiberState state) => m_CrashException != null|| state.NonNull(nameof(state)).SlotsHaveChanges;
+    public bool HasDelta(FiberState state) => m_CrashException != null || state.NonNull(nameof(state)).SlotsHaveChanges;
 
     /// <summary>
     /// Marks memory as failed with the specified exception.
@@ -156,7 +154,6 @@ namespace Azos.Sky.Fabric.Server
     {
       m_CrashException = error.NonNull(nameof(error));
     }
-
 
     /// <summary>
     /// Creates s snapshot of data changes which can be commited back into <see cref="IFiberStoreShard"/>
@@ -171,7 +168,7 @@ namespace Azos.Sky.Fabric.Server
 
       var result = new FiberMemoryDelta
       {
-        Version = Constraints.MEMORY_FORMAT_VERSION,
+        Version = this.Version,//respond using the same version
         Id = m_Id
       };
 

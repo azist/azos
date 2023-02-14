@@ -140,22 +140,41 @@ namespace Azos.Sky.Fabric
     private Atom m_CurrentStep;
     private readonly Dictionary<Atom, object> m_Data = new Dictionary<Atom, object>();//Variant data type - stores either byte[] or Slot
 
+    public static byte[] PackSlot(Slot slot)
+    {
+      using var scope = BixWriterBufferScope.DefaultCapacity;
+      scope.Writer.Write(Constraints.MEMORY_FORMAT_VERSION);
+      //-----------------
+      //future if (version<2) use json else use Bix
+      var json = JsonWriter.WriteToBuffer(slot, JsonWritingOptions.CompactRowsAsMap);
+      scope.Writer.Write(json);
+      return scope.Buffer;
+    }
+
+    public static Slot UnpackSlot(byte[] buf)
+    {
+      using var scope = new BixReaderBufferScope(buf);
+      var ver = scope.Reader.ReadInt();
+      //-------------------
+      //future, use Bix
+      var json = scope.Reader.ReadString();
+      var slotFromJson = JsonReader.ToDoc<Slot>(json, fromUI: false, JsonReader.DocReadOptions.BindByCode);
+      return slotFromJson;
+    }
+
+
     // Unpacks Slot from variant data type which either stores byte[] or already unpacked slot
     // null if key does not exist
-    private Slot getSlot(Dictionary<Atom, object> data, Atom key)
+    private static Slot getSlot(Dictionary<Atom, object> data, Atom key)
     {
       if (!data.TryGetValue(key, out var got)) return null;
 
       if (got is Slot slot) return slot;
       if (got is byte[] buf)
       {
-        //todo: deserialize using BIX
-        //if m_MemroyVersion < 100 then use_json else use_bix
-        using var scope = new BixReaderBufferScope(buf);
-        var json = scope.Reader.ReadString();
-        var slotFromJson = JsonReader.ToDoc<Slot>(json, fromUI: false, JsonReader.DocReadOptions.BindByCode);
-        data[key] = slotFromJson;
-        return slotFromJson;
+        var result = UnpackSlot(buf);
+        data[key] = result;
+        return result;
       }
 
       throw new FabricException("Implementation exception: ! slot and !byte[]");
