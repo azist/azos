@@ -91,9 +91,17 @@ namespace Azos.Sky.Fabric.Server
       var changeCount = reader.ReadInt();
       (changeCount <= Constraints.MAX_STATE_SLOT_COUNT).IsTrue("max state slot count");
       ChangesReceived = new SlotChange[changeCount];
-      for(var i=0; i< changeCount; i++)
+      for(var i=0; i < changeCount; i++)
       {
         ChangesReceived[i] = new SlotChange(reader);
+      }
+
+      var tagCount = reader.ReadInt();
+      (changeCount <= Constraints.MAX_TAG_COUNT).IsTrue("max state tag count");
+      Tags = new Data.Adlib.Tag[tagCount];
+      for (var i = 0; i < tagCount; i++)
+      {
+        Tags[i] = new Data.Adlib.Tag(reader, Version);
       }
     }
 
@@ -141,6 +149,13 @@ namespace Azos.Sky.Fabric.Server
         var change = new SlotChange(Changes[i].Key, Changes[i].Value);
         change.WriteOneWay(writer);
       }
+
+      var tagCount = Tags?.Length ?? 0;
+      writer.Write(tagCount);
+      for (var i = 0; i < tagCount; i++)
+      {
+        Tags[i].Write(writer, formatVersion);
+      }
     }
 
 
@@ -173,5 +188,10 @@ namespace Azos.Sky.Fabric.Server
     /// way of deserializing the CLR type that processor serialized
     /// </summary>
     public SlotChange[] ChangesReceived { get; internal set; }
+
+    /// <summary>
+    /// Value set by processor to be sent into shard
+    /// </summary>
+    public Data.Adlib.Tag[] Tags { get; internal set; }
   }
 }

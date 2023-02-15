@@ -239,7 +239,7 @@ namespace Azos.Sky.Fabric
     /// <summary>
     /// Override this property to set indexable tags for this state.
     /// The system uses state tags to find fibers by tagged values - this mechanism is used
-    /// in addition to fiber tags which are immutable
+    /// in addition to fiber-level tags which are immutable
     /// <br/>
     /// Return:
     /// <list>

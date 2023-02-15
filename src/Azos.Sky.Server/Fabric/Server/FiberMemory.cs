@@ -186,6 +186,7 @@ namespace Azos.Sky.Fabric.Server
         result.NextSliceInterval = nxt.NextSliceInterval;
         result.ExitCode = nxt.ExitCode;
         result.Result = nxt.Result;
+        result.Tags = currentState.Tags;
 
         var changes = currentState.SlotChanges.ToArray();
         foreach(var change in changes)
