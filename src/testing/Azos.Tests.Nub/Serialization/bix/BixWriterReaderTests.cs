@@ -121,6 +121,39 @@ namespace Azos.Tests.Nub.Serialization
     #endregion
 
     // ---------------------------------------------
+    #region FIXED
+    [Run]
+    public void Fixed32_01()
+    {
+      uint v = uint.MinValue;
+      testScalar(v, w => w.WriteFixedBE32bits(v), r => r.ReadFixedBE32bits(), 4);
+
+      v = uint.MaxValue;
+      testScalar(v, w => w.WriteFixedBE32bits(v), r => r.ReadFixedBE32bits(), 4);
+
+      v = 0xfaca55aa;
+      testScalar(v, w => w.WriteFixedBE32bits(v), r => r.ReadFixedBE32bits(), 4);
+
+      v = 0xaa55ded0;
+      testScalar(v, w => w.WriteFixedBE32bits(v), r => r.ReadFixedBE32bits(), 4);
+    }
+
+    [Run]
+    public void Fixed64_01()
+    {
+      ulong v = ulong.MinValue;
+      testScalar(v, w => w.WriteFixedBE64bits(v), r => r.ReadFixedBE64bits(), 8);
+
+      v = ulong.MaxValue;
+      testScalar(v, w => w.WriteFixedBE64bits(v), r => r.ReadFixedBE64bits(), 8);
+
+      v = 0xfaca55aa01020304;
+      testScalar(v, w => w.WriteFixedBE64bits(v), r => r.ReadFixedBE64bits(), 8);
+
+      v = 0x01020304aa55ded0;
+      testScalar(v, w => w.WriteFixedBE64bits(v), r => r.ReadFixedBE64bits(), 8);
+    }
+    #endregion
 
     #region BYTE
     [Run] public void Byte_01()
