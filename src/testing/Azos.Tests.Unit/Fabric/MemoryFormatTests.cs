@@ -78,8 +78,8 @@ namespace Azos.Tests.Unit.Fabric
     {
       var dbPars = FiberMemory.PackParameters(pars);
 
-      var slots = state.SlotChanges
-                       .Select(one => new KeyValuePair<Atom, byte[]>(one.Key, FiberState.PackSlot(one.Value)))
+      var slots = state._____getInternaldataForUnitTest()
+                       .Select(one => new KeyValuePair<Atom, byte[]>(one.Key, one.Value is byte[] buf ? buf : FiberState.PackSlot((FiberState.Slot)one.Value)))
                        .ToArray();
 
       return FiberMemory.PackBuffer(dbPars, Atom.ZERO, slots);

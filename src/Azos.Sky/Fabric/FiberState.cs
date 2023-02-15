@@ -140,6 +140,10 @@ namespace Azos.Sky.Fabric
     private Atom m_CurrentStep;
     private readonly Dictionary<Atom, object> m_Data = new Dictionary<Atom, object>();//Variant data type - stores either byte[] or Slot
 
+    internal Dictionary<Atom, object> _____getInternaldataForUnitTest() => m_Data;
+
+
+
     public static byte[] PackSlot(Slot slot)
     {
       using var scope = BixWriterBufferScope.DefaultCapacity;
