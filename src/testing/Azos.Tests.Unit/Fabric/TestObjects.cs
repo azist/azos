@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Azos.Data;
+using Azos.Data.Adlib;
 using Azos.Scripting;
 using Azos.Serialization.Bix;
 using Azos.Sky.Fabric;
@@ -37,6 +38,11 @@ namespace Azos.Tests.Unit.Fabric
   {
     public static readonly Atom SLOT_DEMOGRAPHICS = Atom.Encode("d");
     public static readonly Atom SLOT_ATTACHMENT = Atom.Encode("a");
+
+    public static readonly Atom TAG_LAST_NAME = Atom.Encode("lnm");
+    public static readonly Atom TAG_ACCT_NO = Atom.Encode("actn");
+    public static readonly Atom TAG_IMG = Atom.Encode("img");
+
     [Bix("5ea4d9a4-01e5-4cd0-a38a-0ae9588a5047")]
     internal sealed class DemographicsSlot : Slot
     {
@@ -52,6 +58,14 @@ namespace Azos.Tests.Unit.Fabric
       [Field] public string AttachmentName { get; set; }
       [Field] public byte[] AttachContent { get; set; }
     }
+
+    public override Tag[] Tags => new Tag[]
+    {
+      new Tag(TAG_LAST_NAME, LastName.TakeFirstChars(Data.Adlib.Constraints.MAX_TAG_SVAL_LENGTH)),
+      new Tag(TAG_ACCT_NO, (long)AccountNumber),
+      new Tag(TAG_IMG, AttachmentName),
+    };
+
 
     public string FirstName
     {
