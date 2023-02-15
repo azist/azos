@@ -25,7 +25,7 @@ namespace Azos.Sky.Fabric
     public FiberId Id { get; set; }
 
     [Field(Required = true, Description = "Fiber Guid used for log and other correlation token")]
-    public Guid FiberGuid { get; set; }
+    public Guid InstanceGuid { get; set; }
 
     [Field(Required = true,
           Description = "Defines what cloud origin (cluster partition) this fiber belongs to and runs")]

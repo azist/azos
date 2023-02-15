@@ -50,12 +50,13 @@ namespace Azos.Sky.Fabric.Server
               int version,
               MemoryStatus status,
               FiberId id,
+              Guid instanceGuid,
               Guid imageTypeId,
               EntityId? impersonateAs,
               byte[] fiberParameters,
               Atom currentStep,
               KeyValuePair<Atom, byte[]>[] slots) :
-     this(version, status, id, imageTypeId, impersonateAs, PackBuffer(fiberParameters, currentStep, slots)) { }
+     this(version, status, id, instanceGuid, imageTypeId, impersonateAs, PackBuffer(fiberParameters, currentStep, slots)) { }
 
     /// <summary>
     /// .ctor used by unit tests - obtains packed payload
@@ -64,6 +65,7 @@ namespace Azos.Sky.Fabric.Server
               int          version,
               MemoryStatus status,
               FiberId      id,
+              Guid         instanceGuid,
               Guid         imageTypeId,
               EntityId?    impersonateAs,
               byte[]       buffer)
@@ -71,6 +73,7 @@ namespace Azos.Sky.Fabric.Server
       m_Version        =   version.IsTrue(v => v <= Constraints.MEMORY_FORMAT_VERSION);
       m_Status         =   status;
       m_Id             =   id;
+      m_InstanceGuid   =   instanceGuid;
       m_ImageTypeId    =   imageTypeId;
       m_ImpersonateAs  =   impersonateAs;
       m_Buffer         =   buffer.NonNull(nameof(buffer));
@@ -94,6 +97,7 @@ namespace Azos.Sky.Fabric.Server
                                   reader.ReadAtom(),
                                   reader.ReadGDID());
 
+      m_InstanceGuid = reader.ReadGuid();
       m_ImageTypeId = reader.ReadGuid();
       m_ImpersonateAs = reader.ReadNullableEntityId();
       m_Buffer = reader.ReadBuffer();
@@ -115,6 +119,7 @@ namespace Azos.Sky.Fabric.Server
       writer.Write(m_Id.MemoryShard);
       writer.Write(m_Id.Gdid);
 
+      writer.Write(m_InstanceGuid);
       writer.Write(m_ImageTypeId);
       writer.Write(m_ImpersonateAs);
       writer.WriteBuffer(m_Buffer);
@@ -123,6 +128,7 @@ namespace Azos.Sky.Fabric.Server
     private int m_Version;
     private MemoryStatus m_Status;
     private FiberId m_Id;
+    private Guid m_InstanceGuid;
     private Guid m_ImageTypeId;
     private EntityId? m_ImpersonateAs;
     private byte[] m_Buffer;
@@ -131,6 +137,7 @@ namespace Azos.Sky.Fabric.Server
     public int Version => m_Version;
     public MemoryStatus Status => m_Status;
     public FiberId Id => m_Id;
+    public Guid InstanceGuid => m_InstanceGuid;
     public Guid ImageTypeId => m_ImageTypeId;
     public EntityId? ImpersonateAs => m_ImpersonateAs;
     public byte[] Buffer => m_Buffer;

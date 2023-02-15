@@ -43,7 +43,7 @@ namespace Azos.Tests.Unit.Fabric
       state.AccountNumber = 987654321;
       state.SetAttachment("donkey_fun.jpeg", new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5 });
       state.ResetAllSlotModificationFlags();
-      var mem = new FiberMemory(1, MemoryStatus.LockedForCaller, fid, Guid.NewGuid(), null, MemoryFormatTests.GetFiberMemoryBuffer(pars, state));//this packs buffer
+      var mem = new FiberMemory(1, MemoryStatus.LockedForCaller, fid, Guid.NewGuid(), Guid.NewGuid(), null, MemoryFormatTests.GetFiberMemoryBuffer(pars, state));//this packs buffer
 
       using var wscope = BixWriterBufferScope.DefaultCapacity;
       mem.WriteOneWay(wscope.Writer);//Serialize by SHARD
@@ -134,7 +134,7 @@ namespace Azos.Tests.Unit.Fabric
       state.AccountNumber = 987654321;
       state.SetAttachment("hockey_fun.jpeg", new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5 });
       state.ResetAllSlotModificationFlags();
-      var mem = new FiberMemory(1, MemoryStatus.LockedForCaller, fid, Guid.NewGuid(), null, MemoryFormatTests.GetFiberMemoryBuffer(pars, state));//this packs buffer
+      var mem = new FiberMemory(1, MemoryStatus.LockedForCaller, fid, Guid.NewGuid(), Guid.NewGuid(), null, MemoryFormatTests.GetFiberMemoryBuffer(pars, state));//this packs buffer
 
       using var wscope = BixWriterBufferScope.DefaultCapacity;
       mem.WriteOneWay(wscope.Writer);//Serialize by SHARD
@@ -236,7 +236,7 @@ namespace Azos.Tests.Unit.Fabric
       state.AccountNumber = 987654321;
       state.SetAttachment("hockey_fun.jpeg", new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5 });
       state.ResetAllSlotModificationFlags();
-      var mem = new FiberMemory(1, MemoryStatus.LockedForCaller, fid, Guid.NewGuid(), null, MemoryFormatTests.GetFiberMemoryBuffer(pars, state));//this packs buffer
+      var mem = new FiberMemory(1, MemoryStatus.LockedForCaller, fid, Guid.NewGuid(), Guid.NewGuid(), null, MemoryFormatTests.GetFiberMemoryBuffer(pars, state));//this packs buffer
 
       using var wscope = BixWriterBufferScope.DefaultCapacity;
       mem.WriteOneWay(wscope.Writer);//Serialize by SHARD
@@ -339,7 +339,7 @@ namespace Azos.Tests.Unit.Fabric
       state.AccountNumber = 987654321;
       state.SetAttachment("hockey_fun.jpeg", new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5 });
       state.ResetAllSlotModificationFlags();
-      var mem = new FiberMemory(1, MemoryStatus.LockedForCaller, fid, Guid.NewGuid(), null, MemoryFormatTests.GetFiberMemoryBuffer(pars, state));//this packs buffer
+      var mem = new FiberMemory(1, MemoryStatus.LockedForCaller, fid, Guid.NewGuid(), Guid.NewGuid(), null, MemoryFormatTests.GetFiberMemoryBuffer(pars, state));//this packs buffer
 
       using var wscope = BixWriterBufferScope.DefaultCapacity;
       mem.WriteOneWay(wscope.Writer);//Serialize by SHARD

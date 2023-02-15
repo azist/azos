@@ -43,8 +43,10 @@ namespace Azos.Sky.Fabric
     /// framework internal method used by processor runtime to initialize fibers.
     /// we don't want to have senseless constructor chaining which just creates meaningless code
     /// </summary>
-    internal void __processor__ctor(IFiberRuntime runtime, FiberParameters pars, FiberState state)
+    internal void __processor__ctor(IFiberRuntime runtime, FiberId id, Guid instanceGuid, FiberParameters pars, FiberState state)
     {
+      m_Id = id;
+      m_InstanceGuid = instanceGuid;
       m_Runtime    = runtime.NonNull(nameof(runtime));
       m_Parameters = pars.NonNull(nameof(pars));
       m_State      = state.NonNull(nameof(state));
@@ -53,9 +55,22 @@ namespace Azos.Sky.Fabric
       runtime.App.DependencyInjector.InjectInto(this);
     }
 
+    private FiberId m_Id;
+    private Guid m_InstanceGuid;
     private IFiberRuntime m_Runtime;
     private FiberParameters m_Parameters;
     private FiberState m_State;
+
+
+    /// <summary>
+    /// Id of the executing fiber instance
+    /// </summary>
+    public FiberId Id => m_Id;
+
+    /// <summary>
+    /// Guid identifying this fiber instance
+    /// </summary>
+    public Guid InstanceGuid => m_InstanceGuid;
 
     /// <summary>
     /// References the runtime system such as the hosting process and other services which
@@ -97,7 +112,7 @@ namespace Azos.Sky.Fabric
       var ff = $"{GetType().DisplayNameWithExpandedGenericArgs()}(`{State.CurrentStep}`)";
       from = from.IsNotNullOrWhiteSpace() ? $"{ff}.{from}" : ff;
 
-      return rtc.WriteLog(type, from, text, error, related, pars, file, src);
+      return rtc.WriteLog(type, from, text, error, related ?? InstanceGuid, pars, file, src);
     }
 
 

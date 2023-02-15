@@ -536,7 +536,7 @@ namespace Azos.Sky.Fabric.Server
         fiber = (Fiber)Serialization.SerializationUtils.MakeNewObjectInstance(tFiber);
 
         //Init inject
-        fiber.__processor__ctor(m_Runtime, fiberParameters, fiberState);
+        fiber.__processor__ctor(m_Runtime, memory.Id, memory.InstanceGuid, fiberParameters, fiberState);
       }
       catch(Exception allocationError)
       {

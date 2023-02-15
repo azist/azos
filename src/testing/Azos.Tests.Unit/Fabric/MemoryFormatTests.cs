@@ -33,7 +33,7 @@ namespace Azos.Tests.Unit.Fabric
     {
       var fid = new FiberId(Atom.Encode("sys"), Atom.Encode("s1"), new GDID(0, 1, 1));
       var bin = new byte[] { 1, 2, 3 };
-      var mem = new FiberMemory(1, MemoryStatus.LockedForCaller, fid, Guid.NewGuid(), null, bin);
+      var mem = new FiberMemory(1, MemoryStatus.LockedForCaller, fid, Guid.NewGuid(), Guid.NewGuid(), null, bin);
 
       using var wscope = BixWriterBufferScope.DefaultCapacity;
 
@@ -56,7 +56,7 @@ namespace Azos.Tests.Unit.Fabric
       var fid = new FiberId(Atom.Encode("sys"), Atom.Encode("s1"), new GDID(0, 1, 1));
       var mikoyan = new EntityId(Atom.Encode("idp"), Atom.Encode("id"), Atom.ZERO, "mikoyan.ashot.kalgy");
       var bin = new byte[] { 1, 2, 3 };
-      var mem = new FiberMemory(1, MemoryStatus.LockedForCaller, fid, Guid.NewGuid(), mikoyan, bin);
+      var mem = new FiberMemory(1, MemoryStatus.LockedForCaller, fid, Guid.NewGuid(), Guid.NewGuid(), mikoyan, bin);
 
       using var wscope = BixWriterBufferScope.DefaultCapacity;
 
@@ -109,7 +109,7 @@ namespace Azos.Tests.Unit.Fabric
       state.SetAttachment("profilepic.jpg", new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 });
 
       //shard calls
-      var mem = new FiberMemory(1, MemoryStatus.LockedForCaller, fid, Guid.NewGuid(), null, GetFiberMemoryBuffer(pars, state));
+      var mem = new FiberMemory(1, MemoryStatus.LockedForCaller, fid, Guid.NewGuid(), Guid.NewGuid(), null, GetFiberMemoryBuffer(pars, state));
 
       using var wscope = BixWriterBufferScope.DefaultCapacity;
 
@@ -191,7 +191,7 @@ namespace Azos.Tests.Unit.Fabric
       state.SetAttachment("profilepic.jpg", new byte[23000]);
 
       //shard calls
-      var mem = new FiberMemory(1, MemoryStatus.LockedForCaller, fid, Guid.NewGuid(), null, GetFiberMemoryBuffer(pars, state));
+      var mem = new FiberMemory(1, MemoryStatus.LockedForCaller, fid, Guid.NewGuid(), Guid.NewGuid(), null, GetFiberMemoryBuffer(pars, state));
 
       using var wscope = BixWriterBufferScope.DefaultCapacity;
 
