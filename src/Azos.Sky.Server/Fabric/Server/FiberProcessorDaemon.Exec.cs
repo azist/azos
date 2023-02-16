@@ -83,7 +83,7 @@ namespace Azos.Sky.Fabric.Server
 
         foreach(var shard in runspace.Shards)
         {
-          var shBatch = (int)(rsBatch * shard.ProcessingFactor);
+          var shBatch = (int)(rsBatch * shard.ProcessingFactor); //can be zero
           for(var i=0; i<shBatch; i++)
           {
             work.Add(shard);
@@ -116,13 +116,16 @@ namespace Azos.Sky.Fabric.Server
           m_PendingEvent.WaitOne(250);
         }
 
-        if (this.Running)
-        {
-          //Of the thread pool, spawn a worker
-          Task.Factory.StartNew(s => processFiberQuantum((ShardMapping)s),
-                                shard,
-                                TaskCreationOptions.HideScheduler);// FiberTaskScheduler);
-        }
+        if (!this.Running) break;
+
+        //Semaphore throttle
+        Interlocked.Increment(ref m_PendingCount);
+
+        //Of the thread pool, spawn a worker
+        Task.Factory.StartNew(s => processFiberQuantum((ShardMapping)s),
+                              shard,
+                              TaskCreationOptions.HideScheduler);// FiberTaskScheduler);
+
       }//foreach
     }
 
@@ -143,12 +146,16 @@ namespace Azos.Sky.Fabric.Server
                  error,
                  related: rel);
       }
+      finally
+      {
+        Interlocked.Decrement(ref m_PendingCount);
+        m_PendingEvent.Set();
+      }
     }
 
     private async Task processFiberQuantumUnsafe(ShardMapping shard, Guid logRel)
     {
       FiberMemory memory = null;
-      Interlocked.Increment(ref m_PendingCount); //Semaphore throttle
       try
       {
         if (!Running) return;//not running anymore
@@ -212,9 +219,6 @@ namespace Azos.Sky.Fabric.Server
                     error,
                     related: logRel);
         }
-
-        Interlocked.Decrement(ref m_PendingCount);
-        m_PendingEvent.Set();
         #endregion -------------------------------------------------
       }
     }
