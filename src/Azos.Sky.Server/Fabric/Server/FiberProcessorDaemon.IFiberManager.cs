@@ -13,6 +13,23 @@ namespace Azos.Sky.Fabric.Server
 {
   partial class FiberProcessorDaemon
   {
+    private ShardMapping getShardMapping(FiberId fib)
+    {
+      var rm = m_Runspaces[fib.Runspace];
+      rm.NonNull($"Existing runspace `{fib.Runspace}`");
+      var sm = rm.Shards[fib.MemoryShard];
+      sm.NonNull($"Existing shard `{fib.MemoryShard}`");
+      return sm;
+    }
+
+    private Type getImageType(Guid tid)
+    {
+      var result = m_ImageTypeResolver.TryResolve(tid);
+      result.NonNull($"Resolved image `{tid}`");
+      return result;
+    }
+
+
     public IEnumerable<Atom> GetRunspaces() => m_Runspaces.Select(one => one.Name).ToArray();
 
     public FiberId AllocateFiberId(Atom runspace)
@@ -20,14 +37,13 @@ namespace Azos.Sky.Fabric.Server
       CheckDaemonActive();
       runspace.IsValidNonZero(nameof(runspace));
       var rs = m_Runspaces[runspace];
-      rs.NonNull($"Runspace `{runspace}`");
+      rs.NonNull($"Existing runspace `{runspace}`");
       var shard = rs.GetShardForNewAllocation();
 
       if (shard == null)
       {
         throw new FabricFiberAllocationException(ServerStringConsts.FABRIC_FIBER_ALLOC_NO_SPACE_ERROR.Args());
       }
-
 
       //Runspaces must be in separate databases as their ids are used as sequence names
       var gdid = m_Gdid.Provider.GenerateOneGdid(SysConsts.GDID_NS_FABRIC, runspace.Value);
@@ -36,9 +52,23 @@ namespace Azos.Sky.Fabric.Server
       return result;
     }
 
-    public Task<FiberInfo> StartFiberAsync(FiberStartArgs args)
+    public async Task<FiberInfo> StartFiberAsync(FiberStartArgs args)
     {
-      throw new NotImplementedException();
+#warning Need to test security here to start fibers
+      //Validate payload
+      args.AsValidIn(App, nameof(args));
+
+      //Try to map shard
+      var shard = getShardMapping(args.Id);
+      //Try resolve image to make sure it exists
+      var tImage = getImageType(args.ImageTypeId);
+
+      //Pack parameters
+      var binParameters = FiberMemory.PackParameters(args.Parameters);
+
+      var storeArgs = new StoreCreateArgs(args, binParameters);
+      var result = await shard.CreateAsync(storeArgs).ConfigureAwait(false);
+      return result;
     }
 
     public Task<IEnumerable<FiberInfo>> GetFiberListAsync(FiberFilter args)

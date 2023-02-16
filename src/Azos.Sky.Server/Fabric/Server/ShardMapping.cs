@@ -93,7 +93,7 @@ namespace Azos.Sky.Fabric.Server
 
     #region IFiberStoreShard
 
-    public Task<FiberInfo> StartFiberAsync(FiberStartArgs args)
+    public Task<FiberInfo> CreateAsync(StoreCreateArgs args)
     {
       throw new NotImplementedException();
     }

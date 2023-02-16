@@ -251,8 +251,6 @@ namespace Azos.Sky.Fabric.Server
                  "There are still {0} tasks unfinished even after waiting over the max timeout of {1} for {2:n1} sec".Args(pc, timeout, tm.ElapsedSec));
       }
 
-
-
       m_Thread.Join();
       DisposeAndNull(ref m_PendingEvent);
       DisposeAndNull(ref m_IdleEvent);

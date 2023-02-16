@@ -20,9 +20,9 @@ namespace Azos.Sky.Fabric.Server
   public interface IFiberStoreShard : IAtomNamed, IApplicationComponent
   {
     /// <summary>
-    /// Starts a fiber
+    /// Creates a new fiber entry
     /// </summary>
-    Task<FiberInfo> StartFiberAsync(FiberStartArgs args);
+    Task<FiberInfo> CreateAsync(StoreCreateArgs args);
 
     /// <summary>
     /// Filters fibers of this shard info a list
