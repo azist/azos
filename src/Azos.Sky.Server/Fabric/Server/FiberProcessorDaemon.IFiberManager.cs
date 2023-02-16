@@ -54,6 +54,8 @@ namespace Azos.Sky.Fabric.Server
 
     public async Task<FiberInfo> StartFiberAsync(FiberStartArgs args)
     {
+      CheckDaemonActive();
+
 #warning Need to test security here to start fibers
       //Validate payload
       args.AsValidIn(App, nameof(args));
@@ -71,9 +73,59 @@ namespace Azos.Sky.Fabric.Server
       return result;
     }
 
-    public Task<IEnumerable<FiberInfo>> GetFiberListAsync(FiberFilter args)
+    public async Task<IEnumerable<FiberInfo>> GetFiberListAsync(FiberFilter filter)
     {
-      throw new NotImplementedException();
+      filter.AsValidIn(App, nameof(filter));
+
+      var specificShard = filter.Id.HasValue ? getShardMapping(filter.Id.Value) : null;
+
+      IEnumerable<ShardMapping> shards = null;
+
+      if (specificShard != null)
+      {
+        shards = specificShard.ToEnumerable();
+      }
+      else
+      {
+        if (filter.Runspace.HasValue && !filter.Runspace.Value.IsZero)
+        {
+          var rm = Runspaces[filter.Runspace.Value];
+          rm.NonNull($"Existing runspace `{filter.Runspace.Value}`");
+          shards = rm.Shards;
+        }
+        else
+        {
+          shards = Runspaces.SelectMany(rs => rs.Shards);
+        }
+      }
+
+      var result = new List<FiberInfo>();
+
+      foreach(var batch in shards.BatchBy(4))
+      {
+        if (!Running) break;
+
+        var tasks = batch.Select(async shard =>
+        {
+          try
+          {
+            return await shard.GetFiberListAsync(null);//supply filter object
+          }
+          catch(Exception error)
+          {
+            WriteLogFromHere(Azos.Log.MessageType.Error, $"Shard `{shard.Name}` fetch leaked: {error.ToMessageWithType()}", error);
+            return Enumerable.Empty<FiberInfo>();
+          }
+        }).ToArray();
+
+        var tresults = await Task.WhenAll(tasks).ConfigureAwait(false);
+        tresults.ForEach(tr => result.AddRange(tr));
+      }
+
+      //todo Sort result
+      result.Sort((x, y) =>  x.Id.Runspace.ID.CompareTo(y.Id.Runspace.ID) );
+
+      return result;
     }
 
     public Task<FiberInfo> GetFiberInfoAsync(FiberId idFiber)

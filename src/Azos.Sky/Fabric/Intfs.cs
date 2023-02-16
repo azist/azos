@@ -38,7 +38,7 @@ namespace Azos.Sky.Fabric
     /// <summary>
     /// Filters fiber info list
     /// </summary>
-    Task<IEnumerable<FiberInfo>> GetFiberListAsync(FiberFilter args);
+    Task<IEnumerable<FiberInfo>> GetFiberListAsync(FiberFilter filter);
 
     /// <summary>
     /// Returns fiber information by id or null if not found

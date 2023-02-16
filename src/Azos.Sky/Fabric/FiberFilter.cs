@@ -23,11 +23,14 @@ namespace Azos.Sky.Fabric
   [Bix("5c24bf15-a4e0-4394-b9e5-a77af7d311a1")]
   public sealed class FiberFilter : FilterModel<IEnumerable<FiberInfo>>
   {
+    [Field(description: "Runspace id: runspace")]
+    public Atom? Runspace { get; set; }
+
     [Field(description: "Fiber id: runspace and Gdid")]
     public FiberId? Id { get; set; }
 
     [Field(description: "Fiber Guid used for log and other correlation token")]
-    public Guid? FiberGuid { get; set; }
+    public Guid? InstanceGuid { get; set; }
 
     [Field(description: "Defines what cloud origin (cluster partition) this fiber belongs to and runs")]
     public Atom? Origin { get; set; }
