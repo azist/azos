@@ -14,6 +14,7 @@ using Azos.Apps;
 using Azos.Client;
 using Azos.Collections;
 using Azos.Conf;
+using Azos.Data;
 using Azos.Instrumentation;
 using Azos.Log;
 
@@ -103,12 +104,12 @@ namespace Azos.Sky.Fabric.Server
       throw new NotImplementedException();
     }
 
-    public Task<FiberInfo> GetFiberInfoAsync(FiberId idFiber)
+    public Task<FiberInfo> GetInfoAsync(GDID gFiber)
     {
       throw new NotImplementedException();
     }
 
-    public Task<FiberParameters> GetFiberParametersAsync(FiberId idFiber)
+    public Task<byte[]> GetParametersAsync(GDID gFiber)
     {
       throw new NotImplementedException();
     }

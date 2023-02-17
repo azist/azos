@@ -132,14 +132,23 @@ namespace Azos.Sky.Fabric.Server
       return result;
     }
 
-    public Task<FiberInfo> GetFiberInfoAsync(FiberId idFiber)
+    public async Task<FiberInfo> GetFiberInfoAsync(FiberId idFiber)
     {
-      throw new NotImplementedException();
+      //Try to map shard
+      var shard = getShardMapping(idFiber);
+      var result = await shard.GetInfoAsync(idFiber.Gdid).ConfigureAwait(false);
+      return result;
     }
 
-    public Task<FiberParameters> GetFiberParametersAsync(FiberId idFiber)
+    public async Task<FiberParameters> GetFiberParametersAsync(FiberId idFiber)
     {
-      throw new NotImplementedException();
+      //Try to map shard
+      var shard = getShardMapping(idFiber);
+      var rawParams = await shard.GetParametersAsync(idFiber.Gdid).ConfigureAwait(false);
+
+      var result = FiberMemory.UnpackParameters(rawParams);
+
+      return result;
     }
 
     public Task<FiberResult> GetFiberResultAsync(FiberId idFiber)

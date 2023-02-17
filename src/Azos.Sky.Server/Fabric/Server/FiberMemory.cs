@@ -219,7 +219,7 @@ namespace Azos.Sky.Fabric.Server
 
     /// <summary>
     /// Called only when fibers are created by processor.
-    /// Complementary pair with <see cref="UnpackParameters(Type, byte[])"/>
+    /// Complementary pair with <see cref="UnpackParameters(byte[], Type)"/>
     /// </summary>
     public static byte[] PackParameters(FiberParameters pars)
     {
@@ -242,14 +242,18 @@ namespace Azos.Sky.Fabric.Server
     /// <summary>
     /// Called by processor complement of <see cref="PackParameters(FiberParameters)"/>
     /// </summary>
-    public static FiberParameters UnpackParameters(Type tParameters, byte[] buffer)
+    public static FiberParameters UnpackParameters(byte[] buffer, Type tParameters = null)
     {
       if (buffer == null) return null;
       (buffer.Length > sizeof(uint)).IsTrue("Memory parameters buffer > 4 bytes");
 
       var csum = IO.ErrorHandling.Adler32.ForBytes(buffer, sizeof(uint));
 
-      tParameters.IsOfType<FiberParameters>(nameof(tParameters));
+      if (tParameters != null)
+      {
+        tParameters.IsOfType<FiberParameters>(nameof(tParameters));
+      }
+
       using var rscope = new BixReaderBufferScope(buffer);
       var gotCsum = rscope.Reader.ReadFixedBE32bits();
 
@@ -262,7 +266,16 @@ namespace Azos.Sky.Fabric.Server
       var json = rscope.Reader.ReadString();
       if (json == null) return null;
 
-      var result = (FiberParameters)JsonReader.ToDoc(tParameters, json, fromUI: false, options: JsonReader.DocReadOptions.BindByCode);
+      FiberParameters result;
+
+      if (tParameters == null)
+      {
+        result = JsonReader.ToDoc<FiberParameters>(json, fromUI: false, options: JsonReader.DocReadOptions.BindByCode);
+      }
+      else
+      {
+        result = (FiberParameters)JsonReader.ToDoc(tParameters, json, fromUI: false, options: JsonReader.DocReadOptions.BindByCode);
+      }
 
       return result;
     }
@@ -295,7 +308,7 @@ namespace Azos.Sky.Fabric.Server
       var parsBuffer = rscope.Reader.ReadBuffer();
       if (parsBuffer != null)
       {
-        pars = UnpackParameters(tParameters, parsBuffer);
+        pars = UnpackParameters(parsBuffer, tParameters);
       }
 
       var state = (FiberState)Serialization.SerializationUtils.MakeNewObjectInstance(tState);
