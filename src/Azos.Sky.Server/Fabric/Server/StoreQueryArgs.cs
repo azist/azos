@@ -24,11 +24,24 @@ namespace Azos.Sky.Fabric
   public sealed class StoreQueryArgs : TransientModel
   {
     public StoreQueryArgs() { }
-    public StoreQueryArgs(FiberFilter proto)
+    public StoreQueryArgs(FiberFilter filter, int totalShards)
     {
-      proto.CopyFields(this);
-      if (proto.Id.HasValue) this.Gdid = proto.Id.Value.Gdid;
+      const int MAX_RECORDS = 512;
+
+      filter.CopyFields(this);
+      if (filter.Id.HasValue) this.Gdid = filter.Id.Value.Gdid;
+
+      if (totalShards < 1) totalShards = 1;
+
+      var rc = (filter.PagingCount > 0 ? filter.PagingCount : MAX_RECORDS ) / totalShards;
+
+      rc = rc.KeepBetween(1, (MAX_RECORDS / totalShards).AtMinimum(1));
+
+      RecordCount = rc;
     }
+
+    [Field(Description = "How many records to return")]
+    public int RecordCount { get; set; }
 
     [Field(Description = "Gdid of the specific fiber or zero")]
     public GDID?  Gdid { get; set; }

@@ -101,7 +101,9 @@ namespace Azos.Sky.Fabric.Server
 
       var result = new List<FiberInfo>();
 
-      var queryArgs = new StoreQueryArgs(filter);
+      var totalShards = shards.Count();
+
+      var queryArgs = new StoreQueryArgs(filter, totalShards);
 
       foreach(var batch in shards.BatchBy(4))
       {
