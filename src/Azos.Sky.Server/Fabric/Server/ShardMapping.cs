@@ -98,7 +98,7 @@ namespace Azos.Sky.Fabric.Server
       throw new NotImplementedException();
     }
 
-    public Task<IEnumerable<FiberInfo>> GetFiberListAsync(FiberFilter args)
+    public Task<IEnumerable<FiberInfo>> QueryAsync(StoreQueryArgs args)
     {
       throw new NotImplementedException();
     }

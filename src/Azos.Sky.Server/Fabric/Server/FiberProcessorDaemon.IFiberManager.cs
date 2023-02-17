@@ -101,6 +101,8 @@ namespace Azos.Sky.Fabric.Server
 
       var result = new List<FiberInfo>();
 
+      var queryArgs = new StoreQueryArgs(filter);
+
       foreach(var batch in shards.BatchBy(4))
       {
         if (!Running) break;
@@ -109,7 +111,7 @@ namespace Azos.Sky.Fabric.Server
         {
           try
           {
-            return await shard.GetFiberListAsync(null);//supply filter object
+            return await shard.QueryAsync(queryArgs).ConfigureAwait(false);//supply filter object
           }
           catch(Exception error)
           {

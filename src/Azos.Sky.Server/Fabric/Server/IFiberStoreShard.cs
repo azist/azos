@@ -27,7 +27,7 @@ namespace Azos.Sky.Fabric.Server
     /// <summary>
     /// Filters fibers of this shard info a list
     /// </summary>
-    Task<IEnumerable<FiberInfo>> GetFiberListAsync(FiberFilter args);
+    Task<IEnumerable<FiberInfo>> QueryAsync(StoreQueryArgs args);
 
     /// <summary>
     /// Returns fiber information by id or null if not found; doe not take lock as the data for view-only
