@@ -45,6 +45,19 @@ namespace WaveTestSite.Controllers
         return Task.FromResult<object>(Azos.Text.NaturalTextGenerator.Generate(len.KeepBetween(1, 128 * 1024)));
       }
 
+      [Action]
+      public object Error(string text = "Unspecified text")
+      {
+        throw new AzosException("Error thrown with: "+ text);
+      }
+
+      [Action]
+      public async Task<object> ErrorAsync(string text = "Unspecified text async")
+      {
+        await Task.Delay(1000);
+        throw new AzosException("Async Error thrown with: " + text);
+      }
+
       [Action, ApiEndpointDoc]
       public object AboutUs()
       {
@@ -117,6 +130,12 @@ namespace WaveTestSite.Controllers
       public string Multiply(int a=2, int b=3, string text = "Was multiplied")
       {
         return "{0} {1}".Args(text, a*b);
+      }
+
+      [Action, ApiEndpointDoc]
+      public string Divide(double a = 1, double b = 1, string text = "Was divided")
+      {
+        return "{0} {1}".Args(text, a / b);
       }
 
       [Action, ApiEndpointDoc]
