@@ -35,11 +35,27 @@ private void dumpError(StringBuilder output, Exception error, int level)
     output.AppendLine("<h3> {0}. {1}</h3>".Args(level, Target.Encode(error.GetType().FullName)));
     output.AppendLine("<div class=\"code\">{0}</div>".Args(Target.Encode(error.Message).AsString()));
     output.AppendLine("<h4> Stack: </h4>");
-    output.AppendLine("<div class=\"code\"><ul>{0}</ul></div>".Args(Target.Encode(error.StackTrace).AsString().Replace("at ","<li> at ")));
+    //output.AppendLine("<div class=\"code\"><ul>{0}</ul></div>".Args(Target.Encode(error.StackTrace).AsString().Replace("at ","<li> at ")));
+    dumpErrorStackTrace(output, error.StackTrace);
     output.AppendLine("<hr>");
 
     if (error.InnerException != null)
     dumpError(output, error.InnerException, level + 1);
+}
+
+private void dumpErrorStackTrace(StringBuilder output, string stackTrace)
+{
+   output.AppendLine("<div class=\"code\">");
+   output.AppendLine("<ul><span>");
+
+   stackTrace = Target.Encode(stackTrace).AsString().Replace("at ","</span><li> at ");
+   stackTrace = stackTrace.Replace(" in "," in <span class=\"code-file\">");
+   stackTrace = stackTrace.Replace(":line ","</span>:<span class=\"code-line\">line ");
+
+   output.AppendLine(stackTrace);
+
+   output.AppendLine("</span></ul>");
+   output.AppendLine("</div>");
 }
 
 #[override renderHeader()]

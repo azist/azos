@@ -147,6 +147,14 @@
         word-break: break-all;
     }
 
+   .code-file{
+       color: #a0a0a0;
+    }
+
+    .code-line{
+       color: #ffa0a4;
+    }
+
     hr{
         border: 1px solid #bbb;
         margin: 30px;
