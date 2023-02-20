@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 using Azos.Apps;
 using Azos.Collections;
-
+using Azos.Data;
 
 namespace Azos.Sky.Fabric.Server
 {
@@ -20,24 +20,24 @@ namespace Azos.Sky.Fabric.Server
   public interface IFiberStoreShard : IAtomNamed, IApplicationComponent
   {
     /// <summary>
-    /// Starts a fiber
+    /// Creates a new fiber entry
     /// </summary>
-    Task<FiberInfo> StartFiberAsync(FiberStartArgs args);
+    Task<FiberInfo> CreateAsync(StoreCreateArgs args);
 
     /// <summary>
     /// Filters fibers of this shard info a list
     /// </summary>
-    Task<IEnumerable<FiberInfo>> GetFiberListAsync(FiberFilter args);
+    Task<IEnumerable<FiberInfo>> QueryAsync(StoreQueryArgs args);
 
     /// <summary>
-    /// Returns fiber information by id or null if not found; doe not take lock as the data for view-only
+    /// Returns fiber info or null
     /// </summary>
-    Task<FiberInfo> GetFiberInfoAsync(FiberId idFiber);
+    Task<FiberInfo> GetInfoAsync(GDID gFiber);
 
     /// <summary>
     /// Returns fiber start parameters or null if fiber not found
     /// </summary>
-    Task<FiberParameters> GetFiberParametersAsync(FiberId idFiber);
+    Task<byte[]> GetParametersAsync(GDID gFiber);
 
     /// <summary>
     /// Gets fiber result object or null if fiber was not found or has not completed yet

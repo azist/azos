@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.IO;
 using Azos.Data;
 using Azos.Data.Idgen;
+using Azos.Serialization.Bix;
 using Azos.Serialization.JSON;
 
 namespace Azos.Data.Adlib
@@ -18,7 +19,7 @@ namespace Azos.Data.Adlib
   /// A tag represents a (key: Atom, value: string|long) tuple having a purposely restricted key and value domains for
   /// efficiency and control. A tag can have either a string or long numeric value.
   /// You can store decimal/float values as scaled longs. This is done on purpose to limit
-  /// value domain - to ensure an efficient storage and indexing of tags.
+  /// the value domain - to ensure an efficient storage and indexing of tags.
   /// In Adlib data library, tags get added to items for indexing.
   /// Azos uses tags in places where ad hoc properties are required.
   /// The tags are typically used for indexing and searches
@@ -37,6 +38,19 @@ namespace Azos.Data.Adlib
       Prop = prop.IsValidNonZero(nameof(prop));
       SValue = null;
       NValue = value;
+    }
+
+    public Tag(BixReader reader, int formatVersion = 0)
+    {
+      Prop = reader.ReadAtom();
+      SValue = reader.ReadString();
+      NValue = reader.ReadLong();
+    }
+    public void Write(BixWriter wri, int formatVersion = 0)
+    {
+      wri.Write(Prop);
+      wri.Write(SValue);
+      wri.Write(NValue);
     }
 
     private Tag(Atom prop, string svalue, long lvalue)

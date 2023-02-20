@@ -23,6 +23,42 @@ namespace Azos.Sky.Fabric.Server
     internal FiberMemoryDelta(){ }
 
     /// <summary>
+    /// system internal use
+    /// </summary>
+    public struct SlotChange
+    {
+      public SlotChange(Atom name, FiberState.Slot slot)
+      {
+        Name = name;
+        Mutation = slot.SlotMutation;
+        NoPreload = slot.DoNotPreload;
+        Data = FiberState.PackSlot(slot);
+      }
+
+      public SlotChange(BixReader reader)
+      {
+        Name = reader.ReadAtom();
+        Mutation = (FiberState.SlotMutationType)reader.ReadByte();
+        NoPreload = reader.ReadBool();
+        Data = reader.ReadBuffer();
+      }
+
+      public void WriteOneWay(BixWriter writer)
+      {
+        writer.Write(Name);
+        writer.Write((byte)Mutation);
+        writer.Write(NoPreload);
+        writer.WriteBuffer(Data);
+      }
+
+      public readonly Atom Name;
+      public readonly FiberState.SlotMutationType Mutation;
+      public readonly bool NoPreload;
+      public readonly byte[] Data;
+    }
+
+
+    /// <summary>
     /// Called by shards: reads memory from flat bin content produced by processor.
     /// Processors never read this back as they read <see cref="FiberMemory"/> instead
     /// </summary>
@@ -54,12 +90,18 @@ namespace Azos.Sky.Fabric.Server
 
       var changeCount = reader.ReadInt();
       (changeCount <= Constraints.MAX_STATE_SLOT_COUNT).IsTrue("max state slot count");
-      ChangesReceived = new KeyValuePair<Atom, byte[]>[changeCount];
-      for(var i=0; i< changeCount; i++)
+      ChangesReceived = new SlotChange[changeCount];
+      for(var i=0; i < changeCount; i++)
       {
-        var idSlot = reader.ReadAtom();
-        var slotData = reader.ReadBuffer();
-        ChangesReceived[i] = new KeyValuePair<Atom,byte[]>(idSlot, slotData);
+        ChangesReceived[i] = new SlotChange(reader);
+      }
+
+      var tagCount = reader.ReadInt();
+      (changeCount <= Constraints.MAX_TAG_COUNT).IsTrue("max state tag count");
+      Tags = new Data.Adlib.Tag[tagCount];
+      for (var i = 0; i < tagCount; i++)
+      {
+        Tags[i] = new Data.Adlib.Tag(reader, Version);
       }
     }
 
@@ -104,9 +146,15 @@ namespace Azos.Sky.Fabric.Server
       writer.Write(changeCount);
       for(var i=0; i < changeCount; i++)
       {
-        var change = Changes[i];
-        writer.Write(change.Key);
-        writer.Write(JsonWriter.WriteToBuffer(change.Value, JsonWritingOptions.CompactRowsAsMap));
+        var change = new SlotChange(Changes[i].Key, Changes[i].Value);
+        change.WriteOneWay(writer);
+      }
+
+      var tagCount = Tags?.Length ?? 0;
+      writer.Write(tagCount);
+      for (var i = 0; i < tagCount; i++)
+      {
+        Tags[i].Write(writer, formatVersion);
       }
     }
 
@@ -139,7 +187,11 @@ namespace Azos.Sky.Fabric.Server
     ///Since FiberState.Slot[] is polymorphic, the memory shard receives and stores state data as byte[], as it has no
     /// way of deserializing the CLR type that processor serialized
     /// </summary>
-    public KeyValuePair<Atom, byte[]>[] ChangesReceived { get; internal set; }
+    public SlotChange[] ChangesReceived { get; internal set; }
 
+    /// <summary>
+    /// Value set by processor to be sent into shard
+    /// </summary>
+    public Data.Adlib.Tag[] Tags { get; internal set; }
   }
 }

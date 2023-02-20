@@ -24,6 +24,28 @@ namespace Azos.Serialization.Bix
 
     public bool IsAssigned => m_Stream != null;
 
+    #region FIXED bits
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public uint ReadFixedBE32bits()
+    {
+      uint result =
+       (((uint)ReadByte()) << 24) |
+       (((uint)ReadByte()) << 16) |
+       (((uint)ReadByte()) << 8)  |
+       ((uint)ReadByte());
+
+      return result;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public ulong ReadFixedBE64bits()
+    {
+      uint hi = ReadFixedBE32bits();
+      uint lo = ReadFixedBE32bits();
+      return ((ulong)hi << 32) | lo;
+    }
+    #endregion
+
     #region BYTE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void ReadFromStream(byte[] buffer, uint count) => ReadFromStream(buffer, (int)count);
@@ -1084,7 +1106,7 @@ namespace Azos.Serialization.Bix
     public Data.GDID ReadGDID()
     {
       var buf = Format.GetBuff32();
-      ReadFromStream(buf, sizeof(uint) + sizeof(ulong));
+      ReadFromStream(buf, GDID.BYTE_SIZE);
       return new Data.GDID(buf);
     }
 
@@ -1138,9 +1160,9 @@ namespace Azos.Serialization.Bix
     #region RGDID
     public Data.RGDID ReadRGDID()
     {
-      var route = ReadUint();
-      var gdid = ReadGDID();
-      return new Data.RGDID(route, gdid);
+      var buf = Format.GetBuff32();
+      ReadFromStream(buf, RGDID.BYTE_SIZE);
+      return new Data.RGDID(buf);
     }
 
     public Data.RGDID? ReadNullableRGDID()

@@ -37,7 +37,7 @@ namespace Azos.Sky.Fabric
     /// Describes how slot data has changed - this is needed for change tracking
     /// when system saves state changes into persisted storage.
     /// </summary>
-    public enum SlotMutationType
+    public enum SlotMutationType : byte
     {
       Unchanged = 0,
       Modified = 1,
@@ -106,7 +106,6 @@ namespace Azos.Sky.Fabric
 
     internal void __fromStream(BixReader reader, int version)
     {
-      m_MemoryVersion = version;
       m_CurrentStep = reader.ReadAtom();
 
       var slotCount = reader.ReadInt();
@@ -121,42 +120,81 @@ namespace Azos.Sky.Fabric
       }
     }
 
-    internal void __toStream(BixWriter writer, int memoryVersion)
+    /// <summary>
+    /// Called by shards, writes binary wire data for state to be received by FiberState-descendant.
+    /// Data is read from memory
+    /// </summary>
+    internal static void WriteShardData(BixWriter writer,
+                                        Atom currentStep,
+                                        KeyValuePair<Atom, byte[]>[] slots)
     {
-      writer.Write(m_CurrentStep);
-      writer.Write(m_Data.Count);
-      using var wbuf = BixWriterBufferScope.DefaultCapacity;
-      foreach(var kvp in m_Data)
+      writer.Write(currentStep);
+      writer.Write(slots.Length);
+      foreach(var slot in slots)
       {
-        writer.Write(kvp.Key);
-
-        var json = JsonWriter.Write(kvp.Value, JsonWritingOptions.CompactRowsAsMap);
-        wbuf.Reset();
-        wbuf.Writer.Write(json);
-        writer.WriteBuffer(wbuf.Buffer);
+        writer.Write(slot.Key);
+        writer.WriteBuffer(slot.Value);
       }
     }
 
-    private int m_MemoryVersion;
     private Atom m_CurrentStep;
     private readonly Dictionary<Atom, object> m_Data = new Dictionary<Atom, object>();//Variant data type - stores either byte[] or Slot
 
+    internal Dictionary<Atom, object> _____getInternaldataForUnitTest() => m_Data;
+
+
+
+    public static byte[] PackSlot(Slot slot)
+    {
+      using var scope = BixWriterBufferScope.DefaultCapacity;
+      scope.Writer.WriteFixedBE32bits(0);//csum 4 bytes
+      scope.Writer.Write(Constraints.MEMORY_FORMAT_VERSION);
+      //===============================================
+
+      //future if (version<2) use json else use Bix
+      var json = JsonWriter.Write(slot, JsonWritingOptions.CompactRowsAsMap);
+      scope.Writer.Write(json);
+
+      //===============================================
+      var result = scope.Buffer;
+      var csum = IO.ErrorHandling.Adler32.ForBytes(result, sizeof(uint));
+      IOUtils.WriteBEUInt32(result, csum);
+      return result;
+    }
+
+    public static Slot UnpackSlot(byte[] buf)
+    {
+      if (buf == null) return null;
+      (buf.Length > sizeof(uint)).IsTrue("Slot memory buffer > 4 bytes");
+
+      var csum = IO.ErrorHandling.Adler32.ForBytes(buf, sizeof(uint));
+
+      using var scope = new BixReaderBufferScope(buf);
+      var gotCsum = scope.Reader.ReadFixedBE32bits();
+
+      (csum == gotCsum).IsTrue("Valid slot memory signature");
+
+      var ver = scope.Reader.ReadInt();
+      //-------------------
+      //future, use Bix
+      var json = scope.Reader.ReadString();
+      var slotFromJson = JsonReader.ToDoc<Slot>(json, fromUI: false, JsonReader.DocReadOptions.BindByCode);
+      return slotFromJson;
+    }
+
+
     // Unpacks Slot from variant data type which either stores byte[] or already unpacked slot
     // null if key does not exist
-    private Slot getSlot(Dictionary<Atom, object> data, Atom key)
+    private static Slot getSlot(Dictionary<Atom, object> data, Atom key)
     {
       if (!data.TryGetValue(key, out var got)) return null;
 
       if (got is Slot slot) return slot;
       if (got is byte[] buf)
       {
-        //todo: deserialize using BIX
-        //if m_MemroyVersion < 100 then use_json else use_bix
-        using var scope = new BixReaderBufferScope(buf);
-        var json = scope.Reader.ReadString();
-        var slotFromJson = JsonReader.ToDoc<Slot>(json, fromUI: false, JsonReader.DocReadOptions.BindByCode);
-        data[key] = slotFromJson;
-        return slotFromJson;
+        var result = UnpackSlot(buf);
+        data[key] = result;
+        return result;
       }
 
       throw new FabricException("Implementation exception: ! slot and !byte[]");
@@ -201,7 +239,7 @@ namespace Azos.Sky.Fabric
     /// <summary>
     /// Override this property to set indexable tags for this state.
     /// The system uses state tags to find fibers by tagged values - this mechanism is used
-    /// in addition to fiber tags which are immutable
+    /// in addition to fiber-level tags which are immutable
     /// <br/>
     /// Return:
     /// <list>

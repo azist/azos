@@ -157,6 +157,7 @@ namespace Azos.Tests.Nub.Serialization
     public class WithVariousStructsDoc : TypedDoc
     {
       [Field] public GDID Gdid { get; set; }
+      [Field] public RGDID RGdid { get; set; }
       [Field] public GDIDSymbol GdidSymbol { get; set; }
       [Field] public Guid Guid { get; set; }
       [Field] public Atom Atom { get; set; }
@@ -180,6 +181,7 @@ namespace Azos.Tests.Nub.Serialization
     public class WithVariousNullableStructsDoc : TypedDoc
     {
       [Field] public GDID? Gdid { get; set; }
+      [Field] public RGDID? RGdid { get; set; }
       [Field] public GDIDSymbol? GdidSymbol { get; set; }
       [Field] public Guid? Guid { get; set; }
       [Field] public Atom? Atom { get; set; }
@@ -210,6 +212,7 @@ namespace Azos.Tests.Nub.Serialization
       var d1 = new WithVariousStructsDoc
       {
         Gdid = new GDID(1, 2, 3),
+        RGdid = new RGDID(1234567, new GDID(256, 7, 267457637456)),
         GdidSymbol = new GDIDSymbol(new GDID(1, 2, 3), "abrkadabra"),
         Guid = Guid.NewGuid(),
         Atom = new Atom(),
@@ -236,6 +239,7 @@ namespace Azos.Tests.Nub.Serialization
       JsonReader.ToDoc(d2, map);
 
       Aver.AreEqual(d1.Gdid, d2.Gdid);
+      Aver.AreEqual(d1.RGdid, d2.RGdid);
       Aver.AreEqual(d1.GdidSymbol, d2.GdidSymbol);
       Aver.AreEqual(d1.Guid, d2.Guid);
       Aver.AreEqual(d1.Atom, d2.Atom);
@@ -269,6 +273,20 @@ namespace Azos.Tests.Nub.Serialization
       JsonReader.ToDoc(d2, map);
 
       Aver.AreEqual(d1.Gdid, d2.Gdid);
+    }
+
+    [Run]
+    public void Test_WithVariousNullableStructsDoc_RGDID()
+    {
+      var d1 = new WithVariousNullableStructsDoc { RGdid = new RGDID(9876, new GDID(1, 2, 3)) };
+      var json = d1.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
+      json.See();
+      var map = json.JsonToDataObject() as JsonDataMap;
+
+      var d2 = new WithVariousNullableStructsDoc();
+      JsonReader.ToDoc(d2, map);
+
+      Aver.AreEqual(d1.RGdid, d2.RGdid);
     }
 
     [Run]
@@ -533,7 +551,8 @@ namespace Azos.Tests.Nub.Serialization
         {
           Inner = new WithVariousNullableStructsDoc
           {
-            Gdid = new GDID(2, 3, 4)
+            Gdid = new GDID(2, 3, 4),
+            RGdid = new RGDID(1234567, new GDID(0, 1, 987654321))
           }
         }
       };
@@ -547,6 +566,7 @@ namespace Azos.Tests.Nub.Serialization
       Aver.IsNotNull(d2.Inner);
       Aver.IsNotNull(d2.Inner.Inner);
       Aver.AreEqual(new GDID(2, 3, 4), d2.Inner.Inner.Gdid);
+      Aver.AreEqual(new RGDID(1234567, new GDID(0, 1, 987654321)), d2.Inner.Inner.RGdid);
     }
 
     [Run]

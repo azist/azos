@@ -684,6 +684,94 @@ namespace Azos.Tests.Nub.IO
     }
 
     [Run]
+    public void _RGDID_1()
+    {
+      using (var ms = new MemoryStream())
+      {
+        var r = SlimFormat.Instance.MakeReadingStreamer();
+        var w = SlimFormat.Instance.MakeWritingStreamer();
+
+        r.BindStream(ms);
+        w.BindStream(ms);
+
+        var gdid = new RGDID(1234567890, new GDID(34, 9876543210));
+
+        w.Write(gdid);
+
+        ms.Seek(0, SeekOrigin.Begin);
+
+        Aver.AreEqual(gdid, r.ReadRGDID());
+      }
+    }
+
+    [Run]
+    public void _RGDID_2()
+    {
+      using (var ms = new MemoryStream())
+      {
+        var r = SlimFormat.Instance.MakeReadingStreamer();
+        var w = SlimFormat.Instance.MakeWritingStreamer();
+
+        r.BindStream(ms);
+        w.BindStream(ms);
+
+        var gdid = new RGDID(0xffffffff, new GDID(0xffffffff, 0xffffffffffffffe0));
+
+        w.Write(gdid);
+
+        ms.Seek(0, SeekOrigin.Begin);
+
+        Aver.AreEqual(gdid, r.ReadRGDID());
+      }
+    }
+
+    [Run]
+    public void NullableRGDID_1()
+    {
+      using (var ms = new MemoryStream())
+      {
+        var r = SlimFormat.Instance.MakeReadingStreamer();
+        var w = SlimFormat.Instance.MakeWritingStreamer();
+
+        r.BindStream(ms);
+        w.BindStream(ms);
+
+        var gdid = new RGDID(1, new GDID(0, 123));
+
+        w.Write((RGDID?)null);
+        w.Write((RGDID?)gdid);
+
+        ms.Seek(0, SeekOrigin.Begin);
+
+        Aver.AreEqual(false, r.ReadNullableRGDID().HasValue);
+        Aver.AreEqual(gdid, r.ReadNullableRGDID().Value);
+      }
+    }
+
+    [Run]
+    public void NullableRGDID_2()
+    {
+      using (var ms = new MemoryStream())
+      {
+        var r = SlimFormat.Instance.MakeReadingStreamer();
+        var w = SlimFormat.Instance.MakeWritingStreamer();
+
+        r.BindStream(ms);
+        w.BindStream(ms);
+
+        var gdid = new RGDID(0xffffffff, new GDID(12, 0xffffffffffffffe0));
+
+        w.Write((RGDID?)null);
+        w.Write((RGDID?)gdid);
+
+        ms.Seek(0, SeekOrigin.Begin);
+
+        Aver.AreEqual(false, r.ReadNullableRGDID().HasValue);
+        Aver.AreEqual(gdid, r.ReadNullableRGDID().Value);
+      }
+    }
+
+    [Run]
     public void _Bool()
     {
       using (var ms = new MemoryStream())

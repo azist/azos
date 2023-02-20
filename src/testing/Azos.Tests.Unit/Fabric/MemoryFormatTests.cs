@@ -24,7 +24,7 @@ namespace Azos.Tests.Unit.Fabric
   {
     public void Prologue(Runner runner, FID id)
     {
-       Bixer.RegisterTypeSerializationCores(System.Reflection.Assembly.GetExecutingAssembly());
+      Bixer.RegisterTypeSerializationCores(System.Reflection.Assembly.GetExecutingAssembly());
     }
     public bool Epilogue(Runner runner, FID id, Exception error) => false;
 
@@ -32,12 +32,12 @@ namespace Azos.Tests.Unit.Fabric
     public void Test01_RawSerDeser_withoutpack_NoImpersonate()
     {
       var fid = new FiberId(Atom.Encode("sys"), Atom.Encode("s1"), new GDID(0, 1, 1));
-      var bin = new byte[]{ 1, 2, 3 };
-      var mem = new FiberMemory(1, MemoryStatus.LockedForCaller, fid, Guid.NewGuid(), null, bin);
+      var bin = new byte[] { 1, 2, 3 };
+      var mem = new FiberMemory(1, MemoryStatus.LockedForCaller, fid, Guid.NewGuid(), Guid.NewGuid(), null, bin);
 
       using var wscope = BixWriterBufferScope.DefaultCapacity;
 
-      mem.WriteOneWay(wscope.Writer, 1);//Serialize by SHARD
+      mem.WriteOneWay(wscope.Writer);//Serialize by SHARD
 
       using var rscope = new BixReaderBufferScope(wscope.Buffer);
       var got = new FiberMemory(rscope.Reader);//Read by processor
@@ -56,11 +56,11 @@ namespace Azos.Tests.Unit.Fabric
       var fid = new FiberId(Atom.Encode("sys"), Atom.Encode("s1"), new GDID(0, 1, 1));
       var mikoyan = new EntityId(Atom.Encode("idp"), Atom.Encode("id"), Atom.ZERO, "mikoyan.ashot.kalgy");
       var bin = new byte[] { 1, 2, 3 };
-      var mem = new FiberMemory(1, MemoryStatus.LockedForCaller, fid, Guid.NewGuid(), mikoyan, bin);
+      var mem = new FiberMemory(1, MemoryStatus.LockedForCaller, fid, Guid.NewGuid(), Guid.NewGuid(), mikoyan, bin);
 
       using var wscope = BixWriterBufferScope.DefaultCapacity;
 
-      mem.WriteOneWay(wscope.Writer, 1);//Serialize by SHARD
+      mem.WriteOneWay(wscope.Writer);//Serialize by SHARD
 
       using var rscope = new BixReaderBufferScope(wscope.Buffer);
       var got = new FiberMemory(rscope.Reader);//Read by processor
@@ -74,6 +74,18 @@ namespace Azos.Tests.Unit.Fabric
       got.See();
     }
 
+    public static byte[] GetFiberMemoryBuffer(FiberParameters pars, FiberState state)
+    {
+      var dbPars = FiberMemory.PackParameters(pars);
+
+      var slots = state._____getInternaldataForUnitTest()
+                       .Select(one => new KeyValuePair<Atom, byte[]>(one.Key, one.Value is byte[] buf ? buf : FiberState.PackSlot((FiberState.Slot)one.Value)))
+                       .ToArray();
+
+      return FiberMemory.PackBuffer(dbPars, Atom.ZERO, slots);
+    }
+
+
     [Run]
     public void Test03_RawSerDeser_withSlots()
     {
@@ -82,30 +94,30 @@ namespace Azos.Tests.Unit.Fabric
       var pars = new TeztParams()
       {
         Int1 = 3456789,
-         Bool1 = true,
-          String1 = "Apple Cider Vinegar Pooking"
+        Bool1 = true,
+        String1 = "Apple Cider Vinegar Pooking"
       };
 
-      var state= new TeztState()
+      var state = new TeztState()
       {
-         FirstName = "Cheese",
-         LastName = "Burgerman",
-         AccountNumber = 12345,
-         DOB = new DateTime(2000, 12, 07, 14, 23, 09, DateTimeKind.Utc)
+        FirstName = "Cheese",
+        LastName = "Burgerman",
+        AccountNumber = 12345,
+        DOB = new DateTime(2000, 12, 07, 14, 23, 09, DateTimeKind.Utc)
       };
 
-      state.SetAttachment("profilepic.jpg", new byte[]{0,1,2,3,4,5,6,7,8,9});
+      state.SetAttachment("profilepic.jpg", new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 });
 
       //shard calls
-      var mem = new FiberMemory(1, MemoryStatus.LockedForCaller, fid, Guid.NewGuid(), null, pars, state);
+      var mem = new FiberMemory(1, MemoryStatus.LockedForCaller, fid, Guid.NewGuid(), Guid.NewGuid(), null, GetFiberMemoryBuffer(pars, state));
 
       using var wscope = BixWriterBufferScope.DefaultCapacity;
 
-      mem.WriteOneWay(wscope.Writer, 1);//Serialize by SHARD
+      mem.WriteOneWay(wscope.Writer);//Serialize by SHARD
 
       var rawWireData = wscope.Buffer;
 
-      "Raw data to be sent over the wire is: {0} bytes".SeeArgs(rawWireData.Length);
+      "Raw data to be sent SHARD-->PROCESSOR over the wire is: {0} bytes".SeeArgs(rawWireData.Length);
 
 
       using var rscope = new BixReaderBufferScope(rawWireData);
@@ -116,7 +128,7 @@ namespace Azos.Tests.Unit.Fabric
       Aver.AreEqual(mem.ImageTypeId, got.ImageTypeId);
       Aver.AreEqual(mem.ImpersonateAs, got.ImpersonateAs);
       Aver.AreArraysEquivalent(mem.Buffer, got.Buffer);
-      got.See("MEMORY:");
+      got.See("PROCESSOR RECEIVED MEMORY:");
 
       var (p, s) = got.UnpackBuffer(typeof(TeztParams), typeof(TeztState));
 
@@ -127,17 +139,16 @@ namespace Azos.Tests.Unit.Fabric
       Aver.IsNotNull(gotState);
 
 
-      //todo compare what I have in: gotPars, gotState
-      gotPars.See("PARAMETERS:");
-      gotState.See("STATE before accessing it:");
+      gotPars.See("PROCESSOR GOT PARAMETERS:");
+      gotState.See("PROCESSOR GOT STATE before accessing it:");
 
       "Last name: {0}".SeeArgs(gotState.LastName);
 
-      gotState.See("STATE after accessing 1 slot:");
+      gotState.See("PROCESSOR STATE after accessing 1 slot:");
 
       "Attachment name: {0}".SeeArgs(gotState.AttachmentName);
 
-      gotState.See("STATE after accessing 2 slot:");
+      gotState.See("PROCESSOR STATE after accessing 2 slot:");
 
       Aver.AreNotSameRef(pars, gotPars);
       Aver.AreNotSameRef(state, gotState);
@@ -180,17 +191,17 @@ namespace Azos.Tests.Unit.Fabric
       state.SetAttachment("profilepic.jpg", new byte[23000]);
 
       //shard calls
-      var mem = new FiberMemory(1, MemoryStatus.LockedForCaller, fid, Guid.NewGuid(), null, pars, state);
+      var mem = new FiberMemory(1, MemoryStatus.LockedForCaller, fid, Guid.NewGuid(), Guid.NewGuid(), null, GetFiberMemoryBuffer(pars, state));
 
       using var wscope = BixWriterBufferScope.DefaultCapacity;
 
-      mem.WriteOneWay(wscope.Writer, 1);//warm up
+      mem.WriteOneWay(wscope.Writer);//warm up
 
       var timerWrite = Timeter.StartNew();
-      for(var i=0; i<cnt; i++)
+      for (var i = 0; i < cnt; i++)
       {
         wscope.Reset();
-        mem.WriteOneWay(wscope.Writer, 1);
+        mem.WriteOneWay(wscope.Writer);
       }
       timerWrite.Stop();
 

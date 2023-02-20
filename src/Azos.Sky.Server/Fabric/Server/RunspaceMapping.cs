@@ -66,12 +66,10 @@ namespace Azos.Sky.Fabric.Server
       private set => m_ProcessingFactor = value.KeepBetween(Constraints.PROCESSING_FACTOR_MIN, Constraints.PROCESSING_FACTOR_MAX);
     }
 
-
     /// <summary>
     /// Returns all shard mappings for this runspace
     /// </summary>
     public IAtomRegistry<ShardMapping> Shards => m_Shards;
-
 
     /// <summary>
     /// Returns a shard where a new allocation should go next, depending on
@@ -89,6 +87,5 @@ namespace Azos.Sky.Fabric.Server
       Interlocked.Increment(ref result.m_AllocationCount);
       return result;
     }
-
   }
 }

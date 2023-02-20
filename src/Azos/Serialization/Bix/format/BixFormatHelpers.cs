@@ -92,11 +92,17 @@ namespace Azos.Serialization.Bix
       }
     }
 
-    public void Reset()
+    /// <summary>
+    /// Starts writing over
+    /// </summary>
+    public void Reset(bool keepWrittenContent = false)
     {
       m_Stream.NonNull(nameof(m_Stream));
       m_Stream.Position = 0;
-      m_Stream.SetLength(0);
+      if (!keepWrittenContent)
+      {
+        m_Stream.SetLength(0);
+      }
     }
 
     public byte[] Buffer => m_Stream.NonNull(nameof(m_Stream)).ToArray();

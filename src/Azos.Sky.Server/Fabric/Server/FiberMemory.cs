@@ -44,24 +44,19 @@ namespace Azos.Sky.Fabric.Server
   public sealed class FiberMemory
   {
     /// <summary>
-    /// .ctor used by unit tests as it packs the params and the state objects
+    /// .ctor used by shards as it packs the params and the state objects
     /// </summary>
     public FiberMemory(
               int version,
               MemoryStatus status,
               FiberId id,
+              Guid instanceGuid,
               Guid imageTypeId,
               EntityId? impersonateAs,
-              FiberParameters pars,
-              FiberState state)
-    {
-      m_Version = version.IsTrue(v => v <= Constraints.MEMORY_FORMAT_VERSION);
-      m_Status = status;
-      m_Id = id;
-      m_ImageTypeId = imageTypeId;
-      m_ImpersonateAs = impersonateAs;
-      m_Buffer = packBuffer(pars, state, m_Version);
-    }
+              byte[] fiberParameters,
+              Atom currentStep,
+              KeyValuePair<Atom, byte[]>[] slots) :
+     this(version, status, id, instanceGuid, imageTypeId, impersonateAs, PackBuffer(fiberParameters, currentStep, slots)) { }
 
     /// <summary>
     /// .ctor used by unit tests - obtains packed payload
@@ -70,6 +65,7 @@ namespace Azos.Sky.Fabric.Server
               int          version,
               MemoryStatus status,
               FiberId      id,
+              Guid         instanceGuid,
               Guid         imageTypeId,
               EntityId?    impersonateAs,
               byte[]       buffer)
@@ -77,6 +73,7 @@ namespace Azos.Sky.Fabric.Server
       m_Version        =   version.IsTrue(v => v <= Constraints.MEMORY_FORMAT_VERSION);
       m_Status         =   status;
       m_Id             =   id;
+      m_InstanceGuid   =   instanceGuid;
       m_ImageTypeId    =   imageTypeId;
       m_ImpersonateAs  =   impersonateAs;
       m_Buffer         =   buffer.NonNull(nameof(buffer));
@@ -100,6 +97,7 @@ namespace Azos.Sky.Fabric.Server
                                   reader.ReadAtom(),
                                   reader.ReadGDID());
 
+      m_InstanceGuid = reader.ReadGuid();
       m_ImageTypeId = reader.ReadGuid();
       m_ImpersonateAs = reader.ReadNullableEntityId();
       m_Buffer = reader.ReadBuffer();
@@ -111,10 +109,9 @@ namespace Azos.Sky.Fabric.Server
     /// it can only be read back by <see cref="FiberMemory(BixReader)"/>.
     /// The changes to memory are NOT communicated back using this method, instead <see cref="FiberMemoryDelta"/> is used
     /// </summary>
-    public void WriteOneWay(BixWriter writer, int formatVersion)
+    public void WriteOneWay(BixWriter writer)
     {
-      (formatVersion <= Constraints.MEMORY_FORMAT_VERSION).IsTrue("Wire Version <= MEMORY_FORMAT_VERSION");
-      writer.Write(formatVersion);
+      writer.Write(m_Version);
 
       writer.Write((byte)m_Status);
 
@@ -122,6 +119,7 @@ namespace Azos.Sky.Fabric.Server
       writer.Write(m_Id.MemoryShard);
       writer.Write(m_Id.Gdid);
 
+      writer.Write(m_InstanceGuid);
       writer.Write(m_ImageTypeId);
       writer.Write(m_ImpersonateAs);
       writer.WriteBuffer(m_Buffer);
@@ -130,6 +128,7 @@ namespace Azos.Sky.Fabric.Server
     private int m_Version;
     private MemoryStatus m_Status;
     private FiberId m_Id;
+    private Guid m_InstanceGuid;
     private Guid m_ImageTypeId;
     private EntityId? m_ImpersonateAs;
     private byte[] m_Buffer;
@@ -138,6 +137,7 @@ namespace Azos.Sky.Fabric.Server
     public int Version => m_Version;
     public MemoryStatus Status => m_Status;
     public FiberId Id => m_Id;
+    public Guid InstanceGuid => m_InstanceGuid;
     public Guid ImageTypeId => m_ImageTypeId;
     public EntityId? ImpersonateAs => m_ImpersonateAs;
     public byte[] Buffer => m_Buffer;
@@ -147,11 +147,10 @@ namespace Azos.Sky.Fabric.Server
     /// </summary>
     public Exception CrashException => m_CrashException;
 
-
     /// <summary>
     /// True when this memory has any changes such as changes in state or a crash
     /// </summary>
-    public bool HasDelta(FiberState state) => m_CrashException != null|| state.NonNull(nameof(state)).SlotsHaveChanges;
+    public bool HasDelta(FiberState state) => m_CrashException != null || state.NonNull(nameof(state)).SlotsHaveChanges;
 
     /// <summary>
     /// Marks memory as failed with the specified exception.
@@ -162,7 +161,6 @@ namespace Azos.Sky.Fabric.Server
     {
       m_CrashException = error.NonNull(nameof(error));
     }
-
 
     /// <summary>
     /// Creates s snapshot of data changes which can be commited back into <see cref="IFiberStoreShard"/>
@@ -177,7 +175,7 @@ namespace Azos.Sky.Fabric.Server
 
       var result = new FiberMemoryDelta
       {
-        Version = Constraints.MEMORY_FORMAT_VERSION,
+        Version = this.Version,//respond using the same version
         Id = m_Id
       };
 
@@ -195,6 +193,7 @@ namespace Azos.Sky.Fabric.Server
         result.NextSliceInterval = nxt.NextSliceInterval;
         result.ExitCode = nxt.ExitCode;
         result.Result = nxt.Result;
+        result.Tags = currentState.Tags;
 
         var changes = currentState.SlotChanges.ToArray();
         foreach(var change in changes)
@@ -219,36 +218,104 @@ namespace Azos.Sky.Fabric.Server
     }
 
     /// <summary>
+    /// Called only when fibers are created by processor.
+    /// Complementary pair with <see cref="UnpackParameters(byte[], Type)"/>
+    /// </summary>
+    public static byte[] PackParameters(FiberParameters pars)
+    {
+      using var wscope = BixWriterBufferScope.DefaultCapacity;
+
+      wscope.Writer.WriteFixedBE32bits(0);//csum 4 bytes
+      wscope.Writer.Write(Constraints.MEMORY_FORMAT_VERSION);
+      //====================================================
+
+      //todo future use bix with newer version
+      wscope.Writer.Write(JsonWriter.Write(pars, JsonWritingOptions.CompactRowsAsMap));
+
+      //====================================================
+      var result = wscope.Buffer;
+      var csum = IO.ErrorHandling.Adler32.ForBytes(result, sizeof(uint));
+      IOUtils.WriteBEUInt32(result, csum);
+      return result;
+    }
+
+    /// <summary>
+    /// Called by processor complement of <see cref="PackParameters(FiberParameters)"/>
+    /// </summary>
+    public static FiberParameters UnpackParameters(byte[] buffer, Type tParameters = null)
+    {
+      if (buffer == null) return null;
+      (buffer.Length > sizeof(uint)).IsTrue("Memory parameters buffer > 4 bytes");
+
+      var csum = IO.ErrorHandling.Adler32.ForBytes(buffer, sizeof(uint));
+
+      if (tParameters != null)
+      {
+        tParameters.IsOfType<FiberParameters>(nameof(tParameters));
+      }
+
+      using var rscope = new BixReaderBufferScope(buffer);
+      var gotCsum = rscope.Reader.ReadFixedBE32bits();
+
+      (csum == gotCsum).IsTrue("Valid parameter memory signature");
+
+      var version = rscope.Reader.ReadInt();
+      (version <= Constraints.MEMORY_FORMAT_VERSION).IsTrue("Wire Version <= MEMORY_FORMAT_VERSION");
+
+      //todo future use bix with newer version
+      var json = rscope.Reader.ReadString();
+      if (json == null) return null;
+
+      FiberParameters result;
+
+      if (tParameters == null)
+      {
+        result = JsonReader.ToDoc<FiberParameters>(json, fromUI: false, options: JsonReader.DocReadOptions.BindByCode);
+      }
+      else
+      {
+        result = (FiberParameters)JsonReader.ToDoc(tParameters, json, fromUI: false, options: JsonReader.DocReadOptions.BindByCode);
+      }
+
+      return result;
+    }
+
+    /// <summary>
+    /// Used by shard - creates buffer representation from data fields in mem shard storage
+    /// </summary>
+    public static byte[] PackBuffer(byte[] fiberParameters,
+                                    Atom currentStep,
+                                    KeyValuePair<Atom, byte[]>[] slots)
+    {
+      slots.NonNull(nameof(slots));
+      using var wscope = BixWriterBufferScope.DefaultCapacity;
+      wscope.Writer.WriteBuffer(fiberParameters);
+      FiberState.WriteShardData(wscope.Writer, currentStep, slots);
+      return wscope.Buffer;
+    }
+
+
+    /// <summary>
     /// Materializes raw buffer into <see cref="FiberParameters"/> and <see cref="FiberState"/> of the specified types.
     /// You can use <see cref="Version"/> to perform backward-compatible upgrades of serialization methods
     /// </summary>
     public (FiberParameters pars, FiberState state) UnpackBuffer(Type tParameters, Type tState)
     {
-      var pars = (FiberParameters)Serialization.SerializationUtils.MakeNewObjectInstance(tParameters);
+      FiberParameters pars = null;
 
       using var rscope = new BixReaderBufferScope(m_Buffer);
 
-      //todo: Replace with Bix in future, use Version to conditional call one or another
-      var json = rscope.Reader.ReadString();
-      JsonReader.ToDoc(pars, json, fromUI: false, JsonReader.DocReadOptions.BindByCode);
+      var parsBuffer = rscope.Reader.ReadBuffer();
+      if (parsBuffer != null)
+      {
+        pars = UnpackParameters(parsBuffer, tParameters);
+      }
 
       var state = (FiberState)Serialization.SerializationUtils.MakeNewObjectInstance(tState);
       state.__fromStream(rscope.Reader, m_Version);
 
       return (pars, state);
     }
-
-    private static byte[] packBuffer(FiberParameters pars, FiberState state, int formatVersion)
-    {
-      using var wscope = BixWriterBufferScope.DefaultCapacity;
-      var json = JsonWriter.Write(pars, JsonWritingOptions.CompactRowsAsMap);
-      wscope.Writer.Write(json);
-
-      state.__toStream(wscope.Writer, formatVersion);
-
-      return wscope.Buffer;
-    }
-
 
   }
 }

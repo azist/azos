@@ -6,14 +6,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
 
-using Azos.Apps;
 using Azos.Data;
 using Azos.Data.Business;
 using Azos.Serialization.Bix;
-using Azos.Serialization.JSON;
 
 namespace Azos.Sky.Fabric
 {
@@ -25,7 +21,7 @@ namespace Azos.Sky.Fabric
     public FiberId Id { get; set; }
 
     [Field(Required = true, Description = "Fiber Guid used for log and other correlation token")]
-    public Guid FiberGuid { get; set; }
+    public Guid InstanceGuid { get; set; }
 
     [Field(Required = true,
           Description = "Defines what cloud origin (cluster partition) this fiber belongs to and runs")]

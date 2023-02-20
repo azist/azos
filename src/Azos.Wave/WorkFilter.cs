@@ -131,10 +131,11 @@ namespace Azos.Wave
       {
         await DoFilterWorkAsync(work, callChain).ConfigureAwait(false);
       }
-      catch(Exception error)
+      catch(FilterPipelineException){ throw; }//#783 20230218 DKh
+      catch(Exception error) //wrap error in fpe
       {
         work.LastError = error;
-        throw new FilterPipelineException(this, error);
+        throw new FilterPipelineException(this, callChain, error);
       }
     }
 
@@ -160,7 +161,7 @@ namespace Azos.Wave
       if (nextFilter != null)
       {
         //if there is a next filter, then it may elect to handle work by itself or
-        //whihin its call chain
+        //within its call chain
         await nextFilter.FilterWorkAsync(work, next).ConfigureAwait(false);
       }
       else
