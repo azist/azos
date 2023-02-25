@@ -562,26 +562,36 @@ namespace Azos.Wave
         if (ctp == null) return null; //no body
 
         JsonDataMap result = null;
+        string caseName = null;
         try
         {
           //Multi-part
           if (ctp.IndexOf(ContentType.FORM_MULTIPART_ENCODED)>=0)
           {
+            caseName = "mpart";
             var boundary = Multipart.ParseContentType(ctp);
             var mp = Multipart.ReadFromStream(Request.BodyStream, ref boundary);
             result =  mp.ToJSONDataMap();
           }
           else //Form URL encoded
           if (ctp.IndexOf(ContentType.FORM_URL_ENCODED)>=0)
+          {
+            caseName = "urlencoded";
             result = JsonDataMap.FromURLEncodedStream(new Azos.IO.NonClosingStreamWrap(Request.BodyStream));
+          }
           else//JSON
           if (ctp.IndexOf(ContentType.JSON)>=0)
+          {
+            caseName = "json";
             result = JsonReader.DeserializeDataObject(new Azos.IO.NonClosingStreamWrap(Request.BodyStream)) as JsonDataMap;
+          }
 
           return result;
         }
         catch(Exception error)
         {
+          Response.BodyError = caseName;
+
           throw new HTTPStatusException(WebConsts.STATUS_400,
                                         WebConsts.STATUS_400_DESCRIPTION + " body",
                                         error.ToMessageWithType(),

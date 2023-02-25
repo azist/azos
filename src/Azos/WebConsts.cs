@@ -87,6 +87,9 @@ namespace Azos
 
     public const int STATUS_413 = 413; public const string STATUS_413_DESCRIPTION = "Request Entity Too Large";
 
+    //https://www.rfc-editor.org/rfc/rfc4918#section-11.2
+    public const int STATUS_422 = 422; public const string STATUS_422_DESCRIPTION = "Unprocessable Entity";
+
     public const int STATUS_429 = 429;  public const string STATUS_429_DESCRIPTION = "Too Many Requests";
 
     public const int STATUS_500 = 500;  public const string STATUS_500_DESCRIPTION = "Internal Error";
