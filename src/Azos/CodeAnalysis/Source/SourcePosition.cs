@@ -27,7 +27,7 @@ namespace Azos.CodeAnalysis.Source
     }
 
     public override string ToString()
-      => IsAssigned ? "Line: {0} Col: {1} Char: {2}".Args(LineNumber, ColNumber, CharNumber) : string.Empty;
+      => IsAssigned ? $"Line: {LineNumber} Col: {ColNumber} Char: {CharNumber}" : string.Empty;
 
   }
 }
