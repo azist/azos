@@ -346,6 +346,11 @@ namespace Azos.Wave
     }
 
     /// <summary>
+    /// True when header is enabled
+    /// </summary>
+    public bool HttpBodyErrorHeaderEnabled => HttpBodyErrorHeader.IsNotNullOrWhiteSpace();
+
+    /// <summary>
     /// Returns server match collection
     /// </summary>
     public IOrderedRegistry<Match> Matches => m_Matches;

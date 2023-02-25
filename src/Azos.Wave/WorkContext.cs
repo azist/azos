@@ -562,13 +562,13 @@ namespace Azos.Wave
         if (ctp == null) return null; //no body
 
         JsonDataMap result = null;
-        string caseName = null;
+        string caseName = "unspecified";
         try
         {
           //Multi-part
           if (ctp.IndexOf(ContentType.FORM_MULTIPART_ENCODED)>=0)
           {
-            caseName = "mpart";
+            caseName = "multipart";
             var boundary = Multipart.ParseContentType(ctp);
             var mp = Multipart.ReadFromStream(Request.BodyStream, ref boundary);
             result =  mp.ToJSONDataMap();
@@ -590,7 +590,31 @@ namespace Azos.Wave
         }
         catch(Exception error)
         {
-          Response.BodyError = caseName;
+          //#834 --------------------------------------
+          if (Server.HttpBodyErrorHeaderEnabled)
+          {
+            try
+            {
+              var esp = error.SearchThisOrInnerExceptionOf<IExternalStatusProvider>();
+              if (esp != null)
+              {
+                var details = esp.ProvideExternalStatus(includeDump: false);
+                Response.BodyError = details.ToJson(JsonWritingOptions.CompactRowsAsMap);
+              }
+              else
+              {
+                Response.BodyError = caseName;
+              }
+            }
+            catch(Exception inner)
+            {
+              this.Server.WriteLog(MessageType.Error,
+                                   nameof(DoGetRequestBodyAsJsonDataMapAsync),
+                                   "Leak during body error detail extraction: " + inner.ToMessageWithType(),
+                                   inner);
+            }
+          }
+          //#834 --------------------------------------
 
           throw new HTTPStatusException(WebConsts.STATUS_400,
                                         WebConsts.STATUS_400_DESCRIPTION + " body",
