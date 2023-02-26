@@ -31,8 +31,6 @@ namespace Azos.Serialization.JSON.Backends
     public void Reuse()
     {
       FsmCached.Release(fsmResources);
-      //release stringbuilder
-      //release doc stack
     }
 
     public bool MoveNext() => result.MoveNext();
@@ -49,7 +47,7 @@ namespace Azos.Serialization.JSON.Backends
     private readonly ISourceText source;
 
 
-    FsmCached fsmResources;
+    internal FsmCached fsmResources;
     char chr, nchr;
     bool wasFlush;
     bool isError;
@@ -79,6 +77,9 @@ namespace Azos.Serialization.JSON.Backends
       posCol++;
       chr = source.ReadChar();
       nchr = source.PeekChar();
+
+      //#833 - update circular char buffer for error reporting (if enabled)
+      fsmResources.AddChar(chr);
     }
 
     //this is done on purpose do NOT use Char.isSymbol in .NET

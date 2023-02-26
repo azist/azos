@@ -105,9 +105,33 @@ namespace Azos.Serialization.JSON.Backends
       if (m_SnippetBuffer != null) Array.Fill(m_SnippetBuffer, (char)0);
     }
 
-    internal void StackPush(string what)
+    public void StackPushObject()
     {
       if (m_CallStack == null) return;
+      stackPush("{");
+    }
+
+    public void StackPushArray()
+    {
+      if (m_CallStack == null) return;
+      stackPush("[");
+    }
+
+    public void StackPushProp(string prop)
+    {
+      if (m_CallStack == null) return;
+      stackPush(prop);
+    }
+
+    public void StackPushArrayElement(int idx)
+    {
+      if (m_CallStack == null) return;
+      stackPush($"#{idx}");
+    }
+
+
+    private void stackPush(string what)
+    {
       if (m_CallStackIdx < m_CallStack.Count)
       {
         m_CallStack[m_CallStackIdx++] = what;

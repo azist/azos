@@ -56,8 +56,22 @@ namespace Azos.Serialization.JSON.Backends
 
       switch(token.Type)
       {
-        case JsonTokenType.tBraceOpen:      return doObject(lexer, senseCase, maxDepth - 1);
-        case JsonTokenType.tSqBracketOpen:  return doArray(lexer, senseCase, maxDepth - 1);
+        case JsonTokenType.tBraceOpen:
+        {
+          lexer.fsmResources.StackPushObject();//#833
+          var obj = doObject(lexer, senseCase, maxDepth - 1);
+          lexer.fsmResources.StackPop();//#833
+          return obj;
+        }
+
+        case JsonTokenType.tSqBracketOpen:
+        {
+          lexer.fsmResources.StackPushArray();//#833
+          var arr = doArray(lexer, senseCase, maxDepth - 1);
+          lexer.fsmResources.StackPop();//#833
+          return arr;
+        }
+
         case JsonTokenType.tNull:           return null;
         case JsonTokenType.tTrue:           return TRUE;
         case JsonTokenType.tFalse:          return FALSE;
@@ -101,7 +115,9 @@ namespace Azos.Serialization.JSON.Backends
       {
         while (true)
         {
+          lexer.fsmResources.StackPushArrayElement(arr.Count);//#833
           var item = doAny(lexer, senseCase, maxDepth);
+          lexer.fsmResources.StackPop();//#833
           arr.Add( item );  // [any, any, any]
 
           token = fetchPrimary(lexer);
@@ -134,8 +150,9 @@ namespace Azos.Serialization.JSON.Backends
             throw new JazonDeserializationException(JsonMsgCode.eObjectKeyExpected, "Expecting object key", lexer.Position);
 
           var key = token.Text;
-
           //Duplicate keys are NOT forbidden by standard
+
+          lexer.fsmResources.StackPushProp(key);//#833
 
           token = fetchPrimary(lexer);
           if (token.Type != JsonTokenType.tColon)
@@ -146,6 +163,8 @@ namespace Azos.Serialization.JSON.Backends
           var value = doAny(lexer, senseCase, maxDepth);
 
           obj[key] = value;
+
+          lexer.fsmResources.StackPop();//#833
 
           token = fetchPrimary(lexer);
           if (token.Type != JsonTokenType.tComma) break;
