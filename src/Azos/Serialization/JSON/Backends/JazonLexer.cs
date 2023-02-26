@@ -20,7 +20,9 @@ namespace Azos.Serialization.JSON.Backends
     public JazonLexer(ISourceText src)
     {
       source = src;
+      fsmResources = FsmCached.Get();
 
+      //buffer = fsmResources.Buffer;
       buffer = new StringBuilder(256);//caching this in TLS does not change much
 
       result = run().GetEnumerator();
@@ -28,6 +30,7 @@ namespace Azos.Serialization.JSON.Backends
 
     public void Reuse()
     {
+      FsmCached.Release(fsmResources);
       //release stringbuilder
       //release doc stack
     }
@@ -45,6 +48,8 @@ namespace Azos.Serialization.JSON.Backends
     private readonly IEnumerator<JazonToken> result;
     private readonly ISourceText source;
 
+
+    FsmCached fsmResources;
     char chr, nchr;
     bool wasFlush;
     bool isError;
