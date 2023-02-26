@@ -70,6 +70,8 @@ namespace Azos.Serialization.JSON
 
     private static IJsonReaderBackend s_ReaderBackend;
 
+    private static int s_ErrorSourceDisclosureLevel;//#833
+
     /// <summary>
     /// Returns process global IJsonReaderBackend if one was set, or an instance of ClassicJsonReaderBackend as the default value.
     /// Null is never returned
@@ -97,6 +99,31 @@ namespace Azos.Serialization.JSON
     public static void ____SetReaderBackend(IJsonReaderBackend backend)
     {
       s_ReaderBackend = backend;
+    }
+
+    /// <summary>
+    /// Controls the level of error disclosure in JSON deserialization exceptions.
+    /// This mechanism is used for security not to disclose private data by accident.
+    /// Level zero (default) does not disclose anything.
+    /// Level one discloses json document path where error occurred without revealing to much data,
+    /// then the next levels disclose a snippet of json string content where exception happened.
+    /// Since exceptions are typically stored in logs, the inadvertent leak of sensitive data is possible, hence
+    /// the json error disclosure is disabled (level zero) by default.
+    /// See <see cref="SetErrorSourceDisclosurelevel(int)"/>
+    /// </summary>
+    public static int ErrorSourceDisclosureLevel => s_ErrorSourceDisclosureLevel;
+
+
+    /// <summary>
+    /// Sets the level of error source (raw textual json) disclosure.
+    /// By default the error source is disabled (level zero) for security purposes.
+    /// You can call this method in your particular application
+    /// for debugging purposes, however in sensitive applications it should be disabled
+    /// <see cref="ErrorSourceDisclosureLevel"/>
+    /// </summary>
+    public static void SetErrorSourceDisclosurelevel(int level)
+    {
+      s_ErrorSourceDisclosureLevel = level;
     }
 
 
