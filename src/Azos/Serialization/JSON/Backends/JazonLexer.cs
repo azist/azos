@@ -15,60 +15,6 @@ using Azos.CodeAnalysis.Source;
 
 namespace Azos.Serialization.JSON.Backends
 {
-  public struct JazonToken
-  {
-    // Error
-    internal JazonToken(JsonMsgCode code, string text)
-    {
-      Type = (JsonTokenType)(-1);
-      Text = text;
-      ULValue = (ulong)code;
-      DValue = 0d;
-    }
-
-    // Identifier
-    internal JazonToken(JsonTokenType type, string text)
-    {
-      Type = type;
-      Text = text;
-      ULValue = 0ul;
-      DValue = 0d;
-    }
-
-    //Int, or Long value
-    internal JazonToken(JsonTokenType type, string text, ulong ulValue)
-    {
-      Type = type;
-      Text = text;
-      ULValue = ulValue;
-      DValue = 0d;
-    }
-
-    //Double value
-    internal JazonToken(JsonTokenType type,  string text, double dValue)
-    {
-      Type = type;
-      Text = text;
-      ULValue = 0ul;
-      DValue = dValue;
-    }
-
-    public readonly JsonTokenType Type;
-
-    public readonly string Text;
-
-    //To avoid boxing the primitives are stored in-place, StructLayout Explicit with overlap of long over dbl does not yield any benefits
-    public readonly ulong ULValue;//bool is stored as 1
-    public readonly double DValue;
-
-    public bool IsError => Type < 0;
-    public JsonMsgCode MsgCode => IsError ? (JsonMsgCode)ULValue : JsonMsgCode.INFOS;
-    public bool IsPrimary => Type > JsonTokenType.SYMBOLS_START; //  !IsNonLanguage && Type != JsonTokenType.tComment;
-    public bool IsNonLanguage => Type==JsonTokenType.tUnknown || (Type > JsonTokenType.NONLANG_START && Type < JsonTokenType.NONLANG_END);
-  }
-
-
-
   internal class JazonLexer : IEnumerator<JazonToken>, IEnumerable<JazonToken>
   {
     public JazonLexer(ISourceText src)
@@ -78,6 +24,12 @@ namespace Azos.Serialization.JSON.Backends
       buffer = new StringBuilder(256);//caching this in TLS does not change much
 
       result = run().GetEnumerator();
+    }
+
+    public void Reuse()
+    {
+      //release stringbuilder
+      //release doc stack
     }
 
     public bool MoveNext() => result.MoveNext();

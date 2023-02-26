@@ -18,8 +18,11 @@ namespace Azos.Serialization.JSON.Backends
     {
       if (maxDepth<0) maxDepth = 0;// 0 = root literal value
       var lexer = new JazonLexer(src);
+
       fetchPrimary(lexer);
       var data = doAny(lexer, senseCase, maxDepth);
+
+      lexer.Reuse();
 
       return data;
     }
