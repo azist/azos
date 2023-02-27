@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.0.0.1004
-set HEADLINE=#783
+set VER=3.0.0.1005
+set HEADLINE=#833 Json snippets
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
