@@ -4,6 +4,7 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using System;
 using System.Threading.Tasks;
 
 using Azos.Scripting;
@@ -13,18 +14,29 @@ using Azos.Serialization.JSON;
 namespace Azos.Tests.Nub.Serialization
 {
   [Runnable]
-  public class JsonBenchmarkTests
+  public class JsonBenchmarkTests : IRunnableHook
   {
     static JsonBenchmarkTests()
     {
-      JsonReader.____SetErrorSourceDisclosureLevel(1000);
       JsonReader.____SetReaderBackend(new Azos.Serialization.JSON.Backends.JazonReaderBackend());
     }
 
-    [Run("cnt=250000 par=false")]
-    [Run("cnt=250000 par=true")]
-    //[Run("cnt=25000 par=false")]
-    //[Run("cnt=25000 par=true")]
+    public void Prologue(Runner runner, FID id)
+    {
+      JsonReader.____SetErrorSourceDisclosureLevel(1000);
+    }
+
+    public bool Epilogue(Runner runner, FID id, Exception error)
+    {
+      JsonReader.____SetErrorSourceDisclosureLevel(0);
+      return false;
+    }
+
+
+    // [Run("cnt=250000 par=false")]
+    // [Run("cnt=250000 par=true")]
+    [Run("cnt=25000 par=false")]
+    [Run("cnt=25000 par=true")]
     public void Test_Primitives(int cnt, bool par)
     {
       var json = @"{ a: 1, b: 2, c: true, d: null, e: false, f: false, g: true, i1: 3, i4: 2, i5: 125, i6: 18, f1: true, f2: true, f3: false,
@@ -50,10 +62,10 @@ namespace Azos.Tests.Nub.Serialization
       "Did {0:n0} in {1:n1} sec at {2:n0} ops/sec".SeeArgs(cnt, time.ElapsedSec, cnt / time.ElapsedSec);
     }
 
-    [Run("cnt=250000 par=false")]
-    [Run("cnt=250000 par=true")]
-    //[Run("cnt=25000 par=false")]
-    //[Run("cnt=25000 par=true")]
+    //[Run("cnt=250000 par=false")]
+    //[Run("cnt=250000 par=true")]
+    [Run("cnt=25000 par=false")]
+    [Run("cnt=25000 par=true")]
     public void Test_SimpleObject(int cnt, bool par)
     {
       var json=@"{ a: 1, b: ""something"", c: null, d: {}, e: 23.7}";
@@ -76,10 +88,10 @@ namespace Azos.Tests.Nub.Serialization
       "Did {0:n0} in {1:n1} sec at {2:n0} ops/sec".SeeArgs(cnt, time.ElapsedSec, cnt / time.ElapsedSec);
     }
 
-    [Run("cnt=150000 par=false")]
-    [Run("cnt=150000 par=true")]
-    //[Run("cnt=15000 par=false")]
-    //[Run("cnt=15000 par=true")]
+    //[Run("cnt=150000 par=false")]
+    //[Run("cnt=150000 par=true")]
+    [Run("cnt=15000 par=false")]
+    [Run("cnt=15000 par=true")]
     public void Test_ModerateObject(int cnt, bool par)
     {
       var json = @"{ a: 1, b: true, c: 3, d: { a: ""qweqweqwewqeqw"", b: ""werwerwrwrwe6778687"" }, e: [ 1, 2, null, null, 3, 4, {a: 1}, {a: 2}] }";
@@ -102,10 +114,10 @@ namespace Azos.Tests.Nub.Serialization
       "Did {0:n0} in {1:n1} sec at {2:n0} ops/sec".SeeArgs(cnt, time.ElapsedSec, cnt / time.ElapsedSec);
     }
 
-[Run("cnt=95000 par=false")]
-[Run("cnt=95000 par=true")]
-//    [Run("cnt=9500 par=false")]
-//    [Run("cnt=9500 par=true")]
+//[Run("cnt=95000 par=false")]
+//[Run("cnt=95000 par=true")]
+    [Run("cnt=9500 par=false")]
+    [Run("cnt=9500 par=true")]
     public void Test_ComplexObject(int cnt, bool par)
     {
       var json = @"
@@ -148,6 +160,8 @@ namespace Azos.Tests.Nub.Serialization
 
       "Did {0:n0} in {1:n1} sec at {2:n0} ops/sec".SeeArgs(cnt, time.ElapsedSec, cnt / time.ElapsedSec);
     }
+
+
   }
 }
 
