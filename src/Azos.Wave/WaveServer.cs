@@ -44,6 +44,7 @@ namespace Azos.Wave
     public const int    INSTRUMENTATION_DUMP_PERIOD_MS = 3377;
 
     public const string HTTP_STATUS_TEXT_HDR_DEFAULT = "wv-http-status";
+    public const string HTTP_BODY_ERROR_HDR_DEFAULT = "wv-body-error";
     #endregion
 
     #region Static
@@ -243,6 +244,7 @@ namespace Azos.Wave
     private CompositeWorkHandler m_RootHandler;
 
     private string m_HttpStatusTextHeader;
+    private string m_BodyErrorHeader = HTTP_BODY_ERROR_HDR_DEFAULT;
 
     private OrderedRegistry<WorkMatch> m_ErrorShowDumpMatches = new OrderedRegistry<WorkMatch>();
     private OrderedRegistry<WorkMatch> m_ErrorLogMatches = new OrderedRegistry<WorkMatch>();
@@ -330,6 +332,23 @@ namespace Azos.Wave
       get => m_HttpStatusTextHeader.Default(HTTP_STATUS_TEXT_HDR_DEFAULT);
       set => m_HttpStatusTextHeader = value;
     }
+
+    /// <summary>
+    /// The name of body error header where the system reports additional body processing (e.g. unparsable JSON) details.
+    /// Default is HTTP_BODY_ERROR_HDR_DEFAULT, set to null to turn off body error reporting.
+    /// </summary>
+    [Config(Default = HTTP_BODY_ERROR_HDR_DEFAULT)]
+    [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_WEB)]
+    public string HttpBodyErrorHeader
+    {
+      get => m_BodyErrorHeader;
+      set => m_BodyErrorHeader = value;
+    }
+
+    /// <summary>
+    /// True when header is enabled
+    /// </summary>
+    public bool HttpBodyErrorHeaderEnabled => HttpBodyErrorHeader.IsNotNullOrWhiteSpace();
 
     /// <summary>
     /// Returns server match collection

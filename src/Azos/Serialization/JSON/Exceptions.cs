@@ -37,11 +37,16 @@ namespace Azos.Serialization.JSON
   /// Base exception thrown by the JSON when deserializing objects
   /// </summary>
   [Serializable]
-  public class JSONDeserializationException : JSONException
+  public class JSONDeserializationException : JSONException, IExternalStatusProvider
   {
     public JSONDeserializationException() { }
     public JSONDeserializationException(string message) : base(message) { }
     public JSONDeserializationException(string message, Exception inner) : base(message, inner) { }
     protected JSONDeserializationException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+
+    public virtual JsonDataMap ProvideExternalStatus(bool includeDump)
+    {
+      return this.DefaultBuildErrorStatusProviderMap(includeDump, "ser.json");
+    }
   }
 }

@@ -4,6 +4,7 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using System;
 using System.Threading.Tasks;
 
 using Azos.Scripting;
@@ -13,15 +14,27 @@ using Azos.Serialization.JSON;
 namespace Azos.Tests.Nub.Serialization
 {
   [Runnable]
-  public class JsonBenchmarkTests
+  public class JsonBenchmarkTests : IRunnableHook
   {
     static JsonBenchmarkTests()
     {
       JsonReader.____SetReaderBackend(new Azos.Serialization.JSON.Backends.JazonReaderBackend());
     }
 
-    //[Run("cnt=250000 par=false")]
-    //[Run("cnt=250000 par=true")]
+    public void Prologue(Runner runner, FID id)
+    {
+      JsonReader.____SetErrorSourceDisclosureLevel(1000);
+    }
+
+    public bool Epilogue(Runner runner, FID id, Exception error)
+    {
+      JsonReader.____SetErrorSourceDisclosureLevel(0);
+      return false;
+    }
+
+
+    // [Run("cnt=250000 par=false")]
+    // [Run("cnt=250000 par=true")]
     [Run("cnt=25000 par=false")]
     [Run("cnt=25000 par=true")]
     public void Test_Primitives(int cnt, bool par)
@@ -101,8 +114,8 @@ namespace Azos.Tests.Nub.Serialization
       "Did {0:n0} in {1:n1} sec at {2:n0} ops/sec".SeeArgs(cnt, time.ElapsedSec, cnt / time.ElapsedSec);
     }
 
-    //[Run("cnt=95000 par=false")]
-    //[Run("cnt=95000 par=true")]
+//[Run("cnt=95000 par=false")]
+//[Run("cnt=95000 par=true")]
     [Run("cnt=9500 par=false")]
     [Run("cnt=9500 par=true")]
     public void Test_ComplexObject(int cnt, bool par)
@@ -147,6 +160,8 @@ namespace Azos.Tests.Nub.Serialization
 
       "Did {0:n0} in {1:n1} sec at {2:n0} ops/sec".SeeArgs(cnt, time.ElapsedSec, cnt / time.ElapsedSec);
     }
+
+
   }
 }
 
@@ -223,6 +238,67 @@ Starting Azos.Tests.Nub::Azos.Tests.Nub.Serialization.JsonBenchmarkTests ...
 [OK]
   - Test_ComplexObject  {cnt=95000 par=true} [1] Did 95,000 in 2.9 sec at 32,917 ops/sec
 [OK]
+
+DEBUG .NET 6 runtime debug (notice the 2x performance), ERROR SNIPPETS DISABLED
+Started 02/27/2023 15:41:45
+Starting Azos.Tests.Nub::Azos.Tests.Nub.Serialization.JsonBenchmarkTests ...
+  - Test_Primitives  {cnt=250000 par=false} Did 250,000 in 9.8 sec at 25,541 ops/sec
+[OK]
+  - Test_Primitives  {cnt=250000 par=true} [1] Did 250,000 in 1.1 sec at 226,439 ops/sec
+[OK]
+  - Test_SimpleObject  {cnt=250000 par=false} Did 250,000 in 1.6 sec at 156,741 ops/sec
+[OK]
+  - Test_SimpleObject  {cnt=250000 par=true} [1] Did 250,000 in 0.2 sec at 1,152,178 ops/sec
+[OK]
+  - Test_ModerateObject  {cnt=150000 par=false} Did 150,000 in 2.3 sec at 65,186 ops/sec
+[OK]
+  - Test_ModerateObject  {cnt=150000 par=true} [1] Did 150,000 in 0.3 sec at 567,352 ops/sec
+[OK]
+  - Test_ComplexObject  {cnt=95000 par=false} Did 95,000 in 10.3 sec at 9,217 ops/sec
+[OK]
+  - Test_ComplexObject  {cnt=95000 par=true} [1] Did 95,000 in 1.2 sec at 81,919 ops/sec
+[OK]
+
+DEBUG .NET 6 runtime debug (notice the 2x performance), ERROR SNIPPETS ENABLED
+Started 02/27/2023 15:45:55
+Starting Azos.Tests.Nub::Azos.Tests.Nub.Serialization.JsonBenchmarkTests ...
+  - Test_Primitives  {cnt=250000 par=false} Did 250,000 in 10.0 sec at 24,918 ops/sec
+[OK]
+  - Test_Primitives  {cnt=250000 par=true} [1] Did 250,000 in 1.1 sec at 218,764 ops/sec
+[OK]
+  - Test_SimpleObject  {cnt=250000 par=false} Did 250,000 in 1.7 sec at 149,251 ops/sec
+[OK]
+  - Test_SimpleObject  {cnt=250000 par=true} [1] Did 250,000 in 0.2 sec at 1,230,104 ops/sec
+[OK]
+  - Test_ModerateObject  {cnt=150000 par=false} Did 150,000 in 2.4 sec at 61,543 ops/sec
+[OK]
+  - Test_ModerateObject  {cnt=150000 par=true} [1] Did 150,000 in 0.3 sec at 520,135 ops/sec
+[OK]
+  - Test_ComplexObject  {cnt=95000 par=false} Did 95,000 in 11.0 sec at 8,610 ops/sec
+[OK]
+  - Test_ComplexObject  {cnt=95000 par=true} [1] Did 95,000 in 1.3 sec at 74,457 ops/sec
+[OK]
+
+RELEASE .NET 6 runtime debug (notice the 2x+ performance over .Net 4 Fx), ERROR SNIPPETS ENABLED
+Started 02/27/2023 15:48:09
+Starting Azos.Tests.Nub::Azos.Tests.Nub.Serialization.JsonBenchmarkTests ...
+  - Test_Primitives  {cnt=250000 par=false} Did 250,000 in 3.8 sec at 66,041 ops/sec
+[OK]
+  - Test_Primitives  {cnt=250000 par=true} [1] Did 250,000 in 0.5 sec at 532,190 ops/sec
+[OK]
+  - Test_SimpleObject  {cnt=250000 par=false} Did 250,000 in 0.6 sec at 400,614 ops/sec
+[OK]
+  - Test_SimpleObject  {cnt=250000 par=true} [1] Did 250,000 in 0.1 sec at 3,139,903 ops/sec
+[OK]
+  - Test_ModerateObject  {cnt=150000 par=false} Did 150,000 in 1.0 sec at 150,023 ops/sec
+[OK]
+  - Test_ModerateObject  {cnt=150000 par=true} [1] Did 150,000 in 0.1 sec at 1,222,514 ops/sec
+[OK]
+  - Test_ComplexObject  {cnt=95000 par=false} Did 95,000 in 4.3 sec at 21,949 ops/sec
+[OK]
+  - Test_ComplexObject  {cnt=95000 par=true} [1] Did 95,000 in 0.5 sec at 181,708 ops/sec
+[OK]
+
 
 
 */

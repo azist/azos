@@ -160,6 +160,27 @@ namespace Azos.Wave
     }
 
     /// <summary>
+    /// Body error phrase communicated via header
+    /// </summary>
+    public string BodyError
+    {
+      get
+      {
+        var hdr = Work.Server.HttpBodyErrorHeader;
+        if (hdr.IsNotNullOrWhiteSpace()) return m_AspResponse.Headers[hdr].ToString();
+        return null;
+      }
+      set
+      {
+        var hdr = Work.Server.HttpBodyErrorHeader;
+        if (hdr.IsNotNullOrWhiteSpace())
+        {
+          m_AspResponse.Headers[hdr] = value;
+        }
+      }
+    }
+
+    /// <summary>
     /// Http content type get or set.
     /// Warning: Set textual content type using <see cref="SetTextualContentType(string)"/> which
     /// also sets the charset header value

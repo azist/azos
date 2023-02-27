@@ -116,8 +116,11 @@ namespace TestBusinessLogic.Toy
           {
             ws.Configure(null);
 
+            Azos.Serialization.JSON.JsonReader.____SetErrorSourceDisclosureLevel(3);
+
             ws.Start();
             Console.WriteLine("Web server started");
+            Console.WriteLine("  having Json.ErrorSourceDisclosureLevel: " + Azos.Serialization.JSON.JsonReader.ErrorSourceDisclosureLevel);
             Console.WriteLine("Strike <ENTER> to terminate web server ");
             Console.ReadLine();
           }
