@@ -22,6 +22,10 @@ namespace Azos.Serialization.JSON.Backends
     public readonly string JazonText;
     public readonly SourcePosition JazonPosition;
 
+    public readonly string CallStackPath;
+    public readonly string SourceSnippet;
+
+
 
     public JazonDeserializationException() { }
     public JazonDeserializationException(JsonMsgCode code, string text) : base("Code {0}: {1}".Args(code, text))
@@ -29,12 +33,29 @@ namespace Azos.Serialization.JSON.Backends
       JazonCode = code;
       JazonText = text;
     }
+
     public JazonDeserializationException(JsonMsgCode code, string text, SourcePosition pos) : base("Code {0} at {1}: {2}".Args(code, pos, text))
     {
       JazonCode = code;
       JazonText = text;
       JazonPosition = pos;
     }
+
+    public JazonDeserializationException(JsonMsgCode code, string text, SourcePosition position, string callStack, string sourceSnippet)
+      : base(callStack.IsNotNullOrWhiteSpace() ? "Code {0} at {1} `{2}` near `{3}`: {4}".Args(code, position, callStack, sourceSnippet.Default("<unspec>"), text)
+                                               : "Code {0} at {1}: {2}".Args(code, position, text))
+    {
+      JazonCode = code;
+      JazonText = text;
+      JazonPosition = position;
+      CallStackPath = callStack;
+      SourceSnippet = sourceSnippet;
+    }
+
+    internal static JazonDeserializationException From(JsonMsgCode code, string text, JazonLexer lexer)
+     => new JazonDeserializationException(code, text, lexer.Position, lexer.fsmResources.GetCallStackString(), lexer.fsmResources.GetSnippetString());
+
+
     protected JazonDeserializationException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 
     public override JsonDataMap ProvideExternalStatus(bool includeDump)
@@ -48,6 +69,17 @@ namespace Azos.Serialization.JSON.Backends
         result["jz.p.ln"] = JazonPosition.LineNumber;
         result["jz.p.col"] = JazonPosition.ColNumber;
       }
+
+      if (CallStackPath.IsNotNullOrWhiteSpace())
+      {
+        result["jz.path"] = CallStackPath;
+      }
+
+      if (SourceSnippet.IsNotNullOrWhiteSpace())
+      {
+        result["jz.src"] = SourceSnippet;
+      }
+
       return result;
     }
   }

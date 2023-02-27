@@ -22,7 +22,7 @@ namespace Azos.Serialization.JSON.Backends
       fetchPrimary(lexer);
       var data = doAny(lexer, senseCase, maxDepth);
 
-      lexer.Reuse();
+      lexer.ReuseResources();
 
       return data;
     }
@@ -86,7 +86,7 @@ namespace Azos.Serialization.JSON.Backends
           if (token.Type == JsonTokenType.tIntLiteral) return (int)token.ULValue;
           if (token.Type == JsonTokenType.tLongIntLiteral) return (long)token.ULValue;
           if (token.Type == JsonTokenType.tDoubleLiteral) return token.DValue;
-          throw new JazonDeserializationException(JsonMsgCode.eNumericLiteralExpectedAfterSignOperator, "Numeric literal expected", lexer.Position);
+          throw JazonDeserializationException.From(JsonMsgCode.eNumericLiteralExpectedAfterSignOperator, "Numeric literal expected", lexer);
         }
 
         case JsonTokenType.tMinus: {
@@ -95,17 +95,17 @@ namespace Azos.Serialization.JSON.Backends
           if (token.Type == JsonTokenType.tIntLiteral) return -(int)token.ULValue;
           if (token.Type == JsonTokenType.tLongIntLiteral) return -(long)token.ULValue;
           if (token.Type == JsonTokenType.tDoubleLiteral) return -token.DValue;
-          throw new JazonDeserializationException(JsonMsgCode.eNumericLiteralExpectedAfterSignOperator, "Numeric literal expected", lexer.Position);
+          throw JazonDeserializationException.From(JsonMsgCode.eNumericLiteralExpectedAfterSignOperator, "Numeric literal expected", lexer);
         }
       }
 
-      throw new JazonDeserializationException(token.IsError ? token.MsgCode : JsonMsgCode.eSyntaxError, "Bad syntax", lexer.Position);
+      throw JazonDeserializationException.From(token.IsError ? token.MsgCode : JsonMsgCode.eSyntaxError, "Bad syntax", lexer);
     }
 
     private static JsonDataArray doArray(JazonLexer lexer, bool senseCase, int maxDepth)
     {
       if (maxDepth < 0)
-        throw new JazonDeserializationException(JsonMsgCode.eGraphDepthLimit, "The graph is too deep", lexer.Position);
+        throw JazonDeserializationException.From(JsonMsgCode.eGraphDepthLimit, "The graph is too deep", lexer);
 
       var token = fetchPrimary(lexer); // skip [
 
@@ -127,7 +127,7 @@ namespace Azos.Serialization.JSON.Backends
         }
 
         if (token.Type != JsonTokenType.tSqBracketClose)
-          throw new JazonDeserializationException(JsonMsgCode.eUnterminatedArray, "Unterminated array", lexer.Position);
+          throw JazonDeserializationException.From(JsonMsgCode.eUnterminatedArray, "Unterminated array", lexer);
       }
 
       return arr;
@@ -136,7 +136,7 @@ namespace Azos.Serialization.JSON.Backends
     private static JsonDataMap doObject(JazonLexer lexer, bool senseCase, int maxDepth)
     {
       if (maxDepth < 0)
-        throw new JazonDeserializationException(JsonMsgCode.eGraphDepthLimit, "The graph is too deep", lexer.Position);
+        throw JazonDeserializationException.From(JsonMsgCode.eGraphDepthLimit, "The graph is too deep", lexer);
 
       var token = fetchPrimary(lexer); // skip {
 
@@ -147,7 +147,7 @@ namespace Azos.Serialization.JSON.Backends
         while (true)
         {
           if (token.Type != JsonTokenType.tIdentifier && token.Type != JsonTokenType.tStringLiteral)
-            throw new JazonDeserializationException(JsonMsgCode.eObjectKeyExpected, "Expecting object key", lexer.Position);
+            throw JazonDeserializationException.From(JsonMsgCode.eObjectKeyExpected, "Expecting object key", lexer);
 
           var key = token.Text;
           //Duplicate keys are NOT forbidden by standard
@@ -156,7 +156,7 @@ namespace Azos.Serialization.JSON.Backends
 
           token = fetchPrimary(lexer);
           if (token.Type != JsonTokenType.tColon)
-            throw new JazonDeserializationException(JsonMsgCode.eColonOperatorExpected, "Missing colon", lexer.Position);
+            throw JazonDeserializationException.From(JsonMsgCode.eColonOperatorExpected, "Missing colon", lexer);
 
           token = fetchPrimary(lexer);
 
@@ -173,7 +173,7 @@ namespace Azos.Serialization.JSON.Backends
         }
 
         if (token.Type != JsonTokenType.tBraceClose)
-          throw new JazonDeserializationException(JsonMsgCode.eUnterminatedObject, "Unterminated object", lexer.Position);
+          throw JazonDeserializationException.From(JsonMsgCode.eUnterminatedObject, "Unterminated object", lexer);
       }
       return obj;
     }

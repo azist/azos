@@ -14,18 +14,18 @@ namespace Azos.Serialization.JSON.Backends
   /// <summary>
   /// cached fsm state bag to reduce allocations
   /// </summary>
-  internal sealed class FsmCached
+  internal sealed class FsmBag
   {
     private const int SNIPPET_BUFFER_SZ_1 = 64;
     private const int SNIPPET_BUFFER_SZ_2 = 128;
 
-    private static FsmCached s_Cache1;
-    private static FsmCached s_Cache2;
-    private static FsmCached s_Cache3;
-    private static FsmCached s_Cache4;
+    private static FsmBag s_Cache1;
+    private static FsmBag s_Cache2;
+    private static FsmBag s_Cache3;
+    private static FsmBag s_Cache4;
 
 
-    public static FsmCached Get()
+    public static FsmBag Get()
     {
       var instance =
         Interlocked.Exchange(ref s_Cache1, null) ??
@@ -33,16 +33,16 @@ namespace Azos.Serialization.JSON.Backends
         Interlocked.Exchange(ref s_Cache3, null) ??
         Interlocked.Exchange(ref s_Cache4, null);
 
-      if (instance == null) instance = new FsmCached();
+      if (instance == null) instance = new FsmBag();
 
       instance.ctor();
 
       return instance;
     }
 
-    public static void Release(FsmCached instance)
+    public static void Release(FsmBag instance)
     {
-      instance.reset();
+      instance.dctor();
 
       Thread.MemoryBarrier();
 
@@ -55,7 +55,7 @@ namespace Azos.Serialization.JSON.Backends
 
     private void ctor()
     {
-      if (m_Builder == null) m_Builder = new StringBuilder(0xff);
+      if (m_Buffer == null) m_Buffer = new StringBuilder(256);
 
       m_ErrorLevel = JsonReader.ErrorSourceDisclosureLevel;
 
@@ -88,7 +88,7 @@ namespace Azos.Serialization.JSON.Backends
     }
 
 
-    private StringBuilder m_Builder;
+    private StringBuilder m_Buffer;
     private int m_ErrorLevel;
 
     private List<string> m_CallStack;
@@ -98,12 +98,14 @@ namespace Azos.Serialization.JSON.Backends
     private int m_SnippetIdx;
 
 
-    private void reset()
+    private void dctor()
     {
-      m_Builder.Clear();
-      if (m_SnippetBuffer != null) m_CallStack.Clear();
+      m_Buffer.Clear();
+      if (m_CallStack != null) m_CallStack.Clear();
       if (m_SnippetBuffer != null) Array.Fill(m_SnippetBuffer, (char)0);
     }
+
+    public StringBuilder Buffer => m_Buffer;
 
     public void StackPushObject()
     {
@@ -120,7 +122,7 @@ namespace Azos.Serialization.JSON.Backends
     public void StackPushProp(string prop)
     {
       if (m_CallStack == null) return;
-      stackPush(prop);
+      stackPush($"{prop}:");
     }
 
     public void StackPushArrayElement(int idx)
@@ -158,6 +160,21 @@ namespace Azos.Serialization.JSON.Backends
       m_SnippetBuffer[m_SnippetIdx++] = c;
     }
 
+    //Dumps call stack into a regular string for error reporting
+    //this is ONLY called when error occurs, the SB allocation is ok
+    internal string GetCallStackString()
+    {
+      if (m_SnippetBuffer == null) return null;
+      var sb = new StringBuilder();
+      for(var i=0; i< m_CallStackIdx; i++)
+      {
+        sb.Append(m_CallStack[i]);
+      }
+
+      return sb.ToString();
+    }
+
+
     //Reads circular buffer (used for efficiency) into a regular string for error reporting
     //this is ONLY called when error occurs, the SB allocation is ok
     internal string GetSnippetString()
@@ -169,7 +186,11 @@ namespace Azos.Serialization.JSON.Backends
       for(var cnt =0; cnt < m_SnippetBuffer.Length; cnt++)
       {
         if (idx == m_SnippetBuffer.Length) idx = 0;//circular
-        sb.Append(m_SnippetBuffer[idx]);
+        var c = m_SnippetBuffer[idx++];
+        if (c != 0)
+        {
+          sb.Append(c);
+        }
       }
 
       return sb.ToString();

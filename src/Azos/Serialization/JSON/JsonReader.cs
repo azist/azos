@@ -109,19 +109,20 @@ namespace Azos.Serialization.JSON
     /// then the next levels disclose a snippet of json string content where exception happened.
     /// Since exceptions are typically stored in logs, the inadvertent leak of sensitive data is possible, hence
     /// the json error disclosure is disabled (level zero) by default.
-    /// See <see cref="SetErrorSourceDisclosureLevel(int)"/>
+    /// See <see cref="____SetErrorSourceDisclosureLevel(int)"/>
     /// </summary>
     public static int ErrorSourceDisclosureLevel => s_ErrorSourceDisclosureLevel;
 
 
     /// <summary>
+    /// System method, app developers do not call.
     /// Sets the level of error source (raw textual json) disclosure.
     /// By default the error source is disabled (level zero) for security purposes.
     /// You can call this method in your particular application
     /// for debugging purposes, however in sensitive applications it should be disabled
     /// <see cref="ErrorSourceDisclosureLevel"/>
     /// </summary>
-    public static void SetErrorSourceDisclosureLevel(int level)
+    public static void ____SetErrorSourceDisclosureLevel(int level)
     {
       s_ErrorSourceDisclosureLevel = level;
     }
