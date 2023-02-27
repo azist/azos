@@ -122,7 +122,7 @@ namespace Azos.Serialization.JSON.Backends
     public void StackPushProp(string prop)
     {
       if (m_CallStack == null) return;
-      stackPush($"{prop}:");
+      stackPush(prop);
     }
 
     public void StackPushArrayElement(int idx)
@@ -164,7 +164,7 @@ namespace Azos.Serialization.JSON.Backends
     //this is ONLY called when error occurs, the SB allocation is ok
     internal string GetCallStackString()
     {
-      if (m_SnippetBuffer == null) return null;
+      if (m_CallStack == null) return null;
       var sb = new StringBuilder();
       for(var i=0; i< m_CallStackIdx; i++)
       {
