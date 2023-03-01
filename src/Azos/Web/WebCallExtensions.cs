@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -82,7 +81,7 @@ namespace Azos.Web
       /// <param name="isSuccess">True if server responded with 200</param>
       /// <param name="rawResponseContent">Fetched raw response content (such as error) or null</param>
       /// <param name="bodyErrorValues">Collection of values for header named by `BodyErrorHeader`</param>
-      Task ProcessAsync(string uri,
+      Task ProcessBodyErrorAsync(string uri,
                         HttpMethod method,
                         object body,
                         string contentType,
@@ -292,7 +291,7 @@ namespace Azos.Web
             raw = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
           }
 
-          //#834 -----------------------------------
+          //#834 ------------------------------------
           if (client is IRequestBodyErrorAspect bea)
           {
             var hdrn = bea.BodyErrorHeader;
@@ -300,10 +299,10 @@ namespace Azos.Web
             {
               if (response.Headers.TryGetValues(hdrn, out var hdrValues))
               {
-                await bea.ProcessAsync(uri, method, body, contentType, options, request, response, isSuccess, raw, hdrValues).ConfigureAwait(false);
+                await bea.ProcessBodyErrorAsync(uri, method, body, contentType, options, request, response, isSuccess, raw, hdrValues).ConfigureAwait(false);
               }
             }
-          }//#834 ------------------------------------
+          }//#834 -----------------------------------
 
           if (!isSuccess)
             throw new WebCallException(StringConsts.WEB_CALL_UNSUCCESSFUL_ERROR.Args(uri.SplitKVP('?').Key.TakeLastChars(64),
