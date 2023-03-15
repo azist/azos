@@ -4,7 +4,10 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using System;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Azos.IO
 {
@@ -59,6 +62,11 @@ namespace Azos.IO
       Target.Flush();
     }
 
+    public override Task FlushAsync(CancellationToken cancellationToken)
+    {
+      return Target.FlushAsync(cancellationToken);
+    }
+
     public override long Length
     {
       get { return Target.Length; }
@@ -76,14 +84,25 @@ namespace Azos.IO
       }
     }
 
-    public override int Read(byte[] buffer, int offset, int count)
+    public override int ReadByte() => Target.ReadByte();
+
+    public override int Read(byte[] buffer, int offset, int count) => Target.Read(buffer, offset, count);
+
+    public override long Seek(long offset, SeekOrigin origin) => Target.Seek(offset, origin);
+
+    public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
     {
-      return Target.Read(buffer, offset, count);
+      return Target.ReadAsync(buffer, offset, count, cancellationToken);
     }
 
-    public override long Seek(long offset, SeekOrigin origin)
+    public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
     {
-      return Target.Seek(offset, origin);
+      return Target.ReadAsync(buffer, cancellationToken);
+    }
+
+    public override int Read(Span<byte> buffer)
+    {
+      return Target.Read(buffer);
     }
 
     public override void SetLength(long value)
@@ -95,5 +114,26 @@ namespace Azos.IO
     {
       Target.Write(buffer, offset, count);
     }
+
+    public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+    {
+      return Target.WriteAsync(buffer, offset, count, cancellationToken);
+    }
+
+    public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
+    {
+      return Target.WriteAsync(buffer, cancellationToken);
+    }
+
+    public override void Write(ReadOnlySpan<byte> buffer)
+    {
+      Target.Write(buffer);
+    }
+
+    public override void WriteByte(byte value)
+    {
+      Target.WriteByte(value);
+    }
+
   }
 }
