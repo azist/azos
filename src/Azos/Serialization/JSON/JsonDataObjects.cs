@@ -13,6 +13,7 @@ using System.Runtime.Serialization;
 
 using Azos.Conf;
 using Azos.Data;
+using System.Threading.Tasks;
 
 namespace Azos.Serialization.JSON
 {
@@ -34,21 +35,22 @@ namespace Azos.Serialization.JSON
   public class JsonDataMap : Dictionary<string, object>, IJsonDataObject
   {
     /// <summary>
-    /// Turns URL encoded content into JSONDataMap
+    /// Turns URL encoded content into JsonDataMap
     /// </summary>
-    public static JsonDataMap FromURLEncodedStream(Stream stream, Encoding encoding = null, bool caseSensitive = false)
+    public static async Task<JsonDataMap> FromUrlEncodedStreamAsync(Stream stream, Encoding encoding = null, bool caseSensitive = false)
     {
       using(var reader = encoding==null ? new StreamReader(stream, Encoding.UTF8, true, 1024, true)
                                         : new StreamReader(stream, encoding, true, 1024, true))
       {
-        return FromURLEncodedString(reader.ReadToEnd(), caseSensitive);
+        var stringContent = await reader.ReadToEndAsync().ConfigureAwait(false);
+        return FromUrlEncodedString(stringContent, caseSensitive);
       }
     }
 
     /// <summary>
-    /// Turns URL encoded content into JSONDataMap
+    /// Turns URL encoded content into JsonDataMap
     /// </summary>
-    public static JsonDataMap FromURLEncodedString(string content, bool caseSensitive = false)
+    public static JsonDataMap FromUrlEncodedString(string content, bool caseSensitive = false)
     {
       var result = new JsonDataMap(caseSensitive);
 

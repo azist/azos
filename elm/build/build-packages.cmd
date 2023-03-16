@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.0.0.1007
-set HEADLINE=#837 Rid of NonClosingStreamwrap in JSON
+set VER=3.0.0.2000
+set HEADLINE=#837 ASYNC JSON prefetch
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

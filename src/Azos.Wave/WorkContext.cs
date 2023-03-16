@@ -545,83 +545,95 @@ namespace Azos.Wave
       return result;
     }
 
-      /// <summary>
-      /// This method is called only once as it touches the input streams
-      /// </summary>
-      //todo: Add async json parsing
-      protected virtual async ValueTask<JsonDataMap> DoGetRequestBodyAsJsonDataMapAsync()
+    /// <summary>
+    /// This method is called only once as it touches the input streams
+    /// </summary>
+    //todo: Add async json parsing
+    protected virtual async ValueTask<JsonDataMap> DoGetRequestBodyAsJsonDataMapAsync()
+    {
+      //request content decompression
+      //https://stackoverflow.com/questions/42792099/request-content-decompression-in-asp-net-core
+      //https://markb.uk/asp-net-core-read-raw-request-body-as-string.html
+      // Request.AspRequest.ContentLength
+
+      var ctp = Request.ContentType;
+
+      //Has body by no content type
+      if (ctp == null) return null; //no body
+
+      JsonDataMap result = null;
+      string caseName = "unspecified";
+      try
       {
-        //request content decompression
-        //https://stackoverflow.com/questions/42792099/request-content-decompression-in-asp-net-core
-        //https://markb.uk/asp-net-core-read-raw-request-body-as-string.html
-        // Request.AspRequest.ContentLength
-
-        var ctp = Request.ContentType;
-
-        //Has body by no content type
-        if (ctp == null) return null; //no body
-
-        JsonDataMap result = null;
-        string caseName = "unspecified";
-        try
+        //Multi-part
+        if (ctp.IndexOf(ContentType.FORM_MULTIPART_ENCODED)>=0)
         {
-          //Multi-part
-          if (ctp.IndexOf(ContentType.FORM_MULTIPART_ENCODED)>=0)
-          {
-            caseName = "multipart";
-            var boundary = Multipart.ParseContentType(ctp);
-            var mp = Multipart.ReadFromStream(Request.BodyStream, ref boundary);
-            result =  mp.ToJSONDataMap();
-          }
-          else //Form URL encoded
-          if (ctp.IndexOf(ContentType.FORM_URL_ENCODED)>=0)
-          {
-            caseName = "urlencoded";
-            result = JsonDataMap.FromURLEncodedStream(Request.BodyStream);//#837
-          }
-          else//JSON
-          if (ctp.IndexOf(ContentType.JSON)>=0)
-          {
-            caseName = "json";
-            result = JsonReader.DeserializeDataObject(Request.BodyStream) as JsonDataMap;//#837
-          }
-
-          return result;
+          caseName = "multipart";
+          var boundary = Multipart.ParseContentType(ctp);
+          var mp = Multipart.ReadFromStream(Request.BodyStream, ref boundary);
+          result =  mp.ToJSONDataMap();
         }
-        catch(Exception error)
+        else //Form URL encoded
+        if (ctp.IndexOf(ContentType.FORM_URL_ENCODED)>=0)
         {
-          //#834 --------------------------------------
-          if (Server.HttpBodyErrorHeaderEnabled)
-          {
-            try
-            {
-              var esp = error.SearchThisOrInnerExceptionOf<IExternalStatusProvider>();
-              if (esp != null)
-              {
-                var details = esp.ProvideExternalStatus(includeDump: false);
-                Response.BodyError = details.ToJson(JsonWritingOptions.CompactRowsAsMap);
-              }
-              else
-              {
-                Response.BodyError = caseName;
-              }
-            }
-            catch(Exception inner)
-            {
-              this.Server.WriteLog(MessageType.Error,
-                                   nameof(DoGetRequestBodyAsJsonDataMapAsync),
-                                   "Leak during body error detail extraction: " + inner.ToMessageWithType(),
-                                   inner);
-            }
-          }
-          //#834 --------------------------------------
-
-          throw new HTTPStatusException(WebConsts.STATUS_400,
-                                        WebConsts.STATUS_400_DESCRIPTION + " body",
-                                        error.ToMessageWithType(),
-                                        error);
+          caseName = "urlencoded";
+          result = await JsonDataMap.FromUrlEncodedStreamAsync(Request.BodyStream).ConfigureAwait(false);//#837
         }
+        else//JSON
+        if (ctp.IndexOf(ContentType.JSON)>=0)
+        {
+          caseName = "json";
+          #region #837 Http server chops-off content posted by client?
+          //result = JsonReader.DeserializeDataObject(Request.BodyStream) as JsonDataMap;//Before #837, was one line
+          using (var rdr = new System.IO.StreamReader(Request.BodyStream, System.Text.Encoding.UTF8, true, 1024, true))//this is a temp patch until #731
+          {
+            //The code below will be gone once ASYNC JSON #731 is implemented
+            var jsonString = await rdr.ReadToEndAsync().ConfigureAwait(false);//this is a temp patch until #731
+            ////////////////////Server.WriteLogFromHere(MessageType.TraceZ, "got raw json string", pars: jsonString);
+            result = JsonReader.DeserializeDataObject(jsonString) as JsonDataMap;
+
+            //////When #731 gets implemented, the only code to remain here is:
+            //////result = (await JsonReader.DeserializeDataObjectAsync(jsonString).ConfigureAwait(false)) as JsonDataMap;
+          }
+          #endregion
+        }
+
+        return result;
       }
+      catch(Exception error)
+      {
+        //#834 --------------------------------------
+        if (Server.HttpBodyErrorHeaderEnabled)
+        {
+          try
+          {
+            var esp = error.SearchThisOrInnerExceptionOf<IExternalStatusProvider>();
+            if (esp != null)
+            {
+              var details = esp.ProvideExternalStatus(includeDump: false);
+              Response.BodyError = details.ToJson(JsonWritingOptions.CompactRowsAsMap);
+            }
+            else
+            {
+              Response.BodyError = caseName;
+            }
+          }
+          catch(Exception inner)
+          {
+            this.Server.WriteLog(MessageType.Error,
+                                  nameof(DoGetRequestBodyAsJsonDataMapAsync),
+                                  "Leak during body error detail extraction: " + inner.ToMessageWithType(),
+                                  inner);
+          }
+        }
+        //#834 --------------------------------------
+
+        throw new HTTPStatusException(WebConsts.STATUS_400,
+                                      WebConsts.STATUS_400_DESCRIPTION + " body",
+                                      error.ToMessageWithType(),
+                                      error);
+      }
+    }
     #endregion
 
   }
