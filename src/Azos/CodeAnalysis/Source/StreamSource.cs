@@ -19,7 +19,7 @@ namespace Azos.CodeAnalysis.Source
     /// Constructs stream source with specified language and default encoding
     /// </summary>
     public StreamSource(Stream stream, Language language, string name = null)
-      : base(stream)
+      : base(stream, Encoding.UTF8, true, 1024, leaveOpen: true)//#837
     {
       m_Language = language;
       m_Name = name;
@@ -29,7 +29,7 @@ namespace Azos.CodeAnalysis.Source
     /// Constructs stream source with specified language and encoding
     /// </summary>
     public StreamSource(Stream stream, Encoding encoding, Language language, string name = null)
-      : base(stream, encoding)
+      : base(stream, encoding, true, 1024, leaveOpen: true)//#837
     {
       m_Language = language;
       m_Name = name;

@@ -38,7 +38,8 @@ namespace Azos.Serialization.JSON
     /// </summary>
     public static JsonDataMap FromURLEncodedStream(Stream stream, Encoding encoding = null, bool caseSensitive = false)
     {
-      using(var reader = encoding==null ? new StreamReader(stream) : new StreamReader(stream, encoding))
+      using(var reader = encoding==null ? new StreamReader(stream, Encoding.UTF8, true, 1024, true)
+                                        : new StreamReader(stream, encoding, true, 1024, true))
       {
         return FromURLEncodedString(reader.ReadToEnd(), caseSensitive);
       }

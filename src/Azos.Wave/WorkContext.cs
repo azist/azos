@@ -577,13 +577,13 @@ namespace Azos.Wave
           if (ctp.IndexOf(ContentType.FORM_URL_ENCODED)>=0)
           {
             caseName = "urlencoded";
-            result = JsonDataMap.FromURLEncodedStream(new Azos.IO.NonClosingStreamWrap(Request.BodyStream));
+            result = JsonDataMap.FromURLEncodedStream(Request.BodyStream);//#837
           }
           else//JSON
           if (ctp.IndexOf(ContentType.JSON)>=0)
           {
             caseName = "json";
-            result = JsonReader.DeserializeDataObject(new Azos.IO.NonClosingStreamWrap(Request.BodyStream)) as JsonDataMap;
+            result = JsonReader.DeserializeDataObject(Request.BodyStream) as JsonDataMap;//#837
           }
 
           return result;

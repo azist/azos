@@ -34,6 +34,7 @@ namespace Azos.Wave
     public string Host => AspRequest.Host.Host;
     public string Referer => AspRequest.Headers.Referer.ToString();
     public string ContentType => AspRequest.ContentType;
+    public long ContentLength => AspRequest.ContentLength ?? -1;
 
     public IHeaderDictionary Headers => AspRequest.Headers;
     public IRequestCookieCollection Cookies => AspRequest.Cookies;

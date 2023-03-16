@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.0.0.1006
-set HEADLINE=#833, #834 Json snippets and HttpBodyErrorLoggingAspect
+set VER=3.0.0.1007
+set HEADLINE=#837 Rid of NonClosingStreamwrap in JSON
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
