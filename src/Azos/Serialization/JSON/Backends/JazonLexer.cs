@@ -40,9 +40,8 @@ namespace Azos.Serialization.JSON.Backends
     IEnumerator<JazonToken> IEnumerable<JazonToken>.GetEnumerator() => result;
 
 
-    private readonly IEnumerator<JazonToken> result;
-    private readonly ISourceText source;
-
+    internal readonly IEnumerator<JazonToken> result;
+    internal readonly ISourceText source;
 
     internal FsmBag fsmResources;
     char chr, nchr;

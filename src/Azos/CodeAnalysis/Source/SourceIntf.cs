@@ -21,11 +21,6 @@ namespace Azos.CodeAnalysis.Source
     Language Language { get; }
 
     /// <summary>
-    /// Resets source to the very beginning
-    /// </summary>
-  //  void Reset();
-
-    /// <summary>
     /// Indicates whether last character has been read
     /// </summary>
     bool EOF { get; }
@@ -42,7 +37,7 @@ namespace Azos.CodeAnalysis.Source
 
     /// <summary>
     /// How much memory (in characters) is used for buffering reads from source.
-    /// At first the system reads the source Segment asynchronously into the allocated buffer.
+    /// At first the system reads the source Segment asynchronously into the pre-allocated buffer.
     /// Then, the system uses sync functions <see cref="ReadChar"/> and <see cref="PeekChar"/>
     /// to get character efficiently from memory.
     /// </summary>
@@ -58,13 +53,13 @@ namespace Azos.CodeAnalysis.Source
     /// Character position within a Segment which was read from source, possibly asynchronously.
     /// The caller may trigger an async fetch to get more data from the underlying source asynchronously
     /// when this number approaches <see cref="SegmentLength"/>.
-    /// When this property goes past <see cref="SegmentLength"/> the system calls <see cref="FetchBufferAsync"/>
+    /// When this property goes past <see cref="SegmentLength"/> the system calls <see cref="FetchSegmentAsync"/>
     /// automatically, however you can check these properties yourself and trigger a fully async fetch yourself
     /// </summary>
     int SegmentPosition { get; }
 
     /// <summary>
-    /// Return true when implementation deems <see cref="SegmentPosition"/> get close to <see cref="SegmentLength"/>.
+    /// Return true when implementation deems <see cref="SegmentPosition"/> gets close enough to <see cref="SegmentLength"/>.
     /// Inspect this property to trigger async call to <see cref="FetchSegmentAsync"/>
     /// </summary>
     bool NearEndOfSegment { get; }
@@ -79,7 +74,7 @@ namespace Azos.CodeAnalysis.Source
     /// Fetches more - the next character segment into buffer asynchronously, then use synchronous function to efficiently get data
     /// using sync <see cref="ReadChar"/> and <see cref="PeekChar"/>
     /// </summary>
-    ValueTask FetchSegmentAsync();
+    Task FetchSegmentAsync();
   }
 
 
