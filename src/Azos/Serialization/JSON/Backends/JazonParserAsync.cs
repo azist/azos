@@ -16,7 +16,7 @@ namespace Azos.Serialization.JSON.Backends
   //#731 Implements asynchronous version of JSON datagram  parser
   public static class JazonParserAsync
   {
-    public static async ValueTask<object> ParseAsync(ISourceText src, bool senseCase, int maxDepth = 64)
+    public static async Task<object> ParseAsync(ISourceText src, bool senseCase, int maxDepth = 64)
     {
       if (maxDepth<0) maxDepth = 0;// 0 = root literal value
       var lexer = new JazonLexer(src);

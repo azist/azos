@@ -40,16 +40,16 @@ namespace Azos.Serialization.JSON.Backends
       return JazonParser.Parse(source, caseSensitiveMaps);
     }
 
-    public Task<object> DeserializeFromJsonAsync(Stream stream, bool caseSensitiveMaps, Encoding encoding)
+    public async Task<object> DeserializeFromJsonAsync(Stream stream, bool caseSensitiveMaps, Encoding encoding)
     {
-#warning AZ #731 rewrite async deserializer core
-      return Task.FromResult(DeserializeFromJson(stream, caseSensitiveMaps, encoding));
+      using (var source = encoding == null ? new StreamSource(stream, JsonLanguage.Instance)
+                                           : new StreamSource(stream, encoding, JsonLanguage.Instance))
+      {
+        return await JazonParserAsync.ParseAsync(source, caseSensitiveMaps).ConfigureAwait(false);
+      }
     }
 
     public Task<object> DeserializeFromJsonAsync(ISourceText source, bool caseSensitiveMaps)
-    {
-#warning AZ #731 rewrite async deserializer core
-      return Task.FromResult(DeserializeFromJson(source, caseSensitiveMaps));
-    }
+     => JazonParserAsync.ParseAsync(source, caseSensitiveMaps);
   }
 }
