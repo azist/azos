@@ -74,7 +74,7 @@ namespace Azos.CodeAnalysis.Source
     /// Fetches more - the next character segment into buffer asynchronously, then use synchronous function to efficiently get data
     /// using sync <see cref="ReadChar"/> and <see cref="PeekChar"/>
     /// </summary>
-    Task FetchSegmentAsync();
+    Task FetchSegmentAsync(System.Threading.CancellationToken ctk = default);
   }
 
 
