@@ -59,9 +59,8 @@ namespace Azos.CodeAnalysis.Source
       m_Name = name ?? Guid.NewGuid().ToString();
 
       m_Buffer = s_BytePool.Rent(4 * 1024);
-      m_Segment1 = s_CharPool.Rent(m_Buffer.Length);
-      m_Segment2 = s_CharPool.Rent(m_Buffer.Length);
-      m_Segment = m_Segment1;
+      m_Segment1 = new ArraySegment<char>(s_CharPool.Rent(m_Buffer.Length), 0, 0);
+      m_Segment2 = new ArraySegment<char>(s_CharPool.Rent(m_Buffer.Length), 0, 0);
     }
 
     protected override void Destructor()
@@ -77,46 +76,46 @@ namespace Azos.CodeAnalysis.Source
     private Language m_Language;
     private string m_Name;
 
-    private int m_SegmentLength;
     private int m_SegmentPosition;
     private int m_SegmentTailThreshold;
     private bool m_StreamEof;
 
 
     private byte[] m_Buffer;
-    private ArraySegment<char> m_Segment;
+    private bool m_SegIdx;
     private ArraySegment<char> m_Segment1;
     private ArraySegment<char> m_Segment2;
 
-    #region ISourceText Members
-    public string Name => m_Name;
-    public Language Language => m_Language;
-    public bool EOF => m_StreamEof && m_SegmentPosition >= m_SegmentLength;
-    public int BufferSize => m_Buffer.Length;
-    public int SegmentLength => m_SegmentLength;
-    public int SegmentPosition => m_SegmentPosition;
-    public bool NearEndOfSegment => (m_SegmentLength - m_SegmentPosition) < m_SegmentTailThreshold;
-    public bool IsLastSegment => m_StreamEof;
+    private ArraySegment<char> currentSegment => m_SegIdx ? m_Segment2 : m_Segment1;
+    private ArraySegment<char> standbySegment => m_SegIdx ? m_Segment1 : m_Segment2;
 
+    #region ISourceText Members
+
+    public string   Name       => m_Name;
+    public Language Language   => m_Language;
+    public bool     EOF        => m_StreamEof && m_SegmentPosition >= (m_Segment1.Count + m_Segment2.Count);
+    public int      BufferSize => m_Buffer.Length;
+    public int      SegmentLength    => currentSegment.Count;
+    public int      SegmentPosition  => m_SegmentPosition;
+    public bool     NearEndOfSegment => ((m_Segment1.Count + m_Segment2.Count) - m_SegmentPosition) < m_SegmentTailThreshold;
+    public bool     IsLastSegment    => m_StreamEof && standbySegment.Count == 0;
 
     public char ReadChar()
     {
       if (!prepData()) return (char)0;
-      return m_Segment[m_SegmentPosition++];
+      return currentSegment[m_SegmentPosition++];
     }
 
     public char PeekChar()
     {
       if (!prepData()) return (char)0;
-      return m_Segment[m_SegmentPosition];
+      return currentSegment[m_SegmentPosition];
     }
 
     public async Task FetchSegmentAsync()
     {
-      ArraySegment<char> segment;
-      if (m_Segment1.Count == 0) segment = m_Segment1;
-      else if(m_Segment2.Count == 0) segment = m_Segment2;
-      else return;//all segments are pre-fetched
+      var segment = standbySegment;
+      if (segment.Count > 0) return;//already pre-fetched
 
       var got = await m_Stream.ReadAsync(m_Buffer, 0, m_Buffer.Length).ConfigureAwait(false);
 
@@ -127,24 +126,52 @@ namespace Azos.CodeAnalysis.Source
       }
 
       var gotc = m_Encoding.GetChars(m_Buffer, 0, got, segment.Array, 0);
-      m_Segment = new ArraySegment<char>(segment.Array, 0, gotc);
-      m_SegmentPosition = 0;
+
+      if (m_SegIdx)//populate standby(the opposite of m_SegIdx)
+      {
+        m_Segment1 = new ArraySegment<char>(m_Segment1.Array, 0, gotc);
+      }
+      else
+      {
+        m_Segment2 = new ArraySegment<char>(m_Segment2.Array, 0, gotc);
+      }
     }
     #endregion
 
     #region .pvt
     private bool prepData()
     {
-      var segmentEof = m_SegmentPosition >= m_SegmentLength;
-      if (segmentEof)
-      {
-        if (m_StreamEof) return false;//real EOF
-        FetchSegmentAsync().Await();//try to fetch more from the underlying stream
-        segmentEof = m_SegmentPosition >= m_SegmentLength;
-        if (segmentEof) return false;//nothing extra was fetched
-      }
-      return true;
+      var segmentEof = m_SegmentPosition >= currentSegment.Count;
+      if (!segmentEof) return true;
+
+      //try to switch to standby segment
+      if (switchSegments()) return true;
+
+      if (m_StreamEof) return false;//real EOF
+      FetchSegmentAsync().Await();//try to fetch more from the underlying stream
+
+      //try to switch to standby segment after fetch
+      return switchSegments();
     }
+
+    private bool switchSegments()
+    {
+      if (m_SegIdx)
+      {
+        m_Segment2 = new ArraySegment<char>(m_Segment2.Array, 0, 0);
+        m_SegIdx = false;
+        m_SegmentPosition = 0;
+        return m_Segment1.Count > 0;
+      }
+      else
+      {
+        m_Segment1 = new ArraySegment<char>(m_Segment1.Array, 0, 0);
+        m_SegIdx = true;
+        m_SegmentPosition = 0;
+        return m_Segment2.Count > 0;
+      }
+    }
+
     #endregion
   }
 }
