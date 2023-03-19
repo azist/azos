@@ -13,10 +13,41 @@ using System.Threading.Tasks;
 namespace Azos.CodeAnalysis.Source
 {
   /// <summary>
-  /// Represents source code stored in a stream which can be asynchronously read in segments
+  /// Represents a textual source stored in a stream which can be asynchronously read in segments
+  /// which are then synchronously processed for performance. <br /><br/>
+  /// This is a hybrid processing model which brings benefits of sync and async processing.
+  /// This class is built for convenience and performance, as it is used by some deserializers (e.g. JSON)
+  /// it must be able to efficiently process large bodies of source text, for example supplied via a network stream
+  /// asynchronously. A naive async implementation with async `Read/PeekChar` would have been very inefficient, therefore
+  /// this class provides a synchronous character-by-character read interface which is fed from internal memory segments
+  /// which are pre-fetched asynchronously, therefore a large source input is still processed asynchronously in segments, each
+  /// processed synchronously one-after another.
   /// </summary>
+  /// <remarks>
+  /// The caller inspects boolean <see cref="NearEndOfSegment"/> to trigger async call to <see cref="FetchSegmentAsync"/>
+  /// while the sync caller may not have ended reading a current segment which was previously fetched,
+  /// this way it is possible to consume source char-by-char synchronously without any extra allocations
+  /// and overhead associated with async processing, while synchronously (efficiently) looking at <see cref="NearEndOfSegment"/>
+  /// property and triggering an asynchronous prefetch of the next segment which does not happen for every character.
+  /// <br/><br/>
+  /// The <see cref="NearEndOfSegment"/> is basically a speculative property which returns true as soon as segment read index
+  /// approaches the end of the segment as dictated by % margin near the segment end.
+  /// It is possible that a sync operation may need to read more than what was fetched in which case it will trigger
+  /// a blocking sync call on the async <see cref="FetchSegmentAsync"/>, however statistically this is a rare case.
+  /// </remarks>
   public class StreamSource : DisposableObject, ISourceText
   {
+    public const int MAX_BUFFER_SIZE = 256 * 1024;
+
+    private static readonly ArrayPool<byte> s_BytePool;
+    private static readonly ArrayPool<char> s_CharPool;
+
+    static StreamSource()
+    {
+      s_BytePool = ArrayPool<byte>.Create(MAX_BUFFER_SIZE, 16);
+      s_CharPool = ArrayPool<char>.Create(MAX_BUFFER_SIZE, 16);
+    }
+
     /// <summary>
     /// Constructs stream source with specified language and encoding
     /// </summary>
@@ -27,7 +58,18 @@ namespace Azos.CodeAnalysis.Source
       m_Encoding = encoding ?? Encoding.UTF8;
       m_Name = name ?? Guid.NewGuid().ToString();
 
-      m_Buffer = System.Buffers.MemoryPool<char>.Shared.Rent(1024).Memory;
+      m_Buffer = s_BytePool.Rent(4 * 1024);
+      m_Segment1 = s_CharPool.Rent(m_Buffer.Length);
+      m_Segment2 = s_CharPool.Rent(m_Buffer.Length);
+      m_Segment = m_Segment1;
+    }
+
+    protected override void Destructor()
+    {
+      s_BytePool.Return(m_Buffer);
+      s_CharPool.Return(m_Segment1.Array);
+      s_CharPool.Return(m_Segment2.Array);
+      base.Destructor();
     }
 
     private Stream m_Stream;
@@ -38,8 +80,13 @@ namespace Azos.CodeAnalysis.Source
     private int m_SegmentLength;
     private int m_SegmentPosition;
     private int m_SegmentTailThreshold;
-    private Memory<char> m_Buffer;
     private bool m_StreamEof;
+
+
+    private byte[] m_Buffer;
+    private ArraySegment<char> m_Segment;
+    private ArraySegment<char> m_Segment1;
+    private ArraySegment<char> m_Segment2;
 
     #region ISourceText Members
     public string Name => m_Name;
@@ -55,19 +102,23 @@ namespace Azos.CodeAnalysis.Source
     public char ReadChar()
     {
       if (!prepData()) return (char)0;
-      return m_Buffer.Span[m_SegmentPosition++];
+      return m_Segment[m_SegmentPosition++];
     }
 
     public char PeekChar()
     {
       if (!prepData()) return (char)0;
-      return m_Buffer[m_SegmentPosition];
+      return m_Segment[m_SegmentPosition];
     }
 
     public async Task FetchSegmentAsync()
     {
-      using var bin = MemoryPool<byte>.Shared.Rent(1024);
-      var got = await m_Stream.ReadAsync(bin.Memory).ConfigureAwait(false);
+      ArraySegment<char> segment;
+      if (m_Segment1.Count == 0) segment = m_Segment1;
+      else if(m_Segment2.Count == 0) segment = m_Segment2;
+      else return;//all segments are pre-fetched
+
+      var got = await m_Stream.ReadAsync(m_Buffer, 0, m_Buffer.Length).ConfigureAwait(false);
 
       if (got==0)//eof
       {
@@ -75,10 +126,9 @@ namespace Azos.CodeAnalysis.Source
         return;
       }
 
-      var gotc = m_Encoding.GetChars(bin.Memory.Slice(0, got).Span, new Span<char>());
-
-     // m_Encoding.GetMaxByteCount(charCount);
-
+      var gotc = m_Encoding.GetChars(m_Buffer, 0, got, segment.Array, 0);
+      m_Segment = new ArraySegment<char>(segment.Array, 0, gotc);
+      m_SegmentPosition = 0;
     }
     #endregion
 
