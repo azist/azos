@@ -51,10 +51,15 @@ namespace Azos.CodeAnalysis.Source
       s_CharPool = ArrayPool<char>.Create(2 * MAX_BUFFER_SIZE, 16);
     }
 
+    protected StreamSource(){ }
+
     /// <summary>
     /// Constructs stream source with specified language and encoding
     /// </summary>
     public StreamSource(Stream stream, Encoding encoding, Language language, string name = null, int bufferSize = 0, int segmentTailThreshold = 0)
+     => ctor(stream, encoding, language, name, bufferSize, segmentTailThreshold);
+
+    protected void ctor(Stream stream, Encoding encoding, Language language, string name, int bufferSize, int segmentTailThreshold )
     {
       m_Stream = stream.NonDisposed(nameof(stream));
       m_Language = language ?? UnspecifiedLanguage.Instance;
@@ -95,6 +100,8 @@ namespace Azos.CodeAnalysis.Source
     private ArraySegment<char> currentSegment => m_SegIdx ? m_Segment2 : m_Segment1;
     private ArraySegment<char> standbySegment => m_SegIdx ? m_Segment1 : m_Segment2;
 
+
+    public int SegmentTailThreshold => m_SegmentTailThreshold;
 
     #region ISourceText Members
 

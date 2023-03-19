@@ -34,7 +34,7 @@ namespace Azos.CodeAnalysis.Source
     public bool EOF => m_Position >= m_Length;
     public char ReadChar() => m_Position >= m_Length ? (char)0 : m_Source[m_Position++];
     public char PeekChar() => m_Position >= m_Length ? (char)0 : m_Source[m_Position];
-    public Task FetchSegmentAsync() => Task.CompletedTask;
+    public Task FetchSegmentAsync(System.Threading.CancellationToken ctk = default) => Task.CompletedTask;
     public int BufferSize => m_Source.Length;
     public int SegmentLength => m_Source.Length;
     public int SegmentPosition => m_Position;
