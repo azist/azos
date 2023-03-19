@@ -37,7 +37,10 @@ namespace Azos.CodeAnalysis.Source
   /// </remarks>
   public class StreamSource : DisposableObject, ISourceText
   {
-    public const int MAX_BUFFER_SIZE = 256 * 1024;
+    public const int MIN_SEG_TAIL_THRESHOLD = 64;
+    public const float MAX_SEG_TAIL_THRESHOLD_PCT = 0.7f;
+    public const int MIN_BUFFER_SIZE =   1 * 1024;
+    public const int MAX_BUFFER_SIZE = 512 * 1024;
 
     private static readonly ArrayPool<byte> s_BytePool;
     private static readonly ArrayPool<char> s_CharPool;
@@ -51,16 +54,18 @@ namespace Azos.CodeAnalysis.Source
     /// <summary>
     /// Constructs stream source with specified language and encoding
     /// </summary>
-    public StreamSource(Stream stream, Encoding encoding, Language language, string name = null)
+    public StreamSource(Stream stream, Encoding encoding, Language language, string name = null, int bufferSize = 0, int segmentTailThreshold = 0)
     {
       m_Stream = stream.NonDisposed(nameof(stream));
       m_Language = language ?? UnspecifiedLanguage.Instance;
       m_Encoding = encoding ?? Encoding.UTF8;
-      m_Name = name ?? Guid.NewGuid().ToString();
+      m_Name = name ?? "<noname>";
 
-      m_Buffer = s_BytePool.Rent(4 * 1024);
-      m_Segment1 = new ArraySegment<char>(s_CharPool.Rent(m_Buffer.Length), 0, 0);
-      m_Segment2 = new ArraySegment<char>(s_CharPool.Rent(m_Buffer.Length), 0, 0);
+      m_BufferSize = bufferSize.KeepBetween(MIN_BUFFER_SIZE, MAX_BUFFER_SIZE);
+      m_SegmentTailThreshold = segmentTailThreshold.KeepBetween(MIN_SEG_TAIL_THRESHOLD, (int)(m_BufferSize * MAX_SEG_TAIL_THRESHOLD_PCT));
+      m_Buffer = s_BytePool.Rent(m_BufferSize);
+      m_Segment1 = new ArraySegment<char>(s_CharPool.Rent(m_BufferSize), 0, 0);
+      m_Segment2 = new ArraySegment<char>(s_CharPool.Rent(m_BufferSize), 0, 0);
     }
 
     protected override void Destructor()
@@ -77,8 +82,10 @@ namespace Azos.CodeAnalysis.Source
     private string m_Name;
 
     private int m_SegmentPosition;
+    private int m_BufferSize;
     private int m_SegmentTailThreshold;
     private bool m_StreamEof;
+    private bool m_EOF;
 
 
     private byte[] m_Buffer;
@@ -89,12 +96,13 @@ namespace Azos.CodeAnalysis.Source
     private ArraySegment<char> currentSegment => m_SegIdx ? m_Segment2 : m_Segment1;
     private ArraySegment<char> standbySegment => m_SegIdx ? m_Segment1 : m_Segment2;
 
+
     #region ISourceText Members
 
     public string   Name       => m_Name;
     public Language Language   => m_Language;
-    public bool     EOF        => m_StreamEof && m_SegmentPosition >= (m_Segment1.Count + m_Segment2.Count);
-    public int      BufferSize => m_Buffer.Length;
+    public bool     EOF        => m_EOF;
+    public int      BufferSize => m_BufferSize;
     public int      SegmentLength    => currentSegment.Count;
     public int      SegmentPosition  => m_SegmentPosition;
     public bool     NearEndOfSegment => ((m_Segment1.Count + m_Segment2.Count) - m_SegmentPosition) < m_SegmentTailThreshold;
@@ -112,20 +120,27 @@ namespace Azos.CodeAnalysis.Source
       return currentSegment[m_SegmentPosition];
     }
 
-    public async Task FetchSegmentAsync()
+    public async Task FetchSegmentAsync(System.Threading.CancellationToken ctk = default)
     {
+      if (m_StreamEof) return;
       var segment = standbySegment;
       if (segment.Count > 0) return;//already pre-fetched
 
-      var got = await m_Stream.ReadAsync(m_Buffer, 0, m_Buffer.Length).ConfigureAwait(false);
-
-      if (got==0)//eof
+      var total = 0;
+      while(total < m_BufferSize && !ctk.IsCancellationRequested)
       {
-        m_StreamEof = true;
-        return;
-      }
+        var got = await m_Stream.ReadAsync(m_Buffer, total, m_BufferSize - total, ctk).ConfigureAwait(false);
 
-      var gotc = m_Encoding.GetChars(m_Buffer, 0, got, segment.Array, 0);
+        if (got==0) //eof
+        {
+          m_StreamEof = true;
+          break;
+        }
+        total += got;
+      }
+      if (total==0) return;//EOF
+
+      var gotc = m_Encoding.GetChars(m_Buffer, 0, total, segment.Array, 0);
 
       if (m_SegIdx)//populate standby(the opposite of m_SegIdx)
       {
@@ -147,7 +162,11 @@ namespace Azos.CodeAnalysis.Source
       //try to switch to standby segment
       if (switchSegments()) return true;
 
-      if (m_StreamEof) return false;//real EOF
+      if (m_StreamEof)
+      {
+        m_EOF = true;
+        return false;//real EOF
+      }
       FetchSegmentAsync().Await();//try to fetch more from the underlying stream
 
       //try to switch to standby segment after fetch

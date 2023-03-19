@@ -25,7 +25,7 @@ namespace Azos.CodeAnalysis.Source
       m_Source = source.NonNull(nameof(source));
       m_Language = language ?? UnspecifiedLanguage.Instance;
       m_Length = source.Length;
-      m_Name = name ?? Guid.NewGuid().ToString();
+      m_Name = name ?? "<noname>";
     }
 
     #region ISourceText Members
