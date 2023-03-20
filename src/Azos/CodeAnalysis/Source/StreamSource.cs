@@ -47,13 +47,16 @@ namespace Azos.CodeAnalysis.Source
     public const int MIN_BUFFER_SIZE =   1 * 1024;
     public const int MAX_BUFFER_SIZE = 512 * 1024;
 
+    public const int DEFAULT_BUFFER_SIZE = 32 * 1024;
+    public const int DEFAULT_SEG_TAIL_THRESHOLD = 735;
+
     private static readonly ArrayPool<byte> s_BytePool;
     private static readonly ArrayPool<char> s_CharPool;
 
     static StreamSource()
     {
       s_BytePool = ArrayPool<byte>.Create(MAX_BUFFER_SIZE, 16);
-      s_CharPool = ArrayPool<char>.Create(2 * MAX_BUFFER_SIZE, 16);
+      s_CharPool = ArrayPool<char>.Create(32/*reserved*/ + (2 * MAX_BUFFER_SIZE), 16);
     }
 
     protected StreamSource(){ }
@@ -61,28 +64,33 @@ namespace Azos.CodeAnalysis.Source
     /// <summary>
     /// Constructs stream source with specified language and encoding
     /// </summary>
-    public StreamSource(Stream stream, Encoding encoding, Language language, string name = null, int bufferSize = 0, int segmentTailThreshold = 0)
-     => ctor(stream, encoding, language, name, bufferSize, segmentTailThreshold);
+    public StreamSource(Stream stream, Encoding encoding, Language language, string name = null, int bufferSize = 0, int segmentTailThreshold = 0, bool sensitiveData = false)
+     => ctor(stream, encoding, language, name, bufferSize, segmentTailThreshold, sensitiveData);
 
-    protected void ctor(Stream stream, Encoding encoding, Language language, string name, int bufferSize, int segmentTailThreshold )
+    protected void ctor(Stream stream, Encoding encoding, Language language, string name, int bufferSize, int segmentTailThreshold, bool sensitiveData)
     {
       m_Stream = stream.NonDisposed(nameof(stream));
       m_Language = language ?? UnspecifiedLanguage.Instance;
       m_Encoding = encoding ?? Encoding.UTF8;
       m_Name = name ?? "<noname>";
 
+      if (bufferSize <= 0) bufferSize = DEFAULT_BUFFER_SIZE;
+      if (segmentTailThreshold <= 0) segmentTailThreshold = DEFAULT_SEG_TAIL_THRESHOLD;
+
       m_BufferSize = bufferSize.KeepBetween(MIN_BUFFER_SIZE, MAX_BUFFER_SIZE);
       m_SegmentTailThreshold = segmentTailThreshold.KeepBetween(MIN_SEG_TAIL_THRESHOLD, (int)(m_BufferSize * MAX_SEG_TAIL_THRESHOLD_PCT));
+
       m_Buffer = s_BytePool.Rent(m_BufferSize);
-      m_Arena = s_CharPool.Rent(2 * m_BufferSize);
+      m_Arena = s_CharPool.Rent(32/*reserved*/ + (2 * m_BufferSize));
       m_Segment1 = new ArraySegment<char>(m_Arena, 0, 0);
       m_Segment2 = new ArraySegment<char>(m_Arena, m_BufferSize, 0);
+      m_SensitiveData = sensitiveData;
     }
 
     protected override void Destructor()
     {
-      s_BytePool.Return(m_Buffer);
-      s_CharPool.Return(m_Arena);
+      s_BytePool.Return(m_Buffer, m_SensitiveData);
+      s_CharPool.Return(m_Arena, m_SensitiveData);
       base.Destructor();
     }
 
@@ -96,6 +104,7 @@ namespace Azos.CodeAnalysis.Source
     private int m_SegmentTailThreshold;
     private bool m_StreamEof;
 
+    private bool m_SensitiveData;
     private byte[] m_Buffer;
     private char[] m_Arena;
     private bool m_SegIdx;
@@ -133,6 +142,7 @@ namespace Azos.CodeAnalysis.Source
 
     public async Task FetchSegmentAsync(System.Threading.CancellationToken ctk = default)
     {
+      EnsureObjectNotDisposed();
       if (m_StreamEof) return;
       var segment = standbySegment;
       if (segment.Count > 0) return;//already pre-fetched, nothing to do now
@@ -167,6 +177,8 @@ namespace Azos.CodeAnalysis.Source
     #region .pvt
     private bool prepData()
     {
+      if (this._____getDisposeState() != STATE_ALIVE) return false;
+
       var segmentEof = m_SegmentPosition >= currentSegment.Count;
       if (!segmentEof) return true;
 

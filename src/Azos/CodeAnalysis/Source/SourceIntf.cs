@@ -90,7 +90,7 @@ namespace Azos.CodeAnalysis.Source
     int SegmentPosition { get; }
 
     /// <summary>
-    /// Return true when implementation deems <see cref="SegmentPosition"/> is getting close enough to <see cref="SegmentLength"/>.
+    /// Returns true when implementation deems <see cref="SegmentPosition"/> is getting close enough to <see cref="SegmentLength"/>.
     /// Inspect this property to trigger async call to <see cref="FetchSegmentAsync"/>
     /// </summary>
     bool NearEndOfSegment { get; }
