@@ -30,8 +30,7 @@ namespace Azos.Serialization.JSON.Backends
     public object DeserializeFromJson(Stream stream, bool caseSensitiveMaps, Encoding encoding)
     {
 #warning AZ #731 reuse instance
-      using (var source = encoding == null ? new StreamSource(stream, JsonLanguage.Instance)
-                                           : new StreamSource(stream, encoding, JsonLanguage.Instance))
+      using (var source = new StreamSource(stream, encoding, JsonLanguage.Instance))
         return JazonParser.Parse(source, caseSensitiveMaps);
     }
 
@@ -42,8 +41,7 @@ namespace Azos.Serialization.JSON.Backends
 
     public async Task<object> DeserializeFromJsonAsync(Stream stream, bool caseSensitiveMaps, Encoding encoding)
     {
-      using (var source = encoding == null ? new StreamSource(stream, JsonLanguage.Instance)
-                                           : new StreamSource(stream, encoding, JsonLanguage.Instance))
+      using (var source = new StreamSource(stream, encoding, JsonLanguage.Instance))
       {
         return await JazonParserAsync.ParseAsync(source, caseSensitiveMaps).ConfigureAwait(false);
       }
