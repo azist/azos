@@ -6,6 +6,7 @@
 
 using System;
 using System.IO;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -18,17 +19,30 @@ namespace Azos.IO
   /// </summary>
   public class StreamHooks : Stream
   {
-    public StreamHooks(Stream target)
+    public StreamHooks(Stream target, bool ownTarget = false)
     {
-      Target = target.NonNull(nameof(target));
+      m_Target = target.NonNull(nameof(target));
+      m_OwnTarget = ownTarget;
     }
 
-    protected override void Dispose(bool disposing){ }
+    protected override void Dispose(bool disposing)
+    {
+      if (m_OwnTarget) DisposableObject.DisposeAndNull(ref m_Target);
+    }
+
+    private Stream m_Target;
+    private bool m_OwnTarget;
 
     /// <summary>
     /// Target stream that this stream wraps
     /// </summary>
-    public readonly Stream Target;
+    public Stream Target => m_Target;
+
+    /// <summary>
+    /// If true, disposes target
+    /// </summary>
+    public bool OwnTarget => m_OwnTarget;
+
 
     public Func<StreamHooks, int>                    Handle_ReadByte  { get; set; }
     public Action<StreamHooks, byte>                 Handle_WriteByte { get; set; }
@@ -181,11 +195,27 @@ namespace Azos.IO
   /// </summary>
   public static class StreamHookUse
   {
+
+    /// <summary>
+    /// Builds a wrapper around a UTF8 text stream which introduces a random delay and/or random chunk size into stream sync reading process
+    /// </summary>
+    public static StreamHooks CaseOfRandomAsyncStringReading(string content, int msDelayFrom, int msDelayTo, int chunkSizeFrom, int chunkSizeTo, Encoding encoding = null)
+    {
+      content.NonNull(nameof(content));
+
+      if (encoding==null) encoding = Encoding.UTF8;
+
+      var ms = new MemoryStream();
+      using(var tw = new StreamWriter(ms, encoding, 4096, leaveOpen: true)) tw.Write(content);
+      return CaseOfRandomAsyncReading(ms, msDelayFrom, msDelayTo, chunkSizeFrom, chunkSizeTo, ownTarget: true);
+    }
+
+
     /// <summary>
     /// Builds a wrapper around a target stream which introduces a random delay and/or random chunk size into stream sync reading process
     /// </summary>
-    public static StreamHooks CaseOfRandomReadAsync(Stream target, int msDelayFrom, int msDelayTo, int chunkSizeFrom, int chunkSizeTo)
-    => new StreamHooks(target)
+    public static StreamHooks CaseOfRandomAsyncReading(Stream target, int msDelayFrom, int msDelayTo, int chunkSizeFrom, int chunkSizeTo, bool ownTarget = false)
+    => new StreamHooks(target, ownTarget)
     {
       Handle_ReadAsync = (hooks, buffer, offset, count, cancel)
         => HandlerOfRandomReadAsync(hooks, buffer, offset, count, cancel, msDelayFrom, msDelayTo, chunkSizeFrom, chunkSizeTo)
@@ -193,7 +223,7 @@ namespace Azos.IO
 
     /// <summary>
     /// Handles stream async requests by delegating work to target stream with controllable random delay and random buffer chunks.
-    /// Consider using <see cref="CaseOfRandomReadAsync(Stream, int, int, int, int)"/> higher order function to introduce this behavior
+    /// Consider using <see cref="CaseOfRandomAsyncReading(Stream, int, int, int, int, bool)"/> higher order function to introduce this behavior
     /// around your target stream
     /// </summary>
     public static async Task<int> HandlerOfRandomReadAsync(StreamHooks hooks,
