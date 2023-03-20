@@ -9,10 +9,41 @@ using System.Threading.Tasks;
 
 namespace Azos.CodeAnalysis.Source
 {
-#warning AZ #731 rewrite async deserializer core - add CHUNKING ASYNC/SYNC block handling with "ChunkEof" which triggers next async fetch in chunks
   /// <summary>
-  /// Represents an abstraction of a source code text which comes from various sources such as strings, streams or files
+  /// Represents an abstraction of a source code text which comes from various sources such as strings, streams or files.
+  /// The interface is designed for hybrid read model which uses sync code to <see cref="ReadChar"/> and <see cref="PeekChar"/>
+  /// from an in-memory buffer which is filled asynchronously.
+  /// The trick is to check <see cref="NearEndOfSegment"/> from async code and continue synchronous reading until the property returns true,
+  /// in which case call <see cref="FetchSegmentAsync(System.Threading.CancellationToken)"/> asynchronously.
+  /// This way the system performs efficient synchronous processing of segments which are fetched asynchronously, thus
+  /// getting benefits of both models: sync performance and non-blocking async behavior with ability to process "infinite" content as it comes.
   /// </summary>
+  /// <remarks>
+  /// <para>
+  /// Represents a textual source stored in a stream which can be asynchronously read in segments
+  /// which are then synchronously processed for performance. <br /><br/>
+  /// This is a hybrid processing model which brings benefits of sync and async processing.
+  /// This class is built for convenience and performance, as it is used by some deserializers (e.g. JSON)
+  /// it must be able to efficiently process large bodies of source text, for example supplied via a network stream
+  /// asynchronously. A naive async implementation with async `Read/PeekChar` would have been very inefficient, therefore
+  /// this class provides a synchronous character-by-character read interface which is fed from internal memory segments
+  /// which are pre-fetched asynchronously, therefore a large source input is still processed asynchronously in segments, each
+  /// processed synchronously one-after another.
+  /// </para>
+  /// <para>
+  /// The caller inspects boolean <see cref="NearEndOfSegment"/> to trigger async call to <see cref="FetchSegmentAsync"/>
+  /// while the sync caller may not have ended reading a current segment which was previously fetched,
+  /// this way it is possible to consume source char-by-char synchronously without any extra allocations
+  /// and overhead associated with async processing, while synchronously (efficiently) looking at <see cref="NearEndOfSegment"/>
+  /// property and triggering an asynchronous prefetch of the next segment which does not happen for every character.
+  /// </para>
+  /// <para>
+  /// The <see cref="NearEndOfSegment"/> is basically a speculative property which returns true as soon as segment read index
+  /// approaches the end of the segment as dictated by % margin near the segment end.
+  /// It is possible that a sync operation may need to read more than what was fetched in which case it will trigger
+  /// a blocking sync call on the async <see cref="FetchSegmentAsync"/>, however statistically this is a rare case.
+  /// </para>
+  /// </remarks>
   public interface ISourceText : Collections.INamed//Provides a meaningful name to a source code
   {
     /// <summary>
@@ -36,7 +67,7 @@ namespace Azos.CodeAnalysis.Source
     char PeekChar();
 
     /// <summary>
-    /// How much memory (in characters) is used for buffering reads from source.
+    /// How much memory (in bytes) is used for buffering reads from source.
     /// At first the system reads the source Segment asynchronously into the pre-allocated buffer.
     /// Then, the system uses sync functions <see cref="ReadChar"/> and <see cref="PeekChar"/>
     /// to get character efficiently from memory.
@@ -59,7 +90,7 @@ namespace Azos.CodeAnalysis.Source
     int SegmentPosition { get; }
 
     /// <summary>
-    /// Return true when implementation deems <see cref="SegmentPosition"/> gets close enough to <see cref="SegmentLength"/>.
+    /// Return true when implementation deems <see cref="SegmentPosition"/> is getting close enough to <see cref="SegmentLength"/>.
     /// Inspect this property to trigger async call to <see cref="FetchSegmentAsync"/>
     /// </summary>
     bool NearEndOfSegment { get; }
@@ -71,17 +102,9 @@ namespace Azos.CodeAnalysis.Source
     bool IsLastSegment { get; }
 
     /// <summary>
-    /// Fetches more - the next character segment into buffer asynchronously, then use synchronous function to efficiently get data
+    /// Fetches more - the next character segment into buffer asynchronously, then use synchronous functions to efficiently get data
     /// using sync <see cref="ReadChar"/> and <see cref="PeekChar"/>
     /// </summary>
     Task FetchSegmentAsync(System.Threading.CancellationToken ctk = default);
-  }
-
-
-  /// <summary>
-  /// Represents a list of strings used as source text
-  /// </summary>
-  public class ListOfISourceText : List<ISourceText>
-  {
   }
 }

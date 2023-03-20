@@ -5,9 +5,8 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
+
 using Azos.CodeAnalysis.JSON;
 using Azos.CodeAnalysis.Source;
 
@@ -115,7 +114,8 @@ namespace Azos.Serialization.JSON.Backends
         case JsonTokenType.tDoubleLiteral:  return token.DValue;
 
         case JsonTokenType.tPlus: {
-          token = await fetchPrimary(lexer).ConfigureAwait(false);//skip "+"
+          //use sync fetch as it is more efficient for a short literal
+          token = fetchPrimarySync(lexer);//skip "+"
 
           if (token.Type == JsonTokenType.tIntLiteral) return (int)token.ULValue;
           if (token.Type == JsonTokenType.tLongIntLiteral) return (long)token.ULValue;
@@ -124,7 +124,8 @@ namespace Azos.Serialization.JSON.Backends
         }
 
         case JsonTokenType.tMinus: {
-          token = await fetchPrimary(lexer).ConfigureAwait(false);//skip "-"
+          //use sync fetch as it is more efficient for a short literal
+          token = fetchPrimarySync(lexer);//skip "-"
 
           if (token.Type == JsonTokenType.tIntLiteral) return -(int)token.ULValue;
           if (token.Type == JsonTokenType.tLongIntLiteral) return -(long)token.ULValue;
@@ -154,7 +155,7 @@ namespace Azos.Serialization.JSON.Backends
           lexer.fsmResources.StackPop();//#833
           arr.Add( item );  // [any, any, any]
 
-          token = await fetchPrimary(lexer).ConfigureAwait(false);
+          token = fetchPrimarySync(lexer);
           if (token.Type != JsonTokenType.tComma) break;
           token = await fetchPrimary(lexer).ConfigureAwait(false);//eat coma
           if (token.Type == JsonTokenType.tSqBracketClose) break;//allow for [el,] trailing coma at the end
@@ -188,7 +189,7 @@ namespace Azos.Serialization.JSON.Backends
 
           lexer.fsmResources.StackPushProp(key);//#833
 
-          token = await fetchPrimary(lexer).ConfigureAwait(false);
+          token = fetchPrimarySync(lexer);
           if (token.Type != JsonTokenType.tColon)
             throw JazonDeserializationException.From(JsonMsgCode.eColonOperatorExpected, "Missing colon", lexer);
 
@@ -200,7 +201,7 @@ namespace Azos.Serialization.JSON.Backends
 
           lexer.fsmResources.StackPop();//#833
 
-          token = await fetchPrimary(lexer).ConfigureAwait(false);
+          token = fetchPrimarySync(lexer);
           if (token.Type != JsonTokenType.tComma) break;
           token = await fetchPrimary(lexer).ConfigureAwait(false);//eat comma
           if (token.Type == JsonTokenType.tBraceClose) break;//allow for {el,} trailing coma at the end

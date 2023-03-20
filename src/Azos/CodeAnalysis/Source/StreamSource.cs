@@ -14,7 +14,8 @@ namespace Azos.CodeAnalysis.Source
 {
   /// <summary>
   /// Represents a textual source stored in a stream which can be asynchronously read in segments
-  /// which are then synchronously processed for performance. <br /><br/>
+  /// which are then synchronously processed for performance.
+  /// <para>
   /// This is a hybrid processing model which brings benefits of sync and async processing.
   /// This class is built for convenience and performance, as it is used by some deserializers (e.g. JSON)
   /// it must be able to efficiently process large bodies of source text, for example supplied via a network stream
@@ -22,18 +23,22 @@ namespace Azos.CodeAnalysis.Source
   /// this class provides a synchronous character-by-character read interface which is fed from internal memory segments
   /// which are pre-fetched asynchronously, therefore a large source input is still processed asynchronously in segments, each
   /// processed synchronously one-after another.
+  /// </para>
   /// </summary>
   /// <remarks>
+  /// <para>
   /// The caller inspects boolean <see cref="NearEndOfSegment"/> to trigger async call to <see cref="FetchSegmentAsync"/>
   /// while the sync caller may not have ended reading a current segment which was previously fetched,
   /// this way it is possible to consume source char-by-char synchronously without any extra allocations
   /// and overhead associated with async processing, while synchronously (efficiently) looking at <see cref="NearEndOfSegment"/>
   /// property and triggering an asynchronous prefetch of the next segment which does not happen for every character.
-  /// <br/><br/>
+  /// </para>
+  /// <para>
   /// The <see cref="NearEndOfSegment"/> is basically a speculative property which returns true as soon as segment read index
   /// approaches the end of the segment as dictated by % margin near the segment end.
   /// It is possible that a sync operation may need to read more than what was fetched in which case it will trigger
   /// a blocking sync call on the async <see cref="FetchSegmentAsync"/>, however statistically this is a rare case.
+  /// </para>
   /// </remarks>
   public class StreamSource : DisposableObject, ISourceText
   {
