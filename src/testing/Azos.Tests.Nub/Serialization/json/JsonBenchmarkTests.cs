@@ -9,7 +9,10 @@ using System.Threading.Tasks;
 
 using Azos.Scripting;
 using Azos.Time;
+using Azos.IO;
 using Azos.Serialization.JSON;
+using System.IO;
+using System.Linq;
 
 namespace Azos.Tests.Nub.Serialization
 {
@@ -155,6 +158,55 @@ namespace Azos.Tests.Nub.Serialization
         Parallel.For(0, cnt, i => body());
       else
         for (var i = 0; i < cnt; i++) body();
+
+      time.Stop();
+
+      "Did {0:n0} in {1:n1} sec at {2:n0} ops/sec".SeeArgs(cnt, time.ElapsedSec, cnt / time.ElapsedSec);
+    }
+
+
+    [Run("cnt=95000 par=false")]
+    [Run("cnt=95000 par=true")]
+    //    [Run("cnt=9500 par=false")]
+    //    [Run("cnt=9500 par=true")]
+    public async Task Test_ComplexObject_Async(int cnt, bool par)
+    {
+      var jsonBytes = StreamHookUse.EncodeStringToBuffer(@"
+      { a: 1, b: true, c: 3,
+        d: { a: ""qweqweqwewqeqw"", b: ""werwerwrwrwe6778687"" },
+        e: [ 1, 2, null, null, 3, 4, {a: 1}, {a: 2}],
+        ""person"": {""first-name"": ""oleg"", ""last-name"": ""ogurzov"", age: 127},
+        ""doctor"": {""first-name"": ""Venni"", ""last-name"": ""Smekhov"", age: 27},
+        ""patient"": {""first-name"": ""oleg"", ""last-name"": ""popov"", age: 98, prokofiev: { influence: ""shostakovich"", when: ""12 January 1980 3:47 pm""}},
+        ""singer"": {""first-name"": ""Alla"", ""last-name"": ""Pugacheva"", age: 127},
+        flag1: true,
+        flag2: true,
+        flag3: null,
+        data: {array: [
+
+                     { a: 1, b: true, c: 3, d: { a: ""qweqweqwewqeqw"", b: ""werwerwrwrwe6778687"" }, e: [ 1, 2, null, null, 3, 4, {a: 1}, {a: 2}] },
+                     { a: -5, b: false, c: 23, d: { a: ""34 34 5343 34 qweqweqwewqeqw"", b: ""w687"" }, e: [ null, 2, null, null, 3, 4, {a: 1}, {a: 2}] }
+
+                      ]},
+        flag4: true,
+        flag5: false,
+        flag6: true,
+        notes: [""aaa"", ""bbb"",""ddd"", null, null, [{a: 1},{},{},{},{},{},[],[2, true, true],[1,0],[]]]
+       }");
+
+      async Task body()
+      {
+        using var mock = StreamHookUse.CaseOfRandomAsyncBufferReading(jsonBytes, 0, 0, 8, 64);
+        var got = await JsonReader.DeserializeAsync(mock).ConfigureAwait(false);
+        Aver.IsNotNull(got);
+      }
+
+      var time = Timeter.StartNew();
+
+      if (par)
+        await Parallel.ForEachAsync(Enumerable.Range(0, cnt), async (i,_) => await body().ConfigureAwait(false)).ConfigureAwait(false);
+      else
+        for (var i = 0; i < cnt; i++) await body().ConfigureAwait(false);
 
       time.Stop();
 

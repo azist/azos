@@ -142,6 +142,9 @@ namespace Azos.Serialization.JSON
     public static IJsonDataObject DeserializeDataObject(Stream stream, Encoding encoding = null, bool caseSensitiveMaps = true)
      => deserializeObject(ReaderBackend.DeserializeFromJson(stream, caseSensitiveMaps, encoding));
 
+    public static async Task<IJsonDataObject> DeserializeDataObjectAsync(Stream stream, Encoding encoding = null, bool caseSensitiveMaps = true)
+     => deserializeObject(await ReaderBackend.DeserializeFromJsonAsync(stream, caseSensitiveMaps, encoding).ConfigureAwait(false));
+
     public static Task<object> DeserializeAsync(Stream stream, Encoding encoding = null, bool caseSensitiveMaps = true)
      => ReaderBackend.DeserializeFromJsonAsync(stream, caseSensitiveMaps, encoding);
 
@@ -162,6 +165,9 @@ namespace Azos.Serialization.JSON
 
     public static IJsonDataObject DeserializeDataObject(ISourceText source, bool caseSensitiveMaps = true)
       => deserializeObject(ReaderBackend.DeserializeFromJson(source, caseSensitiveMaps));
+
+    public static async Task<IJsonDataObject> DeserializeDataObjectAsync(ISourceText source, bool caseSensitiveMaps = true)
+      => deserializeObject(await ReaderBackend.DeserializeFromJsonAsync(source, caseSensitiveMaps).ConfigureAwait(false));
 
     public static Task<object> DeserializeAsync(ISourceText source, bool caseSensitiveMaps = true)
       => ReaderBackend.DeserializeFromJsonAsync(source, caseSensitiveMaps);

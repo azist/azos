@@ -195,6 +195,20 @@ namespace Azos.IO
   /// </summary>
   public static class StreamHookUse
   {
+    private static Encoding JSON_UTF8 = new UTF8Encoding(false);
+
+    /// <summary>
+    /// Used for testing, encodes string content a MemoryStream using the specified encoding, or UTF8 by default.
+    /// The stream is set at position zero
+    /// </summary>
+    public static byte[] EncodeStringToBuffer(string content, Encoding encoding = null)
+    {
+      content.NonNull(nameof(content));
+      if (encoding == null) encoding = JSON_UTF8;
+      using var ms = new MemoryStream();
+      using (var tw = new StreamWriter(ms, encoding, 4096, leaveOpen: true)) tw.Write(content);
+      return ms.ToArray();
+    }
 
     /// <summary>
     /// Builds a wrapper around a UTF8 text stream which introduces a random delay and/or random chunk size into stream sync reading process
@@ -203,13 +217,23 @@ namespace Azos.IO
     {
       content.NonNull(nameof(content));
 
-      if (encoding==null) encoding = Encoding.UTF8;
+      if (encoding==null) encoding = JSON_UTF8;
 
       var ms = new MemoryStream();
       using(var tw = new StreamWriter(ms, encoding, 4096, leaveOpen: true)) tw.Write(content);
       return CaseOfRandomAsyncReading(ms, msDelayFrom, msDelayTo, chunkSizeFrom, chunkSizeTo, ownTarget: true);
     }
 
+    /// <summary>
+    /// Builds a wrapper around a content bytes stream which introduces a random delay and/or random chunk size into stream sync reading process
+    /// </summary>
+    public static StreamHooks CaseOfRandomAsyncBufferReading(byte[] content, int msDelayFrom, int msDelayTo, int chunkSizeFrom, int chunkSizeTo, Encoding encoding = null)
+    {
+      content.NonNull(nameof(content));
+
+      var ms = new MemoryStream(content);
+      return CaseOfRandomAsyncReading(ms, msDelayFrom, msDelayTo, chunkSizeFrom, chunkSizeTo, ownTarget: true);
+    }
 
     /// <summary>
     /// Builds a wrapper around a target stream which introduces a random delay and/or random chunk size into stream sync reading process
@@ -236,22 +260,20 @@ namespace Azos.IO
                                                          int chunkSizeFrom,
                                                          int chunkSizeTo)
     {
-      var read = 0;
-      while(read < count)
+      var rndMsDelay = Ambient.Random.NextScaledRandomInteger(msDelayFrom, msDelayTo);
+      if (rndMsDelay > 0)
       {
-        var rndMsDelay = Ambient.Random.NextScaledRandomInteger(msDelayFrom, msDelayTo);
-        if (rndMsDelay > 0)
-        {
-          await Task.Delay(rndMsDelay, cancel).ConfigureAwait(false);
-        }
-
-        var rndChunkSize = Ambient.Random.NextScaledRandomInteger(chunkSizeFrom, chunkSizeTo).AtMinimum(1);
-        var chunkSize = rndChunkSize > 0 ? rndChunkSize.KeepBetween(1, count - read) : count - read;
-        var gotNow = await hooks.Target.ReadAsync(buffer, offset + read, chunkSize, cancel).ConfigureAwait(false);
-        if (gotNow == 0) break;//EOF
-        read += gotNow;
+        await Task.Delay(rndMsDelay, cancel).ConfigureAwait(false);
       }
-      return read;
+
+      var chunkSize = (chunkSizeFrom > 0 || chunkSizeTo > 0)
+                         ? Ambient.Random
+                                  .NextScaledRandomInteger(chunkSizeFrom, chunkSizeTo)
+                                  .KeepBetween(1, count)
+                         : count;
+
+      var gotNow = await hooks.Target.ReadAsync(buffer, offset, chunkSize, cancel).ConfigureAwait(false);
+      return gotNow;
     }
   }
 
