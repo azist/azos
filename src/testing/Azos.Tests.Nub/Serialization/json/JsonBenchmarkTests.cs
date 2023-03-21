@@ -119,7 +119,11 @@ namespace Azos.Tests.Nub.Serialization
 
 
     private const string COMPLEX_OBJECT_JSON = @"
-      { a: 1, b: true, c: 3,
+      {
+        ""start-marker"": ""My-magic-string-value-123456789"",
+        a: 1,
+        b: true,
+        c: 3.79, csci: -3e-4,
         d: { a: ""qweqweqwewqeqw"", b: ""werwerwrwrwe6778687"" },
         e: [ 1, 2, null, null, 3, 4, {a: 1}, {a: 2}],
         ""person"": {""first-name"": ""oleg"", ""last-name"": ""ogurzov"", age: 127},
@@ -138,7 +142,8 @@ namespace Azos.Tests.Nub.Serialization
         flag4: true,
         flag5: false,
         flag6: true,
-        notes: [""aaa"", ""bbb"",""ddd"", null, null, [{a: 1},{},{},{},{},{},[],[2, true, true],[1,0],[]]]
+        notes: [""aaa"", ""bbb"",""ddd"", null, null, [{a: 1},{},{},{},{},{},[],[2, true, true],[1,0],[]]],
+        ""stop-marker"": ""My-magic-string-value-987654321"",
        }";
 
 
@@ -155,8 +160,11 @@ namespace Azos.Tests.Nub.Serialization
 
       void body()
       {
-        var got = JsonReader.DeserializeDataObject(json);
+        var got = JsonReader.DeserializeDataObject(json) as JsonDataMap;
         Aver.IsNotNull(got);
+        Aver.AreEqual("My-magic-string-value-123456789", got["start-marker"].ToString());
+        Aver.AreEqual("My-magic-string-value-987654321", got["stop-marker"].ToString());
+        Aver.AreEqual(-3e-4d, (double)got["csci"]);
       }
 
       var time = Timeter.StartNew();
@@ -176,15 +184,49 @@ namespace Azos.Tests.Nub.Serialization
     [Run("cnt=95000 par=true")]
     //    [Run("cnt=9500 par=false")]
     //    [Run("cnt=9500 par=true")]
-    public async Task Test_ComplexObject_Async(int cnt, bool par)
+
+    //[Run("cnt=2000 par=true szf=1 szt=1000")]
+    //[Run("cnt=2000 par=true szf=1 szt=2")]
+    //[Run("cnt=2000 par=true szf=1 szt=3")]
+    //[Run("cnt=2000 par=true szf=1 szt=4")]
+    //[Run("cnt=2000 par=true szf=1 szt=5")]
+    //[Run("cnt=2000 par=true szf=1 szt=6")]
+    //[Run("cnt=2000 par=true szf=1 szt=7")]
+    //[Run("cnt=2000 par=true szf=1 szt=8")]
+    //[Run("cnt=2000 par=true szf=1 szt=9")]
+    //[Run("cnt=2000 par=true szf=1 szt=10")]
+    //[Run("cnt=2000 par=true szf=1 szt=11")]
+
+    //[Run("cnt=5000 par=true szf=1 szt=32")]
+    //[Run("cnt=5000 par=true szf=1 szt=64")]
+    //[Run("cnt=5000 par=true szf=1 szt=128")]
+
+    //[Run("cnt=5000 par=true szf=8 szt=32")]
+    //[Run("cnt=5000 par=true szf=16 szt=64")]
+    //[Run("cnt=5000 par=true szf=32 szt=128")]
+
+    //[Run("cnt=2000 par=true szf=1  szt=1")]
+    //[Run("cnt=2000 par=true szf=2  szt=2")]
+    //[Run("cnt=2000 par=true szf=3  szt=3")]
+    //[Run("cnt=2000 par=true szf=4  szt=4")]
+    //[Run("cnt=2000 par=true szf=5  szt=5")]
+    //[Run("cnt=2000 par=true szf=6  szt=6")]
+    //[Run("cnt=2000 par=true szf=7  szt=7")]
+    //[Run("cnt=2000 par=true szf=8  szt=8")]
+    //[Run("cnt=2000 par=true szf=9  szt=9")]
+    //[Run("cnt=2000 par=true szf=10 szt=10")]
+    public async Task Test_ComplexObject_Async(int cnt, bool par, int szf=0, int szt=0)
     {
       var jsonBytes = StreamHookUse.EncodeStringToBuffer(COMPLEX_OBJECT_JSON);
 
       async ValueTask body()
       {
-        using var mock = StreamHookUse.CaseOfRandomAsyncBufferReading(jsonBytes, 0, 0, 0, 0);
-        var got = await JsonReader.DeserializeAsync(mock).ConfigureAwait(false);
+        using var mock = StreamHookUse.CaseOfRandomAsyncBufferReading(jsonBytes, 0, 0, szf, szt);
+        var got = await JsonReader.DeserializeAsync(mock).ConfigureAwait(false) as JsonDataMap;
         Aver.IsNotNull(got);
+        Aver.AreEqual("My-magic-string-value-123456789", got["start-marker"].ToString());
+        Aver.AreEqual("My-magic-string-value-987654321", got["stop-marker"].ToString());
+        Aver.AreEqual(-3e-4d, (double)got["csci"]);
       }
 
       var time = Timeter.StartNew();
@@ -338,27 +380,58 @@ Starting Azos.Tests.Nub::Azos.Tests.Nub.Serialization.JsonBenchmarkTests ...
 [OK]
 */
 
-/* ------------- 3/20/2023 Testing new Async StreamSource performance ----------------------------
-DEBUG .Net 6
-Started 03/20/2023 15:09:50
+/* ------------- 3/21/2023 Testing new Async StreamSource performance ----------------------------
+DEBUG .NET 6
+Started 03/21/2023 16:21:08
 Starting Azos.Tests.Nub::Azos.Tests.Nub.Serialization.JsonBenchmarkTests ...
-  - Test_Primitives  {cnt=250000 par=false} Did 250,000 in 10.1 sec at 24,866 ops/sec
+  - Test_Primitives  {cnt=250000 par=false} Did 250,000 in 10.2 sec at 24,417 ops/sec
 [OK]
-  - Test_Primitives  {cnt=250000 par=true} [1] Did 250,000 in 1.1 sec at 227,380 ops/sec
+  - Test_Primitives  {cnt=250000 par=true} [1] Did 250,000 in 1.2 sec at 208,735 ops/sec
 [OK]
-  - Test_SimpleObject  {cnt=250000 par=false} Did 250,000 in 1.6 sec at 154,174 ops/sec
+  - Test_SimpleObject  {cnt=250000 par=false} Did 250,000 in 1.7 sec at 145,241 ops/sec
 [OK]
-  - Test_SimpleObject  {cnt=250000 par=true} [1] Did 250,000 in 0.2 sec at 1,182,105 ops/sec
+  - Test_SimpleObject  {cnt=250000 par=true} [1] Did 250,000 in 0.2 sec at 1,213,153 ops/sec
 [OK]
-  - Test_ModerateObject  {cnt=150000 par=false} Did 150,000 in 2.5 sec at 59,077 ops/sec
+  - Test_ModerateObject  {cnt=150000 par=false} Did 150,000 in 2.5 sec at 59,248 ops/sec
 [OK]
-  - Test_ModerateObject  {cnt=150000 par=true} [1] Did 150,000 in 0.3 sec at 522,481 ops/sec
+  - Test_ModerateObject  {cnt=150000 par=true} [1] Did 150,000 in 0.3 sec at 500,023 ops/sec
 [OK]
-  - Test_ComplexObject  {cnt=95000 par=false} Did 95,000 in 10.5 sec at 9,019 ops/sec
+  - Test_ComplexObject  {cnt=95000 par=false} Did 95,000 in 12.0 sec at 7,902 ops/sec
 [OK]
-  - Test_ComplexObject  {cnt=95000 par=true} [1] Did 95,000 in 1.2 sec at 80,425 ops/sec
+  - Test_ComplexObject  {cnt=95000 par=true} [1] Did 95,000 in 1.3 sec at 71,701 ops/sec
+[OK]
+  - Test_ComplexObject_Async  {cnt=95000 par=false} Did 95,000 in 39.9 sec at 2,381 ops/sec
+[OK]
+  - Test_ComplexObject_Async  {cnt=95000 par=true} [1] Did 95,000 in 3.1 sec at 30,529 ops/sec
+[OK]
+... done JsonBenchmarkTests
+
+
+RELEASE .Net 6
+Started 03/21/2023 16:16:02
+Starting Azos.Tests.Nub::Azos.Tests.Nub.Serialization.JsonBenchmarkTests ...
+  - Test_Primitives  {cnt=250000 par=false} Did 250,000 in 3.3 sec at 76,104 ops/sec
+[OK]
+  - Test_Primitives  {cnt=250000 par=true} [1] Did 250,000 in 0.4 sec at 588,220 ops/sec
+[OK]
+  - Test_SimpleObject  {cnt=250000 par=false} Did 250,000 in 0.6 sec at 427,322 ops/sec
+[OK]
+  - Test_SimpleObject  {cnt=250000 par=true} [1] Did 250,000 in 0.1 sec at 2,569,999 ops/sec
+[OK]
+  - Test_ModerateObject  {cnt=150000 par=false} Did 150,000 in 0.8 sec at 182,646 ops/sec
+[OK]
+  - Test_ModerateObject  {cnt=150000 par=true} [1] Did 150,000 in 0.1 sec at 1,199,381 ops/sec
+[OK]
+  - Test_ComplexObject  {cnt=95000 par=false} Did 95,000 in 4.1 sec at 23,235 ops/sec
+[OK]
+  - Test_ComplexObject  {cnt=95000 par=true} [1] Did 95,000 in 0.5 sec at 177,183 ops/sec
+[OK]
+  - Test_ComplexObject_Async  {cnt=95000 par=false} Did 95,000 in 24.7 sec at 3,852 ops/sec
+[OK]
+  - Test_ComplexObject_Async  {cnt=95000 par=true} [1] Did 95,000 in 1.3 sec at 71,206 ops/sec
 [OK]
 ... done JsonBenchmarkTests
 
 
 ------------------------------------------------------------------------------------------------*/
+
