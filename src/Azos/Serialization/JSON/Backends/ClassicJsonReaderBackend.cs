@@ -41,14 +41,10 @@ namespace Azos.Serialization.JSON.Backends
       return parser.ResultContext.ResultObject;
     }
 
-    public Task<object> DeserializeFromJsonAsync(Stream stream, bool caseSensitiveMaps, Encoding encoding)
-    {
-      throw new System.NotSupportedException("ClassicJsonReaderBackend is deprecated and does not support ASYNC");
-    }
+    public ValueTask<object> DeserializeFromJsonAsync(Stream stream, bool caseSensitiveMaps, Encoding encoding)
+      => new ValueTask<object>(DeserializeFromJson(stream, caseSensitiveMaps, encoding));
 
-    public Task<object> DeserializeFromJsonAsync(ISourceText source, bool caseSensitiveMaps)
-    {
-      throw new System.NotSupportedException("ClassicJsonReaderBackend is deprecated and does not support ASYNC");
-    }
+    public ValueTask<object> DeserializeFromJsonAsync(ISourceText source, bool caseSensitiveMaps)
+      => new ValueTask<object>(DeserializeFromJson(source, caseSensitiveMaps));
   }
 }

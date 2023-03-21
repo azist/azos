@@ -67,13 +67,13 @@ namespace Azos.Serialization.JSON
     /// <summary>
     ///  Deserializes JSON content into object
     /// </summary>
-    public static Task<object> JsonToObjectAsync(this Stream json, Encoding encoding = null, bool caseSensitiveMaps = true)
+    public static ValueTask<object> JsonToObjectAsync(this Stream json, Encoding encoding = null, bool caseSensitiveMaps = true)
      => JsonReader.DeserializeAsync(json, encoding, caseSensitiveMaps);
 
     /// <summary>
     ///  Deserializes JSON content into IJSONDataObject
     /// </summary>
-    public static Task<object> JsonToObjectAsync(this ISourceText json, bool caseSensitiveMaps = true)
+    public static ValueTask<object> JsonToObjectAsync(this ISourceText json, bool caseSensitiveMaps = true)
       => JsonReader.DeserializeAsync(json, caseSensitiveMaps);
 
     /// <summary>
