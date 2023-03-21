@@ -36,10 +36,10 @@ namespace Azos.Tests.Nub.Serialization
     }
 
 
-     [Run("cnt=250000 par=false")]
-     [Run("cnt=250000 par=true")]
-    //[Run("cnt=25000 par=false")]
-    //[Run("cnt=25000 par=true")]
+    // [Run("cnt=250000 par=false")]
+    // [Run("cnt=250000 par=true")]
+    [Run("cnt=25000 par=false")]
+    [Run("cnt=25000 par=true")]
     public void Test_Primitives(int cnt, bool par)
     {
       var json = @"{ a: 1, b: 2, c: true, d: null, e: false, f: false, g: true, i1: 3, i4: 2, i5: 125, i6: 18, f1: true, f2: true, f3: false,
@@ -65,10 +65,10 @@ namespace Azos.Tests.Nub.Serialization
       "Did {0:n0} in {1:n1} sec at {2:n0} ops/sec".SeeArgs(cnt, time.ElapsedSec, cnt / time.ElapsedSec);
     }
 
-    [Run("cnt=250000 par=false")]
-    [Run("cnt=250000 par=true")]
-    //[Run("cnt=25000 par=false")]
-    //[Run("cnt=25000 par=true")]
+    //[Run("cnt=250000 par=false")]
+    //[Run("cnt=250000 par=true")]
+    [Run("cnt=25000 par=false")]
+    [Run("cnt=25000 par=true")]
     public void Test_SimpleObject(int cnt, bool par)
     {
       var json=@"{ a: 1, b: ""something"", c: null, d: {}, e: 23.7}";
@@ -91,10 +91,10 @@ namespace Azos.Tests.Nub.Serialization
       "Did {0:n0} in {1:n1} sec at {2:n0} ops/sec".SeeArgs(cnt, time.ElapsedSec, cnt / time.ElapsedSec);
     }
 
-    [Run("cnt=150000 par=false")]
-    [Run("cnt=150000 par=true")]
-    //[Run("cnt=15000 par=false")]
-    //[Run("cnt=15000 par=true")]
+    //[Run("cnt=150000 par=false")]
+    //[Run("cnt=150000 par=true")]
+    [Run("cnt=15000 par=false")]
+    [Run("cnt=15000 par=true")]
     public void Test_ModerateObject(int cnt, bool par)
     {
       var json = @"{ a: 1, b: true, c: 3, d: { a: ""qweqweqwewqeqw"", b: ""werwerwrwrwe6778687"" }, e: [ 1, 2, null, null, 3, 4, {a: 1}, {a: 2}] }";
@@ -150,10 +150,10 @@ namespace Azos.Tests.Nub.Serialization
 
 
 
-[Run("cnt=95000 par=false")]
-[Run("cnt=95000 par=true")]
-//    [Run("cnt=9500 par=false")]
-//    [Run("cnt=9500 par=true")]
+//[Run("cnt=95000 par=false")]
+//[Run("cnt=95000 par=true")]
+    [Run("cnt=9500 par=false")]
+    [Run("cnt=9500 par=true")]
     public void Test_ComplexObject(int cnt, bool par)
     {
       var json = COMPLEX_OBJECT_JSON;
@@ -180,41 +180,41 @@ namespace Azos.Tests.Nub.Serialization
     }
 
 
-    [Run("cnt=95000 par=false")]
-    [Run("cnt=95000 par=true")]
-    //    [Run("cnt=9500 par=false")]
-    //    [Run("cnt=9500 par=true")]
+    //[Run("cnt=95000 par=false")]
+    //[Run("cnt=95000 par=true")]
+        [Run("cnt=9500 par=false")]
+        [Run("cnt=9500 par=true")]
 
-    //[Run("cnt=2000 par=true szf=1 szt=1000")]
-    //[Run("cnt=2000 par=true szf=1 szt=2")]
-    //[Run("cnt=2000 par=true szf=1 szt=3")]
-    //[Run("cnt=2000 par=true szf=1 szt=4")]
-    //[Run("cnt=2000 par=true szf=1 szt=5")]
-    //[Run("cnt=2000 par=true szf=1 szt=6")]
-    //[Run("cnt=2000 par=true szf=1 szt=7")]
-    //[Run("cnt=2000 par=true szf=1 szt=8")]
-    //[Run("cnt=2000 par=true szf=1 szt=9")]
-    //[Run("cnt=2000 par=true szf=1 szt=10")]
-    //[Run("cnt=2000 par=true szf=1 szt=11")]
+    [Run("cnt=2000 par=true szf=1 szt=1000")]
+    [Run("cnt=2000 par=true szf=1 szt=2")]
+    [Run("cnt=2000 par=true szf=1 szt=3")]
+    [Run("cnt=2000 par=true szf=1 szt=4")]
+    [Run("cnt=2000 par=true szf=1 szt=5")]
+    [Run("cnt=2000 par=true szf=1 szt=6")]
+    [Run("cnt=2000 par=true szf=1 szt=7")]
+    [Run("cnt=2000 par=true szf=1 szt=8")]
+    [Run("cnt=2000 par=true szf=1 szt=9")]
+    [Run("cnt=2000 par=true szf=1 szt=10")]
+    [Run("cnt=2000 par=true szf=1 szt=11")]
 
-    //[Run("cnt=5000 par=true szf=1 szt=32")]
-    //[Run("cnt=5000 par=true szf=1 szt=64")]
-    //[Run("cnt=5000 par=true szf=1 szt=128")]
+    [Run("cnt=5000 par=true szf=1 szt=32")]
+    [Run("cnt=5000 par=true szf=1 szt=64")]
+    [Run("cnt=5000 par=true szf=1 szt=128")]
 
-    //[Run("cnt=5000 par=true szf=8 szt=32")]
-    //[Run("cnt=5000 par=true szf=16 szt=64")]
-    //[Run("cnt=5000 par=true szf=32 szt=128")]
+    [Run("cnt=5000 par=true szf=8 szt=32")]
+    [Run("cnt=5000 par=true szf=16 szt=64")]
+    [Run("cnt=5000 par=true szf=32 szt=128")]
 
-    //[Run("cnt=2000 par=true szf=1  szt=1")]
-    //[Run("cnt=2000 par=true szf=2  szt=2")]
-    //[Run("cnt=2000 par=true szf=3  szt=3")]
-    //[Run("cnt=2000 par=true szf=4  szt=4")]
-    //[Run("cnt=2000 par=true szf=5  szt=5")]
-    //[Run("cnt=2000 par=true szf=6  szt=6")]
-    //[Run("cnt=2000 par=true szf=7  szt=7")]
-    //[Run("cnt=2000 par=true szf=8  szt=8")]
-    //[Run("cnt=2000 par=true szf=9  szt=9")]
-    //[Run("cnt=2000 par=true szf=10 szt=10")]
+    [Run("cnt=2000 par=true szf=1  szt=1")]
+    [Run("cnt=2000 par=true szf=2  szt=2")]
+    [Run("cnt=2000 par=true szf=3  szt=3")]
+    [Run("cnt=2000 par=true szf=4  szt=4")]
+    [Run("cnt=2000 par=true szf=5  szt=5")]
+    [Run("cnt=2000 par=true szf=6  szt=6")]
+    [Run("cnt=2000 par=true szf=7  szt=7")]
+    [Run("cnt=2000 par=true szf=8  szt=8")]
+    [Run("cnt=2000 par=true szf=9  szt=9")]
+    [Run("cnt=2000 par=true szf=10 szt=10")]
     public async Task Test_ComplexObject_Async(int cnt, bool par, int szf=0, int szt=0)
     {
       var jsonBytes = StreamHookUse.EncodeStringToBuffer(COMPLEX_OBJECT_JSON);
