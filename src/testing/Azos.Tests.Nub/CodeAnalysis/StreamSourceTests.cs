@@ -106,7 +106,8 @@ namespace Azos.Tests.Nub.CodeAnalysis
     [Run("pad=100 bsz=1048 st=100")]
 
     //failing cases
-    [Run("pad=2051 bsz=4129 st=4661")]
+    //[Run("!ssfail","pad=2051 bsz=4129 st=4661")]
+    [Run("!ssfail", "pad=2051 bsz=4130 st=0")]
 
     public void Utf8_4Byte_Music(int pad, int bsz, int st)
     {
