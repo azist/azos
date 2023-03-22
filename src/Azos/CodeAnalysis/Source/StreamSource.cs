@@ -72,6 +72,7 @@ namespace Azos.CodeAnalysis.Source
       m_Stream = stream.NonDisposed(nameof(stream));
       m_Language = language ?? UnspecifiedLanguage.Instance;
       m_Encoding = encoding ?? Encoding.UTF8;
+      m_Decoder  = m_Encoding.GetDecoder();
       m_Name = name ?? "<noname>";
 
       if (bufferSize <= 0) bufferSize = DEFAULT_BUFFER_SIZE;
@@ -96,6 +97,7 @@ namespace Azos.CodeAnalysis.Source
 
     private Stream m_Stream;
     private Encoding m_Encoding;
+    private Decoder m_Decoder;
     private Language m_Language;
     private string m_Name;
 
@@ -161,7 +163,10 @@ namespace Azos.CodeAnalysis.Source
       }
       if (total==0) return;//EOF (and end of stream)
 
-      var gotc = m_Encoding.GetChars(m_Buffer, 0, total, segment.Array, segment.Offset);
+      //https://learn.microsoft.com/en-us/dotnet/api/system.text.decoder.getchars?view=net-7.0#system-text-decoder-getchars(system-byte()-system-int32-system-int32-system-char()-system-int32-system-boolean)
+      //var gotc = m_Encoding.GetChars(m_Buffer, 0, total, segment.Array, segment.Offset);
+      // MUST Use decoder, not encoding.GetChars() because decoder is stateful between calls
+      var gotc = m_Decoder.GetChars(m_Buffer, 0, total, segment.Array, segment.Offset, flush: m_StreamEof);
 
       if (m_SegIdx)//populate standby(the opposite of m_SegIdx)
       {

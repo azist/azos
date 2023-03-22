@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using Azos.IO;
 using Azos.CodeAnalysis.Source;
 using Azos.Scripting;
+using Azos.Serialization.JSON;
 
 namespace Azos.Tests.Nub.CodeAnalysis
 {
@@ -106,9 +107,12 @@ namespace Azos.Tests.Nub.CodeAnalysis
     [Run("pad=100 bsz=1048 st=100")]
 
     //failing cases
-    //[Run("!ssfail","pad=2051 bsz=4129 st=4661")]
-    [Run("!ssfail", "pad=2051 bsz=4130 st=0")]
-
+    //The cases below failed before the use of Decoder
+    [Run("pad=2051 bsz=4128 st=0")]    //4129..4131
+    [Run("pad=2051 bsz=4129 st=0")]    //4129..4131
+    [Run("pad=2051 bsz=4130 st=0")]    //4129..4131
+    [Run("pad=2051 bsz=4131 st=0")]    //4129..4131
+    [Run("pad=2051 bsz=4132 st=0")]    //4129..4131
     public void Utf8_4Byte_Music(int pad, int bsz, int st)
     {
       //https://design215.com/toolbox/utf8-4byte-characters.php
@@ -117,7 +121,7 @@ namespace Azos.Tests.Nub.CodeAnalysis
 
       var utf8 = StreamHookUse.EncodeStringToBuffer(v);
 
-      //"\r{0}".SeeArgs(utf8.ToHexDump());
+ //     "\r{0}".SeeArgs(utf8.ToHexDump());
 
       Aver.AreEqual(22 + (3*pad)/*ascii*/ + 8/*2 4byte utf pairs*/, utf8.Length);
 
@@ -177,13 +181,16 @@ namespace Azos.Tests.Nub.CodeAnalysis
     //[Run("maxpad=2000 maxbsz=8024 maxst=1300     padstep=47  bszstep=197  ststep=19")]
     public void Utf8_4Byte_Music_AutoPermute(int maxPad, int padStep,  int maxBsz, int bszStep, int maxSt, int stStep)
     {
+      const int MAXEC = 100;
+
       var total = 0;
-      for(var pad = 0; m_App.Active && pad < maxPad; pad += padStep)
+      var ec = 0;
+      for(var pad = 0; ec < MAXEC && m_App.Active && pad < maxPad; pad += padStep)
       {
         "Pad: {0}".SeeArgs(pad);
-        for (var bsz = 0; m_App.Active && bsz < maxBsz; bsz += bszStep)
+        for (var bsz = 0; ec < MAXEC && m_App.Active && bsz < maxBsz; bsz += bszStep)
         {
-          for (var st = 0; m_App.Active && st < maxSt; st += stStep)
+          for (var st = 0; ec < MAXEC && m_App.Active && st < maxSt; st += stStep)
           {
             try
             {
@@ -191,8 +198,9 @@ namespace Azos.Tests.Nub.CodeAnalysis
             }
             catch(Exception error)
             {
-              "Error occurred on iteration: Utf8_4Byte_Music({0}, 1024 + {1}, {2}); ".SeeArgs(pad, bsz, st);
-              new WrappedExceptionData(error).See();
+              Conout.Warning("Error occurred on iteration: Utf8_4Byte_Music({0}, 1024 + {1}, {2}); ".Args(pad, bsz, st));
+              Conout.Error("{0}", new WrappedExceptionData(error).ToJson(JsonWritingOptions.PrettyPrintRowsAsMapASCII));
+              ec++;
             }
             total++;
           }
@@ -200,6 +208,11 @@ namespace Azos.Tests.Nub.CodeAnalysis
       }
 
       "Total cases covered: {0:n0}".SeeArgs(total);
+
+      if (ec > 0)
+      {
+         Aver.Fail($"The test run generated {ec} errors while permuting the parameters, see the conout error reports above");
+      }
     }
   }
 }
