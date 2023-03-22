@@ -27,9 +27,7 @@ using Azos.Wave.Filters;
 namespace Azos.Wave
 {
   /// <summary>
-  ///
-  /// todo:  rewrite docs
-  ///
+  /// Web Application server provides AspNetCore middleware
   ///</summary>
   public class WaveServer : DaemonWithInstrumentation<IApplicationComponent>
   {

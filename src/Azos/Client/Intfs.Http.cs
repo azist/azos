@@ -63,6 +63,11 @@ namespace Azos.Client
     string AuthAspectName { get; }
 
     /// <summary>
+    /// When set, enables body error processing via a named aspect
+    /// </summary>
+    string BodyErrorAspectName { get; }
+
+    /// <summary>
     /// When set, overrides the standard HTTP `Authorization` header name when impersonation is used
     /// </summary>
     string AuthImpersonateHeader { get; }

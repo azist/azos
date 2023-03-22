@@ -50,7 +50,7 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void JSONDataMapFromURLEncoded_1()
     {
-      var map = JsonDataMap.FromURLEncodedString("name=Alex&title=Professor");
+      var map = JsonDataMap.FromUrlEncodedString("name=Alex&title=Professor");
 
       Aver.AreObjectsEqual("Alex", map["name"]);
       Aver.AreObjectsEqual("Professor", map["title"]);
@@ -59,7 +59,7 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void JSONDataMapFromURLEncoded_2()
     {
-      var map = JsonDataMap.FromURLEncodedString("one=a%2Bb+%3E+123&two=Hello+%26+Welcome.");
+      var map = JsonDataMap.FromUrlEncodedString("one=a%2Bb+%3E+123&two=Hello+%26+Welcome.");
 
       Aver.AreObjectsEqual("a+b > 123", map["one"]);
       Aver.AreObjectsEqual("Hello & Welcome.", map["two"]);
@@ -68,7 +68,7 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void JSONDataMapFromURLEncoded_3()
     {
-      var map = JsonDataMap.FromURLEncodedString("one=a%2Bb+%3E+123+%3D+true&two=Hello+%26+Welcome.%E4%B9%85%E6%9C%89%E5%BD%92%E5%A4%A9%E6%84%BF");
+      var map = JsonDataMap.FromUrlEncodedString("one=a%2Bb+%3E+123+%3D+true&two=Hello+%26+Welcome.%E4%B9%85%E6%9C%89%E5%BD%92%E5%A4%A9%E6%84%BF");
 
       Aver.AreObjectsEqual("a+b > 123 = true", map["one"]);
       Aver.AreObjectsEqual("Hello & Welcome.久有归天愿", map["two"]);
@@ -77,7 +77,7 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void JSONDataMapFromURLEncoded_PlusSign()
     {
-      var map = JsonDataMap.FromURLEncodedString("a=I+Am John&b=He Is++Not");
+      var map = JsonDataMap.FromUrlEncodedString("a=I+Am John&b=He Is++Not");
 
       Aver.AreObjectsEqual("I Am John", map["a"]);
       Aver.AreObjectsEqual("He Is  Not", map["b"]);
@@ -86,7 +86,7 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void JSONDataMapFromURLEncoded_PlusAnd20Mix()
     {
-      var map = JsonDataMap.FromURLEncodedString("a=I+Am%20John&b=He%20Is++Not");
+      var map = JsonDataMap.FromUrlEncodedString("a=I+Am%20John&b=He%20Is++Not");
 
       Aver.AreObjectsEqual("I Am John", map["a"]);
       Aver.AreObjectsEqual("He Is  Not", map["b"]);
@@ -95,17 +95,17 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void JSONDataMapFromURLEncoded_Empty()
     {
-      Aver.AreEqual(0, JsonDataMap.FromURLEncodedString(null).Count);
-      Aver.AreEqual(0, JsonDataMap.FromURLEncodedString(string.Empty).Count);
-      Aver.AreEqual(0, JsonDataMap.FromURLEncodedString(" ").Count);
-      Aver.AreEqual(0, JsonDataMap.FromURLEncodedString("\r \n").Count);
-      Aver.AreEqual(0, JsonDataMap.FromURLEncodedString("\t \t ").Count);
+      Aver.AreEqual(0, JsonDataMap.FromUrlEncodedString(null).Count);
+      Aver.AreEqual(0, JsonDataMap.FromUrlEncodedString(string.Empty).Count);
+      Aver.AreEqual(0, JsonDataMap.FromUrlEncodedString(" ").Count);
+      Aver.AreEqual(0, JsonDataMap.FromUrlEncodedString("\r \n").Count);
+      Aver.AreEqual(0, JsonDataMap.FromUrlEncodedString("\t \t ").Count);
     }
 
     [Run]
     public void JSONDataMapFromURLEncoded_WOAmKey()
     {
-      var dict = JsonDataMap.FromURLEncodedString("a");
+      var dict = JsonDataMap.FromUrlEncodedString("a");
 
       Aver.AreEqual(1, dict.Count);
       Aver.AreObjectsEqual(null, dict["a"]);
@@ -114,7 +114,7 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void JSONDataMapFromURLEncoded_WOAmpKeyVal()
     {
-      var dict = JsonDataMap.FromURLEncodedString("a=1");
+      var dict = JsonDataMap.FromUrlEncodedString("a=1");
 
       Aver.AreEqual(1, dict.Count);
       Aver.AreObjectsEqual("1", dict["a"]);
@@ -123,7 +123,7 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void JSONDataMapFromURLEncoded_WOAmpVal()
     {
-      var dict = JsonDataMap.FromURLEncodedString("=1");
+      var dict = JsonDataMap.FromUrlEncodedString("=1");
 
       Aver.AreEqual(0, dict.Count);
     }
@@ -131,7 +131,7 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void JSONDataMapFromURLEncoded_DoubleEq()
     {
-      var dict = JsonDataMap.FromURLEncodedString("a==1");
+      var dict = JsonDataMap.FromUrlEncodedString("a==1");
 
       Aver.AreEqual(1, dict.Count);
       Aver.AreObjectsEqual("=1", dict["a"]);
@@ -143,7 +143,7 @@ namespace Azos.Tests.Nub.Serialization
     [Run("query='&&a=1&&b=rrt&&&'")]
     public void JSONDataMapFromURLEncoded_KeyVal(string query)
     {
-      var dict = JsonDataMap.FromURLEncodedString(query);
+      var dict = JsonDataMap.FromUrlEncodedString(query);
 
       Aver.AreEqual(2, dict.Count);
       Aver.AreObjectsEqual("1", dict["a"]);
@@ -153,7 +153,7 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void JSONDataMapFromURLEncoded_KeyEmptyEqNormal()
     {
-      var dict = JsonDataMap.FromURLEncodedString("a=&b&&=&=14&c=3459");
+      var dict = JsonDataMap.FromUrlEncodedString("a=&b&&=&=14&c=3459");
 
       Aver.AreEqual(3, dict.Count);
       Aver.AreObjectsEqual(string.Empty, dict["a"]);
@@ -170,7 +170,7 @@ namespace Azos.Tests.Nub.Serialization
       {
         var query = "a=" + Uri.EscapeDataString(str);
 
-        var dict = JsonDataMap.FromURLEncodedString(query);
+        var dict = JsonDataMap.FromUrlEncodedString(query);
 
         Aver.AreEqual(1, dict.Count);
         Aver.AreObjectsEqual(str, dict["a"]);

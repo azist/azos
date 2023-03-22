@@ -57,6 +57,23 @@ namespace Azos.Apps.Terminal.Cmdlets
       result["az:osfam"]    = Azos.Platform.Computer.OSFamily;
       result["az:netsig"]   = Azos.Platform.Computer.UniqueNetworkSignature;
       result["az:memmodel"] = Ambient.MemoryModel;
+      result["az:app"] = new JsonDataMap
+      {
+        {"EnvironmentName", App.EnvironmentName},
+        {"Description",     App.Description},
+        {"StartTime",       App.StartTime},
+        {"Copyright",       App.Copyright},
+        {"IsUnitTest",      App.IsUnitTest},
+        {"InstanceId",      App.InstanceId},
+        {"Type",            App.GetType().DisplayNameWithExpandedGenericArgs()},
+        {"AppId",           App.AppId},
+        {"CloudOrigin",     App.CloudOrigin},
+        {"AllowNesting",    App.AllowNesting},
+        {"ForceInvariantCulture", App.ForceInvariantCulture},
+        {"Name", App.Name},
+        {"TimeLocation",  App.TimeLocation?.Description},
+        {"LocalizedTime", App.LocalizedTime},
+      };
 
 
       return result.ToJson(JsonWritingOptions.PrettyPrintRowsAsMapASCII);

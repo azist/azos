@@ -66,6 +66,11 @@ namespace Azos
     public static int AtMinimum(this int value, int min) => value < min ? min : value;
 
     /// <summary>
+    /// Ensures that a long value is not below the indicated minimum value
+    /// </summary>
+    public static long AtMinimum(this long value, long min) => value < min ? min : value;
+
+    /// <summary>
     /// Returns argument increased to the nearest number divisible by 8
     /// </summary>
     public static int Align8(int i)

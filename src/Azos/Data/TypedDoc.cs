@@ -35,7 +35,7 @@ namespace Azos.Data
     #region Properties
 
     /// <summary>
-    /// References a schema for a table that this row is a part of
+    /// References a schema of this data document
     /// </summary>
     public sealed override Schema Schema
     {

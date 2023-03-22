@@ -54,6 +54,8 @@ namespace Azos.Apps.Terminal.Cmdlets
       sb.AppendLine("----------------------------------------------------------------------------");
       sb.AppendFormat("ID          " + VAL, App.AppId.Value);
       sb.AppendFormat("Name        " + VAL, App.Name );
+      sb.AppendFormat("Environment " + VAL, App.EnvironmentName);
+      sb.AppendFormat("Origin      " + VAL, App.CloudOrigin);
       sb.AppendFormat("Host        " + VAL, Azos.Platform.Computer.HostName);
 
       if (App is ISkyApplication skya)

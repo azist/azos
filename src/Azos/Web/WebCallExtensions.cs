@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -54,6 +53,44 @@ namespace Azos.Web
       /// Optional functor to get identity context of the caller
       /// </summary>
       Task<string> GetAuthImpersonationHeaderAsync(Func<object> fGetIdentityContext);
+    }
+
+    /// <summary>
+    /// Designates the caller as an entity reacting to request body errors detected by server.
+    /// Typically an aspect will log the body that could not be processed.
+    /// Body errors arise when client-supplied body is not processable e.g. when requested JSON can not be parsed
+    /// </summary>
+    public interface IRequestBodyErrorAspect : ICallerAspect
+    {
+      /// <summary>
+      /// When non empty provides header name used for body error detection, otherwise request body errors are not detected
+      /// </summary>
+      string BodyErrorHeader { get; }
+
+      /// <summary>
+      /// Called after client receives a named header signaling a presence of body processing problem.
+      /// The implementor typically captures the original requested object by logging its contents elsewhere
+      /// </summary>
+      /// <param name="uri">Originally called URI</param>
+      /// <param name="method">Original HTTP method</param>
+      /// <param name="body">The original body object that was supplied by client caller and caused server error</param>
+      /// <param name="contentType">The original content type passed by the caller</param>
+      /// <param name="options">The original JsonWritingOptions supplied by the caller</param>
+      /// <param name="request">Request sent to server</param>
+      /// <param name="response">Response gotten from server</param>
+      /// <param name="isSuccess">True if server responded with 200</param>
+      /// <param name="rawResponseContent">Fetched raw response content (such as error) or null</param>
+      /// <param name="bodyErrorValues">Collection of values for header named by `BodyErrorHeader`</param>
+      Task ProcessBodyErrorAsync(string uri,
+                        HttpMethod method,
+                        object body,
+                        string contentType,
+                        JsonWritingOptions options,
+                        HttpRequestMessage request,
+                        HttpResponseMessage response,
+                        bool isSuccess,
+                        string rawResponseContent,
+                        IEnumerable<string> bodyErrorValues);
     }
 
 
@@ -246,10 +283,26 @@ namespace Azos.Web
                                                                                 : HttpCompletionOption.ResponseHeadersRead)
                                           .ConfigureAwait(false))
         {
+
           var isSuccess = response.IsSuccessStatusCode;
           string raw = string.Empty;
           if (isSuccess || fetchErrorContent)
+          {
             raw = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+          }
+
+          //#834 ------------------------------------
+          if (client is IRequestBodyErrorAspect bea)
+          {
+            var hdrn = bea.BodyErrorHeader;
+            if (hdrn.IsNotNullOrWhiteSpace())
+            {
+              if (response.Headers.TryGetValues(hdrn, out var hdrValues))
+              {
+                await bea.ProcessBodyErrorAsync(uri, method, body, contentType, options, request, response, isSuccess, raw, hdrValues).ConfigureAwait(false);
+              }
+            }
+          }//#834 -----------------------------------
 
           if (!isSuccess)
             throw new WebCallException(StringConsts.WEB_CALL_UNSUCCESSFUL_ERROR.Args(uri.SplitKVP('?').Key.TakeLastChars(64),
