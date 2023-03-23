@@ -41,6 +41,8 @@ namespace Azos.Wave
     public const int    ACCEPT_THREAD_GRANULARITY_MS = 250;
     public const int    INSTRUMENTATION_DUMP_PERIOD_MS = 3377;
 
+    public const int    MAX_ASYNC_READ_CONTENT_LENGTH_THRESHOLD = 1 * 1024 * 1024;
+
     public const string HTTP_STATUS_TEXT_HDR_DEFAULT = "wv-http-status";
     public const string HTTP_BODY_ERROR_HDR_DEFAULT = "wv-body-error";
     #endregion
@@ -243,6 +245,7 @@ namespace Azos.Wave
 
     private string m_HttpStatusTextHeader;
     private string m_BodyErrorHeader = HTTP_BODY_ERROR_HDR_DEFAULT;
+    private int m_AsyncReadContentLengthThreshold;
 
     private OrderedRegistry<WorkMatch> m_ErrorShowDumpMatches = new OrderedRegistry<WorkMatch>();
     private OrderedRegistry<WorkMatch> m_ErrorLogMatches = new OrderedRegistry<WorkMatch>();
@@ -347,6 +350,20 @@ namespace Azos.Wave
     /// True when header is enabled
     /// </summary>
     public bool HttpBodyErrorHeaderEnabled => HttpBodyErrorHeader.IsNotNullOrWhiteSpace();
+
+    /// <summary>
+    /// When set to the value above zero, triggers synchronous processing of requests that have `content-length` header specified
+    /// with values less than the specified threshold value, otherwise the system uses ASYNC reading.
+    /// Zero (default value) - turns off sync reading of small payloads and uses ASYNC exclusively
+    /// </summary>
+    [Config]
+    [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_WEB)]
+    public int AsyncReadContentLengthThreshold
+    {
+      get => m_AsyncReadContentLengthThreshold;
+      set => m_AsyncReadContentLengthThreshold = value.KeepBetween(0, MAX_ASYNC_READ_CONTENT_LENGTH_THRESHOLD);
+    }
+
 
     /// <summary>
     /// Returns server match collection

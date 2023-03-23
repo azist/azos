@@ -25,8 +25,7 @@ namespace Azos.Serialization.JSON.Backends
 
     public object DeserializeFromJson(Stream stream, bool caseSensitiveMaps, Encoding encoding)
     {
-      using (var source = encoding == null ? new StreamSource(stream, JsonLanguage.Instance)
-                                           : new StreamSource(stream, encoding, JsonLanguage.Instance))
+      using (var source = new StreamSource(stream, encoding, JsonLanguage.Instance))
       {
         return DeserializeFromJson(source, caseSensitiveMaps);
       }
@@ -42,14 +41,10 @@ namespace Azos.Serialization.JSON.Backends
       return parser.ResultContext.ResultObject;
     }
 
-    public Task<object> DeserializeFromJsonAsync(Stream stream, bool caseSensitiveMaps, Encoding encoding)
-    {
-      throw new System.NotSupportedException("ClassicJsonReaderBackend is deprecated and does not support ASYNC");
-    }
+    public ValueTask<object> DeserializeFromJsonAsync(Stream stream, bool caseSensitiveMaps, Encoding encoding)
+      => new ValueTask<object>(DeserializeFromJson(stream, caseSensitiveMaps, encoding));
 
-    public Task<object> DeserializeFromJsonAsync(ISourceText source, bool caseSensitiveMaps)
-    {
-      throw new System.NotSupportedException("ClassicJsonReaderBackend is deprecated and does not support ASYNC");
-    }
+    public ValueTask<object> DeserializeFromJsonAsync(ISourceText source, bool caseSensitiveMaps)
+      => new ValueTask<object>(DeserializeFromJson(source, caseSensitiveMaps));
   }
 }

@@ -22,8 +22,8 @@ namespace Azos.Serialization.JSON
     object DeserializeFromJson(string json, bool caseSensitiveMaps);
     object DeserializeFromJson(Stream stream, bool caseSensitiveMaps, Encoding encoding);
     object DeserializeFromJson(ISourceText source, bool caseSensitiveMaps);
-    Task<object> DeserializeFromJsonAsync(Stream stream, bool caseSensitiveMaps, Encoding encoding);
-    Task<object> DeserializeFromJsonAsync(ISourceText source, bool caseSensitiveMaps);
+    ValueTask<object> DeserializeFromJsonAsync(Stream stream, bool caseSensitiveMaps, Encoding encoding);
+    ValueTask<object> DeserializeFromJsonAsync(ISourceText source, bool caseSensitiveMaps);
   }
 
 
