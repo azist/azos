@@ -20,6 +20,8 @@ using Azos.Web;
 using Azos.Serialization.JSON;
 using Azos.Sky.GeoLookup;
 using Azos.Platform;
+using System.Text;
+using System.Buffers;
 
 namespace Azos.Wave
 {
@@ -579,6 +581,7 @@ namespace Azos.Wave
           caseName = "urlencoded";
           result = await JsonDataMap.FromUrlEncodedStreamAsync(Request.BodyStream).ConfigureAwait(false);//#837
         }
+        /*//Before #731 Mar 23, 2023
         else//JSON
         if (ctp.IndexOf(ContentType.JSON)>=0)
         {
@@ -597,7 +600,35 @@ namespace Azos.Wave
           }
           #endregion
         }
+        */
+        else//JSON
+        if (ctp.IndexOf(ContentType.JSON) >= 0)//#731 20230323 DKh
+        {
+          caseName = "json";
 
+          object got;
+
+          var hdrContentLength = Request.ContentLength;
+
+          if (hdrContentLength > 0 && hdrContentLength < Server.AsyncReadContentLengthThreshold)//sync processing
+          {
+            var jsonString = await prefetchJson((int)hdrContentLength).ConfigureAwait(false);
+            got = JsonReader.Deserialize(jsonString);
+          }
+          else//async processing
+          {
+            got = await JsonReader.DeserializeAsync(Request.BodyStream).ConfigureAwait(false);
+          }
+
+          if (got != null)
+          {
+            if (got is JsonDataMap map) result = map;
+            else
+            {
+              result = new JsonDataMap { { "body", got } };
+            }
+          }
+        }
         return result;
       }
       catch(Exception error)
@@ -634,8 +665,41 @@ namespace Azos.Wave
                                       error);
       }
     }
+
+    private async ValueTask<string> prefetchJson(int byteLimit) //char length cannot be greater than byteLimit
+    {
+      const int BSZ = 1024;
+      var result = new StringBuilder(byteLimit);
+
+      var chars = ArrayPool<char>.Shared.Rent(BSZ);
+      try
+      {
+        using (var rdr = new System.IO.StreamReader(Request.BodyStream, System.Text.Encoding.UTF8, true, BSZ, leaveOpen: true))
+        {
+          var totalChars = 0;
+          while(Server.Running)
+          {
+            var gotChars = await rdr.ReadAsync(chars, 0, chars.Length).ConfigureAwait(false);
+            if (gotChars == 0) break;//EOF
+            totalChars += gotChars;
+
+            if (totalChars >= byteLimit) throw new HTTPStatusException(WebConsts.STATUS_400,
+                                                                       WebConsts.STATUS_400_DESCRIPTION + " bad `content-length`",
+                                                                       "Body exceeded `content-length`");
+
+            result.Append(chars, 0, gotChars);
+          }
+        }
+      }
+      finally
+      {
+        ArrayPool<char>.Shared.Return(chars);
+      }
+
+      return result.ToString();
+    }
+
     #endregion
 
   }
-
 }

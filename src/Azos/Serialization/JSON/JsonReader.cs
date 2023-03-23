@@ -145,6 +145,12 @@ namespace Azos.Serialization.JSON
     public static async ValueTask<IJsonDataObject> DeserializeDataObjectAsync(Stream stream, Encoding encoding = null, bool caseSensitiveMaps = true)
      => deserializeObject(await ReaderBackend.DeserializeFromJsonAsync(stream, caseSensitiveMaps, encoding).ConfigureAwait(false));
 
+    public static object Deserialize(Stream stream, Encoding encoding = null, bool caseSensitiveMaps = true)
+     => ReaderBackend.DeserializeFromJson(stream, caseSensitiveMaps, encoding);
+
+    public static object Deserialize(string source, bool caseSensitiveMaps = true)
+     => ReaderBackend.DeserializeFromJson(source, caseSensitiveMaps);
+
     public static ValueTask<object> DeserializeAsync(Stream stream, Encoding encoding = null, bool caseSensitiveMaps = true)
      => ReaderBackend.DeserializeFromJsonAsync(stream, caseSensitiveMaps, encoding);
 
