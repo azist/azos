@@ -140,8 +140,11 @@ namespace Azos.Conf
 
     private void readFromFile()
     {
-      using (var fsrc = new FileSource(m_FileName))
-        read(fsrc);
+      //See #845
+      //using (var fsrc = new FileSource(m_FileName))
+      //  read(fsrc);
+      var content = File.ReadAllText(m_FileName);
+      readFromString(content);
     }
 
     private void readFromString(string content)
