@@ -246,7 +246,7 @@ namespace Azos.CodeAnalysis.Source
 
       if (m_Encoding == null) m_Encoding = ENC_UTF8;//by default
 
-      m_Decoder = m_Encoding.GetDecoder(); //tezt
+      m_Decoder = m_Encoding.GetDecoder();
     }
 
 
