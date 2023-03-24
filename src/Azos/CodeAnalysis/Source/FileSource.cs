@@ -24,6 +24,7 @@ namespace Azos.CodeAnalysis.Source
     /// </summary>
     public FileSource(string fileName,
                       Encoding encoding = null,
+                      bool useBom = true,
                       Language language = null,
                       int bufferSize = 0,
                       int segmentTailThreshold = 0,
@@ -45,7 +46,7 @@ namespace Azos.CodeAnalysis.Source
                                     FileShare.Read,
                                     fileBufferSize.KeepBetween(MIN_FILE_BUFFER_SIZE, MAX_FILE_BUFFER_SIZE));
 
-      ctor(m_FileStream, encoding, language, fileName, bufferSize, segmentTailThreshold, sensitiveData);
+      ctor(m_FileStream, encoding, useBom, language, fileName, bufferSize, segmentTailThreshold, sensitiveData);
     }
     protected override void Destructor()
     {

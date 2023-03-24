@@ -22,6 +22,18 @@ namespace Azos.CodeAnalysis
     protected CodeAnalysisException(SerializationInfo info, StreamingContext context) : base(info, context) { }
   }
 
+  /// <summary>
+  /// Indicates problem obtaining source text for processing/analysis from `ISourceText` interface
+  /// </summary>
+  [Serializable]
+  public class SourceTextException : CodeAnalysisException
+  {
+    public SourceTextException() { }
+    public SourceTextException(string message) : base(message) { }
+    public SourceTextException(string message, Exception inner) : base(message, inner) { }
+    protected SourceTextException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+  }
+
 
   /// <summary>
   /// Thrown by code processors such as lexers, parsers ,  semantic analyzers, compilers etc...
@@ -78,6 +90,5 @@ namespace Azos.CodeAnalysis
       info.AddValue(ERRORED_ESCAPE_FLD_NAME, ErroredEscape);
       base.GetObjectData(info, context);
     }
-
   }
 }

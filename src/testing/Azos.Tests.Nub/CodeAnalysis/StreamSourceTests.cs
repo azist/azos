@@ -44,7 +44,7 @@ namespace Azos.Tests.Nub.CodeAnalysis
 
       Aver.AreEqual(22/*ascii*/ + 8/*2 4byte utf pairs*/, utf8.Length);
 
-      var sut = new StreamSource(new MemoryStream(utf8), null, null);
+      var sut = new StreamSource(new MemoryStream(utf8), null, false, null);
       Aver.AreEqual('T', sut.ReadChar());
       Aver.AreEqual('r', sut.ReadChar());
       Aver.AreEqual('e', sut.ReadChar());
@@ -125,7 +125,7 @@ namespace Azos.Tests.Nub.CodeAnalysis
 
       Aver.AreEqual(22 + (3*pad)/*ascii*/ + 8/*2 4byte utf pairs*/, utf8.Length);
 
-      var sut = new StreamSource(new MemoryStream(utf8), null, null, bufferSize: bsz, segmentTailThreshold: st);
+      var sut = new StreamSource(new MemoryStream(utf8), null, false, null, bufferSize: bsz, segmentTailThreshold: st);
 
       for(var i=0; i<pad; i++) Aver.AreEqual('-', sut.ReadChar());
 

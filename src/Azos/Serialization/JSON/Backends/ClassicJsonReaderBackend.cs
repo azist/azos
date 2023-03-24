@@ -23,9 +23,9 @@ namespace Azos.Serialization.JSON.Backends
       return DeserializeFromJson(source, caseSensitiveMaps);
     }
 
-    public object DeserializeFromJson(Stream stream, bool caseSensitiveMaps, Encoding encoding)
+    public object DeserializeFromJson(Stream stream, bool caseSensitiveMaps, Encoding encoding, bool useBom)
     {
-      using (var source = new StreamSource(stream, encoding, JsonLanguage.Instance))
+      using (var source = new StreamSource(stream, encoding, useBom, JsonLanguage.Instance))
       {
         return DeserializeFromJson(source, caseSensitiveMaps);
       }
@@ -41,8 +41,8 @@ namespace Azos.Serialization.JSON.Backends
       return parser.ResultContext.ResultObject;
     }
 
-    public ValueTask<object> DeserializeFromJsonAsync(Stream stream, bool caseSensitiveMaps, Encoding encoding)
-      => new ValueTask<object>(DeserializeFromJson(stream, caseSensitiveMaps, encoding));
+    public ValueTask<object> DeserializeFromJsonAsync(Stream stream, bool caseSensitiveMaps, Encoding encoding, bool useBom)
+      => new ValueTask<object>(DeserializeFromJson(stream, caseSensitiveMaps, encoding, useBom));
 
     public ValueTask<object> DeserializeFromJsonAsync(ISourceText source, bool caseSensitiveMaps)
       => new ValueTask<object>(DeserializeFromJson(source, caseSensitiveMaps));

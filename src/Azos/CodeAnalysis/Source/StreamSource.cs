@@ -64,15 +64,17 @@ namespace Azos.CodeAnalysis.Source
     /// <summary>
     /// Constructs stream source with specified language and encoding
     /// </summary>
-    public StreamSource(Stream stream, Encoding encoding, Language language, string name = null, int bufferSize = 0, int segmentTailThreshold = 0, bool sensitiveData = false)
-     => ctor(stream, encoding, language, name, bufferSize, segmentTailThreshold, sensitiveData);
+    public StreamSource(Stream stream, Encoding encoding, bool useBom, Language language, string name = null, int bufferSize = 0, int segmentTailThreshold = 0, bool sensitiveData = false)
+     => ctor(stream, encoding, useBom, language, name, bufferSize, segmentTailThreshold, sensitiveData);
 
-    protected void ctor(Stream stream, Encoding encoding, Language language, string name, int bufferSize, int segmentTailThreshold, bool sensitiveData)
+    protected void ctor(Stream stream, Encoding encoding, bool useBom, Language language, string name, int bufferSize, int segmentTailThreshold, bool sensitiveData)
     {
       m_Stream = stream.NonDisposed(nameof(stream));
+      m_UseBom = useBom;
+      m_Encoding = encoding;//no default here
+      m_Decoder  = null;
+
       m_Language = language ?? UnspecifiedLanguage.Instance;
-      m_Encoding = encoding ?? Encoding.UTF8;
-      m_Decoder  = m_Encoding.GetDecoder();
       m_Name = name ?? "<noname>";
 
       if (bufferSize <= 0) bufferSize = DEFAULT_BUFFER_SIZE;
@@ -96,6 +98,7 @@ namespace Azos.CodeAnalysis.Source
     }
 
     private Stream m_Stream;
+    private bool m_UseBom;
     private Encoding m_Encoding;
     private Decoder m_Decoder;
     private Language m_Language;
@@ -118,6 +121,7 @@ namespace Azos.CodeAnalysis.Source
 
 
     public int SegmentTailThreshold => m_SegmentTailThreshold;
+    public Encoding Encoding => m_Encoding;
 
     #region ISourceText Members
 
@@ -149,24 +153,27 @@ namespace Azos.CodeAnalysis.Source
       var segment = standbySegment;
       if (segment.Count > 0) return;//already pre-fetched, nothing to do now
 
-      var total = 0;
-      while(total < m_BufferSize && !ctk.IsCancellationRequested)
+      var idxBuffer = 0;
+      var totalBuffered = 0;
+      while(totalBuffered < m_BufferSize && !ctk.IsCancellationRequested)
       {
-        var got = await m_Stream.ReadAsync(m_Buffer, total, m_BufferSize - total, ctk).ConfigureAwait(false);
+        var got = await m_Stream.ReadAsync(m_Buffer, totalBuffered, m_BufferSize - totalBuffered, ctk).ConfigureAwait(false);
 
         if (got==0) //eof
         {
           m_StreamEof = true;
           break;
         }
-        total += got;
+        totalBuffered += got;
       }
-      if (total==0) return;//EOF (and end of stream)
+      if (totalBuffered==0) return;//EOF (and end of stream)
+
+      ensureDecoder(ref idxBuffer);
 
       //https://learn.microsoft.com/en-us/dotnet/api/system.text.decoder.getchars?view=net-7.0#system-text-decoder-getchars(system-byte()-system-int32-system-int32-system-char()-system-int32-system-boolean)
       //var gotc = m_Encoding.GetChars(m_Buffer, 0, total, segment.Array, segment.Offset);
       // MUST Use decoder, not encoding.GetChars() because decoder is stateful between calls
-      var gotc = m_Decoder.GetChars(m_Buffer, 0, total, segment.Array, segment.Offset, flush: m_StreamEof);
+      var gotc = m_Decoder.GetChars(m_Buffer, idxBuffer, totalBuffered - idxBuffer, segment.Array, segment.Offset, flush: m_StreamEof);
 
       if (m_SegIdx)//populate standby(the opposite of m_SegIdx)
       {
@@ -180,6 +187,69 @@ namespace Azos.CodeAnalysis.Source
     #endregion
 
     #region .pvt
+
+    internal static readonly Encoding ENC_UTF8 = new UTF8Encoding(encoderShouldEmitUTF8Identifier: true, throwOnInvalidBytes: true);
+    internal static readonly Encoding ENC_UTF32_LE = new UTF32Encoding(bigEndian: false,   byteOrderMark: true, throwOnInvalidCharacters: true);
+    internal static readonly Encoding ENC_UTF32_BE = new UTF32Encoding(bigEndian: true,    byteOrderMark: true, throwOnInvalidCharacters: true);
+    internal static readonly Encoding ENC_UTF16_LE = new UnicodeEncoding(bigEndian: false, byteOrderMark: true, throwOnInvalidBytes: true);
+    internal static readonly Encoding ENC_UTF16_BE = new UnicodeEncoding(bigEndian: true,  byteOrderMark: true, throwOnInvalidBytes: true);
+
+    private void ensureDecoder(ref int idx)
+    {
+      if (m_Decoder != null) return;
+
+      //Detect BOM here
+      if (m_UseBom)//spell out BOM cases
+      {
+        Encoding bomEncoding = null;
+
+        if (m_Buffer[idx] == 0xEF && m_Buffer[idx + 1] == 0xBB && m_Buffer[idx + 2] == 0xBF)//UTF8
+        {
+          bomEncoding = ENC_UTF8;
+          idx += 3;
+        }
+        else if (m_Buffer[idx] == 0xFF && m_Buffer[idx + 1] == 0xFE && m_Buffer[idx + 2] == 0x00 && m_Buffer[idx + 3] == 0x00)//UTF-32 little endian byte order: FF FE 00 00
+        {
+          bomEncoding = ENC_UTF32_LE;
+          idx += 4;
+        }
+        else if (m_Buffer[idx] == 0x00 && m_Buffer[idx + 1] == 0x00 && m_Buffer[idx + 2] == 0xFE && m_Buffer[idx + 3] == 0xFF)//UTF-32 big endian byte order: 00 00 FE FF
+        {
+          bomEncoding = ENC_UTF32_BE;
+          idx += 4;
+        }
+        else if (m_Buffer[idx] == 0xFE && m_Buffer[idx + 1] == 0xFF)//UTF-16 big endian byte order: FE FF
+        {
+          bomEncoding = ENC_UTF16_BE;
+          idx += 2;
+        }
+        else if (m_Buffer[idx] == 0xFF && m_Buffer[idx + 1] == 0xFE)//UTF-16 little endian byte order: FF FE
+        {
+          bomEncoding = ENC_UTF16_LE;
+          idx += 2;
+        }
+
+        //===============================
+        if (bomEncoding != null)
+        {
+          if (m_Encoding == null)
+          {
+            m_Encoding = bomEncoding;
+          }
+          else//was specified
+          {
+            if (m_Encoding.GetType() != bomEncoding.GetType() ||
+                !m_Encoding.Preamble.SequenceEqual(bomEncoding.Preamble)) throw new SourceTextException("BOM/preamble mismatch: content is `{0}` but `{1}` is expected".Args(bomEncoding.GetType().Name, m_Encoding.GetType().Name));
+          }
+        }
+      }
+
+      if (m_Encoding == null) m_Encoding = Encoding.UTF8;//by default
+
+      m_Decoder = m_Encoding.GetDecoder();
+    }
+
+
     private bool prepData()
     {
       if (this._____getDisposeState() != STATE_ALIVE) return false;
