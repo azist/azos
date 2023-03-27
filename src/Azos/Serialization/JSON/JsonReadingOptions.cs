@@ -11,7 +11,7 @@ using Azos.Conf;
 namespace Azos.Serialization.JSON
 {
   /// <summary>
-  /// Provides reading options for Json datagrams like maximum character length or object nesting depth
+  /// Provides reading options for Json datagrams like imposing limits on maximum character length or object nesting depth and counts
   /// </summary>
   public class JsonReadingOptions : IConfigurable
   {
@@ -21,29 +21,70 @@ namespace Azos.Serialization.JSON
     public const int MAX_DEPTH_MAX = 0xff;
 
 
-    private static JsonReadingOptions s_Default =   new JsonReadingOptions(isSystem: true);
+    private static JsonReadingOptions s_NoLimits =   new JsonReadingOptions(isSystem: true);
+    private static JsonReadingOptions s_DefaultLimits = new JsonReadingOptions(isSystem: true)
+    {
+      MaxDepth = 128,
+      MaxCharLength = 5 * 1024 * 1024,
+      MaxObjects = 100_000,
+      MaxArrays = 100_000,
+      MaxObjectItems = 1000,
+      MaxArrayItems = 100_000,
+      MaxKeyLen = 300,
+      MaxStringLen = 128 * 1024,
+      MaxCommentLen = 8 * 1024,
+      BufferSize = 0,
+      SegmentTailThresholdPercent = 0f,
+      SensitiveData = false,
+      TimeoutMs = 0
+    };
 
     /// <summary>
-    /// Default instance
+    /// No Limits
     /// </summary>
-    public static JsonReadingOptions Default => s_Default;
+    public static JsonReadingOptions NoLimits => s_NoLimits;
+
+    /// <summary>
+    /// Default permissive Limits
+    /// </summary>
+    public static JsonReadingOptions DefaultLimits => s_DefaultLimits;
+
+    /// <summary>
+    /// Default instance points to `DefaultLimits`
+    /// </summary>
+    public static JsonReadingOptions Default => s_DefaultLimits;
+
 
     public JsonReadingOptions(){ }
     internal JsonReadingOptions(bool isSystem) { m_IsSystem = isSystem; }
 
+    /// <summary>
+    /// Creates instance by cloning the existing one, such an immutable system one
+    /// </summary>
     public JsonReadingOptions(JsonReadingOptions other)
     {
       if (other==null) return;
 
-      this.MaxDepth = other.MaxDepth;
-
+      this.m_MaxDepth       = other.m_MaxDepth;
+      this.m_MaxCharLength  = other.m_MaxCharLength;
+      this.m_MaxObjects     = other.m_MaxObjects;
+      this.m_MaxArrays      = other.m_MaxArrays;
+      this.m_MaxObjectItems = other.m_MaxObjectItems;
+      this.m_MaxArrayItems  = other.m_MaxArrayItems;
+      this.m_MaxKeyLen      = other.m_MaxKeyLen;
+      this.m_MaxStringLen   = other.m_MaxStringLen;
+      this.m_MaxCommentLen  = other.m_MaxCommentLen;
+      this.m_BufferSize     = other.m_BufferSize;
+      this.m_SegmentTailThresholdPercent = other.m_SegmentTailThresholdPercent;
+      this.m_SensitiveData  = other.m_SensitiveData;
+      this.m_TimeoutMs      = other.m_TimeoutMs;
     }
 
 
     private bool m_IsSystem;
     private T nonsys<T>(T v) => m_IsSystem ? throw new AzosException(StringConsts.IMMUTABLE_SYS_INSTANCE.Args(nameof(JsonWritingOptions))) : v;
 
-    private int m_MaxDepth;
+    private int m_MaxDepth = MAX_DEPTH_MAX;
     private int m_MaxCharLength;
 
 
