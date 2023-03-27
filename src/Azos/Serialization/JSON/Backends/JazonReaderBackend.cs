@@ -27,11 +27,10 @@ namespace Azos.Serialization.JSON.Backends
       return JazonParser.Parse(source, caseSensitiveMaps);
     }
 
-    public object DeserializeFromJson(Stream stream, bool caseSensitiveMaps, Encoding encoding)
+    public object DeserializeFromJson(Stream stream, bool caseSensitiveMaps, Encoding encoding, bool useBom)
     {
 #warning AZ #731 reuse instance
-      using (var source = encoding == null ? new StreamSource(stream, JsonLanguage.Instance)
-                                           : new StreamSource(stream, encoding, JsonLanguage.Instance))
+      using (var source = new StreamSource(stream, encoding, useBom, JsonLanguage.Instance))
         return JazonParser.Parse(source, caseSensitiveMaps);
     }
 
@@ -40,16 +39,15 @@ namespace Azos.Serialization.JSON.Backends
       return JazonParser.Parse(source, caseSensitiveMaps);
     }
 
-    public Task<object> DeserializeFromJsonAsync(Stream stream, bool caseSensitiveMaps, Encoding encoding)
+    public async ValueTask<object> DeserializeFromJsonAsync(Stream stream, bool caseSensitiveMaps, Encoding encoding, bool useBom)
     {
-#warning AZ #731 rewrite async deserializer core
-      return Task.FromResult(DeserializeFromJson(stream, caseSensitiveMaps, encoding));
+      using (var source = new StreamSource(stream, encoding, useBom, JsonLanguage.Instance))
+      {
+        return await JazonParserAsync.ParseAsync(source, caseSensitiveMaps).ConfigureAwait(false);
+      }
     }
 
-    public Task<object> DeserializeFromJsonAsync(ISourceText source, bool caseSensitiveMaps)
-    {
-#warning AZ #731 rewrite async deserializer core
-      return Task.FromResult(DeserializeFromJson(source, caseSensitiveMaps));
-    }
+    public ValueTask<object> DeserializeFromJsonAsync(ISourceText source, bool caseSensitiveMaps)
+     => JazonParserAsync.ParseAsync(source, caseSensitiveMaps);
   }
 }

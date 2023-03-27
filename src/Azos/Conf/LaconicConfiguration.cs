@@ -140,8 +140,13 @@ namespace Azos.Conf
 
     private void readFromFile()
     {
-      using (var fsrc = new FileSource(m_FileName))
+      //20230324 DKh+Jpk wip on #845
+      using (var fsrc = new FileSource(m_FileName, encoding: null, useBom: true))//auto detect encoding
+      {
         read(fsrc);
+      }
+////      var content = File.ReadAllText(m_FileName);
+////      readFromString(content);
     }
 
     private void readFromString(string content)

@@ -1,0 +1,42 @@
+﻿1: This file has UNICODE Characters
+2: Source: https://design215.com/toolbox/utf8-4byte-characters.php  and https://www.kermitproject.org/utf8.html
+3: Music Treble(0xf09d849e) and Bass(0xf09d84a2) clefs: 𝄞𝄢;
+4: Some Georgian characters: Ლ(0xe1b29a) Ფ(0xe1b2a4);
+5: --------ГЖrЕrЛrЬr?-----------r-r---r---r-------533-----[ГЖЕЛЬ=good]------y---y-------------ГЖrЕwerЛЬ?---------ГЖ44234ЕwerЛwerЬwr?------------------------
+6: -------------ᲚᲚᲚ---Ლ---------ᲚᲚ-𝄞𝄢𝄞𝄢𝄞𝄢𝄞𝄢𝄞𝄢𝄞𝄢𝄞𝄢𝄞𝄢𝄞𝄢𝄞𝄢𝄞𝄢𝄞𝄢𝄞𝄢𝄞𝄢𝄞𝄢𝄞𝄢𝄞𝄢𝄞𝄢𝄞𝄢𝄞𝄢𝄞𝄢𝄞𝄢𝄞𝄢𝄞𝄢𝄞𝄢
+7: 2 byte chars: æ(0xc3a6),Æ(0xc386),Ж(0xd096)
+8: Я ЖОПА ГЖЕЛЬ?
+9: ЭЮЯ abcdefg paddddddddddddddddddddddᲚdddddddddddddddddddddddddddddddddddტყაოსანიdddddddddddd我能吞下玻璃而不傷身體ddddddddddddddddᲚddddddddddddddddd我能吞下玻璃而不傷身體ddddddddddddddᲚdddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddiwuhhiuhweidhuiwheoiduhiwuheioduhwiuheduihwoiehfiuhewirfhoieuhfoiuhewroifhoiuewrfiuhewoirfhkhdfhadkjshfiurweifuheoiwrfhiuhwfoiuheworufihoiewrufhoiuhewofuihoewirfhoiehrofiuhewoiurfhkdsahfliudsahlfiuhladsiuhfliauh
+10: ЭЮЯ
+
+12: 𝄞 treble
+13: 𝄢 bass
+line without number
+
+16: Ფ Ფ Ფ,,.Ფ;'*345$^%*09---=-========-𝄞𝄢𝄞𝄢𝄞𝄢𝄞𝄢, ok!
+17: YEZ!!
+18: ЭЮЯ
+19: Chinese (Traditional): 我能吞下玻璃而不傷身體
+20: the end;
+
+Pushkin: ------- begin --------
+На берегу пустынных волн
+Стоял он, дум великих полн,
+И вдаль глядел. Пред ним широко
+Река неслася; бедный чёлн
+По ней стремился одиноко.
+По мшистым, топким берегам
+Чернели избы здесь и там,
+Приют убогого чухонца;
+И лес, неведомый лучам
+В тумане спрятанного солнца,
+Кругом шумел.
+------- end --------
+
+
+Rustaveli: ------- begin --------
+ვეპხის ტყაოსანი შოთა რუსთაველი
+------- end --------
+
+
+42: eof.

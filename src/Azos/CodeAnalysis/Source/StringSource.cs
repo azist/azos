@@ -4,14 +4,15 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System.Collections.Generic;
+using System;
+using System.Threading.Tasks;
 
 namespace Azos.CodeAnalysis.Source
 {
   /// <summary>
-  /// Provides source code from string
+  /// Provides source code from a fully materialized string value
   /// </summary>
-  public class StringSource : ISourceText
+  public sealed class StringSource : ISourceText
   {
     private Language m_Language;
     private string m_Name;
@@ -21,40 +22,25 @@ namespace Azos.CodeAnalysis.Source
 
     public StringSource(string source, Language language = null, string name = null)
     {
-      m_Language = language;
-      m_Source = source;
+      m_Source = source.NonNull(nameof(source));
+      m_Language = language ?? UnspecifiedLanguage.Instance;
       m_Length = source.Length;
-      m_Name = name;
+      m_Name = name ?? "<noname>";
     }
 
     #region ISourceText Members
-
-    public void Reset() => m_Position = 0;
-
+    public string Name => m_Name;
+    public Language Language => m_Language;
     public bool EOF => m_Position >= m_Length;
-
     public char ReadChar() => m_Position >= m_Length ? (char)0 : m_Source[m_Position++];
-
     public char PeekChar() => m_Position >= m_Length ? (char)0 : m_Source[m_Position];
-
-    public Language Language => m_Language ?? UnspecifiedLanguage.Instance;
-
-    /// <summary>
-    /// Provides a handy way to name an otherwise-anonymous string source code,
-    /// This property is like a "file name" only data is kept in a string
-    /// </summary>
-    public string Name => m_Name ?? string.Empty;
-
+    public Task FetchSegmentAsync(System.Threading.CancellationToken ctk = default) => Task.CompletedTask;
+    public int BufferSize => m_Source.Length;
+    public int SegmentLength => m_Source.Length;
+    public int SegmentPosition => m_Position;
+    public bool NearEndOfSegment => false;
+    public bool IsLastSegment => true;
     #endregion
-  }
-
-
-  /// <summary>
-  /// Represents a list of strings used as source text
-  /// </summary>
-  public class StringSourceList : List<StringSource>
-  {
-
   }
 }
 

@@ -4,7 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System.Collections.Generic;
 using System.Text;
 using System.IO;
 
@@ -13,77 +12,48 @@ namespace Azos.CodeAnalysis.Source
   /// <summary>
   /// Represents source code stored in a file
   /// </summary>
-  public class FileSource : StreamReader, ISourceText
+  public sealed class FileSource : StreamSource
   {
-    /// <summary>
-    /// Constructs file source infering source language from file extension
-    /// </summary>
-    public FileSource(string fileName)
-      : base(fileName)
-    {
-      m_Language = Language.TryFindLanguageByFileExtension(Path.GetExtension(fileName));
-      m_Name = fileName;
-    }
+    public const int MIN_FILE_BUFFER_SIZE = 1 * 1024;
+    public const int MAX_FILE_BUFFER_SIZE = 64 * 1024;
+
+    public const int DEFAULT_FILE_BUFFER_SIZE = 4 * 1024;
 
     /// <summary>
-    /// Constructs file source with specified language ignoring file extension
+    /// Constructs file source inferring source language from file extension if not specified
     /// </summary>
-    public FileSource(Language language, string fileName)
-      : base(fileName)
+    public FileSource(string fileName,
+                      Encoding encoding = null,
+                      bool useBom = true,
+                      Language language = null,
+                      int bufferSize = 0,
+                      int segmentTailThreshold = 0,
+                      int fileBufferSize = 0,
+                      bool sensitiveData = false) : base()
     {
-      m_Language = language;
-      m_Name = fileName;
+      fileName.NonBlank(nameof(fileName));
+
+      if (language==null)
+      {
+        language = Language.TryFindLanguageByFileExtension(Path.GetExtension(fileName));
+      }
+
+      if (fileBufferSize < 1) fileBufferSize = DEFAULT_FILE_BUFFER_SIZE;
+
+      m_FileStream = new FileStream(fileName,
+                                    FileMode.Open,
+                                    FileAccess.Read,
+                                    FileShare.Read,
+                                    fileBufferSize.KeepBetween(MIN_FILE_BUFFER_SIZE, MAX_FILE_BUFFER_SIZE));
+
+      ctor(m_FileStream, encoding, useBom, language, fileName, bufferSize, segmentTailThreshold, sensitiveData);
+    }
+    protected override void Destructor()
+    {
+      DisposeAndNull(ref m_FileStream);
+      base.Destructor();
     }
 
-    private Language m_Language;
-    private string m_Name;
-
-    public void Reset()
-    {
-      BaseStream.Position = 0;
-      DiscardBufferedData();
-    }
-
-    /// <summary>
-    /// Returns source's file name
-    /// </summary>
-    public string Name => m_Name ?? string.Empty;
-
-    public bool EOF => EndOfStream;
-
-    public char ReadChar() => (char)Read();
-
-    public char PeekChar() => (char)Peek();
-
-    public Language Language => m_Language ?? UnspecifiedLanguage.Instance;
-
-  }
-
-
-  /// <summary>
-  /// Represents a list of file names
-  /// </summary>
-  public class FileNameList : List<string>
-  {
-    /// <summary>
-    /// Checks that all files exist
-    /// </summary>
-    public void CheckAllNames()
-    {
-      foreach (string fn in this)
-        if (!File.Exists(fn))
-          throw new CodeAnalysisException(StringConsts.FILE_NOT_FOUND_ERROR + (fn ?? CoreConsts.UNKNOWN));
-    }
-
-    public override string ToString()
-    {
-      StringBuilder sb = new StringBuilder();
-
-      foreach (string fn in this)
-        sb.AppendLine(fn.ToString());
-
-      return sb.ToString();
-    }
-
+    private FileStream m_FileStream;
   }
 }

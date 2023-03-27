@@ -40,9 +40,9 @@ namespace Azos
   [Serializable]
   public abstract class DisposableObject : IDisposableLifecycle, IAsyncDisposable
   {
-    private const int STATE_ALIVE = 0;
-    private const int STATE_DISPOSED_USER = 1;
-    private const int STATE_DISPOSED_FINALIZER = 2;
+    internal const int STATE_ALIVE = 0;
+    internal const int STATE_DISPOSED_USER = 1;
+    internal const int STATE_DISPOSED_FINALIZER = 2;
 
     #region STATIC
     /// <summary>
@@ -173,6 +173,12 @@ namespace Azos
     /// may not have finished yet). Thread safe
     /// </summary>
     public bool Disposed => Thread.VolatileRead(ref m_DisposeState) != STATE_ALIVE;
+
+    /// <summary>
+    /// Internal framework optimization not to be used by app developers.
+    /// Accesses m_DisposeState without volatile read for tight code performance
+    /// </summary>
+    internal int _____getDisposeState() => m_DisposeState;
     #endregion
 
 

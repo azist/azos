@@ -42,5 +42,21 @@
     <ProjectReference Include="..\..\Azos\Azos.csproj" />
   </ItemGroup>
 
+
+  <ItemGroup>
+    <None Update="nub-test-utf16-be.laconf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="nub-test-utf16-le.laconf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="nub-test-utf8-text-file.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="nub-test.laconf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
 
