@@ -24,19 +24,20 @@ namespace Azos.Serialization.JSON
     private static JsonReadingOptions s_NoLimits =   new JsonReadingOptions(isSystem: true);
     private static JsonReadingOptions s_DefaultLimits = new JsonReadingOptions(isSystem: true)
     {
-      MaxDepth = 128,
-      MaxCharLength = 5 * 1024 * 1024,
-      MaxObjects = 100_000,
-      MaxArrays = 100_000,
-      MaxObjectItems = 1000,
-      MaxArrayItems = 100_000,
-      MaxKeyLen = 300,
-      MaxStringLen = 128 * 1024,
-      MaxCommentLen = 8 * 1024,
-      BufferSize = 0,
-      SegmentTailThresholdPercent = 0f,
-      SensitiveData = false,
-      TimeoutMs = 0
+      m_CaseSensitiveMaps = true,
+      m_MaxDepth = 128,
+      m_MaxCharLength = 5 * 1024 * 1024,
+      m_MaxObjects = 100_000,
+      m_MaxArrays = 100_000,
+      m_MaxObjectItems = 1000,
+      m_MaxArrayItems = 100_000,
+      m_MaxKeyLen = 300,
+      m_MaxStringLen = 128 * 1024,
+      m_MaxCommentLen = 8 * 1024,
+      m_BufferSize = 0,
+      m_SegmentTailThresholdPercent = 0f,
+      m_SensitiveData = false,
+      m_TimeoutMs = 0
     };
 
     /// <summary>
@@ -63,8 +64,9 @@ namespace Azos.Serialization.JSON
     /// </summary>
     public JsonReadingOptions(JsonReadingOptions other)
     {
-      if (other==null) return;
+      if (other == null) return;
 
+      this.m_CaseSensitiveMaps = other.m_CaseSensitiveMaps;
       this.m_MaxDepth       = other.m_MaxDepth;
       this.m_MaxCharLength  = other.m_MaxCharLength;
       this.m_MaxObjects     = other.m_MaxObjects;
@@ -84,6 +86,7 @@ namespace Azos.Serialization.JSON
     private bool m_IsSystem;
     private T nonsys<T>(T v) => m_IsSystem ? throw new AzosException(StringConsts.IMMUTABLE_SYS_INSTANCE.Args(nameof(JsonWritingOptions))) : v;
 
+    private bool m_CaseSensitiveMaps = true;
     private int m_MaxDepth = MAX_DEPTH_MAX;
     private int m_MaxCharLength;
 
@@ -110,6 +113,17 @@ namespace Azos.Serialization.JSON
     /// </summary>
     public bool IsSystem => m_IsSystem;
 
+
+
+    /// <summary>
+    /// True to use case sensitive property/keys on objects (json maps)
+    /// </summary>
+    [Config]
+    public bool CaseSensitiveMaps
+    {
+      get => m_CaseSensitiveMaps;
+      set => m_CaseSensitiveMaps = nonsys(value);
+    }
 
     /// <summary>
     /// Imposes a maximum limit on json datagram nesting depth
@@ -253,7 +267,7 @@ namespace Azos.Serialization.JSON
     public int TimeoutMs
     {
       get => m_TimeoutMs;
-      set => m_TimeoutMs = nonsys(value);
+      set => m_TimeoutMs = nonsys(value).AtMinimum(0);
     }
 
     public void Configure(IConfigSectionNode node) => ConfigAttribute.Apply(this, nonsys(node));
