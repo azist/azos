@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.1.0.2
-set HEADLINE=#845 #731 ASYNC JSON
+set VER=3.1.0.3
+set HEADLINE=#731 use BOM flags
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

@@ -304,7 +304,7 @@ namespace Azos.Wave
     {
       if (!m_HasParsedRequestBody)
       {
-        m_RequestBodyAsJSONDataMap = await DoGetRequestBodyAsJsonDataMapAsync();
+        m_RequestBodyAsJSONDataMap = await DoGetRequestBodyAsJsonDataMapAsync().ConfigureAwait(false);
         m_HasParsedRequestBody = true;
       }
       return m_RequestBodyAsJSONDataMap;
@@ -318,7 +318,7 @@ namespace Azos.Wave
     {
       if (m_WholeRequestAsJSONDataMap == null)
       {
-        m_WholeRequestAsJSONDataMap = await DoGetWholeRequestAsJsonDataMapAsync();
+        m_WholeRequestAsJSONDataMap = await DoGetWholeRequestAsJsonDataMapAsync().ConfigureAwait(false);
       }
       return m_WholeRequestAsJSONDataMap;
     }
@@ -537,7 +537,7 @@ namespace Azos.Wave
     /// </summary>
     protected virtual async ValueTask<JsonDataMap> DoGetWholeRequestAsJsonDataMapAsync()
     {
-      var body = await this.GetRequestBodyAsJsonDataMapAsync();
+      var body = await this.GetRequestBodyAsJsonDataMapAsync().ConfigureAwait(false);
 
       if (body == null) return MatchedVars;
 
