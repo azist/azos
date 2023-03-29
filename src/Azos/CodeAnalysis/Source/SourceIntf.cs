@@ -66,6 +66,12 @@ namespace Azos.CodeAnalysis.Source
     /// </summary>
     char PeekChar();
 
+
+    /// <summary>
+    /// Encoding used for reading text
+    /// </summary>
+    System.Text.Encoding Encoding { get; }
+
     /// <summary>
     /// How much memory (in bytes) is used for buffering reads from source.
     /// At first the system reads the source Segment asynchronously into the pre-allocated buffer.
@@ -88,6 +94,11 @@ namespace Azos.CodeAnalysis.Source
     /// automatically, however you can check these properties yourself and trigger a fully async fetch yourself
     /// </summary>
     int SegmentPosition { get; }
+
+    /// <summary>
+    /// How many segments have been read so far
+    /// </summary>
+    int SegmentCount { get; }
 
     /// <summary>
     /// Returns true when implementation deems <see cref="SegmentPosition"/> is getting close enough to <see cref="SegmentLength"/>.

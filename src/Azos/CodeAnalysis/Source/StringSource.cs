@@ -31,6 +31,7 @@ namespace Azos.CodeAnalysis.Source
     #region ISourceText Members
     public string Name => m_Name;
     public Language Language => m_Language;
+    public System.Text.Encoding Encoding => System.Text.Encoding.Default;
     public bool EOF => m_Position >= m_Length;
     public char ReadChar() => m_Position >= m_Length ? (char)0 : m_Source[m_Position++];
     public char PeekChar() => m_Position >= m_Length ? (char)0 : m_Source[m_Position];
@@ -40,6 +41,7 @@ namespace Azos.CodeAnalysis.Source
     public int SegmentPosition => m_Position;
     public bool NearEndOfSegment => false;
     public bool IsLastSegment => true;
+    public int SegmentCount => 1;
     #endregion
   }
 }

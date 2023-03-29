@@ -104,6 +104,7 @@ namespace Azos.CodeAnalysis.Source
     private Language m_Language;
     private string m_Name;
 
+    private int m_SegmentCount;
     private int m_SegmentPosition;
     private int m_BufferSize;
     private int m_SegmentTailThreshold;
@@ -120,17 +121,18 @@ namespace Azos.CodeAnalysis.Source
     private ArraySegment<char> standbySegment => m_SegIdx ? m_Segment1 : m_Segment2;
 
 
-    public int SegmentTailThreshold => m_SegmentTailThreshold;
-    public Encoding Encoding => m_Encoding;
 
     #region ISourceText Members
 
     public string   Name       => m_Name;
     public Language Language   => m_Language;
+    public Encoding Encoding   => m_Encoding;
     public bool     EOF        => m_StreamEof && m_SegmentPosition >= m_Segment1.Count + m_Segment2.Count;
     public int      BufferSize => m_BufferSize;
+    public int      SegmentTailThreshold => m_SegmentTailThreshold;
     public int      SegmentLength    => currentSegment.Count;
     public int      SegmentPosition  => m_SegmentPosition;
+    public int      SegmentCount     => m_SegmentCount;
     public bool     NearEndOfSegment => ((m_Segment1.Count + m_Segment2.Count) - m_SegmentPosition) < m_SegmentTailThreshold;
     public bool     IsLastSegment    => m_StreamEof && standbySegment.Count == 0;
 
@@ -183,6 +185,8 @@ namespace Azos.CodeAnalysis.Source
       {
         m_Segment2 = new ArraySegment<char>(m_Arena, m_BufferSize, gotc);
       }
+
+      m_SegmentCount++;
     }
     #endregion
 
