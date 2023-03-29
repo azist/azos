@@ -43,11 +43,11 @@ namespace Azos.CodeAnalysis.Source
   public class StreamSource : DisposableObject, ISourceText
   {
     public const int MIN_SEG_TAIL_THRESHOLD = 64;
-    public const float MAX_SEG_TAIL_THRESHOLD_PCT = 0.532f;
+    public const float MAX_SEG_TAIL_THRESHOLD_PCT = 0.247f;// < 1/4 of a buffer size in case of UNICODE32 (4 bytes per char)
     public const int MIN_BUFFER_SIZE =   1 * 1024;
-    public const int MAX_BUFFER_SIZE = 512 * 1024;
+    public const int MAX_BUFFER_SIZE = 128 * 1024;
 
-    public const int DEFAULT_BUFFER_SIZE = 32 * 1024;
+    public const int DEFAULT_BUFFER_SIZE = 16 * 1024;
     public const int DEFAULT_SEG_TAIL_THRESHOLD = 735;
 
     private static readonly ArrayPool<byte> s_BytePool;
@@ -56,7 +56,7 @@ namespace Azos.CodeAnalysis.Source
     static StreamSource()
     {
       s_BytePool = ArrayPool<byte>.Create(MAX_BUFFER_SIZE, 16);
-      s_CharPool = ArrayPool<char>.Create(32/*reserved*/ + (2 * MAX_BUFFER_SIZE), 16);
+      s_CharPool = ArrayPool<char>.Create(32/*reserved*/ + (2/*arena segments*/ * MAX_BUFFER_SIZE), 16);
     }
 
     protected StreamSource(){ }
@@ -84,7 +84,7 @@ namespace Azos.CodeAnalysis.Source
       m_SegmentTailThreshold = segmentTailThreshold.KeepBetween(MIN_SEG_TAIL_THRESHOLD, (int)(m_BufferSize * MAX_SEG_TAIL_THRESHOLD_PCT));
 
       m_Buffer = s_BytePool.Rent(m_BufferSize);
-      m_Arena = s_CharPool.Rent(32/*reserved*/ + (2 * m_BufferSize));
+      m_Arena = s_CharPool.Rent(32/*reserved*/ + (2/*segments*/ * m_BufferSize));
       m_Segment1 = new ArraySegment<char>(m_Arena, 0, 0);
       m_Segment2 = new ArraySegment<char>(m_Arena, m_BufferSize, 0);
       m_SensitiveData = sensitiveData;
@@ -170,6 +170,7 @@ namespace Azos.CodeAnalysis.Source
       }
       if (totalBuffered==0) return;//EOF (and end of stream)
 
+      m_SegmentCount++;
       ensureDecoder(ref idxBuffer);
 
       //https://learn.microsoft.com/en-us/dotnet/api/system.text.decoder.getchars?view=net-7.0#system-text-decoder-getchars(system-byte()-system-int32-system-int32-system-char()-system-int32-system-boolean)
@@ -185,8 +186,6 @@ namespace Azos.CodeAnalysis.Source
       {
         m_Segment2 = new ArraySegment<char>(m_Arena, m_BufferSize, gotc);
       }
-
-      m_SegmentCount++;
     }
     #endregion
 

@@ -41,6 +41,7 @@ namespace Azos.CodeAnalysis.Source
     public int SegmentPosition => m_Position;
     public bool NearEndOfSegment => false;
     public bool IsLastSegment => true;
+    public int SegmentTailThreshold => 0;
     public int SegmentCount => 1;
     #endregion
   }

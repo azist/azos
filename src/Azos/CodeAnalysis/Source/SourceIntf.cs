@@ -81,6 +81,12 @@ namespace Azos.CodeAnalysis.Source
     int BufferSize { get; }
 
     /// <summary>
+    /// Specifies a character length relative to the end of the current segment beyond which the
+    /// system deems the state as <see cref="NearEndOfSegment"/>
+    /// </summary>
+    int SegmentTailThreshold { get; }
+
+    /// <summary>
     /// Character length of a pre-fetched character segment which was read from source into memory buffer,
     /// possibly asynchronously
     /// </summary>
