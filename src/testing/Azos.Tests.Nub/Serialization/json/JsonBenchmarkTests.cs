@@ -217,7 +217,7 @@ namespace Azos.Tests.Nub.Serialization
     [Run("cnt=2000 par=true szf=10 szt=10")]
     public async Task Test_ComplexObject_Async(int cnt, bool par, int szf=0, int szt=0)
     {
-      var jsonBytes = StreamHookUse.EncodeStringToBuffer(COMPLEX_OBJECT_JSON);
+      var jsonBytes = StreamHookUse.EncodeStringToBufferNoBom(COMPLEX_OBJECT_JSON);
 
       async ValueTask body()
       {

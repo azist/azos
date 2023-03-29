@@ -195,16 +195,16 @@ namespace Azos.IO
   /// </summary>
   public static class StreamHookUse
   {
-    private static Encoding JSON_UTF8 = new UTF8Encoding(false);
+    private static Encoding UTF8_NOBOM = new UTF8Encoding(false);//NO BOM
 
     /// <summary>
     /// Used for testing, encodes string content a MemoryStream using the specified encoding, or UTF8 by default.
     /// The stream is set at position zero
     /// </summary>
-    public static byte[] EncodeStringToBuffer(string content, Encoding encoding = null)
+    public static byte[] EncodeStringToBufferNoBom(string content, Encoding encoding = null)
     {
       content.NonNull(nameof(content));
-      if (encoding == null) encoding = JSON_UTF8;
+      if (encoding == null) encoding = UTF8_NOBOM;
       using var ms = new MemoryStream();
       using (var tw = new StreamWriter(ms, encoding, 4096, leaveOpen: true)) tw.Write(content);
       return ms.ToArray();
@@ -217,7 +217,7 @@ namespace Azos.IO
     {
       content.NonNull(nameof(content));
 
-      if (encoding==null) encoding = JSON_UTF8;
+      if (encoding==null) encoding = UTF8_NOBOM;
 
       var ms = new MemoryStream();
       using(var tw = new StreamWriter(ms, encoding, 4096, leaveOpen: true)) tw.Write(content);

@@ -127,14 +127,14 @@ namespace Azos.CodeAnalysis.Source
     public string   Name       => m_Name;
     public Language Language   => m_Language;
     public Encoding Encoding   => m_Encoding;
-    public bool     EOF        => m_StreamEof && m_SegmentPosition >= m_Segment1.Count + m_Segment2.Count;
+    public bool     EOF        => !prepData();//m_StreamEof && m_SegmentPosition >= m_Segment1.Count + m_Segment2.Count;
     public int      BufferSize => m_BufferSize;
     public int      SegmentTailThreshold => m_SegmentTailThreshold;
     public int      SegmentLength    => currentSegment.Count;
     public int      SegmentPosition  => m_SegmentPosition;
     public int      SegmentCount     => m_SegmentCount;
     public bool     NearEndOfSegment => ((m_Segment1.Count + m_Segment2.Count) - m_SegmentPosition) < m_SegmentTailThreshold;
-    public bool     IsLastSegment    => m_StreamEof && standbySegment.Count == 0;
+    public bool     IsLastSegment => !prepData() || (m_StreamEof && standbySegment.Count == 0);
 
     public char ReadChar()
     {
