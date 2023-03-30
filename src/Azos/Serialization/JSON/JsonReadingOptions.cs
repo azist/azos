@@ -25,15 +25,15 @@ namespace Azos.Serialization.JSON
     private static JsonReadingOptions s_DefaultLimits = new JsonReadingOptions(isSystem: true)
     {
       m_CaseSensitiveMaps = true,
-      m_MaxDepth = 128,
+      m_MaxDepth = 64,
       m_MaxCharLength = 5 * 1024 * 1024,
       m_MaxObjects = 100_000,
       m_MaxArrays = 100_000,
       m_MaxObjectItems = 1000,
       m_MaxArrayItems = 100_000,
-      m_MaxKeyLen = 300,
-      m_MaxStringLen = 128 * 1024,
-      m_MaxCommentLen = 8 * 1024,
+      m_MaxKeyLength = 300,
+      m_MaxStringLength = 128 * 1024,
+      m_MaxCommentLength = 8 * 1024,
       m_BufferSize = 0,
       m_SegmentTailThresholdPercent = 0f,
       m_SensitiveData = false,
@@ -73,9 +73,9 @@ namespace Azos.Serialization.JSON
       this.m_MaxArrays      = other.m_MaxArrays;
       this.m_MaxObjectItems = other.m_MaxObjectItems;
       this.m_MaxArrayItems  = other.m_MaxArrayItems;
-      this.m_MaxKeyLen      = other.m_MaxKeyLen;
-      this.m_MaxStringLen   = other.m_MaxStringLen;
-      this.m_MaxCommentLen  = other.m_MaxCommentLen;
+      this.m_MaxKeyLength      = other.m_MaxKeyLength;
+      this.m_MaxStringLength   = other.m_MaxStringLength;
+      this.m_MaxCommentLength  = other.m_MaxCommentLength;
       this.m_BufferSize     = other.m_BufferSize;
       this.m_SegmentTailThresholdPercent = other.m_SegmentTailThresholdPercent;
       this.m_SensitiveData  = other.m_SensitiveData;
@@ -96,9 +96,9 @@ namespace Azos.Serialization.JSON
 
     private int m_MaxObjectItems;//per every object
     private int m_MaxArrayItems; //per every array
-    private int m_MaxKeyLen;     //max length of json key/property name
-    private int m_MaxStringLen;  //length per every string
-    private int m_MaxCommentLen; //length per every comment string
+    private int m_MaxKeyLength;     //max length of json key/property name
+    private int m_MaxStringLength;  //length per every string
+    private int m_MaxCommentLength; //length per every comment string
 
 
     private int m_BufferSize;//in bytes - stream source reading
@@ -195,10 +195,10 @@ namespace Azos.Serialization.JSON
     /// 0 = no limit
     /// </summary>
     [Config]
-    public int MaxKeyLen
+    public int MaxKeyLength
     {
-      get => m_MaxKeyLen;
-      set => m_MaxKeyLen = nonsys(value).AtMinimum(0);
+      get => m_MaxKeyLength;
+      set => m_MaxKeyLength = nonsys(value).AtMinimum(0);
     }
 
     /// <summary>
@@ -206,10 +206,10 @@ namespace Azos.Serialization.JSON
     /// 0 = no limit
     /// </summary>
     [Config]
-    public int MaxStringLen
+    public int MaxStringLength
     {
-      get => m_MaxStringLen;
-      set => m_MaxStringLen = nonsys(value).AtMinimum(0);
+      get => m_MaxStringLength;
+      set => m_MaxStringLength = nonsys(value).AtMinimum(0);
     }
 
     /// <summary>
@@ -217,10 +217,10 @@ namespace Azos.Serialization.JSON
     /// 0 = no limit
     /// </summary>
     [Config]
-    public int MaxCommentLen
+    public int MaxCommentLength
     {
-      get => m_MaxCommentLen;
-      set => m_MaxCommentLen = nonsys(value).AtMinimum(0);
+      get => m_MaxCommentLength;
+      set => m_MaxCommentLength = nonsys(value).AtMinimum(0);
     }
 
     /// <summary>

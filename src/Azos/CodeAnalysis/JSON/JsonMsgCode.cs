@@ -29,6 +29,7 @@ namespace Azos.CodeAnalysis.JSON
       eColonOperatorExpected,
       eNumericLiteralExpectedAfterSignOperator,
       eDuplicateObjectKey,
-      eGraphDepthLimit
+      eGraphDepthLimit,
+      eLimitExceeded
   }
 }

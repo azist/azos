@@ -175,7 +175,7 @@ namespace Azos.Serialization.JSON
 
     public static IJsonDataObject DeserializeDataObjectFromFile(string filePath,
                                                                 Encoding encoding = null,
-                                                                bool useBom = false,
+                                                                bool useBom = true,
                                                                 bool caseSensitiveMaps = true,
                                                                 JsonReadingOptions ropt = null)
     {
@@ -187,7 +187,7 @@ namespace Azos.Serialization.JSON
 
     public static async ValueTask<object> DeserializeFromFileAsync(string filePath,
                                                                    Encoding encoding = null,
-                                                                   bool useBom = false,
+                                                                   bool useBom = true,
                                                                    bool caseSensitiveMaps = true,
                                                                    JsonReadingOptions ropt = null)
     {

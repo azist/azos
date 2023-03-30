@@ -14,13 +14,13 @@ namespace Azos.Serialization.JSON.Backends
 {
   public static class JazonParser
   {
-    public static object Parse(ISourceText src, bool senseCase, int maxDepth = 64)
+    public static object Parse(ISourceText src, bool senseCase, JsonReadingOptions ropt)
     {
-      if (maxDepth<0) maxDepth = 0;// 0 = root literal value
-      var lexer = new JazonLexer(src);
+      if (ropt == null) ropt = JsonReadingOptions.Default;
+      var lexer = new JazonLexer(src, ropt);
 
       fetchPrimary(lexer);
-      var data = doAny(lexer, senseCase, maxDepth);
+      var data = doAny(lexer, senseCase, ropt.MaxDepth);//MaxDepth=0 - literal value
 
       lexer.ReuseResources();
 
@@ -107,14 +107,24 @@ namespace Azos.Serialization.JSON.Backends
       if (maxDepth < 0)
         throw JazonDeserializationException.From(JsonMsgCode.eGraphDepthLimit, "The graph is too deep", lexer);
 
+      if (lexer.ropt.MaxArrays != 0 && lexer.ropt.MaxArrays == lexer.parserTotalArrays)
+        throw JazonDeserializationException.From(JsonMsgCode.eLimitExceeded, "Exceeded {0:n0} max arrays limit".Args(lexer.ropt.MaxArrays), lexer);
+
       var token = fetchPrimary(lexer); // skip [
 
       var arr = new JsonDataArray();
+      lexer.parserTotalArrays++;
 
       if (token.Type != JsonTokenType.tSqBracketClose)//empty array  []
       {
+        var roptMaxArrayItems = lexer.ropt.MaxArrayItems;
         while (true)
         {
+          if (roptMaxArrayItems != 0 && arr.Count == roptMaxArrayItems)
+          {
+            throw JazonDeserializationException.From(JsonMsgCode.eLimitExceeded, "Over {0:n0} max array items limit".Args(roptMaxArrayItems), lexer);
+          }
+
           lexer.fsmResources.StackPushArrayElement(arr.Count);//#833
           var item = doAny(lexer, senseCase, maxDepth);
           lexer.fsmResources.StackPop();//#833
@@ -138,19 +148,34 @@ namespace Azos.Serialization.JSON.Backends
       if (maxDepth < 0)
         throw JazonDeserializationException.From(JsonMsgCode.eGraphDepthLimit, "The graph is too deep", lexer);
 
+      if (lexer.ropt.MaxObjects != 0 && lexer.ropt.MaxObjects == lexer.parserTotalObjects)
+        throw JazonDeserializationException.From(JsonMsgCode.eLimitExceeded, "Exceeded {0:n0} max objects limit".Args(lexer.ropt.MaxObjects), lexer);
+
       var token = fetchPrimary(lexer); // skip {
 
       var obj = new JsonDataMap(senseCase);
+      lexer.parserTotalObjects++;
 
       if (token.Type != JsonTokenType.tBraceClose)//empty object  {}
       {
+        var roptMaxKeyLen = lexer.ropt.MaxKeyLength;
+        var roptMaxObjectItems = lexer.ropt.MaxObjectItems;
         while (true)
         {
+          if (roptMaxObjectItems != 0 && obj.Count == roptMaxObjectItems)
+          {
+            throw JazonDeserializationException.From(JsonMsgCode.eLimitExceeded, "Over {0:n0} max object items limit".Args(roptMaxObjectItems), lexer);
+          }
+
           if (token.Type != JsonTokenType.tIdentifier && token.Type != JsonTokenType.tStringLiteral)
             throw JazonDeserializationException.From(JsonMsgCode.eObjectKeyExpected, "Expecting object key", lexer);
 
-          var key = token.Text;
           //Duplicate keys are NOT forbidden by standard
+          var key = token.Text;
+          if (roptMaxKeyLen != 0 && key.Length > roptMaxKeyLen)
+          {
+            throw JazonDeserializationException.From(JsonMsgCode.eLimitExceeded, "Key len over {0:n0} limit".Args(roptMaxKeyLen), lexer);
+          }
 
           lexer.fsmResources.StackPushProp(key);//#833
 

@@ -26,7 +26,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = @"{ a:       1, b: ""something"", c: null, d: {}, e: 23.7}";
       var src = new StringSource(json);
-      var lxr = new JazonLexer(src);
+      var lxr = new JazonLexer(src, JsonReadingOptions.Default);
 
       var got = lxr.ToArray();
 
@@ -113,7 +113,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = "1234";
       var src = new StringSource(json);
-      var lxr = new JazonLexer(src);
+      var lxr = new JazonLexer(src, JsonReadingOptions.Default);
 
       var got = lxr.Skip(1).First();
       Aver.IsTrue(JsonTokenType.tIntLiteral == got.Type);
@@ -125,7 +125,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = "2000000000";
       var src = new StringSource(json);
-      var lxr = new JazonLexer(src);
+      var lxr = new JazonLexer(src, JsonReadingOptions.Default);
 
       var got = lxr.Skip(1).First();
       Aver.IsTrue(JsonTokenType.tIntLiteral == got.Type);
@@ -137,7 +137,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = "3000000000";
       var src = new StringSource(json);
-      var lxr = new JazonLexer(src);
+      var lxr = new JazonLexer(src, JsonReadingOptions.Default);
 
       var got = lxr.Skip(1).First();
       Aver.IsTrue(JsonTokenType.tLongIntLiteral == got.Type);
@@ -149,7 +149,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = "19446744073709551616‬";
       var src = new StringSource(json);
-      var lxr = new JazonLexer(src);
+      var lxr = new JazonLexer(src, JsonReadingOptions.Default);
 
       var got = lxr.Skip(1).First();//throws
       got.See();
@@ -162,7 +162,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = "18446744073709551615";
       var src = new StringSource(json);
-      var lxr = new JazonLexer(src);
+      var lxr = new JazonLexer(src, JsonReadingOptions.Default);
 
       var got = lxr.Skip(1).First();
       Aver.IsTrue(JsonTokenType.tLongIntLiteral == got.Type);
@@ -175,7 +175,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = "3.1415987";
       var src = new StringSource(json);
-      var lxr = new JazonLexer(src);
+      var lxr = new JazonLexer(src, JsonReadingOptions.Default);
 
       var got = lxr.Skip(1).First();
       Aver.IsTrue(JsonTokenType.tDoubleLiteral == got.Type);
@@ -187,7 +187,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = "3e2";
       var src = new StringSource(json);
-      var lxr = new JazonLexer(src);
+      var lxr = new JazonLexer(src, JsonReadingOptions.Default);
 
       var got = lxr.Skip(1).First();
       Aver.IsTrue(JsonTokenType.tDoubleLiteral == got.Type);
@@ -199,7 +199,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = "3e-2";
       var src = new StringSource(json);
-      var lxr = new JazonLexer(src);
+      var lxr = new JazonLexer(src, JsonReadingOptions.Default);
 
       var got = lxr.Skip(1).First();
       Aver.IsTrue(JsonTokenType.tDoubleLiteral == got.Type);
@@ -211,7 +211,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = "3e+2";
       var src = new StringSource(json);
-      var lxr = new JazonLexer(src);
+      var lxr = new JazonLexer(src, JsonReadingOptions.Default);
 
       var got = lxr.Skip(1).First();
       Aver.IsTrue(JsonTokenType.tDoubleLiteral == got.Type);
@@ -224,7 +224,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = "// comment line";
       var src = new StringSource(json);
-      var lxr = new JazonLexer(src);
+      var lxr = new JazonLexer(src, JsonReadingOptions.Default);
 
       var got = lxr.ToArray();
       got.See();
@@ -237,7 +237,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = "/* comment block line 2 */";
       var src = new StringSource(json);
-      var lxr = new JazonLexer(src);
+      var lxr = new JazonLexer(src, JsonReadingOptions.Default);
 
       var got = lxr.ToArray();
       got.See();
@@ -250,7 +250,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = "                                          /* comment block line 3 */  ";
       var src = new StringSource(json);
-      var lxr = new JazonLexer(src);
+      var lxr = new JazonLexer(src, JsonReadingOptions.Default);
 
       var got = lxr.ToArray();
       got.See();
@@ -265,7 +265,7 @@ namespace Azos.Tests.Nub.Serialization
       block 
       span */  ";
       var src = new StringSource(json);
-      var lxr = new JazonLexer(src);
+      var lxr = new JazonLexer(src, JsonReadingOptions.Default);
 
       var got = lxr.ToArray();
       got.See();
@@ -280,7 +280,7 @@ namespace Azos.Tests.Nub.Serialization
       block ""not a string""
       span */  ";
       var src = new StringSource(json);
-      var lxr = new JazonLexer(src);
+      var lxr = new JazonLexer(src, JsonReadingOptions.Default);
 
       var got = lxr.ToArray();
       got.See();
@@ -295,7 +295,7 @@ namespace Azos.Tests.Nub.Serialization
       block 'not a string'
       span */  ";
       var src = new StringSource(json);
-      var lxr = new JazonLexer(src);
+      var lxr = new JazonLexer(src, JsonReadingOptions.Default);
 
       var got = lxr.ToArray();
       got.See();
@@ -310,7 +310,7 @@ namespace Azos.Tests.Nub.Serialization
       block 'not a string' // this is not a comment
       span */  ";
       var src = new StringSource(json);
-      var lxr = new JazonLexer(src);
+      var lxr = new JazonLexer(src, JsonReadingOptions.Default);
 
       var got = lxr.ToArray();
       got.See();
@@ -325,7 +325,7 @@ namespace Azos.Tests.Nub.Serialization
       block 'not a\u223322 string' // this is not a comment
       span */  ";
       var src = new StringSource(json);
-      var lxr = new JazonLexer(src);
+      var lxr = new JazonLexer(src, JsonReadingOptions.Default);
 
       var got = lxr.ToArray();
       got.See();
@@ -338,7 +338,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = "\"abc\"";
       var src = new StringSource(json);
-      var lxr = new JazonLexer(src);
+      var lxr = new JazonLexer(src, JsonReadingOptions.Default);
 
       var got = lxr.ToArray();
       got.See();
@@ -351,7 +351,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = "'abc'";
       var src = new StringSource(json);
-      var lxr = new JazonLexer(src);
+      var lxr = new JazonLexer(src, JsonReadingOptions.Default);
 
       var got = lxr.ToArray();
       got.See();
@@ -364,7 +364,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = "'ab\"c'";
       var src = new StringSource(json);
-      var lxr = new JazonLexer(src);
+      var lxr = new JazonLexer(src, JsonReadingOptions.Default);
 
       var got = lxr.ToArray();
       got.See();
@@ -377,7 +377,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = "\"ab'c\"";
       var src = new StringSource(json);
-      var lxr = new JazonLexer(src);
+      var lxr = new JazonLexer(src, JsonReadingOptions.Default);
 
       var got = lxr.ToArray();
       got.See();
@@ -390,7 +390,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = "\"new\\nline\"";
       var src = new StringSource(json);
-      var lxr = new JazonLexer(src);
+      var lxr = new JazonLexer(src, JsonReadingOptions.Default);
 
       var got = lxr.ToArray();
       got.See();
@@ -403,7 +403,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = "\"new\\rline\"";
       var src = new StringSource(json);
-      var lxr = new JazonLexer(src);
+      var lxr = new JazonLexer(src, JsonReadingOptions.Default);
 
       var got = lxr.ToArray();
       got.See();
@@ -416,7 +416,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = "\"this is not // a comment\"";
       var src = new StringSource(json);
-      var lxr = new JazonLexer(src);
+      var lxr = new JazonLexer(src, JsonReadingOptions.Default);
 
       var got = lxr.ToArray();
       got.See();
@@ -429,7 +429,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = "\"this is not /* a comment */ either\"";
       var src = new StringSource(json);
-      var lxr = new JazonLexer(src);
+      var lxr = new JazonLexer(src, JsonReadingOptions.Default);
 
       var got = lxr.ToArray();
       got.See();
@@ -444,7 +444,7 @@ namespace Azos.Tests.Nub.Serialization
       comment */
       either""";
       var src = new StringSource(json);
-      var lxr = new JazonLexer(src);
+      var lxr = new JazonLexer(src, JsonReadingOptions.Default);
 
       var got = lxr.ToArray();
       got.See();

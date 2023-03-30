@@ -23,29 +23,29 @@ namespace Azos.Serialization.JSON.Backends
     public object DeserializeFromJson(string json, bool caseSensitiveMaps, JsonReadingOptions ropt)
     {
       var source = new StringSource(json, JsonLanguage.Instance);
-      return JazonParser.Parse(source, caseSensitiveMaps);
+      return JazonParser.Parse(source, caseSensitiveMaps, ropt);
     }
 
     public object DeserializeFromJson(Stream stream, bool caseSensitiveMaps, Encoding encoding, bool useBom, JsonReadingOptions ropt)
     {
       using (var source = new StreamSource(stream, encoding, useBom, JsonLanguage.Instance))
-        return JazonParser.Parse(source, caseSensitiveMaps);
+      {
+        return JazonParser.Parse(source, caseSensitiveMaps, ropt);
+      }
     }
 
     public object DeserializeFromJson(ISourceText source, bool caseSensitiveMaps, JsonReadingOptions ropt)
-    {
-      return JazonParser.Parse(source, caseSensitiveMaps);
-    }
+     => JazonParser.Parse(source, caseSensitiveMaps, ropt);
 
     public async ValueTask<object> DeserializeFromJsonAsync(Stream stream, bool caseSensitiveMaps, Encoding encoding, bool useBom, JsonReadingOptions ropt)
     {
       using (var source = new StreamSource(stream, encoding, useBom, JsonLanguage.Instance))
       {
-        return await JazonParserAsync.ParseAsync(source, caseSensitiveMaps).ConfigureAwait(false);
+        return await JazonParserAsync.ParseAsync(source, caseSensitiveMaps, ropt).ConfigureAwait(false);
       }
     }
 
     public ValueTask<object> DeserializeFromJsonAsync(ISourceText source, bool caseSensitiveMaps, JsonReadingOptions ropt)
-     => JazonParserAsync.ParseAsync(source, caseSensitiveMaps);
+     => JazonParserAsync.ParseAsync(source, caseSensitiveMaps, ropt);
   }
 }
