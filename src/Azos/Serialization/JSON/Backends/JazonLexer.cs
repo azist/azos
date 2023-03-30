@@ -15,7 +15,7 @@ using Azos.CodeAnalysis.Source;
 
 namespace Azos.Serialization.JSON.Backends
 {
-  internal class JazonLexer : IEnumerator<JazonToken>, IEnumerable<JazonToken>
+  internal sealed class JazonLexer : IEnumerator<JazonToken>, IEnumerable<JazonToken>
   {
     public JazonLexer(ISourceText src, JsonReadingOptions ropt)
     {

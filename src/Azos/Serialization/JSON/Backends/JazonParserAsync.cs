@@ -13,7 +13,7 @@ using Azos.CodeAnalysis.Source;
 namespace Azos.Serialization.JSON.Backends
 {
   //#731 Implements asynchronous version of JSON datagram  parser
-  public static class JazonParserAsync
+  internal static class JazonParserAsync
   {
     public static async ValueTask<object> ParseAsync(ISourceText src, bool senseCase, JsonReadingOptions ropt)
     {

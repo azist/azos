@@ -12,7 +12,7 @@ using Azos.CodeAnalysis.Source;
 
 namespace Azos.Serialization.JSON.Backends
 {
-  public static class JazonParser
+  internal static class JazonParser
   {
     public static object Parse(ISourceText src, bool senseCase, JsonReadingOptions ropt)
     {
