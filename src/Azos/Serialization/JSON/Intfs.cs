@@ -19,11 +19,11 @@ namespace Azos.Serialization.JSON
   /// </summary>
   public interface IJsonReaderBackend
   {
-    object DeserializeFromJson(string json, bool caseSensitiveMaps);
-    object DeserializeFromJson(Stream stream, bool caseSensitiveMaps, Encoding encoding, bool useBom);
-    object DeserializeFromJson(ISourceText source, bool caseSensitiveMaps);
-    ValueTask<object> DeserializeFromJsonAsync(Stream stream, bool caseSensitiveMaps, Encoding encoding, bool useBom);
-    ValueTask<object> DeserializeFromJsonAsync(ISourceText source, bool caseSensitiveMaps);
+    object DeserializeFromJson(string json, bool caseSensitiveMaps, JsonReadingOptions ropt);
+    object DeserializeFromJson(Stream stream, bool caseSensitiveMaps, Encoding encoding, bool useBom, JsonReadingOptions ropt);
+    object DeserializeFromJson(ISourceText source, bool caseSensitiveMaps, JsonReadingOptions ropt);
+    ValueTask<object> DeserializeFromJsonAsync(Stream stream, bool caseSensitiveMaps, Encoding encoding, bool useBom, JsonReadingOptions ropt);
+    ValueTask<object> DeserializeFromJsonAsync(ISourceText source, bool caseSensitiveMaps, JsonReadingOptions ropt);
   }
 
 

@@ -19,7 +19,7 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void Object_1()
     {
-      var map = JZ.DeserializeFromJson("{ a: 1, b: 2, c: null, d: {a: 'string'}, e: [ - 1000,null, true, -2e3,{msg: 'my message'}]}", true) as JsonDataMap;
+      var map = JZ.DeserializeFromJson("{ a: 1, b: 2, c: null, d: {a: 'string'}, e: [ - 1000,null, true, -2e3,{msg: 'my message'}]}", true, null) as JsonDataMap;
       Aver.IsNotNull(map);
       Aver.AreEqual(5, map.Count);
       Aver.AreObjectsEqual(1, map["a"]);
@@ -48,7 +48,7 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void Object_2()
     {
-      var got = JZ.DeserializeFromJson("[1,2,3]", true) as JsonDataArray;
+      var got = JZ.DeserializeFromJson("[1,2,3]", true, null) as JsonDataArray;
       Aver.IsNotNull(got);
       Aver.AreEqual(3, got.Count);
       Aver.AreObjectsEqual(1, got[0]);
@@ -59,7 +59,7 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void Object_3()
     {
-      var got = JZ.DeserializeFromJson("123", true);
+      var got = JZ.DeserializeFromJson("123", true, null);
       Aver.IsNotNull(got);
       Aver.AreObjectsEqual(123, got);
     }
@@ -67,7 +67,7 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void Object_4()
     {
-      var got = JZ.DeserializeFromJson("-123", true);
+      var got = JZ.DeserializeFromJson("-123", true, null);
       Aver.IsNotNull(got);
       Aver.AreObjectsEqual(-123, got);
     }
@@ -75,7 +75,7 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void Object_5()
     {
-      var got = JZ.DeserializeFromJson("-123000000000", true);
+      var got = JZ.DeserializeFromJson("-123000000000", true, null);
       Aver.IsNotNull(got);
       Aver.AreObjectsEqual(-123_000_000_000, got);
     }
@@ -83,7 +83,7 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void Object_6()
     {
-      var got = JZ.DeserializeFromJson("true", true);
+      var got = JZ.DeserializeFromJson("true", true, null);
       Aver.IsNotNull(got);
       Aver.AreObjectsEqual(true, got);
     }
@@ -91,7 +91,7 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void Object_7()
     {
-      var got = JZ.DeserializeFromJson("false", true);
+      var got = JZ.DeserializeFromJson("false", true, null);
       Aver.IsNotNull(got);
       Aver.AreObjectsEqual(false, got);
     }
@@ -99,14 +99,14 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void Object_8()
     {
-      var got = JZ.DeserializeFromJson("null", true);
+      var got = JZ.DeserializeFromJson("null", true, null);
       Aver.IsNull(got);
     }
 
     [Run]
     public void Object_9()
     {
-      var got = JZ.DeserializeFromJson("'string'", true);
+      var got = JZ.DeserializeFromJson("'string'", true, null);
       Aver.IsNotNull(got);
       Aver.AreObjectsEqual("string", got);
     }
@@ -114,7 +114,7 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void Object_10()
     {
-      var got = JZ.DeserializeFromJson("{}", true) as JsonDataMap;
+      var got = JZ.DeserializeFromJson("{}", true, null) as JsonDataMap;
       Aver.IsNotNull(got);
       Aver.AreObjectsEqual(0, got.Count);
     }
@@ -122,7 +122,7 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void Object_11()
     {
-      var got = JZ.DeserializeFromJson("[]", true) as JsonDataArray;
+      var got = JZ.DeserializeFromJson("[]", true, null) as JsonDataArray;
       Aver.IsNotNull(got);
       Aver.AreObjectsEqual(0, got.Count);
     }
@@ -130,7 +130,7 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void Integers()
     {
-      var map = JZ.DeserializeFromJson("{ a: 1, b: -1, c: +2, d: -2, e:  2147483647, f: -2147483647}", true) as JsonDataMap;
+      var map = JZ.DeserializeFromJson("{ a: 1, b: -1, c: +2, d: -2, e:  2147483647, f: -2147483647}", true, null) as JsonDataMap;
       Aver.IsNotNull(map);
       Aver.AreEqual(6, map.Count);
       Aver.AreObjectsEqual(1, map["a"]);
@@ -144,7 +144,7 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void Longs()
     {
-      var map = JZ.DeserializeFromJson("{ a: 10000000000, b: -10000000000, c: +20000000000, d: -20000000000, e:  9223372036854775807, f: -9223372036854775807}", true) as JsonDataMap;
+      var map = JZ.DeserializeFromJson("{ a: 10000000000, b: -10000000000, c: +20000000000, d: -20000000000, e:  9223372036854775807, f: -9223372036854775807}", true, null) as JsonDataMap;
       Aver.IsNotNull(map);
       Aver.AreEqual(6, map.Count);
       Aver.AreObjectsEqual(10000000000, map["a"]);
@@ -158,7 +158,7 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void Doubles()
     {
-      var map = JZ.DeserializeFromJson("{ pi: 3.14159265359, exp1: 123e4, exp2: 2e-5, exp3: 2e+3, exp4: -0.2e+2 }", true) as JsonDataMap;
+      var map = JZ.DeserializeFromJson("{ pi: 3.14159265359, exp1: 123e4, exp2: 2e-5, exp3: 2e+3, exp4: -0.2e+2 }", true, null) as JsonDataMap;
       Aver.IsNotNull(map);
       Aver.AreEqual(5, map.Count);
       Aver.AreObjectsEqual(3.14159265359D, map["pi"]);
@@ -171,7 +171,7 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void Bools()
     {
-      var map = JZ.DeserializeFromJson("{ a: true, b: false, c: null}", true) as JsonDataMap;
+      var map = JZ.DeserializeFromJson("{ a: true, b: false, c: null}", true, null) as JsonDataMap;
       Aver.IsNotNull(map);
       Aver.AreEqual(3, map.Count);
       Aver.AreObjectsEqual(true, map["a"]);
@@ -182,7 +182,7 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void Strings_Basic()
     {
-      var map = JZ.DeserializeFromJson("{ a: 'abc', b: \"def's\", c: 'with\\nescapes\\r'}", true) as JsonDataMap;
+      var map = JZ.DeserializeFromJson("{ a: 'abc', b: \"def's\", c: 'with\\nescapes\\r'}", true, null) as JsonDataMap;
       Aver.IsNotNull(map);
       Aver.AreEqual(3, map.Count);
       Aver.AreObjectsEqual("abc", map["a"]);
@@ -199,7 +199,7 @@ namespace Azos.Tests.Nub.Serialization
       and uses \escapes that \donot \ufff??? evaluate
       for Mc''Cloud''s ""name""
       thats all
-      '}", true) as JsonDataMap;
+      '}", true, null) as JsonDataMap;
       Aver.IsNotNull(map);
       Aver.AreEqual(1, map.Count);
       Aver.IsTrue(map["a"].ToString().MatchPattern(@"*this string* uses \escapes that \donot \ufff??? evaluate*Mc'Cloud's ""name""*all*"));
@@ -214,7 +214,7 @@ namespace Azos.Tests.Nub.Serialization
       and uses \escapes that \donot \ufff??? evaluate
       for Mc'Cloud's """"name""""
       thats all
-      ""}", true) as JsonDataMap;
+      ""}", true, null) as JsonDataMap;
       Aver.IsNotNull(map);
       Aver.AreEqual(1, map.Count);
       Aver.IsTrue(map["a"].ToString().MatchPattern(@"*this string* uses \escapes that \donot \ufff??? evaluate*Mc'Cloud's ""name""*all*"));
@@ -228,7 +228,7 @@ namespace Azos.Tests.Nub.Serialization
       /* comment2 */
        b: 2  // comment /* 3*/
        ,/**/c:/* */3
-      }", true) as JsonDataMap;
+      }", true, null) as JsonDataMap;
       Aver.IsNotNull(map);
       Aver.AreEqual(3, map.Count);
       Aver.AreObjectsEqual(1, map["a"]);
@@ -244,7 +244,7 @@ namespace Azos.Tests.Nub.Serialization
       /* ""comment2 */
        b: 2  // commen't /* 3*/
        ,/**/c: ""/* */3""
-      }", true) as JsonDataMap;
+      }", true, null) as JsonDataMap;
       Aver.IsNotNull(map);
       Aver.AreEqual(3, map.Count);
       Aver.AreObjectsEqual(1, map["a"]);
@@ -255,7 +255,7 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void EmptyStrings_1()
     {
-      var map = JZ.DeserializeFromJson(@"{ a: ''}", true) as JsonDataMap;
+      var map = JZ.DeserializeFromJson(@"{ a: ''}", true, null) as JsonDataMap;
       Aver.IsNotNull(map);
       Aver.AreEqual(1, map.Count);
       Aver.AreObjectsEqual("", map["a"]);
@@ -264,7 +264,7 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void EmptyStrings_2()
     {
-      var map = JZ.DeserializeFromJson(@"{ a: '', b: """"}", true) as JsonDataMap;
+      var map = JZ.DeserializeFromJson(@"{ a: '', b: """"}", true, null) as JsonDataMap;
       Aver.IsNotNull(map);
       Aver.AreEqual(2, map.Count);
       Aver.AreObjectsEqual("", map["a"]);
@@ -276,7 +276,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var map = JZ.DeserializeFromJson(@"{ a: '',b: """", c: $""
 
-      ""}", true) as JsonDataMap;
+      ""}", true, null) as JsonDataMap;
       Aver.IsNotNull(map);
       Aver.AreEqual(3, map.Count);
       Aver.AreObjectsEqual("", map["a"]);
@@ -287,7 +287,7 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void EmptyStrings_4()
     {
-      var map = JZ.DeserializeFromJson(@"{ a: '', b: '\n\n\r\u3456 abc',c: """" }", true) as JsonDataMap;
+      var map = JZ.DeserializeFromJson(@"{ a: '', b: '\n\n\r\u3456 abc',c: """" }", true, null) as JsonDataMap;
       Aver.IsNotNull(map);
       Aver.AreEqual(3, map.Count);
       Aver.AreObjectsEqual("", map["a"]);
@@ -298,7 +298,7 @@ namespace Azos.Tests.Nub.Serialization
     [Run]
     public void EmptyStrings_5()
     {
-      var map = JZ.DeserializeFromJson(@"{ a: '', b: $'\n\n\r\u3456 abc',c: """" }", true) as JsonDataMap;
+      var map = JZ.DeserializeFromJson(@"{ a: '', b: $'\n\n\r\u3456 abc',c: """" }", true, null) as JsonDataMap;
       Aver.IsNotNull(map);
       Aver.AreEqual(3, map.Count);
       Aver.AreObjectsEqual("", map["a"]);

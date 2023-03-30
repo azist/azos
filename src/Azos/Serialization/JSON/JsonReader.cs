@@ -130,53 +130,81 @@ namespace Azos.Serialization.JSON
 
     #region Public
 
-    public static dynamic DeserializeDynamic(Stream stream, Encoding encoding = null, bool useBom = false, bool caseSensitiveMaps = true)
-     => deserializeDynamic( ReaderBackend.DeserializeFromJson(stream, caseSensitiveMaps, encoding, useBom));
+    public static dynamic DeserializeDynamic(Stream stream, Encoding encoding = null, bool useBom = false, bool caseSensitiveMaps = true, JsonReadingOptions ropt = null)
+     => deserializeDynamic( ReaderBackend.DeserializeFromJson(stream, caseSensitiveMaps, encoding, useBom, ropt));
 
-    public static dynamic DeserializeDynamic(string source, bool caseSensitiveMaps = true)
-     => deserializeDynamic(ReaderBackend.DeserializeFromJson(source, caseSensitiveMaps));
+    public static dynamic DeserializeDynamic(string source, bool caseSensitiveMaps = true, JsonReadingOptions ropt = null)
+     => deserializeDynamic(ReaderBackend.DeserializeFromJson(source, caseSensitiveMaps, ropt));
 
-    public static dynamic DeserializeDynamic(ISourceText source, bool caseSensitiveMaps = true)
-     => deserializeDynamic(ReaderBackend.DeserializeFromJson(source, caseSensitiveMaps));
+    public static dynamic DeserializeDynamic(ISourceText source, bool caseSensitiveMaps = true, JsonReadingOptions ropt = null)
+     => deserializeDynamic(ReaderBackend.DeserializeFromJson(source, caseSensitiveMaps, ropt));
 
-    public static IJsonDataObject DeserializeDataObject(Stream stream, Encoding encoding = null, bool useBom = false, bool caseSensitiveMaps = true)
-     => deserializeObject(ReaderBackend.DeserializeFromJson(stream, caseSensitiveMaps, encoding, useBom));
+    public static IJsonDataObject DeserializeDataObject(Stream stream,
+                                                        Encoding encoding = null,
+                                                        bool useBom = false,
+                                                        bool caseSensitiveMaps = true,
+                                                        JsonReadingOptions ropt = null)
+     => deserializeObject(ReaderBackend.DeserializeFromJson(stream, caseSensitiveMaps, encoding, useBom, ropt));
 
-    public static async ValueTask<IJsonDataObject> DeserializeDataObjectAsync(Stream stream, Encoding encoding = null, bool useBom = false, bool caseSensitiveMaps = true)
-     => deserializeObject(await ReaderBackend.DeserializeFromJsonAsync(stream, caseSensitiveMaps, encoding, useBom).ConfigureAwait(false));
+    public static async ValueTask<IJsonDataObject> DeserializeDataObjectAsync(Stream stream,
+                                                                              Encoding encoding = null,
+                                                                              bool useBom = false,
+                                                                              bool caseSensitiveMaps = true,
+                                                                              JsonReadingOptions ropt = null)
+     => deserializeObject(await ReaderBackend.DeserializeFromJsonAsync(stream, caseSensitiveMaps, encoding, useBom, ropt).ConfigureAwait(false));
 
-    public static object Deserialize(Stream stream, Encoding encoding = null, bool useBom = false, bool caseSensitiveMaps = true)
-     => ReaderBackend.DeserializeFromJson(stream, caseSensitiveMaps, encoding, useBom);
+    public static object Deserialize(Stream stream,
+                                     Encoding encoding = null,
+                                     bool useBom = false,
+                                     bool caseSensitiveMaps = true,
+                                     JsonReadingOptions ropt = null)
+     => ReaderBackend.DeserializeFromJson(stream, caseSensitiveMaps, encoding, useBom, ropt);
 
-    public static object Deserialize(string source, bool caseSensitiveMaps = true)
-     => ReaderBackend.DeserializeFromJson(source, caseSensitiveMaps);
+    public static object Deserialize(string source, bool caseSensitiveMaps = true, JsonReadingOptions ropt = null)
+     => ReaderBackend.DeserializeFromJson(source, caseSensitiveMaps, ropt);
 
-    public static ValueTask<object> DeserializeAsync(Stream stream, Encoding encoding = null, bool useBom = false, bool caseSensitiveMaps = true)
-     => ReaderBackend.DeserializeFromJsonAsync(stream, caseSensitiveMaps, encoding, useBom);
+    public static ValueTask<object> DeserializeAsync(Stream stream,
+                                                     Encoding encoding = null,
+                                                     bool useBom = false,
+                                                     bool caseSensitiveMaps = true,
+                                                     JsonReadingOptions ropt = null)
+     => ReaderBackend.DeserializeFromJsonAsync(stream, caseSensitiveMaps, encoding, useBom, ropt);
 
-    public static IJsonDataObject DeserializeDataObject(string source, bool caseSensitiveMaps = true)
-     => deserializeObject(ReaderBackend.DeserializeFromJson(source, caseSensitiveMaps));
+    public static IJsonDataObject DeserializeDataObject(string source, bool caseSensitiveMaps = true, JsonReadingOptions ropt = null)
+     => deserializeObject(ReaderBackend.DeserializeFromJson(source, caseSensitiveMaps, ropt));
 
-    public static IJsonDataObject DeserializeDataObjectFromFile(string filePath, Encoding encoding = null, bool useBom = false, bool caseSensitiveMaps = true)
+    public static IJsonDataObject DeserializeDataObjectFromFile(string filePath,
+                                                                Encoding encoding = null,
+                                                                bool useBom = false,
+                                                                bool caseSensitiveMaps = true,
+                                                                JsonReadingOptions ropt = null)
     {
-        using(var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
-          return deserializeObject(ReaderBackend.DeserializeFromJson(fs, caseSensitiveMaps, encoding, useBom));
+      using(var fsrc = new FileSource(filePath, encoding, useBom, CodeAnalysis.JSON.JsonLanguage.Instance))
+      {
+        return deserializeObject(ReaderBackend.DeserializeFromJson(fsrc, caseSensitiveMaps, ropt));
+      }
     }
 
-    public static async ValueTask<object> DeserializeFromFileAsync(string filePath, Encoding encoding = null,  bool useBom = false, bool caseSensitiveMaps = true)
+    public static async ValueTask<object> DeserializeFromFileAsync(string filePath,
+                                                                   Encoding encoding = null,
+                                                                   bool useBom = false,
+                                                                   bool caseSensitiveMaps = true,
+                                                                   JsonReadingOptions ropt = null)
     {
-      using var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read);
-      return await ReaderBackend.DeserializeFromJsonAsync(fs, caseSensitiveMaps, encoding, useBom).ConfigureAwait(false);
+      using (var fsrc = new FileSource(filePath, encoding, useBom, CodeAnalysis.JSON.JsonLanguage.Instance))
+      {
+        return await ReaderBackend.DeserializeFromJsonAsync(fsrc, caseSensitiveMaps, ropt).ConfigureAwait(false);
+      }
     }
 
-    public static IJsonDataObject DeserializeDataObject(ISourceText source, bool caseSensitiveMaps = true)
-      => deserializeObject(ReaderBackend.DeserializeFromJson(source, caseSensitiveMaps));
+    public static IJsonDataObject DeserializeDataObject(ISourceText source, bool caseSensitiveMaps = true, JsonReadingOptions ropt = null)
+      => deserializeObject(ReaderBackend.DeserializeFromJson(source, caseSensitiveMaps, ropt));
 
-    public static async ValueTask<IJsonDataObject> DeserializeDataObjectAsync(ISourceText source, bool caseSensitiveMaps = true)
-      => deserializeObject(await ReaderBackend.DeserializeFromJsonAsync(source, caseSensitiveMaps).ConfigureAwait(false));
+    public static async ValueTask<IJsonDataObject> DeserializeDataObjectAsync(ISourceText source, bool caseSensitiveMaps = true, JsonReadingOptions ropt = null)
+      => deserializeObject(await ReaderBackend.DeserializeFromJsonAsync(source, caseSensitiveMaps, ropt).ConfigureAwait(false));
 
-    public static ValueTask<object> DeserializeAsync(ISourceText source, bool caseSensitiveMaps = true)
-      => ReaderBackend.DeserializeFromJsonAsync(source, caseSensitiveMaps);
+    public static ValueTask<object> DeserializeAsync(ISourceText source, bool caseSensitiveMaps = true, JsonReadingOptions ropt = null)
+      => ReaderBackend.DeserializeFromJsonAsync(source, caseSensitiveMaps, ropt);
 
 
     /// <summary>
@@ -210,7 +238,8 @@ namespace Azos.Serialization.JSON
     {
       if (!typeof(TypedDoc).IsAssignableFrom(type) || jsonMap==null)
         throw new JSONDeserializationException(StringConsts.ARGUMENT_ERROR+"JSONReader.ToDoc(type|jsonMap=null)");
-      var field = "";
+
+      var field = string.Empty;
       try
       {
         return toTypedDoc(type, options, jsonMap, ref field, fromUI);
@@ -291,7 +320,7 @@ namespace Azos.Serialization.JSON
       if (doc == null || jsonMap == null)
         throw new JSONDeserializationException(StringConsts.ARGUMENT_ERROR + "JSONReader.ToDoc(doc|jsonMap=null)");
 
-      var field = "";
+      var field = string.Empty;
       try
       {
         var tDoc = doc.GetType();
@@ -539,7 +568,6 @@ namespace Azos.Serialization.JSON
           if (buff != null) return buff;
         }
       }
-
 
       //field def = []
       if (toType.IsArray)
