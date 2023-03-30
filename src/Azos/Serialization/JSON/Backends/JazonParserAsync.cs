@@ -15,14 +15,14 @@ namespace Azos.Serialization.JSON.Backends
   //#731 Implements asynchronous version of JSON datagram  parser
   internal static class JazonParserAsync
   {
-    public static async ValueTask<object> ParseAsync(ISourceText src, bool senseCase, JsonReadingOptions ropt)
+    public static async ValueTask<object> ParseAsync(ISourceText src, JsonReadingOptions ropt)
     {
       if (ropt == null) ropt = JsonReadingOptions.Default;
       var lexer = new JazonLexer(src, ropt);
 
       await fetchPrimary(lexer).ConfigureAwait(false);
 
-      var data = await doAny(lexer, senseCase, ropt.MaxDepth).ConfigureAwait(false);//MaxDepth=0 - literal value
+      var data = await doAny(lexer, ropt.MaxDepth).ConfigureAwait(false);//MaxDepth=0 - literal value
 
       lexer.ReuseResources();
 
@@ -83,7 +83,7 @@ namespace Azos.Serialization.JSON.Backends
     }
 
 
-    private static async ValueTask<object> doAny(JazonLexer lexer, bool senseCase, int maxDepth)
+    private static async ValueTask<object> doAny(JazonLexer lexer, int maxDepth)
     {
       var token = lexer.Current;
 
@@ -92,7 +92,7 @@ namespace Azos.Serialization.JSON.Backends
         case JsonTokenType.tBraceOpen:
         {
           lexer.fsmResources.StackPushObject();//#833
-          var obj = await doObject(lexer, senseCase, maxDepth - 1).ConfigureAwait(false);
+          var obj = await doObject(lexer, maxDepth - 1).ConfigureAwait(false);
           lexer.fsmResources.StackPop();//#833
           return obj;
         }
@@ -100,7 +100,7 @@ namespace Azos.Serialization.JSON.Backends
         case JsonTokenType.tSqBracketOpen:
         {
           lexer.fsmResources.StackPushArray();//#833
-          var arr = await doArray(lexer, senseCase, maxDepth - 1).ConfigureAwait(false);
+          var arr = await doArray(lexer, maxDepth - 1).ConfigureAwait(false);
           lexer.fsmResources.StackPop();//#833
           return arr;
         }
@@ -137,7 +137,7 @@ namespace Azos.Serialization.JSON.Backends
       throw JazonDeserializationException.From(token.IsError ? token.MsgCode : JsonMsgCode.eSyntaxError, "Bad syntax", lexer);
     }
 
-    private static async ValueTask<JsonDataArray> doArray(JazonLexer lexer, bool senseCase, int maxDepth)
+    private static async ValueTask<JsonDataArray> doArray(JazonLexer lexer, int maxDepth)
     {
       if (maxDepth < 0)
         throw JazonDeserializationException.From(JsonMsgCode.eGraphDepthLimit, "The graph is too deep", lexer);
@@ -161,7 +161,7 @@ namespace Azos.Serialization.JSON.Backends
           }
 
           lexer.fsmResources.StackPushArrayElement(arr.Count);//#833
-          var item = await doAny(lexer, senseCase, maxDepth).ConfigureAwait(false);
+          var item = await doAny(lexer, maxDepth).ConfigureAwait(false);
           lexer.fsmResources.StackPop();//#833
           arr.Add( item );  // [any, any, any]
 
@@ -178,7 +178,7 @@ namespace Azos.Serialization.JSON.Backends
       return arr;
     }
 
-    private static async ValueTask<JsonDataMap> doObject(JazonLexer lexer, bool senseCase, int maxDepth)
+    private static async ValueTask<JsonDataMap> doObject(JazonLexer lexer, int maxDepth)
     {
       if (maxDepth < 0)
         throw JazonDeserializationException.From(JsonMsgCode.eGraphDepthLimit, "The graph is too deep", lexer);
@@ -188,7 +188,7 @@ namespace Azos.Serialization.JSON.Backends
 
       var token = await fetchPrimary(lexer).ConfigureAwait(false); // skip {
 
-      var obj = new JsonDataMap(senseCase);
+      var obj = new JsonDataMap(lexer.ropt.CaseSensitiveMaps);
       lexer.parserTotalObjects++;
 
       if (token.Type != JsonTokenType.tBraceClose)//empty object  {}
@@ -220,7 +220,7 @@ namespace Azos.Serialization.JSON.Backends
 
           token = await fetchPrimary(lexer).ConfigureAwait(false);
 
-          var value = await doAny(lexer, senseCase, maxDepth).ConfigureAwait(false);
+          var value = await doAny(lexer, maxDepth).ConfigureAwait(false);
 
           obj[key] = value;
 

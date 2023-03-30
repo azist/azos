@@ -21,8 +21,8 @@ namespace Azos.Serialization.JSON
     public const int MAX_DEPTH_MAX = 0xff;
 
 
-    private static JsonReadingOptions s_NoLimits =   new JsonReadingOptions(isSystem: true);
-    private static JsonReadingOptions s_DefaultLimits = new JsonReadingOptions(isSystem: true)
+    private static readonly JsonReadingOptions s_NoLimits =   new JsonReadingOptions(isSystem: true);
+    private static readonly JsonReadingOptions s_DefaultLimits = new JsonReadingOptions(isSystem: true)
     {
       m_CaseSensitiveMaps = true,
       m_MaxDepth = 64,
@@ -40,6 +40,11 @@ namespace Azos.Serialization.JSON
       m_TimeoutMs = 0
     };
 
+    private static readonly JsonReadingOptions s_DefaultLimitsCaseInsensitive = new JsonReadingOptions(isSystem: true, s_DefaultLimits)
+    {
+      m_CaseSensitiveMaps = false
+    };
+
     /// <summary>
     /// No Limits
     /// </summary>
@@ -51,13 +56,18 @@ namespace Azos.Serialization.JSON
     public static JsonReadingOptions DefaultLimits => s_DefaultLimits;
 
     /// <summary>
+    /// Default permissive Limits with case-insensitive json key names
+    /// </summary>
+    public static JsonReadingOptions DefaultLimitsCaseInsensitive => s_DefaultLimitsCaseInsensitive;
+
+    /// <summary>
     /// Default instance points to `DefaultLimits`
     /// </summary>
     public static JsonReadingOptions Default => s_DefaultLimits;
 
 
     public JsonReadingOptions(){ }
-    internal JsonReadingOptions(bool isSystem) { m_IsSystem = isSystem; }
+    internal JsonReadingOptions(bool isSystem, JsonReadingOptions other = null) : this(other) { m_IsSystem = isSystem; }
 
     /// <summary>
     /// Creates instance by cloning the existing one, such an immutable system one

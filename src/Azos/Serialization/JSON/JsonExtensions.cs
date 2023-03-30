@@ -25,56 +25,56 @@ namespace Azos.Serialization.JSON
     /// <summary>
     ///  Deserializes JSON content into dynamic JSON object
     /// </summary>
-    public static dynamic JsonToDynamic(this string json, bool caseSensitiveMaps = true)
+    public static dynamic JsonToDynamic(this string json, JsonReadingOptions ropt = null)
     {
-        return JsonReader.DeserializeDynamic(json, caseSensitiveMaps);
+        return JsonReader.DeserializeDynamic(json, ropt);
     }
 
     /// <summary>
     ///  Deserializes JSON content into dynamic JSON object
     /// </summary>
-    public static dynamic JsonToDynamic(this Stream json, Encoding encoding = null, bool caseSensitiveMaps = true)
+    public static dynamic JsonToDynamic(this Stream json, Encoding encoding = null, bool useBom = false, JsonReadingOptions ropt = null)
     {
-        return JsonReader.DeserializeDynamic(json, encoding, caseSensitiveMaps);
+        return JsonReader.DeserializeDynamic(json, encoding, useBom, ropt);
     }
 
 
     /// <summary>
     ///  Deserializes JSON content into dynamic JSON object
     /// </summary>
-    public static dynamic JsonToDynamic(this ISourceText json, bool caseSensitiveMaps = true)
+    public static dynamic JsonToDynamic(this ISourceText json, JsonReadingOptions ropt = null)
     {
-        return JsonReader.DeserializeDynamic(json, caseSensitiveMaps);
+        return JsonReader.DeserializeDynamic(json, ropt);
     }
 
 
     /// <summary>
     ///  Deserializes JSON content into IJSONDataObject
     /// </summary>
-    public static IJsonDataObject JsonToDataObject(this string json, bool caseSensitiveMaps = true)
+    public static IJsonDataObject JsonToDataObject(this string json, JsonReadingOptions ropt = null)
     {
-        return JsonReader.DeserializeDataObject(json, caseSensitiveMaps);
+        return JsonReader.DeserializeDataObject(json, ropt);
     }
 
     /// <summary>
     ///  Deserializes JSON content into IJSONDataObject
     /// </summary>
-    public static IJsonDataObject JsonToDataObject(this Stream json, Encoding encoding = null, bool caseSensitiveMaps = true)
+    public static IJsonDataObject JsonToDataObject(this Stream json, Encoding encoding = null, bool useBom = false, JsonReadingOptions ropt = null)
     {
-        return JsonReader.DeserializeDataObject(json, encoding, caseSensitiveMaps);
+        return JsonReader.DeserializeDataObject(json, encoding, useBom, ropt);
     }
 
     /// <summary>
     ///  Deserializes JSON content into object
     /// </summary>
-    public static ValueTask<object> JsonToObjectAsync(this Stream json, Encoding encoding = null, bool caseSensitiveMaps = true)
-     => JsonReader.DeserializeAsync(json, encoding, caseSensitiveMaps);
+    public static ValueTask<object> JsonToObjectAsync(this Stream json, Encoding encoding = null, bool useBom = false, JsonReadingOptions ropt = null)
+     => JsonReader.DeserializeAsync(json, encoding, useBom, ropt);
 
     /// <summary>
     ///  Deserializes JSON content into IJSONDataObject
     /// </summary>
-    public static ValueTask<object> JsonToObjectAsync(this ISourceText json, bool caseSensitiveMaps = true)
-      => JsonReader.DeserializeAsync(json, caseSensitiveMaps);
+    public static ValueTask<object> JsonToObjectAsync(this ISourceText json, JsonReadingOptions ropt = null)
+      => JsonReader.DeserializeAsync(json, ropt);
 
     /// <summary>
     ///  Serializes object into JSON string
