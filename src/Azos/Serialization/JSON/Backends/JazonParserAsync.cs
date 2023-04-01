@@ -134,7 +134,7 @@ namespace Azos.Serialization.JSON.Backends
         }
       }
 
-      throw JazonDeserializationException.From(token.IsError ? token.MsgCode : JsonMsgCode.eSyntaxError, "Bad syntax", lexer);
+      throw JazonDeserializationException.From(token.IsError ? token.MsgCode : JsonMsgCode.eSyntaxError, token.IsError ? token.Text : "Bad syntax", lexer);
     }
 
     private static async ValueTask<JsonDataArray> doArray(JazonLexer lexer, int maxDepth)

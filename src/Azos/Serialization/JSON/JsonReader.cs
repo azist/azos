@@ -161,6 +161,9 @@ namespace Azos.Serialization.JSON
     public static object Deserialize(string source, JsonReadingOptions ropt = null)
      => ReaderBackend.DeserializeFromJson(source, ropt);
 
+    public static object Deserialize(ISourceText source, JsonReadingOptions ropt = null)
+     => ReaderBackend.DeserializeFromJson(source, ropt);
+
     public static ValueTask<object> DeserializeAsync(Stream stream,
                                                      Encoding encoding = null,
                                                      bool useBom = false,

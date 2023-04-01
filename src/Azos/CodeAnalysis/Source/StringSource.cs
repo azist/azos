@@ -28,6 +28,15 @@ namespace Azos.CodeAnalysis.Source
       m_Name = name ?? "<noname>";
     }
 
+    /// <summary>
+    /// Starts reading anew
+    /// </summary>
+    public StringSource Reset()
+    {
+      m_Position = 0;
+      return this;
+    }
+
     #region ISourceText Members
     public string Name => m_Name;
     public Language Language => m_Language;

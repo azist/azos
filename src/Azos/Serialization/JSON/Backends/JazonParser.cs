@@ -20,6 +20,7 @@ namespace Azos.Serialization.JSON.Backends
       var lexer = new JazonLexer(src, ropt);
 
       fetchPrimary(lexer);
+
       var data = doAny(lexer, ropt.MaxDepth);//MaxDepth=0 - literal value
 
       lexer.ReuseResources();
@@ -99,7 +100,7 @@ namespace Azos.Serialization.JSON.Backends
         }
       }
 
-      throw JazonDeserializationException.From(token.IsError ? token.MsgCode : JsonMsgCode.eSyntaxError, "Bad syntax", lexer);
+      throw JazonDeserializationException.From(token.IsError ? token.MsgCode : JsonMsgCode.eSyntaxError, token.IsError ? token.Text : "Bad syntax", lexer);
     }
 
     private static JsonDataArray doArray(JazonLexer lexer, int maxDepth)
