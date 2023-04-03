@@ -29,17 +29,25 @@ namespace Azos.Serialization.JSON.Backends
     }
 
 
-    private static void fetch(JazonLexer tokens)
+    private static JazonToken fetch(JazonLexer tokens)
     {
       if (!tokens.MoveNext())
-        throw new JazonDeserializationException(JsonMsgCode.ePrematureEOF, "Premature end of Json content");
+        throw JazonDeserializationException.From(JsonMsgCode.ePrematureEOF, "Premature end of Json content", tokens);
+
+      var current = tokens.Current;
+
+      if (current.MsgCode == JsonMsgCode.eLimitExceeded)
+        throw JazonDeserializationException.From(JsonMsgCode.eLimitExceeded, current.Text, tokens);
+
+      return current;
     }
 
     private static JazonToken fetchPrimary(JazonLexer tokens)
     {
-      do fetch(tokens);
-      while (!tokens.Current.IsPrimary && !tokens.Current.IsError);
-      return tokens.Current;
+      JazonToken current;
+      do current = fetch(tokens);
+      while (!current.IsPrimary && !current.IsError);
+      return current;
     }
 
     private static readonly object TRUE;

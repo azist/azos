@@ -70,6 +70,14 @@ namespace Azos.Serialization.JSON
     internal JsonReadingOptions(bool isSystem, JsonReadingOptions other = null) : this(other) { m_IsSystem = isSystem; }
 
     /// <summary>
+    /// Creates instance by building from config
+    /// </summary>
+    public JsonReadingOptions(IConfigSectionNode cfg)
+    {
+      Configure(cfg);
+    }
+
+    /// <summary>
     /// Creates instance by cloning the existing one, such an immutable system one
     /// </summary>
     public JsonReadingOptions(JsonReadingOptions other)

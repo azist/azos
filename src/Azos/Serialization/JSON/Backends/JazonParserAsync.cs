@@ -31,19 +31,26 @@ namespace Azos.Serialization.JSON.Backends
 
 
     //synchronous call against the data segment which was pre-fetched asynchronously
-    private static void fetch(JazonLexer tokens)
+    private static JazonToken fetch(JazonLexer tokens)
     {
       if (!tokens.MoveNext())
-        throw new JazonDeserializationException(JsonMsgCode.ePrematureEOF, "Premature end of Json content");
+        throw JazonDeserializationException.From(JsonMsgCode.ePrematureEOF, "Premature end of Json content", tokens);
+
+      var current = tokens.Current;
+
+      if (current.MsgCode == JsonMsgCode.eLimitExceeded)
+        throw JazonDeserializationException.From(JsonMsgCode.eLimitExceeded, current.Text, tokens);
+
+      return current;
     }
 
     //called by async version after segment was pre-filled with data asynchronously
     private static JazonToken fetchPrimarySync(JazonLexer tokens)
     {
-      do{ fetch(tokens); }
-      while (!tokens.Current.IsPrimary && !tokens.Current.IsError);
-
-      return tokens.Current;
+      JazonToken current;
+      do current = fetch(tokens);
+      while (!current.IsPrimary && !current.IsError);
+      return current;
     }
 
     //do NOT make this function async for performance.
@@ -53,6 +60,7 @@ namespace Azos.Serialization.JSON.Backends
     //as the buffer is (already) pre-filled with future data to read
     private static ValueTask<JazonToken> fetchPrimary(JazonLexer tokens)
     {
+      JazonToken current;
       do
       {
         if (tokens.source.NearEndOfSegment)
@@ -65,13 +73,13 @@ namespace Azos.Serialization.JSON.Backends
           return new ValueTask<JazonToken>(future);
         }
 
-        fetch(tokens);
+        current = fetch(tokens);
       }
-      while (!tokens.Current.IsPrimary && !tokens.Current.IsError);
+      while (!current.IsPrimary && !current.IsError);
 
       //notice no await: explicit use of ValueTask.ctor
       //avoids allocation of task/async state machine
-      return new ValueTask<JazonToken>(tokens.Current);
+      return new ValueTask<JazonToken>(current);
     }
 
     private static readonly object TRUE;
