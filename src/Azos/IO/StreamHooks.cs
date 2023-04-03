@@ -260,10 +260,13 @@ namespace Azos.IO
                                                          int chunkSizeFrom,
                                                          int chunkSizeTo)
     {
-      var rndMsDelay = Ambient.Random.NextScaledRandomInteger(msDelayFrom, msDelayTo);
-      if (rndMsDelay > 0)
+      if (msDelayFrom > 0 && msDelayTo > 0)
       {
-        await Task.Delay(rndMsDelay, cancel).ConfigureAwait(false);
+        var rndMsDelay = Ambient.Random.NextScaledRandomInteger(msDelayFrom, msDelayTo);
+        if (rndMsDelay > 0)
+        {
+          await Task.Delay(rndMsDelay, cancel).ConfigureAwait(false);
+        }
       }
 
       var chunkSize = (chunkSizeFrom > 0 || chunkSizeTo > 0)

@@ -44,10 +44,10 @@ namespace Azos.CodeAnalysis.Source
   {
     public const int MIN_SEG_TAIL_THRESHOLD = 64;
     public const float MAX_SEG_TAIL_THRESHOLD_PCT = 0.247f;// < 1/4 of a buffer size in case of UNICODE32 (4 bytes per char)
-    public const int MIN_BUFFER_SIZE =   1 * 1024;
+    public const int MIN_BUFFER_SIZE = 256;
     public const int MAX_BUFFER_SIZE = 128 * 1024;
 
-    public const int DEFAULT_BUFFER_SIZE = 16 * 1024;
+    public const int DEFAULT_BUFFER_SIZE = 8 * 1024;
     public const int DEFAULT_SEG_TAIL_THRESHOLD = 735;
 
     private static readonly ArrayPool<byte> s_BytePool;

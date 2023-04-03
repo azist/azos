@@ -7,6 +7,7 @@
 using System.Threading.Tasks;
 using Azos.CodeAnalysis.Source;
 using Azos.Conf;
+using Azos.IO;
 using Azos.Scripting;
 using Azos.Serialization.JSON;
 using Azos.Text;
@@ -67,21 +68,33 @@ namespace Azos.Tests.Nub.Serialization
       json='{a: 1, /* This is a very very long and nasty comment! */ b: 2}'
       pass{ max-comment-length=48 }
       fail{ max-comment-length=40 }")]
-    public async Task TestCase(string json, IConfigSectionNode pass, IConfigSectionNode fail, string ecode = "eLimitExceeded")
+
+    [Run("timeout", @"
+      json='{a: 1, b: 2, c: 3, d: 4, v: [1,2,3,4,5,6,7,8,9,0]}'
+      msDelayFrom=50 msDelayTo=50
+      chunkSizeFrom=5 chunkSizeTo=5
+      pass{ timeout-ms=8000 }
+      fail{ timeout-ms=300 }")]
+    public async Task TestCase(string json, IConfigSectionNode pass, IConfigSectionNode fail, string ecode = "eLimitExceeded", int msDelayFrom = 0, int msDelayTo = 0, int chunkSizeFrom = 0, int chunkSizeTo = 0)
     {
+      using var lazyStream = StreamHookUse.CaseOfRandomAsyncStringReading(json, msDelayFrom, msDelayTo, chunkSizeFrom, chunkSizeTo);
+
       #region Part 1 - Sync test
-      var got = JsonReader.Deserialize(json, ropt: null) as JsonDataMap;//pases with default/null options
+      lazyStream.Position = 0;
+      var got = JsonReader.Deserialize(lazyStream, ropt: null) as JsonDataMap;//pases with default/null options
       Aver.IsNotNull(got);
       got.See();
 
       var optPass = new JsonReadingOptions(pass);
-      got = JsonReader.Deserialize(json, optPass) as JsonDataMap;
+      lazyStream.Position = 0;
+      got = JsonReader.Deserialize(lazyStream, ropt: optPass) as JsonDataMap;
       Aver.IsNotNull(got);
 
       var optFail = new JsonReadingOptions(fail);
       try
       {
-        got = JsonReader.Deserialize(json, optFail) as JsonDataMap;
+        lazyStream.Position = 0;
+        got = JsonReader.Deserialize(lazyStream, ropt: optFail) as JsonDataMap;
         Aver.Fail("SYNC Cant be here");
       }
       catch (JSONDeserializationException jde)
@@ -92,16 +105,18 @@ namespace Azos.Tests.Nub.Serialization
       #endregion
 
       #region Part 2 - Async test
-      var jsonSource = new StringSource(json);
-      got = await JsonReader.DeserializeAsync(jsonSource, null) as JsonDataMap;
+      lazyStream.Position = 0;
+      got = await JsonReader.DeserializeAsync(lazyStream, ropt: null) as JsonDataMap;
       Aver.IsNotNull(got);
       // got.See();
-      got = await JsonReader.DeserializeAsync(jsonSource.Reset(), optPass) as JsonDataMap;
+      lazyStream.Position = 0;
+      got = await JsonReader.DeserializeAsync(lazyStream, ropt: optPass) as JsonDataMap;
       Aver.IsNotNull(got);
       //  got.See();
       try
       {
-        got = await JsonReader.DeserializeAsync(jsonSource.Reset(), optFail) as JsonDataMap;
+        lazyStream.Position = 0;
+        got = await JsonReader.DeserializeAsync(lazyStream, ropt: optFail) as JsonDataMap;
         Aver.Fail("ASYNC Cant be here");
       }
       catch (JSONDeserializationException jde)
