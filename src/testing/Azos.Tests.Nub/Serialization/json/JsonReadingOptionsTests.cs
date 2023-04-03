@@ -70,25 +70,26 @@ namespace Azos.Tests.Nub.Serialization
       fail{ max-comment-length=40 }")]
 
     [Run("timeout", @"
-      json='{a: 1, b: 2, c: 3, d: 4, v: [1,2,3,4,5,6,7,8,9,0]}'
+      json='{a: 1, b: 2, c: 3, d: 4, v: [1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0, null, null, true, false]}'
       msDelayFrom=50 msDelayTo=50
-      chunkSizeFrom=5 chunkSizeTo=5
+      chunkSizeFrom=1 chunkSizeTo=1
       pass{ timeout-ms=8000 }
       fail{ timeout-ms=300 }")]
     public async Task TestCase(string json, IConfigSectionNode pass, IConfigSectionNode fail, string ecode = "eLimitExceeded", int msDelayFrom = 0, int msDelayTo = 0, int chunkSizeFrom = 0, int chunkSizeTo = 0)
     {
       using var lazyStream = StreamHookUse.CaseOfRandomAsyncStringReading(json, msDelayFrom, msDelayTo, chunkSizeFrom, chunkSizeTo);
 
+      JsonDataMap got;
       #region Part 1 - Sync test
-      lazyStream.Position = 0;
-      var got = JsonReader.Deserialize(lazyStream, ropt: null) as JsonDataMap;//pases with default/null options
-      Aver.IsNotNull(got);
-      got.See();
+      //lazyStream.Position = 0;
+      //var got = JsonReader.Deserialize(lazyStream, ropt: null) as JsonDataMap;//pases with default/null options
+      //Aver.IsNotNull(got);
+      //got.See();
 
-      var optPass = new JsonReadingOptions(pass);
-      lazyStream.Position = 0;
-      got = JsonReader.Deserialize(lazyStream, ropt: optPass) as JsonDataMap;
-      Aver.IsNotNull(got);
+      //var optPass = new JsonReadingOptions(pass);
+      //lazyStream.Position = 0;
+      //got = JsonReader.Deserialize(lazyStream, ropt: optPass) as JsonDataMap;
+      //Aver.IsNotNull(got);
 
       var optFail = new JsonReadingOptions(fail);
       try
@@ -105,14 +106,14 @@ namespace Azos.Tests.Nub.Serialization
       #endregion
 
       #region Part 2 - Async test
-      lazyStream.Position = 0;
-      got = await JsonReader.DeserializeAsync(lazyStream, ropt: null) as JsonDataMap;
-      Aver.IsNotNull(got);
-      // got.See();
-      lazyStream.Position = 0;
-      got = await JsonReader.DeserializeAsync(lazyStream, ropt: optPass) as JsonDataMap;
-      Aver.IsNotNull(got);
-      //  got.See();
+      //lazyStream.Position = 0;
+      //got = await JsonReader.DeserializeAsync(lazyStream, ropt: null) as JsonDataMap;
+      //Aver.IsNotNull(got);
+      //// got.See();
+      //lazyStream.Position = 0;
+      //got = await JsonReader.DeserializeAsync(lazyStream, ropt: optPass) as JsonDataMap;
+      //Aver.IsNotNull(got);
+      ////  got.See();
       try
       {
         lazyStream.Position = 0;

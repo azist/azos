@@ -50,6 +50,7 @@ namespace Azos.CodeAnalysis.Source
     public const int DEFAULT_BUFFER_SIZE = 8 * 1024;
     public const int DEFAULT_SEG_TAIL_THRESHOLD = 735;
 
+    private const int PREAMBLE_SIZE_BYTES = 32;
     private static readonly ArrayPool<byte> s_BytePool;
     private static readonly ArrayPool<char> s_CharPool;
 
@@ -150,6 +151,10 @@ namespace Azos.CodeAnalysis.Source
 
     public async Task FetchSegmentAsync(System.Threading.CancellationToken ctk = default)
     {
+      const double kEMA = 0.489d;
+      const int PROFILE_ITERATION_IDX = 3;
+      const int PROFILE_THRESHOLD_DIV = 16; // 100 / 16 = 6.25%
+
       EnsureObjectNotDisposed();
       if (m_StreamEof) return;
       var segment = standbySegment;
@@ -157,9 +162,11 @@ namespace Azos.CodeAnalysis.Source
 
       var idxBuffer = 0;
       var totalBuffered = 0;
-      while(totalBuffered < m_BufferSize && !ctk.IsCancellationRequested)
+      var dataRate = new Instrumentation.EmaLong(kEMA, m_BufferSize / 4, 0L);
+      for(var i = 0; totalBuffered < m_BufferSize && !ctk.IsCancellationRequested; i++)
       {
-        var got = await m_Stream.ReadAsync(m_Buffer, totalBuffered, m_BufferSize - totalBuffered, ctk).ConfigureAwait(false);
+        var leftToRead = m_BufferSize - totalBuffered;
+        var got = await m_Stream.ReadAsync(m_Buffer, totalBuffered, leftToRead, ctk).ConfigureAwait(false);
 
         if (got==0) //eof
         {
@@ -167,7 +174,18 @@ namespace Azos.CodeAnalysis.Source
           break;
         }
         totalBuffered += got;
-      }
+
+        //Profile the data acquisition speed, averaging data transfer rate
+        Instrumentation.EmaLong.AddNext(ref dataRate, got);
+        if (
+             (i > PROFILE_ITERATION_IDX) &&  //let statistics gather and apply only after the minimum number of iterations
+             (totalBuffered > PREAMBLE_SIZE_BYTES) && //only if we have fetched the bare minimum
+             (dataRate.Average < leftToRead / PROFILE_THRESHOLD_DIV) //average reading fell below 1/16th of remaining data (6.25%)
+            )
+        {
+          break; //yield control
+        }
+      }//for
       if (totalBuffered==0) return;//EOF (and end of stream)
 
       m_SegmentCount++;
