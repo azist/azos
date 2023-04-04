@@ -85,9 +85,9 @@ namespace Azos.Tests.Nub.Serialization
           ]//================================================================================================================================
         }
       '
-      msDelayFrom=100 msDelayTo=100
-      chunkSizeFrom=1 chunkSizeTo=1
-      pass{ timeout-ms=180000 buffer-size=100}
+      msDelayFrom=15 msDelayTo=50
+      chunkSizeFrom=1 chunkSizeTo=16
+      pass{ timeout-ms=20000 buffer-size=100}
       fail{ timeout-ms=300 buffer-size=100}")]
 
     [Run("timeout", @"
