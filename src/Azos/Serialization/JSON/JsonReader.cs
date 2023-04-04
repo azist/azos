@@ -178,7 +178,18 @@ namespace Azos.Serialization.JSON
                                                                 bool useBom = true,
                                                                 JsonReadingOptions ropt = null)
     {
-      using(var fsrc = new FileSource(filePath, encoding, useBom, CodeAnalysis.JSON.JsonLanguage.Instance))
+      int bufferSize = 0;
+      int segmentTailThreshold = 0;
+      bool sensitiveData = false;
+
+      if (ropt != null)
+      {
+        bufferSize = ropt.BufferSize;
+        segmentTailThreshold = (int)(ropt.BufferSize * ropt.SegmentTailThresholdPercent);
+        sensitiveData = ropt.SensitiveData;
+      }
+
+      using(var fsrc = new FileSource(filePath, encoding, useBom, CodeAnalysis.JSON.JsonLanguage.Instance, bufferSize, segmentTailThreshold, bufferSize, sensitiveData))
       {
         return deserializeObject(ReaderBackend.DeserializeFromJson(fsrc, ropt));
       }
@@ -189,7 +200,18 @@ namespace Azos.Serialization.JSON
                                                                    bool useBom = true,
                                                                    JsonReadingOptions ropt = null)
     {
-      using (var fsrc = new FileSource(filePath, encoding, useBom, CodeAnalysis.JSON.JsonLanguage.Instance))
+      int bufferSize = 0;
+      int segmentTailThreshold = 0;
+      bool sensitiveData = false;
+
+      if (ropt != null)
+      {
+        bufferSize = ropt.BufferSize;
+        segmentTailThreshold = (int)(ropt.BufferSize * ropt.SegmentTailThresholdPercent);
+        sensitiveData = ropt.SensitiveData;
+      }
+
+      using(var fsrc = new FileSource(filePath, encoding, useBom, CodeAnalysis.JSON.JsonLanguage.Instance, bufferSize, segmentTailThreshold, bufferSize, sensitiveData))
       {
         return await ReaderBackend.DeserializeFromJsonAsync(fsrc, ropt).ConfigureAwait(false);
       }

@@ -28,7 +28,18 @@ namespace Azos.Serialization.JSON.Backends
 
     public object DeserializeFromJson(Stream stream, Encoding encoding, bool useBom, JsonReadingOptions ropt)
     {
-      using (var source = new StreamSource(stream, encoding, useBom, JsonLanguage.Instance))
+      int bufferSize = 0;
+      int segmentTailThreshold = 0;
+      bool sensitiveData = false;
+
+      if (ropt != null)
+      {
+        bufferSize = ropt.BufferSize;
+        segmentTailThreshold = (int)(ropt.BufferSize * ropt.SegmentTailThresholdPercent);
+        sensitiveData = ropt.SensitiveData;
+      }
+
+      using(var source = new StreamSource(stream, encoding, useBom, JsonLanguage.Instance, null, bufferSize, segmentTailThreshold, sensitiveData))
       {
         return JazonParser.Parse(source, ropt);
       }
@@ -39,13 +50,25 @@ namespace Azos.Serialization.JSON.Backends
 
     public async ValueTask<object> DeserializeFromJsonAsync(Stream stream, Encoding encoding, bool useBom, JsonReadingOptions ropt)
     {
-      using (var source = new StreamSource(stream, encoding, useBom, JsonLanguage.Instance))
+
+      int bufferSize = 0;
+      int segmentTailThreshold = 0;
+      bool sensitiveData = false;
+
+      if (ropt != null)
+      {
+        bufferSize = ropt.BufferSize;
+        segmentTailThreshold = (int)(ropt.BufferSize * ropt.SegmentTailThresholdPercent);
+        sensitiveData = ropt.SensitiveData;
+      }
+
+      using(var source = new StreamSource(stream, encoding, useBom, JsonLanguage.Instance, null, bufferSize, segmentTailThreshold, sensitiveData))
       {
         return await JazonParserAsync.ParseAsync(source, ropt).ConfigureAwait(false);
       }
     }
 
     public ValueTask<object> DeserializeFromJsonAsync(ISourceText source, JsonReadingOptions ropt)
-     => JazonParserAsync.ParseAsync(source,  ropt);
+      => JazonParserAsync.ParseAsync(source,  ropt);
   }
 }

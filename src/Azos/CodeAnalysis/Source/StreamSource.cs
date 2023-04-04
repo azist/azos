@@ -82,7 +82,7 @@ namespace Azos.CodeAnalysis.Source
       if (segmentTailThreshold <= 0) segmentTailThreshold = DEFAULT_SEG_TAIL_THRESHOLD;
 
       m_BufferSize = bufferSize.KeepBetween(MIN_BUFFER_SIZE, MAX_BUFFER_SIZE);
-      m_SegmentTailThreshold = segmentTailThreshold.KeepBetween(MIN_SEG_TAIL_THRESHOLD, (int)(m_BufferSize * MAX_SEG_TAIL_THRESHOLD_PCT));
+      m_SegmentTailThreshold = segmentTailThreshold.KeepBetween(MIN_SEG_TAIL_THRESHOLD, (int)(m_BufferSize * MAX_SEG_TAIL_THRESHOLD_PCT).AtMinimum(MIN_SEG_TAIL_THRESHOLD));
 
       m_Buffer = s_BytePool.Rent(m_BufferSize);
       m_Arena = s_CharPool.Rent(32/*reserved*/ + (2/*segments*/ * m_BufferSize));
