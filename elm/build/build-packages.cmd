@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.1.0.4
-set HEADLINE=#731 EOF fix
+set VER=3.1.0.5
+set HEADLINE=#731 Json limits
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
