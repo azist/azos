@@ -25,8 +25,8 @@ namespace Azos.Tests.Nub.Serialization
       Bixer.RegisterTypeSerializationCores(System.Reflection.Assembly.GetExecutingAssembly());
     }
 
-   // [Run("cnt=50000 par=false")]
-   // [Run("cnt=50000 par=true")]
+    //[Run("cnt=50000 par=false")]
+    //[Run("cnt=50000 par=true")]
     [Run("cnt=5000 par=false")]
     [Run("cnt=5000 par=true")]
     public void Test_TypicalPerson(int cnt, bool par)
@@ -244,6 +244,18 @@ Shapes:[
 }
 
 /*
+RELEASE .NET 6 4/6/2023
+Started 04/06/2023 15:37:27
+Starting Azos.Tests.Nub::Azos.Tests.Nub.Serialization.JsonBenchmarkDocTests ...
+  - Test_TypicalPerson  {cnt=50000 par=false} Did 50,000 in 1.4 sec at 36,217 ops/sec
+[OK]
+  - Test_TypicalPerson  {cnt=50000 par=true} [1] Did 50,000 in 0.2 sec at 328,096 ops/sec
+[OK]
+  - Test_TypicalFamilyWithPolymorphicShapes  {cnt=50000 par=false} Did 50,000 in 4.1 sec at 12,141 ops/sec
+[OK]
+  - Test_TypicalFamilyWithPolymorphicShapes  {cnt=50000 par=true} [1] Did 50,000 in 0.5 sec at 96,604 ops/sec
+[OK]
+... done JsonBenchmarkDocTests
 
 RELEASE .Net 6 Started 03/31/2023 12:58:46
 Starting Azos.Tests.Nub::Azos.Tests.Nub.Serialization.JsonBenchmarkDocTests ...

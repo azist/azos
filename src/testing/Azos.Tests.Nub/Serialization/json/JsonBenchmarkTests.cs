@@ -460,3 +460,28 @@ Starting Azos.Tests.Nub::Azos.Tests.Nub.Serialization.JsonBenchmarkTests ...
   - Test_ComplexObject_Async  {cnt=95000 par=true} [1] Did 95,000 in 1.3 sec at 72,440 ops/sec
 ... done JsonBenchmarkTests
 ------------------------------------------------------------------------------------------------*/
+
+/* ------------- 4/06/2023 Testing after JsonReadingOptions limits ----------------------------
+Started 04/06/2023 15:31:32
+Starting Azos.Tests.Nub::Azos.Tests.Nub.Serialization.JsonBenchmarkTests ...
+  - Test_Primitives  {cnt=250000 par=false} Did 250,000 in 3.5 sec at 71,799 ops/sec
+[OK]
+  - Test_Primitives  {cnt=250000 par=true} [1] Did 250,000 in 0.4 sec at 571,984 ops/sec
+[OK]
+  - Test_SimpleObject  {cnt=250000 par=false} Did 250,000 in 0.6 sec at 412,602 ops/sec
+[OK]
+  - Test_SimpleObject  {cnt=250000 par=true} [1] Did 250,000 in 0.1 sec at 2,814,862 ops/sec
+[OK]
+  - Test_ModerateObject  {cnt=150000 par=false} Did 150,000 in 0.9 sec at 167,945 ops/sec
+[OK]
+  - Test_ModerateObject  {cnt=150000 par=true} [1] Did 150,000 in 0.1 sec at 1,157,829 ops/sec
+[OK]
+  - Test_ComplexObject  {cnt=95000 par=false} Did 95,000 in 4.2 sec at 22,715 ops/sec
+[OK]
+  - Test_ComplexObject  {cnt=95000 par=true} [1] Did 95,000 in 0.6 sec at 172,028 ops/sec
+[OK]
+  - Test_ComplexObject_Async  {cnt=95000 par=false} Did 95,000 in 25.1 sec at 3,785 ops/sec
+[OK]
+  - Test_ComplexObject_Async  {cnt=95000 par=true} [1] Did 95,000 in 1.4 sec at 69,523 ops/sec
+... done JsonBenchmarkTests
+------------------------------------------------------------------------------------------------*/
