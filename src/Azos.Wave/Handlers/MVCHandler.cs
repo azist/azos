@@ -189,10 +189,13 @@ namespace Azos.Wave.Handlers
         foreach(var match in ai.Attribute.Matches)
         {
           var matched = match.Make(work);
-          if (matched!=null)
+          if (matched != null)
           {
             var attr = ai.Attribute;
             var result = ai.Method;
+
+            //set json options before body is read by BindParameters
+            work.JsonOptions = ai.JsonOptions ?? cInfo.JsonOptions;
 
             var args = await BindParametersAsync(controller, action, attr, result, work);
 

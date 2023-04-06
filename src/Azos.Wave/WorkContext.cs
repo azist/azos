@@ -295,6 +295,12 @@ namespace Azos.Wave
     public dynamic Matched => new JsonDynamicObject(MatchedVars);
 
 
+    /// <summary>
+    /// When set, affects json reading (e.g. form body).
+    /// It only makes sense to set options BEFORE the body was read, setting this after the body was read has no effect.
+    /// The body is read using <see cref="GetRequestBodyAsJsonDataMapAsync"/> or <see cref="GetWholeRequestAsJsonDataMapAsync"/>.
+    /// </summary>
+    public JsonReadingOptions JsonOptions { get; set; }
 
     /// <summary>
     /// Fetches request body: multi-part content, URL encoded content, or JSON body into one JSONDataMap bag,
@@ -550,7 +556,6 @@ namespace Azos.Wave
     /// <summary>
     /// This method is called only once as it touches the input streams
     /// </summary>
-    //todo: Add async json parsing
     protected virtual async ValueTask<JsonDataMap> DoGetRequestBodyAsJsonDataMapAsync()
     {
       //request content decompression
@@ -581,31 +586,12 @@ namespace Azos.Wave
           caseName = "urlencoded";
           result = await JsonDataMap.FromUrlEncodedStreamAsync(Request.BodyStream).ConfigureAwait(false);//#837
         }
-        /*//Before #731 Mar 23, 2023
-        else//JSON
-        if (ctp.IndexOf(ContentType.JSON)>=0)
-        {
-          caseName = "json";
-          #region #837 Http server chops-off content posted by client?
-          //result = JsonReader.DeserializeDataObject(Request.BodyStream) as JsonDataMap;//Before #837, was one line
-          using (var rdr = new System.IO.StreamReader(Request.BodyStream, System.Text.Encoding.UTF8, true, 1024, true))//this is a temp patch until #731
-          {
-            //The code below will be gone once ASYNC JSON #731 is implemented
-            var jsonString = await rdr.ReadToEndAsync().ConfigureAwait(false);//this is a temp patch until #731
-            ////////////////////Server.WriteLogFromHere(MessageType.TraceZ, "got raw json string", pars: jsonString);
-            result = JsonReader.DeserializeDataObject(jsonString) as JsonDataMap;
-
-            //////When #731 gets implemented, the only code to remain here is:
-            //////result = (await JsonReader.DeserializeDataObjectAsync(jsonString).ConfigureAwait(false)) as JsonDataMap;
-          }
-          #endregion
-        }
-        */
         else//JSON
         if (ctp.IndexOf(ContentType.JSON) >= 0)//#731 20230323 DKh
         {
           caseName = "json";
 
+          var jsonOptions = this.JsonOptions ?? Server.JsonOptions;
           object got;
 
           var hdrContentLength = Request.ContentLength;
@@ -613,11 +599,11 @@ namespace Azos.Wave
           if (hdrContentLength > 0 && hdrContentLength < Server.AsyncReadContentLengthThreshold)//sync processing
           {
             var jsonString = await prefetchJson((int)hdrContentLength).ConfigureAwait(false);
-            got = JsonReader.Deserialize(jsonString);
+            got = JsonReader.Deserialize(jsonString, jsonOptions);
           }
           else//async processing
           {
-            got = await JsonReader.DeserializeAsync(Request.BodyStream).ConfigureAwait(false);
+            got = await JsonReader.DeserializeAsync(Request.BodyStream, ropt: jsonOptions).ConfigureAwait(false);
           }
 
           if (got != null)

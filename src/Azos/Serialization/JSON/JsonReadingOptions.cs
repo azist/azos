@@ -11,9 +11,11 @@ using Azos.Conf;
 namespace Azos.Serialization.JSON
 {
   /// <summary>
-  /// Provides reading options for Json datagrams like imposing limits on maximum character length or object nesting depth and counts
+  /// Provides reading options for Json datagrams like imposing limits on maximum character length or object nesting depth and counts.
+  /// The class can be applied as an attribute on server classes such as controllers and controller action methods
   /// </summary>
-  public class JsonReadingOptions : IConfigurable
+  [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+  public class JsonReadingOptions : Attribute, IConfigurable
   {
     /// <summary>
     /// MaxDepth property may not exceed this limit

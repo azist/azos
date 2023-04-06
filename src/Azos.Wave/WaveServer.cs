@@ -36,6 +36,7 @@ namespace Azos.Wave
     public const string CONFIG_MATCH_SECTION = "match";
     public const string CONFIG_GATE_SECTION = "gate";
     public const string CONFIG_ROOT_HANDLER_SECTION = "root-handler";
+    public const string CONFIG_JSON_OPTS_SECTION = "json-options";
 
     public const string CONFIG_DEFAULT_ERROR_HANDLER_SECTION = "default-error-handler";
     public const int    ACCEPT_THREAD_GRANULARITY_MS = 250;
@@ -364,6 +365,10 @@ namespace Azos.Wave
       set => m_AsyncReadContentLengthThreshold = value.KeepBetween(0, MAX_ASYNC_READ_CONTENT_LENGTH_THRESHOLD);
     }
 
+    /// <summary>
+    /// Provides server-wide json processing options. Defaults to null
+    /// </summary>
+    public JsonReadingOptions JsonOptions { get; set; }
 
     /// <summary>
     /// Returns server match collection
@@ -501,6 +506,13 @@ namespace Azos.Wave
                                            new object[]{ nRootHandler });
 
         ErrorFilter.ConfigureMatches(node[CONFIG_DEFAULT_ERROR_HANDLER_SECTION], m_ErrorShowDumpMatches, m_ErrorLogMatches, null, GetType().FullName);
+
+        var nJsonOpts = node[CONFIG_JSON_OPTS_SECTION];
+        if (nJsonOpts.Exists)
+        {
+          JsonOptions = FactoryUtils.MakeAndConfigure<JsonReadingOptions>(nJsonOpts, typeof(JsonReadingOptions));
+        }
+
       }
 
       protected override void DoStart()
