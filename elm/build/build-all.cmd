@@ -9,11 +9,12 @@ set AZOS_HOME=%PROJECT_HOME%azos\
 
 
 set BUILD_ARGS=-c %1
-set BUILD_ARGS_WIN=%BUILD_ARGS% -r win-x64
-set BUILD_ARGS_LIN=%BUILD_ARGS% -r linux-x64
 
 rem https://andrewlock.net/version-vs-versionsuffix-vs-packageversion-what-do-they-all-mean/
 if "%~2" NEQ "" (SET BUILD_ARGS=%BUILD_ARGS% /p:Version=%2)
+
+set BUILD_ARGS_WIN=%BUILD_ARGS% -r win-x64
+set BUILD_ARGS_LIN=%BUILD_ARGS% -r linux-x64
 
 echo Building Azos ---------------------------------------
 

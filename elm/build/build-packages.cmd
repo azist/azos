@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.1.0.5
-set HEADLINE=#731 Json limits
+set VER=3.2.0.1
+set HEADLINE=Azos dll file version fix
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
