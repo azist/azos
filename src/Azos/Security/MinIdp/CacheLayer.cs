@@ -74,11 +74,10 @@ namespace Azos.Security.MinIdp
       if (id.IsNullOrWhiteSpace()) return null;
       id = id.Trim();  // alex123, alex.123@something.com,  bearer@fbk::h2uIkosifds8Hw_83JIisqap
 
-      if (MaxCacheAgeSec>0)
-        lock(m_DataLock)
-          if (m_IdxId.TryGetValue(new realmed(realm, id), out var existing)) return existing.d;
+      var data = lookupIndex(m_IdxId, new realmed(realm, id));
+      if (data != null) return data;
 
-      var data = await m_Store.GetByIdAsync(realm, id, ctx).ConfigureAwait(false);
+      data = await m_Store.GetByIdAsync(realm, id, ctx).ConfigureAwait(false);
       if(data != null) data.EnteredLoginId = id; //G8 bug #269  NullRefException In MinIdp Bug #269
 
       updateIndexes(realm, data);
@@ -92,11 +91,10 @@ namespace Azos.Security.MinIdp
       if (sysToken.IsNullOrWhiteSpace()) return null;
       sysToken = sysToken.Trim();
 
-      if (MaxCacheAgeSec > 0)
-        lock (m_DataLock)
-          if (m_IdxSysToken.TryGetValue(new realmed(realm, sysToken), out var existing)) return existing.d;
+      var data = lookupIndex(m_IdxSysToken, new realmed(realm, sysToken));
+      if (data != null) return data;
 
-      var data = await m_Store.GetBySysAsync(realm, sysToken, ctx).ConfigureAwait(false);
+      data = await m_Store.GetBySysAsync(realm, sysToken, ctx).ConfigureAwait(false);
 
       updateIndexes(realm, data);
       return data;
@@ -109,11 +107,10 @@ namespace Azos.Security.MinIdp
       if (uri.IsNullOrWhiteSpace()) return null;
       uri = uri.Trim();
 
-      if (MaxCacheAgeSec > 0)
-        lock (m_DataLock)
-          if (m_IdxUri.TryGetValue(new realmed(realm, uri), out var existing)) return existing.d;
+      var data = lookupIndex(m_IdxUri, new realmed(realm, uri));
+      if (data != null) return data;
 
-      var data = await m_Store.GetByUriAsync(realm, uri, ctx).ConfigureAwait(false);
+      data = await m_Store.GetByUriAsync(realm, uri, ctx).ConfigureAwait(false);
       if (data != null) data.EnteredUri = uri;
 
       updateIndexes(realm, data);
@@ -142,6 +139,21 @@ namespace Azos.Security.MinIdp
           m_IdxUri[new realmed(realm, data.EnteredUri)]    = entry;
         }
       }
+    }
+
+    private MinIdpUserData lookupIndex(Dictionary<realmed, (DateTime ts, MinIdpUserData d)> idx, realmed key)
+    {
+      if (MaxCacheAgeSec < 1) return null;//caching is turned off
+
+      (DateTime ts, MinIdpUserData d) value;
+      lock (m_DataLock)
+      {
+        if (!idx.TryGetValue(key, out value)) return null;
+      }
+
+      var now = DateTime.UtcNow;
+      if (value.ts > now) return value.d;
+      return null;//expired
     }
 
     private void scan()
