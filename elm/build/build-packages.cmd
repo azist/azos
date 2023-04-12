@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.2.0.1
-set HEADLINE=Azos dll file version fix
+set VER=3.2.0.2
+set HEADLINE=#846, #849 
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
