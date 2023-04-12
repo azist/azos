@@ -44,8 +44,8 @@ namespace Azos.Security.MinIdp
     private IMinIdpStoreImplementation m_Store;
 
     private object m_DataLock = new object();
-    private Dictionary<realmed, MinIdpUserData> m_IdxId = new Dictionary<realmed, MinIdpUserData>();
     private Dictionary<realmed, (DateTime ts, MinIdpUserData d)> m_IdxSysToken = new Dictionary<realmed, (DateTime ts, MinIdpUserData d)>();
+    private Dictionary<realmed, MinIdpUserData> m_IdxId  = new Dictionary<realmed, MinIdpUserData>();
     private Dictionary<realmed, MinIdpUserData> m_IdxUri = new Dictionary<realmed, MinIdpUserData>();
 
 
@@ -130,12 +130,17 @@ namespace Azos.Security.MinIdp
       var entry = (DateTime.UtcNow.AddSeconds(maxAge), data);
       lock (m_DataLock)
       {
+        m_IdxSysToken[new realmed(realm, data.SysToken.Data)] = entry;
+
         if (data.EnteredLoginId.IsNotNullOrWhiteSpace())
         {
           m_IdxId[new realmed(realm, data.EnteredLoginId)] = data;
         }
-        m_IdxSysToken[new realmed(realm, data.SysToken.Data)] = entry;
-        m_IdxUri     [new realmed(realm, data.EnteredUri)]    = data;
+
+        if (data.EnteredUri.IsNotNullOrWhiteSpace())
+        {
+          m_IdxUri[new realmed(realm, data.EnteredUri)]    = data;
+        }
       }
     }
 
@@ -173,12 +178,17 @@ namespace Azos.Security.MinIdp
         {
           foreach(var item in toKill)
           {
+            m_IdxSysToken.Remove(new realmed(item.Realm, item.SysToken.Data));
+
             if (item.EnteredLoginId.IsNotNullOrWhiteSpace())
             {
               m_IdxId.Remove(new realmed(item.Realm, item.EnteredLoginId));
             }
-            m_IdxSysToken.Remove(new realmed(item.Realm, item.SysToken.Data));
-            m_IdxUri.Remove(new realmed(item.Realm, item.ScreenName));
+
+            if (item.EnteredUri.IsNotNullOrWhiteSpace())
+            {
+              m_IdxUri.Remove(new realmed(item.Realm, item.EnteredUri));
+            }
           }
         }
       }
