@@ -335,7 +335,7 @@ namespace Azos.Apps
 
 
     /// <summary>
-    /// Returns header value which is a terse JSOn representation of the instance which can be used to
+    /// Returns header value which is a terse json representation of the instance which can be used to
     /// re-construct the value on the other host
     /// </summary>
     public string ToHeaderValue() => this.ToJson(JsonWritingOptions.CompactASCII);

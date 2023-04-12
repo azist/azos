@@ -65,7 +65,14 @@ namespace Azos.Security.MinIdp
       if (crypt != null && !(Ambient.CurrentCallUser.Status >= UserStatus.System && plain))
         data = crypt.ProtectAsString(data, Serialization.JSON.JsonWritingOptions.CompactRowsAsMap);
 
-      return this.GetLogicResult(data);
+      //20230412 DKh #849
+      ////was before: return this.GetLogicResult(data);
+      ////GetLogicResult() treats null az 404
+      return this.GetExplicitResult(ok: true,
+                                    data,
+                                    httpStatus: data != null ? 200 : 204,
+                                    httpStatusDescription: data != null ? "Ok" : "No data",
+                                    idempotencyToken: null);
     }
 
     [ApiEndpointDoc(

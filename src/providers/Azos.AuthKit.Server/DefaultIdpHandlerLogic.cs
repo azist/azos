@@ -265,6 +265,7 @@ namespace Azos.AuthKit.Server
         {
           var parJson = new
           {
+            call = ExecutionContext.CallFlow as DistributedCallFlow,//#846
             r = context.Result,
             p = context.Provider?.Name,
             rlm = context.Realm,
@@ -280,6 +281,7 @@ namespace Azos.AuthKit.Server
         {
           var parJson = new
           {
+            call = ExecutionContext.CallFlow as DistributedCallFlow,//#846
             r = context.Result,
             p = context.Provider?.Name,
             rlm = context.Realm,
