@@ -76,7 +76,7 @@ namespace Azos
       if (was == null || !object.ReferenceEquals(was, original))
       {
         disposed = false;
-        return new ValueTask(Task.CompletedTask);
+        return default;
       }
 
       disposed = true;
@@ -123,7 +123,7 @@ namespace Azos
       if (was == null || !object.ReferenceEquals(was, original))
       {
         disposed = false;
-        return new ValueTask(Task.CompletedTask);
+        return default;
       }
 
       if (was is IAsyncDisposable adisposable)
@@ -136,11 +136,11 @@ namespace Azos
       {
         disposed = true;
         disposable.Dispose();
-        return new ValueTask(Task.CompletedTask);
+        return default;
       }
 
       disposed = false;
-      return new ValueTask(Task.CompletedTask);
+      return default;
     }
     #endregion
 
@@ -206,14 +206,14 @@ namespace Azos
     /// Override to perform custom type ASYNC finalization akin to sync one.
     /// The default implementation delegates work to synchronous <see cref="Destructor"/>, this way
     /// the logical system integrity is not violated by introduction of <see cref="IAsyncDisposable"/> interface,
-    /// however if you need a true asynchronous finalization, then this method MUST be overriden in a concrete class.
+    /// however if you need a true asynchronous finalization, then this method MUST be overridden in a concrete class.
     /// Warning: a synchronous <see cref="Destructor"/> must ALWAYS be implemented as it may be called by
     /// a CLR GC finalizer which does not call async methods.
     /// </summary>
     protected virtual ValueTask DestructorAsync()
     {
       Destructor();
-      return new ValueTask(Task.CompletedTask);
+      return default;
     }
 
     /// <summary>

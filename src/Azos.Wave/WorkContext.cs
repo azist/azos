@@ -60,7 +60,7 @@ namespace Azos.Wave
     protected override void Destructor()
     {
       if (!((IDisposableLifecycle)this).DisposedByFinalizer)
-       throw new NotSupportedException("Sync WorkContext destructior is prohibited");
+       throw new NotSupportedException("Sync WorkContext destructor is prohibited");
     }
 
     /// <summary>
