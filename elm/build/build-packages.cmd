@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.2.0.3
-set HEADLINE=DCF #851,#846,#849 
+set VER=3.2.0.4
+set HEADLINE=DCF details
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 using Azos.Apps;
 using Azos.Client;
@@ -165,7 +166,7 @@ manc
     }
 
 
-    private async Task<MinIdpUserData> guardedIdpAccess(Func<Guid, Task<MinIdpUserData>> body)
+    private async Task<MinIdpUserData> guardedIdpAccess(Func<Guid, Task<MinIdpUserData>> body, [CallerMemberName] string callerPort = null)
     {
       var rel = ExecutionContext.CallFlow?.ID ?? Guid.NewGuid();
       try
@@ -173,7 +174,14 @@ manc
         if (ComponentEffectiveLogLevel < MessageType.Trace)
           WriteLog(MessageType.DebugA, nameof(guardedIdpAccess), "#001 IDP.Call", related: rel);
 
-        var result = await DistributedCallFlow.ExecuteBlockAsync(App, _ => body(rel), nameof(WebClientStore), rel).ConfigureAwait(false);
+        var result = await DistributedCallFlow.ExecuteBlockAsync(App,
+                                                                 _ => body(rel),
+                                                                 description: nameof(WebClientStore),
+                                                                 guid: rel,
+                                                                 directorName: null,
+                                                                 callerAgent: this.Name,
+                                                                 callerPort: $"{nameof(WebClientStore)}.{callerPort}"
+                                                                ).ConfigureAwait(false);
 
         if (ComponentEffectiveLogLevel < MessageType.Trace)
           WriteLog(MessageType.DebugA, nameof(guardedIdpAccess), "#002 IDP.Call result. User name: `{0}`".Args(result?.Name), related: rel);

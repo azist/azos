@@ -70,7 +70,7 @@ namespace Azos.Security.MinIdp
       ////GetLogicResult() treats null az 404
       return this.GetExplicitResult(ok: true,
                                     data,
-                                    httpStatus: data != null ? 200 : 204,
+                                    httpStatus: 200,
                                     httpStatusDescription: data != null ? "Ok" : "No data",
                                     idempotencyToken: null);
     }
