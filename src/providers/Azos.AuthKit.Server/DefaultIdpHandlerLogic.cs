@@ -260,7 +260,7 @@ namespace Azos.AuthKit.Server
         await applyEffectivePoliciesAsync(context).ConfigureAwait(false);
 
         //Log
-        var rel = Guid.NewGuid();
+        var rel = ExecutionContext.CallFlow?.ID ?? Guid.NewGuid();
         if (!context.HasResult && ComponentEffectiveLogLevel <= Log.MessageType.TraceErrors)
         {
           var parJson = new
