@@ -167,13 +167,13 @@ manc
 
     private async Task<MinIdpUserData> guardedIdpAccess(Func<Guid, Task<MinIdpUserData>> body)
     {
-      var rel = Guid.NewGuid();
+      var rel = ExecutionContext.CallFlow?.ID ?? Guid.NewGuid();
       try
       {
         if (ComponentEffectiveLogLevel < MessageType.Trace)
           WriteLog(MessageType.DebugA, nameof(guardedIdpAccess), "#001 IDP.Call", related: rel);
 
-        var result = await body(rel).ConfigureAwait(false);
+        var result = await DistributedCallFlow.ExecuteBlockAsync(App, _ => body(rel), nameof(WebClientStore), rel).ConfigureAwait(false);
 
         if (ComponentEffectiveLogLevel < MessageType.Trace)
           WriteLog(MessageType.DebugA, nameof(guardedIdpAccess), "#002 IDP.Call result. User name: `{0}`".Args(result?.Name), related: rel);
