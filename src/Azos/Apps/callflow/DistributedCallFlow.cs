@@ -34,27 +34,21 @@ namespace Azos.Apps
       /// <summary> FX internal method not to be used by developers </summary>
       internal void __SetSession(ISession session)
       {
+        string thisSession;
+
         if (session == null)
         {
-          Session = null;
-          return;
-        }
-
-        if (session is NOPSession)
+          thisSession = "null";
+        } else if (session is NOPSession)
         {
-          Session = "<nop>";
-          return;
-        }
-
-        if (session.User.Status > Security.UserStatus.Invalid)
+          thisSession = "nop";
+        } else if (session.User.Status > Security.UserStatus.Invalid)
         {
-          Session = $"{session.GetType().Name}({session.User.ToString().TakeFirstChars(48, "..")})";
-          return;
-        }
+          thisSession = $"{session.GetType().Name}({session.ID.ToString().TakeFirstChars(4)},<{session.User.ToString().TakeFirstChars(48, "..")}>,`{session.DataContextName.TakeLastChars(32, "..")}`)";
+        } else thisSession = $"{session.GetType().Name}({session.ID.ToString().TakeFirstChars(4)},INVAL,`{session.DataContextName}`)";
 
-        Session = $"{session.GetType().Name}(invusr)";
+        Session = (Session.IsNullOrWhiteSpace() ? thisSession : $"{Session}; {thisSession}").TakeLastChars(200, "...");
       }
-
 
       internal Step(IApplication app, ISession session, ICallFlow flow)
       {
@@ -62,6 +56,7 @@ namespace Azos.Apps
         __SetSession(session);
         App = app.AppId;
         AppInstance = app.InstanceId;
+        Origin = app.CloudOrigin;
         Host = Platform.Computer.HostName;
         Type = flow.GetType().Name;
 
@@ -114,6 +109,7 @@ namespace Azos.Apps
       public string   Session     { get; private set; }
       public Atom     App         { get; private set; }
       public Guid     AppInstance { get; private set; }
+      public Atom     Origin      { get; private set; }
       public string   Host        { get; private set; }
       public string   Type        { get; private set; }
 
@@ -133,6 +129,7 @@ namespace Azos.Apps
           Session = map["ssn"].AsString();
           App = map["app"].AsAtom();
           AppInstance = map["ain"].AsGUID(Guid.Empty);
+          Origin = map["org"].AsAtom(Atom.ZERO);
           Host = map["h"].AsString();
           Type = map["t"].AsString();
           ID = map["id"].AsGUID(Guid.Empty);
@@ -157,6 +154,7 @@ namespace Azos.Apps
           {"ssn", Session},
           {"app", App},
           {"ain", AppInstance.ToString("N")},
+          {"org", Origin},
           {"h", Host},
           {"t", Type},
           {"id", ID.ToString("N")},
@@ -335,7 +333,9 @@ namespace Azos.Apps
     public int Count => m_List.Count;
 
     /// <summary>
-    /// Returns a flow ID at the entry point of this distributed flow
+    /// Returns a flow ID at the entry point of this distributed flow, this way
+    /// you can correlated various distributed activities using the same guid id
+    /// as soon as it is generated at the very entry point
     /// </summary>
     public Guid ID => EntryPoint.ID;
 

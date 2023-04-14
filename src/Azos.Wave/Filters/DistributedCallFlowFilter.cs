@@ -70,7 +70,7 @@ namespace Azos.Wave.Filters
 
           if (dcflow == null && Establish)
           {
-            dcflow = DistributedCallFlow.Start(App, App.Description);
+            dcflow = DistributedCallFlow.Start(App, $"{App.AppId}/{App.Description}");
           }
         }
 

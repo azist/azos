@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 
 namespace Azos.Security
@@ -29,7 +28,7 @@ namespace Azos.Security
 
     /// <summary>
     /// If a scope is set then determines if that scope or any of its parents scopes have the specified flag returning true if they do.
-    /// False if there is no scope set or that flag is not set in call scope chain.
+    /// False if there is no scope set or that flag is not set in the call scope chain.
     /// You can checks for flag only in the inner-most scope by calling `Current?.HasFlag(flag, onlyCurrent: true)`
     /// </summary>
     public static bool CheckFlag(Atom flag)
