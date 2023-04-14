@@ -137,6 +137,18 @@ namespace Azos.Apps
     public static void __SetThreadLevelSessionContext(ISession session)
     {
       ats_Session.Value = session;
+
+      //20230414 DKh #846 #851
+      //Auto set session identity into most current (last) DCF step (if it is used)
+      //if we assign a non-null non-NOP session
+      if (session != null && session is not NOPSession)
+      {
+        var dcf = CallFlow as DistributedCallFlow;
+        if (dcf != null)
+        {
+          dcf.Current.__SetSession(session);
+        }
+      }
     }
 
     /// <summary>

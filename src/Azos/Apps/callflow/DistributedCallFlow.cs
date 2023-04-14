@@ -31,10 +31,35 @@ namespace Azos.Apps
     /// </summary>
     public sealed class Step : ICallFlow, IJsonReadable, IJsonWritable
     {
+      /// <summary> FX internal method not to be used by developers </summary>
+      internal void __SetSession(ISession session)
+      {
+        if (session == null)
+        {
+          Session = null;
+          return;
+        }
+
+        if (session is NOPSession)
+        {
+          Session = "<nop>";
+          return;
+        }
+
+        if (session.User.Status > Security.UserStatus.Invalid)
+        {
+          Session = $"{session.GetType().Name}({session.User.ToString().TakeFirstChars(48, "..")})";
+          return;
+        }
+
+        Session = $"{session.GetType().Name}(invusr)";
+      }
+
+
       internal Step(IApplication app, ISession session, ICallFlow flow)
       {
         Utc = app.TimeSource.UTCNow;
-        Session = session == null ? "<null>" : "{0}({1})".Args(session.GetType().Name, session.User.ToString().TakeFirstChars(32, ".."));
+        __SetSession(session);
         App = app.AppId;
         AppInstance = app.InstanceId;
         Host = Platform.Computer.HostName;
