@@ -1,6 +1,6 @@
 @echo on
 
-set VER=3.2.0.5
+set VER=3.2.0.6
 set HEADLINE=DCF session
 call build-all Release %VER%
 
