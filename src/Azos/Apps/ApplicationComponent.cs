@@ -315,7 +315,15 @@ namespace Azos.Apps
 
       msg.InitDefaultFields(App);
 
-      if (related.HasValue) msg.RelatedTo = related.Value;
+      if (related.HasValue)
+      {
+        msg.RelatedTo = related.Value;
+      }
+      else//20230417 DKh JPK JGW
+      {
+        var cfid = Ambient.CurrentCallFlow?.ID;
+        if (cfid.HasValue) msg.RelatedTo = cfid.Value;
+      }
 
       App.Log.Write(msg);
 
