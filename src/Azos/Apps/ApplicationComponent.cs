@@ -10,6 +10,7 @@ using System.Linq;
 
 using Azos.Conf;
 using Azos.Instrumentation;
+using Azos.Serialization.JSON;
 
 namespace Azos.Apps
 {
@@ -241,6 +242,13 @@ namespace Azos.Apps
     public Log.MessageType? ComponentLogLevel { get; set; }
 
     /// <summary>
+    /// When set to true, prevents auto `ErrorInfo` generation for error log messages
+    /// </summary>
+    [Config]
+    [ExternalParameter(CoreConsts.EXT_PARAM_GROUP_LOG)]
+    public virtual bool ComponentLogSuppressAutoErrorInfo { get; set; }
+
+    /// <summary>
     /// Determines the effective log level for this component, taking it from director if it is not defined on this level
     /// </summary>
     public virtual Log.MessageType ComponentEffectiveLogLevel
@@ -326,6 +334,38 @@ namespace Azos.Apps
       }
 
       App.Log.Write(msg);
+
+      //#855 20230418 DKh
+      if (type >= Log.MessageType.Error &&
+          !ComponentLogSuppressAutoErrorInfo &&
+          ExecutionContext.CallFlow is DistributedCallFlow dcf &&
+          !dcf.WasLogged)//emit ErroInfo
+      {
+        dcf.SetWasLogged();//prevent multiple logging in the dcf
+
+        var eiParJson = new
+        {
+          iderr = msg.Guid, //guid of parent error message
+          call = dcf//distributed call flow
+        }.ToJson(JsonWritingOptions.CompactASCII);
+
+        var eimsg = new Log.Message
+        {
+          App = msg.App,
+          Topic = msg.Topic,
+          From = msg.From,
+          Type = Log.MessageType.ErrorInfo,
+          Source = msg.Source,
+          Text = msg.Guid.ToString("N"),
+          Exception = null,
+          Parameters = eiParJson,
+        };
+
+        eimsg.RelatedTo = msg.RelatedTo;
+        if (eimsg.RelatedTo == Guid.Empty) eimsg.RelatedTo = msg.Guid;
+
+        App.Log.Write(eimsg);
+      }//ErrorInfo
 
       return msg.Guid;
     }

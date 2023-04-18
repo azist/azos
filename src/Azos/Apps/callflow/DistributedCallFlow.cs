@@ -127,7 +127,7 @@ namespace Azos.Apps
         {
           Utc = map["utc"].AsLong(0).FromMillisecondsSinceUnixEpochStart();
           Session = map["ssn"].AsString();
-          App = map["app"].AsAtom();
+          App = map["app"].AsAtom(Atom.ZERO);
           AppInstance = map["ain"].AsGUID(Guid.Empty);
           Origin = map["org"].AsAtom(Atom.ZERO);
           Host = map["h"].AsString();
@@ -139,7 +139,9 @@ namespace Azos.Apps
           CallerPort = map["cpr"].AsString();
 
           if (map["items"] is JsonDataMap items)
+          {
             m_Items = new ConcurrentDictionary<string, object>(items);
+          }
 
           return (true, this);
         }
@@ -150,25 +152,29 @@ namespace Azos.Apps
       {
         var map = new JsonDataMap
         {
-          {"utc", Utc.ToMillisecondsSinceUnixEpochStart()},
-          {"ssn", Session},
-          {"app", App},
-          {"ain", AppInstance.ToString("N")},
-          {"org", Origin},
-          {"h", Host},
-          {"t", Type},
           {"id", ID.ToString("N")},
-          {"dir", DirectorName},
-          {"cad", CallerAddress},
-          {"cag", CallerAgent},
-          {"cpr", CallerPort}
+          {"utc", Utc.ToMillisecondsSinceUnixEpochStart()},
+          {"ain", AppInstance.ToString("N")},
         };
+
+        if (Session.IsNotNullOrWhiteSpace()) map["ssn"] = Session;
+        if (!App.IsZero)                     map["app"] = App;
+        if (!Origin.IsZero)                  map["org"] = Origin;
+        if (Host.IsNotNullOrWhiteSpace())    map["h"] = Host;
+        if (Type.IsNotNullOrWhiteSpace())    map["t"] = Type;
+        if (DirectorName.IsNotNullOrWhiteSpace())  map["dir"] = DirectorName;
+        if (CallerAddress.IsNotNullOrWhiteSpace()) map["cad"] = CallerAddress;
+        if (CallerAgent.IsNotNullOrWhiteSpace())   map["cag"] = CallerAgent;
+        if (CallerPort.IsNotNullOrWhiteSpace())    map["cpr"] = CallerPort;
+
 
         var items = m_Items;
         if (items != null)
-         map["items"] = items;
+        {
+          map["items"] = items;
+        }
 
-        JsonWriter.WriteMap(wri, map, nestingLevel+1, options);
+        JsonWriter.WriteMap(wri, map, nestingLevel + 1, options);
       }
     }
 
@@ -293,6 +299,7 @@ namespace Azos.Apps
       }
     }
 
+    private bool m_WasLogged;
     private string m_Description;
     private List<Step> m_List = new List<Step>();
 
@@ -301,6 +308,17 @@ namespace Azos.Apps
     /// It can only be set at the call flow start
     /// </summary>
     public string Description => m_Description;
+
+
+    /// <summary>
+    /// True if this call was already logged and <see cref=""/> was called
+    /// </summary>
+    public bool WasLogged => m_WasLogged;
+
+    /// <summary>
+    /// Sets WasLogged to prevent duplicated logging
+    /// </summary>
+    public void SetWasLogged(bool v = true) => m_WasLogged = v;
 
     /// <summary>
     /// Returns the very first call flow frame which represents the entry point into a distributed call flow
