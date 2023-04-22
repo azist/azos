@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.2.0.6
-set HEADLINE=DCF session
+set VER=3.2.0.7
+set HEADLINE=#855 DCF tracing
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
