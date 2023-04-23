@@ -20,17 +20,28 @@ namespace Azos.Data.Replication
     Deleted = -1
   }
 
+  //Why Doc? Because it is universally "teleportable" using Bix or Json (or others).
+  //DOC storage format may DIFFER between nodes due to their storage engine differences.
+  //As replication does not have to match storage technology per node we may need to take data
+  //say from Mongo and store data say in MySql.
+  //We can not store data in a "envelope/frame" because we may need to get access to such data during
+  //"merge" replication conflict resolution (e.g. is CRDT is used). A simple replicator will merge by applying
+  //"the last wins" strategy, but complex will delegate to "Merge" method that needs all data fields available.
+
   /// <summary>
-  /// Denotes a data entity which can be replicated from/into another storage system/node instance
+  /// Defines a unit of replication - a data document which can be replicated from/into another storage system/node instance.
+  /// Replication is keyed on <see cref="Repl_Id"/> immutable surrogate primary key which is always universally present
+  /// to define document instance identity. The system pulls document from the "other side" matching local ones by these ids
+  /// and then compares the logical version information <see cref="Repl_VerUtc"/>
   /// </summary>
-  public interface IReplicable
+  public interface IReplicableDoc : IDataDoc
   {
     /// <summary>
     /// Gets primary key/id of the item being replicated. It is always required.
     /// This id may not change after item creation, it does not depend on version.
     /// An item must be uniquely-identifiable by such an id in a cross-origin cluster
     /// </summary>
-    RGDID Repl_Id {  get; }
+    RGDID Repl_Id { get; }
 
     /// <summary>
     /// Specifies data version state: Created|Modified|Deleted.
@@ -49,7 +60,7 @@ namespace Azos.Data.Replication
     /// this value is used to prevent circular traffic - in multi-master situations so the
     /// same event does not get replicated multiple times across regions (data centers)
     /// </summary>
-    Atom Repl_VerOrigin {  get; }
+    Atom Repl_VerOrigin { get; }
 
     /// <summary>
     /// Version Server Node id - what node within origin the change originated on
