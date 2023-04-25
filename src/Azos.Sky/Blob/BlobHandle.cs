@@ -21,13 +21,26 @@ namespace Azos.Sky.Blob
   /// </summary>
   public sealed class BlobHandle : System.IO.Stream
   {
+    internal BlobHandle(int bufferSize, bool readOnly)
+    {
 
+      m_Buffer = new byte[bufferSize.KeepBetween(1024, 1024 * 1024)];
+      m_ReadOnly = readOnly;
+    }
+
+
+    private byte[] m_Buffer;
 
     private GDID m_Gdid;
     private EntityId m_Id;
     private IConfigSectionNode m_Headers;
     private Tag[] m_Tags;
     private bool m_ReadOnly;
+
+    /// <summary>
+    /// Local buffer size
+    /// </summary>
+    public int BufferSize => m_Buffer.Length;
 
     public override bool CanRead => true;
     public override bool CanSeek => true;
