@@ -2,3 +2,5 @@
 
 2023, April 25 DKh
 
+- add permissions
+- add events to notify of blolb changes

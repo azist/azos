@@ -22,6 +22,7 @@ namespace Azos.Sky.Blob
   public sealed class BlobHandle : System.IO.Stream
   {
 
+
     private GDID m_Gdid;
     private EntityId m_Id;
     private IConfigSectionNode m_Headers;

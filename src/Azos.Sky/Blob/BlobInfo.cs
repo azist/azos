@@ -30,5 +30,10 @@ namespace Azos.Sky.Blob
 
     [Field(required: true, maxLength: Constraints.MAX_TAG_COUNT, Description = "Indexable tags")]
     public List<Tag> Tags { get; set; }
+
+
+    [Field(required: true, Description = "When the file was created")]
+    public DateTime CreateUtc { get; set; }
+
   }
 }

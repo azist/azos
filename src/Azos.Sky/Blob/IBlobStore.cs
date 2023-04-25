@@ -23,24 +23,44 @@ namespace Azos.Sky.Blob
   public interface IBlobStore
   {
     /// <summary>
-    /// Returns a sequence of volume ids known to the system
+    /// Returns a list of all known blob data spaces on the server
     /// </summary>
-    Task<IEnumerable<Atom>> GetVolumeNamesAsync();
+    Task<IEnumerable<Atom>> GetSpaceNamesAsync();
 
+    /// <summary>
+    /// Returns volume ids known to the system for the specified space
+    /// </summary>
+    Task<IEnumerable<Atom>> GetVolumeNamesAsync(Atom space);
+
+    /// <summary>
+    /// Gets a list of blob info objects per specified filter, for example
+    /// you can filter blobs by tags such as logical file names and paths
+    /// </summary>
     Task<IEnumerable<BlobInfo>> FindBlobsAsync(BlobFilter filter);
 
     /// <summary>
-    /// Opens a <see cref="BlobHandle"/> for an existing blob, or creates anew blob.
+    /// Create a new blob and opens a <see cref="BlobHandle"/> instance
     /// </summary>
-    /// <param name="id">If of a blob in `volume@system::name` format <see cref="EntityId"/></param>
-    /// <param name="headers">Optional headers to set if blob does not exist</param>
-    /// <param name="tags">Optional tags to set if blob does not exist</param>
+    /// <param name="id">If of a blob in `volume@space::name` format <see cref="EntityId"/></param>
+    /// <param name="permissions">Optional permissions section with 3 sub-sections: read/write/delete</param>
+    /// <param name="headers">Optional headers to set</param>
+    /// <param name="tags">Optional tags to set</param>
+    /// <param name="bufferSize">Local buffer size. 0 = default</param>
+    /// <returns>Instance of <see cref="BlobHandle"/> which must be disposed</returns>
+    Task<BlobHandle> CreateAsync(EntityId id,
+                               IConfigSectionNode permissions = null,
+                               IConfigSectionNode headers = null,
+                               IEnumerable<Tag> tags = null,
+                               int bufferSize = 0);
+
+    /// <summary>
+    /// Opens a <see cref="BlobHandle"/> for an existing blob. If does not exist returns null
+    /// </summary>
+    /// <param name="id">If of a blob in `volume@space::name` format <see cref="EntityId"/></param>
     /// <param name="bufferSize">Local buffer size. 0 = default</param>
     /// <param name="readOnly">Open stream for read-only mode</param>
     /// <returns>Instance of <see cref="BlobHandle"/> which must be disposed</returns>
     Task<BlobHandle> OpenAsync(EntityId id,
-                               IConfigSectionNode headers = null,
-                               IEnumerable<Tag> tags = null,
                                int bufferSize = 0,
                                bool readOnly = false);
 

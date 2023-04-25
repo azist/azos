@@ -21,6 +21,12 @@ namespace Azos.Sky.Blob
   public sealed class BlobFilter : FilterModel<IEnumerable<BlobInfo>>
   {
     /// <summary>
+    /// File space
+    /// </summary>
+    [Field(required: true, Description = "File space")]
+    public Atom Space { get; set; }
+
+    /// <summary>
     /// File volume
     /// </summary>
     [Field(required: true, Description = "File volume")]
