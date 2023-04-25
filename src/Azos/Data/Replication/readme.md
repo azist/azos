@@ -21,3 +21,11 @@ Cons:
 - No support for instant synchronous change across origins (however it can be added as OOB updates)
 - Large node catch-up takes time (e.g. days for 100s mill records)
 - Higher competency of app architects and engineers
+
+
+## Details
+
+- Replication is between logical nodes
+- Nodes may have different number of shards; for example a writable master copy has 4 shards for speed
+  but a backup node may have 1 large disk shard for storage 
+- 
