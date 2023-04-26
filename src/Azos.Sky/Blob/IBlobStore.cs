@@ -77,5 +77,7 @@ namespace Azos.Sky.Blob
 
   public interface IBlobStoreLogic : IBlobStore, IBusinessLogic
   {
+    Task<(VolatileBlobInfo info, byte[] read)> ReadBlockAsync(GDID gBlob, long offset, int count);
+    Task<VolatileBlobInfo> WriteBlockAsync(GDID gBlob, long offset, ArraySegment<byte> buffer);
   }
 }

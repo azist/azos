@@ -32,8 +32,31 @@ namespace Azos.Sky.Blob
     public List<Tag> Tags { get; set; }
 
 
-    [Field(required: true, Description = "When the file was created")]
-    public DateTime CreateUtc { get; set; }
+    [Field(required: true, Description = "When the blob was created")]
+    public DateTime CreatedUtc { get; set; }
 
+    [Field(required: true, Description = "Who created blob")]
+    public EntityId CreatedBy { get; set; }
+
+    [Field(required: true, Description = "Blob volatile information")]
+    public VolatileBlobInfo Volatile { get; set; }
+  }
+
+  /// <summary>
+  /// Provides blob volatile information
+  /// </summary>
+  [Bix("535e48ae-6355-4aba-ad7d-258658b1b8c0")]
+  [Schema(Description = "Provides blob volatile information, such as modify stamps and size")]
+  public sealed class VolatileBlobInfo : FragmentModel
+  {
+    [Field(required: true, Description = "Total blob length")]
+    public long TotalLength { get; set; }
+
+
+    [Field(required: true, Description = "When the blob was created")]
+    public DateTime ModifiedUtc { get; set; }
+
+    [Field(required: true, Description = "Who created blob")]
+    public EntityId ModifiedBy { get; set; }
   }
 }

@@ -12,6 +12,7 @@ using Azos.Conf;
 using Azos.Data;
 using Azos.Data.Adlib;
 using Azos.Data.Business;
+using Azos.Serialization.JSON;
 
 namespace Azos.Sky.Blob
 {
@@ -19,15 +20,34 @@ namespace Azos.Sky.Blob
   /// Represents a handle through which you work with blobs. It is a stream which you can seek/read/write.
   /// The instances needs to be deterministically disposed
   /// </summary>
-  public sealed class BlobHandle : System.IO.Stream
+  public abstract class BlobHandle : System.IO.Stream
   {
-    internal BlobHandle(int bufferSize, bool readOnly)
+    protected BlobHandle(IBlobStoreLogic logic, int bufferSize, bool readOnly)
     {
-
+      m_Store = logic.NonNull(nameof(logic));
       m_Buffer = new byte[bufferSize.KeepBetween(1024, 1024 * 1024)];
       m_ReadOnly = readOnly;
     }
 
+    protected sealed override void Dispose(bool disposing)
+    {
+      base.Dispose(disposing);
+
+      var store = System.Threading.Interlocked.Exchange(ref m_Store, null);
+      if (store != null) Destructor(store);
+    }
+
+    /// <summary>
+    /// Override to dispose additional resources when handle gets closed.
+    /// Called once for the specified store
+    /// </summary>
+    protected virtual void Destructor(IBlobStoreLogic store)
+    {
+    }
+
+
+
+    private IBlobStoreLogic m_Store;
 
     private byte[] m_Buffer;
 
@@ -36,24 +56,43 @@ namespace Azos.Sky.Blob
     private IConfigSectionNode m_Headers;
     private Tag[] m_Tags;
     private bool m_ReadOnly;
+    private EntityId m_CreatedBy;
+    private DateTime m_CreatedUtc;
+
+
+    private EntityId m_LastModifiedBy;
+    private DateTime m_LastModifiedUtc;
+    private long m_LastLength;
+
+
+    /// <summary>
+    /// Store which opened the handle
+    /// </summary>
+    public IBlobStore Store => m_Store;
+
 
     /// <summary>
     /// Local buffer size
     /// </summary>
     public int BufferSize => m_Buffer.Length;
 
+    public EntityId CreatedBy => m_CreatedBy;
+    public DateTime CreatedUtc => m_CreatedUtc;
+
+    public EntityId LastModifiedBy => m_LastModifiedBy;
+    public DateTime LastModifiedUtc => m_LastModifiedUtc;
+
+
     public override bool CanRead => true;
     public override bool CanSeek => true;
     public override bool CanWrite => !m_ReadOnly;
-    public override long Length => throw new NotImplementedException();
+
+    /// <summary> Last known length </summary>
+    public override long Length => m_LastLength;
 
     public override long Position { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
-    protected override void Dispose(bool disposing)
-    {
-     // m_FS.Dispose();
-      base.Dispose(disposing);
-    }
+
 
     public override void Flush()
     {
