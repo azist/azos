@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.2.0.7
-set HEADLINE=#855 DCF tracing
+set VER=3.2.0.8
+set HEADLINE=#860 Adlib content len limit
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
