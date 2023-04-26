@@ -1,7 +1,10 @@
-﻿using Azos.Data.Idgen;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿/*<FILE_LICENSE>
+ * Azos (A to Z Application Operating System) Framework
+ * The A to Z Foundation (a.k.a. Azist) licenses this file to you under the MIT license.
+ * See the LICENSE file in the project root for more information.
+</FILE_LICENSE>*/
+
+using Azos.Data.Idgen;
 
 namespace Azos.Data.Adlib
 {
@@ -14,6 +17,7 @@ namespace Azos.Data.Adlib
 
     public const int MAX_HEADERS_LENGTH = 8 * 1024;
     public const int MAX_CONTENT_LENGTH = 10 * 1024 * 1024;
+    public const int MAX_STRING_REPRESENTATION_CONTENT_LENGTH = MAX_CONTENT_LENGTH * 3;//hex encoding(2chars plus coma) or base64 encoding
     public const int MAX_TAG_COUNT = 128;
     public const int MAX_SHARD_TOPIC_LEN = 128;
 

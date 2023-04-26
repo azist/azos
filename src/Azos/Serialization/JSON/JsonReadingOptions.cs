@@ -80,6 +80,13 @@ namespace Azos.Serialization.JSON
     }
 
     /// <summary>
+    /// Creates instance by cloning the default limits; used for attribute decorations
+    /// </summary>
+    public JsonReadingOptions(bool useDefaultLimits) : this(useDefaultLimits ? s_DefaultLimits : s_NoLimits)
+    {
+    }
+
+    /// <summary>
     /// Creates instance by cloning the existing one, such an immutable system one
     /// </summary>
     public JsonReadingOptions(JsonReadingOptions other)
