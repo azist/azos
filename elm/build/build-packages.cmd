@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.2.0.8
-set HEADLINE=#860 Adlib content len limit
+set VER=3.2.0.9
+set HEADLINE=#860 Json web call limits default
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

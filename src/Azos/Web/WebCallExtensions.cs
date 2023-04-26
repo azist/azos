@@ -114,13 +114,13 @@ namespace Azos.Web
     /// Gets string response containing json and returns it as JsonDataMap.
     /// This method does not use headers and aspects ind is kept for legacy use
     /// </summary>
-    public static async Task<JsonDataMap> GetJsonMapDirectAsync(this HttpClient client, string uri)
+    public static async Task<JsonDataMap> GetJsonMapDirectAsync(this HttpClient client, string uri, JsonReadingOptions ropt = null)
     {
       var raw = await client.NonNull(nameof(client))
                             .GetStringAsync(uri.NonBlank(nameof(uri)))
                             .ConfigureAwait(false);
 
-      var jdm = raw.JsonToDataObject() as JsonDataMap;
+      var jdm = raw.JsonToDataObject(ropt: ropt ?? JsonReadingOptions.NoLimits) as JsonDataMap;
       return jdm.NonNull(StringConsts.WEB_CALL_RETURN_JSONMAP_ERROR.Args(raw.TakeFirstChars(32)));
     }
 
@@ -136,8 +136,9 @@ namespace Azos.Web
                                                           JsonWritingOptions options = null,
                                                           bool fetchErrorContent = true,
                                                           IEnumerable<KeyValuePair<string, string>> requestHeaders = null,
-                                                          Func<object> fGetIdentityContext = null)
-     => await CallAndGetJsonMapAsync(client, uri, HttpMethod.Get, body, contentType, options, fetchErrorContent, requestHeaders, fGetIdentityContext).ConfigureAwait(false);
+                                                          Func<object> fGetIdentityContext = null,
+                                                          JsonReadingOptions ropt = null)
+     => await CallAndGetJsonMapAsync(client, uri, HttpMethod.Get, body, contentType, options, fetchErrorContent, requestHeaders, fGetIdentityContext, ropt).ConfigureAwait(false);
 
 
     /// <summary>
@@ -151,8 +152,9 @@ namespace Azos.Web
                                                                   JsonWritingOptions options = null,
                                                                   bool fetchErrorContent = true,
                                                                   IEnumerable<KeyValuePair<string, string>> requestHeaders = null,
-                                                                  Func<object> fGetIdentityContext = null)
-     => await CallAndGetJsonMapAsync(client, uri, HttpMethod.Post, body, contentType, options, fetchErrorContent, requestHeaders, fGetIdentityContext).ConfigureAwait(false);
+                                                                  Func<object> fGetIdentityContext = null,
+                                                                  JsonReadingOptions ropt = null)
+     => await CallAndGetJsonMapAsync(client, uri, HttpMethod.Post, body, contentType, options, fetchErrorContent, requestHeaders, fGetIdentityContext, ropt).ConfigureAwait(false);
 
 
 
@@ -167,8 +169,9 @@ namespace Azos.Web
                                                                      JsonWritingOptions options = null,
                                                                      bool fetchErrorContent = true,
                                                                      IEnumerable<KeyValuePair<string, string>> requestHeaders = null,
-                                                                     Func<object> fGetIdentityContext = null)
-     => await CallAndGetJsonMapAsync(client, uri, HttpMethod.Put, body, contentType, options, fetchErrorContent, requestHeaders, fGetIdentityContext).ConfigureAwait(false);
+                                                                     Func<object> fGetIdentityContext = null,
+                                                                     JsonReadingOptions ropt = null)
+     => await CallAndGetJsonMapAsync(client, uri, HttpMethod.Put, body, contentType, options, fetchErrorContent, requestHeaders, fGetIdentityContext, ropt).ConfigureAwait(false);
 
 
 
@@ -185,8 +188,9 @@ namespace Azos.Web
                                                                     JsonWritingOptions options = null,
                                                                     bool fetchErrorContent = true,
                                                                     IEnumerable<KeyValuePair<string, string>> requestHeaders = null,
-                                                                    Func<object> fGetIdentityContext = null)
-     => await CallAndGetJsonMapAsync(client, uri, PATCH, body, contentType, options, fetchErrorContent, requestHeaders, fGetIdentityContext).ConfigureAwait(false);
+                                                                    Func<object> fGetIdentityContext = null,
+                                                                    JsonReadingOptions ropt = null)
+     => await CallAndGetJsonMapAsync(client, uri, PATCH, body, contentType, options, fetchErrorContent, requestHeaders, fGetIdentityContext, ropt).ConfigureAwait(false);
 
 
     /// <summary>
@@ -200,8 +204,9 @@ namespace Azos.Web
                                                                      JsonWritingOptions options = null,
                                                                      bool fetchErrorContent = true,
                                                                      IEnumerable<KeyValuePair<string, string>> requestHeaders = null,
-                                                                     Func<object> fGetIdentityContext = null)
-     => await CallAndGetJsonMapAsync(client, uri, HttpMethod.Delete, body, contentType, options, fetchErrorContent, requestHeaders, fGetIdentityContext).ConfigureAwait(false);
+                                                                     Func<object> fGetIdentityContext = null,
+                                                                     JsonReadingOptions ropt = null)
+     => await CallAndGetJsonMapAsync(client, uri, HttpMethod.Delete, body, contentType, options, fetchErrorContent, requestHeaders, fGetIdentityContext, ropt).ConfigureAwait(false);
 
 
 
@@ -218,7 +223,8 @@ namespace Azos.Web
                                                                       JsonWritingOptions options = null,
                                                                       bool fetchErrorContent = true,
                                                                       IEnumerable<KeyValuePair<string, string>> requestHeaders = null,
-                                                                      Func<object> fGetIdentityContext = null)
+                                                                      Func<object> fGetIdentityContext = null,
+                                                                      JsonReadingOptions ropt = null)
     {
       client.NonNull(nameof(client));
       method.NonNull(nameof(method));
@@ -314,7 +320,7 @@ namespace Azos.Web
                                        response.ReasonPhrase,
                                        raw.TakeFirstChars(CALL_ERROR_CONTENT_MAX_LENGTH, "..."));
 
-          return (raw.JsonToDataObject() as JsonDataMap).NonNull(StringConsts.WEB_CALL_RETURN_JSONMAP_ERROR.Args(raw.TakeFirstChars(48)));
+          return (raw.JsonToDataObject(ropt: ropt ?? JsonReadingOptions.NoLimits) as JsonDataMap).NonNull(StringConsts.WEB_CALL_RETURN_JSONMAP_ERROR.Args(raw.TakeFirstChars(48)));
         }//using response
       }//using request
     }
