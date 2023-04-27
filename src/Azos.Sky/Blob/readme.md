@@ -4,3 +4,5 @@
 
 - add permissions
 - add events to notify of blolb changes
+- auto expiry/AbsoluteEndDateUtc
+  the sliding exporation logic is nOT in scope here

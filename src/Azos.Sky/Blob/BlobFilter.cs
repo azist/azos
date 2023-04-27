@@ -38,6 +38,12 @@ namespace Azos.Sky.Blob
     [Field(description: "File header GDID")]
     public GDID Gdid { get; set; }
 
+    /// <summary>
+    /// File name
+    /// </summary>
+    [Field(description: "File name")]
+    public string Name { get; set; }
+
     [Field(description: "Tag filter expression tree")]
     public Expression TagFilter { get; set; }
 
