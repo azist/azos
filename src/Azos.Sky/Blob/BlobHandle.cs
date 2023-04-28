@@ -21,7 +21,8 @@ namespace Azos.Sky.Blob
   /// The instances needs to be deterministically disposed.
   /// The implementation does not provide buffering so you need to optimize tiny/scattered reads in the calling code.
   /// </summary>
-  public abstract class BlobHandle : Stream
+  /// <remarks>You can extend this class along with <see cref="IBlobStoreLogic"/> custom implementation</remarks>
+  public class BlobHandle : Stream
   {
     protected BlobHandle(IBlobStoreLogic store,
                          BlobHandleDescriptor descriptor,
