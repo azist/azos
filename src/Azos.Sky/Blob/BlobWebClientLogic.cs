@@ -65,7 +65,7 @@ namespace Azos.Sky.Blob
                                                                  new object[] { nServer });
     }
 
-    protected override bool DoApplicationAfterInit()
+    protected override bool DoApplicationAfterInit()//add a comment
     {
       m_Server.NonNull("Not configured Server of config section `{0}`".Args(CONFIG_SERVICE_SECTION));
       BlobServiceAddress.NonBlank(nameof(BlobServiceAddress));
