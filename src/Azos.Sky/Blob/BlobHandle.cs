@@ -24,27 +24,20 @@ namespace Azos.Sky.Blob
   public abstract class BlobHandle : Stream
   {
     protected BlobHandle(IBlobStoreLogic store,
-                         RGDID rgdid,
-                         EntityId id,
-                         int blockSize,
-                         IConfigSectionNode headers,
-                         Tag[] tags,
-                         EntityId createdBy,
-                         DateTime cratedUtc,
-                         bool readOnly,
-                         DateTime? endUtc,
-                         VolatileBlobInfo vinfo)
+                         BlobHandleDescriptor descriptor,
+                         VolatileBlobInfo vinfo,
+                         bool readOnly)
     {
       m_Store = store.NonNull(nameof(store));
-      m_RGdid = rgdid.HasRequiredValue(nameof(rgdid));
-      m_Id = Constraints.ValidBlobId(id);
-      m_BlockSize = Constraints.GuardBlockSize(blockSize);
-      m_Headers = headers ?? Configuration.NewEmptyRoot(Constraints.CONFIG_HEADERS_SECTION);
-      m_Tags = tags ?? new Tag[0];
-      m_CreatedBy = createdBy;
-      m_CreatedUtc = cratedUtc;
+      m_RGdid = descriptor.NonNull(nameof(descriptor)).RGdid.HasRequiredValue(nameof(BlobHandleDescriptor.RGdid));
+      m_Id = Constraints.ValidBlobId(descriptor.Id);
+      m_BlockSize = Constraints.GuardBlockSize(descriptor.BlockSize);
+      m_Headers = descriptor?.Headers.Node ?? Configuration.NewEmptyRoot(Constraints.CONFIG_HEADERS_SECTION);
+      m_Tags = descriptor.Tags ?? new Tag[0];
+      m_CreatedBy = descriptor.CreatedBy;
+      m_CreatedUtc = descriptor.CreatedUtc;
+      m_EndUtc = descriptor.EndUtc;
       m_ReadOnly = readOnly;
-      m_EndUtc = endUtc;
       UpdateLatestStatus(vinfo);
     }
 

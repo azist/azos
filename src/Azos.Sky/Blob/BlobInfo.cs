@@ -26,7 +26,7 @@ namespace Azos.Sky.Blob
     /// Blob unique gdid per volume
     /// </summary>
     [Field(required: true, Description = "Blob unique gdid per volume")]
-    public GDID Gdid { get; set; }
+    public RGDID RGdid { get; set; }
 
     [Field(required: true, maxLength: Constraints.TAG_COUNT_MAX, Description = "Indexable tags")]
     public List<Tag> Tags { get; set; }
