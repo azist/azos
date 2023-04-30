@@ -80,7 +80,6 @@ namespace Azos
       return target;
     }
 
-
     /// <summary>
     /// Writes exception message with exception type
     /// </summary>
@@ -88,7 +87,7 @@ namespace Azos
     public static string ToMessageWithType(this Exception error)
     {
       if (error == null) return null;
-      return "[{0}] {1}".Args(error.GetType().FullName, error.Message);
+      return $"[{error.GetType().FullName}] {error.Message}";
     }
 
     /// <summary>

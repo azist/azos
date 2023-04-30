@@ -1095,6 +1095,8 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string WEB_CALL_RETURN_JSONMAP_ERROR = "The received content is not representable as JsonDataMap: '{0}..'";
     public const string WEB_CALL_UNSUCCESSFUL_ERROR = "Web call to `...{0}` was unsuccessful: HTTP {1} - {2}";
 
+    public const string WEB_CALL_UNSUCCESSFUL_RESPONSE_ERROR = "Web call to `...{0}` returned HTTP {1} - {2} but failed on reading the response: {3}";
+
 
     public const string AROW_SATELLITE_ASSEMBLY_NAME_ERROR = "Could not find serialization satellite for assembly `{0}` as the name pattern does not match. The source assembly file name must end with `*.dll` by convention";
     public const string AROW_SATELLITE_ASSEMBLY_LOAD_ERROR = "Satellite assembly `{0}` load failure: {1}";

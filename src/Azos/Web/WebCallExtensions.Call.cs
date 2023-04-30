@@ -11,8 +11,6 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
-using Azos.Apps;
-using Azos.Data;
 using Azos.Serialization.JSON;
 
 namespace Azos.Web
@@ -24,18 +22,80 @@ namespace Azos.Web
     /// A body is a string, a binary blob or object converted to json using JsonWritingOptions.
     /// Optional fGetIdentityContext is used to create impersonation auth tokens - defines what identity is for the call.
     /// </summary>
-    public static async Task<JsonDataMap> CallAndGetJsonMapAsync(this HttpClient client,
-                                                                      string uri,
-                                                                      HttpMethod method,
-                                                                      object body,
-                                                                      string contentType = null,
-                                                                      JsonWritingOptions options = null,
-                                                                      bool fetchErrorContent = true,
-                                                                      IEnumerable<KeyValuePair<string, string>> requestHeaders = null,
-                                                                      Func<object> fGetIdentityContext = null,
-                                                                      JsonReadingOptions ropt = null)
+    public static Task<JsonDataMap> CallAndGetJsonMapAsync(this HttpClient client,
+                                                                string uri,
+                                                                HttpMethod method,
+                                                                object body,
+                                                                string contentType = null,
+                                                                JsonWritingOptions options = null,
+                                                                bool fetchErrorContent = true,
+                                                                IEnumerable<KeyValuePair<string, string>> requestHeaders = null,
+                                                                Func<object> fGetIdentityContext = null,
+                                                                JsonReadingOptions ropt = null)
+    => CallAsync(client,
+                  async response =>
+                  {
+                    var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                    var obj = JsonReader.DeserializeDataObject(json, ropt: ropt ?? JsonReadingOptions.NoLimits);
+                    var map = (obj as JsonDataMap).NonNull(StringConsts.WEB_CALL_RETURN_JSONMAP_ERROR.Args(json.TakeFirstChars(48)));
+                    return map;
+                  },
+                  response => response.Content.ReadAsStringAsync(),
+                  uri,
+                  method,
+                  body,
+                  contentType,
+                  options,
+                  fetchErrorContent,
+                  requestHeaders,
+                  fGetIdentityContext);
+
+    /// <summary>
+    /// Calls an arbitrary HttpMethod with the specified entity body on a remote endpoint returning response content as a `byte[]` on success.
+    /// A body is a string, a binary blob or object converted to json using JsonWritingOptions.
+    /// Optional fGetIdentityContext is used to create impersonation auth tokens - defines what identity is for the call.
+    /// </summary>
+    public static Task<byte[]> CallAndGetByteArrayAsync(this HttpClient client,
+                                                        string uri,
+                                                        HttpMethod method,
+                                                        object body,
+                                                        string contentType = null,
+                                                        JsonWritingOptions options = null,
+                                                        bool fetchErrorContent = true,
+                                                        IEnumerable<KeyValuePair<string, string>> requestHeaders = null,
+                                                        Func<object> fGetIdentityContext = null)
+    => CallAsync(client,
+                  response => response.Content.ReadAsByteArrayAsync(),
+                  response => response.Content.ReadAsStringAsync(),
+                  uri,
+                  method,
+                  body,
+                  contentType,
+                  options,
+                  fetchErrorContent,
+                  requestHeaders,
+                  fGetIdentityContext);
+
+    /// <summary>
+    /// Calls an arbitrary HttpMethod with the specified entity body on a remote endpoint returning a JsonDataMap result on success.
+    /// A body is a string, a binary blob or object converted to json using JsonWritingOptions.
+    /// Optional fGetIdentityContext is used to create impersonation auth tokens - defines what identity is for the call.
+    /// </summary>
+    public static async Task<TResult> CallAsync<TResult>(this HttpClient client,
+                                                          Func<HttpResponseMessage, Task<TResult>> fOkResultGetter,
+                                                          Func<HttpResponseMessage, Task<string>> fErrorStringResultGetter,
+                                                          string uri,
+                                                          HttpMethod method,
+                                                          object body,
+                                                          string contentType = null,
+                                                          JsonWritingOptions options = null,
+                                                          bool fetchErrorContent = true,
+                                                          IEnumerable<KeyValuePair<string, string>> requestHeaders = null,
+                                                          Func<object> fGetIdentityContext = null)
     {
       client.NonNull(nameof(client));
+      fOkResultGetter.NonNull(nameof(fOkResultGetter));
+      fErrorStringResultGetter.NonNull(nameof(fErrorStringResultGetter));
       method.NonNull(nameof(method));
       uri.NonNull(nameof(uri));
 
@@ -100,10 +160,33 @@ namespace Azos.Web
         {
 
           var isSuccess = response.IsSuccessStatusCode;
-          string raw = string.Empty;
-          if (isSuccess || fetchErrorContent)
+
+          TResult result = default;
+          string rawError = string.Empty;
+
+          try
           {
-            raw = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            if (isSuccess)
+            {
+              result = await fOkResultGetter(response).ConfigureAwait(false);
+            }
+            else if (fetchErrorContent)
+            {
+              rawError = await fErrorStringResultGetter(response).ConfigureAwait(false);
+            }
+          }
+          catch(Exception cause)
+          {
+            throw new WebCallException(StringConsts.WEB_CALL_UNSUCCESSFUL_RESPONSE_ERROR.Args(uri.SplitKVP('?').Key.TakeLastChars(64),
+                                                                                    (int)response.StatusCode,
+                                                                                    response.StatusCode,
+                                                                                    cause.ToMessageWithType()),
+                                       uri,
+                                       method.Method,
+                                       (int)response.StatusCode,
+                                       response.ReasonPhrase,
+                                       "...",
+                                       cause);
           }
 
           //#834 ------------------------------------
@@ -114,12 +197,13 @@ namespace Azos.Web
             {
               if (response.Headers.TryGetValues(hdrn, out var hdrValues))
               {
-                await bea.ProcessBodyErrorAsync(uri, method, body, contentType, options, request, response, isSuccess, raw, hdrValues).ConfigureAwait(false);
+                await bea.ProcessBodyErrorAsync(uri, method, body, contentType, options, request, response, isSuccess, rawError, hdrValues).ConfigureAwait(false);
               }
             }
           }//#834 -----------------------------------
 
           if (!isSuccess)
+          {
             throw new WebCallException(StringConsts.WEB_CALL_UNSUCCESSFUL_ERROR.Args(uri.SplitKVP('?').Key.TakeLastChars(64),
                                                                                     (int)response.StatusCode,
                                                                                     response.StatusCode),
@@ -127,9 +211,10 @@ namespace Azos.Web
                                        method.Method,
                                        (int)response.StatusCode,
                                        response.ReasonPhrase,
-                                       raw.TakeFirstChars(CALL_ERROR_CONTENT_MAX_LENGTH, "..."));
+                                       rawError.TakeFirstChars(CALL_ERROR_CONTENT_MAX_LENGTH, "..."));
+          }
 
-          return (raw.JsonToDataObject(ropt: ropt ?? JsonReadingOptions.NoLimits) as JsonDataMap).NonNull(StringConsts.WEB_CALL_RETURN_JSONMAP_ERROR.Args(raw.TakeFirstChars(48)));
+          return result;
         }//using response
       }//using request
     }
