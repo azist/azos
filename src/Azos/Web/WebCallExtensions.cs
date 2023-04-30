@@ -42,6 +42,7 @@ namespace Azos.Web
     /// Gets string response containing json and returns it as JsonDataMap.
     /// This method does not use headers and aspects ind is kept for legacy use
     /// </summary>
+    [Obsolete("This method does not support headers call flow and aspects. Consider using GetJsonMapAsync() instead.")]
     public static async Task<JsonDataMap> GetJsonMapDirectAsync(this HttpClient client, string uri, JsonReadingOptions ropt = null)
     {
       var raw = await client.NonNull(nameof(client))
