@@ -89,6 +89,10 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Blob\Server\Web\" />
+  </ItemGroup>
+
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>..\..\out\Debug\</OutputPath>
     <DocumentationFile>..\..\out\Debug\Azos.Sky.Server.xml</DocumentationFile>
