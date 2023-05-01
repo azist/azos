@@ -116,6 +116,15 @@ namespace Azos.Web
           };
           content.Headers.ContentType = ctp;
         }
+        else if (body is ArraySegment<byte> asegbody)//20230501 DKh #859
+        {
+          content = new ByteArrayContent(asegbody.Array, asegbody.Offset, asegbody.Count);
+          var ctp = new MediaTypeHeaderValue(contentType.Default(ContentType.BINARY))
+          {
+            CharSet = Encoding.UTF8.WebName
+          };
+          content.Headers.ContentType = ctp;
+        }
         else
         {
           var jsonToSend = body.ToJson(options ?? JsonWritingOptions.CompactRowsAsMap);

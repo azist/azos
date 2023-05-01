@@ -215,9 +215,24 @@ namespace Azos.Sky.Blob
       return result;
     }
 
-    public Task<VolatileBlobInfo> WriteBlockAsync(RGDID rgBlob, long offset, ArraySegment<byte> buffer, CancellationToken cancellationToken)
+    public async Task<VolatileBlobInfo> WriteBlockAsync(RGDID rgBlob, long offset, ArraySegment<byte> buffer, CancellationToken cancellationToken)
     {
-      throw new NotImplementedException();
+      rgBlob.HasRequiredValue(nameof(rgBlob));
+      (offset >= 0).IsTrue("offset>=0");
+      buffer.Array.NonNull(nameof(buffer));
+
+      var uri = new UriQueryBuilder("block")
+               .Add("rgBlob", rgBlob)
+               .Add("offset", offset)
+               .ToString();
+
+      var response = await m_Server.Call(BlobServiceAddress,
+                                         nameof(IBlobStore),
+                                         new ShardKey(DateTime.UtcNow),
+                                         async (http, ct) => await http.Client.PostAndGetJsonMapAsync(uri, buffer).ConfigureAwait(false));
+
+      var result = response.UnwrapPayloadDoc<VolatileBlobInfo>();
+      return result;
     }
 
   }
