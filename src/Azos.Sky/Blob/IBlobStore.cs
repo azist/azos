@@ -60,17 +60,14 @@ namespace Azos.Sky.Blob
     /// Opens a <see cref="BlobHandle"/> for an existing blob. If does not exist returns null
     /// </summary>
     /// <param name="id">If of a blob in `volume@space::name` format <see cref="EntityId"/></param>
-    /// <param name="bufferSize">Local buffer size. 0 = default</param>
     /// <param name="readOnly">Open stream for read-only mode</param>
     /// <returns>Instance of <see cref="BlobHandle"/> which must be disposed</returns>
-    Task<BlobHandle> OpenAsync(EntityId id,
-                               int bufferSize = 0,
-                               bool readOnly = false);
+    Task<BlobHandle> OpenAsync(EntityId id, bool readOnly = false);
 
     /// <summary>
     /// Updates header/tag information of an existing blob.
     /// </summary>
-    Task<ChangeResult> UpdateAsync(EntityId id, IConfigSectionNode headers, IEnumerable<Tag> tags, DateTime? endDateUtc);
+    Task<ChangeResult> UpdateAsync(EntityId id, IConfigSectionNode headers, IEnumerable<Tag> tags, DateTime? endUtc);
 
     /// <summary>
     /// Deletes an existing blob

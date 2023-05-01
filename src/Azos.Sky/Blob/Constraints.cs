@@ -19,7 +19,7 @@ namespace Azos.Sky.Blob
 
 
     public const int BLOCK_SIZE_MIN = 16 * 1024;
-    public const int BLOCK_SIZE_MAX = 4 * 1024 * 1024;
+    public const int BLOCK_SIZE_MAX = 4 * 1024 * 1024;//this is capped by bix max byte[] size as well
     public const int BLOCK_SIZE_DEFAULT =  256 * 1024;
 
     public const int TAG_COUNT_MAX = 32;
@@ -45,5 +45,36 @@ namespace Azos.Sky.Blob
       return id;
     }
 
+    /// <summary>
+    ///Packs block response into byte[] to be unpacked by caller using <see cref="UnpackServerBlockResponse(byte[])"/>
+    /// </summary>
+    public static byte[] PackServerBlockResponse(VolatileBlobInfo info, byte[] data)
+    {
+      const int VER = 1;
+      info.NonNull(nameof(info));
+      data.NonNull(nameof(data));
+      using (var scope = new Serialization.Bix.BixWriterBufferScope(data.Length + 200))
+      {
+        scope.Writer.Write(VER);//version
+        info.WriteToBix(scope.Writer);
+        scope.Writer.WriteBuffer(data);
+        return scope.Buffer;
+      }
+    }
+
+    /// <summary>
+    /// Parses server block response packed into byte[] by <see cref="PackServerBlockResponse(VolatileBlobInfo, byte[])"/>
+    /// </summary>
+    public static (VolatileBlobInfo info, byte[] data) UnpackServerBlockResponse(byte[] raw)
+    {
+      using (var scope = new Serialization.Bix.BixReaderBufferScope(raw.NonNull(nameof(raw))))
+      {
+        var ver = scope.Reader.ReadInt();//may use ver later to support upgrades down below
+        var info = new VolatileBlobInfo();
+        info.ReadFromBix(scope.Reader);
+        var data = scope.Reader.ReadBuffer();
+        return (info, data);
+      }
+    }
   }
 }

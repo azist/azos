@@ -58,5 +58,22 @@ namespace Azos.Sky.Blob
 
     [Field(required: true, Description = "Who created blob")]
     public EntityId ModifiedBy { get; set; }
+
+    internal void ReadFromBix(BixReader reader)
+    {
+      var ver = reader.ReadInt();//may use ver later to support upgrades down below
+      TotalLength = reader.ReadLong();
+      ModifiedUtc = reader.ReadDateTime();
+      ModifiedBy = reader.ReadEntityId();
+    }
+
+    internal void WriteToBix(BixWriter writer)
+    {
+      const int VER = 1;
+      writer.Write(VER);
+      writer.Write(TotalLength);
+      writer.Write(ModifiedUtc);
+      writer.Write(ModifiedBy);
+    }
   }
 }

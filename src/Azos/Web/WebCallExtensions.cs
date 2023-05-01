@@ -195,6 +195,18 @@ namespace Azos.Web
     }
 
     /// <summary>
+    /// Processes the "wrap" Json protocol with JsonDataMap such as: '{OK: true, data: {...map...}}'
+    /// Throws averment exceptions if OK!=true, no 'data' key was returned or data is not a json map.
+    /// Converts map to TypeDoc of type T
+    /// </summary>
+    public static T UnwrapPayloadDoc<T>(this JsonDataMap data, bool fromUI = true, JsonReader.DocReadOptions? options = null) where T : TypedDoc
+    {
+      var map = UnwrapPayloadMap(data);
+
+      return JsonReader.ToDoc<T>(map, fromUI, options);
+    }
+
+    /// <summary>
     /// Processes the "wrap" Json protocol with JsonDataArray such as: '{OK: true, data: [...array...]}'
     /// Throws averment exceptions if OK!=true, no 'data' key was returned or data is not a json array
     /// </summary>

@@ -48,5 +48,8 @@ namespace Azos.Sky.Blob
 
     [Field(required: true, Description = "End UTC")]
     public DateTime? EndUtc { get; set; }
+
+    [Field(required: true, Description = "Volatile blob information")]
+    public VolatileBlobInfo Volatile { get; set; }
   }
 }

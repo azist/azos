@@ -52,7 +52,5 @@ namespace Azos.Sky.Blob
 
     protected async override Task<SaveResult<IEnumerable<BlobInfo>>> DoSaveAsync()
      => new SaveResult<IEnumerable<BlobInfo>>(await m_Logic.FindBlobsAsync(this).ConfigureAwait(false));
-
-
   }
 }

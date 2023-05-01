@@ -24,9 +24,8 @@ namespace Azos.Sky.Blob
   /// <remarks>You can extend this class along with <see cref="IBlobStoreLogic"/> custom implementation</remarks>
   public class BlobHandle : Stream
   {
-    protected BlobHandle(IBlobStoreLogic store,
+    public BlobHandle(IBlobStoreLogic store,
                          BlobHandleDescriptor descriptor,
-                         VolatileBlobInfo vinfo,
                          bool readOnly)
     {
       m_Store = store.NonNull(nameof(store));
@@ -39,7 +38,7 @@ namespace Azos.Sky.Blob
       m_CreatedUtc = descriptor.CreatedUtc;
       m_EndUtc = descriptor.EndUtc;
       m_ReadOnly = readOnly;
-      UpdateLatestStatus(vinfo);
+      UpdateLatestStatus(descriptor.Volatile);
     }
 
     protected sealed override void Dispose(bool disposing)

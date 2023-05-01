@@ -15,7 +15,6 @@ using Azos.Client;
 using Azos.Conf;
 using Azos.Data;
 using Azos.Data.Adlib;
-using Azos.Log;
 using Azos.Serialization.JSON;
 using Azos.Web;
 
@@ -86,39 +85,134 @@ namespace Azos.Sky.Blob
       return result;
     }
 
-    public Task<IEnumerable<Atom>> GetVolumeNamesAsync(Atom space)
+    public async Task<IEnumerable<Atom>> GetVolumeNamesAsync(Atom space)
     {
-      throw new NotImplementedException();
+      space.HasRequiredValue(nameof(space));
+      var uri = new UriQueryBuilder("volumes")
+               .Add("space", space)
+               .ToString();
+
+      var response = await m_Server.Call(BlobServiceAddress,
+                                         nameof(IBlobStore),
+                                         new ShardKey(DateTime.UtcNow),
+                                         async (http, ct) => await http.Client.GetJsonMapAsync(uri).ConfigureAwait(false));
+      var result = response.UnwrapPayloadArray()
+              .OfType<string>()
+              .Select(sn => Atom.Encode(sn));
+
+      return result;
     }
 
-    public Task<IEnumerable<BlobInfo>> FindBlobsAsync(BlobFilter filter)
+    public async Task<IEnumerable<BlobInfo>> FindBlobsAsync(BlobFilter filter)
     {
-      throw new NotImplementedException();
+      filter.AsValidIn(App, nameof(filter));
+
+      var response = await m_Server.Call(BlobServiceAddress,
+                                         nameof(IBlobStore),
+                                         new ShardKey(DateTime.UtcNow),
+                                         (http, ct) => http.Client.PostAndGetJsonMapAsync("filter", new { filter = filter })).ConfigureAwait(false);
+
+      var result = response.UnwrapPayloadArray()
+              .OfType<JsonDataMap>()
+              .Select(imap => JsonReader.ToDoc<BlobInfo>(imap));
+
+      return result;
     }
 
-    public Task<BlobHandle> CreateAsync(EntityId id, IConfigSectionNode permissions = null, IConfigSectionNode headers = null, IEnumerable<Tag> tags = null, DateTime? endUtc = null, int blockSize = 0)
+    public async Task<BlobHandle> CreateAsync(EntityId id, IConfigSectionNode permissions = null, IConfigSectionNode headers = null, IEnumerable<Tag> tags = null, DateTime? endUtc = null, int blockSize = 0)
     {
-      throw new NotImplementedException();
+      var response = await m_Server.Call(BlobServiceAddress,
+                                        nameof(IBlobStore),
+                                        new ShardKey(DateTime.UtcNow),
+                                        (http, ct) => http.Client.PostAndGetJsonMapAsync("handle",
+                                        new { descriptor = new
+                                              {
+                                                id = id.HasRequiredValue(nameof(id)),
+                                                permissions,
+                                                headers,
+                                                tags,
+                                                endUtc,
+                                                blockSize
+                                              }
+                                        })).ConfigureAwait(false);
+
+      var bhd = response.UnwrapPayloadDoc<BlobHandleDescriptor>();
+
+      var result = new BlobHandle(this, bhd, false);
+      return result;
     }
 
-    public Task<BlobHandle> OpenAsync(EntityId id, int bufferSize = 0, bool readOnly = false)
+    public async Task<BlobHandle> OpenAsync(EntityId id, bool readOnly = false)
     {
-      throw new NotImplementedException();
+      id.HasRequiredValue(nameof(id));
+      var uri = new UriQueryBuilder("handle")
+               .Add("id", id)
+               .ToString();
+
+      var response = await m_Server.Call(BlobServiceAddress,
+                                         nameof(IBlobStore),
+                                         new ShardKey(DateTime.UtcNow),
+                                         async (http, ct) => await http.Client.GetJsonMapAsync(uri).ConfigureAwait(false));
+      var bhd = response.UnwrapPayloadDoc<BlobHandleDescriptor>();
+
+      var result = new BlobHandle(this, bhd, readOnly);
+      return result;
     }
 
-    public Task<ChangeResult> UpdateAsync(EntityId id, IConfigSectionNode headers, IEnumerable<Tag> tags, DateTime? endDateUtc)
+    public async Task<ChangeResult> UpdateAsync(EntityId id, IConfigSectionNode headers, IEnumerable<Tag> tags, DateTime? endUtc)
     {
-      throw new NotImplementedException();
+      var response = await m_Server.Call(BlobServiceAddress,
+                                        nameof(IBlobStore),
+                                        new ShardKey(DateTime.UtcNow),
+                                        (http, ct) => http.Client.PutAndGetJsonMapAsync("blob",
+                                        new
+                                        {
+                                          descriptor = new
+                                          {
+                                            id = id.HasRequiredValue(nameof(id)),
+                                            headers,
+                                            tags,
+                                            endUtc
+                                          }
+                                        })).ConfigureAwait(false);
+
+      var result = response.UnwrapChangeResult();
+      return result;
     }
 
-    public Task<ChangeResult> DeleteAsync(EntityId id)
+    public async Task<ChangeResult> DeleteAsync(EntityId id)
     {
-      throw new NotImplementedException();
+      var response = await m_Server.Call(BlobServiceAddress,
+                                        nameof(IBlobStore),
+                                        new ShardKey(DateTime.UtcNow),
+                                        (http, ct) => http.Client.DeleteAndGetJsonMapAsync("blob",
+                                        new
+                                        {
+                                          id = id.HasRequiredValue(nameof(id)),
+                                        })).ConfigureAwait(false);
+
+      var result = response.UnwrapChangeResult();
+      return result;
     }
 
-    public Task<(VolatileBlobInfo info, byte[] data)> ReadBlockAsync(RGDID rgBlob, long offset, int count, CancellationToken cancellationToken)
+    public async Task<(VolatileBlobInfo info, byte[] data)> ReadBlockAsync(RGDID rgBlob, long offset, int count, CancellationToken cancellationToken)
     {
-      throw new NotImplementedException();
+      rgBlob.HasRequiredValue(nameof(rgBlob));
+      (offset >= 0 && count >= 0).IsTrue("offset>=0 && count>=0");
+
+      var uri = new UriQueryBuilder("block")
+               .Add("rgBlob", rgBlob)
+               .Add("offset", offset)
+               .Add("count", count)
+               .ToString();
+
+      var raw = await m_Server.Call(BlobServiceAddress,
+                                         nameof(IBlobStore),
+                                         new ShardKey(DateTime.UtcNow),
+                                         async (http, ct) => await http.Client.CallAndGetByteArrayAsync(uri, System.Net.Http.HttpMethod.Get, null).ConfigureAwait(false));
+
+      var result = Constraints.UnpackServerBlockResponse(raw);
+      return result;
     }
 
     public Task<VolatileBlobInfo> WriteBlockAsync(RGDID rgBlob, long offset, ArraySegment<byte> buffer, CancellationToken cancellationToken)

@@ -6,8 +6,6 @@
 
 using System;
 using System.IO;
-using System.Runtime.CompilerServices;
-using System.Text;
 
 using Azos.IO;
 
@@ -81,7 +79,7 @@ namespace Azos.Serialization.Bix
     }
 
     private readonly MemoryStream m_Stream;
-    public readonly BixWriter m_Writer;
+    private readonly BixWriter m_Writer;
 
     public BixWriter Writer
     {
