@@ -31,12 +31,32 @@ namespace Azos.Apps
     /// </summary>
     public sealed class Step : ICallFlow, IJsonReadable, IJsonWritable
     {
+      /// <summary> FX internal method not to be used by developers </summary>
+      internal void __SetSession(ISession session)
+      {
+        string thisSession;
+
+        if (session == null)
+        {
+          thisSession = "null";
+        } else if (session is NOPSession)
+        {
+          thisSession = "nop";
+        } else if (session.User.Status > Security.UserStatus.Invalid)
+        {
+          thisSession = $"{session.GetType().Name}({session.ID.ToString().TakeFirstChars(4)},<{session.User.ToString().TakeFirstChars(48, "..")}>,`{session.DataContextName.TakeLastChars(32, "..")}`)";
+        } else thisSession = $"{session.GetType().Name}({session.ID.ToString().TakeFirstChars(4)},INVAL,`{session.DataContextName}`)";
+
+        Session = (Session.IsNullOrWhiteSpace() ? thisSession : $"{Session}; {thisSession}").TakeLastChars(200, "...");
+      }
+
       internal Step(IApplication app, ISession session, ICallFlow flow)
       {
         Utc = app.TimeSource.UTCNow;
-        Session = session == null ? "<null>" : "{0}({1})".Args(session.GetType().Name, session.User.ToString().TakeFirstChars(32, ".."));
+        __SetSession(session);
         App = app.AppId;
         AppInstance = app.InstanceId;
+        Origin = app.CloudOrigin;
         Host = Platform.Computer.HostName;
         Type = flow.GetType().Name;
 
@@ -89,6 +109,7 @@ namespace Azos.Apps
       public string   Session     { get; private set; }
       public Atom     App         { get; private set; }
       public Guid     AppInstance { get; private set; }
+      public Atom     Origin      { get; private set; }
       public string   Host        { get; private set; }
       public string   Type        { get; private set; }
 
@@ -106,8 +127,9 @@ namespace Azos.Apps
         {
           Utc = map["utc"].AsLong(0).FromMillisecondsSinceUnixEpochStart();
           Session = map["ssn"].AsString();
-          App = map["app"].AsAtom();
+          App = map["app"].AsAtom(Atom.ZERO);
           AppInstance = map["ain"].AsGUID(Guid.Empty);
+          Origin = map["org"].AsAtom(Atom.ZERO);
           Host = map["h"].AsString();
           Type = map["t"].AsString();
           ID = map["id"].AsGUID(Guid.Empty);
@@ -117,7 +139,9 @@ namespace Azos.Apps
           CallerPort = map["cpr"].AsString();
 
           if (map["items"] is JsonDataMap items)
+          {
             m_Items = new ConcurrentDictionary<string, object>(items);
+          }
 
           return (true, this);
         }
@@ -128,24 +152,29 @@ namespace Azos.Apps
       {
         var map = new JsonDataMap
         {
-          {"utc", Utc.ToMillisecondsSinceUnixEpochStart()},
-          {"ssn", Session},
-          {"app", App},
-          {"ain", AppInstance.ToString("N")},
-          {"h", Host},
-          {"t", Type},
           {"id", ID.ToString("N")},
-          {"dir", DirectorName},
-          {"cad", CallerAddress},
-          {"cag", CallerAgent},
-          {"cpr", CallerPort}
+          {"utc", Utc.ToMillisecondsSinceUnixEpochStart()},
+          {"ain", AppInstance.ToString("N")},
         };
+
+        if (Session.IsNotNullOrWhiteSpace()) map["ssn"] = Session;
+        if (!App.IsZero)                     map["app"] = App;
+        if (!Origin.IsZero)                  map["org"] = Origin;
+        if (Host.IsNotNullOrWhiteSpace())    map["h"] = Host;
+        if (Type.IsNotNullOrWhiteSpace())    map["t"] = Type;
+        if (DirectorName.IsNotNullOrWhiteSpace())  map["dir"] = DirectorName;
+        if (CallerAddress.IsNotNullOrWhiteSpace()) map["cad"] = CallerAddress;
+        if (CallerAgent.IsNotNullOrWhiteSpace())   map["cag"] = CallerAgent;
+        if (CallerPort.IsNotNullOrWhiteSpace())    map["cpr"] = CallerPort;
+
 
         var items = m_Items;
         if (items != null)
-         map["items"] = items;
+        {
+          map["items"] = items;
+        }
 
-        JsonWriter.WriteMap(wri, map, nestingLevel+1, options);
+        JsonWriter.WriteMap(wri, map, nestingLevel + 1, options);
       }
     }
 
@@ -270,6 +299,7 @@ namespace Azos.Apps
       }
     }
 
+    private bool m_WasLogged;
     private string m_Description;
     private List<Step> m_List = new List<Step>();
 
@@ -278,6 +308,17 @@ namespace Azos.Apps
     /// It can only be set at the call flow start
     /// </summary>
     public string Description => m_Description;
+
+
+    /// <summary>
+    /// True if this call was already logged and <see cref=""/> was called
+    /// </summary>
+    public bool WasLogged => m_WasLogged;
+
+    /// <summary>
+    /// Sets WasLogged to prevent duplicated logging
+    /// </summary>
+    public void SetWasLogged(bool v = true) => m_WasLogged = v;
 
     /// <summary>
     /// Returns the very first call flow frame which represents the entry point into a distributed call flow
@@ -310,7 +351,9 @@ namespace Azos.Apps
     public int Count => m_List.Count;
 
     /// <summary>
-    /// Returns a flow ID at the entry point of this distributed flow
+    /// Returns a flow ID at the entry point of this distributed flow, this way
+    /// you can correlated various distributed activities using the same guid id
+    /// as soon as it is generated at the very entry point
     /// </summary>
     public Guid ID => EntryPoint.ID;
 
@@ -335,7 +378,7 @@ namespace Azos.Apps
 
 
     /// <summary>
-    /// Returns header value which is a terse JSOn representation of the instance which can be used to
+    /// Returns header value which is a terse json representation of the instance which can be used to
     /// re-construct the value on the other host
     /// </summary>
     public string ToHeaderValue() => this.ToJson(JsonWritingOptions.CompactASCII);

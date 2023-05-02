@@ -120,6 +120,12 @@ namespace Azos.Log
     Error = 500,
 
     /// <summary>
+    /// Provides additional information details about errors, such as extra object dumps describing call context/flow/stack in their params.<br/>
+    /// Messages of this type usually correlate with original `Error` message
+    /// </summary>
+    ErrorInfo = 501,
+
+    /// <summary>
     /// SYSLOG.Critical Should be corrected immediately, but indicates failure in a primary system, an example is a loss of a backup ISP connection.
     /// </summary>
     Critical = 600,

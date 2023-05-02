@@ -33,7 +33,7 @@ namespace Azos.IO.Archiving
     {
       var json = reader.ReadString();
       if (json==null) return null;
-      return JsonReader.DeserializeDataObject(json, true);
+      return JsonReader.DeserializeDataObject(json);
     }
   }
 

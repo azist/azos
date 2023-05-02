@@ -17,34 +17,35 @@ namespace Azos.Serialization.JSON.Backends
   /// </summary>
   public sealed class ClassicJsonReaderBackend : IJsonReaderBackend
   {
-    public object DeserializeFromJson(string json, bool caseSensitiveMaps)
+    public object DeserializeFromJson(string json, JsonReadingOptions ropt)
     {
       var source = new StringSource(json, JsonLanguage.Instance);
-      return DeserializeFromJson(source, caseSensitiveMaps);
+      return DeserializeFromJson(source, ropt);
     }
 
-    public object DeserializeFromJson(Stream stream, bool caseSensitiveMaps, Encoding encoding, bool useBom)
+    public object DeserializeFromJson(Stream stream, Encoding encoding, bool useBom, JsonReadingOptions ropt)
     {
       using (var source = new StreamSource(stream, encoding, useBom, JsonLanguage.Instance))
       {
-        return DeserializeFromJson(source, caseSensitiveMaps);
+        return DeserializeFromJson(source, ropt);
       }
     }
 
-    public object DeserializeFromJson(ISourceText source, bool caseSensitiveMaps)
+    public object DeserializeFromJson(ISourceText source, JsonReadingOptions ropt)
     {
+     //#731 As of Mar 30 2023, `ropt` is not used by ClassicReaderBackend, and only kept for method signature
       var lexer = new JsonLexer(source, throwErrors: true);
-      var parser = new JsonParser(lexer, throwErrors: true, caseSensitiveMaps: caseSensitiveMaps);
+      var parser = new JsonParser(lexer, throwErrors: true, caseSensitiveMaps: ropt?.CaseSensitiveMaps ?? true);
 
       parser.Parse();
 
       return parser.ResultContext.ResultObject;
     }
 
-    public ValueTask<object> DeserializeFromJsonAsync(Stream stream, bool caseSensitiveMaps, Encoding encoding, bool useBom)
-      => new ValueTask<object>(DeserializeFromJson(stream, caseSensitiveMaps, encoding, useBom));
+    public ValueTask<object> DeserializeFromJsonAsync(Stream stream, Encoding encoding, bool useBom, JsonReadingOptions ropt)
+      => new ValueTask<object>(DeserializeFromJson(stream, encoding, useBom, ropt));
 
-    public ValueTask<object> DeserializeFromJsonAsync(ISourceText source, bool caseSensitiveMaps)
-      => new ValueTask<object>(DeserializeFromJson(source, caseSensitiveMaps));
+    public ValueTask<object> DeserializeFromJsonAsync(ISourceText source, JsonReadingOptions ropt)
+      => new ValueTask<object>(DeserializeFromJson(source, ropt));
   }
 }

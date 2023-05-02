@@ -43,20 +43,21 @@ namespace Azos.CodeAnalysis.Source
   public class StreamSource : DisposableObject, ISourceText
   {
     public const int MIN_SEG_TAIL_THRESHOLD = 64;
-    public const float MAX_SEG_TAIL_THRESHOLD_PCT = 0.532f;
-    public const int MIN_BUFFER_SIZE =   1 * 1024;
-    public const int MAX_BUFFER_SIZE = 512 * 1024;
+    public const float MAX_SEG_TAIL_THRESHOLD_PCT = 0.247f;// < 1/4 of a buffer size in case of UNICODE32 (4 bytes per char)
+    public const int MIN_BUFFER_SIZE = 256;
+    public const int MAX_BUFFER_SIZE = 128 * 1024;
 
-    public const int DEFAULT_BUFFER_SIZE = 32 * 1024;
+    public const int DEFAULT_BUFFER_SIZE = 8 * 1024;
     public const int DEFAULT_SEG_TAIL_THRESHOLD = 735;
 
+    private const int PREAMBLE_SIZE_BYTES = 32;
     private static readonly ArrayPool<byte> s_BytePool;
     private static readonly ArrayPool<char> s_CharPool;
 
     static StreamSource()
     {
       s_BytePool = ArrayPool<byte>.Create(MAX_BUFFER_SIZE, 16);
-      s_CharPool = ArrayPool<char>.Create(32/*reserved*/ + (2 * MAX_BUFFER_SIZE), 16);
+      s_CharPool = ArrayPool<char>.Create(32/*reserved*/ + (2/*arena segments*/ * MAX_BUFFER_SIZE), 16);
     }
 
     protected StreamSource(){ }
@@ -81,10 +82,10 @@ namespace Azos.CodeAnalysis.Source
       if (segmentTailThreshold <= 0) segmentTailThreshold = DEFAULT_SEG_TAIL_THRESHOLD;
 
       m_BufferSize = bufferSize.KeepBetween(MIN_BUFFER_SIZE, MAX_BUFFER_SIZE);
-      m_SegmentTailThreshold = segmentTailThreshold.KeepBetween(MIN_SEG_TAIL_THRESHOLD, (int)(m_BufferSize * MAX_SEG_TAIL_THRESHOLD_PCT));
+      m_SegmentTailThreshold = segmentTailThreshold.KeepBetween(MIN_SEG_TAIL_THRESHOLD, (int)(m_BufferSize * MAX_SEG_TAIL_THRESHOLD_PCT).AtMinimum(MIN_SEG_TAIL_THRESHOLD));
 
       m_Buffer = s_BytePool.Rent(m_BufferSize);
-      m_Arena = s_CharPool.Rent(32/*reserved*/ + (2 * m_BufferSize));
+      m_Arena = s_CharPool.Rent(32/*reserved*/ + (2/*segments*/ * m_BufferSize));
       m_Segment1 = new ArraySegment<char>(m_Arena, 0, 0);
       m_Segment2 = new ArraySegment<char>(m_Arena, m_BufferSize, 0);
       m_SensitiveData = sensitiveData;
@@ -104,6 +105,7 @@ namespace Azos.CodeAnalysis.Source
     private Language m_Language;
     private string m_Name;
 
+    private int m_SegmentCount;
     private int m_SegmentPosition;
     private int m_BufferSize;
     private int m_SegmentTailThreshold;
@@ -120,19 +122,20 @@ namespace Azos.CodeAnalysis.Source
     private ArraySegment<char> standbySegment => m_SegIdx ? m_Segment1 : m_Segment2;
 
 
-    public int SegmentTailThreshold => m_SegmentTailThreshold;
-    public Encoding Encoding => m_Encoding;
 
     #region ISourceText Members
 
     public string   Name       => m_Name;
     public Language Language   => m_Language;
-    public bool     EOF        => m_StreamEof && m_SegmentPosition >= m_Segment1.Count + m_Segment2.Count;
+    public Encoding Encoding   => m_Encoding;
+    public bool     EOF        => !prepData();
     public int      BufferSize => m_BufferSize;
+    public int      SegmentTailThreshold => m_SegmentTailThreshold;
     public int      SegmentLength    => currentSegment.Count;
     public int      SegmentPosition  => m_SegmentPosition;
+    public int      SegmentCount     => m_SegmentCount;
     public bool     NearEndOfSegment => ((m_Segment1.Count + m_Segment2.Count) - m_SegmentPosition) < m_SegmentTailThreshold;
-    public bool     IsLastSegment    => m_StreamEof && standbySegment.Count == 0;
+    public bool     IsLastSegment => !prepData() || (m_StreamEof && standbySegment.Count == 0);
 
     public char ReadChar()
     {
@@ -148,6 +151,10 @@ namespace Azos.CodeAnalysis.Source
 
     public async Task FetchSegmentAsync(System.Threading.CancellationToken ctk = default)
     {
+      const double kEMA = 0.489d;
+      const int PROFILE_ITERATION_IDX = 3;
+      const int PROFILE_THRESHOLD_DIV = 16; // 100 / 16 = 6.25%
+
       EnsureObjectNotDisposed();
       if (m_StreamEof) return;
       var segment = standbySegment;
@@ -155,9 +162,11 @@ namespace Azos.CodeAnalysis.Source
 
       var idxBuffer = 0;
       var totalBuffered = 0;
-      while(totalBuffered < m_BufferSize && !ctk.IsCancellationRequested)
+      var dataRate = new Instrumentation.EmaLong(kEMA, m_BufferSize / 4, 0L);
+      for(var i = 0; totalBuffered < m_BufferSize && !ctk.IsCancellationRequested; i++)
       {
-        var got = await m_Stream.ReadAsync(m_Buffer, totalBuffered, m_BufferSize - totalBuffered, ctk).ConfigureAwait(false);
+        var leftToRead = m_BufferSize - totalBuffered;
+        var got = await m_Stream.ReadAsync(m_Buffer, totalBuffered, leftToRead, ctk).ConfigureAwait(false);
 
         if (got==0) //eof
         {
@@ -165,9 +174,21 @@ namespace Azos.CodeAnalysis.Source
           break;
         }
         totalBuffered += got;
-      }
+
+        //Profile the data acquisition speed, averaging data transfer rate
+        Instrumentation.EmaLong.AddNext(ref dataRate, got);
+        if (
+             (i > PROFILE_ITERATION_IDX) &&  //let statistics gather and apply only after the minimum number of iterations
+             (totalBuffered > PREAMBLE_SIZE_BYTES) && //only if we have fetched the bare minimum
+             (dataRate.Average < leftToRead / PROFILE_THRESHOLD_DIV) //average reading fell below 1/16th of remaining data (6.25%)
+            )
+        {
+          break; //yield control
+        }
+      }//for
       if (totalBuffered==0) return;//EOF (and end of stream)
 
+      m_SegmentCount++;
       ensureDecoder(ref idxBuffer);
 
       //https://learn.microsoft.com/en-us/dotnet/api/system.text.decoder.getchars?view=net-7.0#system-text-decoder-getchars(system-byte()-system-int32-system-int32-system-char()-system-int32-system-boolean)

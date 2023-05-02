@@ -209,7 +209,30 @@ namespace WaveTestSite.Controllers
         };
       }
 
-      [Action, ApiEndpointDoc]
+      [Action]
+      [ApiEndpointDoc(Uri = "echolimits", Title = "Payload Echo", Description = "Echoes back the payload supplied as JSON map")]
+      [JsonReadingOptions(MaxObjectItems = 5,
+                          MaxDepth = 4,
+                          MaxKeyLength = 10,
+                          MaxObjects = 10,
+                          MaxArrays = 11,
+                          MaxArrayItems = 3,
+                          MaxCharLength = 4000,
+                          MaxStringLength = 100,
+                          MaxCommentLength = 25)]
+      public object EchoLimits(JsonDataMap data)
+      {
+        return new
+        {
+          ServerMessage = "You have supplied content, set limits, and here is my response",
+          ServerDateTime = DateTime.Now,
+          RequestedData = data,
+
+          limits = WorkContext.JsonOptions
+        };
+      }
+
+     [Action, ApiEndpointDoc]
       public object CAPTCHA(string key=null)
       {
         WorkContext.NeedsSession();

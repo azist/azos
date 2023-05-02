@@ -1540,7 +1540,7 @@ namespace Azos.Serialization.Bix
     {
       var json = ReadString();
       if (json.IsNullOrWhiteSpace()) return null;
-      return JsonReader.DeserializeDataObject(json, true);
+      return JsonReader.DeserializeDataObject(json, JsonReadingOptions.Default);
     }
     #endregion
 

@@ -21,7 +21,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = @"{ a:       1, b: ""something"", c: null, d: {}, e: 23.7}";
       var src = new StringSource(json);
-      var got = JazonParser.Parse(src, true);
+      var got = JazonParser.Parse(src, JsonReadingOptions.Default);
 
       got.See();
     }
@@ -31,7 +31,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = @"{ v: 18446744073709551615}";
       var src = new StringSource(json);
-      var got = JazonParser.Parse(src, true) as JsonDataMap;
+      var got = JazonParser.Parse(src, JsonReadingOptions.Default) as JsonDataMap;
 
       Aver.IsNotNull(got);
       Aver.AreObjectsEqual(ulong.MaxValue, got["v"]);
@@ -42,7 +42,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = @"{ v: -9223372036854775808}";
       var src = new StringSource(json);
-      var got = JazonParser.Parse(src, true) as JsonDataMap;
+      var got = JazonParser.Parse(src, JsonReadingOptions.Default) as JsonDataMap;
 
       Aver.IsNotNull(got);
       Aver.AreObjectsEqual(long.MinValue, got["v"]);
@@ -53,7 +53,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = @"{ v: 9223372036854775807}";
       var src = new StringSource(json);
-      var got = JazonParser.Parse(src, true) as JsonDataMap;
+      var got = JazonParser.Parse(src, JsonReadingOptions.Default) as JsonDataMap;
 
       Aver.IsNotNull(got);
       Aver.AreObjectsEqual(long.MaxValue, got["v"]);
@@ -64,7 +64,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = @"{ v: +9223372036854775807}";
       var src = new StringSource(json);
-      var got = JazonParser.Parse(src, true) as JsonDataMap;
+      var got = JazonParser.Parse(src, JsonReadingOptions.Default) as JsonDataMap;
 
       Aver.IsNotNull(got);
       Aver.AreObjectsEqual(long.MaxValue, got["v"]);
@@ -75,7 +75,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = @"{ v: -2147483647}";
       var src = new StringSource(json);
-      var got = JazonParser.Parse(src, true) as JsonDataMap;
+      var got = JazonParser.Parse(src, JsonReadingOptions.Default) as JsonDataMap;
 
       Aver.IsNotNull(got);
       Aver.AreObjectsEqual(int.MinValue+1, got["v"]);//+1 because lexer treats int as [-2147483647, +2147483647] whereas int min is -214748364[8]
@@ -86,7 +86,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = @"{ v: 2147483647}";
       var src = new StringSource(json);
-      var got = JazonParser.Parse(src, true) as JsonDataMap;
+      var got = JazonParser.Parse(src, JsonReadingOptions.Default) as JsonDataMap;
 
       Aver.IsNotNull(got);
       Aver.AreObjectsEqual(int.MaxValue, got["v"]);
@@ -97,7 +97,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = @"{ v: +2147483647}";
       var src = new StringSource(json);
-      var got = JazonParser.Parse(src, true) as JsonDataMap;
+      var got = JazonParser.Parse(src, JsonReadingOptions.Default) as JsonDataMap;
 
       Aver.IsNotNull(got);
       Aver.AreObjectsEqual(int.MaxValue, got["v"]);
@@ -109,7 +109,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = @"{ v: ++1}";
       var src = new StringSource(json);
-      var got = JazonParser.Parse(src, true) as JsonDataMap;
+      var got = JazonParser.Parse(src, JsonReadingOptions.Default) as JsonDataMap;
     }
 
     [Run]
@@ -118,7 +118,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = @"{ v: --1}";
       var src = new StringSource(json);
-      var got = JazonParser.Parse(src, true) as JsonDataMap;
+      var got = JazonParser.Parse(src, JsonReadingOptions.Default) as JsonDataMap;
     }
 
     [Run]
@@ -127,7 +127,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = @"{ v: 687346857632847659872364785623480580392805982312348927318497293749826346213786482376}";
       var src = new StringSource(json);
-      var got = JazonParser.Parse(src, true) as JsonDataMap;
+      var got = JazonParser.Parse(src, JsonReadingOptions.Default) as JsonDataMap;
     }
 
 
@@ -136,7 +136,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = @"{ v: 2.12}";
       var src = new StringSource(json);
-      var got = JazonParser.Parse(src, true) as JsonDataMap;
+      var got = JazonParser.Parse(src, JsonReadingOptions.Default) as JsonDataMap;
 
       Aver.IsNotNull(got);
       Aver.AreObjectsEqual(2.12d, got["v"]);
@@ -147,7 +147,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = @"{ v: +2.12}";
       var src = new StringSource(json);
-      var got = JazonParser.Parse(src, true) as JsonDataMap;
+      var got = JazonParser.Parse(src, JsonReadingOptions.Default) as JsonDataMap;
 
       Aver.IsNotNull(got);
       Aver.AreObjectsEqual(2.12d, got["v"]);
@@ -158,7 +158,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = @"{ v: -2.12}";
       var src = new StringSource(json);
-      var got = JazonParser.Parse(src, true) as JsonDataMap;
+      var got = JazonParser.Parse(src, JsonReadingOptions.Default) as JsonDataMap;
 
       Aver.IsNotNull(got);
       Aver.AreObjectsEqual(-2.12d, got["v"]);
@@ -169,7 +169,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = @"{ v: -2e3}";
       var src = new StringSource(json);
-      var got = JazonParser.Parse(src, true) as JsonDataMap;
+      var got = JazonParser.Parse(src, JsonReadingOptions.Default) as JsonDataMap;
 
       Aver.IsNotNull(got);
       Aver.AreObjectsEqual(-2e3, got["v"]);
@@ -180,7 +180,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = @"{ v: -2.2e3}";
       var src = new StringSource(json);
-      var got = JazonParser.Parse(src, true) as JsonDataMap;
+      var got = JazonParser.Parse(src, JsonReadingOptions.Default) as JsonDataMap;
 
       Aver.IsNotNull(got);
       Aver.AreObjectsEqual(-2.2e3, got["v"]);
@@ -192,7 +192,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = @"{ v: --2.2e3}";
       var src = new StringSource(json);
-      var got = JazonParser.Parse(src, true) as JsonDataMap;
+      var got = JazonParser.Parse(src, JsonReadingOptions.Default) as JsonDataMap;
     }
 
     [Run]
@@ -201,7 +201,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = @"{ v: ++2.2e3}";
       var src = new StringSource(json);
-      var got = JazonParser.Parse(src, true) as JsonDataMap;
+      var got = JazonParser.Parse(src, JsonReadingOptions.Default) as JsonDataMap;
     }
 
     [Run]
@@ -210,7 +210,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = @"{ v: 6873468576328476598723647856234805803928059823123489273184972937498263462137864823.76}";
       var src = new StringSource(json);
-      var got = JazonParser.Parse(src, true) as JsonDataMap;
+      var got = JazonParser.Parse(src, JsonReadingOptions.Default) as JsonDataMap;
     }
 
     [Run]
@@ -218,7 +218,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = @"{ v: 'abc'}";
       var src = new StringSource(json);
-      var got = JazonParser.Parse(src, true) as JsonDataMap;
+      var got = JazonParser.Parse(src, JsonReadingOptions.Default) as JsonDataMap;
 
       Aver.IsNotNull(got);
       Aver.AreObjectsEqual("abc", got["v"]);
@@ -229,7 +229,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = @"{ v: 'abc'}";
       var src = new StringSource(json);
-      var got = JazonParser.Parse(src, true, 1) as JsonDataMap;
+      var got = JazonParser.Parse(src, new JsonReadingOptions(JsonReadingOptions.Default){ MaxDepth = 1}) as JsonDataMap;
 
       Aver.IsNotNull(got);
       Aver.AreObjectsEqual("abc", got["v"]);
@@ -241,7 +241,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = @"{ v: 'abc'}";
       var src = new StringSource(json);
-      var got = JazonParser.Parse(src, true, 0) as JsonDataMap;
+      var got = JazonParser.Parse(src, new JsonReadingOptions(JsonReadingOptions.Default) { MaxDepth = 0 }) as JsonDataMap;
     }
 
     [Run]
@@ -249,7 +249,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = @"{ v: {v2: 'abc'}}";
       var src = new StringSource(json);
-      var got = JazonParser.Parse(src, true, 2) as JsonDataMap;
+      var got = JazonParser.Parse(src, new JsonReadingOptions(JsonReadingOptions.Default) { MaxDepth = 2 }) as JsonDataMap;
 
       var v = got["v"] as JsonDataMap;
       Aver.IsNotNull(v);
@@ -262,7 +262,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = @"{ v: {v2: 'abc'}}";
       var src = new StringSource(json);
-      var got = JazonParser.Parse(src, true, 1) as JsonDataMap;
+      var got = JazonParser.Parse(src, new JsonReadingOptions(JsonReadingOptions.Default) { MaxDepth = 1 }) as JsonDataMap;
     }
 
     [Run]
@@ -270,7 +270,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = @"123";
       var src = new StringSource(json);
-      var got = JazonParser.Parse(src, true, 0);//only allow root values, not objects or arrays
+      var got = JazonParser.Parse(src, new JsonReadingOptions(JsonReadingOptions.Default) { MaxDepth = 0 });//only allow root values, not objects or arrays
 
       Aver.IsNotNull(got);
       Aver.AreObjectsEqual(123, got);
@@ -281,7 +281,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = @"{ a: [1,-2,], b: [{f: true},{f: false},{f: null},]}";
       var src = new StringSource(json);
-      var got = JazonParser.Parse(src, true) as JsonDataMap;
+      var got = JazonParser.Parse(src, JsonReadingOptions.Default) as JsonDataMap;
 
       Aver.IsNotNull(got);
       var a = got["a"] as JsonDataArray;
@@ -303,7 +303,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = @"{ a: [1,-2,/*comment,*/], b: [{f: true},{f: false},{f: null},/*comment,,,*/]}";
       var src = new StringSource(json);
-      var got = JazonParser.Parse(src, true) as JsonDataMap;
+      var got = JazonParser.Parse(src, JsonReadingOptions.Default) as JsonDataMap;
 
       Aver.IsNotNull(got);
       var a = got["a"] as JsonDataArray;
@@ -326,7 +326,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = @"{ a: [1,-2,,], b: [{f: true},{f: false},{f: null},]}";
       var src = new StringSource(json);
-      var got = JazonParser.Parse(src, true) as JsonDataMap;
+      var got = JazonParser.Parse(src, JsonReadingOptions.Default) as JsonDataMap;
     }
 
     [Run]
@@ -335,7 +335,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = @"{ a: [1,-2,], b: [{f: true},{f: false},{f: null}, ,]}";
       var src = new StringSource(json);
-      var got = JazonParser.Parse(src, true) as JsonDataMap;
+      var got = JazonParser.Parse(src, JsonReadingOptions.Default) as JsonDataMap;
     }
 
     [Run]
@@ -344,7 +344,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = @"{ a: [1,-2,], b: [{f: true},{f: false},{f: null},/* comment: comment */ ,]}";
       var src = new StringSource(json);
-      var got = JazonParser.Parse(src, true) as JsonDataMap;
+      var got = JazonParser.Parse(src, JsonReadingOptions.Default) as JsonDataMap;
     }
 
     [Run]
@@ -352,7 +352,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = @"{ a: [1,-2,], b: [{f: true},{f: false},{f: null},]    ,  }";
       var src = new StringSource(json);
-      var got = JazonParser.Parse(src, true) as JsonDataMap;
+      var got = JazonParser.Parse(src, JsonReadingOptions.Default) as JsonDataMap;
 
       Aver.IsNotNull(got);
       var a = got["a"] as JsonDataArray;
@@ -374,7 +374,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = @"{ a: [1,-2,], b: [{f: true},{f: false},{f: null},]    , /* comment: comment */  }";
       var src = new StringSource(json);
-      var got = JazonParser.Parse(src, true) as JsonDataMap;
+      var got = JazonParser.Parse(src, JsonReadingOptions.Default) as JsonDataMap;
 
       Aver.IsNotNull(got);
       var a = got["a"] as JsonDataArray;
@@ -397,7 +397,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = @"{ a: [1,-2,], b: [{f: true},{f: false},{f: null},]    ,   , }";
       var src = new StringSource(json);
-      var got = JazonParser.Parse(src, true) as JsonDataMap;
+      var got = JazonParser.Parse(src, JsonReadingOptions.Default) as JsonDataMap;
     }
 
     [Run]
@@ -406,7 +406,7 @@ namespace Azos.Tests.Nub.Serialization
     {
       var json = @"{ a: [1,-2,], b: [{f: true},{f: false},{f: null},]    , /* comment: comment */  , }";
       var src = new StringSource(json);
-      var got = JazonParser.Parse(src, true) as JsonDataMap;
+      var got = JazonParser.Parse(src, JsonReadingOptions.Default) as JsonDataMap;
     }
 
     [Run]
@@ -438,7 +438,7 @@ namespace Azos.Tests.Nub.Serialization
 
 }";
       var src = new StringSource(json);
-      var got = JazonParser.Parse(src, true) as JsonDataMap;
+      var got = JazonParser.Parse(src, JsonReadingOptions.Default) as JsonDataMap;
 
       Aver.IsNotNull(got);
       Aver.AreObjectsEqual(1, got["a"]);
@@ -491,7 +491,7 @@ namespace Azos.Tests.Nub.Serialization
     */
      a: 123, }";
       var src = new StringSource(json);
-      var got = JazonParser.Parse(src, true) as JsonDataMap;
+      var got = JazonParser.Parse(src, JsonReadingOptions.Default) as JsonDataMap;
 
       Aver.IsNotNull(got);
       Aver.AreEqual(1, got.Count);
@@ -527,7 +527,7 @@ namespace Azos.Tests.Nub.Serialization
     */',
      a: -123, }";
       var src = new StringSource(json);
-      var got = JazonParser.Parse(src, true) as JsonDataMap;
+      var got = JazonParser.Parse(src, JsonReadingOptions.Default) as JsonDataMap;
 
       Aver.IsNotNull(got);
 

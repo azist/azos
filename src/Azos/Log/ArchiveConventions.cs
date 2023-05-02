@@ -51,7 +51,7 @@ namespace Azos.Log
     {
       if (archiveDimensions.IsNullOrWhiteSpace()) return null;
       if (!archiveDimensions.StartsWith(AD_HASHBANG, StringComparison.Ordinal)) return null;
-      var result = archiveDimensions.JsonToDataObject(true) as JsonDataMap;
+      var result = archiveDimensions.JsonToDataObject(JsonReadingOptions.Default) as JsonDataMap;
       return result;
     }
 

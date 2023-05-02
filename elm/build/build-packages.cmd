@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.1.0.2
-set HEADLINE=#845 #731 ASYNC JSON
+set VER=3.2.0.9
+set HEADLINE=#860 Json web call limits default
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

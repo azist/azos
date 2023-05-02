@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 using Azos.Apps.Injection;
 using Azos.Security.Adlib;
+using Azos.Serialization.JSON;
 using Azos.Wave.Mvc;
 
 namespace Azos.Data.Adlib.Server
@@ -77,6 +78,7 @@ namespace Azos.Data.Adlib.Server
       TypeSchemas = new[] { typeof(Item), typeof(ChangeResult) })]
     [ActionOnPost(Name = "item"), AcceptsJson]
     [AdlibPermission(AdlibAccessLevel.Change)]
+    [JsonReadingOptions(useDefaultLimits: true, MaxStringLength = Constraints.MAX_STRING_REPRESENTATION_CONTENT_LENGTH)]//#860
     public async Task<object> Save(Item item) => await SaveNewAsync(item).ConfigureAwait(false);
 
     [ApiEndpointDoc(
@@ -90,15 +92,16 @@ namespace Azos.Data.Adlib.Server
       TypeSchemas = new[] { typeof(Item), typeof(ChangeResult) })]
     [ActionOnPut(Name = "item"), AcceptsJson]
     [AdlibPermission(AdlibAccessLevel.Change)]
+    [JsonReadingOptions(useDefaultLimits: true, MaxStringLength = Constraints.MAX_STRING_REPRESENTATION_CONTENT_LENGTH)]//#860
     public async Task<object> Update(Item item) => await SaveEditAsync(item).ConfigureAwait(false);
 
     [ApiEndpointDoc(
-     Title = "DELETE - Deletes a single `Item`",
-     Description = "Deletes a single `Item` by its EntityId and returns an Api Change Result",
-     Methods = new[] { "DELETE: Deletes an item" },
-     RequestQueryParameters = new[]{ "id=EntityId of the item to delete" },
-     ResponseContent = "JSON representation of {OK: bool, data: ChangeResult}",
-     TypeSchemas = new[]{ typeof(ChangeResult) })]
+      Title = "DELETE - Deletes a single `Item`",
+      Description = "Deletes a single `Item` by its EntityId and returns an Api Change Result",
+      Methods = new[] { "DELETE: Deletes an item" },
+      RequestQueryParameters = new[]{ "id=EntityId of the item to delete" },
+      ResponseContent = "JSON representation of {OK: bool, data: ChangeResult}",
+      TypeSchemas = new[]{ typeof(ChangeResult) })]
     [ActionOnDelete(Name = "item"), AcceptsJson]
     [AdlibPermission(AdlibAccessLevel.Delete)]
     public async Task<object> Delete(EntityId id) => GetLogicChangeResult(await m_Logic.DeleteAsync(id).ConfigureAwait(false));

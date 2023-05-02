@@ -118,4 +118,49 @@ namespace Azos.Instrumentation
     /// <summary> Last supplied sample (already applied into average value) </summary>
     public readonly decimal Sample;
   }
+
+
+  /// <summary>
+  /// Implements a simple EMA (Exponential Moving Average) vector for LONG values
+  /// </summary>
+  public struct EmaLong
+  {
+    /// <summary>
+    /// Modifies EMA value in-place by adding a new sample, e.g.:  `EmaLong.AddNext(ref m_AverageSize, 232656L);`
+    /// </summary>
+    public static void AddNext(ref EmaLong ema, long sample)
+    {
+      ema = ema.AddNext(sample);
+    }
+
+    /// <summary>
+    /// Returns a new EMA value by adding a new sample, e.g.:  `var worldAvgSize = myAvgSize.AddNext(5.1d);`
+    /// </summary>
+    public EmaLong AddNext(long sample)
+    {
+      var avg = (long)((Factor * sample) + ((1.0d - Factor) * Average));
+      return new EmaLong(Factor, avg, sample);
+    }
+
+    /// <summary>
+    /// Initializes a new instance
+    /// </summary>
+    public EmaLong(double factor, long avg = 0L, long sample = 0L)
+    {
+      Factor = factor;
+      Average = avg;
+      Sample = sample;
+    }
+
+    /// <summary>
+    /// Defines how much smoothing gets reflected in the average value - the lower the number the more smoothing is done.
+    /// </summary>
+    public readonly double Factor;
+
+    /// <summary> Calculated average value using exponential moving formula </summary>
+    public readonly long Average;
+
+    /// <summary> Last supplied sample (already applied into average value) </summary>
+    public readonly long Sample;
+  }
 }

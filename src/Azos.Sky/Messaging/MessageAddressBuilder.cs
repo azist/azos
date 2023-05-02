@@ -80,7 +80,7 @@ namespace Azos.Sky.Messaging
     {
       if (json.IsNotNullOrWhiteSpace())
       {
-        var array = JsonReader.DeserializeDataObject(json, true) as JsonDataArray;
+        var array = JsonReader.DeserializeDataObject(json) as JsonDataArray;
         if (array != null)
         {
           foreach(var elm in array)

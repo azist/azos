@@ -42,13 +42,6 @@ namespace Azos.Data.Access.MongoDb.Connector
       return result;
     }
 
-    public static Query ID_EQ_Int32(Int64 id)
-    {
-      var result = new Query();
-      result.Set( new BSONInt64Element(_ID, id) );
-      return result;
-    }
-
     public static Query ID_EQ_String(string id)
     {
       if (id==null)

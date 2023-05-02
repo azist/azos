@@ -129,13 +129,13 @@ namespace Azos.Conf
 
     private void readFromFile()
     {
-      var data = JsonReader.DeserializeDataObjectFromFile(m_FileName, caseSensitiveMaps: false) as JsonDataMap;
+      var data = JsonReader.DeserializeDataObjectFromFile(m_FileName, useBom: true, ropt: JsonReadingOptions.DefaultLimitsCaseInsensitive) as JsonDataMap;
       read(data);
     }
 
     private void readFromString(string content)
     {
-      var data = JsonReader.DeserializeDataObject(content, caseSensitiveMaps: false) as JsonDataMap;
+      var data = JsonReader.DeserializeDataObject(content, JsonReadingOptions.DefaultLimitsCaseInsensitive) as JsonDataMap;
       read(data);
     }
 

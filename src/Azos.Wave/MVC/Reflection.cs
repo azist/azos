@@ -10,6 +10,7 @@ using System.Linq;
 using System.Reflection;
 
 using Azos.Collections;
+using Azos.Serialization.JSON;
 
 namespace Azos.Wave.Mvc
 {
@@ -43,6 +44,8 @@ namespace Azos.Wave.Mvc
         var groups = new Registry<ActionGroupInfo>();
         Groups = groups;
 
+        JsonOptions = type.GetCustomAttribute<JsonReadingOptions>(false);
+
         var allMethods = GetAllActionMethods();
 
         foreach(var mi in allMethods)
@@ -69,6 +72,7 @@ namespace Azos.Wave.Mvc
 
     public string Name { get; }
     public readonly Type Type;
+    public readonly JsonReadingOptions JsonOptions;
     public readonly IRegistry<ActionGroupInfo> Groups;
 
     internal IEnumerable<MethodInfo> GetAllActionMethods()
@@ -104,8 +108,10 @@ namespace Azos.Wave.Mvc
         var allAtrs = mi.GetCustomAttributes<ActionBaseAttribute>(false)
                         .Where( a => a.Name.IsNullOrWhiteSpace() || a.Name.EqualsIgnoreCase(actionInvocationName) );
 
+        var miJsonReadingOptions = mi.GetCustomAttribute<JsonReadingOptions>(false);
+
         foreach(var atr in allAtrs)
-          actions.Add(new ActionInfo(this, mi, atr));
+          actions.Add(new ActionInfo(this, mi, atr, miJsonReadingOptions));
       }
 
       Actions = actions.OrderBy( ai => ai.Attribute.Order ).ToArray();
@@ -138,15 +144,17 @@ namespace Azos.Wave.Mvc
   /// </summary>
   public sealed class ActionInfo
   {
-    internal ActionInfo(ActionGroupInfo group, MethodInfo method, ActionBaseAttribute atr)
+    internal ActionInfo(ActionGroupInfo group, MethodInfo method, ActionBaseAttribute atr, JsonReadingOptions jsonOptions)
     {
       Group = group;
       Method = method;
       Attribute = atr;
+      JsonOptions = jsonOptions;
     }
 
     public readonly ActionGroupInfo Group;
     public readonly MethodInfo      Method;
     public readonly ActionBaseAttribute Attribute;
+    public readonly JsonReadingOptions JsonOptions;
   }
 }

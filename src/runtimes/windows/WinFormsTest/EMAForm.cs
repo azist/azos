@@ -21,7 +21,7 @@ namespace WinFormsTest
       m_Monitor = Azos.Apps.ExecutionContext.Application.ModuleRoot.Get<ISystemLoadMonitor<SysLoadSample>>();
     }
 
-    private EmaDouble m_Width = new EmaDouble(0.1, 0, 0);
+    private EmaLong m_Width = new EmaLong(0.1, 0, 0);
     ISystemLoadMonitor<SysLoadSample> m_Monitor;
 
     private void hScrollBar1_Scroll(object sender, ScrollEventArgs e)
@@ -33,7 +33,7 @@ namespace WinFormsTest
       hScrollBar1.Maximum = this.Width;
       var v = hScrollBar1.Value;
       btn.Left = v;
-      EmaDouble.AddNext(ref m_Width, v);
+      EmaLong.AddNext(ref m_Width, v);
       btnEMA.Left = (int)m_Width.Average;
 
       var s = chkInstant.Checked ? m_Monitor.CurrentSample : m_Monitor.DefaultAverage;
@@ -46,7 +46,7 @@ namespace WinFormsTest
 
     private void tbFactor_TextChanged(object sender, EventArgs e)
     {
-      m_Width = new EmaDouble(tbFactor.Text.AsDouble(), 0, 0);
+      m_Width = new EmaLong(tbFactor.Text.AsDouble(), 0, 0);
     }
   }
 }
