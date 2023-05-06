@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Azos
 {
@@ -15,7 +16,6 @@ namespace Azos
   /// </summary>
   public static class CollectionUtils
   {
-
     /// <summary>
     /// Adds the specified element at the end of the sequence. Sequence may be null
     /// </summary>
@@ -78,6 +78,46 @@ namespace Azos
 
       if (batch != null)
         yield return batch;
+    }
+
+    /// <summary>
+    /// Projects enumerable using a select function in batches of the specified size on parallel threads.
+    /// This function is useful for cases when projection takes sizable CPU time (e.g. converting JSON object) and
+    /// can benefit from parallel execution
+    /// </summary>
+    public static IEnumerable<TResult> ParallelSelectBy<T, TResult>(this IEnumerable<T> src, int size, Func<T, TResult> fSelect)
+    {
+      fSelect.NonNull(nameof(fSelect));
+      (size > 0).IsTrue("sz>0");
+
+      if (src == null) yield break;
+
+      var batch = new T[size];
+      var batchResult = new TResult[size];
+      var idx = 0;
+      foreach (var e in src)
+      {
+        if (idx == size)
+        {
+          Parallel.For(0, idx, i => batchResult[i] = fSelect(batch[i]));
+          for (var i = 0; i < idx; i++)
+          {
+            yield return batchResult[i];
+          }
+          idx = 0;
+        }
+
+        batch[idx++] = e;
+      }
+
+      if (idx > 0)
+      {
+        Parallel.For(0, idx, i => batchResult[i] = fSelect(batch[i]));
+        for (var i = 0; i < idx; i++)
+        {
+          yield return batchResult[i];
+        }
+      }
     }
 
     /// <summary>
@@ -286,7 +326,54 @@ namespace Azos
       yield return first;
 
       if (others != null)
+      {
         foreach(var other in others) yield return other;
+      }
+    }
+
+    /// <summary>
+    /// Changes key value by delta. If value does not exist then creates key with the specified value
+    /// </summary>
+    public static void Increase<TKey>(this IDictionary<TKey, int> dict, TKey key, int by = 1)
+    {
+      if (!dict.NonNull(nameof(dict)).TryGetValue(key, out var existing)) existing = 0;
+      dict[key] = existing + by;
+    }
+
+    /// <summary>
+    /// Changes key value by delta. If value does not exist then creates key with the specified value
+    /// </summary>
+    public static void Increase<TKey>(this IDictionary<TKey, long> dict, TKey key, long by = 1L)
+    {
+      if (!dict.NonNull(nameof(dict)).TryGetValue(key, out var existing)) existing = 0L;
+      dict[key] = existing + by;
+    }
+
+    /// <summary>
+    /// Changes key value by delta. If value does not exist then creates key with the specified value
+    /// </summary>
+    public static void Increase<TKey>(this IDictionary<TKey, decimal> dict, TKey key, decimal by = 1m)
+    {
+      if (!dict.NonNull(nameof(dict)).TryGetValue(key, out var existing)) existing = 0m;
+      dict[key] = existing + by;
+    }
+
+    /// <summary>
+    /// Changes key value by delta. If value does not exist then creates key with the specified value
+    /// </summary>
+    public static void Increase<TKey>(this IDictionary<TKey, float> dict, TKey key, float by = 1f)
+    {
+      if (!dict.NonNull(nameof(dict)).TryGetValue(key, out var existing)) existing = 0f;
+      dict[key] = existing + by;
+    }
+
+    /// <summary>
+    /// Changes key value by delta. If value does not exist then creates key with the specified value
+    /// </summary>
+    public static void Increase<TKey>(this IDictionary<TKey, double> dict, TKey key, double by = 1d)
+    {
+      if (!dict.NonNull(nameof(dict)).TryGetValue(key, out var existing)) existing = 0d;
+      dict[key] = existing + by;
     }
 
   }

@@ -106,7 +106,7 @@ namespace Azos.Data
     public override string ToString()
     {
       // WARNING!!! returned string representation must be parsable in the original form 'Route:Era:Authority:Counter' and must not change
-      return Route + ":" + Gdid.ToString();
+      return Route.ToString(GDID.INVARIANT) + ":" + Gdid.ToString();
     }
 
     /// <summary>

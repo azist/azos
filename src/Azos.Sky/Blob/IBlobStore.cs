@@ -73,6 +73,8 @@ namespace Azos.Sky.Blob
     /// Deletes an existing blob
     /// </summary>
     Task<ChangeResult> DeleteAsync(EntityId id);
+
+    //Rename file
   }
 
   public interface IBlobStoreLogic : IBlobStore, IBusinessLogic
