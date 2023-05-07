@@ -22,6 +22,7 @@ namespace Azos.Serialization.JSON
     //Pattern:  $abc:
     public const char CHR_0 = '$';
     public const char CHR_4 = ':';
+    public const int HINT_LEN = 5;// $234: = 5 chars
 
     //All type hints must contain 3 chars
     public static readonly Atom THINT_BIN      = Atom.Encode("bin"); //byte[] encoded base64
@@ -49,6 +50,19 @@ namespace Azos.Serialization.JSON
     };
 
     /// <summary>
+    /// Check string if it needs string escape, that is: string starts with a value
+    /// which can be interpreted as a type hint
+    /// </summary>
+    public static bool StringNeedsEscape(string v)
+    {
+      if (v == null) return false;
+      if (v.Length < HINT_LEN) return false;
+      if (v[0] != CHR_0) return false;
+      if (v[4] != CHR_4) return false;
+      return true;
+    }
+
+    /// <summary>
     /// Assuming that type hints are enabled, post-processes a value which came back from Json deserialization
     /// returning a possibly different value cast/re-deserialized to the requested type
     /// </summary>
@@ -58,7 +72,7 @@ namespace Azos.Serialization.JSON
 
       if (value is string svalue)
       {
-        var (str, hint) = TryGetStringHint(svalue);
+        var (str, hint) = TryGetHintFromString(svalue);
         if (hint.IsZero) return str;
         //reinterpret type
         if (!STR_CONVERTERS.TryGetValue(hint, out var fconv)) return str;//unknown type, return as-is
@@ -71,15 +85,15 @@ namespace Azos.Serialization.JSON
     /// <summary>
     /// Tries to extract type hint from a string value, if it contains one, returning value without hint and the hint as an atom of 3 chars
     /// </summary>
-    public static (string str, Atom hint) TryGetStringHint(string v)
+    public static (string str, Atom hint) TryGetHintFromString(string v)
     {
       if (v == null) return (null, Atom.ZERO);
       var len = v.Length;
-      if (len < 5) return (v, Atom.ZERO);
+      if (len < HINT_LEN) return (v, Atom.ZERO);
 
       if (v[0] != CHR_0 || v[4] != CHR_4) return (v, Atom.ZERO);// $abc:xxxxxxxxx
 
-      var str = len == 5 ? string.Empty : v.Substring(5);
+      var str = len == HINT_LEN ? string.Empty : v.Substring(5);
       var hint = new Atom((ulong)( (v[3] << 24) | (v[2] << 16) | v[1]) );
       return (str, hint);
     }

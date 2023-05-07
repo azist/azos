@@ -222,13 +222,21 @@ namespace Azos.Serialization.JSON
       wri.Write('"');//open string
 
       //#864 DKh 20230506 Type hint
-      if (opt.EnableTypeHints && !thint.IsZero)
+      if (opt.EnableTypeHints)
       {
-        var str_thint = thint.Value;
-        (str_thint.Length == 3).IsTrue("thint.len==3");
-        wri.Write(TypeHint.CHR_0);
-        wri.Write(str_thint);
-        wri.Write(TypeHint.CHR_4);
+        if (thint.IsZero && TypeHint.StringNeedsEscape(data))
+        {
+          thint = TypeHint.THINT_STR;
+        }
+
+        if (!thint.IsZero)
+        {
+          var str_thint = thint.Value;
+          (str_thint.Length == 3).IsTrue("thint.len==3");
+          wri.Write(TypeHint.CHR_0);
+          wri.Write(str_thint);
+          wri.Write(TypeHint.CHR_4);
+        }
       }//#864 DKh 20230506 Type hint
 
       for (int i = 0; i < data.Length; i++)
