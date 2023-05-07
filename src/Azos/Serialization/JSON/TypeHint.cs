@@ -7,6 +7,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Azos.Data;
 
 namespace Azos.Serialization.JSON
@@ -48,6 +49,15 @@ namespace Azos.Serialization.JSON
       {THINT_RGDID,    v => v.AsRGDID(RGDID.ZERO)},
       {THINT_ENTITYID, v => v.AsEntityId(EntityId.EMPTY)}
     };
+
+
+    public static void EmitTypeHint(TextWriter wri, string th)
+    {
+      (th.Length == 3).IsTrue("thint.len==3");
+      wri.Write(CHR_0);
+      wri.Write(th);
+      wri.Write(CHR_4);
+    }
 
     /// <summary>
     /// Check string if it needs string escape, that is: string starts with a value

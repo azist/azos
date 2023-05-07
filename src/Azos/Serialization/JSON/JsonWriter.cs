@@ -231,11 +231,7 @@ namespace Azos.Serialization.JSON
 
         if (!thint.IsZero)
         {
-          var str_thint = thint.Value;
-          (str_thint.Length == 3).IsTrue("thint.len==3");
-          wri.Write(TypeHint.CHR_0);
-          wri.Write(str_thint);
-          wri.Write(TypeHint.CHR_4);
+          TypeHint.EmitTypeHint(wri, thint.Value);
         }
       }//#864 DKh 20230506 Type hint
 
@@ -299,6 +295,12 @@ namespace Azos.Serialization.JSON
       }
 
       wri.Write('"');
+
+      if (opt.EnableTypeHints)
+      {
+        TypeHint.EmitTypeHint(wri, TypeHint.THINT_DATE.Value);
+      }//#864 DKh 20230506 Type hint
+
       var year = data.Year;
       if (year>999) wri.Write(year);
       else if (year>99) { wri.Write('0'); wri.Write(year); }
@@ -402,7 +404,7 @@ namespace Azos.Serialization.JSON
       //20210717 - #514
       if (data is byte[] buff && buff.Length > 8)
       {
-        EncodeString(wri, buff.ToWebSafeBase64(), opt);
+        EncodeString(wri, buff.ToWebSafeBase64(), opt, TypeHint.THINT_BIN);
         return;
       }
 
@@ -441,6 +443,11 @@ namespace Azos.Serialization.JSON
       {
         var guid = (Guid)data;
         wri.Write('"');
+        //#864 DKh 20230506 Type hint
+        if (opt.EnableTypeHints)
+        {
+          TypeHint.EmitTypeHint(wri, TypeHint.THINT_GUID.Value);
+        }//#864 DKh 20230506 Type hint
         wri.Write(guid.ToString("D"));
         wri.Write('"');
         return;
