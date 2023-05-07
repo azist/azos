@@ -5,12 +5,17 @@
 </FILE_LICENSE>*/
 
 
+using System;
+using System.Collections.Generic;
+using Azos.Data;
+
 namespace Azos.Serialization.JSON
 {
   /// <summary>
-  /// Facilitates TypeHint data interpretation.
+  /// Facilitates TypeHint data interpretation. Type hints are used for low-level optimization
+  /// for voluminous data streaming operations.
   /// TypeHints only support primitive framework built-in types by design,
-  /// they are NOT built for extension
+  /// they are purposely NOT built for extension
   /// </summary>
   internal static class TypeHint
   {
@@ -29,8 +34,42 @@ namespace Azos.Serialization.JSON
     public static readonly Atom THINT_RGDID    = Atom.Encode("rgd");
     public static readonly Atom THINT_ENTITYID = Atom.Encode("eid");
 
+
+    private static readonly Dictionary<Atom, Func<string, object>> STR_CONVERTERS = new()
+    {
+      {THINT_BIN,  v => v.TryFromWebSafeBase64()},//Confirmed that writer uses  ToWebSafeBase64
+      {THINT_STR,  v => v}, //as-is
+      {THINT_ATOM, v => v.AsAtom(Atom.ZERO)},
+      {THINT_DATE, v => v.AsDateTime(default(DateTime), CoreConsts.UTC_TIMESTAMP_STYLES)},
+      {THINT_TIMESPAN, v => v.AsTimeSpan(TimeSpan.Zero)},
+      {THINT_GUID,     v => v.AsGUID(Guid.Empty)},
+      {THINT_GDID,     v => v.AsGDID(GDID.ZERO)},
+      {THINT_RGDID,    v => v.AsRGDID(RGDID.ZERO)},
+      {THINT_ENTITYID, v => v.AsEntityId(EntityId.EMPTY)}
+    };
+
     /// <summary>
-    /// Tries to extract type hint from string, if it contains one, returning value without hint and the hint as an atom of 3 chars
+    /// Assuming that type hints are enabled, post-processes a value which came back from Json deserialization
+    /// returning a possibly different value cast/re-deserialized to the requested type
+    /// </summary>
+    public static object PostProcessRawDeserializedJsonValue(object value)
+    {
+      if (value == null) return null;
+
+      if (value is string svalue)
+      {
+        var (str, hint) = TryGetStringHint(svalue);
+        if (hint.IsZero) return str;
+        //reinterpret type
+        if (!STR_CONVERTERS.TryGetValue(hint, out var fconv)) return str;//unknown type, return as-is
+        return fconv(str);
+      }
+
+      return value;
+    }
+
+    /// <summary>
+    /// Tries to extract type hint from a string value, if it contains one, returning value without hint and the hint as an atom of 3 chars
     /// </summary>
     public static (string str, Atom hint) TryGetStringHint(string v)
     {
@@ -40,8 +79,8 @@ namespace Azos.Serialization.JSON
 
       if (v[0] != CHR_0 || v[4] != CHR_4) return (v, Atom.ZERO);// $abc:xxxxxxxxx
 
-      var str = v.Substring(5);
-      var hint = new Atom((ulong)(v[3] << 24 | v[2] << 16 | v[1]));
+      var str = len == 5 ? string.Empty : v.Substring(5);
+      var hint = new Atom((ulong)( (v[3] << 24) | (v[2] << 16) | v[1]) );
       return (str, hint);
     }
 

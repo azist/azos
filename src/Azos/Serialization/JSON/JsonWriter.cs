@@ -205,7 +205,8 @@ namespace Azos.Serialization.JSON
     /// <param name="wri">TextWriter instance to append data into</param>
     /// <param name="data">Original string to encode as JSON</param>
     /// <param name="opt">JSONWriting options instance, if omitted then JSONWritingOptions.Compact is used</param>
-    public static void EncodeString(TextWriter wri, string data, JsonWritingOptions opt = null)
+    /// <param name="thint">Optional type hint</param>
+    public static void EncodeString(TextWriter wri, string data, JsonWritingOptions opt = null, Atom thint = default)
     {
       if (data.IsNullOrEmpty())
       {
@@ -214,9 +215,21 @@ namespace Azos.Serialization.JSON
       }
 
       if (opt==null)
-          opt = JsonWritingOptions.Compact;
+      {
+        opt = JsonWritingOptions.Compact;
+      }
 
-      wri.Write('"');
+      wri.Write('"');//open string
+
+      //#864 DKh 20230506 Type hint
+      if (opt.EnableTypeHints && !thint.IsZero)
+      {
+        var str_thint = thint.Value;
+        (str_thint.Length == 3).IsTrue("thint.len==3");
+        wri.Write(TypeHint.CHR_0);
+        wri.Write(str_thint);
+        wri.Write(TypeHint.CHR_4);
+      }//#864 DKh 20230506 Type hint
 
       for (int i = 0; i < data.Length; i++)
       {
@@ -257,7 +270,7 @@ namespace Azos.Serialization.JSON
 
       }//for
 
-      wri.Write('"');
+      wri.Write('"');//close string
     }
 
     /// <summary>
