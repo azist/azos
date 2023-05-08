@@ -100,7 +100,9 @@ namespace Azos.Data
       get
       {
         if (m_AmorphousData == null)
+        {
           m_AmorphousData = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+        }
 
         return m_AmorphousData;
       }
