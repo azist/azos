@@ -26,28 +26,38 @@ namespace Azos.Serialization.JSON
     public const int HINT_LEN = 5;// $234: = 5 chars
 
     //All type hints must contain 3 chars
-    public static readonly Atom THINT_BIN      = Atom.Encode("bin"); //byte[] encoded base64
-    public static readonly Atom THINT_STR      = Atom.Encode("str"); //escaped string which starts with `$...:` pattern
-    public static readonly Atom THINT_ATOM     = Atom.Encode("atm");
-    public static readonly Atom THINT_DATE     = Atom.Encode("dtm");
-    public static readonly Atom THINT_TIMESPAN = Atom.Encode("tsp");
-    public static readonly Atom THINT_GUID     = Atom.Encode("uid");
-    public static readonly Atom THINT_GDID     = Atom.Encode("gdi");
-    public static readonly Atom THINT_RGDID    = Atom.Encode("rgd");
-    public static readonly Atom THINT_ENTITYID = Atom.Encode("eid");
+    public const string H_BIN      = "bin";
+    public const string H_STR      = "str";
+    public const string H_ATOM     = "atm";
+    public const string H_DATE     = "dtm";
+    public const string H_TIMESPAN = "tsp";
+    public const string H_GUID     = "uid";
+    public const string H_GDID     = "gdi";
+    public const string H_RGDID    = "rgd";
+    public const string H_ENTITYID = "eid";
+
+    public static readonly Atom HA_BIN      = Atom.Encode(H_BIN     ); //byte[] encoded base64
+    public static readonly Atom HA_STR      = Atom.Encode(H_STR     ); //escaped string which starts with `$...:` pattern
+    public static readonly Atom HA_ATOM     = Atom.Encode(H_ATOM    );
+    public static readonly Atom HA_DATE     = Atom.Encode(H_DATE    );
+    public static readonly Atom HA_TIMESPAN = Atom.Encode(H_TIMESPAN);
+    public static readonly Atom HA_GUID     = Atom.Encode(H_GUID    );
+    public static readonly Atom HA_GDID     = Atom.Encode(H_GDID    );
+    public static readonly Atom HA_RGDID    = Atom.Encode(H_RGDID   );
+    public static readonly Atom HA_ENTITYID = Atom.Encode(H_ENTITYID);
 
 
     private static readonly Dictionary<Atom, Func<string, object>> STR_CONVERTERS = new()
     {
-      {THINT_BIN,  v => v.TryFromWebSafeBase64()},//Confirmed that writer uses  ToWebSafeBase64
-      {THINT_STR,  v => v}, //as-is
-      {THINT_ATOM, v => v.AsAtom(Atom.ZERO)},
-      {THINT_DATE, v => v.AsDateTime(default(DateTime), CoreConsts.UTC_TIMESTAMP_STYLES)},
-      {THINT_TIMESPAN, v => v.AsTimeSpan(TimeSpan.Zero)},
-      {THINT_GUID,     v => v.AsGUID(Guid.Empty)},
-      {THINT_GDID,     v => v.AsGDID(GDID.ZERO)},
-      {THINT_RGDID,    v => v.AsRGDID(RGDID.ZERO)},
-      {THINT_ENTITYID, v => v.AsEntityId(EntityId.EMPTY)}
+      {HA_BIN,      v => v.TryFromWebSafeBase64()},//Confirmed that writer uses  ToWebSafeBase64
+      {HA_STR,      v => v}, //as-is
+      {HA_ATOM,     v => v.AsAtom(Atom.ZERO)},
+      {HA_DATE,     v => v.AsDateTime(default(DateTime), CoreConsts.UTC_TIMESTAMP_STYLES)},
+      {HA_TIMESPAN, v => v.AsTimeSpan(TimeSpan.Zero)},
+      {HA_GUID,     v => v.AsGUID(Guid.Empty)},
+      {HA_GDID,     v => v.AsGDID(GDID.ZERO)},
+      {HA_RGDID,    v => v.AsRGDID(RGDID.ZERO)},
+      {HA_ENTITYID, v => v.AsEntityId(EntityId.EMPTY)}
     };
 
 

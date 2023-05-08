@@ -206,7 +206,7 @@ namespace Azos.Serialization.JSON
     /// <param name="data">Original string to encode as JSON</param>
     /// <param name="opt">JSONWriting options instance, if omitted then JSONWritingOptions.Compact is used</param>
     /// <param name="thint">Optional type hint</param>
-    public static void EncodeString(TextWriter wri, string data, JsonWritingOptions opt = null, Atom thint = default)
+    public static void EncodeString(TextWriter wri, string data, JsonWritingOptions opt = null, string thint = null)
     {
       if (data.IsNullOrEmpty())
       {
@@ -224,14 +224,14 @@ namespace Azos.Serialization.JSON
       //#864 DKh 20230506 Type hint
       if (opt.EnableTypeHints)
       {
-        if (thint.IsZero && TypeHint.StringNeedsEscape(data))
+        if (thint==null && TypeHint.StringNeedsEscape(data))
         {
-          thint = TypeHint.THINT_STR;
+          thint = TypeHint.H_STR;
         }
 
-        if (!thint.IsZero)
+        if (thint != null)
         {
-          TypeHint.EmitTypeHint(wri, thint.Value);
+          TypeHint.EmitTypeHint(wri, thint);
         }
       }//#864 DKh 20230506 Type hint
 
@@ -298,7 +298,7 @@ namespace Azos.Serialization.JSON
 
       if (opt.EnableTypeHints)
       {
-        TypeHint.EmitTypeHint(wri, TypeHint.THINT_DATE.Value);
+        TypeHint.EmitTypeHint(wri, TypeHint.H_DATE);
       }//#864 DKh 20230506 Type hint
 
       var year = data.Year;
@@ -404,7 +404,7 @@ namespace Azos.Serialization.JSON
       //20210717 - #514
       if (data is byte[] buff && buff.Length > 8)
       {
-        EncodeString(wri, buff.ToWebSafeBase64(), opt, TypeHint.THINT_BIN);
+        EncodeString(wri, buff.ToWebSafeBase64(), opt, TypeHint.H_BIN);
         return;
       }
 
@@ -426,27 +426,33 @@ namespace Azos.Serialization.JSON
         return;
       }
 
-      if (data is DateTime)
+      if (data is DateTime dtm)
       {
-        EncodeDateTime(wri, (DateTime)data, opt);
+        EncodeDateTime(wri, dtm, opt);
         return;
       }
 
-      if (data is TimeSpan)
+      if (data is TimeSpan tsp)
       {
-        var ts = (TimeSpan)data;
-        wri.Write(ts.Ticks);
-        return;
-      }
-
-      if (data is Guid)
-      {
-        var guid = (Guid)data;
+        //wri.Write(ts.Ticks);
         wri.Write('"');
         //#864 DKh 20230506 Type hint
         if (opt.EnableTypeHints)
         {
-          TypeHint.EmitTypeHint(wri, TypeHint.THINT_GUID.Value);
+          TypeHint.EmitTypeHint(wri, TypeHint.H_TIMESPAN);
+        }//#864 DKh 20230506 Type hint
+        wri.Write(tsp.ToString());
+        wri.Write('"');
+        return;
+      }
+
+      if (data is Guid guid)
+      {
+        wri.Write('"');
+        //#864 DKh 20230506 Type hint
+        if (opt.EnableTypeHints)
+        {
+          TypeHint.EmitTypeHint(wri, TypeHint.H_GUID);
         }//#864 DKh 20230506 Type hint
         wri.Write(guid.ToString("D"));
         wri.Write('"');

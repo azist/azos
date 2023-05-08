@@ -124,7 +124,7 @@ namespace Azos.Data
     public static bool operator != (RGDID x, RGDID y) => !x.Equals(y);
 
     void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options)
-      => JsonWriter.EncodeString(wri, ToString(), options);
+      => JsonWriter.EncodeString(wri, ToString(), options, TypeHint.H_RGDID);
 
     (bool match, IJsonReadable self) IJsonReadable.ReadAsJson(object data, bool fromUI, JsonReader.DocReadOptions? options)
     {
