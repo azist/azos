@@ -500,6 +500,8 @@ namespace Azos.Serialization.JSON
 
       //object goes as is
       if (toType == typeof(object)) return v;
+      //types match, put as-is DKh 20230508 #864
+      if (toType == v.GetType()) return v;
 
       //IJSONDataObject
       if (toType == typeof(IJsonDataObject))

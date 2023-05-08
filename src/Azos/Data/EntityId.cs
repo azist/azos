@@ -197,7 +197,7 @@ namespace Azos.Data
     }
 
     public void WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
-     => JsonWriter.EncodeString(wri, AsString, options);
+     => JsonWriter.EncodeString(wri, AsString, options, TypeHint.H_ENTITYID);
 
     public static EntityId Parse(string val)
     {

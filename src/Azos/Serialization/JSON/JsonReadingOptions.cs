@@ -39,7 +39,8 @@ namespace Azos.Serialization.JSON
       m_BufferSize = 0,
       m_SegmentTailThresholdPercent = 0f,
       m_SensitiveData = false,
-      m_TimeoutMs = 0
+      m_TimeoutMs = 0,
+      m_EnableTypeHints = false,
     };
 
     private static readonly JsonReadingOptions s_DefaultLimitsCaseInsensitive = new JsonReadingOptions(isSystem: true, s_DefaultLimits)
@@ -107,6 +108,7 @@ namespace Azos.Serialization.JSON
       this.m_SegmentTailThresholdPercent = other.m_SegmentTailThresholdPercent;
       this.m_SensitiveData  = other.m_SensitiveData;
       this.m_TimeoutMs      = other.m_TimeoutMs;
+      this.m_EnableTypeHints = other.m_EnableTypeHints;
     }
 
 
@@ -133,7 +135,7 @@ namespace Azos.Serialization.JSON
     private bool m_SensitiveData;
 
     private int m_TimeoutMs;//when set > 0, if exceeded aborts reading. Protect against slowloris
-
+    private bool m_EnableTypeHints;
 
     /// <summary>
     /// True to indicate that this instance is system and is immutable
@@ -295,6 +297,20 @@ namespace Azos.Serialization.JSON
     {
       get => m_TimeoutMs;
       set => m_TimeoutMs = nonsys(value).AtMinimum(0);
+    }
+
+    /// <summary>
+    /// When set to true, interprets type hint annotations in the incoming json data which
+    /// decorate primitive values such as Atoms, Dates, GDIDs, etc..
+    /// this way data may round-trip via Json maps/arrays preserving its type identity,
+    /// for example a value "$dt:01/01/1980" is going to be read back as `DateTime` and not as `string`.
+    /// Default is `false`, which is the standard Json behavior (keep all strings as-is)
+    /// </summary>
+    [Config]
+    public bool EnableTypeHints
+    {
+      get => m_EnableTypeHints;
+      set => m_EnableTypeHints = nonsys(value);
     }
 
     public void Configure(IConfigSectionNode node) => ConfigAttribute.Apply(this, nonsys(node));

@@ -223,6 +223,7 @@ namespace Azos.Data
     void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options)
     {
       wri.Write('"');
+      if (options != null && options.EnableTypeHints) TypeHint.EmitTypeHint(wri, TypeHint.H_GDID);
       itoa(wri, Era);
       wri.Write(':');
       itoa(wri, (ulong)Authority);

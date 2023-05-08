@@ -58,8 +58,16 @@ namespace Azos.Serialization.JSON.Backends
       FALSE = false;
     }
 
-
     private static object doAny(JazonLexer lexer, int maxDepth)
+    {
+      var any = doAnyCore(lexer, maxDepth);
+      if (!lexer.ropt.EnableTypeHints) return any;
+
+      var result = TypeHint.PostProcessRawDeserializedJsonValue(any);
+      return result;
+    }
+
+    private static object doAnyCore(JazonLexer lexer, int maxDepth)
     {
       var token = lexer.Current;
 

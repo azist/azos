@@ -90,8 +90,16 @@ namespace Azos.Serialization.JSON.Backends
       FALSE = false;
     }
 
-
     private static async ValueTask<object> doAny(JazonLexer lexer, int maxDepth)
+    {
+      var any = await doAnyCore(lexer, maxDepth).ConfigureAwait(false);
+      if (!lexer.ropt.EnableTypeHints) return any;
+
+      var result = TypeHint.PostProcessRawDeserializedJsonValue(any);
+      return result;
+    }
+
+    private static async ValueTask<object> doAnyCore(JazonLexer lexer, int maxDepth)
     {
       var token = lexer.Current;
 
