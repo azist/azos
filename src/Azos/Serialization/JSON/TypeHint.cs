@@ -114,7 +114,8 @@ namespace Azos.Serialization.JSON
       if (v[0] != CHR_0 || v[4] != CHR_4) return (v, Atom.ZERO);// $abc:xxxxxxxxx
 
       var str = len == HINT_LEN ? string.Empty : v.Substring(5);
-      var hint = new Atom((ulong)( (v[3] << 24) | (v[2] << 16) | v[1]) );
+      var hint = new Atom( ((ulong)v[3] << 16) | ((ulong)v[2] << 8) | v[1] );
+////Console.WriteLine($" String '{v}' -> (str: `{str}`, hint: `{hint}`) \n");// Called from : \n{new System.Diagnostics.StackTrace()}");
       return (str, hint);
     }
 
