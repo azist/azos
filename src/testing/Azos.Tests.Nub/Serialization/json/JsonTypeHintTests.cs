@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
+
 using Azos.Apps;
 using Azos.Conf;
 using Azos.Data;
@@ -231,6 +232,54 @@ namespace Azos.Tests.Nub.Serialization
       Aver.IsTrue(gotHintedEnabled["str2"] is string);
       Aver.AreEqual(obj.str2, (string)gotHintedEnabled["str2"]);
 
+    }
+
+    private class THDoc : TypedDoc
+    {
+      [Field] public Atom Atom      { get; set; }
+      [Field] public EntityId Eid   { get; set; }
+      [Field] public GDID Gdid      { get; set; }
+      [Field] public RGDID Rgdid    { get; set; }
+      [Field] public Guid Guid      { get; set; }
+      [Field] public DateTime Dt    { get; set; }
+      [Field] public TimeSpan Ts    { get; set; }
+      [Field] public byte[] Bin     { get; set; }
+      [Field] public string Str1 { get; set; }
+      [Field] public string Str2 { get; set; }
+    }
+
+
+    [Run]
+    public void Doc_1()
+    {
+      var obj = new THDoc
+      {
+        Atom = Atom.Encode("abc"),
+        Eid = new EntityId(Atom.Encode("sys"), Atom.Encode("type"), Atom.Encode("Schema"), "address1"),
+        Gdid = new GDID(123, 456789),
+        Rgdid = new RGDID(456, new GDID(321, 98765)),
+        Guid = Guid.NewGuid(),
+        Dt = new DateTime(1980, 1, 2, 12, 30, 00, DateTimeKind.Utc),
+        Ts = TimeSpan.FromSeconds(4567),
+        Bin = new byte[] { 1, 1, 2, 2, 3, 4, 5, 6, 7, 8, 9, 0, 12, 13, 14, 1, 5, 16, 17, 18, 255, 129, 100, 0, 0, 0 },
+        Str1 = "plain string",
+        Str2 = "$ZZZ:needs escape"
+      };
+
+      var plainJson = obj.ToJson(JsonWritingOptions.PrettyPrintRowsAsMap);
+      var hintedJson = obj.ToJson(new JsonWritingOptions(JsonWritingOptions.PrettyPrintRowsAsMap) { EnableTypeHints = true });
+
+      "\nPlain json: \n{0}\n\n vs Hinted json: \n{1}".SeeArgs(plainJson, hintedJson);
+
+      var gotPlain = plainJson.JsonToDataObject(JsonReadingOptions.NoLimits) as JsonDataMap;
+      var gotHinted = hintedJson.JsonToDataObject(new JsonReadingOptions(JsonReadingOptions.NoLimits) { EnableTypeHints = true }) as JsonDataMap;
+
+      var docPlain = JsonReader.ToDoc<THDoc>(gotPlain);
+      var docHinted = JsonReader.ToDoc<THDoc>(gotHinted);
+
+      AverUtils.AverNoDiff(obj, docPlain);
+      AverUtils.CompareTo(obj, docHinted).See("\n\n\n* * * Document Comparison results * * *\n");
+      AverUtils.AverNoDiff(obj, docHinted);
     }
 
 
