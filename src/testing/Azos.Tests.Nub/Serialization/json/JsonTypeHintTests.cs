@@ -261,7 +261,7 @@ namespace Azos.Tests.Nub.Serialization
         Guid = Guid.NewGuid(),
         Dt = new DateTime(1980, 1, 2, 12, 30, 00, DateTimeKind.Utc),
         Ts = TimeSpan.FromSeconds(4567),
-        Bin = new byte[] { 1, 1, 2, 2, 3, 4, 5, 6, 7, 8, 9, 0, 12, 13, 14, 1, 5, 16, 17, 18, 255, 129, 100, 0, 0, 0 },
+        Bin = new byte[] { 1, 1, 2, 2, 3, 4, 5, 6, 7, 8, 9, 0, 12, 13, 14, 1, 5, 16, 17, 18, 255, 129, 100, 0, 0, 0, 123, 231, 254, 250, 198, 10, 0, 2, 4, 8, 19 },
         Str1 = "plain string",
         Str2 = "$ZZZ:needs escape"
       };
@@ -280,6 +280,10 @@ namespace Azos.Tests.Nub.Serialization
       AverUtils.AverNoDiff(obj, docPlain);
       AverUtils.CompareTo(obj, docHinted).See("\n\n\n* * * Document Comparison results * * *\n");
       AverUtils.AverNoDiff(obj, docHinted);
+
+      Aver.IsTrue(obj.Bin.MemBufferEquals(docPlain.Bin));
+      Aver.IsTrue(obj.Bin.MemBufferEquals(docHinted.Bin));
+
     }
 
 
