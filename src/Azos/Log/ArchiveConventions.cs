@@ -5,8 +5,13 @@
 </FILE_LICENSE>*/
 
 using System;
+using System.Collections.Generic;
+
 using Azos.Data;
+using Azos.Serialization.Bix;
 using Azos.Serialization.JSON;
+
+using TypeCode = Azos.Serialization.Bix.TypeCode;
 
 namespace Azos.Log
 {
@@ -16,6 +21,8 @@ namespace Azos.Log
   /// </summary>
   public static class ArchiveConventions
   {
+    public const byte ARCHIVE_BIX_VERSION = 1;
+
     private static readonly JsonWritingOptions AD_JSON_ENCODE_FORMAT = new (JsonWritingOptions.CompactRowsAsMap)
     {
       MapSkipNulls = true,
@@ -209,6 +216,156 @@ namespace Azos.Log
       ((IAmorphousData)fact).AfterLoad(targetName);
 
       return fact;
+    }
+
+    /// <summary>
+    /// Reads a map written in a canonical format which is based on Bix wire primitives.
+    /// Null value may be returned if it was written that way
+    /// </summary>
+    public static JsonDataMap ReadArchivedDataMap(BixReader reader)
+    {
+      var ver = reader.ReadByte();
+      return readArchivedDataMap(reader, ver);
+    }
+
+    private static JsonDataMap readArchivedDataMap(BixReader reader, byte ver)
+    {
+      if (!reader.ReadBool()) return null;
+      var caseSensitive = reader.ReadBool();
+      var result = new JsonDataMap(caseSensitive);
+
+      while(true)
+      {
+        var key = reader.ReadString();
+        if (key == null) break;//eof
+        var val = readValue(reader, ver);
+        result[key] = val;
+      }
+
+      return result;
+    }
+
+    /// <summary>
+    /// Writes map into a stream using a canonical archive format which is based on Bix wire primitives.
+    /// Null is permitted
+    /// </summary>
+    public static void WriteArchivedDataMap(BixWriter writer, JsonDataMap map)
+    {
+      writer.Write(ARCHIVE_BIX_VERSION);
+      writeArchivedDataMap(writer, map);
+    }
+
+    private static void writeArchivedDataMap(BixWriter writer, JsonDataMap map)
+    {
+      if (map == null)
+      {
+        writer.Write(false);//map is null
+        return;
+      }
+
+      writer.Write(true);//non null
+      writer.Write(map.CaseSensitive);//case sensitivity
+      foreach(var kvp in map)
+      {
+        writer.Write(kvp.Key);//string property name
+        writeValue(writer, kvp.Value);
+      }
+      writer.Write((string)null);//eof
+    }
+
+    private static readonly Dictionary<Type, Action<BixWriter, object>> WRITERS = new()
+    {
+      {typeof(string),   (w, v) => { w.Write(TypeCode.String);   w.Write((string)v);  } },
+      {typeof(bool),     (w, v) => { w.Write(TypeCode.Bool);     w.Write((bool)v);    } },
+      {typeof(byte),     (w, v) => { w.Write(TypeCode.Byte);     w.Write((byte)v);    } },
+      {typeof(sbyte),    (w, v) => { w.Write(TypeCode.Sbyte);    w.Write((sbyte)v);   } },
+      {typeof(short),    (w, v) => { w.Write(TypeCode.Int16);    w.Write((short)v);   } },
+      {typeof(ushort),   (w, v) => { w.Write(TypeCode.Uint16);   w.Write((ushort)v);  } },
+      {typeof(int),      (w, v) => { w.Write(TypeCode.Int32);    w.Write((int)v);     } },
+      {typeof(uint),     (w, v) => { w.Write(TypeCode.Uint32);   w.Write((uint)v);    } },
+      {typeof(long),     (w, v) => { w.Write(TypeCode.Int64);    w.Write((long)v);    } },
+      {typeof(ulong),    (w, v) => { w.Write(TypeCode.Uint64);   w.Write((ulong)v);   } },
+      {typeof(float),    (w, v) => { w.Write(TypeCode.Float);    w.Write((float)v);   } },
+      {typeof(double),   (w, v) => { w.Write(TypeCode.Double);   w.Write((double)v);  } },
+      {typeof(decimal),  (w, v) => { w.Write(TypeCode.Decimal);  w.Write((decimal)v); } },
+      {typeof(DateTime), (w, v) => { w.Write(TypeCode.DateTime); w.Write((DateTime)v);} },
+      {typeof(TimeSpan), (w, v) => { w.Write(TypeCode.TimeSpan); w.Write((TimeSpan)v);} },
+      {typeof(Atom),     (w, v) => { w.Write(TypeCode.Atom);     w.Write((Atom)v);    } },
+      {typeof(EntityId), (w, v) => { w.Write(TypeCode.EntityId); w.Write((EntityId)v);} },
+      {typeof(Guid),     (w, v) => { w.Write(TypeCode.Guid);     w.Write((Guid)v);    } },
+      {typeof(GDID),     (w, v) => { w.Write(TypeCode.GDID);     w.Write((GDID)v);    } },
+      {typeof(RGDID),    (w, v) => { w.Write(TypeCode.RGDID);    w.Write((RGDID)v);   } },
+      {typeof(byte[]),   (w, v) => { w.Write(TypeCode.Buffer);   w.WriteBuffer((byte[])v);} },
+    };
+
+    private static readonly Dictionary<TypeCode, Func<BixReader, byte, object>> READERS = new()
+    {
+      {TypeCode.String,   (r, ver) =>  r.ReadString()   },
+      {TypeCode.Bool,     (r, ver) =>  r.ReadBool()     },
+      {TypeCode.Byte,     (r, ver) =>  r.ReadByte()     },
+      {TypeCode.Sbyte,    (r, ver) =>  r.ReadSbyte()    },
+      {TypeCode.Int16,    (r, ver) =>  r.ReadShort()    },
+      {TypeCode.Uint16,   (r, ver) =>  r.ReadUshort()   },
+      {TypeCode.Int32,    (r, ver) =>  r.ReadInt()      },
+      {TypeCode.Uint32,   (r, ver) =>  r.ReadUint()     },
+      {TypeCode.Int64,    (r, ver) =>  r.ReadLong()     },
+      {TypeCode.Uint64,   (r, ver) =>  r.ReadUlong()    },
+      {TypeCode.Float,    (r, ver) =>  r.ReadFloat()    },
+      {TypeCode.Double,   (r, ver) =>  r.ReadDouble()   },
+      {TypeCode.Decimal,  (r, ver) =>  r.ReadDecimal()  },
+      {TypeCode.DateTime, (r, ver) =>  r.ReadDateTime() },
+      {TypeCode.TimeSpan, (r, ver) =>  r.ReadTimeSpan() },
+      {TypeCode.Atom,     (r, ver) =>  r.ReadAtom()     },
+      {TypeCode.EntityId, (r, ver) =>  r.ReadEntityId() },
+      {TypeCode.Guid,     (r, ver) =>  r.ReadGuid()     },
+      {TypeCode.GDID,     (r, ver) =>  r.ReadGDID()     },
+      {TypeCode.RGDID,    (r, ver) =>  r.ReadRGDID()    },
+      {TypeCode.Buffer,   (r, ver) =>  r.ReadBuffer()   },
+    };
+
+    private static void writeValue(BixWriter writer, object value)
+    {
+      if (value == null)
+      {
+        writer.Write(TypeCode.Null);
+        return;
+      }
+
+      if (value is JsonDataMap map)
+      {
+        writer.Write(TypeCode.JsonObject);
+        writeArchivedDataMap(writer, map);
+        return;
+      }
+
+      var tv = value.GetType();
+      if (WRITERS.TryGetValue(tv, out var vw))
+      {
+        vw(writer, value);
+      }
+      else
+      {
+        var json = JsonWriter.Write(value, SD_JSON_ENCODE_FORMAT);
+        writer.Write(json);
+      }
+    }
+
+    private static object readValue(BixReader reader, byte ver)
+    {
+      var tc = reader.ReadTypeCode();
+      if (tc == TypeCode.Null) return null;
+
+      if (tc == TypeCode.JsonObject) return readArchivedDataMap(reader, ver);
+
+      if (READERS.TryGetValue(tc, out var vr))
+      {
+        return vr(reader, ver);
+      }
+      else
+      {
+        var json = reader.ReadString();
+        return JsonReader.Deserialize(json, SD_JSON_DECODE_FORMAT);
+      }
     }
 
   }
