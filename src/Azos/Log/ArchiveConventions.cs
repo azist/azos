@@ -6,8 +6,9 @@
 
 using System;
 using System.Collections.Generic;
-
+using System.Linq;
 using Azos.Data;
+using Azos.Serialization;
 using Azos.Serialization.Bix;
 using Azos.Serialization.JSON;
 
@@ -392,6 +393,8 @@ namespace Azos.Log
         return;
       }
 
+      //Reinterpret new{a=1} as JsonDataMap
+      if (value.GetType().IsAnonymousType()) value = anonymousToMap(value);
       if (value is JsonDataMap map)
       {
         writer.Write(TypeCode.Map);
@@ -466,6 +469,31 @@ namespace Azos.Log
         var json = reader.ReadString();
         return JsonReader.Deserialize(json, SD_JSON_DECODE_FORMAT);
       }
+    }
+
+    private static JsonDataMap anonymousToMap(object v)
+    {
+      if (v == null) return null;
+
+      var fields = SerializationUtils.GetSerializableFields(v.GetType());
+
+      var data = fields.Select(
+      f =>
+      {
+        var name = f.Name;
+        var iop = name.IndexOf('<');
+        if (iop >= 0)//handle anonymous type field name
+        {
+          var icl = name.IndexOf('>');
+          if (icl > iop + 1)
+            name = name.Substring(iop + 1, icl - iop - 1);
+        }
+
+        return new KeyValuePair<string, object>(name, f.GetValue(v));
+      });//select
+
+
+      return new JsonDataMap(true, data);
     }
 
   }
