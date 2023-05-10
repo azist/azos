@@ -130,7 +130,7 @@ namespace Azos.Tests.Nub.Logging
         {"decimal", 185_000.00m},
 
         {"sub-map", new JsonDataMap(){ {"a", 12345}, {"b", null} }},
-        {"sub-object", new { z=1000_000, q=-2, m = Atom.Encode("subobj")} },
+        {"sub-object-anonymous", new { z=1000_000, q=-2, m = Atom.Encode("subobj")} },
 
         {"arr", new object[]{ 1, 2, true, false, "ok", 345, Atom.Encode("zxy")}},
       };
@@ -144,9 +144,9 @@ namespace Azos.Tests.Nub.Logging
       got.See(new JsonWritingOptions(JsonWritingOptions.PrettyPrintRowsAsMap){ EnableTypeHints = true });
       averMapsEqual(map, got);
 
-      Aver.AreEqual(-2, (int)(got["sub-object"] as JsonDataMap)["q"]);
-      Aver.AreEqual(1000_000, (int)(got["sub-object"] as JsonDataMap)["z"]);
-      Aver.AreEqual(Atom.Encode("subobj"), (Atom)(got["sub-object"] as JsonDataMap)["m"]);
+      Aver.AreEqual(-2, (int)(got["sub-object-anonymous"] as JsonDataMap)["q"]);
+      Aver.AreEqual(1000_000, (int)(got["sub-object-anonymous"] as JsonDataMap)["z"]);
+      Aver.AreEqual(Atom.Encode("subobj"), (Atom)(got["sub-object-anonymous"] as JsonDataMap)["m"]);
     }
 
 
@@ -156,7 +156,7 @@ namespace Azos.Tests.Nub.Logging
 
       foreach (var kvp in map1)
       {
-        if (kvp.Key=="sub-object") continue;
+        if (kvp.Key== "sub-object-anonymous") continue;
 
         if (kvp.Value is JsonDataMap map)
           averMapsEqual(map, (JsonDataMap)map2[kvp.Key]);

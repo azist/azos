@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
 using Azos.Data;
 using Azos.Serialization;
 using Azos.Serialization.Bix;
@@ -474,7 +475,6 @@ namespace Azos.Log
     private static JsonDataMap anonymousToMap(object v)
     {
       if (v == null) return null;
-
       var fields = SerializationUtils.GetSerializableFields(v.GetType());
 
       var data = fields.Select(
