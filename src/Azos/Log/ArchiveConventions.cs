@@ -21,7 +21,20 @@ namespace Azos.Log
   /// </summary>
   public static class ArchiveConventions
   {
-    public const byte ARCHIVE_BIX_VERSION = 1;
+    /// <summary>
+    /// Structured data bix binary version tag. Serializer writes this as the first field of structured data stream.
+    /// Deserializer reads it and can adjust the reading format for backward compatibility
+    /// </summary>
+    public const byte SD_BIX_VERSION = 1;
+
+    /// <summary>
+    /// Absolute limit on maximum number of map properties per level
+    /// </summary>
+    public const int SD_MAX_MAP_PROPS = 512;
+
+    // Null/NonNull map flags, also used as a stream alignment crosscheck code
+    private const byte SD_FMT_NULL = 0x55;
+    private const byte SD_FMT_NOTNULL = 0xAA;
 
     private static readonly JsonWritingOptions AD_JSON_ENCODE_FORMAT = new (JsonWritingOptions.CompactRowsAsMap)
     {
@@ -230,7 +243,10 @@ namespace Azos.Log
 
     private static JsonDataMap readArchivedDataMap(BixReader reader, byte ver)
     {
-      if (!reader.ReadBool()) return null;
+      var flagNullNotNull = reader.ReadByte();
+      if (flagNullNotNull == SD_FMT_NULL) return null;
+      Aver.AreEqual(SD_FMT_NOTNULL, flagNullNotNull, "corrupted data");
+
       var caseSensitive = reader.ReadBool();
       var result = new JsonDataMap(caseSensitive);
 
@@ -239,6 +255,7 @@ namespace Azos.Log
         var key = reader.ReadString();
         if (key == null) break;//eof
         var val = readValue(reader, ver);
+        Aver.IsTrue(result.Count < SD_MAX_MAP_PROPS, "max props");
         result[key] = val;
       }
 
@@ -251,24 +268,26 @@ namespace Azos.Log
     /// </summary>
     public static void WriteArchivedDataMap(BixWriter writer, JsonDataMap map)
     {
-      writer.Write(ARCHIVE_BIX_VERSION);
-      writeArchivedDataMap(writer, map);
+      writer.Write(SD_BIX_VERSION);
+      writeArchivedDataMap(writer, map, null);
     }
 
-    private static void writeArchivedDataMap(BixWriter writer, JsonDataMap map)
+    private static void writeArchivedDataMap(BixWriter writer, JsonDataMap map, HashSet<JsonDataMap> set)
     {
       if (map == null)
       {
-        writer.Write(false);//map is null
+        writer.Write(SD_FMT_NULL);//map is null, byte code is used as a bool and stream consistency flag as well
         return;
       }
 
-      writer.Write(true);//non null
+      Aver.IsTrue(map.Count < SD_MAX_MAP_PROPS, "max props");
+
+      writer.Write(SD_FMT_NOTNULL);//non null, byte code is used as a bool and stream consistency flag as well
       writer.Write(map.CaseSensitive);//case sensitivity
       foreach(var kvp in map)
       {
         writer.Write(kvp.Key);//string property name
-        writeValue(writer, kvp.Value);
+        writeValue(writer, kvp.Value, set);
       }
       writer.Write((string)null);//eof
     }
@@ -323,7 +342,7 @@ namespace Azos.Log
       {TypeCode.Buffer,   (r, ver) =>  r.ReadBuffer()   },
     };
 
-    private static void writeValue(BixWriter writer, object value)
+    private static void writeValue(BixWriter writer, object value, HashSet<JsonDataMap> set)
     {
       if (value == null)
       {
@@ -333,8 +352,22 @@ namespace Azos.Log
 
       if (value is JsonDataMap map)
       {
-        writer.Write(TypeCode.JsonObject);
-        writeArchivedDataMap(writer, map);
+        writer.Write(TypeCode.Map);
+
+        if (set == null)//the trick is to allocate set only here
+        {               //so most cases with top-level map do NOT allocate set as it allocates only on a first field of type map
+          set = new HashSet<JsonDataMap>();
+        }
+
+        Aver.IsTrue(set.Add(map), "circular reference check");
+        try
+        {
+          writeArchivedDataMap(writer, map, set);
+        }
+        finally
+        {
+          set.Remove(map);
+        }
         return;
       }
 
@@ -345,6 +378,7 @@ namespace Azos.Log
       }
       else
       {
+        writer.Write(TypeCode.JsonObject);
         var json = JsonWriter.Write(value, SD_JSON_ENCODE_FORMAT);
         writer.Write(json);
       }
@@ -355,7 +389,7 @@ namespace Azos.Log
       var tc = reader.ReadTypeCode();
       if (tc == TypeCode.Null) return null;
 
-      if (tc == TypeCode.JsonObject) return readArchivedDataMap(reader, ver);
+      if (tc == TypeCode.Map) return readArchivedDataMap(reader, ver);
 
       if (READERS.TryGetValue(tc, out var vr))
       {
