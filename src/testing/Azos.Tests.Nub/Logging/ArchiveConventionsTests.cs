@@ -5,6 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
+using Azos.Data;
 using Azos.Log;
 using Azos.Scripting;
 using Azos.Serialization.Bix;
@@ -90,27 +91,72 @@ namespace Azos.Tests.Nub.Logging
     }
 
     [Run]
-    public void SD_Data()
+    public void SD_RoundtripAllTypes()
     {
-      using var w = new BixWriterBufferScope();
+      using var w = new BixWriterBufferScope(1024);
 
       var map = new JsonDataMap
       {
+        {"null-key", null},
         {"str", "string 1"},
         {"atom", Atom.Encode("abc")},
-        {"dt", new DateTime(1,2,3, 14,00,00,DateTimeKind.Utc)},
+        {"dt", new DateTime(1980, 2, 3, 14, 10, 05, DateTimeKind.Utc)},
+        {"tspan", TimeSpan.FromSeconds(15.5)},
+        {"bin", new byte[]{1,2,3,4,5,6,7,8,9,0,10,20,30,40,50,60,70,80,90,100}},
+        {"eid", new EntityId(Atom.Encode("sys"), Atom.Encode("type"), Atom.Encode("sch"), "address 1")},
+        {"gdid", new GDID(1, 190)},
+        {"rgdid", new RGDID(5, new GDID(7, 2190))},
+        {"guid", Guid.NewGuid()},
+
+        {"bool1", false},
+        {"bool2", true},
+
+        {"byte", (byte)100},
+        {"sbyte", (sbyte)-100},
+
+        {"short", (short)-32000},
+        {"ushort", (ushort)65534},
+
+        {"int", (int)-3200000},
+        {"uint", (uint)6553400},
+
+        {"long", (long)-3200000},
+        {"ulong", (ulong)6553400},
+
+        {"float", -45.1f},
+        {"double", -7890.0923d},
+        {"decimal", 185_000.00m},
+
+        {"sub", new JsonDataMap(){ {"a", 12345}, {"b", null} }},
+
+        {"arr", new object[]{ 1, 2, true, false, "ok", 345, Atom.Encode("zxy")}},
       };
       ArchiveConventions.WriteArchivedDataMap(w.Writer, map);
+
+      w.Buffer.ToHexDump().See();
 
       using var r = new BixReaderBufferScope(w.Buffer);
       var got = ArchiveConventions.ReadArchivedDataMap(r.Reader);
 
-      got.See();
-
+      got.See(new JsonWritingOptions(JsonWritingOptions.PrettyPrintRowsAsMap){ EnableTypeHints = true });
+      averMapsEqual(map, got);
     }
 
 
+    private static void averMapsEqual(JsonDataMap map1, JsonDataMap map2)
+    {
+      Aver.AreEqual(map1.Count, map2.Count);
 
+      foreach (var kvp in map1)
+      {
+        if (kvp.Value is JsonDataMap map)
+          averMapsEqual(map, (JsonDataMap)map2[kvp.Key]);
+        else if (kvp.Value is byte[] buf)
+          Aver.IsTrue(buf.MemBufferEquals((byte[])map2[kvp.Key]));
+        else
+          Aver.AreObjectsEqual(kvp.Value, map2[kvp.Key]);
+      }
+    }
 
   }
 }

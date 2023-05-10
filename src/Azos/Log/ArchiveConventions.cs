@@ -32,6 +32,11 @@ namespace Azos.Log
     /// </summary>
     public const int SD_MAX_MAP_PROPS = 512;
 
+    /// <summary>
+    /// Absolute limit on maximum number of array elements
+    /// </summary>
+    public const int SD_MAX_ARRAY_ELM = 4 * 1024;
+
     // Null/NonNull map flags, also used as a stream alignment crosscheck code
     private const byte SD_FMT_NULL = 0x55;
     private const byte SD_FMT_NOTNULL = 0xAA;
@@ -262,9 +267,28 @@ namespace Azos.Log
       return result;
     }
 
+    private static JsonDataArray readArchivedDataArray(BixReader reader, byte ver)
+    {
+      var flagNullNotNull = reader.ReadByte();
+      if (flagNullNotNull == SD_FMT_NULL) return null;
+      Aver.AreEqual(SD_FMT_NOTNULL, flagNullNotNull, "corrupted data");
+
+      var count = reader.ReadInt();
+      Aver.IsTrue(count < SD_MAX_ARRAY_ELM, "max elm");
+      var result = new JsonDataArray();
+
+      for (var i=0; i<count; i++)
+      {
+        var val = readValue(reader, ver);
+        result.Add(val);
+      }
+
+      return result;
+    }
+
     /// <summary>
     /// Writes map into a stream using a canonical archive format which is based on Bix wire primitives.
-    /// Null is permitted
+    /// Null is permitted. The sub-objects should be wither JsonDataMap or JsonDataArray
     /// </summary>
     public static void WriteArchivedDataMap(BixWriter writer, JsonDataMap map)
     {
@@ -272,7 +296,7 @@ namespace Azos.Log
       writeArchivedDataMap(writer, map, null);
     }
 
-    private static void writeArchivedDataMap(BixWriter writer, JsonDataMap map, HashSet<JsonDataMap> set)
+    private static void writeArchivedDataMap(BixWriter writer, JsonDataMap map, HashSet<IJsonDataObject> set)
     {
       if (map == null)
       {
@@ -290,6 +314,24 @@ namespace Azos.Log
         writeValue(writer, kvp.Value, set);
       }
       writer.Write((string)null);//eof
+    }
+
+    private static void writeArchivedDataArray(BixWriter writer, JsonDataArray array, HashSet<IJsonDataObject> set)
+    {
+      if (array == null)
+      {
+        writer.Write(SD_FMT_NULL);//array is null, byte code is used as a bool and stream consistency flag as well
+        return;
+      }
+
+      Aver.IsTrue(array.Count < SD_MAX_ARRAY_ELM, "max elms");
+
+      writer.Write(SD_FMT_NOTNULL);//non null, byte code is used as a bool and stream consistency flag as well
+      writer.Write(array.Count);
+      for(var i=0; i< array.Count; i++)
+      {
+        writeValue(writer, array[i], set);
+      }
     }
 
     private static readonly Dictionary<Type, Action<BixWriter, object>> WRITERS = new()
@@ -342,7 +384,7 @@ namespace Azos.Log
       {TypeCode.Buffer,   (r, ver) =>  r.ReadBuffer()   },
     };
 
-    private static void writeValue(BixWriter writer, object value, HashSet<JsonDataMap> set)
+    private static void writeValue(BixWriter writer, object value, HashSet<IJsonDataObject> set)
     {
       if (value == null)
       {
@@ -356,7 +398,7 @@ namespace Azos.Log
 
         if (set == null)//the trick is to allocate set only here
         {               //so most cases with top-level map do NOT allocate set as it allocates only on a first field of type map
-          set = new HashSet<JsonDataMap>();
+          set = new HashSet<IJsonDataObject>();
         }
 
         Aver.IsTrue(set.Add(map), "circular reference check");
@@ -367,6 +409,29 @@ namespace Azos.Log
         finally
         {
           set.Remove(map);
+        }
+        return;
+      }
+
+      //Reinterpret cast object[] -> JsonDataArray(object[])
+      if (value is object[] objarray) value = new JsonDataArray(objarray);
+      if (value is JsonDataArray array)
+      {
+        writer.Write(TypeCode.Array);
+
+        if (set == null)//the trick is to allocate set only here
+        {               //so most cases with top-level map do NOT allocate set as it allocates only on a first field of type map
+          set = new HashSet<IJsonDataObject>();
+        }
+
+        Aver.IsTrue(set.Add(array), "circular reference check");
+        try
+        {
+          writeArchivedDataArray(writer, array, set);
+        }
+        finally
+        {
+          set.Remove(array);
         }
         return;
       }
@@ -391,6 +456,7 @@ namespace Azos.Log
 
       if (tc == TypeCode.Map) return readArchivedDataMap(reader, ver);
 
+      if (tc == TypeCode.Array) return readArchivedDataArray(reader, ver);
       if (READERS.TryGetValue(tc, out var vr))
       {
         return vr(reader, ver);
