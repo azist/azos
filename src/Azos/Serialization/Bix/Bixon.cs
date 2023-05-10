@@ -38,6 +38,9 @@ namespace Azos.Log
     /// </summary>
     public const byte VERSION = 1;
 
+    public const byte HEADER1 = 0xB1;
+    public const byte HEADER2 = 0xD1;
+
     /// <summary>
     /// Absolute limit on maximum number of map properties per level
     /// </summary>
@@ -73,6 +76,8 @@ namespace Azos.Log
     /// </summary>
     public static object ReadObject(BixReader reader)
     {
+      Aver.AreEqual(HEADER1, reader.ReadByte(), "hdr1");
+      Aver.AreEqual(HEADER2, reader.ReadByte(), "hdr2");
       var ver = reader.ReadByte();
       return readValue(reader, ver);
     }
@@ -122,6 +127,8 @@ namespace Azos.Log
     /// </summary>
     public static void WriteObject(BixWriter writer, object obj)
     {
+      writer.Write(HEADER1);
+      writer.Write(HEADER2);
       writer.Write(VERSION);
       writeValue(writer, obj, null);
     }
