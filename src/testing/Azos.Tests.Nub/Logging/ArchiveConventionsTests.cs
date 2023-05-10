@@ -4,8 +4,11 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using System;
 using Azos.Log;
 using Azos.Scripting;
+using Azos.Serialization.Bix;
+using Azos.Serialization.JSON;
 
 namespace Azos.Tests.Nub.Logging
 {
@@ -13,7 +16,7 @@ namespace Azos.Tests.Nub.Logging
   public class ArchiveConventionsTests
   {
     [Run]
-    public void Test01()
+    public void Ad_Test01()
     {
       var got = ArchiveConventions.DecodeArchiveDimensionsMap((string)null);
       Aver.IsNull(got);
@@ -29,7 +32,7 @@ namespace Azos.Tests.Nub.Logging
     }
 
     [Run]
-    public void Test02()
+    public void Ad_Test02()
     {
       var encoded = ArchiveConventions.EncodeArchiveDimensions( new { a = 1, b = 3 });
       encoded.See();
@@ -43,7 +46,7 @@ namespace Azos.Tests.Nub.Logging
     }
 
     [Run]
-    public void Test03()
+    public void Ad_Test03()
     {
       var encoded1 = ArchiveConventions.EncodeArchiveDimensions(new { a = 1, b = 3 });
       var encoded2 = ArchiveConventions.EncodeArchiveDimensions(new { b = 3, a = 1, c = (string)null });//notice a different sequence of keys
@@ -58,5 +61,56 @@ namespace Azos.Tests.Nub.Logging
       Aver.AreObjectsEqual(1, decoded["a"]);
       Aver.AreObjectsEqual(3, decoded["b"]);
     }
+
+    [Run]
+    public void SD_Test01()
+    {
+      var got = ArchiveConventions.DecodeStructuredDataMap((string)null);
+      Aver.IsNull(got);
+
+      got = ArchiveConventions.DecodeStructuredDataMap("       ");
+      Aver.IsNull(got);
+
+      got = ArchiveConventions.DecodeStructuredDataMap("not a content produced by convention");
+      Aver.IsNull(got);
+    }
+
+    [Run]
+    public void SD_Test02()
+    {
+      var encoded = ArchiveConventions.EncodeStructuredData(new { a = 1, b = 3 });
+      encoded.See();
+
+      var decoded = ArchiveConventions.DecodeStructuredDataMap(encoded);
+      Aver.IsNotNull(decoded);
+      Aver.AreEqual(2, decoded.Count);
+
+      Aver.AreObjectsEqual(1, decoded["a"]);
+      Aver.AreObjectsEqual(3, decoded["b"]);
+    }
+
+    [Run]
+    public void SD_Data()
+    {
+      using var w = new BixWriterBufferScope();
+
+      var map = new JsonDataMap
+      {
+        {"str", "string 1"},
+        {"atom", Atom.Encode("abc")},
+        {"dt", new DateTime(1,2,3, 14,00,00,DateTimeKind.Utc)},
+      };
+      ArchiveConventions.WriteArchivedDataMap(w.Writer, map);
+
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = ArchiveConventions.ReadArchivedDataMap(r.Reader);
+
+      got.See();
+
+    }
+
+
+
+
   }
 }
