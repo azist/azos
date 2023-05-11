@@ -487,7 +487,7 @@ namespace Azos.Tests.Nub.Serialization
         NInt1 = 678
       };
 
-      Bixon.WriteObject(w.Writer, doc);
+      Bixon.WriteObject(w.Writer, doc); //Default options = doc types ARE NOT marshalled across
       w.Buffer.ToHexDump().See();
 
       using var r = new BixReaderBufferScope(w.Buffer);
@@ -509,7 +509,7 @@ namespace Azos.Tests.Nub.Serialization
         NInt1 = 678
       };
 
-      Bixon.WriteObject(w.Writer, doc, MARSHALLED);
+      Bixon.WriteObject(w.Writer, doc, MARSHALLED); //marshall doc type identity
       w.Buffer.ToHexDump().See();
 
       using var r = new BixReaderBufferScope(w.Buffer);
@@ -517,6 +517,58 @@ namespace Azos.Tests.Nub.Serialization
       got.See(WITH_TYPES);
       Aver.IsNotNull(got);
       Aver.AreEqual(doc.String1, got.String1);
+    }
+
+    [Run]
+    public void RootDocPolyNotMarshalled_03()
+    {
+      using var w = new BixWriterBufferScope(1024);
+      var doc = new bxonBaseDoc()
+      {
+        String1 = "Fidel Castro",
+        Int1 = 123,
+        NInt1 = 678,
+        Obj1 = new bxonADoc() { String1 = "Odessa mama", String2 = "Cancun Salsa" }
+      };
+
+      Bixon.WriteObject(w.Writer, doc); //NOT marshalled
+      w.Buffer.ToHexDump().See();
+
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = Bixon.ReadObject(r.Reader) as JsonDataMap;
+      got.See(WITH_TYPES);
+      Aver.IsNotNull(got);
+      Aver.AreEqual(doc.String1, (string)got["String1"]);
+      Aver.IsNotNull(got["Obj1"]);
+      Aver.IsTrue(got["Obj1"] is JsonDataMap);
+      Aver.AreEqual("Odessa mama", (string)((JsonDataMap)got["Obj1"])["String1"]);
+      Aver.AreEqual("Cancun Salsa",(string)((JsonDataMap)got["Obj1"])["String2"]);
+    }
+
+    [Run]
+    public void RootDocPolyMarshalled_04()
+    {
+      using var w = new BixWriterBufferScope(1024);
+      var doc = new bxonBaseDoc()
+      {
+        String1 = "Fidel Castro",
+        Int1 = 123,
+        NInt1 = 678,
+        Obj1 = new bxonADoc(){ String1 = "Odessa mama", String2 = "Cancun Salsa" }
+      };
+
+      Bixon.WriteObject(w.Writer, doc, MARSHALLED); //marshall doc type identity
+      w.Buffer.ToHexDump().See();
+
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = Bixon.ReadObject(r.Reader) as bxonBaseDoc;
+      got.See(WITH_TYPES);
+      Aver.IsNotNull(got);
+      Aver.AreEqual(doc.String1, got.String1);
+      Aver.IsNotNull(got.Obj1);
+      Aver.IsTrue(got.Obj1 is bxonADoc);
+      Aver.AreEqual("Odessa mama", ((bxonADoc)got.Obj1).String1);
+      Aver.AreEqual("Cancun Salsa", ((bxonADoc)got.Obj1).String2);
     }
 
   }
