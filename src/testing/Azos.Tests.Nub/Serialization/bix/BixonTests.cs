@@ -494,7 +494,7 @@ namespace Azos.Tests.Nub.Serialization
       var got = Bixon.ReadObject(r.Reader) as JsonDataMap;
       got.See(WITH_TYPES);
       Aver.IsNotNull(got);
-      Aver.AreEqual(9, got.Count);
+      Aver.AreEqual(10, got.Count);//9+bix
       Aver.AreEqual(doc.String1, (string)got["String1"]);
     }
 

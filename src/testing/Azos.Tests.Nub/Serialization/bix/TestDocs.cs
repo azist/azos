@@ -18,6 +18,7 @@ using Azos.Serialization.JSON;
 namespace Azos.Tests.Nub.Serialization
 {
   [Bix("BF3E4485-07B9-4797-9DE6-2AF4AAED93FB")]
+  [BixJsonHandler]
   public class bxonBaseDoc : AmorphousTypedDoc
   {
     [Field] public string String1 {  get; set; }
@@ -30,6 +31,16 @@ namespace Azos.Tests.Nub.Serialization
 
     [Field] public object Obj1 { get; set; }
     [Field] public object[] ObjArr1 { get; set; }
+
+    protected override void AddJsonSerializerField(Schema.FieldDef def, JsonWritingOptions options, Dictionary<string, object> jsonMap, string name, object value)
+    {
+      if (def?.Order == 0)
+      {
+        BixJsonHandler.EmitJsonBixDiscriminator(this, jsonMap);
+      }
+
+      base.AddJsonSerializerField(def, options, jsonMap, name, value);
+    }
   }
 
   [Bix("E4C90E2E-5CB8-4632-A956-0605C56DABEC")]
