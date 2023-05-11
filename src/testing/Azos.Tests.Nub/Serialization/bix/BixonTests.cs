@@ -21,6 +21,12 @@ namespace Azos.Tests.Nub.Serialization
   public class BixonTests
   {
     public static readonly JsonWritingOptions WITH_TYPES = new JsonWritingOptions(JsonWritingOptions.PrettyPrintRowsAsMap) { EnableTypeHints = true };
+    public static readonly JsonWritingOptions MARSHALLED = new JsonWritingOptions(JsonWritingOptions.PrettyPrintRowsAsMap) { Purpose = JsonSerializationPurpose.Marshalling };
+
+    public BixonTests()
+    {
+      Bixer.RegisterTypeSerializationCores(System.Reflection.Assembly.GetExecutingAssembly());
+    }
 
     [Run]
     public void RootNull()
@@ -358,10 +364,42 @@ namespace Azos.Tests.Nub.Serialization
       got.See(WITH_TYPES);
     }
 
+    [Run]
+    public void RootArray_03()
+    {
+      using var w = new BixWriterBufferScope(1024);
+      var obj = new string[] { "ok", "beaver", "caller", "Castro", null, "Guriy Yurary"};
+      Bixon.WriteObject(w.Writer, obj);
+      w.Buffer.ToHexDump().See();
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = Bixon.ReadObject(r.Reader) as JsonDataArray;
+      Aver.IsNotNull(got);
+      Aver.AreEqual(6, got.Count);
+      Aver.AreEqual("ok", (string)got[0]);
+      Aver.IsNull(got[4]);
+      Aver.AreEqual("Guriy Yurary", (string)got[5]);
+    }
+
+    [Run]
+    public void RootArray_04()
+    {
+      using var w = new BixWriterBufferScope(1024);
+      var obj = new decimal[] { 100m, 200m, -1.01m };
+      Bixon.WriteObject(w.Writer, obj);
+      w.Buffer.ToHexDump().See();
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = Bixon.ReadObject(r.Reader) as JsonDataArray;
+      Aver.IsNotNull(got);
+      Aver.AreEqual(3, got.Count);
+      Aver.AreEqual(100m, (decimal)got[0]);
+      Aver.AreEqual(200m, (decimal)got[1]);
+      Aver.AreEqual(-1.01m, (decimal)got[2]);
+    }
+
 
 
     [Run]
-    public void RoundtripAllTypes_99999()
+    public void RoundtripAllTypes_01()
     {
       using var w = new BixWriterBufferScope(1024);
 
@@ -435,6 +473,50 @@ namespace Azos.Tests.Nub.Serialization
         else
           Aver.AreObjectsEqual(kvp.Value, map2[kvp.Key]);
       }
+    }
+
+
+    [Run]
+    public void RootDocNotMarshalled_01()
+    {
+      using var w = new BixWriterBufferScope(1024);
+      var doc = new bxonBaseDoc()
+      {
+        String1 = "Fidel Castro",
+        Int1 = 123,
+        NInt1 = 678
+      };
+
+      Bixon.WriteObject(w.Writer, doc);
+      w.Buffer.ToHexDump().See();
+
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = Bixon.ReadObject(r.Reader) as JsonDataMap;
+      got.See(WITH_TYPES);
+      Aver.IsNotNull(got);
+      Aver.AreEqual(9, got.Count);
+      Aver.AreEqual(doc.String1, (string)got["String1"]);
+    }
+
+    [Run]
+    public void RootDocMarshalled_02()
+    {
+      using var w = new BixWriterBufferScope(1024);
+      var doc = new bxonBaseDoc()
+      {
+        String1 = "Fidel Castro",
+        Int1 = 123,
+        NInt1 = 678
+      };
+
+      Bixon.WriteObject(w.Writer, doc, MARSHALLED);
+      w.Buffer.ToHexDump().See();
+
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = Bixon.ReadObject(r.Reader) as bxonBaseDoc;
+      got.See(WITH_TYPES);
+      Aver.IsNotNull(got);
+      Aver.AreEqual(doc.String1, got.String1);
     }
 
   }
