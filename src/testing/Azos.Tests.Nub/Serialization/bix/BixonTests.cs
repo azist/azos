@@ -571,5 +571,66 @@ namespace Azos.Tests.Nub.Serialization
       Aver.AreEqual("Cancun Salsa", ((bxonADoc)got.Obj1).String2);
     }
 
+    [Run]
+    public void RootDocComplex_01()
+    {
+      using var w = new BixWriterBufferScope(1024);
+      var doc = new bxonBaseDoc()
+      {
+        String1 = "Fidel Castro",
+        Int1 = 123,
+        NInt1 = -678_000_000,
+        Obj1 = "String text of no sense",
+        Jdm1 = new JsonDataMap{ {"a", 1}, {"b", 2}, {"zzz", new bxonBDoc{ Atom1 = Atom.Encode("titikaka")}} },
+        Jar1 = new JsonDataArray { 1, 2, 5, 7, 9, 0, new { d=true, f=-500}, null, new GDID(1,2)},
+        ObjArr1 = new object[]
+        {
+          null,
+          true,
+          7890m,
+          new DateTime(1990, 5, 2, 14, 32, 00, DateTimeKind.Utc),
+          new bxonADoc() { String1 = "Odessa mama", String2 = "Salsa Mexicana" },
+          new bxonBDoc() { String1 = "Corn kebab", Flag1 = true },
+        }
+      };
+
+      Bixon.WriteObject(w.Writer, doc, MARSHALLED); //marshall doc type identity
+      w.Buffer.ToHexDump().See();
+
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = Bixon.ReadObject(r.Reader) as bxonBaseDoc;
+      got.See(WITH_TYPES);
+      Aver.IsNotNull(got);
+      Aver.AreEqual(doc.String1, got.String1);
+      Aver.AreEqual(doc.Int1, got.Int1);
+      Aver.AreEqual(doc.NInt1, got.NInt1);
+
+      Aver.IsNotNull(got.Jdm1);
+      Aver.AreEqual(3, got.Jdm1.Count);
+      Aver.AreEqual(1, (int)got.Jdm1["a"]);
+      Aver.AreEqual(2, (int)got.Jdm1["b"]);
+      Aver.AreEqual("titikaka", ((bxonBDoc)got.Jdm1["zzz"]).Atom1.Value);
+
+      Aver.IsNotNull(got.Jar1);
+      Aver.AreEqual(9, got.Jar1.Count);
+      Aver.AreEqual(5, (int)got.Jar1[2]);
+      Aver.AreEqual(new GDID(1, 2), (GDID)got.Jar1[8]);
+
+
+      Aver.IsNotNull(got.ObjArr1);
+      Aver.AreEqual(6, got.ObjArr1.Length);
+      Aver.IsNull(got.ObjArr1[0]);
+      Aver.AreEqual(true, (bool)got.ObjArr1[1]);
+      Aver.AreEqual(7890m, (decimal)got.ObjArr1[2]);
+      Aver.AreEqual(1990, ((DateTime)got.ObjArr1[3]).Year);
+      Aver.AreEqual("Odessa mama", ((bxonADoc)got.ObjArr1[4]).String1);
+      Aver.AreEqual("Salsa Mexicana", ((bxonADoc)got.ObjArr1[4]).String2);
+      Aver.AreEqual("Corn kebab", ((bxonBDoc)got.ObjArr1[5]).String1);
+      Aver.AreEqual(true, ((bxonBDoc)got.ObjArr1[5]).Flag1);
+
+      Aver.AreEqual("String text of no sense", (string)got.Obj1);
+    }
+
+
   }
 }
