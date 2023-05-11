@@ -125,15 +125,15 @@ namespace Azos.Log
     /// <summary>
     /// Writes object: a primitive, anonymous object, JsonDataMap or JsonDataArray
     /// </summary>
-    public static void WriteObject(BixWriter writer, object obj)
+    public static void WriteObject(BixWriter writer, object obj, JsonWritingOptions jopt = null)
     {
       writer.Write(HEADER1);
       writer.Write(HEADER2);
       writer.Write(VERSION);
-      writeValue(writer, obj, null);
+      writeValue(writer, obj, jopt, null);
     }
 
-    private static void writeArchivedDataMap(BixWriter writer, JsonDataMap map, HashSet<IJsonDataObject> set)
+    private static void writeArchivedDataMap(BixWriter writer, JsonDataMap map, JsonWritingOptions jopt, HashSet<IJsonDataObject> set)
     {
       if (map == null)
       {
@@ -148,12 +148,12 @@ namespace Azos.Log
       foreach(var kvp in map)
       {
         writer.Write(kvp.Key);//string property name
-        writeValue(writer, kvp.Value, set);
+        writeValue(writer, kvp.Value, jopt, set);
       }
       writer.Write((string)null);//eof
     }
 
-    private static void writeArchivedDataArray(BixWriter writer, JsonDataArray array, HashSet<IJsonDataObject> set)
+    private static void writeArchivedDataArray(BixWriter writer, JsonDataArray array, JsonWritingOptions jopt, HashSet<IJsonDataObject> set)
     {
       if (array == null)
       {
@@ -167,7 +167,7 @@ namespace Azos.Log
       writer.Write(array.Count);
       for(var i=0; i< array.Count; i++)
       {
-        writeValue(writer, array[i], set);
+        writeValue(writer, array[i], jopt, set);
       }
     }
 
@@ -221,7 +221,7 @@ namespace Azos.Log
       {TypeCode.Buffer,   (r, ver) =>  r.ReadBuffer()   },
     };
 
-    private static void writeValue(BixWriter writer, object value, HashSet<IJsonDataObject> set)
+    private static void writeValue(BixWriter writer, object value, JsonWritingOptions jopt, HashSet<IJsonDataObject> set)
     {
       if (value == null)
       {
@@ -229,8 +229,33 @@ namespace Azos.Log
         return;
       }
 
+      var tvalue = value.GetType();
+
       //Reinterpret new{a=1} as JsonDataMap
-      if (value.GetType().IsAnonymousType()) value = anonymousToMap(value);
+      if (tvalue.IsAnonymousType()) value = anonymousToMap(value);
+      //Reinterpret Doc as map
+      else if (value is Doc doc)
+      {
+        var includeType = jopt != null && jopt.Purpose == JsonSerializationPurpose.Marshalling;
+
+        if (includeType)//include type code
+        {
+          writer.Write(TypeCode.DocWithType);
+          var atr = BixAttribute.TryGetGuidTypeAttribute<TypedDoc, BixAttribute>(tvalue);
+          if (atr != null)
+          {
+            writer.WriteFixedBE64bits(atr.TypeFguid.S1);
+            writer.WriteFixedBE64bits(atr.TypeFguid.S2);
+          }
+          else
+          {
+            for(var i=0; i<16; i++) writer.Write((byte)0);
+          }
+        }
+        value = doc.ToJsonDataMap(jopt);
+      }//doc
+
+
       if (value is JsonDataMap map)
       {
         writer.Write(TypeCode.Map);
@@ -243,7 +268,7 @@ namespace Azos.Log
         Aver.IsTrue(set.Add(map), "circular reference check");
         try
         {
-          writeArchivedDataMap(writer, map, set);
+          writeArchivedDataMap(writer, map, jopt, set);
         }
         finally
         {
@@ -266,7 +291,7 @@ namespace Azos.Log
         Aver.IsTrue(set.Add(array), "circular reference check");
         try
         {
-          writeArchivedDataArray(writer, array, set);
+          writeArchivedDataArray(writer, array, jopt, set);
         }
         finally
         {
