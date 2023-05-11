@@ -36,7 +36,7 @@ namespace Azos.Log
     /// Structured data bix binary version tag. Serializer writes this as the first field of structured data stream.
     /// Deserializer reads it and can adjust the reading format for backward compatibility
     /// </summary>
-    public const byte VERSION = 1;
+    public const byte SUBVERSION = 1;
 
     public const byte HEADER1 = 0xB1;
     public const byte HEADER2 = 0xD1;
@@ -44,12 +44,12 @@ namespace Azos.Log
     /// <summary>
     /// Absolute limit on maximum number of map properties per level
     /// </summary>
-    public const int MAX_MAP_PROPS = 512;
+    public const int MAX_MAP_PROPS = 2 * 1024;
 
     /// <summary>
     /// Absolute limit on maximum number of array elements
     /// </summary>
-    public const int MAX_ARRAY_ELM = 4 * 1024;
+    public const int MAX_ARRAY_ELM = 64 * 1024;
 
     // Null/NonNull map flags, also used as a stream alignment crosscheck code
     private const byte SD_FMT_NULL = 0x55;
@@ -78,7 +78,11 @@ namespace Azos.Log
     {
       Aver.AreEqual(HEADER1, reader.ReadByte(), "hdr1");
       Aver.AreEqual(HEADER2, reader.ReadByte(), "hdr2");
-      var ver = reader.ReadByte();
+
+      var readVersion = reader.ReadInt();
+      Aver.IsTrue(Format.VERSION >= readVersion);
+
+      var ver = reader.ReadByte();//sub version of this
       return readValue(reader, ver);
     }
 
@@ -129,7 +133,8 @@ namespace Azos.Log
     {
       writer.Write(HEADER1);
       writer.Write(HEADER2);
-      writer.Write(VERSION);
+      writer.Write(Format.VERSION);
+      writer.Write(Bixon.SUBVERSION);
       writeValue(writer, obj, jopt, null);
     }
 

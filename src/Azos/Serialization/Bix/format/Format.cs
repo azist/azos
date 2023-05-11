@@ -17,7 +17,7 @@ namespace Azos.Serialization.Bix
   {
     public static readonly UTF8Encoding ENCODING = new UTF8Encoding(false, false);
 
-    public static readonly Atom VERSION = Atom.Encode("2");
+    public const int VERSION = 2;
 
     public const int MAX_BYTE_ARRAY_LEN = 128 * //mb
                                           1024 * //kb
