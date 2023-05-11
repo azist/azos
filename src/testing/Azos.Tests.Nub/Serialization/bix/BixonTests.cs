@@ -14,6 +14,7 @@ using Azos.Log;
 using Azos.Scripting;
 using Azos.Serialization.Bix;
 using Azos.Serialization.JSON;
+using Azos.Time;
 
 namespace Azos.Tests.Nub.Serialization
 {
@@ -632,6 +633,94 @@ namespace Azos.Tests.Nub.Serialization
       Aver.AreEqual("String text of no sense", (string)got.Obj1);
     }
 
+    /*
+    2023 May 11 .Net 6 Release
+    --------------------------
+      JSON wrote 32,000 in 1.0 sec at 30,776 ops/sec; 1,590 chars
+      JSON read 32,000 in 2.6 sec at 12,181 ops/sec
+      BIXON wrote 32,000 in 0.8 sec at 41,327 ops/sec; 1,201 bytes
+      BIXON read 32,000 in 0.8 sec at 41,088 ops/sec
+    */
+
+
+
+    // [Run("count=32000")]
+    [Run("count=12000")]
+    public void Benchmark(int count)
+    {
+
+      var doc = new bxonBaseDoc()
+      {
+        String1 = "Fidel Castro",
+        Int1 = 123,
+        NInt1 = -678_000_000,
+        Atom1 = Atom.Encode("a1234567"),
+        Obj1 = new byte[] {1,1,1,1,1,1,1,1,1,1,1,2,3,4,3,12,3,2,4,23,4,3,3,3,5,10,200,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+        Jdm1 = new JsonDataMap { { "a", 1 }, { "b", 2 }, { "zzz", new bxonBDoc { Atom1 = Atom.Encode("abcd") } } },
+        Jar1 = new JsonDataArray { Atom.Encode("a1"), new{a = Atom.Encode("a2") }, new{z=1}, 0, new{c=true},0,0,0,null,null,1, 2, 5, 7, Atom.Encode("a1234"), 0, new { d = true, f = -500 }, null, new GDID(1, 2) },
+        ObjArr1 = new object[]
+        {
+          null,
+          true,
+          7890m,
+          new DateTime(1990, 5, 2, 14, 32, 00, DateTimeKind.Utc),
+          new bxonADoc() { String1 = "Odessa mama", String2 = "Salsa Mexicana" },
+          new bxonBDoc() { String1 = "Corn kebab", Flag1 = true, Obj2 = new byte[]{255,255, 0, 1,2,3,4,5,6,7,8,9,0,127,128,129,130,131,132,133,134} },
+          new bxonBDoc() { String1 = "sdferert ertert", Flag1 = false, Obj2 = new byte[]{1,0,3} },
+          new bxonBDoc() { String1 = "student of choice", Flag1 = true, Obj2 = new byte[]{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0} },
+        }
+      };
+
+      //Warmup
+      var jwo = new JsonWritingOptions(JsonWritingOptions.CompactRowsAsMap){ EnableTypeHints = true, Purpose = JsonSerializationPurpose.Marshalling};
+      var json = doc.ToJson(jwo);
+      var gotFromJson = JsonReader.ToDoc<bxonBaseDoc>(json, false);
+      Aver.IsNotNull(gotFromJson);
+
+      using var w = new BixWriterBufferScope(1024);
+      Bixon.WriteObject(w.Writer, doc, jwo); //marshall doc type identity
+      w.Buffer.ToHexDump().See();
+
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = Bixon.ReadObject(r.Reader) as bxonBaseDoc;
+      got.See(WITH_TYPES);
+
+      var jsonTime = Timeter.StartNew();
+      for(var i=0; i<count; i++)
+      {
+        json = doc.ToJson(jwo);
+      }
+      jsonTime.Stop();
+      "JSON wrote {0:n0} in {1:n1} sec at {2:n0} ops/sec; {3:n0} chars".SeeArgs(count, jsonTime.ElapsedSec, count / jsonTime.ElapsedSec, json.Length);
+
+      jsonTime = Timeter.StartNew();
+      for (var i = 0; i < count; i++)
+      {
+        gotFromJson = JsonReader.ToDoc<bxonBaseDoc>(json, false);
+      }
+      jsonTime.Stop();
+      "JSON read {0:n0} in {1:n1} sec at {2:n0} ops/sec".SeeArgs(count, jsonTime.ElapsedSec, count / jsonTime.ElapsedSec);
+
+
+      var bixonTime = Timeter.StartNew();
+      for (var i = 0; i < count; i++)
+      {
+        w.Reset();
+        Bixon.WriteObject(w.Writer, doc, jwo); //marshall doc type identity
+      }
+      bixonTime.Stop();
+      "BIXON wrote {0:n0} in {1:n1} sec at {2:n0} ops/sec; {3:n0} bytes".SeeArgs(count, bixonTime.ElapsedSec, count / bixonTime.ElapsedSec, w.Buffer.Length);
+
+      bixonTime = Timeter.StartNew();
+      for (var i = 0; i < count; i++)
+      {
+        r.Reset();
+        got = Bixon.ReadObject(r.Reader) as bxonBaseDoc;
+      }
+      bixonTime.Stop();
+      "BIXON read {0:n0} in {1:n1} sec at {2:n0} ops/sec".SeeArgs(count, bixonTime.ElapsedSec, count / bixonTime.ElapsedSec); ;
+
+    }
 
   }
 }
