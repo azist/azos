@@ -274,8 +274,13 @@ namespace Azos.Log
         return;
       }
 
-      //Reinterpret cast object[] -> JsonDataArray(object[])
-      if (value is object[] objarray) value = new JsonDataArray(objarray);
+      //Reinterpret cast Array/object[] -> JsonDataArray(object[])
+      if (value is Array arr && value is not byte[])
+      {
+        var newval = new JsonDataArray(arr.Length);
+        foreach(var item in arr) newval.Add(item);
+        value = newval;
+      }
       if (value is JsonDataArray array)
       {
         writer.Write(TypeCode.Array);
