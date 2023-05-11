@@ -590,7 +590,7 @@ namespace Azos.Tests.Nub.Serialization
           7890m,
           new DateTime(1990, 5, 2, 14, 32, 00, DateTimeKind.Utc),
           new bxonADoc() { String1 = "Odessa mama", String2 = "Salsa Mexicana" },
-          new bxonBDoc() { String1 = "Corn kebab", Flag1 = true },
+          new bxonBDoc() { String1 = "Corn kebab", Flag1 = true, Obj2 = new byte[]{255,255, 0, 1,2,3,4,5,6,7,8,9,0,127,128,129,130,131,132,133,134} },
         }
       };
 
@@ -627,6 +627,7 @@ namespace Azos.Tests.Nub.Serialization
       Aver.AreEqual("Salsa Mexicana", ((bxonADoc)got.ObjArr1[4]).String2);
       Aver.AreEqual("Corn kebab", ((bxonBDoc)got.ObjArr1[5]).String1);
       Aver.AreEqual(true, ((bxonBDoc)got.ObjArr1[5]).Flag1);
+      Aver.IsTrue(((byte[])((bxonBDoc)doc.ObjArr1[5]).Obj2).MemBufferEquals((byte[])((bxonBDoc)got.ObjArr1[5]).Obj2));
 
       Aver.AreEqual("String text of no sense", (string)got.Obj1);
     }

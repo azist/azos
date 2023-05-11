@@ -42,5 +42,6 @@ namespace Azos.Tests.Nub.Serialization
   public class bxonBDoc : bxonBaseDoc
   {
     [Field] public bool Flag1 { get; set; }
+    [Field] public object Obj2 { get; set; }
   }
 }
