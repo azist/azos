@@ -242,15 +242,7 @@ namespace Azos.Log
         {
           writer.Write(TypeCode.DocWithType);
           var atr = BixAttribute.TryGetGuidTypeAttribute<TypedDoc, BixAttribute>(tvalue);
-          if (atr != null)
-          {
-            writer.WriteFixedBE64bits(atr.TypeFguid.S1);
-            writer.WriteFixedBE64bits(atr.TypeFguid.S2);
-          }
-          else
-          {
-            for(var i=0; i<16; i++) writer.Write((byte)0);
-          }
+          writer.Write(atr != null ? atr.TypeGuid : null);
         }
         value = doc.ToJsonDataMap(jopt);
       }//doc
@@ -317,6 +309,21 @@ namespace Azos.Log
     {
       var tc = reader.ReadTypeCode();
       if (tc == TypeCode.Null) return null;
+
+      if (tc == TypeCode.DocWithType)
+      {
+        var tguid = reader.ReadNullableGuid();
+        if (tguid.HasValue)
+        {
+          var tdoc = Bixer.GuidTypeResolver.Resolve(tguid.Value);//throws error on not found Bix
+          var doc = (Doc)SerializationUtils.MakeNewObjectInstance(tdoc);
+          tc = reader.ReadTypeCode();
+          Aver.IsTrue( tc == TypeCode.Map, "invalid doc typecode");
+          var map = readArchivedDataMap(reader, ver);
+          JsonReader.ToDoc(doc, map, false);
+          return doc;
+        }
+      }
 
       if (tc == TypeCode.Map) return readArchivedDataMap(reader, ver);
 
