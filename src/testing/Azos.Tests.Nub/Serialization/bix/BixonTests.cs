@@ -7,6 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
+using Azos;
 using Azos.Data;
 using Azos.Log;
 using Azos.Scripting;
@@ -18,8 +20,348 @@ namespace Azos.Tests.Nub.Serialization
   [Runnable]
   public class BixonTests
   {
+    public static readonly JsonWritingOptions WITH_TYPES = new JsonWritingOptions(JsonWritingOptions.PrettyPrintRowsAsMap) { EnableTypeHints = true };
+
     [Run]
-    public void RoundtripAllTypes_01()
+    public void RootNull()
+    {
+      using var w = new BixWriterBufferScope(1024);
+      JsonDataMap obj = null;
+      Bixon.WriteObject(w.Writer, obj);
+      w.Buffer.ToHexDump().See();
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = Bixon.ReadObject(r.Reader);
+      Aver.IsNull(got);
+    }
+
+    [Run]
+    public void RootString()
+    {
+      using var w = new BixWriterBufferScope(1024);
+      string obj = "My root message";
+      Bixon.WriteObject(w.Writer, obj);
+      w.Buffer.ToHexDump().See();
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = Bixon.ReadObject(r.Reader) as string;
+      Aver.AreEqual(obj, got);
+    }
+
+    [Run]
+    public void RootAtom()
+    {
+      using var w = new BixWriterBufferScope(1024);
+      Atom obj = Atom.Encode("a1234");
+      Bixon.WriteObject(w.Writer, obj);
+      w.Buffer.ToHexDump().See();
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = (Atom)Bixon.ReadObject(r.Reader);
+      Aver.AreEqual(obj, got);
+    }
+
+    [Run]
+    public void RootDateTime()
+    {
+      using var w = new BixWriterBufferScope(1024);
+      DateTime obj = DateTime.UtcNow;
+      Bixon.WriteObject(w.Writer, obj);
+      w.Buffer.ToHexDump().See();
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = (DateTime)Bixon.ReadObject(r.Reader);
+      Aver.AreEqual(obj, got);
+    }
+
+    [Run]
+    public void RootTimeSpan()
+    {
+      using var w = new BixWriterBufferScope(1024);
+      TimeSpan obj = TimeSpan.FromSeconds(2389.0909d);
+      Bixon.WriteObject(w.Writer, obj);
+      w.Buffer.ToHexDump().See();
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = (TimeSpan)Bixon.ReadObject(r.Reader);
+      Aver.AreEqual(obj, got);
+    }
+
+    [Run]
+    public void RootGuid()
+    {
+      using var w = new BixWriterBufferScope(1024);
+      Guid obj = Guid.NewGuid();
+      Bixon.WriteObject(w.Writer, obj);
+      w.Buffer.ToHexDump().See();
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = (Guid)Bixon.ReadObject(r.Reader);
+      Aver.AreEqual(obj, got);
+    }
+
+    [Run]
+    public void RootGDID()
+    {
+      using var w = new BixWriterBufferScope(1024);
+      GDID obj = new GDID(0, 1234);
+      Bixon.WriteObject(w.Writer, obj);
+      w.Buffer.ToHexDump().See();
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = (GDID)Bixon.ReadObject(r.Reader);
+      Aver.AreEqual(obj, got);
+    }
+
+    [Run]
+    public void RootRGDID()
+    {
+      using var w = new BixWriterBufferScope(1024);
+      RGDID obj = new RGDID(1890, new GDID(8, 80233475));
+      Bixon.WriteObject(w.Writer, obj);
+      w.Buffer.ToHexDump().See();
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = (RGDID)Bixon.ReadObject(r.Reader);
+      Aver.AreEqual(obj, got);
+    }
+
+    [Run]
+    public void RootByteArray()
+    {
+      using var w = new BixWriterBufferScope(1024);
+      byte[] obj = new byte[]{1,2,3,4,5,6,7,8,9,0,91,92,93,94,95,96,97,98,99,120};
+      Bixon.WriteObject(w.Writer, obj);
+      w.Buffer.ToHexDump().See();
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = (byte[])Bixon.ReadObject(r.Reader);
+      Aver.IsTrue(obj.MemBufferEquals(got));
+    }
+
+    [Run]
+    public void RootBool1()
+    {
+      using var w = new BixWriterBufferScope(1024);
+      bool obj = false;
+      Bixon.WriteObject(w.Writer, obj);
+      w.Buffer.ToHexDump().See();
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = (bool)Bixon.ReadObject(r.Reader);
+      Aver.AreEqual(obj, got);
+    }
+
+    [Run]
+    public void RootBool2()
+    {
+      using var w = new BixWriterBufferScope(1024);
+      bool obj = true;
+      Bixon.WriteObject(w.Writer, obj);
+      w.Buffer.ToHexDump().See();
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = (bool)Bixon.ReadObject(r.Reader);
+      Aver.AreEqual(obj, got);
+    }
+
+    [Run]
+    public void RootByte()
+    {
+      using var w = new BixWriterBufferScope(1024);
+      byte obj = 0xfe;
+      Bixon.WriteObject(w.Writer, obj);
+      w.Buffer.ToHexDump().See();
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = (byte)Bixon.ReadObject(r.Reader);
+      Aver.AreEqual(obj, got);
+    }
+
+    [Run]
+    public void RootSByte()
+    {
+      using var w = new BixWriterBufferScope(1024);
+      sbyte obj = -125;
+      Bixon.WriteObject(w.Writer, obj);
+      w.Buffer.ToHexDump().See();
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = (sbyte)Bixon.ReadObject(r.Reader);
+      Aver.AreEqual(obj, got);
+    }
+
+    [Run]
+    public void RootShort()
+    {
+      using var w = new BixWriterBufferScope(1024);
+      short obj = -32000;
+      Bixon.WriteObject(w.Writer, obj);
+      w.Buffer.ToHexDump().See();
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = (short)Bixon.ReadObject(r.Reader);
+      Aver.AreEqual(obj, got);
+    }
+
+    [Run]
+    public void RootUShort()
+    {
+      using var w = new BixWriterBufferScope(1024);
+      ushort obj = 65530;
+      Bixon.WriteObject(w.Writer, obj);
+      w.Buffer.ToHexDump().See();
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = (ushort)Bixon.ReadObject(r.Reader);
+      Aver.AreEqual(obj, got);
+    }
+
+    [Run]
+    public void RootInt()
+    {
+      using var w = new BixWriterBufferScope(1024);
+      int obj = -32_000_000;
+      Bixon.WriteObject(w.Writer, obj);
+      w.Buffer.ToHexDump().See();
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = (int)Bixon.ReadObject(r.Reader);
+      Aver.AreEqual(obj, got);
+    }
+
+    [Run]
+    public void RootUInt()
+    {
+      using var w = new BixWriterBufferScope(1024);
+      uint obj = 3_000_000_000;
+      Bixon.WriteObject(w.Writer, obj);
+      w.Buffer.ToHexDump().See();
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = (uint)Bixon.ReadObject(r.Reader);
+      Aver.AreEqual(obj, got);
+    }
+
+    [Run]
+    public void RootLong()
+    {
+      using var w = new BixWriterBufferScope(1024);
+      long obj = -3_000_000_000;
+      Bixon.WriteObject(w.Writer, obj);
+      w.Buffer.ToHexDump().See();
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = (long)Bixon.ReadObject(r.Reader);
+      Aver.AreEqual(obj, got);
+    }
+
+    [Run]
+    public void RootULong()
+    {
+      using var w = new BixWriterBufferScope(1024);
+      ulong obj = 23_000_000_000_000;
+      Bixon.WriteObject(w.Writer, obj);
+      w.Buffer.ToHexDump().See();
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = (ulong)Bixon.ReadObject(r.Reader);
+      Aver.AreEqual(obj, got);
+    }
+
+    [Run]
+    public void RootFloat()
+    {
+      using var w = new BixWriterBufferScope(1024);
+      float obj = -34.002f;
+      Bixon.WriteObject(w.Writer, obj);
+      w.Buffer.ToHexDump().See();
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = (float)Bixon.ReadObject(r.Reader);
+      Aver.AreEqual(obj, got);
+    }
+
+    [Run]
+    public void RootDouble()
+    {
+      using var w = new BixWriterBufferScope(1024);
+      double obj = -34.002343242d;
+      Bixon.WriteObject(w.Writer, obj);
+      w.Buffer.ToHexDump().See();
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = (double)Bixon.ReadObject(r.Reader);
+      Aver.AreEqual(obj, got);
+    }
+
+    [Run]
+    public void RootDecimal()
+    {
+      using var w = new BixWriterBufferScope(1024);
+      decimal obj = -34.002343242m;
+      Bixon.WriteObject(w.Writer, obj);
+      w.Buffer.ToHexDump().See();
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = (decimal)Bixon.ReadObject(r.Reader);
+      Aver.AreEqual(obj, got);
+    }
+
+
+    [Run]
+    public void RootAnonymousObject_01()
+    {
+      using var w = new BixWriterBufferScope(1024);
+      var obj = new {a =1, b=2};
+      Bixon.WriteObject(w.Writer, obj);
+      w.Buffer.ToHexDump().See();
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = Bixon.ReadObject(r.Reader) as JsonDataMap;
+      Aver.IsNotNull(got);
+      Aver.AreEqual(1, (int)got["a"]);
+      Aver.AreEqual(2, (int)got["b"]);
+    }
+
+    [Run]
+    public void RootAnonymousObject_02()
+    {
+      using var w = new BixWriterBufferScope(1024);
+      var obj = new { a = 1, c= new { gugaaruba="abcd" },  b = 2 };
+      Bixon.WriteObject(w.Writer, obj);
+      w.Buffer.ToHexDump().See();
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = Bixon.ReadObject(r.Reader) as JsonDataMap;
+      Aver.IsNotNull(got);
+      Aver.AreEqual(1, (int)got["a"]);
+      Aver.AreEqual(2, (int)got["b"]);
+      Aver.AreEqual("abcd", (string)((JsonDataMap)got["c"])["gugaaruba"]);
+    }
+
+
+    [Run]
+    public void RootArray_01()
+    {
+      using var w = new BixWriterBufferScope(1024);
+      var obj = new object[]{1, "ok", true, null, Atom.Encode("call21")};
+      Bixon.WriteObject(w.Writer, obj);
+      w.Buffer.ToHexDump().See();
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = Bixon.ReadObject(r.Reader) as JsonDataArray;
+      Aver.IsNotNull(got);
+      Aver.AreEqual(5, got.Count);
+      Aver.AreEqual(1, (int)got[0]);
+      Aver.AreEqual("ok", (string)got[1]);
+      Aver.AreEqual(true, (bool)got[2]);
+      Aver.IsNull(got[3]);
+      Aver.AreEqual(Atom.Encode("call21"), (Atom)got[4]);
+    }
+
+    [Run]
+    public void RootArray_02()
+    {
+      using var w = new BixWriterBufferScope(1024);
+      var obj = new object[] { 1, "ok", true, new { a=1, b=-234}, Atom.Encode("call21") };
+      Bixon.WriteObject(w.Writer, obj);
+      w.Buffer.ToHexDump().See();
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = Bixon.ReadObject(r.Reader) as JsonDataArray;
+      Aver.IsNotNull(got);
+      Aver.AreEqual(5, got.Count);
+      Aver.AreEqual(1, (int)got[0]);
+      Aver.AreEqual("ok", (string)got[1]);
+      Aver.AreEqual(true, (bool)got[2]);
+      var map = got[3] as JsonDataMap;
+      Aver.IsNotNull(map);
+      Aver.AreEqual(1, (int)map["a"]);
+      Aver.AreEqual(-234, (int)map["b"]);
+      Aver.AreEqual(Atom.Encode("call21"), (Atom)got[4]);
+
+      got.See(WITH_TYPES);
+    }
+
+
+
+    [Run]
+    public void RoundtripAllTypes_99999()
     {
       using var w = new BixWriterBufferScope(1024);
 
@@ -67,7 +409,7 @@ namespace Azos.Tests.Nub.Serialization
       using var r = new BixReaderBufferScope(w.Buffer);
       var got = Bixon.ReadObject(r.Reader) as JsonDataMap;
 
-      got.See(new JsonWritingOptions(JsonWritingOptions.PrettyPrintRowsAsMap){ EnableTypeHints = true });
+      got.See(WITH_TYPES);
       averMapsEqual(map, got);
 
       Aver.AreEqual(-2, (int)(got["sub-object-anonymous"] as JsonDataMap)["q"]);
