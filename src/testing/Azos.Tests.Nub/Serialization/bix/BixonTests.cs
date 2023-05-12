@@ -440,6 +440,88 @@ namespace Azos.Tests.Nub.Serialization
       Aver.AreEqual(Atom.Encode("call21"), (Atom)got[4]);
     }
 
+    [Run]
+    public void RootList_02()
+    {
+      using var w = new BixWriterBufferScope(1024);
+      var obj = new List<string> { "1", "ok", "true"};
+      Bixon.WriteObject(w.Writer, obj);
+      w.Buffer.ToHexDump().See();
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = Bixon.ReadObject(r.Reader) as JsonDataArray;
+      Aver.IsNotNull(got);
+      Aver.AreEqual(3, got.Count);
+      Aver.AreEqual("1", (string)got[0]);
+      Aver.AreEqual("ok", (string)got[1]);
+      Aver.AreEqual("true", (string)got[2]);
+    }
+
+    [Run]
+    public void RootList_03()
+    {
+      using var w = new BixWriterBufferScope(1024);
+      var obj = new List<Doc> { new bxonADoc{ String1 = "A"}, new bxonBDoc { String1 = "B" } };
+      Bixon.WriteObject(w.Writer, obj, MARSHALLED);
+      w.Buffer.ToHexDump().See();
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = Bixon.ReadObject(r.Reader) as JsonDataArray;
+      Aver.IsNotNull(got);
+      Aver.AreEqual(2, got.Count);
+      Aver.AreEqual("A", ((bxonADoc)got[0]).String1);
+      Aver.AreEqual("B", ((bxonBDoc)got[1]).String1);
+    }
+
+    [Run]
+    public void RootDict_01()
+    {
+      using var w = new BixWriterBufferScope(1024);
+      var obj = new Dictionary<int, object> { {1, 2}, {29, "twenty nine"}, {-900, Atom.Encode("mmm")} };
+      Bixon.WriteObject(w.Writer, obj);
+      w.Buffer.ToHexDump().See();
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = Bixon.ReadObject(r.Reader) as JsonDataMap;
+      Aver.IsNotNull(got);
+      Aver.IsTrue(got.CaseSensitive);
+      Aver.AreEqual(3, got.Count);
+      Aver.AreEqual(2, (int)got["1"]);
+      Aver.AreEqual("twenty nine", (string)got["29"]);
+      Aver.AreEqual(Atom.Encode("mmm"), (Atom)got["-900"]);
+    }
+
+    [Run]
+    public void RootDict_02()
+    {
+      using var w = new BixWriterBufferScope(1024);
+      var obj = new Dictionary<object, object> { { 1, 2 }, { 29, "twenty nine" }, { -900, Atom.Encode("mmm") } };
+      Bixon.WriteObject(w.Writer, obj);
+      w.Buffer.ToHexDump().See();
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = Bixon.ReadObject(r.Reader) as JsonDataMap;
+      Aver.IsNotNull(got);
+      Aver.IsTrue(got.CaseSensitive);
+      Aver.AreEqual(3, got.Count);
+      Aver.AreEqual(2, (int)got["1"]);
+      Aver.AreEqual("twenty nine", (string)got["29"]);
+      Aver.AreEqual(Atom.Encode("mmm"), (Atom)got["-900"]);
+    }
+
+    [Run]
+    public void RootDict_03()
+    {
+      using var w = new BixWriterBufferScope(1024);
+      var obj = new JsonDataMap(caseSensitive: false){ { "1", 2 }, { "29", "twenty nine" }, { "-900", Atom.Encode("mmm") } };
+      Bixon.WriteObject(w.Writer, obj);
+      w.Buffer.ToHexDump().See();
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = Bixon.ReadObject(r.Reader) as JsonDataMap;
+      Aver.IsNotNull(got);
+      Aver.IsFalse(got.CaseSensitive);
+      Aver.AreEqual(3, got.Count);
+      Aver.AreEqual(2, (int)got["1"]);
+      Aver.AreEqual("twenty nine", (string)got["29"]);
+      Aver.AreEqual(Atom.Encode("mmm"), (Atom)got["-900"]);
+    }
+
 
 
     [Run]

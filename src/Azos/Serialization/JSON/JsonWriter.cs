@@ -518,7 +518,7 @@ namespace Azos.Serialization.JSON
       writeMap(wri, dict, level, opt);
     }
 
-    private struct dictEnumberable : IEnumerable<DictionaryEntry>
+    internal struct dictEnumberable : IEnumerable<DictionaryEntry>
     {
       public dictEnumberable(IDictionary dict) { Dictionary = dict;}
 
@@ -535,7 +535,7 @@ namespace Azos.Serialization.JSON
       }
     }
 
-    private struct dictEnumerator : IEnumerator<DictionaryEntry>
+    internal struct dictEnumerator : IEnumerator<DictionaryEntry>
     {
 
       public dictEnumerator(IDictionaryEnumerator enumerator) { Enumerator = enumerator;}

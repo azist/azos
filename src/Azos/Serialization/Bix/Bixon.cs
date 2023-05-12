@@ -5,6 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -86,7 +87,7 @@ namespace Azos.Log
       return readValue(reader, ver);
     }
 
-    private static JsonDataMap readArchivedDataMap(BixReader reader, byte ver)
+    private static JsonDataMap readMap(BixReader reader, byte ver)
     {
       var flagNullNotNull = reader.ReadByte();
       if (flagNullNotNull == SD_FMT_NULL) return null;
@@ -107,7 +108,7 @@ namespace Azos.Log
       return result;
     }
 
-    private static JsonDataArray readArchivedDataArray(BixReader reader, byte ver)
+    private static JsonDataArray readArray(BixReader reader, byte ver)
     {
       var flagNullNotNull = reader.ReadByte();
       if (flagNullNotNull == SD_FMT_NULL) return null;
@@ -138,7 +139,7 @@ namespace Azos.Log
       writeValue(writer, obj, jopt, null);
     }
 
-    private static void writeArchivedDataMap(BixWriter writer, JsonDataMap map, JsonWritingOptions jopt, HashSet<IJsonDataObject> set)
+    private static void writeMap(BixWriter writer, IDictionary map, JsonWritingOptions jopt, HashSet<object> set)
     {
       if (map == null)
       {
@@ -149,16 +150,17 @@ namespace Azos.Log
       Aver.IsTrue(map.Count < MAX_MAP_PROPS, "max props");
 
       writer.Write(SD_FMT_NOTNULL);//non null, byte code is used as a bool and stream consistency flag as well
-      writer.Write(map.CaseSensitive);//case sensitivity
-      foreach(var kvp in map)
+      writer.Write(map is JsonDataMap jdm ? jdm.CaseSensitive : true);//case sensitivity
+
+      foreach(var entry in new JsonWriter.dictEnumberable(map))
       {
-        writer.Write(kvp.Key);//string property name
-        writeValue(writer, kvp.Value, jopt, set);
+        writer.Write(entry.Key?.ToString());//string property name
+        writeValue(writer, entry.Value, jopt, set);
       }
       writer.Write((string)null);//eof
     }
 
-    private static void writeArchivedDataArray(BixWriter writer, JsonDataArray array, JsonWritingOptions jopt, HashSet<IJsonDataObject> set)
+    private static void writeArray(BixWriter writer, IList array, JsonWritingOptions jopt, HashSet<object> set)
     {
       if (array == null)
       {
@@ -226,7 +228,7 @@ namespace Azos.Log
       {TypeCode.Buffer,   (r, ver) =>  r.ReadBuffer()   },
     };
 
-    private static void writeValue(BixWriter writer, object value, JsonWritingOptions jopt, HashSet<IJsonDataObject> set)
+    private static void writeValue(BixWriter writer, object value, JsonWritingOptions jopt, HashSet<object> set)
     {
       if (value == null)
       {
@@ -253,19 +255,19 @@ namespace Azos.Log
       }//doc
 
 
-      if (value is JsonDataMap map)
+      if (value is IDictionary map)
       {
         writer.Write(TypeCode.Map);
 
         if (set == null)//the trick is to allocate set only here
         {               //so most cases with top-level map do NOT allocate set as it allocates only on a first field of type map
-          set = new HashSet<IJsonDataObject>();
+          set = new HashSet<object>();
         }
 
         Aver.IsTrue(set.Add(map), "circular reference check");
         try
         {
-          writeArchivedDataMap(writer, map, jopt, set);
+          writeMap(writer, map, jopt, set);
         }
         finally
         {
@@ -274,26 +276,20 @@ namespace Azos.Log
         return;
       }
 
-      //Reinterpret cast Array/object[] -> JsonDataArray(object[])
-      if (value is Array arr && value is not byte[])
-      {
-        var newval = new JsonDataArray(arr.Length);
-        foreach(var item in arr) newval.Add(item);
-        value = newval;
-      }
-      if (value is JsonDataArray array)
+      //Array/List
+      if (value is IList array && value is not byte[])
       {
         writer.Write(TypeCode.Array);
 
         if (set == null)//the trick is to allocate set only here
         {               //so most cases with top-level map do NOT allocate set as it allocates only on a first field of type map
-          set = new HashSet<IJsonDataObject>();
+          set = new HashSet<object>();
         }
 
         Aver.IsTrue(set.Add(array), "circular reference check");
         try
         {
-          writeArchivedDataArray(writer, array, jopt, set);
+          writeArray(writer, array, jopt, set);
         }
         finally
         {
@@ -329,15 +325,15 @@ namespace Azos.Log
           var doc = (Doc)SerializationUtils.MakeNewObjectInstance(tdoc);
           tc = reader.ReadTypeCode();
           Aver.IsTrue( tc == TypeCode.Map, "invalid doc typecode");
-          var map = readArchivedDataMap(reader, ver);
+          var map = readMap(reader, ver);
           JsonReader.ToDoc(doc, map, false);
           return doc;
         }
       }
 
-      if (tc == TypeCode.Map) return readArchivedDataMap(reader, ver);
+      if (tc == TypeCode.Map) return readMap(reader, ver);
 
-      if (tc == TypeCode.Array) return readArchivedDataArray(reader, ver);
+      if (tc == TypeCode.Array) return readArray(reader, ver);
       if (READERS.TryGetValue(tc, out var vr))
       {
         return vr(reader, ver);
