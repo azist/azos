@@ -41,6 +41,31 @@ namespace Azos.Tests.Nub.Serialization
       Aver.IsNull(got);
     }
 
+    private class specialObject
+    {
+      public int Id { get; set; }
+      public string Str { get; set; }
+      public Atom Atm { get; set; }
+    }
+
+
+    [Run]
+    public void RootCustomUnsupportedObjectWrittenAsJson()
+    {
+      using var w = new BixWriterBufferScope(1024);
+      specialObject obj = new specialObject{ Id = 980, Str = "abcdef", Atm = Atom.Encode("z234") };
+      Bixon.WriteObject(w.Writer, obj);
+      w.Buffer.ToHexDump().See();
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = Bixon.ReadObject(r.Reader) as JsonDataMap;
+      Aver.IsNotNull(got);
+      got.See(WITH_TYPES);
+      Aver.AreEqual(980, (int)got["Id"]);
+      Aver.AreEqual("abcdef", (string)got["Str"]);
+      Aver.AreEqual(Atom.Encode("z234"), (Atom)got["Atm"]);
+    }
+
+
     [Run]
     public void RootString()
     {
@@ -397,6 +422,24 @@ namespace Azos.Tests.Nub.Serialization
       Aver.AreEqual(-1.01m, (decimal)got[2]);
     }
 
+    [Run]
+    public void RootList_01()
+    {
+      using var w = new BixWriterBufferScope(1024);
+      var obj = new List<object>{ 1, "ok", true, null, Atom.Encode("call21")};
+      Bixon.WriteObject(w.Writer, obj);
+      w.Buffer.ToHexDump().See();
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = Bixon.ReadObject(r.Reader) as JsonDataArray;
+      Aver.IsNotNull(got);
+      Aver.AreEqual(5, got.Count);
+      Aver.AreEqual(1, (int)got[0]);
+      Aver.AreEqual("ok", (string)got[1]);
+      Aver.AreEqual(true, (bool)got[2]);
+      Aver.IsNull(got[3]);
+      Aver.AreEqual(Atom.Encode("call21"), (Atom)got[4]);
+    }
+
 
 
     [Run]
@@ -645,8 +688,8 @@ namespace Azos.Tests.Nub.Serialization
 
 
     // [Run("count=32000")]
-    [Run("count=12000")]
-    public void Benchmark(int count)
+    [Run("count=11000")]
+    public void Benchmark_Complex(int count)
     {
 
       var doc = new bxonBaseDoc()
@@ -720,6 +763,88 @@ namespace Azos.Tests.Nub.Serialization
       bixonTime.Stop();
       "BIXON read {0:n0} in {1:n1} sec at {2:n0} ops/sec".SeeArgs(count, bixonTime.ElapsedSec, count / bixonTime.ElapsedSec); ;
 
+    }
+
+     //[Run("count=250000")]
+    [Run("count=32000")]
+    public void Benchmark_Simple(int count)
+    {
+      var doc = new
+      {
+        String1 = "Fidel Castro",
+        Int1 = 123,
+        NInt1 = -678_000_000,
+        Atom1 = Atom.Encode("a1234567"),
+        ArchiveDims = new JsonDataMap
+        {
+          {"rel", new EntityId(Atom.Encode("entrp"), Atom.Encode("comp"), Atom.Encode("mnic"), "company mnemonic")},
+          {"cust", new EntityId(Atom.Encode("cust"), Atom.Encode("acc"), Atom.Encode("gdid"), "0:9:23")},
+          {"prod", new EntityId(Atom.Encode("prod"), Atom.Encode("tree"), Atom.Encode("path"), "/parm/rx/antibiotic/pnc/doxicillin")}
+        },
+
+        Params = new JsonDataMap
+        {
+          {"q", 123},
+          {"f", true},
+          {"site", "hudson"},
+          {"apr", -123.02m},
+        }
+
+      };
+
+      //Warmup
+      var jwo = new JsonWritingOptions(JsonWritingOptions.CompactRowsAsMap) { EnableTypeHints = true, Purpose = JsonSerializationPurpose.Marshalling };
+      var jro = new JsonReadingOptions(JsonReadingOptions.Default) { EnableTypeHints = true };
+      var json = doc.ToJson(jwo);
+      var gotFromJson = JsonReader.Deserialize(json, jro);
+      Aver.IsNotNull(gotFromJson);
+      gotFromJson.See(WITH_TYPES);
+
+      using var w = new BixWriterBufferScope(1024);
+      Bixon.WriteObject(w.Writer, doc, jwo); //marshall doc type identity
+      w.Buffer.ToHexDump().See();
+
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = Bixon.ReadObject(r.Reader);
+      Aver.IsNotNull(got);
+      got.See(WITH_TYPES);
+
+      var jsonTime = Timeter.StartNew();
+      for (var i = 0; i < count; i++)
+      {
+        json = doc.ToJson(jwo);
+      }
+      jsonTime.Stop();
+      "JSON wrote {0:n0} in {1:n1} sec at {2:n0} ops/sec; {3:n0} chars".SeeArgs(count, jsonTime.ElapsedSec, count / jsonTime.ElapsedSec, json.Length);
+
+      jsonTime = Timeter.StartNew();
+      for (var i = 0; i < count; i++)
+      {
+        gotFromJson = JsonReader.Deserialize(json, jro);
+        Aver.IsNotNull(gotFromJson);
+      }
+      jsonTime.Stop();
+      "JSON read {0:n0} in {1:n1} sec at {2:n0} ops/sec".SeeArgs(count, jsonTime.ElapsedSec, count / jsonTime.ElapsedSec);
+
+
+      var bixonTime = Timeter.StartNew();
+      for (var i = 0; i < count; i++)
+      {
+        w.Reset();
+        Bixon.WriteObject(w.Writer, doc, jwo); //marshall doc type identity
+      }
+      bixonTime.Stop();
+      "BIXON wrote {0:n0} in {1:n1} sec at {2:n0} ops/sec; {3:n0} bytes".SeeArgs(count, bixonTime.ElapsedSec, count / bixonTime.ElapsedSec, w.Buffer.Length);
+
+      bixonTime = Timeter.StartNew();
+      for (var i = 0; i < count; i++)
+      {
+        r.Reset();
+        got = Bixon.ReadObject(r.Reader);
+        Aver.IsNotNull(got);
+      }
+      bixonTime.Stop();
+      "BIXON read {0:n0} in {1:n1} sec at {2:n0} ops/sec".SeeArgs(count, bixonTime.ElapsedSec, count / bixonTime.ElapsedSec); ;
     }
 
   }
