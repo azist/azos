@@ -188,15 +188,20 @@ namespace Azos.Log
       var fact = factory != null ? factory(msg, targetName) : new Fact();
 
 
-      if (Atom.TryEncodeValueOrId(msg.From, out var aFrom))
+      if (msg.From.IsNotNullOrWhiteSpace() && Atom.TryEncodeValueOrId(msg.From, out var aFrom))
       {
         fact.FactType = aFrom;
       }
+
+      if (msg.Topic.IsNotNullOrWhiteSpace() && Atom.TryEncodeValueOrId(msg.Topic, out var aTopic))
+      {
+        fact.Topic = aTopic;
+      }
+
       fact.Id = msg.Guid;
       fact.Gdid = msg.Gdid;
       fact.RelatedId = msg.RelatedTo;
       fact.Channel = msg.Channel;
-      fact.Topic = msg.Topic;
       fact.Host = msg.Host;
       fact.App = msg.App;
       fact.RecordType = msg.Type;

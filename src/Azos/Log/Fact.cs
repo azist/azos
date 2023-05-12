@@ -69,10 +69,10 @@ namespace Azos.Log
     public Atom Channel { get; set; }
 
     /// <summary>
-    /// System log topic which can be used to organize facts into distinct groups by `topic`
+    /// System fact topic which can be used as a namespace to organize facts into distinct groups
     /// </summary>
-    [Field(Required = false, Description = "System log topic which can be used to organize facts into distinct groups by `topic`")]
-    public string Topic { get; set; }
+    [Field(Required = false, Description = "System fact topic which can be used as a namespace to organize facts into distinct groups")]
+    public Atom Topic { get; set; }
 
     /// <summary>
     /// System host which recorded the fact
