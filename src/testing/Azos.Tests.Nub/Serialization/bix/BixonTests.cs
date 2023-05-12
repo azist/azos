@@ -759,18 +759,25 @@ namespace Azos.Tests.Nub.Serialization
     }
 
     /*
-    2023 May 11 .Net 6 Release
-    --------------------------
-      JSON wrote 32,000 in 1.0 sec at 30,776 ops/sec; 1,590 chars
-      JSON read 32,000 in 2.6 sec at 12,181 ops/sec
-      BIXON wrote 32,000 in 0.8 sec at 41,327 ops/sec; 1,201 bytes
-      BIXON read 32,000 in 0.8 sec at 41,088 ops/sec
+2023 May 12 .Net 6 Release
+--------------------------
+Complex:
+  JSON wrote 32,000 in 1.0 sec at 31,409 ops/sec; 1,590 chars
+  JSON read 32,000 in 2.6 sec at 12,312 ops/sec
+  BIXON wrote 32,000 in 0.9 sec at 35,354 ops/sec; 1,201 bytes
+  BIXON read 32,000 in 0.7 sec at 42,765 ops/sec
+
+Simple:
+  JSON wrote 250,000 in 0.8 sec at 308,273 ops/sec; 307 chars
+  JSON read 250,000 in 2.3 sec at 110,971 ops/sec
+  BIXON wrote 250,000 in 0.9 sec at 272,497 ops/sec; 265 bytes
+  BIXON read 250,000 in 0.5 sec at 516,437 ops/sec
     */
 
 
 
-    // [Run("count=32000")]
-    [Run("count=11000")]
+    //[Run("count=32000")]
+    [Run("count=5000")]
     public void Benchmark_Complex(int count)
     {
 
@@ -847,8 +854,8 @@ namespace Azos.Tests.Nub.Serialization
 
     }
 
-     //[Run("count=250000")]
-    [Run("count=32000")]
+    // [Run("count=250000")]
+    [Run("count=8000")]
     public void Benchmark_Simple(int count)
     {
       var doc = new
