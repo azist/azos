@@ -56,127 +56,6 @@ namespace Azos.Log
     private const byte SD_FMT_NULL = 0x55;
     private const byte SD_FMT_NOTNULL = 0xAA;
 
-    private static readonly JsonWritingOptions JSON_ENCODE_FORMAT = new(JsonWritingOptions.CompactRowsAsMap)
-    {
-      MapSkipNulls = false,//Keep nulls
-      MapSortKeys = false,//Structured data does not sort on keys
-      ISODates = true,
-      MaxNestingLevel = 12,
-      EnableTypeHints = true,
-    };
-
-    private static readonly JsonReadingOptions JSON_DECODE_FORMAT = new(JsonReadingOptions.DefaultLimits)
-    {
-      EnableTypeHints = true,
-      MaxDepth = 12
-    };
-
-    /// <summary>
-    /// Reads an object (map, array, primitive).
-    /// Null value may be returned if it was written that way
-    /// </summary>
-    public static object ReadObject(BixReader reader)
-    {
-      Aver.AreEqual(HEADER1, reader.ReadByte(), "hdr1");
-      Aver.AreEqual(HEADER2, reader.ReadByte(), "hdr2");
-
-      var readVersion = reader.ReadInt();
-      Aver.IsTrue(Format.VERSION >= readVersion);
-
-      var ver = reader.ReadByte();//sub version of this
-      return readValue(reader, ver);
-    }
-
-    private static JsonDataMap readMap(BixReader reader, byte ver)
-    {
-      var flagNullNotNull = reader.ReadByte();
-      if (flagNullNotNull == SD_FMT_NULL) return null;
-      Aver.AreEqual(SD_FMT_NOTNULL, flagNullNotNull, "corrupted data");
-
-      var caseSensitive = reader.ReadBool();
-      var result = new JsonDataMap(caseSensitive);
-
-      while(true)
-      {
-        var key = reader.ReadString();
-        if (key == null) break;//eof
-        var val = readValue(reader, ver);
-        Aver.IsTrue(result.Count < MAX_MAP_PROPS, "max props");
-        result[key] = val;
-      }
-
-      return result;
-    }
-
-    private static JsonDataArray readArray(BixReader reader, byte ver)
-    {
-      var flagNullNotNull = reader.ReadByte();
-      if (flagNullNotNull == SD_FMT_NULL) return null;
-      Aver.AreEqual(SD_FMT_NOTNULL, flagNullNotNull, "corrupted data");
-
-      var count = reader.ReadInt();
-      Aver.IsTrue(count < MAX_ARRAY_ELM, "max elm");
-      var result = new JsonDataArray();
-
-      for (var i=0; i<count; i++)
-      {
-        var val = readValue(reader, ver);
-        result.Add(val);
-      }
-
-      return result;
-    }
-
-    /// <summary>
-    /// Writes object: a primitive, anonymous object, JsonDataMap or JsonDataArray
-    /// </summary>
-    public static void WriteObject(BixWriter writer, object obj, JsonWritingOptions jopt = null)
-    {
-      writer.Write(HEADER1);
-      writer.Write(HEADER2);
-      writer.Write(Format.VERSION);
-      writer.Write(Bixon.SUBVERSION);
-      writeValue(writer, obj, jopt, null);
-    }
-
-    private static void writeMap(BixWriter writer, IDictionary map, JsonWritingOptions jopt, HashSet<object> set)
-    {
-      if (map == null)
-      {
-        writer.Write(SD_FMT_NULL);//map is null, byte code is used as a bool and stream consistency flag as well
-        return;
-      }
-
-      Aver.IsTrue(map.Count < MAX_MAP_PROPS, "max props");
-
-      writer.Write(SD_FMT_NOTNULL);//non null, byte code is used as a bool and stream consistency flag as well
-      writer.Write(map is JsonDataMap jdm ? jdm.CaseSensitive : true);//case sensitivity
-
-      foreach(var entry in new JsonWriter.dictEnumberable(map))
-      {
-        writer.Write(entry.Key?.ToString());//string property name
-        writeValue(writer, entry.Value, jopt, set);
-      }
-      writer.Write((string)null);//eof
-    }
-
-    private static void writeArray(BixWriter writer, IList array, JsonWritingOptions jopt, HashSet<object> set)
-    {
-      if (array == null)
-      {
-        writer.Write(SD_FMT_NULL);//array is null, byte code is used as a bool and stream consistency flag as well
-        return;
-      }
-
-      Aver.IsTrue(array.Count < MAX_ARRAY_ELM, "max elms");
-
-      writer.Write(SD_FMT_NOTNULL);//non null, byte code is used as a bool and stream consistency flag as well
-      writer.Write(array.Count);
-      for(var i=0; i< array.Count; i++)
-      {
-        writeValue(writer, array[i], jopt, set);
-      }
-    }
 
     private static readonly Dictionary<Type, Action<BixWriter, object>> WRITERS = new()
     {
@@ -227,6 +106,129 @@ namespace Azos.Log
       {TypeCode.RGDID,    (r, ver) =>  r.ReadRGDID()    },
       {TypeCode.Buffer,   (r, ver) =>  r.ReadBuffer()   },
     };
+
+    private static readonly JsonWritingOptions JSON_ENCODE_FORMAT = new(JsonWritingOptions.CompactRowsAsMap)
+    {
+      MapSkipNulls = false,//Keep nulls
+      MapSortKeys = false,//Structured data does not sort on keys
+      ISODates = true,
+      MaxNestingLevel = 12,
+      EnableTypeHints = true,
+    };
+
+    private static readonly JsonReadingOptions JSON_DECODE_FORMAT = new(JsonReadingOptions.DefaultLimits)
+    {
+      EnableTypeHints = true,
+      MaxDepth = 12
+    };
+
+    /// <summary>
+    /// Reads an object (map, array, primitive).
+    /// Null value may be returned if it was written that way
+    /// </summary>
+    public static object ReadObject(BixReader reader, JsonReader.DocReadOptions? docReadOptions = null)
+    {
+      Aver.AreEqual(HEADER1, reader.ReadByte(), "hdr1");
+      Aver.AreEqual(HEADER2, reader.ReadByte(), "hdr2");
+
+      var readVersion = reader.ReadInt();
+      Aver.IsTrue(Format.VERSION >= readVersion);
+
+      var ver = reader.ReadByte();//sub version of this
+      return readValue(reader, ver, docReadOptions);
+    }
+
+    /// <summary>
+    /// Writes object: a primitive, anonymous object, JsonDataMap or JsonDataArray
+    /// </summary>
+    public static void WriteObject(BixWriter writer, object obj, JsonWritingOptions jopt = null)
+    {
+      writer.Write(HEADER1);
+      writer.Write(HEADER2);
+      writer.Write(Format.VERSION);
+      writer.Write(Bixon.SUBVERSION);
+      writeValue(writer, obj, jopt, null);
+    }
+
+
+    private static JsonDataMap readMap(BixReader reader, byte ver, JsonReader.DocReadOptions? docReadOptions)
+    {
+      var flagNullNotNull = reader.ReadByte();
+      if (flagNullNotNull == SD_FMT_NULL) return null;
+      Aver.AreEqual(SD_FMT_NOTNULL, flagNullNotNull, "corrupted data");
+
+      var caseSensitive = reader.ReadBool();
+      var result = new JsonDataMap(caseSensitive);
+
+      while(true)
+      {
+        var key = reader.ReadString();
+        if (key == null) break;//eof
+        var val = readValue(reader, ver, docReadOptions);
+        Aver.IsTrue(result.Count < MAX_MAP_PROPS, "max props");
+        result[key] = val;
+      }
+
+      return result;
+    }
+
+    private static JsonDataArray readArray(BixReader reader, byte ver, JsonReader.DocReadOptions? docReadOptions)
+    {
+      var flagNullNotNull = reader.ReadByte();
+      if (flagNullNotNull == SD_FMT_NULL) return null;
+      Aver.AreEqual(SD_FMT_NOTNULL, flagNullNotNull, "corrupted data");
+
+      var count = reader.ReadInt();
+      Aver.IsTrue(count < MAX_ARRAY_ELM, "max elm");
+      var result = new JsonDataArray();
+
+      for (var i=0; i<count; i++)
+      {
+        var val = readValue(reader, ver, docReadOptions);
+        result.Add(val);
+      }
+
+      return result;
+    }
+
+    private static void writeMap(BixWriter writer, IDictionary map, JsonWritingOptions jopt, HashSet<object> set)
+    {
+      if (map == null)
+      {
+        writer.Write(SD_FMT_NULL);//map is null, byte code is used as a bool and stream consistency flag as well
+        return;
+      }
+
+      Aver.IsTrue(map.Count < MAX_MAP_PROPS, "max props");
+
+      writer.Write(SD_FMT_NOTNULL);//non null, byte code is used as a bool and stream consistency flag as well
+      writer.Write(map is JsonDataMap jdm ? jdm.CaseSensitive : true);//case sensitivity
+
+      foreach(var entry in new JsonWriter.dictEnumberable(map))
+      {
+        writer.Write(entry.Key?.ToString());//string property name
+        writeValue(writer, entry.Value, jopt, set);
+      }
+      writer.Write((string)null);//eof
+    }
+
+    private static void writeArray(BixWriter writer, IList array, JsonWritingOptions jopt, HashSet<object> set)
+    {
+      if (array == null)
+      {
+        writer.Write(SD_FMT_NULL);//array is null, byte code is used as a bool and stream consistency flag as well
+        return;
+      }
+
+      Aver.IsTrue(array.Count < MAX_ARRAY_ELM, "max elms");
+
+      writer.Write(SD_FMT_NOTNULL);//non null, byte code is used as a bool and stream consistency flag as well
+      writer.Write(array.Count);
+      for(var i=0; i< array.Count; i++)
+      {
+        writeValue(writer, array[i], jopt, set);
+      }
+    }
 
     private static void writeValue(BixWriter writer, object value, JsonWritingOptions jopt, HashSet<object> set)
     {
@@ -311,7 +313,7 @@ namespace Azos.Log
       }
     }
 
-    private static object readValue(BixReader reader, byte ver)
+    private static object readValue(BixReader reader, byte ver, JsonReader.DocReadOptions? docReadOptions)
     {
       var tc = reader.ReadTypeCode();
       if (tc == TypeCode.Null) return null;
@@ -321,19 +323,27 @@ namespace Azos.Log
         var tguid = reader.ReadNullableGuid();
         if (tguid.HasValue)
         {
-          var tdoc = Bixer.GuidTypeResolver.Resolve(tguid.Value);//throws error on not found Bix
-          var doc = (Doc)SerializationUtils.MakeNewObjectInstance(tdoc);
           tc = reader.ReadTypeCode();
           Aver.IsTrue( tc == TypeCode.Map, "invalid doc typecode");
-          var map = readMap(reader, ver);
-          JsonReader.ToDoc(doc, map, false);
-          return doc;
+
+          var map = readMap(reader, ver, docReadOptions);
+          if (docReadOptions?.BindBy == JsonReader.DocReadOptions.By.BixonDoNotMaterializeDocuments)
+          {
+            return map;//do not materialize
+          }
+          else
+          {
+            var tdoc = Bixer.GuidTypeResolver.Resolve(tguid.Value);//throws error on not found Bix
+            var doc = (Doc)SerializationUtils.MakeNewObjectInstance(tdoc);
+            JsonReader.ToDoc(doc, map, false, docReadOptions);
+            return doc;
+          }
         }
       }
 
-      if (tc == TypeCode.Map) return readMap(reader, ver);
+      if (tc == TypeCode.Map) return readMap(reader, ver, docReadOptions);
 
-      if (tc == TypeCode.Array) return readArray(reader, ver);
+      if (tc == TypeCode.Array) return readArray(reader, ver, docReadOptions);
       if (READERS.TryGetValue(tc, out var vr))
       {
         return vr(reader, ver);
@@ -368,6 +378,5 @@ namespace Azos.Log
 
       return new JsonDataMap(true, data);
     }
-
   }
 }

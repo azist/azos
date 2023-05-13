@@ -30,7 +30,23 @@ namespace Azos.Serialization.JSON
     public struct DocReadOptions
     {
       /// <summary> By Name in Code | By BackendName attribute </summary>
-      public enum By{ CodeName = 0, BackendName}
+      public enum By
+      {
+        /// <summary>
+        /// Binding is done by name of properties in code
+        /// </summary>
+        CodeName = 0,
+
+        /// <summary>
+        /// Binding is done per backend name specified by target
+        /// </summary>
+        BackendName,
+
+        /// <summary>
+        /// Only used for Bixon serializer: do not materialize data documents, keep them as JsonDataMaps
+        /// </summary>
+        BixonDoNotMaterializeDocuments
+      }
 
       /// <summary>
       /// Bind by property names as specified in code and use UTC dates
