@@ -758,6 +758,71 @@ namespace Azos.Tests.Nub.Serialization
       Aver.AreEqual("String text of no sense", (string)got.Obj1);
     }
 
+    [Run]
+    public void RootDocComplex_02_NoMaterialize()
+    {
+      using var w = new BixWriterBufferScope(1024);
+      var doc = new bxonBaseDoc()
+      {
+        String1 = "Fidel Castro",
+        Int1 = 123,
+        NInt1 = -678_000_000,
+        Obj1 = "String text of no sense",
+        Jdm1 = new JsonDataMap { { "a", 1 }, { "b", 2 }, { "zzz", new bxonBDoc { Atom1 = Atom.Encode("titikaka") } } },
+        Jar1 = new JsonDataArray { 1, 2, 5, 7, 9, 0, new { d = true, f = -500 }, null, new GDID(1, 2) },
+        ObjArr1 = new object[]
+        {
+          null,
+          true,
+          7890m,
+          new DateTime(1990, 5, 2, 14, 32, 00, DateTimeKind.Utc),
+          new bxonADoc() { String1 = "Odessa mama", String2 = "Salsa Mexicana" },
+          new bxonBDoc() { String1 = "Corn kebab", Flag1 = true, Obj2 = new byte[]{255,255, 0, 1,2,3,4,5,6,7,8,9,0,127,128,129,130,131,132,133,134} },
+        }
+      };
+
+      Bixon.WriteObject(w.Writer, doc, MARSHALLED); //marshall doc type identity, however down below we DO NOT materialize docs, but keep JsonDataMaps
+      w.Buffer.ToHexDump().See();
+
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = Bixon.ReadObject(r.Reader, new JsonReader.DocReadOptions(JsonReader.DocReadOptions.By.BixonDoNotMaterializeDocuments, null)) as JsonDataMap;
+      got.See(WITH_TYPES);
+      Aver.IsNotNull(got);
+      Aver.AreEqual(doc.String1, (string)got["String1"]);
+      Aver.AreEqual(doc.Int1, (int)got["Int1"]);
+      Aver.AreEqual(doc.NInt1, (int)got["NInt1"]);
+
+      Aver.IsNotNull(got["Jdm1"]);
+      Aver.AreEqual(3, ((JsonDataMap)got["Jdm1"]).Count);
+      Aver.AreEqual(1, (int)((JsonDataMap)got["Jdm1"])["a"]);
+      Aver.AreEqual(2, (int)((JsonDataMap)got["Jdm1"])["b"]);
+      Aver.AreEqual("titikaka", ((Atom)((JsonDataMap)((JsonDataMap)got["Jdm1"])["zzz"])["Atom1"]).Value);
+
+      Aver.IsNotNull(got["Jar1"]);
+      Aver.AreEqual(9, ((JsonDataArray)got["Jar1"]).Count);
+      Aver.AreEqual(5, (int)((JsonDataArray)got["Jar1"])[2]);
+      Aver.AreEqual(new GDID(1, 2), (GDID)((JsonDataArray)got["Jar1"])[8]);
+
+
+      Aver.IsNotNull(got["ObjArr1"]);
+      Aver.AreEqual(6, ((JsonDataArray)got["ObjArr1"]).Count);
+      Aver.IsNull(((JsonDataArray)got["ObjArr1"])[0]);
+      Aver.AreEqual(true, (bool)((JsonDataArray)got["ObjArr1"])[1]);
+      Aver.AreEqual(7890m, (decimal)((JsonDataArray)got["ObjArr1"])[2]);
+      Aver.AreEqual(1990, ((DateTime)((JsonDataArray)got["ObjArr1"])[3]).Year);
+      Aver.AreEqual("Odessa mama", (string)((JsonDataMap)((JsonDataArray)got["ObjArr1"])[4])["String1"]);
+      Aver.AreEqual("Salsa Mexicana", (string)((JsonDataMap)((JsonDataArray)got["ObjArr1"])[4])["String2"]);
+      Aver.AreEqual("Corn kebab", (string)((JsonDataMap)((JsonDataArray)got["ObjArr1"])[5])["String1"]);
+      Aver.AreEqual(true, (bool)((JsonDataMap)((JsonDataArray)got["ObjArr1"])[5])["Flag1"]);
+      Aver.IsTrue(((byte[])((bxonBDoc)doc.ObjArr1[5])["Obj2"]).MemBufferEquals((byte[])((JsonDataMap)((JsonDataArray)got["ObjArr1"])[5])["Obj2"]));
+
+      Aver.AreEqual("String text of no sense", (string)got["Obj1"]);
+    }
+
+
+
+
+
     /*
 2023 May 12 .Net 6 Release
 --------------------------
