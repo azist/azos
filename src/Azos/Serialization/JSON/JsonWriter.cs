@@ -205,7 +205,8 @@ namespace Azos.Serialization.JSON
     /// <param name="wri">TextWriter instance to append data into</param>
     /// <param name="data">Original string to encode as JSON</param>
     /// <param name="opt">JSONWriting options instance, if omitted then JSONWritingOptions.Compact is used</param>
-    public static void EncodeString(TextWriter wri, string data, JsonWritingOptions opt = null)
+    /// <param name="thint">Optional type hint</param>
+    public static void EncodeString(TextWriter wri, string data, JsonWritingOptions opt = null, string thint = null)
     {
       if (data.IsNullOrEmpty())
       {
@@ -214,9 +215,25 @@ namespace Azos.Serialization.JSON
       }
 
       if (opt==null)
-          opt = JsonWritingOptions.Compact;
+      {
+        opt = JsonWritingOptions.Compact;
+      }
 
-      wri.Write('"');
+      wri.Write('"');//open string
+
+      //#864 DKh 20230506 Type hint
+      if (opt.EnableTypeHints)
+      {
+        if (thint==null && TypeHint.StringNeedsEscape(data))
+        {
+          thint = TypeHint.H_STR;
+        }
+
+        if (thint != null)
+        {
+          TypeHint.EmitTypeHint(wri, thint);
+        }
+      }//#864 DKh 20230506 Type hint
 
       for (int i = 0; i < data.Length; i++)
       {
@@ -257,7 +274,7 @@ namespace Azos.Serialization.JSON
 
       }//for
 
-      wri.Write('"');
+      wri.Write('"');//close string
     }
 
     /// <summary>
@@ -278,6 +295,12 @@ namespace Azos.Serialization.JSON
       }
 
       wri.Write('"');
+
+      if (opt.EnableTypeHints)
+      {
+        TypeHint.EmitTypeHint(wri, TypeHint.H_DATE);
+      }//#864 DKh 20230506 Type hint
+
       var year = data.Year;
       if (year>999) wri.Write(year);
       else if (year>99) { wri.Write('0'); wri.Write(year); }
@@ -381,7 +404,7 @@ namespace Azos.Serialization.JSON
       //20210717 - #514
       if (data is byte[] buff && buff.Length > 8)
       {
-        EncodeString(wri, buff.ToWebSafeBase64(), opt);
+        EncodeString(wri, buff.ToWebSafeBase64(), opt, TypeHint.H_BIN);
         return;
       }
 
@@ -403,23 +426,34 @@ namespace Azos.Serialization.JSON
         return;
       }
 
-      if (data is DateTime)
+      if (data is DateTime dtm)
       {
-        EncodeDateTime(wri, (DateTime)data, opt);
+        EncodeDateTime(wri, dtm, opt);
         return;
       }
 
-      if (data is TimeSpan)
+      if (data is TimeSpan tsp)
       {
-        var ts = (TimeSpan)data;
-        wri.Write(ts.Ticks);
-        return;
-      }
-
-      if (data is Guid)
-      {
-        var guid = (Guid)data;
+        //wri.Write(ts.Ticks);
         wri.Write('"');
+        //#864 DKh 20230506 Type hint
+        if (opt.EnableTypeHints)
+        {
+          TypeHint.EmitTypeHint(wri, TypeHint.H_TIMESPAN);
+        }//#864 DKh 20230506 Type hint
+        wri.Write(tsp.ToString());
+        wri.Write('"');
+        return;
+      }
+
+      if (data is Guid guid)
+      {
+        wri.Write('"');
+        //#864 DKh 20230506 Type hint
+        if (opt.EnableTypeHints)
+        {
+          TypeHint.EmitTypeHint(wri, TypeHint.H_GUID);
+        }//#864 DKh 20230506 Type hint
         wri.Write(guid.ToString("D"));
         wri.Write('"');
         return;

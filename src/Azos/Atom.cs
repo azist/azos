@@ -323,7 +323,7 @@ namespace Azos
     }
 
     void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options)
-    => JsonWriter.EncodeString(wri, IsZero ? "#0" : Value, options);
+    => JsonWriter.EncodeString(wri, IsZero ? "#0" : Value, options, TypeHint.H_ATOM);
 
     (bool match, IJsonReadable self) IJsonReadable.ReadAsJson(object data, bool fromUI, JsonReader.DocReadOptions? options)
     {
