@@ -43,6 +43,10 @@ namespace Azos.IO.Archiving
           fact = new Fact();
         }
       }
+      else
+      {
+        fact = new Fact();
+      }
 
       fact.FactType = reader.ReadAtom();
       fact.Id = reader.ReadGuid();
@@ -63,6 +67,13 @@ namespace Azos.IO.Archiving
       fact.SetAmorphousData(Bixon.ReadObject(reader) as JsonDataMap);
       fact.Dimensions = Bixon.ReadObject(reader) as JsonDataMap;
       fact.Metrics = Bixon.ReadObject(reader) as JsonDataMap;
+
+      if (Factory != null)
+      {
+        var result = Factory(fact);
+        ts_FactCache = object.ReferenceEquals(result, fact) ? null : fact;
+        return result;
+      }
 
       return fact;
     }
