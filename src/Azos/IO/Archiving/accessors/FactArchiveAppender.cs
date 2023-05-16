@@ -15,10 +15,10 @@ namespace Azos.IO.Archiving
   /// <summary>
   /// Appends into Azos fact binary archives
   /// </summary>
-  [ContentTypeSupport(CONTENT_TYPE_LOG)]
+  [ContentTypeSupport(CONTENT_TYPE_FACTS)]
   public sealed class FactArchiveAppender : ArchiveBixAppender<Fact>
   {
-    public const string CONTENT_TYPE_LOG = "bix/azfact";
+    public const string CONTENT_TYPE_FACTS = "bix/azfacts";
 
     public FactArchiveAppender(IVolume volume, ITimeSource time, Atom app, string host, Action<Fact, Bookmark> onPageCommit = null)
      : base(volume, time, app, host, onPageCommit){ }

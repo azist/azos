@@ -16,7 +16,7 @@ namespace Azos.IO.Archiving
   /// <summary>
   /// Reads archives of Log.Fact items. The implementation is thread-safe
   /// </summary>
-  [ContentTypeSupport(LogMessageArchiveAppender.CONTENT_TYPE_LOG)]
+  [ContentTypeSupport(FactArchiveAppender.CONTENT_TYPE_FACTS)]
   public sealed class FactArchiveReader : ArchiveBixReader<Fact>
   {
     public FactArchiveReader(IVolume volume, Func<Fact, Fact> factory = null) : base(volume)
@@ -72,9 +72,11 @@ namespace Azos.IO.Archiving
       {
         var result = Factory(fact);
         ts_FactCache = object.ReferenceEquals(result, fact) ? null : fact;
+        ((IAmorphousData)result).AfterLoad(FactArchiveAppender.CONTENT_TYPE_FACTS);
         return result;
       }
 
+      ((IAmorphousData)fact).AfterLoad(FactArchiveAppender.CONTENT_TYPE_FACTS);
       return fact;
     }
   }
