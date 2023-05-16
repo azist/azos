@@ -72,11 +72,9 @@ namespace Azos.IO.Archiving
       {
         var result = Factory(fact);
         ts_FactCache = object.ReferenceEquals(result, fact) ? null : fact;
-        ((IAmorphousData)result).AfterLoad(FactArchiveAppender.CONTENT_TYPE_FACTS);
         return result;
       }
 
-      ((IAmorphousData)fact).AfterLoad(FactArchiveAppender.CONTENT_TYPE_FACTS);
       return fact;
     }
   }
