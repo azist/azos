@@ -183,10 +183,10 @@ namespace Azos.Log
     /// <summary>
     /// Extracts Fact representation from log message
     /// </summary>
-    public static Fact LogMessageToFact(Message msg, string targetName = null, Func<Message, string, Fact> factory = null)
+    public static Fact LogMessageToFact(Message msg, Func<Message, Fact> factory = null)
     {
       if (msg == null) return null;
-      var fact = factory != null ? factory(msg, targetName) : new Fact();
+      var fact = factory != null ? factory(msg) : new Fact();
 
 
       if (msg.From.IsNotNullOrWhiteSpace() && Atom.TryEncodeValueOrId(msg.From, out var aFrom))
@@ -218,8 +218,6 @@ namespace Azos.Log
       {
         fact.Metrics = ArchiveConventions.DecodeStructuredDataMap(msg.Parameters);
       }
-
-      ((IAmorphousData)fact).AfterLoad(targetName);
 
       return fact;
     }
