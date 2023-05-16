@@ -208,6 +208,18 @@ namespace Azos.Sky.Chronicle.Server
     public async Task<IEnumerable<Message>> GetAsync(LogChronicleFilter filter)
       => await m_Log.NonNull().GetAsync(filter.NonNull(nameof(filter))).ConfigureAwait(false);
 
+    //20230515 DKh #861
+    public async Task<IEnumerable<Fact>> GetFactsAsync(LogChronicleFactFilter filter)
+    {
+      var messages = await m_Log.NonNull().GetAsync(filter.NonNull(nameof(filter)).LogFilter.NonNull(nameof(filter.LogFilter))).ConfigureAwait(false);
+
+      //Server-side convert to facts
+      var facts = messages.Select(one => ArchiveConventions.LogMessageToFact(one))
+                          .ToArray();//materialize, as conversion is costly
+
+      return facts;
+    }
+
     public async Task WriteAsync(InstrumentationBatch data)
       => await m_Instrumentation.NonNull().WriteAsync(data.NonNull(nameof(data))).ConfigureAwait(false);
 

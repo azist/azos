@@ -136,19 +136,20 @@ namespace Azos.Log
     }
 
     /// <summary>
-    /// Converts analytics fact data into <see cref="Message"/> suitable for processing in log archives/pipes, such as chronicle.
-    /// Returns a message, you must to call `msg.InitDefaultFields(m_App);` if you need default values
+    /// Establishes fact data protocol around passed parameters converting them into into
+    /// <see cref="Message"/> suitable for processing in log archives/pipes, such as chronicle.
+    /// Returns a message, you must  call <see cref="Message.InitDefaultFields(IApplication)"/> if you need default values
     /// </summary>
-    public static Message AnalyticsFactDataToLogMessage(Atom factType,
-                                                        object dims,
-                                                        object metrics,
-                                                        int source = 0,
-                                                        Guid rel = default(Guid),
-                                                        string host = null,
-                                                        MessageType messageType = MessageType.Info,
-                                                        DateTime utcTimeStamp = default,
-                                                        string topic = null,
-                                                        Atom channel = default)
+    public static Message FactDataToLogMessage(Atom factType,
+                                               object dims,
+                                               object metrics,
+                                               int source = 0,
+                                               Guid rel = default(Guid),
+                                               string host = null,
+                                               MessageType messageType = MessageType.Info,
+                                               DateTime utcTimeStamp = default,
+                                               Atom topic = default,
+                                               Atom channel = default)
     {
       factType.HasRequiredValue(nameof(factType));
 
@@ -156,7 +157,7 @@ namespace Azos.Log
       {
         Channel = channel.Default(CoreConsts.LOG_CHANNEL_ANALYTICS),
         Host = host,
-        Topic = topic.Default(CoreConsts.LOG_TOPIC),
+        Topic = topic.Value,//null for Atom.Zero
         Type = messageType,
         Source = source,
         From = factType.Value,
