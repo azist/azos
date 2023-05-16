@@ -67,6 +67,74 @@ namespace Azos.Tests.Nub.Serialization
 
 
     [Run]
+    public void RootJsonDataMap_01()
+    {
+      using var w = new BixWriterBufferScope(1024);
+      var obj = new JsonDataMap(caseSensitive: true) { { "1", 2 }, { "29", "twenty nine" }, { "-900", Atom.Encode("mmm") } };
+      Bixon.WriteObject(w.Writer, obj);
+      w.Buffer.ToHexDump().See();
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = Bixon.ReadObject(r.Reader) as JsonDataMap;
+      Aver.IsNotNull(got);
+      Aver.IsTrue(got.CaseSensitive);
+      Aver.AreEqual(3, got.Count);
+      Aver.AreEqual(2, (int)got["1"]);
+      Aver.AreEqual("twenty nine", (string)got["29"]);
+      Aver.AreEqual(Atom.Encode("mmm"), (Atom)got["-900"]);
+    }
+
+    [Run]
+    public void RootJsonDataMap_02_insensetive()
+    {
+      using var w = new BixWriterBufferScope(1024);
+      var obj = new JsonDataMap(caseSensitive: false) { { "1", 2 }, { "29", "twenty nineZZ" }, { "-900", Atom.Encode("xcv") } };
+      Bixon.WriteObject(w.Writer, obj);
+      w.Buffer.ToHexDump().See();
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = Bixon.ReadObject(r.Reader) as JsonDataMap;
+      Aver.IsNotNull(got);
+      Aver.IsFalse(got.CaseSensitive);
+      Aver.AreEqual(3, got.Count);
+      Aver.AreEqual(2, (int)got["1"]);
+      Aver.AreEqual("twenty nineZZ", (string)got["29"]);
+      Aver.AreEqual(Atom.Encode("xcv"), (Atom)got["-900"]);
+    }
+
+
+    [Run, Aver.Throws(ExceptionType = typeof(BixException))]
+    public void CirculareReference_01()
+    {
+      using var w = new BixWriterBufferScope(1024);
+      var obj = new JsonDataMap(caseSensitive: false) { { "1", 2 }, { "29", "twenty nineZZ" }, { "-900", Atom.Encode("xcv") }};
+      obj["loop"] = obj;//circular reference
+
+      Bixon.WriteObject(w.Writer, obj);//crash
+    }
+
+    [Run, Aver.Throws(ExceptionType = typeof(BixException))]
+    public void CirculareReference_02()
+    {
+      using var w = new BixWriterBufferScope(1024);
+
+      var loop = new JsonDataMap { { "a", 1 } };
+      var obj = new JsonDataMap(caseSensitive: false) { { "1", 2 }, { "29", "twenty nineZZ" }, { "-900", Atom.Encode("xcv") }, { "loop", loop } };
+      loop["root"] = obj;//infinite loop
+
+      Bixon.WriteObject(w.Writer, obj);//crash
+    }
+
+    [Run, Aver.Throws(ExceptionType = typeof(BixException))]
+    public void CirculareReference_03()
+    {
+      using var w = new BixWriterBufferScope(1024);
+      var obj = new JsonDataArray{ 1 ,2,3};
+      obj.Add(obj);//circular reference
+
+      Bixon.WriteObject(w.Writer, obj);//crash
+    }
+
+
+    [Run]
     public void RootString()
     {
       using var w = new BixWriterBufferScope(1024);

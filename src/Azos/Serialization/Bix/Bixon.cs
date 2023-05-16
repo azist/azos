@@ -20,16 +20,18 @@ namespace Azos.Log
 {
   /// <summary>
   /// Bixon serialization technology is very similar to JSON (hence the name) and is based
-  /// on Bix wire format and efficiently serializes primitives and JsonDataMap and JsonDataArray types along with
-  /// object[], and anonymous types (as json maps).
+  /// on Bix wire format and efficiently serializes primitives and IJsonDataObject (JsonDataMap and JsonDataArray) types along with
+  /// IList and IDictionary (as maps and arrays), and anonymous types (as json maps).
   /// Bixon is designed for archiving/storage of json-like data in a more efficient binary way.
   /// It is similar to Json buts supports additional types for efficiency.
   /// Bixon supports serialization and deserialization of CLR primitive types and Azos-foundational types
   /// such as: JsonDataMap, JsonDataArray, Atom, EntityId, GDID, RGDID, Guid, byte[].
   /// Unsupported/complex types are serialized as json segments.
-  /// Bixon does NOT support polymorphism, references, and complex custom types.
-  /// Bixon has a built-in limits on sizes of objects/arrays (see constants).
-  /// You should use <see cref="Bixer"/> serializer for serializing data documents (complex types).
+  /// Bixon does NOT support polymorphism, reference tracking, and complex custom types.
+  /// Bixon has a built-in limits on sizes of objects/arrays (see constants). Recursive graphs are disallowed.
+  /// You should use <see cref="Bixer"/> serializer for serializing data documents (complex types) if you have
+  /// bix satellite assembly with ser/deser cores as Bixer is more efficient than Bixon, however
+  /// it requires the presence of assemblies on target machine.
   /// </summary>
   public static class Bixon
   {
@@ -45,16 +47,16 @@ namespace Azos.Log
     /// <summary>
     /// Absolute limit on maximum number of map properties per level
     /// </summary>
-    public const int MAX_MAP_PROPS = 2 * 1024;
+    public const int MAX_MAP_PROPS = 8 * 1024;
 
     /// <summary>
     /// Absolute limit on maximum number of array elements
     /// </summary>
-    public const int MAX_ARRAY_ELM = 64 * 1024;
+    public const int MAX_ARRAY_ELM = 96 * 1024;
 
     // Null/NonNull map flags, also used as a stream alignment crosscheck code
-    private const byte SD_FMT_NULL = 0x55;
-    private const byte SD_FMT_NOTNULL = 0xAA;
+    private const byte FLAG_FMT_NULL = 0x55;
+    private const byte FLAG_FMT_NOTNULL = 0xAA;
 
 
     private static readonly Dictionary<Type, Action<BixWriter, object>> WRITERS = new()
@@ -128,11 +130,17 @@ namespace Azos.Log
     /// </summary>
     public static object ReadObject(BixReader reader, JsonReader.DocReadOptions? docReadOptions = null)
     {
-      Aver.AreEqual(HEADER1, reader.ReadByte(), "hdr1");
-      Aver.AreEqual(HEADER2, reader.ReadByte(), "hdr2");
+      if ( HEADER1 != reader.ReadByte() ||
+           HEADER2 != reader.ReadByte() )
+      {
+        throw new BixException(StringConsts.BIX_BIXON_CORRUPT_HEADER_ERROR);
+      }
 
       var readVersion = reader.ReadInt();
-      Aver.IsTrue(Format.VERSION >= readVersion);
+      if (Format.VERSION < readVersion)
+      {
+        throw new BixException(StringConsts.BIX_BIXON_UNSUPPORTED_VERSION_ERROR.Args(readVersion, Format.VERSION));
+      }
 
       var ver = reader.ReadByte();//sub version of this
       return readValue(reader, ver, docReadOptions);
@@ -154,8 +162,8 @@ namespace Azos.Log
     private static JsonDataMap readMap(BixReader reader, byte ver, JsonReader.DocReadOptions? docReadOptions)
     {
       var flagNullNotNull = reader.ReadByte();
-      if (flagNullNotNull == SD_FMT_NULL) return null;
-      Aver.AreEqual(SD_FMT_NOTNULL, flagNullNotNull, "corrupted data");
+      if (flagNullNotNull == FLAG_FMT_NULL) return null;
+      if (FLAG_FMT_NOTNULL != flagNullNotNull) throw new BixException(StringConsts.BIX_BIXON_CORRUPT_STREAM_FLAG_ERROR);
 
       var caseSensitive = reader.ReadBool();
       var result = new JsonDataMap(caseSensitive);
@@ -164,8 +172,8 @@ namespace Azos.Log
       {
         var key = reader.ReadString();
         if (key == null) break;//eof
+        if (result.Count == MAX_MAP_PROPS) throw new BixException(StringConsts.BIX_BIXON_LIMIT_EXCEEDED_ERROR + ("max props {0}".Args(MAX_MAP_PROPS)));
         var val = readValue(reader, ver, docReadOptions);
-        Aver.IsTrue(result.Count < MAX_MAP_PROPS, "max props");
         result[key] = val;
       }
 
@@ -175,14 +183,14 @@ namespace Azos.Log
     private static JsonDataArray readArray(BixReader reader, byte ver, JsonReader.DocReadOptions? docReadOptions)
     {
       var flagNullNotNull = reader.ReadByte();
-      if (flagNullNotNull == SD_FMT_NULL) return null;
-      Aver.AreEqual(SD_FMT_NOTNULL, flagNullNotNull, "corrupted data");
+      if (flagNullNotNull == FLAG_FMT_NULL) return null;
+      if (FLAG_FMT_NOTNULL != flagNullNotNull) throw new BixException(StringConsts.BIX_BIXON_CORRUPT_STREAM_FLAG_ERROR);
 
       var count = reader.ReadInt();
-      Aver.IsTrue(count < MAX_ARRAY_ELM, "max elm");
+      if (count > MAX_ARRAY_ELM) throw new BixException(StringConsts.BIX_BIXON_LIMIT_EXCEEDED_ERROR + ("max array elm {0}".Args(MAX_ARRAY_ELM)));
       var result = new JsonDataArray();
 
-      for (var i=0; i<count; i++)
+      for (var i=0; i < count; i++)
       {
         var val = readValue(reader, ver, docReadOptions);
         result.Add(val);
@@ -195,13 +203,13 @@ namespace Azos.Log
     {
       if (map == null)
       {
-        writer.Write(SD_FMT_NULL);//map is null, byte code is used as a bool and stream consistency flag as well
+        writer.Write(FLAG_FMT_NULL);//map is null, byte code is used as a bool and stream consistency flag as well
         return;
       }
 
-      Aver.IsTrue(map.Count < MAX_MAP_PROPS, "max props");
+      if (map.Count > MAX_MAP_PROPS) throw new BixException(StringConsts.BIX_BIXON_LIMIT_EXCEEDED_ERROR + ("max props {0}".Args(MAX_MAP_PROPS)));
 
-      writer.Write(SD_FMT_NOTNULL);//non null, byte code is used as a bool and stream consistency flag as well
+      writer.Write(FLAG_FMT_NOTNULL);//non null, byte code is used as a bool and stream consistency flag as well
       writer.Write(map is JsonDataMap jdm ? jdm.CaseSensitive : true);//case sensitivity
 
       foreach(var entry in new JsonWriter.dictEnumberable(map))
@@ -216,13 +224,13 @@ namespace Azos.Log
     {
       if (array == null)
       {
-        writer.Write(SD_FMT_NULL);//array is null, byte code is used as a bool and stream consistency flag as well
+        writer.Write(FLAG_FMT_NULL);//array is null, byte code is used as a bool and stream consistency flag as well
         return;
       }
 
-      Aver.IsTrue(array.Count < MAX_ARRAY_ELM, "max elms");
+      if (array.Count > MAX_ARRAY_ELM) throw new BixException(StringConsts.BIX_BIXON_LIMIT_EXCEEDED_ERROR + ("max array elms {0}".Args(MAX_ARRAY_ELM)));
 
-      writer.Write(SD_FMT_NOTNULL);//non null, byte code is used as a bool and stream consistency flag as well
+      writer.Write(FLAG_FMT_NOTNULL);//non null, byte code is used as a bool and stream consistency flag as well
       writer.Write(array.Count);
       for(var i=0; i< array.Count; i++)
       {
@@ -266,7 +274,7 @@ namespace Azos.Log
           set = new HashSet<object>();
         }
 
-        Aver.IsTrue(set.Add(map), "circular reference check");
+        if (!set.Add(map)) throw new BixException(StringConsts.BIX_BIXON_DATA_CIRCULAR_REFERENCE_ERROR);
         try
         {
           writeMap(writer, map, jopt, set);
@@ -288,7 +296,7 @@ namespace Azos.Log
           set = new HashSet<object>();
         }
 
-        Aver.IsTrue(set.Add(array), "circular reference check");
+        if (!set.Add(array)) throw new BixException(StringConsts.BIX_BIXON_DATA_CIRCULAR_REFERENCE_ERROR);
         try
         {
           writeArray(writer, array, jopt, set);
@@ -324,7 +332,7 @@ namespace Azos.Log
         if (tguid.HasValue)
         {
           tc = reader.ReadTypeCode();
-          Aver.IsTrue( tc == TypeCode.Map, "invalid doc typecode");
+          if (tc != TypeCode.Map) throw new BixException(StringConsts.BIX_BIXON_CORRUPT_STREAM_DOCMAP_ERROR);
 
           var map = readMap(reader, ver, docReadOptions);
           if (docReadOptions?.BindBy == JsonReader.DocReadOptions.By.BixonDoNotMaterializeDocuments)
