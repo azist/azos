@@ -68,14 +68,14 @@ namespace Azos.Sky.Chronicle.Server.Web
 
     [ApiEndpointDoc(Title = "Filter Facts",
                     Uri = "filter-facts",
-                    Description = "Queries log chronicle by applying a structured filter `{@LogChronicleFilter}` and returning facts",
+                    Description = "Queries log chronicle by applying a structured filter `{@LogChronicleFactFilter}` and returning facts",
                     Methods = new[] { "POST = post filter object for query execution" },
                     RequestHeaders = new[] { API_DOC_HDR_ACCEPT_JSON },
                     ResponseHeaders = new[] { API_DOC_HDR_NO_CACHE },
                     RequestBody = "JSON representation of `{@LogChronicleFilter}`",
                     ResponseContent = "JSON filter result - enumerable of `{@Fact}`",
                     TypeSchemas = new[] { typeof(Fact) })]
-    [ActionOnPost(Name = "filter"), AcceptsJson]
+    [ActionOnPost(Name = "filter-facts"), AcceptsJson]
     [ChroniclePermission(ChronicleAccessLevel.Browse)]
     public async Task<object> Filter_Facts(LogChronicleFactFilter filter) => await ApplyFilterAsync(filter).ConfigureAwait(false);
 
