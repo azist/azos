@@ -236,7 +236,7 @@ namespace Azos.Tests.Nub.Logging
     {
       tree
       {
-        type='Azos.Log.Filters.ByChannel' include='MEDUZA'
+        type='Azos.Log.Filters.ByChannel' include='meduza'
       }
     }")]
 
@@ -246,7 +246,7 @@ namespace Azos.Tests.Nub.Logging
     {
       tree
       {
-        type='Azos.Log.Filters.ByChannel' include='MEDUZA' case=true
+        type='Azos.Log.Filters.ByChannel' include='MEDUZA'
       }
     }")]
 
