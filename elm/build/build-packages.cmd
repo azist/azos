@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.2.0.9
-set HEADLINE=#860 Json web call limits default
+set VER=3.2.1.1
+set HEADLINE=#861 #864 #867 Facts, TypeHints, Chronicle Fact Feed
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
