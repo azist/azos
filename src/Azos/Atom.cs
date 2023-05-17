@@ -281,6 +281,9 @@ namespace Azos
       }
     }
 
+    /// <summary>Returns default if this is zero </summary>
+    public Atom Default(Atom dflt) => this.IsZero ? dflt : this;
+
     public bool Equals(Atom other) => this.ID == other.ID;
     public override bool Equals(object obj)
     {

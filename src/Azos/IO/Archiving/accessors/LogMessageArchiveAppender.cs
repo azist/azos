@@ -19,58 +19,46 @@ namespace Azos.IO.Archiving
   /// <summary>
   /// Appends into Azos log archives
   /// </summary>
-  [ContentTypeSupport(LogMessageArchiveAppender.CONTENT_TYPE_LOG)]
-  public sealed class LogMessageArchiveAppender : ArchiveAppender<Message>
+  [ContentTypeSupport(CONTENT_TYPE_LOG)]
+  public sealed class LogMessageArchiveAppender : ArchiveBixAppender<Message>
   {
     public const string CONTENT_TYPE_LOG = "bix/azlog";
 
     public LogMessageArchiveAppender(IVolume volume, ITimeSource time, Atom app, string host, Action<Message, Bookmark> onPageCommit = null)
-     : base(volume, time, app, host, onPageCommit)
+     : base(volume, time, app, host, onPageCommit){ }
+
+    protected override void DoSerializeBix(BixWriter wri, Message entry)
     {
-      m_Stream = new MemoryStream();
-      m_Writer = new BixWriter(m_Stream);
-    }
-
-    private MemoryStream m_Stream;
-    private BixWriter m_Writer;
-
-    protected override ArraySegment<byte> DoSerialize(Message entry)
-    {
-      m_Stream.SetLength(0);
-
       if (entry == null)
       {
-        m_Writer.Write(false); //NULL
+        wri.Write(false); //NULL
+        return;
       }
-      else
+
+      wri.Write(true); // NON-NULL
+
+      wri.Write(entry.Gdid.IsZero ? (GDID?)null : entry.Gdid);//nullable Gdid will consume 1 byte instead of 12 zeros
+      wri.Write(entry.Guid);
+      wri.Write(entry.RelatedTo == Guid.Empty ? (Guid?)null : entry.RelatedTo);//nullable Guid takes 1 byte instead of 16
+      wri.Write(entry.Channel);
+      wri.Write(entry.App);
+      wri.Write((int)entry.Type);
+      wri.Write(entry.Source);
+      wri.Write(entry.UTCTimeStamp);
+
+      wri.Write(entry.Host);
+      wri.Write(entry.From);
+      wri.Write(entry.Topic);
+      wri.Write(entry.Text);
+      wri.Write(entry.Parameters);
+      wri.Write(entry.ArchiveDimensions);
+
+      string edata = null;
+      if (entry.ExceptionData != null)
       {
-        m_Writer.Write(true); // NON-NULL
-
-        m_Writer.Write(entry.Gdid.IsZero ? (GDID?)null : entry.Gdid);//nullable Gdid will consume 1 byte instead of 12 zeros
-        m_Writer.Write(entry.Guid);
-        m_Writer.Write(entry.RelatedTo == Guid.Empty ? (Guid?)null : entry.RelatedTo);//nullable Guid takes 1 byte instead of 16
-        m_Writer.Write(entry.Channel);
-        m_Writer.Write(entry.App);
-        m_Writer.Write((int)entry.Type);
-        m_Writer.Write(entry.Source);
-        m_Writer.Write(entry.UTCTimeStamp);
-
-        m_Writer.Write(entry.Host);
-        m_Writer.Write(entry.From);
-        m_Writer.Write(entry.Topic);
-        m_Writer.Write(entry.Text);
-        m_Writer.Write(entry.Parameters);
-        m_Writer.Write(entry.ArchiveDimensions);
-
-        string edata = null;
-        if (entry.ExceptionData != null)
-        {
-          edata = JsonWriter.Write(entry.ExceptionData, JsonWritingOptions.CompactRowsAsMap);
-        }
-        m_Writer.Write(edata);
+        edata = JsonWriter.Write(entry.ExceptionData, JsonWritingOptions.CompactRowsAsMap);
       }
-
-      return new ArraySegment<byte>(m_Stream.GetBuffer(), 0, (int)m_Stream.Length);
+      wri.Write(edata);
     }
   }
 }

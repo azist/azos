@@ -24,6 +24,10 @@ namespace Azos.Serialization.Bix
 
     public bool IsAssigned => m_Stream != null;
 
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public TypeCode ReadTypeCode() => (TypeCode)ReadByte();
+
     #region FIXED bits
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public uint ReadFixedBE32bits()

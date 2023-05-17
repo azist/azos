@@ -105,6 +105,11 @@ namespace Azos.Serialization.JSON
       CaseSensitive = caseSensitive;
     }
 
+    public JsonDataMap(bool caseSensitive, IEnumerable<KeyValuePair<string, object>> data) : this(caseSensitive)
+    {
+      if (data != null) data.ForEach(one => this[one.Key] = one.Value);
+    }
+
     protected JsonDataMap(SerializationInfo info,
                           StreamingContext context) : base(info.NonNull(nameof(info)).GetBoolean("csense") ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase)
     {
