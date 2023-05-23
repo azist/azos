@@ -54,7 +54,7 @@ namespace Azos.Log
     };
 
     /// <summary> Maximum size of analytical fact archive dimensions </summary>
-    public const int ANALYTICS_MAX_DIMENSIONS_CHAR_LEN = 512;
+    public const int ANALYTICS_MAX_DIMENSIONS_CHAR_LEN = 1024;
 
     /// <summary> Maximum size of analytical fact structured data/metrics </summary>
     public const int ANALYTICS_MAX_METRICS_CHAR_LEN = 2 * 1024;

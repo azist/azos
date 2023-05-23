@@ -42,6 +42,20 @@ namespace Azos
 
         return new EntityId(SYS_IDP, ETP_IDP_USER_NAME, Atom.ZERO, user.Name);
       }
+
+      /// <summary>
+      /// Gets EntityId for the valid user by name.
+      /// If name is null, return an invalid user etp and address
+      /// </summary>
+      public static EntityId OfUserName(string name)
+      {
+        if (name.IsNullOrWhiteSpace())
+        {
+          return new EntityId(SYS_IDP, ETP_INVALID, Atom.ZERO, ADDRESS_INVALID);
+        }
+
+        return new EntityId(SYS_IDP, ETP_IDP_USER_NAME, Atom.ZERO, name);
+      }
     }
   }
 }

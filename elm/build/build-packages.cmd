@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.2.1.2
-set HEADLINE=#861 AtomSetFilter, Filter.ByChannel
+set VER=3.2.1.3
+set HEADLINE=Canonical user id by name
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

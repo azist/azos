@@ -19,7 +19,7 @@ namespace Azos.Serialization.BSON
       Unspecified = 0,
 
       /// <summary>
-      /// UI Only - minimum date only needed for ui
+      /// UI Only - minimum data only needed for ui
       /// </summary>
       UIOnly      = 0x1,
 
