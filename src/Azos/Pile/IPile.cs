@@ -123,7 +123,7 @@ namespace Azos.Pile
     PilePointer Put(object obj, uint lifeSpanSec = 0, int preallocateBlockSize = 0);
 
     /// <summary>
-    /// Tries to put the new object over an existing one at the pre-define position.
+    /// Tries to put the new object over an existing one at the pre-defined position.
     /// The pointer has to reference a valid allocated block.
     /// If object fits in the allocated block returns true, otherwise tries to create an internal link
     /// to the new pointer which is completely transparent to the caller. The linking may be explicitly disabled
@@ -222,10 +222,4 @@ namespace Azos.Pile
     /// </summary>
     int SegmentSize { get; set;}
   }
-
-
-
-
-
-
 }
