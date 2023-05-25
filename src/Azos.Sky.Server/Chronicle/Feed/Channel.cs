@@ -47,6 +47,7 @@ namespace Azos.Sky.Chronicle.Feed
     private int m_RestIntervalSec;
 
     private int m_FetchBy;
+    private DateTime m_CheckpointUtc;
 
 
     public override string ComponentLogTopic => CoreConsts.DATA_TOPIC;
@@ -66,6 +67,8 @@ namespace Azos.Sky.Chronicle.Feed
     }
 
     public Atom Name => m_Name;
+
+    public DateTime CheckpointUtc => m_CheckpointUtc;
 
   }
 }
