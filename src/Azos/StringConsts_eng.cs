@@ -1160,6 +1160,12 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string BIX_WRITE_X_COLLECTION_MAX_SIZE_ERROR = "Attempt to write a collection [{0}] of {1} is over the allowed limit of {2}";
     public const string BIX_READ_X_ARRAY_MAX_SIZE_ERROR = "Attempt to read an array [{0}] of {1} is over the allowed limit of {2}";
 
+    public const string BIX_BIXON_DATA_CIRCULAR_REFERENCE_ERROR = "Bixon serialization attempt of data with circular reference";
+    public const string BIX_BIXON_CORRUPT_HEADER_ERROR = "Bixon header is corrupted";
+    public const string BIX_BIXON_CORRUPT_STREAM_FLAG_ERROR = "Bixon stream is corrupted: unknown flag";
+    public const string BIX_BIXON_CORRUPT_STREAM_DOCMAP_ERROR = "Bixon stream is corrupted: not a doc map";
+    public const string BIX_BIXON_LIMIT_EXCEEDED_ERROR = "Bixon limit exceeded: ";
+    public const string BIX_BIXON_UNSUPPORTED_VERSION_ERROR = "Bixon stream requires version {0} however this runtime only supports reading up to version {1}";
 
     public const string METADATA_CTOR_CONTENT_ERROR = "Metadata specification error. `{0}`.ctor(`{1}` content is bad). Revise attribute declaration. Cause: {2}";
 

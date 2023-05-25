@@ -15,6 +15,7 @@ using System.Runtime.CompilerServices;
 using Azos.Serialization.JSON;
 using System.Threading.Tasks;
 using Azos.Data.Idgen;
+using System.Linq;
 
 namespace Azos
 {
@@ -227,6 +228,22 @@ namespace Azos
 
       return true;
     }
+
+    //#861
+    private static readonly Platform.FiniteSetLookup<Type, bool> ANONYMOUS_TYPES = new( t =>
+      t.BaseType == typeof(object) &&
+      t.Namespace.IsNullOrWhiteSpace() &&
+      t.GetCustomAttributes<CompilerGeneratedAttribute>().Any());
+
+    /// <summary>
+    /// Returns true if the type is anonymous akin to: `new {p=v}`
+    /// </summary>
+    public static bool IsAnonymousType(this Type t)
+    {
+      if (t==null) return false;
+      return ANONYMOUS_TYPES[t];
+    }
+
 
     /// <summary>
     /// Searches an Exception and its InnerException chain for the first instance of T or null.

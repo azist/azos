@@ -27,6 +27,13 @@ namespace Azos.Sky.Chronicle
     /// Gets chronicle (a list) of messages satisfying the supplied LogChronicleFilter object
     /// </summary>
     Task<IEnumerable<Message>> GetAsync(LogChronicleFilter filter);
+
+    //20230515 DKh #861
+    /// <summary>
+    /// Gets chronicle (a list) of facts extracted from log messages on the server satisfying
+    /// the supplied LogChronicleFactFilter object
+    /// </summary>
+    Task<IEnumerable<Fact>> GetFactsAsync(LogChronicleFactFilter filter);
   }
 
   /// <summary>

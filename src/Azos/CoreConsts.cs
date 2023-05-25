@@ -164,6 +164,7 @@ namespace Azos
       public const string TOPIC_ID_GEN = "idg";
 
       public static readonly Atom LOG_CHANNEL_SECURITY = Atom.Encode("sec");
+      public static readonly Atom LOG_CHANNEL_ANALYTICS = Atom.Encode("anl");
 
       public const string ISO_LANG_ENGLISH = "eng";
       public const string ISO_LANG_RUSSIAN = "rus";

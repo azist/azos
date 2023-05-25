@@ -94,5 +94,75 @@ namespace Azos.Scripting.Expressions
     }
   }
 
+  /// <summary>
+  /// Base for filters with atom sets having include/exclude patterns
+  /// </summary>
+  public abstract class AtomSetFilter<TContext> : BoolFilter<TContext>
+  {
+    public const string CONFIG_DELIMITER_ATTR = PatternSetFilter<TContext>.CONFIG_DELIMITER_ATTR;
+    public const string CONFIG_INCLUDE_ATTR = PatternSetFilter<TContext>.CONFIG_INCLUDE_ATTR;
+    public const string CONFIG_EXCLUDE_ATTR = PatternSetFilter<TContext>.CONFIG_EXCLUDE_ATTR;
+    public const string DELIMITER = PatternSetFilter<TContext>.DELIMITER;
 
+    protected Atom[] m_Includes;
+    protected Atom[] m_Excludes;
+
+    /// <summary>
+    /// Override to extract Atom value out of TContext
+    /// </summary>
+    protected abstract Atom GetValue(TContext context);
+
+    /// <summary>
+    /// Default implementation of include/exclude pattern search
+    /// </summary>
+    public override bool Evaluate(TContext context)
+    {
+      var value = GetValue(context);
+
+      if (m_Includes != null && m_Includes.Length > 0)
+      {
+        if (!m_Includes.Any(p => value == p)) return false;
+      }
+
+      if (m_Excludes != null && m_Excludes.Length > 0)
+      {
+        if (m_Excludes.Any(p => value == p)) return false;
+      }
+
+      return true;
+    }
+
+    protected override void DoConfigure(IConfigSectionNode node)
+    {
+      base.DoConfigure(node);
+
+      var d = node.Of(CONFIG_DELIMITER_ATTR).ValueAsString(DELIMITER)[0];
+
+      m_Includes = node.Of(CONFIG_INCLUDE_ATTR)
+                       .Value
+                       .Default()
+                       .Split(d)
+                       .Select(v => v.Trim())
+                       .Where(s => s.IsNotNullOrWhiteSpace())
+                       .Select(v =>
+                       {
+                         Atom.TryEncodeValueOrId(v, out var atm).IsTrue("Valid atom");
+                         return atm;
+                       })
+                       .ToArray();
+
+      m_Excludes = node.Of(CONFIG_EXCLUDE_ATTR)
+                        .Value
+                       .Default()
+                       .Split(d)
+                       .Select(v => v.Trim())
+                       .Where(s => s.IsNotNullOrWhiteSpace())
+                       .Select(v =>
+                       {
+                         Atom.TryEncodeValueOrId(v, out var atm).IsTrue("Valid atom");
+                         return atm;
+                       })
+                       .ToArray();
+    }
+  }
 }

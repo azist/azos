@@ -9,7 +9,7 @@ using System;
 namespace Azos.Pile
 {
   /// <summary>
-  /// Represents a PilePointer scoped by PileID. PileID uniquelly identifies the pile on the pointed-to machine.
+  /// Represents a PilePointer scoped by PileID. PileID uniquely identifies the pile on the pointed-to machine.
   /// Piled is used for deferred load/deserialization from pile. This is a useful optimization technique for tree serialization,
   /// on deserialization Piled is returned, without having to deserialize the whole sub-graph of objects.
   /// Upon the first access to Pile.Value the Get from pile takes place transparently.
@@ -39,7 +39,7 @@ namespace Azos.Pile
     public readonly int PileID;
 
     /// <summary>
-    /// Pointer within the pile identoified by PileID
+    /// Pointer within the pile identified by PileID
     /// </summary>
     public readonly PilePointer Pointer;
 

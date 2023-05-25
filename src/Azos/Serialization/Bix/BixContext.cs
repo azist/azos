@@ -52,7 +52,7 @@ namespace Azos.Serialization.Bix
 
     private bool m_Default;
     private int m_Nesting;
-    private Atom m_Version;
+    private int m_Version;
     private string m_TargetName = TargetedAttribute.ANY_TARGET;
     private int m_MaxDepth = DEFAULT_MAX_DEPTH;
     private bool m_HasHeader;
@@ -83,7 +83,7 @@ namespace Azos.Serialization.Bix
       if (m_Default) Dispose();
     }
 
-    public Atom Version { get => m_Version; set => m_Version = value; }
+    public int Version { get => m_Version; set => m_Version = value; }
     public string  TargetName        { get => m_TargetName; set => m_TargetName = value.IsNullOrWhiteSpace() ? TargetedAttribute.ANY_TARGET : value; }
     public int     MaxDepth          { get => m_MaxDepth; set => m_MaxDepth = value.KeepBetween(0, 1024); }
     public bool    HasHeader         { get => m_HasHeader; set => m_HasHeader = value; }

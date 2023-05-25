@@ -19,6 +19,12 @@ namespace Azos.Serialization.Bix
 {
   public static class Writer
   {
+
+
+#warning There is no such thing as boxed nullable type value, code below is useless for X?
+    //https://stackoverflow.com/questions/3775582/how-is-the-boxing-unboxing-behavior-of-nullablet-possible
+    //It means there's no such thing as a "boxed nullable-value-type value".
+
     public static readonly Dictionary<Type, Action<BixWriter, object>> WRITERS = new Dictionary <Type, Action<BixWriter, object>>
     {
       {typeof(byte)                        ,                   (w, v) => Write(w, (byte)v)                    },

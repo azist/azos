@@ -42,11 +42,11 @@ namespace Azos.Log.Filters
   }
 
   /// <summary>
-  /// Performs pattern set search on Message.Text
+  /// Performs pattern set search on Message.Channel
   /// </summary>
-  public sealed class ByChannel : PatternSetFilter<Message>
+  public sealed class ByChannel : AtomSetFilter<Message>
   {
-    protected override string GetValue(Message context) => context?.Channel.Value;
+    protected override Atom GetValue(Message context) => context?.Channel ?? Atom.ZERO;
   }
 
   /// <summary>
