@@ -5,7 +5,7 @@
 </FILE_LICENSE>*/
 using System;
 using System.Security.Cryptography;
-
+using Azos.Conf;
 using Azos.Data;
 using Azos.Platform.Abstraction;
 
@@ -29,7 +29,13 @@ namespace Azos.Security
     {
     }
 
+    [Config]//#871
+    public int RevisionYear { get; set; }
+
     private int getIterations()
+     => RevisionYear >= 2023 ? getIterations2023() : getIterationsLegacy();
+
+    private int getIterationsLegacy()
     {
       switch (StrengthLevel)
       {
@@ -38,6 +44,18 @@ namespace Azos.Security
         case PasswordStrengthLevel.AboveNormal: return 25_000;
         case PasswordStrengthLevel.Maximum: return 75_000;
         default: return 12_000;
+      }
+    }
+
+    private int getIterations2023()
+    {
+      switch (StrengthLevel)
+      {
+        case PasswordStrengthLevel.Minimum: return 12_000;
+        case PasswordStrengthLevel.BelowNormal: return 250_000;
+        case PasswordStrengthLevel.AboveNormal: return 800_000;
+        case PasswordStrengthLevel.Maximum: return 1_200_000;
+        default: return 600_000;//for SHA256 OWASP 2023 recommendation
       }
     }
 
