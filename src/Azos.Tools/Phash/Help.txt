@@ -7,6 +7,7 @@
               [/ne | /noentropy]
               [/st | /score]
               [/lvl |/level]
+              [/list]
               [/alg]
 
 <f color=magenta>
@@ -18,6 +19,7 @@
  <f color=darkCyan>/ne | /noentropy <f color=gray> - precludes extra entropy acquisition from user
  <f color=darkCyan>/st | /score  <int><f color=gray> - strength score threshold
  <f color=darkCyan>/alg | /algorithm  <name><f color=gray> - use specified named password hashing algorithm
+ <f color=darkCyan>/list<f color=gray> - list all registered password hashing algorithms
 
  <f color=darkCyan>/lvl | /level  <level><f color=gray> - the strength level of hash
               level = <f color=darkRed>Default| Minimum |BelowNormal|Normal|AboveNormal|Maximum
@@ -29,8 +31,8 @@
  Pretty print with score threshold 90% hashing strength Normal
 
  <f color=yellow>
-  phash -alg kdf -ne<f color=gray>
- Use 'kdf' algorithm skipping extra entropy acquisition
+  phash -alg kdf2023 -ne<f color=gray>
+ Use 'kdf2023' algorithm skipping extra entropy acquisition
 
  <f color=yellow>
   phash -k 256<f color=gray>

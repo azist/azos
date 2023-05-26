@@ -254,6 +254,10 @@ namespace Azos.Security
         var kdf = new PBKDF2PasswordHashingAlgorithm(this, "KDF");
         m_Algorithms.Register(kdf);
 
+        //#871
+        var kdf2023 = new PBKDF2PasswordHashingAlgorithm(this, "KDF2023"){ RevisionYear = 2023 };
+        m_Algorithms.Register(kdf2023);
+
         var nop = new NopPasswordHashingAlgorithm(this, "NOP");
         m_Algorithms.Register(nop);
       }

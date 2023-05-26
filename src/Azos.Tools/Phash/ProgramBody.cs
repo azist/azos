@@ -43,6 +43,19 @@ namespace Azos.Tools.Phash
     private static void run(IApplication app)
     {
       var args = app.CommandArgs;
+
+      if (args["list"].Exists)
+      {
+        Console.WriteLine(" #   Type  (name)");
+        Console.WriteLine("--------------------------------");
+        app.SecurityManager.PasswordManager.Algorithms.ForEach( (alg, i) =>
+          Console.WriteLine("[{0}]  {1}(`{2}`)", i, alg.GetType().DisplayNameWithExpandedGenericArgs(), alg.Name)
+        );
+        Console.WriteLine();
+        return;
+      }
+
+
       var pretty = args["pp", "pretty"].Exists;
       var noEntropy = args["ne", "noentropy"].Exists;
       var scoreThreshold = args["st", "score"].AttrByIndex(0).ValueAsInt(80);
