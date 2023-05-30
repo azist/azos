@@ -96,30 +96,44 @@ namespace Azos.Sky.Chronicle.Server
       using(var errors = new ErrorLogBatcher(App.Log){Type = MessageType.Critical, From = this.ComponentLogFromPrefix + nameof(WriteAsync), Topic = ComponentLogTopic})
       foreach (var batch in toSend.BatchBy(0xf))
       {
-        var bsons = batch.Select(msg =>
-        {
-          return BsonConvert.ToBson(msg);
-        });
+        if (!Running) break;
 
         try
         {
-          var result = cLog.Insert(bsons.ToArray());
-          if (result.WriteErrors!=null)
-           result.WriteErrors.ForEach(we => new MongoDbConnectorServerException(we.Message));
+          //#872 05302023 DKh Refactoring
+          var bsons = batch.Select(msg =>
+                                  {
+                                    try
+                                    {
+                                      return BsonConvert.ToBson(msg);
+                                    }
+                                    catch(Exception conversionError)
+                                    {
+                                      errors.Add(conversionError);
+                                    }
+                                    return null;
+                                  })
+                           .Where(bson => bson != null)
+                           .ToArray();
+
+          i += bsons.Length;
+          if (i > MAX_INSERT_DOC_COUNT)
+          {
+            WriteLog(MessageType.Critical, nameof(WriteAsync), "LogBatch exceeds max allowed count of {0}. The rest discarded".Args(MAX_INSERT_DOC_COUNT));
+            break;
+          }
+
+          var result = cLog.Insert(bsons);
+          if (result.WriteErrors != null)
+          {
+            result.WriteErrors.ForEach(we => errors.Add(new MongoDbConnectorServerException(we.Message)));
+          }
         }
         catch(Exception genError)
         {
           errors.Add(genError);
         }
-
-        if (!Running) break;
-        if (++i > MAX_INSERT_DOC_COUNT)
-        {
-          WriteLog(MessageType.Critical, nameof(WriteAsync), "LogBatch exceeds max allowed count of {0}. The rest discarded".Args(MAX_INSERT_DOC_COUNT));
-          break;
-        }
       }
-
       return Task.CompletedTask;
     }
 
