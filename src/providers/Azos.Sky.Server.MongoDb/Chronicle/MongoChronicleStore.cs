@@ -61,24 +61,28 @@ namespace Azos.Sky.Chronicle.Server
     private IEnumerable<Message> get(LogChronicleFilter filter)
     {
       filter.NonNull(nameof(filter));
-      if (!Running) yield break;
+      var totalCount = Math.Min(filter.PagingCount <= 0 ? FETCH_BY_LOG : filter.PagingCount, MAX_FETCH_DOC_COUNT);
 
+      if (!Running) return Enumerable.Empty<Message>();
+
+      var result = new List<Message>(totalCount);
       var cLog = m_LogDb[COLLECTION_LOG];
 
       var query = LogFilterQueryBuilder.BuildLogFilterQuery(filter);
-      var totalCount = Math.Min(filter.PagingCount <= 0 ? FETCH_BY_LOG : filter.PagingCount, MAX_FETCH_DOC_COUNT);
       using (var cursor = cLog.Find(query, filter.PagingStartIndex, FETCH_BY_LOG))
       {
         int i = 0;
         foreach (var bdoc in cursor)
         {
 
-          var msg = BsonConvert.FromBson(bdoc);
-          yield return msg;
+          var msg = this.DontLeak(() => BsonConvert.FromBson(bdoc), "Bson conv error `BsonConvert.FromBson(doc)`: ", nameof(GetAsync));
+          result.Add(msg);
 
           if (++i > totalCount || !Running) break;
         }
       }
+
+      return result;
     }
 
     public Task WriteAsync(LogBatch data)
