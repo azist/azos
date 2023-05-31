@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.2.2.2
-set HEADLINE=#872 Ad/json problem
+set VER=3.2.2.3
+set HEADLINE=#872 Increase ad limits Ad/json problem
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
