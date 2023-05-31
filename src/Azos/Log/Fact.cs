@@ -53,7 +53,7 @@ namespace Azos.Log
     /// <summary>
     /// Optional Guid for co-related facts. If unset, equals to `Guid.Empty`
     /// </summary>
-    [Field(Required = true, Description = "Optional Guid for co-related facts. If unset, equals to `Guid.Empty`")]
+    [Field(Required = false, Description = "Optional Guid for co-related facts. If unset, equals to `Guid.Empty`")]
     public Guid RelatedId { get; set; }
 
     /// <summary>
@@ -127,6 +127,26 @@ namespace Azos.Log
     {
 
     }
+
+    protected override object FilterJsonSerializerField(Schema.FieldDef def, JsonWritingOptions options, out string name)
+    {
+      if (
+            (def.Name == nameof(RelatedId) && RelatedId == Guid.Empty) ||
+            (def.Name == nameof(Channel)   && Channel.IsZero         ) ||
+            (def.Name == nameof(Topic)     && Topic.IsZero           ) ||
+            (def.Name == nameof(App)       && App.IsZero             ) ||
+            (def.Name == nameof(Host)      && Host == null           ) ||
+            (def.Name == nameof(Source)    && Source == 0            ) ||
+            (def.Name == nameof(Dimensions)&& Dimensions == null     ) ||
+            (def.Name == nameof(Metrics)   && Metrics == null        )
+         )
+      {
+        name = null;
+        return null;
+      }
+      return base.FilterJsonSerializerField(def, options, out name);
+    }
+
   }
 
 }
