@@ -76,6 +76,7 @@ namespace Azos.Sky.Chronicle.Server
         {
 
           var msg = this.DontLeak(() => BsonConvert.FromBson(bdoc), "Bson conv error `BsonConvert.FromBson(doc)`: ", nameof(GetAsync));
+          if (msg == null) continue;
           result.Add(msg);
 
           if (++i > totalCount || !Running) break;
