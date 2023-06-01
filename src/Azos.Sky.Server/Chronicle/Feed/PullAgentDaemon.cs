@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Azos.Apps;
@@ -25,10 +26,12 @@ namespace Azos.Sky.Chronicle.Feed
   /// <summary>
   /// Pulls chronicle data feed from X number of channels into local receptacle
   /// </summary>
-  public sealed class ChronicleFeedPullAgent : ModuleBase
+  public sealed class PullAgentDaemon : Daemon
   {
-    public ChronicleFeedPullAgent(IApplication application) : base(application) { }
-    public ChronicleFeedPullAgent(IModule parent) : base(parent) { }
+    private const int THREAD_SPIN_MS = 2000;
+
+    public PullAgentDaemon(IApplication application) : base(application) { }
+    public PullAgentDaemon(IModule parent) : base(parent) { }
 
     protected override void Destructor()
     {
@@ -38,23 +41,29 @@ namespace Azos.Sky.Chronicle.Feed
 
     private void cleanupChannels()
     {
-      var channels = m_Channels.ToArray();
-      m_Channels.Clear();
+      var channels = m_Sources.ToArray();
+      m_Sources.Clear();
       channels.ForEach(channel => this.DontLeak(() => channel.Dispose()));
     }
 
     [Inject] ILogChronicleLogic m_Chronicle;
 
 
-    [Config] private Atom m_UpstreamId;
     [Config] private string m_DataDir;
-    private AtomRegistry<Channel> m_Channels = new AtomRegistry<Channel>();
+    private Registry<Source> m_Sources = new Registry<Source>();
 
-    public override bool IsHardcodedModule => false;
     public override string ComponentLogTopic => CoreConsts.DATA_TOPIC;
 
-    public Atom UpstreamId => m_UpstreamId;
-    public string DataDir => m_DataDir;
+    [Config]
+    public string DataDir
+    {
+      get => m_DataDir;
+      set
+      {
+        CheckDaemonInactive();
+        m_DataDir = value;
+      }
+    }
 
 
     protected override void DoConfigure(IConfigSectionNode node)
@@ -63,25 +72,39 @@ namespace Azos.Sky.Chronicle.Feed
       cleanupChannels();
       if (node == null) return;
 
-      foreach(var nChannel in node.ChildrenNamed(Channel.CONFIG_CHANNEL_SECTION))
+      foreach(var nSource in node.ChildrenNamed(Source.CONFIG_SOURCE_SECTION))
       {
-        var channel = FactoryUtils.MakeDirectedComponent<Channel>(this, nChannel, typeof(Channel), new[]{ nChannel });
-        m_Channels.Register(channel);
+        var source = FactoryUtils.MakeDirectedComponent<Source>(this, nSource, typeof(Source), new[]{ nSource });
+        m_Sources.Register(source);
       }
 
     }
 
-    protected override bool DoApplicationAfterInit()
+    protected override void DoStart()
     {
-      m_UpstreamId.HasRequiredValue("Configured upstream id");
-      (m_Channels.Count > 0).IsTrue("Configured channels");
+      Name.NonBlank("Configured daemon name");
+      (m_Sources.Count > 0).IsTrue("Configured sources");
       Directory.Exists(m_DataDir.NonBlank(nameof(DataDir))).IsTrue("Existing data dir");
-      return base.DoApplicationAfterInit();
+      base.DoStart();
     }
 
-    protected override bool DoApplicationBeforeCleanup()
+    protected override void DoWaitForCompleteStop()
     {
-      return base.DoApplicationBeforeCleanup();
+      base.DoWaitForCompleteStop();
+      writeCheckpoints();
+    }
+
+
+    private void spin(Task antecedent)
+    {
+      try
+      {
+
+      }
+      catch(Exception error)
+      {
+
+      }
     }
 
     private void writeCheckpoints()
@@ -94,24 +117,25 @@ namespace Azos.Sky.Chronicle.Feed
 
     private void writeCheckpointsUnsafe()
     {
-      var fn = $"{nameof(ChronicleFeedPullAgent)}.{App.AppId}.{m_UpstreamId}.chkpt";
+      var fn = $"{nameof(PullAgentDaemon)}.{App.AppId}.{Name}.chkpt";
       var fullFn = Path.Combine(m_DataDir, fn);
 
       var cfg = new LaconicConfiguration();
       cfg.Create("checkpoints");
       cfg.Root.AddAttributeNode("utc-now", App.TimeSource.UTCNow);
+      cfg.Root.AddAttributeNode("app-id", App.AppId);
+      cfg.Root.AddAttributeNode("agent-id", Name);
       cfg.Root.AddAttributeNode("host", Azos.Platform.Computer.HostName);
 
-      foreach(var channel in m_Channels)
+      foreach(var source in m_Sources)
       {
-        var nChannel = cfg.Root.AddChildNode(Channel.CONFIG_CHANNEL_SECTION);
-        nChannel.AddAttributeNode("name", channel.Name);
-        nChannel.AddAttributeNode("utc-checkpoint", channel.CheckpointUtc);
+        var nChannel = cfg.Root.AddChildNode(Source.CONFIG_SOURCE_SECTION);
+        nChannel.AddAttributeNode("name", source.Name);
+        var chkUtc = source.CheckpointUtc;
+        nChannel.AddAttributeNode("utc-checkpoint", chkUtc.ToString("o"));//ISO8601 with time zone (utc Z)
+        nChannel.AddAttributeNode("utc-checkpoint-nix-ms", chkUtc.ToMillisecondsSinceUnixEpochStart());
       }
-
       cfg.SaveAs(fullFn, CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint);
     }
-
-
   }
 }
