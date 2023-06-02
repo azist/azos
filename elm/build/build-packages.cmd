@@ -1,7 +1,7 @@
 @echo on
 
 set VER=3.2.2.5
-set HEADLINE=#861 #872 Empty fact fields, Increase ad limits Ad/json problem
+set HEADLINE=#861 #872 #864 Chronicle mongo AD read back wo bson qualifiers
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
