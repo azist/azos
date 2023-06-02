@@ -5,15 +5,8 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
-using Azos.Data;
-using Azos.Serialization;
-using Azos.Serialization.Bix;
 using Azos.Serialization.JSON;
-
-using TypeCode = Azos.Serialization.Bix.TypeCode;
 
 namespace Azos.Log
 {

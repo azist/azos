@@ -1,6 +1,6 @@
 @echo on
 
-set VER=3.2.2.4
+set VER=3.2.2.5
 set HEADLINE=#861 #872 Empty fact fields, Increase ad limits Ad/json problem
 call build-all Release %VER%
 

@@ -104,7 +104,7 @@ namespace Azos.Serialization.BSON
   }
 
   /// <summary>
-  /// Represents a BSON bynary type
+  /// Represents a BSON binary type
   /// </summary>
   public struct BSONBinary : IJsonWritable
   {
