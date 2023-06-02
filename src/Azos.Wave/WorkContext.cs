@@ -22,6 +22,7 @@ using Azos.Sky.GeoLookup;
 using Azos.Platform;
 using System.Text;
 using System.Buffers;
+using Azos.Serialization.Bix;
 
 namespace Azos.Wave
 {
@@ -598,7 +599,7 @@ namespace Azos.Wave
 
           if (hdrContentLength > 0 && hdrContentLength < Server.AsyncReadContentLengthThreshold)//sync processing
           {
-            var jsonString = await prefetchJson((int)hdrContentLength).ConfigureAwait(false);
+            var jsonString = await prefetchJsonAsync((int)hdrContentLength).ConfigureAwait(false);
             got = JsonReader.Deserialize(jsonString, jsonOptions);
           }
           else//async processing
@@ -615,8 +616,29 @@ namespace Azos.Wave
             }
           }
         }
+        else //BIXON
+        if (ctp.IndexOf(ContentType.BIXON) >= 0)//#874 20230602 DKh
+        {
+          caseName = "bixon";
+
+          var jsonOptions = this.JsonOptions ?? Server.JsonOptions ?? JsonReadingOptions.Default;
+
+          //read Bixon
+          var maxByteSize = jsonOptions.MaxCharLength * 2;//bytes per char
+          var got = await prefetchBixonAsync(maxByteSize <= 0 ? JsonReadingOptions.DefaultLimits.MaxCharLength * 2 : maxByteSize,
+                                             jsonOptions).ConfigureAwait(false);
+          if (got != null)
+          {
+            if (got is JsonDataMap map) result = map;
+            else
+            {
+              result = new JsonDataMap { { "body", got } };
+            }
+          }
+        }
+
         return result;
-      }
+      }//try
       catch(Exception error)
       {
         //#834 --------------------------------------
@@ -652,7 +674,7 @@ namespace Azos.Wave
       }
     }
 
-    private async ValueTask<string> prefetchJson(int byteLimit) //char length cannot be greater than byteLimit
+    private async ValueTask<string> prefetchJsonAsync(int byteLimit) //char length cannot be greater than byteLimit
     {
       const int BSZ = 1024;
       var result = new StringBuilder(byteLimit);
@@ -685,7 +707,40 @@ namespace Azos.Wave
       return result.ToString();
     }
 
+    private async ValueTask<object> prefetchBixonAsync(int byteLimit, JsonReadingOptions jsonOptions) //#874 DKh 20230602
+    {
+      const int BSZ = 2 * 1024;
+      var buf = ArrayPool<byte>.Shared.Rent(BSZ);
+      try
+      {
+        using (var ms = new System.IO.MemoryStream(2 * BSZ))
+        {
+          while (Server.Running)
+          {
+            var gotBytes = await Request.BodyStream.ReadAsync(buf, 0, buf.Length).ConfigureAwait(false);
+            if (gotBytes == 0) break;//EOF
+            ms.Write(buf, 0, gotBytes);
+
+
+            if (ms.Length >= byteLimit) throw new HTTPStatusException(WebConsts.STATUS_400,
+                                                                      WebConsts.STATUS_400_DESCRIPTION + " exceed limit",
+                                                                      "Body exceeded limit");
+          }
+
+          if (!Server.Running) return null;
+
+          var reader = new BixReader(ms);
+          object got = Bixon.ReadObject(reader);//, jsonOptions)//#875 pass json options here
+          return got;
+        }
+      }
+      finally
+      {
+        ArrayPool<byte>.Shared.Return(buf);
+      }
+    }
+
     #endregion
 
-  }
+  }//WorkContext
 }

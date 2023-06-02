@@ -108,6 +108,22 @@ content-type-mappings
 
   map
   {
+    extensions='bixon'
+    content-type='application/vnd.sky.bixon'
+    binary=true
+    name{eng{n='Bixon' d='Bix Object Notation'}}
+  }
+
+  map
+  {
+    extensions='bix'
+    content-type='application/vnd.sky.bixdoc'
+    binary=true
+    name{eng{n='Bix' d='Binary/Business document Information eXchange'}}
+  }
+
+  map
+  {
     extensions='laconf,sky'
     content-type='laconic'
     name{eng{n='Laconic' d='Laconic Configuration Format'}}
@@ -287,7 +303,7 @@ content-type-mappings
   {
     extensions='mp3'
     content-type='audio/mpeg'
-    binary=true 
+    binary=true
     name{eng{n='MP3' d='MPEG Audio'}}
   }
 
@@ -295,7 +311,7 @@ content-type-mappings
   {
     extensions='mpg,mpeg,mp2,mpa,mpe,mpv2'
     content-type='video/mpeg'
-    binary=true 
+    binary=true
     name{eng{n='MPG' d='MPEG Video'}}
   }
 
@@ -303,7 +319,7 @@ content-type-mappings
   {
     extensions='avi'
     content-type='video/x-msvideo'
-    binary=true 
+    binary=true
     name{eng{n='AVI' d='AVI Container'}}
   }
 
@@ -586,6 +602,8 @@ content-type-mappings
     public static Mappings GetContentTypeMappings(this IApplication app) =>
       app.NonNull(nameof(app)).Singletons.GetOrCreate(() => new Mappings(app)).instance;
 
+    //See
+    //https://en.wikipedia.org/wiki/Media_type
 
     public const string TEXT = "text/plain";
     public const string HTML = "text/html";
@@ -612,7 +630,10 @@ content-type-mappings
     public const string SVG = "image/svg+xml";
     public const string BMP = "image/bmp";
 
-    public const string JSON = "application/json";
+
+    public const string JSON  = "application/json";
+    public const string BIX   = "application/vnd.sky.bixdoc";
+    public const string BIXON = "application/vnd.sky.bixon";
 
 
     public const string TTF  = "application/font-sfnt";
@@ -624,6 +645,5 @@ content-type-mappings
 
     public const string FORM_MULTIPART_ENCODED = "multipart/form-data";
     public const string FORM_MULTIPART_ENCODED_BOUNDARY = "multipart/form-data; boundary={0}";
-
   }
 }
