@@ -143,7 +143,8 @@ namespace Azos.Web
             using(var wscope = new BixWriterBufferScope(1024))
             {
               Bixon.WriteObject(wscope.Writer, body, options ?? BIXON_MARSHALLING_WITH_TYPE);
-              content = new ByteArrayContent(wscope.Buffer);
+              var (buf, cnt) = wscope.BufferSegment;
+              content = new ByteArrayContent(buf, 0, cnt);
               content.Headers.ContentType = new MediaTypeHeaderValue(contentType.Default(ContentType.BIXON));
             }
           }
