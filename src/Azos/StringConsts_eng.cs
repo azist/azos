@@ -1093,6 +1093,7 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string HTTP_CLIENT_DUPLICATE_ASPECT_CONFIG_ERROR = "Duplicate named aspect `{0}` on `{1}`";
 
     public const string WEB_CALL_RETURN_JSONMAP_ERROR = "The received content is not representable as JsonDataMap: '{0}..'";
+    public const string WEB_CALL_RETURN_UNSUPPORTED_CTP_ERROR = "The received content type is not supported: '{0}'";
     public const string WEB_CALL_UNSUCCESSFUL_ERROR = "Web call to `...{0}` was unsuccessful: HTTP {1} - {2}";
 
     public const string WEB_CALL_UNSUCCESSFUL_RESPONSE_ERROR = "Web call to `...{0}` returned HTTP {1} - {2} but failed on reading the response: {3}";

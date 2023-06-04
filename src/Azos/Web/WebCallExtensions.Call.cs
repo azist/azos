@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -42,9 +43,28 @@ namespace Azos.Web
     => CallAsync(client,
                   async response =>
                   {
-                    var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                    var obj = JsonReader.DeserializeDataObject(json, ropt: ropt ?? JsonReadingOptions.NoLimits);
-                    var map = (obj as JsonDataMap).NonNull(StringConsts.WEB_CALL_RETURN_JSONMAP_ERROR.Args(json.TakeFirstChars(48)));
+                    //#874 Bixon vs Json determination
+                    //20230604 DKh
+                    JsonDataMap map = null;
+                    var responseMime = response.Content.Headers.ContentType.MediaType;
+
+                    if (responseMime.IndexOf(ContentType.JSON) >= 0)
+                    {
+                      var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                      var obj = JsonReader.DeserializeDataObject(json, ropt: ropt ?? JsonReadingOptions.NoLimits);
+                      map = (obj as JsonDataMap).NonNull(StringConsts.WEB_CALL_RETURN_JSONMAP_ERROR.Args(json.TakeFirstChars(48)));
+                    }
+                    else if (responseMime.IndexOf(ContentType.BIXON) >= 0)
+                    {
+                      var buff = await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
+                      using (var rscope = new BixReaderBufferScope(buff))
+                      {
+                        var obj = Bixon.ReadObject(rscope.Reader);
+                        map = (obj as JsonDataMap).NonNull(StringConsts.WEB_CALL_RETURN_JSONMAP_ERROR.Args(buff.ToHexDump(32)));
+                      }
+                    }
+                    else throw new WebCallException(StringConsts.WEB_CALL_RETURN_UNSUPPORTED_CTP_ERROR.Args(responseMime), uri, method.Method, (int)response.StatusCode, null, null);
+
                     return map;
                   },
                   response => response.Content.ReadAsStringAsync(),

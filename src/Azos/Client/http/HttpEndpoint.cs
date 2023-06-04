@@ -184,6 +184,9 @@ namespace Azos.Client
     [Config(Default = true)]
     public bool AcceptJson { get; internal set; } = true;
 
+    [Config(Default = true)]
+    public bool AcceptBixon { get; internal set; } = true;
+
     [Config]
     public bool UseCookies { get; internal set; }
 
@@ -259,6 +262,9 @@ namespace Azos.Client
 
       if (AcceptJson)
         result.DefaultRequestHeaders.Accept.ParseAdd(ContentType.JSON);
+
+      if (AcceptBixon)//#874 20230604 DKh
+        result.DefaultRequestHeaders.Accept.ParseAdd(ContentType.BIXON);
 
       //If impersonation is used, it attaches headers per call obtained from Ambient security context
       //https://stackoverflow.com/questions/50399003/send-httpclient-request-without-defaultrequestheaders
