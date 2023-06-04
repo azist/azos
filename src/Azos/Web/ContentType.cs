@@ -632,6 +632,7 @@ content-type-mappings
 
 
     public const string JSON  = "application/json";
+    public const string JSON_WITH_TYPEHINTS = "application/json+thints";
     public const string BIX   = "application/vnd.sky.bixdoc";
     public const string BIXON = "application/vnd.sky.bixon";
 
