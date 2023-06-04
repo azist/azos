@@ -37,7 +37,8 @@ namespace Azos.Web
                                                                 bool fetchErrorContent = true,
                                                                 IEnumerable<KeyValuePair<string, string>> requestHeaders = null,
                                                                 Func<object> fGetIdentityContext = null,
-                                                                JsonReadingOptions ropt = null)
+                                                                JsonReadingOptions ropt = null,
+                                                                bool requestBixon = false)
     => CallAsync(client,
                   async response =>
                   {
@@ -54,7 +55,8 @@ namespace Azos.Web
                   options,
                   fetchErrorContent,
                   requestHeaders,
-                  fGetIdentityContext);
+                  fGetIdentityContext,
+                  requestBixon);
 
     /// <summary>
     /// Calls an arbitrary HttpMethod with the specified entity body on a remote endpoint returning response content as a `byte[]` on success.
@@ -69,7 +71,8 @@ namespace Azos.Web
                                                         JsonWritingOptions options = null,
                                                         bool fetchErrorContent = true,
                                                         IEnumerable<KeyValuePair<string, string>> requestHeaders = null,
-                                                        Func<object> fGetIdentityContext = null)
+                                                        Func<object> fGetIdentityContext = null,
+                                                        bool requestBixon = false)
     => CallAsync(client,
                   response => response.Content.ReadAsByteArrayAsync(),
                   response => response.Content.ReadAsStringAsync(),
@@ -80,7 +83,8 @@ namespace Azos.Web
                   options,
                   fetchErrorContent,
                   requestHeaders,
-                  fGetIdentityContext);
+                  fGetIdentityContext,
+                  requestBixon);
 
     /// <summary>
     /// Calls an arbitrary HttpMethod with the specified entity body on a remote endpoint returning a JsonDataMap result on success.
@@ -98,7 +102,7 @@ namespace Azos.Web
                                                           bool fetchErrorContent = true,
                                                           IEnumerable<KeyValuePair<string, string>> requestHeaders = null,
                                                           Func<object> fGetIdentityContext = null,
-                                                          bool useBixon = false)
+                                                          bool requestBixon = false)
     {
       client.NonNull(nameof(client));
       fOkResultGetter.NonNull(nameof(fOkResultGetter));
@@ -138,7 +142,7 @@ namespace Azos.Web
         }
         else //objects - use Json or Bixon
         {
-          if (useBixon)//#874 20230603 DKh
+          if (requestBixon)//#874 20230603 DKh
           {
             using(var wscope = new BixWriterBufferScope(1024))
             {
