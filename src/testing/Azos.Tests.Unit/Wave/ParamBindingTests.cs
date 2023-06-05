@@ -135,6 +135,7 @@ namespace Azos.Tests.Unit.Wave
 
       using var response = await Client.SendAsync(req);
       response.Content.Headers.See();
+      (await response.Content.ReadAsStringAsync()).See();
       Aver.IsTrue(HttpStatusCode.OK == response.StatusCode);
 
       Aver.AreEqual(ContentType.BIXON, response.Content.Headers.ContentType.MediaType);
