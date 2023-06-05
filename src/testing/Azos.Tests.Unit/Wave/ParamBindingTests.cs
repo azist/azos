@@ -13,6 +13,7 @@ using Azos.Data;
 using Azos.Web;
 using Azos.Scripting;
 using Azos.Serialization.JSON;
+using Azos.Serialization.Bix;
 
 namespace Azos.Tests.Unit.Wave
 {
@@ -59,7 +60,7 @@ namespace Azos.Tests.Unit.Wave
     }
 
     [Run]
-    public async Task EchoMap_POST_WithTypeHints_HttpClient()
+    public async Task EchoMap_POST_Json_WithTypeHints_HttpClient()
     {
       var jsonToSend = new
       {
@@ -91,6 +92,54 @@ namespace Azos.Tests.Unit.Wave
       response.Content.Headers.See();
 
       var got = (await response.Content.ReadAsStringAsync()).JsonToDataObject(new JsonReadingOptions(JsonReadingOptions.Default){ EnableTypeHints = true} ) as JsonDataMap;
+      got.See();
+
+      Aver.IsNotNull(got);
+      Aver.IsTrue(got["atm"] is Atom);
+      Aver.IsTrue(got["dt"] is DateTime);
+      Aver.IsTrue(got["buf"] is byte[]);
+      Aver.IsTrue(got["gd"] is GDID);
+
+      Aver.AreEqual(Atom.Encode("123"), got["atm"].AsAtom());
+      Aver.AreEqual(1980, got["dt"].AsDateTime().Year);
+      Aver.AreEqual(10, ((byte[])got["buf"]).Length);
+      Aver.AreEqual(123456789ul, got["gd"].AsGDID().Counter);
+    }
+
+    [Run]
+    public async Task EchoMap_POST_Bixon_WithTypeHints_HttpClient()
+    {
+      var objToSend = new
+      {
+        got = new
+        {
+          atm = Atom.Encode("123"),
+          dt = new DateTime(1980, 05, 12, 14, 20, 0, DateTimeKind.Utc),
+          buf = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 },
+          gd = new GDID(10, 123456789ul)
+        }
+      };
+
+      using var wscope = new BixWriterBufferScope(1024);
+      Bixon.WriteObject(wscope.Writer, objToSend);
+
+      using var content = new ByteArrayContent(wscope.Buffer);
+      content.Headers.TryAddWithoutValidation("Content-Type", ContentType.BIXON);
+
+      using var req = new HttpRequestMessage(HttpMethod.Post, "echomap")
+      {
+        Content = content
+      };
+
+      req.Headers.TryAddWithoutValidation("Accept", ContentType.BIXON);
+
+      using var response = await Client.SendAsync(req);
+      response.Content.Headers.See();
+      Aver.IsTrue(HttpStatusCode.OK == response.StatusCode);
+
+      Aver.AreEqual(ContentType.BIXON, response.Content.Headers.ContentType.MediaType);
+
+      var got = (await response.Content.ReadAsStringAsync()).JsonToDataObject(new JsonReadingOptions(JsonReadingOptions.Default) { EnableTypeHints = true }) as JsonDataMap;
       got.See();
 
       Aver.IsNotNull(got);
