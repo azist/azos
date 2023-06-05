@@ -395,6 +395,7 @@ namespace Azos.Wave
 
 
     private bool? m_RequestedJson;
+    private bool? m_RequestedBixon;
     /// <summary>
     /// Returns true if client indicated in response that "application/json" is accepted
     /// </summary>
@@ -405,6 +406,19 @@ namespace Azos.Wave
         if (!m_RequestedJson.HasValue)
           m_RequestedJson = Request.RequestedJson;
         return m_RequestedJson.Value;
+      }
+    }
+
+    /// <summary>
+    /// Returns true if client indicated in response that "application/vnd.sky.bixon" is accepted
+    /// </summary>
+    public bool RequestedBixon
+    {
+      get
+      {
+        if (!m_RequestedBixon.HasValue)
+          m_RequestedBixon = Request.RequestedBixon;
+        return m_RequestedBixon.Value;
       }
     }
 
@@ -720,8 +734,6 @@ namespace Azos.Wave
             var gotBytes = await Request.BodyStream.ReadAsync(buf, 0, buf.Length).ConfigureAwait(false);
             if (gotBytes == 0) break;//EOF
             ms.Write(buf, 0, gotBytes);
-
-
             if (ms.Length >= byteLimit) throw new HTTPStatusException(WebConsts.STATUS_400,
                                                                       WebConsts.STATUS_400_DESCRIPTION + " exceed limit",
                                                                       "Body exceeded limit");

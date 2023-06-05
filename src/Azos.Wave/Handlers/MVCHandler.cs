@@ -319,6 +319,7 @@ namespace Azos.Wave.Handlers
     protected virtual async Task ProcessResultAsync(Controller controller, WorkContext work, object result)
     {
       if (result==null) return;
+
       if (result is string txtresult)
       {
         await work.Response.WriteAsync(txtresult).ConfigureAwait(false);
@@ -345,6 +346,13 @@ namespace Azos.Wave.Handlers
       if (result is IActionResult aresult)
       {
         await aresult.ExecuteAsync(controller, work).ConfigureAwait(false);
+        return;
+      }
+
+      //#874 20230605 DKh
+      if (work.RequestedBixon)
+      {
+        await work.Response.WriteBixonAsync(result, JsonWritingOptions.CompactRowsAsMap).ConfigureAwait(false);
         return;
       }
 

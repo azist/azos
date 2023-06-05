@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using System.Collections.Generic;
 using System.Linq;
+using Azos.Serialization.Bix;
 
 namespace Azos.Wave
 {
@@ -240,6 +241,25 @@ namespace Azos.Wave
       await setWasWrittenToAsync().ConfigureAwait(false);
 #warning NonClosingStreamWrap needs to be removed, instead use "TextWriter.keepOpen" property #731
       await JsonWriter.WriteAsync(data, new NonClosingStreamWrap( getStream() ), options, Encoding).ConfigureAwait(false);
+    }
+
+    //#874 20230605 DKh
+    /// <summary>
+    /// Writes an object as Bixon. Does nothing if object is null
+    /// </summary>
+    public async Task WriteBixonAsync(object data, JsonWritingOptions options = null)
+    {
+      if (data == null) return;
+      ContentType = Azos.Web.ContentType.BIXON;
+
+      await setWasWrittenToAsync().ConfigureAwait(false);
+
+      using(var wscope = new BixWriterBufferScope(2 * 1024))
+      {
+        Bixon.WriteObject(wscope.Writer, data, options);
+        var (buf, sz) = wscope.BufferSegment;
+        await getStream().WriteAsync(buf, 0, sz).ConfigureAwait(false);
+      }
     }
 
     /// <summary>

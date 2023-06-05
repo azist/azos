@@ -77,5 +77,15 @@ namespace Azos.Wave
         return result;
       }
     }
+
+    public bool RequestedBixon
+    {
+      get
+      {
+        var result = AspRequest.Headers.Accept.Any(at => at != null && at.IndexOf(Azos.Web.ContentType.BIXON, StringComparison.OrdinalIgnoreCase) != -1);
+
+        return result;
+      }
+    }
   }
 }
