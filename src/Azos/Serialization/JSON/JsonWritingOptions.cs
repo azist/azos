@@ -42,6 +42,8 @@ namespace Azos.Serialization.JSON
 
     private static JsonWritingOptions s_CompacRowsAsMap =  new JsonWritingOptions(isSystem: true) {m_RowsAsMap = true};
 
+    private static JsonWritingOptions s_CompacRowsAsMapWithTypeHints = new JsonWritingOptions(isSystem: true) { m_RowsAsMap = true, EnableTypeHints = true };
+
     private static JsonWritingOptions s_CompactASCII = new JsonWritingOptions(isSystem: true) { m_ASCIITarget = true };
 
     private static JsonWritingOptions s_PrettyPrint =  new JsonWritingOptions(isSystem: true)
@@ -92,6 +94,12 @@ namespace Azos.Serialization.JSON
     /// Writes JSON without line breaks between members and no indenting writing rows as maps(key:values) instead of arrays. Suitable for data transmission
     /// </summary>
     public static JsonWritingOptions CompactRowsAsMap => s_CompacRowsAsMap;
+
+    /// <summary>
+    /// Writes JSON without line breaks between members and no indenting writing rows as maps(key:values) instead of arrays. Suitable for data transmission.
+    /// Framework primitives are decorated with type hints
+    /// </summary>
+    public static JsonWritingOptions CompactRowsAsMapWithTypeHints => s_CompacRowsAsMapWithTypeHints;
 
     /// <summary>
     /// Writes JSON without line breaks between members and no indenting escaping any characters

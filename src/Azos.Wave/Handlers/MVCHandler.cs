@@ -357,7 +357,9 @@ namespace Azos.Wave.Handlers
       }
 
       //default serialize object as JSON
-      await work.Response.WriteJsonAsync(result, JsonWritingOptions.CompactRowsAsMap).ConfigureAwait(false);
+      //#874 20230605 DKh
+      var jopt = work.RequestedJsonWithTypeHints ? JsonWritingOptions.CompactRowsAsMapWithTypeHints : JsonWritingOptions.CompactRowsAsMap;
+      await work.Response.WriteJsonAsync(result, jopt).ConfigureAwait(false);
     }
     #endregion
   }

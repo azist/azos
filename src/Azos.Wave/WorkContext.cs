@@ -395,6 +395,7 @@ namespace Azos.Wave
 
 
     private bool? m_RequestedJson;
+    private bool? m_RequestedJsonWithTypeHints;
     private bool? m_RequestedBixon;
     /// <summary>
     /// Returns true if client indicated in response that "application/json" is accepted
@@ -406,6 +407,19 @@ namespace Azos.Wave
         if (!m_RequestedJson.HasValue)
           m_RequestedJson = Request.RequestedJson;
         return m_RequestedJson.Value;
+      }
+    }
+
+    /// <summary>
+    /// Returns true if client indicated in response that "application/json+thints" is accepted
+    /// </summary>
+    public bool RequestedJsonWithTypeHints
+    {
+      get
+      {
+        if (!m_RequestedJsonWithTypeHints.HasValue)
+          m_RequestedJsonWithTypeHints = Request.RequestedJsonWithTypeHints;
+        return m_RequestedJsonWithTypeHints.Value;
       }
     }
 

@@ -78,6 +78,16 @@ namespace Azos.Wave
       }
     }
 
+    public bool RequestedJsonWithTypeHints
+    {
+      get
+      {
+        var result = AspRequest.Headers.Accept.Any(at => at != null && at.IndexOf(Azos.Web.ContentType.JSON_WITH_TYPEHINTS, StringComparison.OrdinalIgnoreCase) != -1);
+
+        return result;
+      }
+    }
+
     public bool RequestedBixon
     {
       get
