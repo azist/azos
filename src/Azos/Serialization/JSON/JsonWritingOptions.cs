@@ -42,7 +42,7 @@ namespace Azos.Serialization.JSON
 
     private static JsonWritingOptions s_CompacRowsAsMap =  new JsonWritingOptions(isSystem: true) {m_RowsAsMap = true};
 
-    private static JsonWritingOptions s_CompacRowsAsMapWithTypeHints = new JsonWritingOptions(isSystem: true) { m_RowsAsMap = true, EnableTypeHints = true };
+    private static JsonWritingOptions s_CompacRowsAsMapWithTypeHints = new JsonWritingOptions(isSystem: true) { m_RowsAsMap = true, m_EnableTypeHints = true };
 
     private static JsonWritingOptions s_CompactASCII = new JsonWritingOptions(isSystem: true) { m_ASCIITarget = true };
 
