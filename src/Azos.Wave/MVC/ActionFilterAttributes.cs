@@ -206,6 +206,31 @@ namespace Azos.Wave.Mvc
     }
   }
 
+  /// <summary>
+  /// Only allows requests that contain Accept application/vnd.sky.bixon header
+  /// </summary>
+  [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
+  [CustomMetadata(@"filter{
+   name='AcceptsBixon'
+   title='Filters requests that contain Accept BIXON header'
+   description='Returns 406 is Accept header was not set to `application/vnd.sky.bixon`'
+  }")]
+  public sealed class AcceptsBixonAttribute : BeforeActionFilterBaseAttribute
+  {
+    public AcceptsBixonAttribute() { }
+
+    protected internal override ValueTask<(bool, object)> BeforeActionInvocationAsync(Controller controller, WorkContext work, string action, MethodInfo method, object[] args, object result)
+    {
+      if (!work.RequestedBixon)
+      {
+        work.Response.StatusCode = WebConsts.STATUS_406;
+        work.Response.StatusDescription = WebConsts.STATUS_406_DESCRIPTION;
+        return new ValueTask<(bool, object)>((true, result));
+      }
+      return new ValueTask<(bool, object)>((false, result));
+    }
+  }
+
 
   /// <summary>
   /// Only allows requests that have entity body (e.g. POST payload).
