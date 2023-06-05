@@ -762,6 +762,7 @@ namespace Azos.Wave
 
           if (!Server.Running) return null;
 
+          ms.Position = 0;
           var reader = new BixReader(ms);
           object got = Bixon.ReadObject(reader);//, jsonOptions)//#875 pass json options here
           return got;
