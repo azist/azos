@@ -87,7 +87,7 @@ namespace Azos.Tests.Unit.Wave
       using var response = await Client.SendAsync(req);
       Aver.IsTrue(HttpStatusCode.OK == response.StatusCode);
 
-      //Aver.AreEqual(ContentType.JSON_WITH_TYPEHINTS, response.Content.Headers.ContentType.MediaType);
+      Aver.AreEqual(ContentType.JSON_WITH_TYPEHINTS, response.Content.Headers.ContentType.MediaType);
       response.Content.Headers.See();
 
       var got = (await response.Content.ReadAsStringAsync()).JsonToDataObject(new JsonReadingOptions(JsonReadingOptions.Default){ EnableTypeHints = true} ) as JsonDataMap;
@@ -98,6 +98,11 @@ namespace Azos.Tests.Unit.Wave
       Aver.IsTrue(got["dt"] is DateTime);
       Aver.IsTrue(got["buf"] is byte[]);
       Aver.IsTrue(got["gd"] is GDID);
+
+      Aver.AreEqual(Atom.Encode("123"), got["atm"].AsAtom());
+      Aver.AreEqual(1980, got["dt"].AsDateTime().Year);
+      Aver.AreEqual(10, ((byte[])got["buf"]).Length);
+      Aver.AreEqual(123456789ul, got["gd"].AsGDID().Counter);
     }
 
 
