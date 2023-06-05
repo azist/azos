@@ -237,7 +237,12 @@ namespace Azos.Wave
     public async Task WriteJsonAsync(object data, JsonWritingOptions options = null)
     {
       if (data==null) return;
-      SetTextualContentType(Azos.Web.ContentType.JSON);
+
+      if (options != null && options.EnableTypeHints)
+        SetTextualContentType(Azos.Web.ContentType.JSON_WITH_TYPEHINTS);
+      else
+        SetTextualContentType(Azos.Web.ContentType.JSON);
+
       await setWasWrittenToAsync().ConfigureAwait(false);
 #warning NonClosingStreamWrap needs to be removed, instead use "TextWriter.keepOpen" property #731
       await JsonWriter.WriteAsync(data, new NonClosingStreamWrap( getStream() ), options, Encoding).ConfigureAwait(false);

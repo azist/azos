@@ -29,7 +29,8 @@ namespace Azos.Tests.Unit.Wave
     {
       Console.ForegroundColor = ConsoleColor.Yellow;
       Console.WriteLine("-------------------------------------------");
-      Console.WriteLine("Run as Administrator or grant all users rights to http://localhost:9871");
+      Console.WriteLine("Depending on listener, ");
+      Console.WriteLine("might need Run as Administrator or grant all users rights to http://localhost:9871");
       Console.WriteLine("-------------------------------------------");
       Console.ForegroundColor = ConsoleColor.White;
       Console.WriteLine();

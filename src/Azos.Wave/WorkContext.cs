@@ -620,7 +620,14 @@ namespace Azos.Wave
         {
           caseName = "json";
 
-          var jsonOptions = this.JsonOptions ?? Server.JsonOptions;
+          var jsonOptions = this.JsonOptions ?? Server.JsonOptions ?? JsonReadingOptions.Default;
+
+          //#874
+          if (ctp.IndexOf(ContentType.JSON_WITH_TYPEHINTS) >= 0 && !jsonOptions.EnableTypeHints)
+          {
+            jsonOptions = new JsonReadingOptions(jsonOptions){ EnableTypeHints = true };//clone with enable flag
+          }
+
           object got;
 
           var hdrContentLength = Request.ContentLength;
