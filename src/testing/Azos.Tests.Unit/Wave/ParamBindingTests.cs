@@ -134,13 +134,15 @@ namespace Azos.Tests.Unit.Wave
       req.Headers.TryAddWithoutValidation("Accept", ContentType.BIXON);
 
       using var response = await Client.SendAsync(req);
-      response.Content.Headers.See();
-      (await response.Content.ReadAsStringAsync()).See();
       Aver.IsTrue(HttpStatusCode.OK == response.StatusCode);
+      response.Content.Headers.See();
 
       Aver.AreEqual(ContentType.BIXON, response.Content.Headers.ContentType.MediaType);
 
-      var got = (await response.Content.ReadAsStringAsync()).JsonToDataObject(new JsonReadingOptions(JsonReadingOptions.Default) { EnableTypeHints = true }) as JsonDataMap;
+      var gotBuf = await response.Content.ReadAsByteArrayAsync();
+      using var rscope = new BixReaderBufferScope(gotBuf);
+      var got = Bixon.ReadObject(rscope.Reader) as JsonDataMap;
+
       got.See();
 
       Aver.IsNotNull(got);
