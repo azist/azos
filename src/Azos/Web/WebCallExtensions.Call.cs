@@ -51,7 +51,8 @@ namespace Azos.Web
                     if (responseMime.IndexOf(ContentType.JSON) >= 0)
                     {
                       var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                      var obj = JsonReader.DeserializeDataObject(json, ropt: ropt ?? JsonReadingOptions.NoLimits);
+                      ropt = ropt ?? (responseMime.IndexOf(ContentType.JSON_WITH_TYPEHINTS) >= 0 ? JsonReadingOptions.DefaultWithTypeHints : JsonReadingOptions.Default);
+                      var obj = JsonReader.DeserializeDataObject(json, ropt: ropt);
                       map = (obj as JsonDataMap).NonNull(StringConsts.WEB_CALL_RETURN_JSONMAP_ERROR.Args(json.TakeFirstChars(48)));
                     }
                     else if (responseMime.IndexOf(ContentType.BIXON) >= 0)

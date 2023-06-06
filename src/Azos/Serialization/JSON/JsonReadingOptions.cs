@@ -43,6 +43,11 @@ namespace Azos.Serialization.JSON
       m_EnableTypeHints = false,
     };
 
+    private static readonly JsonReadingOptions s_DefaultLimitsWithTypeHints = new JsonReadingOptions(isSystem: true, s_DefaultLimits)
+    {
+      m_EnableTypeHints = true
+    };
+
     private static readonly JsonReadingOptions s_DefaultLimitsCaseInsensitive = new JsonReadingOptions(isSystem: true, s_DefaultLimits)
     {
       m_CaseSensitiveMaps = false
@@ -67,6 +72,11 @@ namespace Azos.Serialization.JSON
     /// Default instance points to `DefaultLimits`
     /// </summary>
     public static JsonReadingOptions Default => s_DefaultLimits;
+
+    /// <summary>
+    /// Default instance points to `DefaultLimits`
+    /// </summary>
+    public static JsonReadingOptions DefaultWithTypeHints => s_DefaultLimitsWithTypeHints;
 
 
     public JsonReadingOptions(){ }
