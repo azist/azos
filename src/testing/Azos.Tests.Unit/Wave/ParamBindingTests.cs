@@ -192,6 +192,40 @@ namespace Azos.Tests.Unit.Wave
       Aver.AreEqual(123456789ul, got["gd"].AsGDID().Counter);
     }
 
+    [Run]
+    public async Task EchoMap_POST_Bixon_WithTypeHints_WebCallExtensions()
+    {
+      var objToSend = new
+      {
+        got = new
+        {
+          atm = Atom.Encode("123"),
+          dt = new DateTime(1980, 05, 12, 14, 20, 0, DateTimeKind.Utc),
+          buf = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 },
+          gd = new GDID(10, 123456789ul)
+        }
+      };
+
+      var got = await Client.PostAndGetJsonMapAsync("echomap",
+                                                     objToSend,
+                                                     options: JsonWritingOptions.CompactRowsAsMapWithTypeHints,
+                                                     requestHeaders: new KeyValuePair<string, string>("Accept", ContentType.BIXON).ToEnumerable(),
+                                                     requestBixon: true); //<===================
+
+      got.See();
+
+      Aver.IsNotNull(got);
+      Aver.IsTrue(got["atm"] is Atom);
+      Aver.IsTrue(got["dt"] is DateTime);
+      Aver.IsTrue(got["buf"] is byte[]);
+      Aver.IsTrue(got["gd"] is GDID);
+
+      Aver.AreEqual(Atom.Encode("123"), got["atm"].AsAtom());
+      Aver.AreEqual(1980, got["dt"].AsDateTime().Year);
+      Aver.AreEqual(10, ((byte[])got["buf"]).Length);
+      Aver.AreEqual(123456789ul, got["gd"].AsGDID().Counter);
+    }
+
 
     [Run]
     public async Task EchoParams_GET()
