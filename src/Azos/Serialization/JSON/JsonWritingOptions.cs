@@ -132,6 +132,12 @@ namespace Azos.Serialization.JSON
     public JsonWritingOptions(){ }
     internal JsonWritingOptions(bool isSystem) { m_IsSystem = isSystem; }
 
+    public JsonWritingOptions SealSystem()
+    {
+      m_IsSystem = true;
+      return this;
+    }
+
     public JsonWritingOptions(JsonWritingOptions other)
     {
       if (other==null) return;

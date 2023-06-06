@@ -208,15 +208,14 @@ namespace Azos.Tests.Unit.Wave
 
       var got = await Client.PostAndGetJsonMapAsync("echomap",
                                                      objToSend,
-                                                     options: JsonWritingOptions.CompactRowsAsMapWithTypeHints,
                                                      requestHeaders: new KeyValuePair<string, string>("Accept", ContentType.BIXON).ToEnumerable(),
                                                      requestBixon: true); //<===================
 
       got.See();
 
       Aver.IsNotNull(got);
-      Aver.IsTrue(got["atm"] is Atom);
-      Aver.IsTrue(got["dt"] is DateTime);
+      Aver.IsTrue(got["atm"] is Atom);  //If Accept above is commented, it fail here (as expected)
+      Aver.IsTrue(got["dt"] is DateTime);//this is because the it responds with JSON (and atom comes from server as a string), which we did not enable type hints for
       Aver.IsTrue(got["buf"] is byte[]);
       Aver.IsTrue(got["gd"] is GDID);
 

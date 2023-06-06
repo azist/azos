@@ -82,6 +82,12 @@ namespace Azos.Serialization.JSON
     public JsonReadingOptions(){ }
     internal JsonReadingOptions(bool isSystem, JsonReadingOptions other = null) : this(other) { m_IsSystem = isSystem; }
 
+    public JsonReadingOptions SealSystem()
+    {
+      m_IsSystem = true;
+      return this;
+    }
+
     /// <summary>
     /// Creates instance by building from config
     /// </summary>

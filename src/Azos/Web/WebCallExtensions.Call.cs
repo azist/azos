@@ -21,7 +21,7 @@ namespace Azos.Web
     /// <summary>
     /// Used as default when Bixon serializer is used. Enables data documents with Bix code
     /// </summary>
-    public static readonly JsonWritingOptions BIXON_MARSHALLING_WITH_TYPE = new JsonWritingOptions(true) {  Purpose = JsonSerializationPurpose.Marshalling };
+    public static readonly JsonWritingOptions BIXON_MARSHALLING_WITH_TYPE = new JsonWritingOptions(){  Purpose = JsonSerializationPurpose.Marshalling }.SealSystem();
 
 
     /// <summary>
