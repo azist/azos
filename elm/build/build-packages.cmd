@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.2.2.5
-set HEADLINE=#861 #872 #864 Chronicle mongo AD read back wo bson qualifiers
+set VER=3.3.0.1
+set HEADLINE=#874 Wave and client support for Bixon and Json type hints
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
