@@ -51,7 +51,7 @@ namespace Azos.Apps
       {
         string name = CoreConsts.UNKNOWN;
         foreach (var notifiable in m_FinishNotifiables)
-        { 
+        {
           try
           {
             name = notifiable.Name ?? notifiable.GetType().FullName;

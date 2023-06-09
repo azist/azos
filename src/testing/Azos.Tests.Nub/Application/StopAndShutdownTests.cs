@@ -19,7 +19,20 @@ namespace Azos.Tests.Nub.Application
     [Run]
     public void Test01()
     {
+      //We are already in the current container (trun for unit testing)!!!!!!!!!
+
+      var orgInstance = ExecutionContext.Application;
+      var orgInstanceId = orgInstance.InstanceId;
+
       var app = new AzosApplication(null);
+
+      new { orgInstanceId }.See();
+      new { ExecutionContext.Application.InstanceId }.See();
+
+      Aver.AreNotSameRef(orgInstance, ExecutionContext.Application);
+      Aver.IsFalse(orgInstanceId == ExecutionContext.Application.InstanceId);
+
+      Aver.IsTrue(Azos.Apps.ExecutionContext.Application is AzosApplication); //#876
       Aver.IsTrue(app.Active);
       Aver.IsFalse(app.Stopping);
       Aver.IsFalse(app.ShutdownStarted);
@@ -32,7 +45,11 @@ namespace Azos.Tests.Nub.Application
       Aver.IsFalse(app.ShutdownStarted);
       Aver.IsTrue(app.WaitForStopOrShutdown(100));
 
-      app.Dispose();
+      app.Dispose();//<===========================
+
+      //#876
+      Aver.AreSameRef(orgInstance, ExecutionContext.Application);//we are back to original application
+      Aver.IsTrue(orgInstanceId == ExecutionContext.Application.InstanceId);
 
       Aver.IsFalse(app.Active);
       Aver.IsTrue(app.Stopping);
