@@ -35,15 +35,19 @@ namespace Azos.Sky.Chronicle.Feed
 
     protected override void Destructor()
     {
-      cleanupChannels();
+      cleanupSourcesAndSinks();
       base.Destructor();
     }
 
-    private void cleanupChannels()
+    private void cleanupSourcesAndSinks()
     {
-      var channels = m_Sources.ToArray();
+      var sources = m_Sources.ToArray();
       m_Sources.Clear();
-      channels.ForEach(channel => this.DontLeak(() => channel.Dispose()));
+      sources.ForEach(channel => this.DontLeak(() => channel.Dispose()));
+
+      var sinks = m_Sinks.ToArray();
+      m_Sinks.Clear();
+      sinks.ForEach(sink => this.DontLeak(() => sink.Dispose()));
     }
 
     [Inject] ILogChronicleLogic m_Chronicle;
@@ -51,6 +55,7 @@ namespace Azos.Sky.Chronicle.Feed
 
     [Config] private string m_DataDir;
     private Registry<Source> m_Sources = new Registry<Source>();
+    private Registry<Sink> m_Sinks = new Registry<Sink>();
 
     public override string ComponentLogTopic => CoreConsts.DATA_TOPIC;
 
@@ -69,13 +74,19 @@ namespace Azos.Sky.Chronicle.Feed
     protected override void DoConfigure(IConfigSectionNode node)
     {
       base.DoConfigure(node);
-      cleanupChannels();
+      cleanupSourcesAndSinks();
       if (node == null) return;
 
       foreach(var nSource in node.ChildrenNamed(Source.CONFIG_SOURCE_SECTION))
       {
         var source = FactoryUtils.MakeDirectedComponent<Source>(this, nSource, typeof(Source), new[]{ nSource });
-        m_Sources.Register(source);
+        m_Sources.Register(source).IsTrue("Unique source `{0}`".Args(source.Name));
+      }
+
+      foreach (var nSink in node.ChildrenNamed(Sink.CONFIG_SINK_SECTION))
+      {
+        var sink = FactoryUtils.MakeDirectedComponent<Sink>(this, nSink, null, new[] { nSink });
+        m_Sinks.Register(sink).IsTrue("Unique sink `{0}`".Args(sink.Name)); ;
       }
 
     }
@@ -84,7 +95,9 @@ namespace Azos.Sky.Chronicle.Feed
     {
       Name.NonBlank("Configured daemon name");
       (m_Sources.Count > 0).IsTrue("Configured sources");
+      (m_Sinks.Count > 0).IsTrue("Configured sinks");
       Directory.Exists(m_DataDir.NonBlank(nameof(DataDir))).IsTrue("Existing data dir");
+      m_Sources.All(one => m_Sinks[one.SinkName] != null).IsTrue("All sources pointing to existing sinks");
       base.DoStart();
     }
 

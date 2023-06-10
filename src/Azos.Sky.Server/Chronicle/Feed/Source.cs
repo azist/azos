@@ -41,6 +41,7 @@ namespace Azos.Sky.Chronicle.Feed
     {
       ConfigAttribute.Apply(this, cfg);
       m_Name.NonBlankMax(MAX_NAME_LEN, nameof(Name));
+      m_SinkName.NonBlankMax(MAX_NAME_LEN, nameof(Name));
       m_Channel.HasRequiredValue(nameof(Name));
     }
 
@@ -51,6 +52,7 @@ namespace Azos.Sky.Chronicle.Feed
 
     [Config] private string m_Name;
     [Config] private Atom m_Channel;
+    [Config] private string m_SinkName;
 
     private int m_FetchBy = FETCH_BY_DEFAULT;
     private int m_RestIntervalSec = REST_SEC_DEFAULT;
@@ -75,6 +77,12 @@ namespace Azos.Sky.Chronicle.Feed
     }
 
     public string   Name => m_Name;
+
+    /// <summary>
+    /// Name of sink where this source is written into
+    /// </summary>
+    public string   SinkName => m_SinkName;
+
     public Atom     Channel => m_Channel;
     public DateTime CheckpointUtc => m_CheckpointUtc;
   }
