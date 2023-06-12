@@ -28,6 +28,8 @@ namespace Azos.Sky.Chronicle.Feed
   /// </summary>
   public sealed class PullAgentDaemon : Daemon
   {
+    private const string CONFIG_SERVICE_SECTION = "uplink-service";
+
     private const int THREAD_SPIN_MS = 2000;
 
     public PullAgentDaemon(IApplication application) : base(application) { }
@@ -41,6 +43,8 @@ namespace Azos.Sky.Chronicle.Feed
 
     private void cleanupSourcesAndSinks()
     {
+      DisposeAndNull(ref m_UplinkService);
+
       var sources = m_Sources.ToArray();
       m_Sources.Clear();
       sources.ForEach(channel => this.DontLeak(() => channel.Dispose()));
@@ -50,7 +54,7 @@ namespace Azos.Sky.Chronicle.Feed
       sinks.ForEach(sink => this.DontLeak(() => sink.Dispose()));
     }
 
-    [Inject] ILogChronicleLogic m_Chronicle;
+    private HttpService m_UplinkService;
 
 
     [Config] private string m_DataDir;
@@ -77,7 +81,14 @@ namespace Azos.Sky.Chronicle.Feed
       cleanupSourcesAndSinks();
       if (node == null) return;
 
-      foreach(var nSource in node.ChildrenNamed(Source.CONFIG_SOURCE_SECTION))
+      var nUplink = node[CONFIG_SERVICE_SECTION];
+      m_UplinkService = FactoryUtils.MakeDirectedComponent<HttpService>(this,
+                                                                 nUplink,
+                                                                 typeof(HttpService),
+                                                                 new object[] { nUplink });
+
+
+      foreach (var nSource in node.ChildrenNamed(Source.CONFIG_SOURCE_SECTION))
       {
         var source = FactoryUtils.MakeDirectedComponent<Source>(this, nSource, typeof(Source), new[]{ nSource });
         m_Sources.Register(source).IsTrue("Unique source `{0}`".Args(source.Name));
@@ -94,10 +105,15 @@ namespace Azos.Sky.Chronicle.Feed
     protected override void DoStart()
     {
       Name.NonBlank("Configured daemon name");
+
+      m_UplinkService.NonNull("Configured {0}".Args(CONFIG_SERVICE_SECTION));
+
       (m_Sources.Count > 0).IsTrue("Configured sources");
       (m_Sinks.Count > 0).IsTrue("Configured sinks");
       Directory.Exists(m_DataDir.NonBlank(nameof(DataDir))).IsTrue("Existing data dir");
       m_Sources.All(one => m_Sinks[one.SinkName] != null).IsTrue("All sources pointing to existing sinks");
+      m_Sources.All(one => m_UplinkService.Endpoints.Any(ep => ep.RemoteAddress.EqualsOrdIgnoreCase(one.UplinkAddress))).IsTrue("All sources pointing to registered uplink addresses");
+
       base.DoStart();
     }
 

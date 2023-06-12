@@ -41,6 +41,7 @@ namespace Azos.Sky.Chronicle.Feed
     {
       ConfigAttribute.Apply(this, cfg);
       m_Name.NonBlankMax(MAX_NAME_LEN, nameof(Name));
+      m_UplinkAddress.NonBlank(nameof(UplinkAddress));
       m_SinkName.NonBlankMax(MAX_NAME_LEN, nameof(Name));
       m_Channel.HasRequiredValue(nameof(Name));
     }
@@ -51,6 +52,7 @@ namespace Azos.Sky.Chronicle.Feed
     }
 
     [Config] private string m_Name;
+    [Config] private string m_UplinkAddress;
     [Config] private Atom m_Channel;
     [Config] private string m_SinkName;
 
@@ -77,6 +79,11 @@ namespace Azos.Sky.Chronicle.Feed
     }
 
     public string   Name => m_Name;
+
+    /// <summary>
+    /// The remote address of the source node where the source is pulling from
+    /// </summary>
+    public string UplinkAddress => m_UplinkAddress;
 
     /// <summary>
     /// Name of sink where this source is written into
