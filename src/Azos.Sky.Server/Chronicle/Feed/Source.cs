@@ -55,6 +55,7 @@ namespace Azos.Sky.Chronicle.Feed
     [Config] private string m_UplinkAddress;
     [Config] private Atom m_Channel;
     [Config] private string m_SinkName;
+    private bool m_HasFetched;
 
     private int m_FetchBy = FETCH_BY_DEFAULT;
     private int m_RestIntervalSec = REST_SEC_DEFAULT;
@@ -92,5 +93,15 @@ namespace Azos.Sky.Chronicle.Feed
 
     public Atom     Channel => m_Channel;
     public DateTime CheckpointUtc => m_CheckpointUtc;
+
+    /// <summary>
+    /// True when source has fetched data since last checkpoint and needs to be written to log
+    /// </summary>
+    public bool HasFetched => m_HasFetched;
+
+    /// <summary>
+    /// Resets dirty has fetched flag
+    /// </summary>
+    public void ResetHasFetched() => m_HasFetched = false;
   }
 }

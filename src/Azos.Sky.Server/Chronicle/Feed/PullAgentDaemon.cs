@@ -30,7 +30,8 @@ namespace Azos.Sky.Chronicle.Feed
   {
     private const string CONFIG_SERVICE_SECTION = "uplink-service";
 
-    private const int THREAD_SPIN_MS = 2000;
+    private const int RUN_GRANULARITY_MS = 500;
+    private const int CHECKPOINT_WRITE_INTERVAL_MS = 10_000;
 
     public PullAgentDaemon(IApplication application) : base(application) { }
     public PullAgentDaemon(IModule parent) : base(parent) { }
@@ -57,6 +58,7 @@ namespace Azos.Sky.Chronicle.Feed
     private HttpService m_UplinkService;
 
 
+    private Task m_NextRun;
     [Config] private string m_DataDir;
     private Registry<Source> m_Sources = new Registry<Source>();
     private Registry<Sink> m_Sinks = new Registry<Sink>();
@@ -115,20 +117,55 @@ namespace Azos.Sky.Chronicle.Feed
       m_Sources.All(one => m_UplinkService.Endpoints.Any(ep => ep.RemoteAddress.EqualsOrdIgnoreCase(one.UplinkAddress))).IsTrue("All sources pointing to registered uplink addresses");
 
       base.DoStart();
+      scheduleNextRun();
     }
 
     protected override void DoWaitForCompleteStop()
     {
       base.DoWaitForCompleteStop();
-      writeCheckpoints();
+      var next = Interlocked.Exchange(ref m_NextRun, null);
+      if (next != null) next.Await();
+      writeCheckpoints(App.TimeSource.UTCNow);
     }
 
+    private void scheduleNextRun()
+    {
+      if (!Running) return;
+      m_NextRun = Task.Delay(RUN_GRANULARITY_MS.ChangeByRndPct(0.25f))
+                      .ContinueWith(oneRun);
+    }
 
-    private void spin(Task antecedent)
+    private async Task oneRun(Task antecedent)
+    {
+      if (!Running) return;
+      try
+      {
+        var allSourceTasks = m_Sources.Select(src => processOneSourceSlice(src)).ToArray();
+        await Task.WhenAll(allSourceTasks).ConfigureAwait(false);
+
+        var utcNow = App.TimeSource.UTCNow;
+        if ((utcNow - m_LastCheckpointWriteUtc).TotalMilliseconds > CHECKPOINT_WRITE_INTERVAL_MS)
+        {
+          writeCheckpoints(utcNow);
+        }
+      }
+      catch(Exception error)
+      {
+        WriteLog(MessageType.CatastrophicError, nameof(oneRun), "Leaked: " + error.ToMessageWithType(), error);
+      }
+      finally
+      {
+        scheduleNextRun();
+      }
+    }
+
+    private async Task processOneSourceSlice(Source src)
     {
       try
       {
-
+        //fetch
+        //if something came
+        //write into sink
       }
       catch(Exception error)
       {
@@ -136,22 +173,27 @@ namespace Azos.Sky.Chronicle.Feed
       }
     }
 
-    private void writeCheckpoints()
+    private void writeCheckpoints(DateTime utcNow)
     {
-      this.DontLeak(() => writeCheckpointsUnsafe(),
+      this.DontLeak(() => writeCheckpointsUnsafe(utcNow),
                       "Error writing checkpoints to disk: ",
                       nameof(writeCheckpoints),
                       errorLogType: MessageType.CatastrophicError);
     }
 
-    private void writeCheckpointsUnsafe()
+    private DateTime m_LastCheckpointWriteUtc;
+
+    private void writeCheckpointsUnsafe(DateTime utcNow)
     {
+      var hasFetched = m_Sources.Any(one => one.HasFetched);
+      if (!hasFetched) return;
+
       var fn = $"{nameof(PullAgentDaemon)}.{App.AppId}.{Name}.chkpt";
       var fullFn = Path.Combine(m_DataDir, fn);
 
       var cfg = new LaconicConfiguration();
       cfg.Create("checkpoints");
-      cfg.Root.AddAttributeNode("utc-now", App.TimeSource.UTCNow);
+      cfg.Root.AddAttributeNode("utc-now", utcNow);
       cfg.Root.AddAttributeNode("app-id", App.AppId);
       cfg.Root.AddAttributeNode("agent-id", Name);
       cfg.Root.AddAttributeNode("host", Azos.Platform.Computer.HostName);
@@ -164,7 +206,13 @@ namespace Azos.Sky.Chronicle.Feed
         nChannel.AddAttributeNode("utc-checkpoint", chkUtc.ToString("o"));//ISO8601 with time zone (utc Z)
         nChannel.AddAttributeNode("utc-checkpoint-nix-ms", chkUtc.ToMillisecondsSinceUnixEpochStart());
       }
+      //SAVE whole log ============================================================
       cfg.SaveAs(fullFn, CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint);
+      //===========================================================================
+
+      //must be last line if there is no exception
+      m_Sources.ForEach(one => one.ResetHasFetched());
+      m_LastCheckpointWriteUtc = utcNow;
     }
   }
 }
