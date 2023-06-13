@@ -18,6 +18,7 @@ using Azos.Data.Idgen;
 using Azos.Instrumentation;
 using Azos.Log;
 using Azos.Serialization.JSON;
+using Azos.Web;
 
 namespace Azos.Sky.Chronicle.Feed
 {
@@ -107,9 +108,27 @@ namespace Azos.Sky.Chronicle.Feed
     public void ResetHasFetched() => m_HasFetched = false;
 
 
-    public async Task<Message[]> PullAsync()
+    public async Task<Message[]> PullAsync(HttpService uplink)
     {
-      return null;
+      var filter = new LogChronicleFilter
+      {
+        Channel = this.Channel,
+        PagingCount = FetchBy
+      };
+      var response = await uplink.Call(UplinkAddress,
+                                       nameof(ILogChronicle),
+                                       new ShardKey(0u),
+                                       (http, ct) => http.Client.PostAndGetJsonMapAsync("filter", new { filter = filter })).ConfigureAwait(false);
+
+      var result = response.UnwrapPayloadArray()
+             .OfType<JsonDataMap>()
+             .Select(imap => JsonReader.ToDoc<Message>(imap))
+             .OrderBy(msg => msg.UTCTimeStamp)
+             .ToArray();
+
+      if (result.Length > 0) m_HasFetched = true;
+
+      return result;
     }
   }
 }

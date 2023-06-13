@@ -165,7 +165,7 @@ namespace Azos.Sky.Chronicle.Feed
     {
       try
       {
-        var batch = await source.PullAsync().ConfigureAwait(false);
+        var batch = await source.PullAsync(m_UplinkService).ConfigureAwait(false);
         if (!batch.Any()) return;
         //fetch
         //if something came
