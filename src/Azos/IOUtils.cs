@@ -1513,14 +1513,16 @@ namespace Azos
     /// Creates a hex editor like hex / char dump of a byte[] value
     /// printing verbatim binary char values
     /// </summary>
-    public static string ToHexDump(this byte[] buf)
+    public static string ToHexDump(this byte[] buf, int count = 0)
     {
       if (buf == null) return null;
       var result = new StringBuilder();
       var txt = new StringBuilder();
 
       var i = 0;
-      for (; i < buf.Length; i++)
+      if (count <= 0) count = buf.Length;
+      count = count.KeepBetween(1, buf.Length);
+      for (; i < count; i++)
       {
         var c = (char)buf[i];
         if (i % 16 == 0)

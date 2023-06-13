@@ -61,24 +61,29 @@ namespace Azos.Sky.Chronicle.Server
     private IEnumerable<Message> get(LogChronicleFilter filter)
     {
       filter.NonNull(nameof(filter));
-      if (!Running) yield break;
+      var totalCount = Math.Min(filter.PagingCount <= 0 ? FETCH_BY_LOG : filter.PagingCount, MAX_FETCH_DOC_COUNT);
 
+      if (!Running) return Enumerable.Empty<Message>();
+
+      var result = new List<Message>(totalCount);
       var cLog = m_LogDb[COLLECTION_LOG];
 
       var query = LogFilterQueryBuilder.BuildLogFilterQuery(filter);
-      var totalCount = Math.Min(filter.PagingCount <= 0 ? FETCH_BY_LOG : filter.PagingCount, MAX_FETCH_DOC_COUNT);
       using (var cursor = cLog.Find(query, filter.PagingStartIndex, FETCH_BY_LOG))
       {
         int i = 0;
         foreach (var bdoc in cursor)
         {
 
-          var msg = BsonConvert.FromBson(bdoc);
-          yield return msg;
+          var msg = this.DontLeak(() => BsonConvert.FromBson(bdoc), "Bson conv error `BsonConvert.FromBson(doc)`: ", nameof(GetAsync));
+          if (msg == null) continue;
+          result.Add(msg);
 
           if (++i > totalCount || !Running) break;
         }
       }
+
+      return result;
     }
 
     public Task WriteAsync(LogBatch data)
@@ -96,30 +101,44 @@ namespace Azos.Sky.Chronicle.Server
       using(var errors = new ErrorLogBatcher(App.Log){Type = MessageType.Critical, From = this.ComponentLogFromPrefix + nameof(WriteAsync), Topic = ComponentLogTopic})
       foreach (var batch in toSend.BatchBy(0xf))
       {
-        var bsons = batch.Select(msg =>
-        {
-          return BsonConvert.ToBson(msg);
-        });
+        if (!Running) break;
 
         try
         {
-          var result = cLog.Insert(bsons.ToArray());
-          if (result.WriteErrors!=null)
-           result.WriteErrors.ForEach(we => new MongoDbConnectorServerException(we.Message));
+          //#872 05302023 DKh Refactoring
+          var bsons = batch.Select(msg =>
+                                  {
+                                    try
+                                    {
+                                      return BsonConvert.ToBson(msg);
+                                    }
+                                    catch(Exception conversionError)
+                                    {
+                                      errors.Add(conversionError);
+                                    }
+                                    return null;
+                                  })
+                           .Where(bson => bson != null)
+                           .ToArray();
+
+          i += bsons.Length;
+          if (i > MAX_INSERT_DOC_COUNT)
+          {
+            WriteLog(MessageType.Critical, nameof(WriteAsync), "LogBatch exceeds max allowed count of {0}. The rest discarded".Args(MAX_INSERT_DOC_COUNT));
+            break;
+          }
+
+          var result = cLog.Insert(bsons);
+          if (result.WriteErrors != null)
+          {
+            result.WriteErrors.ForEach(we => errors.Add(new MongoDbConnectorServerException(we.Message)));
+          }
         }
         catch(Exception genError)
         {
           errors.Add(genError);
         }
-
-        if (!Running) break;
-        if (++i > MAX_INSERT_DOC_COUNT)
-        {
-          WriteLog(MessageType.Critical, nameof(WriteAsync), "LogBatch exceeds max allowed count of {0}. The rest discarded".Args(MAX_INSERT_DOC_COUNT));
-          break;
-        }
       }
-
       return Task.CompletedTask;
     }
 

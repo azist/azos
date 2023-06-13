@@ -307,6 +307,13 @@ namespace Azos.Serialization.BSON
 
     public override void WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
     {
+      //20230602 DKh
+      if (options != null && options.EnableTypeHints)
+      {
+        JsonWriter.Write(this.Value, wri, options);
+        return;
+      }
+
       if (Value.ToUniversalTime() >= DateUtils.UNIX_EPOCH_START_DATE)
       {
         JsonWriter.WriteMap(wri,
@@ -440,6 +447,13 @@ namespace Azos.Serialization.BSON
 
     public override void WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
     {
+      //20230602 DKh
+      if (options != null && options.EnableTypeHints)
+      {
+        JsonWriter.Write(this.Value, wri, options);
+        return;
+      }
+
       JsonWriter.WriteMap(wri,
           nestingLevel + 1,
           options,
@@ -530,6 +544,19 @@ namespace Azos.Serialization.BSON
       BinUtils.WriteByte(stream, (byte)Value.Type);
       BinUtils.WriteBinary(stream, Value.Data);
     }
+
+    public override void WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
+    {
+      //20230602 DKh
+      if (options != null && options.EnableTypeHints)
+      {
+        JsonWriter.Write(Value.Data, wri, options);
+        return;
+      }
+
+      base.WriteAsJson(wri, nestingLevel, options);
+    }
+
   }
 
   /// <summary>
@@ -702,6 +729,13 @@ namespace Azos.Serialization.BSON
 
     public override void WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
     {
+      //20230602 DKh
+      if (options != null && options.EnableTypeHints)
+      {
+        JsonWriter.Write(-1, wri, options);
+        return;
+      }
+
       JsonWriter.WriteMap(wri,
            nestingLevel+1,
            options,
@@ -737,6 +771,13 @@ namespace Azos.Serialization.BSON
 
     public override void WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
     {
+      //20230602 DKh
+      if (options != null && options.EnableTypeHints)
+      {
+        JsonWriter.Write(1, wri, options);
+        return;
+      }
+
       JsonWriter.WriteMap(wri,
            nestingLevel+1,
            options,

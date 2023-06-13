@@ -6,8 +6,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using Azos.Platform;
+using Azos.Serialization.JSON;
 
 namespace Azos.Apps
 {
@@ -72,17 +74,18 @@ namespace Azos.Apps
       get
       {
         var result = Application.ConsolePort;
-        if (result!=null) return result;
+        if (result != null) return result;
+
         lock(s_AppStack)
         {
           foreach(var app in s_AppStack)//stack enumerates in reverse order of push()
           {
             result = app.ConsolePort;
-            if (result!=null) return result;
+            if (result != null) return result;
           }
         }
 
-        if (result==null) result = IO.Console.NOPConsolePort.Default;
+        if (result == null) result = IO.Console.NOPConsolePort.Default;
         return result;
       }
     }
@@ -93,7 +96,7 @@ namespace Azos.Apps
     /// </summary>
     public static void __BindApplication(IApplication application)
     {
-      if (application==null || application is NOPApplication)
+      if (application == null || application is NOPApplication)
         throw new AzosException(StringConsts.ARGUMENT_ERROR+"__BindApplication(null|NOPApplication)");
 
       lock(s_AppStack)
@@ -101,12 +104,12 @@ namespace Azos.Apps
         if (s_AppStack.Contains(application))
           throw new AzosException(StringConsts.ARGUMENT_ERROR+"__BindApplication(duplicate)");
 
-        if (s_Application!=null && !s_Application.AllowNesting)
+        if (s_Application != null && !s_Application.AllowNesting)
           throw new AzosException(StringConsts.APP_CONTAINER_NESTING_ERROR.Args(application.GetType().FullName, s_Application.GetType().FullName));
 
         if (s_Application != null)
         {
-          s_AppStack.Push( s_Application );
+          s_AppStack.Push(s_Application);
         }
 
         s_Application = application;
@@ -124,10 +127,17 @@ namespace Azos.Apps
     {
       lock(s_AppStack)
       {
-        if (s_Application!=application)  return;
-        if (s_AppStack.Count==0) return;
+        if (s_Application != application)  return;
 
-        s_Application = s_AppStack.Pop();
+        //#876 URGENT 06082023 DKh+MRew stuck global app ref on app context
+        if (s_AppStack.Count == 0)
+        {
+          s_Application = null;
+        }
+        else
+        {
+          s_Application = s_AppStack.Pop();
+        }
       }
     }
 
@@ -196,7 +206,7 @@ namespace Azos.Apps
 
       var log = app.Log;
 
-      if (log==null || log is Log.NOPLog) return;
+      if (log == null || log is Log.NOPLog) return;
 
       log.Write(new Log.Message
       {

@@ -67,15 +67,25 @@ namespace Azos.Serialization.BSON
             if (gdid.IsZero) return onNullOrEmpty(document, name, skipNull, required);
             return document.Set(DataDocConverter.GDID_CLRtoBSON(name, gdid));
           }
-          else if (value is Atom atom) return document.Set(new BSONInt64Element(name, (long)atom.ID));
+          else if (value is RGDID rgdid)//#872 Dkh 05302023
+          {
+            if (rgdid.IsZero) return onNullOrEmpty(document, name, skipNull, required);
+            return document.Set(DataDocConverter.RGDID_CLRtoBSON(name, rgdid));
+          }
+          else if (value is Atom atom)    return document.Set(new BSONInt64Element(name, (long)atom.ID));
+          else if (value is EntityId eid) return document.Set(new BSONStringElement(name, eid.AsString));//#872 Dkh 05302023
           else if (value is TimeSpan)     return document.Set(new BSONInt64Element(name, ((TimeSpan)value).Ticks));
           else if (value is BSONDocument) return document.Set(new BSONDocumentElement(name, (BSONDocument)value));
           else if (value is JsonDataMap jdm) return document.Set(new BSONDocumentElement(name, jdm.ToBson()));
           else if (value is byte[])       return document.Set(new BSONBinaryElement(name, new BSONBinary(BSONBinaryType.GenericBinary, (byte[])value)));
-          throw new BSONException("BSONDocument.Add(not supported object type '{0}')".Args(value.GetType().Name));
+
+          //#872 Dkh 05302023
+          return document.Set(new BSONStringElement(name, value.ToJson(JsonWritingOptions.CompactRowsAsMap)));
+          //#872 Dkh 05302023
+          //throw new BSONException("BSONDocument.Add(not supported object type '{0}')".Args(value.GetType().Name));
         }
         default: return document.Set(new BSONStringElement(name, value.ToJson(JsonWritingOptions.CompactRowsAsMap)));
-      }
+      }//switch
     }
 
     private static BSONDocument onNullOrEmpty(BSONDocument document, string name, bool skipNull, bool required)

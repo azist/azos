@@ -103,7 +103,17 @@ namespace Azos.Serialization.Bix
       }
     }
 
-    public byte[] Buffer => m_Stream.NonNull(nameof(m_Stream)).ToArray();
+    /// <summary>
+    /// Returns a copy of written buffer
+    /// </summary>
+    public byte[] Buffer
+      => m_Stream.NonNull(nameof(m_Stream)).ToArray();
+
+    /// <summary>
+    /// Returns a portion of memory buffer which has been written up to the point of the call
+    /// </summary>
+    public (byte[] buffer, int count) BufferSegment
+      => (m_Stream.NonNull(nameof(m_Stream)).GetBuffer(), (int)m_Stream.Length);
 
     public void Dispose() => m_Stream?.Dispose();
   }

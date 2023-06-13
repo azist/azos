@@ -16,7 +16,7 @@ using Azos.Serialization.JSON;
 
 using TypeCode = Azos.Serialization.Bix.TypeCode;
 
-namespace Azos.Log
+namespace Azos.Serialization.Bix
 {
   /// <summary>
   /// Bixon serialization technology is very similar to JSON (hence the name) and is based
@@ -115,6 +115,7 @@ namespace Azos.Log
       MapSortKeys = false,//Structured data does not sort on keys
       ISODates = true,
       MaxNestingLevel = 12,
+      Purpose = JsonSerializationPurpose.Marshalling,//enable typed docs
       EnableTypeHints = true,
     };
 

@@ -89,7 +89,7 @@ namespace Azos.Sky.Chronicle.Server
       }
       else
       {
-        var adDoc = ad.ToBson();
+        var adDoc = Azos.Serialization.BSON.BSONExtensions.ToBson(ad);//Reviewed 05302023 DKh #872
         doc.Set(new BSONDocumentElement(FLD_AD, adDoc));
       }
 

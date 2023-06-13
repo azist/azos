@@ -50,7 +50,7 @@ namespace Azos.Log
 
         public override string ToString()
         {
-          return "{0}[{1}] First: {2}".Args(Type.Name, Count, First);
+          return "Batch of `{0}`[{1}] First: {2}".Args(Type.Name, Count, First);
         }
       }
 

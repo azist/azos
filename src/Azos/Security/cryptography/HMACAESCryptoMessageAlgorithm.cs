@@ -22,7 +22,7 @@ namespace Azos.Security
   /// <remarks>
   /// <para>
   /// A message to be Protect()-ed is supplied as a byte[].
-  /// First, we generate a crypto random IV of 128 bits, then we computer HMAC(iv + originalMsg, hmac_keyX).
+  /// First, we generate a crypto random IV of 128 bits, then we compute HMAC(iv + originalMsg, hmac_keyX).
   /// Notice, that the HMAC is based on the originalMessage AND the IV which is random for every call.
   /// An attacker may not "recreate" the original payload from hash (ensured by one-way HMAC).
   /// </para>

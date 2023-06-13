@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.2.2.1
-set HEADLINE=#871 Add KDF2023
+set VER=3.4.0.1
+set HEADLINE=#876 App container stuck ref fix
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

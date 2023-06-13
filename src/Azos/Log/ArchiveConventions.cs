@@ -5,15 +5,8 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
-using Azos.Data;
-using Azos.Serialization;
-using Azos.Serialization.Bix;
 using Azos.Serialization.JSON;
-
-using TypeCode = Azos.Serialization.Bix.TypeCode;
 
 namespace Azos.Log
 {
@@ -28,14 +21,14 @@ namespace Azos.Log
       MapSkipNulls = true,
       MapSortKeys = true,
       ISODates = true,
-      MaxNestingLevel = 4,//20230508 DKh
+      MaxNestingLevel = 8,//20230508 DKh
       EnableTypeHints = true,//#864 20230508 DKh
     };
 
     private static readonly JsonReadingOptions AD_JSON_DECODE_FORMAT = new (JsonReadingOptions.DefaultLimits)
     {
       EnableTypeHints = true,//#864 20230508 DKh
-      MaxDepth = 4
+      MaxDepth = 8
     };
 
     private static readonly JsonWritingOptions SD_JSON_ENCODE_FORMAT = new(JsonWritingOptions.CompactRowsAsMap)
@@ -43,14 +36,14 @@ namespace Azos.Log
       MapSkipNulls = false,//Keep nulls
       MapSortKeys = false,//Structured data does not sort on keys
       ISODates = true,
-      MaxNestingLevel = 8,
+      MaxNestingLevel = 10,
       EnableTypeHints = true,//#864 20230508 DKh
     };
 
     private static readonly JsonReadingOptions SD_JSON_DECODE_FORMAT = new(JsonReadingOptions.DefaultLimits)
     {
       EnableTypeHints = true,//#864 20230508 DKh
-      MaxDepth = 8
+      MaxDepth = 10
     };
 
     /// <summary> Maximum size of analytical fact archive dimensions </summary>

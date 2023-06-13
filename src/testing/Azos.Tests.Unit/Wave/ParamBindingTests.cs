@@ -13,6 +13,7 @@ using Azos.Data;
 using Azos.Web;
 using Azos.Scripting;
 using Azos.Serialization.JSON;
+using Azos.Serialization.Bix;
 
 namespace Azos.Tests.Unit.Wave
 {
@@ -56,7 +57,172 @@ namespace Azos.Tests.Unit.Wave
       Aver.AreEqual(123, got["a"].AsInt());
       Aver.AreEqual(-10, got["b"].AsInt());
       Aver.AreEqual(true, got["c"].AsBool());
+    }
 
+    [Run]
+    public async Task EchoMap_POST_Json_WithTypeHints_HttpClient()
+    {
+      var jsonToSend = new
+      {
+        got = new
+        {
+          atm = Atom.Encode("123"),
+          dt  = new DateTime(1980, 05, 12, 14, 20, 0, DateTimeKind.Utc),
+          buf = new byte[]{0,1,2,3,4,5,6,7,8,9},
+          gd = new GDID(10, 123456789ul)
+        }
+      }.ToJson(JsonWritingOptions.CompactRowsAsMapWithTypeHints);
+
+      using var content = new StringContent(
+         jsonToSend,
+         System.Text.Encoding.UTF8,
+         ContentType.JSON_WITH_TYPEHINTS);
+
+      using var req = new HttpRequestMessage(HttpMethod.Post, "echomap")
+      {
+        Content = content
+      };
+
+      req.Headers.TryAddWithoutValidation("Accept", ContentType.JSON_WITH_TYPEHINTS);
+
+      using var response = await Client.SendAsync(req);
+      Aver.IsTrue(HttpStatusCode.OK == response.StatusCode);
+
+      Aver.AreEqual(ContentType.JSON_WITH_TYPEHINTS, response.Content.Headers.ContentType.MediaType);
+      response.Content.Headers.See();
+
+      var got = (await response.Content.ReadAsStringAsync()).JsonToDataObject(new JsonReadingOptions(JsonReadingOptions.Default){ EnableTypeHints = true} ) as JsonDataMap;
+      got.See();
+
+      Aver.IsNotNull(got);
+      Aver.IsTrue(got["atm"] is Atom);
+      Aver.IsTrue(got["dt"] is DateTime);
+      Aver.IsTrue(got["buf"] is byte[]);
+      Aver.IsTrue(got["gd"] is GDID);
+
+      Aver.AreEqual(Atom.Encode("123"), got["atm"].AsAtom());
+      Aver.AreEqual(1980, got["dt"].AsDateTime().Year);
+      Aver.AreEqual(10, ((byte[])got["buf"]).Length);
+      Aver.AreEqual(123456789ul, got["gd"].AsGDID().Counter);
+    }
+
+
+    [Run]
+    public async Task EchoMap_POST_Json_WithTypeHints_WebCallExtensions()
+    {
+      var objectToSend = new
+      {
+        got = new
+        {
+          atm = Atom.Encode("123"),
+          dt = new DateTime(1980, 05, 12, 14, 20, 0, DateTimeKind.Utc),
+          buf = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 },
+          gd = new GDID(10, 123456789ul)
+        }
+      };
+
+      var got = await Client.PostAndGetJsonMapAsync("echomap",
+                                                     objectToSend,
+                                                     options: JsonWritingOptions.CompactRowsAsMapWithTypeHints,
+                                                     requestHeaders: new KeyValuePair<string, string>("Accept", ContentType.JSON_WITH_TYPEHINTS).ToEnumerable());
+
+      got.See();
+
+      Aver.IsNotNull(got);
+      Aver.IsTrue(got["atm"] is Atom);
+      Aver.IsTrue(got["dt"] is DateTime);
+      Aver.IsTrue(got["buf"] is byte[]);
+      Aver.IsTrue(got["gd"] is GDID);
+
+      Aver.AreEqual(Atom.Encode("123"), got["atm"].AsAtom());
+      Aver.AreEqual(1980, got["dt"].AsDateTime().Year);
+      Aver.AreEqual(10, ((byte[])got["buf"]).Length);
+      Aver.AreEqual(123456789ul, got["gd"].AsGDID().Counter);
+    }
+
+
+    [Run]
+    public async Task EchoMap_POST_Bixon_WithTypeHints_HttpClient()
+    {
+      var objToSend = new
+      {
+        got = new
+        {
+          atm = Atom.Encode("123"),
+          dt = new DateTime(1980, 05, 12, 14, 20, 0, DateTimeKind.Utc),
+          buf = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 },
+          gd = new GDID(10, 123456789ul)
+        }
+      };
+
+      using var wscope = new BixWriterBufferScope(1024);
+      Bixon.WriteObject(wscope.Writer, objToSend);
+
+      using var content = new ByteArrayContent(wscope.Buffer);
+      content.Headers.TryAddWithoutValidation("Content-Type", ContentType.BIXON);
+
+      using var req = new HttpRequestMessage(HttpMethod.Post, "echomap")
+      {
+        Content = content
+      };
+
+      req.Headers.TryAddWithoutValidation("Accept", ContentType.BIXON);
+
+      using var response = await Client.SendAsync(req);
+      Aver.IsTrue(HttpStatusCode.OK == response.StatusCode);
+      response.Content.Headers.See();
+
+      Aver.AreEqual(ContentType.BIXON, response.Content.Headers.ContentType.MediaType);
+
+      var gotBuf = await response.Content.ReadAsByteArrayAsync();
+      using var rscope = new BixReaderBufferScope(gotBuf);
+      var got = Bixon.ReadObject(rscope.Reader) as JsonDataMap;
+
+      got.See();
+
+      Aver.IsNotNull(got);
+      Aver.IsTrue(got["atm"] is Atom);
+      Aver.IsTrue(got["dt"] is DateTime);
+      Aver.IsTrue(got["buf"] is byte[]);
+      Aver.IsTrue(got["gd"] is GDID);
+
+      Aver.AreEqual(Atom.Encode("123"), got["atm"].AsAtom());
+      Aver.AreEqual(1980, got["dt"].AsDateTime().Year);
+      Aver.AreEqual(10, ((byte[])got["buf"]).Length);
+      Aver.AreEqual(123456789ul, got["gd"].AsGDID().Counter);
+    }
+
+    [Run]
+    public async Task EchoMap_POST_Bixon_WithTypeHints_WebCallExtensions()
+    {
+      var objToSend = new
+      {
+        got = new
+        {
+          atm = Atom.Encode("123"),
+          dt = new DateTime(1980, 05, 12, 14, 20, 0, DateTimeKind.Utc),
+          buf = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 },
+          gd = new GDID(10, 123456789ul)
+        }
+      };
+
+      var got = await Client.PostAndGetJsonMapAsync("echomap",
+                                                     objToSend,
+                                                     requestHeaders: new KeyValuePair<string, string>("Accept", ContentType.BIXON).ToEnumerable(),
+                                                     requestBixon: true); //<===================
+
+      got.See();
+
+      Aver.IsNotNull(got);
+      Aver.IsTrue(got["atm"] is Atom);  //If Accept above is commented, it fail here (as expected)
+      Aver.IsTrue(got["dt"] is DateTime);//this is because the it responds with JSON (and atom comes from server as a string), which we did not enable type hints for
+      Aver.IsTrue(got["buf"] is byte[]);
+      Aver.IsTrue(got["gd"] is GDID);
+
+      Aver.AreEqual(Atom.Encode("123"), got["atm"].AsAtom());
+      Aver.AreEqual(1980, got["dt"].AsDateTime().Year);
+      Aver.AreEqual(10, ((byte[])got["buf"]).Length);
+      Aver.AreEqual(123456789ul, got["gd"].AsGDID().Counter);
     }
 
 

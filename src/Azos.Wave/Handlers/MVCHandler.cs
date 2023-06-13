@@ -319,6 +319,7 @@ namespace Azos.Wave.Handlers
     protected virtual async Task ProcessResultAsync(Controller controller, WorkContext work, object result)
     {
       if (result==null) return;
+
       if (result is string txtresult)
       {
         await work.Response.WriteAsync(txtresult).ConfigureAwait(false);
@@ -348,8 +349,17 @@ namespace Azos.Wave.Handlers
         return;
       }
 
+      //#874 20230605 DKh
+      if (work.RequestedBixon)
+      {
+        await work.Response.WriteBixonAsync(result, JsonWritingOptions.CompactRowsAsMap).ConfigureAwait(false);
+        return;
+      }
+
       //default serialize object as JSON
-      await work.Response.WriteJsonAsync(result, JsonWritingOptions.CompactRowsAsMap).ConfigureAwait(false);
+      //#874 20230605 DKh
+      var jopt = work.RequestedJsonWithTypeHints ? JsonWritingOptions.CompactRowsAsMapWithTypeHints : JsonWritingOptions.CompactRowsAsMap;
+      await work.Response.WriteJsonAsync(result, jopt).ConfigureAwait(false);
     }
     #endregion
   }

@@ -74,6 +74,8 @@ namespace Azos.Client
 
     bool AcceptJson { get; }
 
+    bool AcceptBixon { get; }
+
     bool UseCookies { get; }
 
     /// <summary> When set imposes maximum content buffer size limit in bytes </summary>
