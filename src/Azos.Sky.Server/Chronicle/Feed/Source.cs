@@ -62,6 +62,8 @@ namespace Azos.Sky.Chronicle.Feed
 
     private DateTime m_CheckpointUtc;
 
+    internal void SetCheckpointUtc(DateTime utc) => m_CheckpointUtc = utc;
+
 
     public override string ComponentLogTopic => CoreConsts.LOG_TOPIC;
 
@@ -103,5 +105,11 @@ namespace Azos.Sky.Chronicle.Feed
     /// Resets dirty has fetched flag
     /// </summary>
     public void ResetHasFetched() => m_HasFetched = false;
+
+
+    public async Task<Message[]> PullAsync()
+    {
+      return null;
+    }
   }
 }

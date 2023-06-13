@@ -116,6 +116,8 @@ namespace Azos.Sky.Chronicle.Feed
       m_Sources.All(one => m_Sinks[one.SinkName] != null).IsTrue("All sources pointing to existing sinks");
       m_Sources.All(one => m_UplinkService.Endpoints.Any(ep => ep.RemoteAddress.EqualsOrdIgnoreCase(one.UplinkAddress))).IsTrue("All sources pointing to registered uplink addresses");
 
+      readCheckpoints();
+
       base.DoStart();
       scheduleNextRun();
     }
@@ -140,7 +142,7 @@ namespace Azos.Sky.Chronicle.Feed
       if (!Running) return;
       try
       {
-        var allSourceTasks = m_Sources.Select(src => processOneSourceSlice(src)).ToArray();
+        var allSourceTasks = m_Sources.Select(src => processOneSource(src)).ToArray();
         await Task.WhenAll(allSourceTasks).ConfigureAwait(false);
 
         var utcNow = App.TimeSource.UTCNow;
@@ -159,10 +161,12 @@ namespace Azos.Sky.Chronicle.Feed
       }
     }
 
-    private async Task processOneSourceSlice(Source src)
+    private async Task processOneSource(Source source)
     {
       try
       {
+        var batch = await source.PullAsync().ConfigureAwait(false);
+        if (!batch.Any()) return;
         //fetch
         //if something came
         //write into sink
@@ -183,13 +187,19 @@ namespace Azos.Sky.Chronicle.Feed
 
     private DateTime m_LastCheckpointWriteUtc;
 
+    private string getFullCheckpointFilePath()
+    {
+      var fn = $"{nameof(PullAgentDaemon)}.{App.AppId}.{Name}.chkpt";
+      var fullFn = Path.Combine(m_DataDir, fn);
+      return fullFn;
+    }
+
     private void writeCheckpointsUnsafe(DateTime utcNow)
     {
       var hasFetched = m_Sources.Any(one => one.HasFetched);
       if (!hasFetched) return;
 
-      var fn = $"{nameof(PullAgentDaemon)}.{App.AppId}.{Name}.chkpt";
-      var fullFn = Path.Combine(m_DataDir, fn);
+      var fn = getFullCheckpointFilePath();
 
       var cfg = new LaconicConfiguration();
       cfg.Create("checkpoints");
@@ -200,19 +210,39 @@ namespace Azos.Sky.Chronicle.Feed
 
       foreach(var source in m_Sources)
       {
-        var nChannel = cfg.Root.AddChildNode(Source.CONFIG_SOURCE_SECTION);
-        nChannel.AddAttributeNode("name", source.Name);
+        var nSource = cfg.Root.AddChildNode(Source.CONFIG_SOURCE_SECTION);
+        nSource.AddAttributeNode("name", source.Name);
         var chkUtc = source.CheckpointUtc;
-        nChannel.AddAttributeNode("utc-checkpoint", chkUtc.ToString("o"));//ISO8601 with time zone (utc Z)
-        nChannel.AddAttributeNode("utc-checkpoint-nix-ms", chkUtc.ToMillisecondsSinceUnixEpochStart());
+        nSource.AddAttributeNode("utc-checkpoint", chkUtc.ToString("o"));//ISO8601 with time zone (utc Z)
+        nSource.AddAttributeNode("utc-checkpoint-nix-ms", chkUtc.ToMillisecondsSinceUnixEpochStart());
       }
       //SAVE whole log ============================================================
-      cfg.SaveAs(fullFn, CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint);
+      cfg.SaveAs(fn, CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint);
       //===========================================================================
 
       //must be last line if there is no exception
       m_Sources.ForEach(one => one.ResetHasFetched());
       m_LastCheckpointWriteUtc = utcNow;
+    }
+
+    private void readCheckpoints()
+    {
+      var fn = getFullCheckpointFilePath();
+      if (!File.Exists(fn)) return;
+
+      var data = LaconicConfiguration.ProviderLoadFromFile(fn);
+
+      foreach(var nsrc in data.Root.ChildrenNamed(Source.CONFIG_SOURCE_SECTION))
+      {
+        var sname = nsrc.ValOf("name");
+        var source = m_Sources[sname];
+        if (source==null)
+        {
+          WriteLog(MessageType.Warning, nameof(readCheckpoints), "Checkpoint references source `{0}` which is not in the list of registered pull sources".Args(sname));
+          continue;
+        }
+        source.SetCheckpointUtc(nsrc.Of("utc-checkpoint-nix-ms").ValueAsLong().FromMillisecondsSinceUnixEpochStart());
+      }
     }
   }
 }
