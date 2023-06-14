@@ -56,14 +56,18 @@ namespace Azos.Sky.Chronicle.Feed
     [Config] private string m_UplinkAddress;
     [Config] private Atom m_Channel;
     [Config] private string m_SinkName;
-    private bool m_HasFetched;
+    private bool m_CheckpointChanged;
 
     private int m_FetchBy = FETCH_BY_DEFAULT;
     private int m_RestIntervalSec = REST_SEC_DEFAULT;
 
     private DateTime m_CheckpointUtc;
 
-    internal void SetCheckpointUtc(DateTime utc) => m_CheckpointUtc = utc;
+    internal void SetCheckpointUtc(DateTime utc)
+    {
+      m_CheckpointUtc = utc;
+      m_CheckpointChanged = true;
+    }
 
 
     public override string ComponentLogTopic => CoreConsts.LOG_TOPIC;
@@ -100,12 +104,12 @@ namespace Azos.Sky.Chronicle.Feed
     /// <summary>
     /// True when source has fetched data since last checkpoint and needs to be written to log
     /// </summary>
-    public bool HasFetched => m_HasFetched;
+    public bool CheckpointChanged => m_CheckpointChanged;
 
     /// <summary>
     /// Resets dirty has fetched flag
     /// </summary>
-    public void ResetHasFetched() => m_HasFetched = false;
+    public void ResetCheckpointChanged() => m_CheckpointChanged = false;
 
 
     public async Task<Message[]> PullAsync(HttpService uplink)
@@ -125,8 +129,6 @@ namespace Azos.Sky.Chronicle.Feed
              .Select(imap => JsonReader.ToDoc<Message>(imap))
              .OrderBy(msg => msg.UTCTimeStamp)
              .ToArray();
-
-      if (result.Length > 0) m_HasFetched = true;
 
       return result;
     }

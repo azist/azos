@@ -165,13 +165,14 @@ namespace Azos.Sky.Chronicle.Feed
     {
       try
       {
-        var batch = await source.PullAsync(m_UplinkService).ConfigureAwait(false);
-        if (!batch.Any()) return;
         var sink = m_Sinks[source.SinkName];
         if (sink == null) return;//safeguard
 
+        var batch = await source.PullAsync(m_UplinkService).ConfigureAwait(false);
+        if (batch.Length == 0) return;
+
         await sink.WriteAsync(batch).ConfigureAwait(false);
-        source.SetCheckpointUtc(batch.Last().UTCTimeStamp);
+        source.SetCheckpointUtc(batch.Max(one => one.UTCTimeStamp));
       }
       catch(Exception error)
       {
@@ -198,8 +199,8 @@ namespace Azos.Sky.Chronicle.Feed
 
     private void writeCheckpointsUnsafe(DateTime utcNow)
     {
-      var hasFetched = m_Sources.Any(one => one.HasFetched);
-      if (!hasFetched) return;
+      var chkChanged = m_Sources.Any(one => one.CheckpointChanged);
+      if (!chkChanged) return;
 
       var fn = getFullCheckpointFilePath();
 
@@ -223,7 +224,7 @@ namespace Azos.Sky.Chronicle.Feed
       //===========================================================================
 
       //must be last line if there is no exception
-      m_Sources.ForEach(one => one.ResetHasFetched());
+      m_Sources.ForEach(one => one.ResetCheckpointChanged());
       m_LastCheckpointWriteUtc = utcNow;
     }
 
