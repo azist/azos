@@ -167,13 +167,15 @@ namespace Azos.Sky.Chronicle.Feed
       {
         var batch = await source.PullAsync(m_UplinkService).ConfigureAwait(false);
         if (!batch.Any()) return;
-        //fetch
-        //if something came
-        //write into sink
+        var sink = m_Sinks[source.SinkName];
+        if (sink == null) return;//safeguard
+
+        await sink.WriteAsync(batch).ConfigureAwait(false);
+        source.SetCheckpointUtc(batch.Last().UTCTimeStamp);
       }
       catch(Exception error)
       {
-
+        WriteLog(MessageType.Error, nameof(processOneSource), "Leaked: " + error.ToMessageWithType(), error);
       }
     }
 
