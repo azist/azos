@@ -51,7 +51,13 @@ namespace Azos.Sky.Chronicle
     public Expression AdvancedFilter{  get; set;}
 
     [Field(isArow: true, backendName: "crsh", description: "Cross shard, if true then server gets results from all shards")]
-    public bool CrossShard{ get; set;}
+    public bool CrossShard{ get; set; }
+
+    [Field(isArow: true, backendName: "allshards", description: "When true, all shards in cross-shard request must succeed, otherwise the whole request will fail")]
+    public bool DemandAllShards{ get; set; }
+
+    [Field(isArow: true, backendName: "shard", description: "Can only be set if CrossShard is false, if set then only takes data from specific shard if server supports multiplexing")]
+    public int? SpecificShard { get; set; }
 
     [InjectModule] ILogChronicle m_Chronicle;
 

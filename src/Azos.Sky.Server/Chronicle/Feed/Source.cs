@@ -27,7 +27,7 @@ namespace Azos.Sky.Chronicle.Feed
     public const string CONFIG_SOURCE_SECTION = "source";
     public const int MAX_NAME_LEN = 48;
 
-    public const int FETCH_BY_MIN = 1;
+    public const int FETCH_BY_MIN = 8;
     public const int FETCH_BY_MAX = 500;
     public const int FETCH_BY_DEFAULT = 32;
 
@@ -49,6 +49,7 @@ namespace Azos.Sky.Chronicle.Feed
     [Config] private string m_UplinkAddress;
     [Config] private Atom m_Channel;
     [Config] private string m_SinkName;
+    [Config] private int? m_SpecificShard;
     private bool m_CheckpointChanged;
 
     private DateTime m_LastFetchUtc;
@@ -110,13 +111,22 @@ namespace Azos.Sky.Chronicle.Feed
     /// </summary>
     public bool LastFetchHadData => m_LastFetchHadData;
 
+    /// <summary>
+    /// If set tells the multiplexing server source to return data from specific shard
+    /// </summary>
+    public int? SpecificShard => m_SpecificShard;
+
 
     public async Task<Message[]> PullAsync(HttpService uplink)
     {
       var filter = new LogChronicleFilter
       {
         Channel = this.Channel,
-        PagingCount = FetchBy
+        PagingCount = FetchBy,
+        CrossShard = false,
+        DemandAllShards = false,
+        SpecificShard = this.SpecificShard,
+        TimeRange = new Time.DateRange(m_CheckpointUtc, null)
       };
       var response = await uplink.Call(UplinkAddress,
                                        nameof(ILogChronicle),
