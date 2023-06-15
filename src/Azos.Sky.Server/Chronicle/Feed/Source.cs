@@ -5,16 +5,13 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
 using Azos.Apps;
-using Azos.Apps.Injection;
 using Azos.Client;
 using Azos.Collections;
 using Azos.Conf;
-using Azos.Data;
-using Azos.Data.Idgen;
 using Azos.Instrumentation;
 using Azos.Log;
 using Azos.Serialization.JSON;
@@ -33,10 +30,6 @@ namespace Azos.Sky.Chronicle.Feed
     public const int FETCH_BY_MIN = 1;
     public const int FETCH_BY_MAX = 500;
     public const int FETCH_BY_DEFAULT = 32;
-
-    public const int REST_SEC_MIN = 1;
-    public const int REST_SEC_MAX = 10 * 60;
-    public const int REST_SEC_DEFAULT = 30;
 
     public Source(PullAgentDaemon director, IConfigSectionNode cfg) : base(director)
     {
@@ -58,8 +51,10 @@ namespace Azos.Sky.Chronicle.Feed
     [Config] private string m_SinkName;
     private bool m_CheckpointChanged;
 
+    private DateTime m_LastFetchUtc;
+    private bool m_LastFetchHadData;
+
     private int m_FetchBy = FETCH_BY_DEFAULT;
-    private int m_RestIntervalSec = REST_SEC_DEFAULT;
 
     private DateTime m_CheckpointUtc;
 
@@ -72,12 +67,6 @@ namespace Azos.Sky.Chronicle.Feed
 
     public override string ComponentLogTopic => CoreConsts.LOG_TOPIC;
 
-    [Config(Default = REST_SEC_DEFAULT), ExternalParameter(CoreConsts.EXT_PARAM_GROUP_DATA)]
-    public int RestIntervalSec
-    {
-      get => m_RestIntervalSec;
-      set => m_RestIntervalSec.KeepBetween(REST_SEC_MIN, REST_SEC_MAX);
-    }
 
     [Config(Default = FETCH_BY_DEFAULT), ExternalParameter(CoreConsts.EXT_PARAM_GROUP_DATA)]
     public int FetchBy
@@ -111,6 +100,16 @@ namespace Azos.Sky.Chronicle.Feed
     /// </summary>
     public void ResetCheckpointChanged() => m_CheckpointChanged = false;
 
+    /// <summary>
+    /// When fetched for the last time
+    /// </summary>
+    public DateTime LastFetchUtc => m_LastFetchUtc;
+
+    /// <summary>
+    /// True if data was fetched with the last call to uplink
+    /// </summary>
+    public bool LastFetchHadData => m_LastFetchHadData;
+
 
     public async Task<Message[]> PullAsync(HttpService uplink)
     {
@@ -130,6 +129,8 @@ namespace Azos.Sky.Chronicle.Feed
              .OrderBy(msg => msg.UTCTimeStamp)
              .ToArray();
 
+      m_LastFetchHadData = result.Length > 0;
+      m_LastFetchUtc = App.TimeSource.UTCNow;
       return result;
     }
   }

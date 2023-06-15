@@ -32,6 +32,7 @@ namespace Azos.Sky.Chronicle.Feed
 
     private const int RUN_GRANULARITY_MS = 500;
     private const int CHECKPOINT_WRITE_INTERVAL_MS = 10_000;
+    private const int SOURCE_REPOLL_INTERVAL_MS = 15_000;
 
     public PullAgentDaemon(IApplication application) : base(application) { }
     public PullAgentDaemon(IModule parent) : base(parent) { }
@@ -142,10 +143,11 @@ namespace Azos.Sky.Chronicle.Feed
       if (!Running) return;
       try
       {
-        var allSourceTasks = m_Sources.Select(src => processOneSource(src)).ToArray();
+        var utcNow = App.TimeSource.UTCNow;
+
+        var allSourceTasks = m_Sources.Select(src => processOneSource(src, utcNow)).ToArray();
         await Task.WhenAll(allSourceTasks).ConfigureAwait(false);
 
-        var utcNow = App.TimeSource.UTCNow;
         if ((utcNow - m_LastCheckpointWriteUtc).TotalMilliseconds > CHECKPOINT_WRITE_INTERVAL_MS)
         {
           writeCheckpoints(utcNow);
@@ -161,12 +163,15 @@ namespace Azos.Sky.Chronicle.Feed
       }
     }
 
-    private async Task processOneSource(Source source)
+    private async Task processOneSource(Source source, DateTime utcNow)
     {
       try
       {
         var sink = m_Sinks[source.SinkName];
         if (sink == null) return;//safeguard
+
+        if (!source.LastFetchHadData &&
+            (utcNow - source.LastFetchUtc).TotalMilliseconds < SOURCE_REPOLL_INTERVAL_MS.ChangeByRndPct(0.5f)) return;//do not fetch yet
 
         var batch = await source.PullAsync(m_UplinkService).ConfigureAwait(false);
         if (batch.Length == 0) return;
@@ -233,7 +238,7 @@ namespace Azos.Sky.Chronicle.Feed
       var fn = getFullCheckpointFilePath();
       if (!File.Exists(fn)) return;
 
-      var data = LaconicConfiguration.ProviderLoadFromFile(fn);
+      var data = new LaconicConfiguration(fn);
 
       foreach(var nsrc in data.Root.ChildrenNamed(Source.CONFIG_SOURCE_SECTION))
       {

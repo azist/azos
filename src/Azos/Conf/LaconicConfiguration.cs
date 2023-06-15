@@ -55,7 +55,7 @@ namespace Azos.Conf
     public LaconicConfiguration() : base() {  }
 
     /// <summary>
-    /// Creates an isntance of the new configuration and reads contents from a laconfig file
+    /// Creates an instance of the new configuration and reads contents from a laconfig file
     /// </summary>
     public LaconicConfiguration(string filename) : base(filename)
     {
