@@ -21,7 +21,7 @@ namespace Azos.Sky.Chronicle.Feed.Server
 
     public MongoFactSink(PullAgentDaemon director, IConfigSectionNode cfg) : base(director, cfg)
     {
-      m_Db = App.GetMongoDatabaseFromConnectString(m_ConnectString, Name);
+      m_Db = App.GetMongoDatabaseFromConnectString(m_ConnectString, Name);//database is called using source name
     }
 
     private Database m_Db;

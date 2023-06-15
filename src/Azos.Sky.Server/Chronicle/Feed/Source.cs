@@ -25,7 +25,7 @@ namespace Azos.Sky.Chronicle.Feed
   public sealed class Source : ApplicationComponent<PullAgentDaemon>, INamed
   {
     public const string CONFIG_SOURCE_SECTION = "source";
-    public const int MAX_NAME_LEN = 128;
+    public const int MAX_NAME_LEN = 48;
 
     public const int FETCH_BY_MIN = 1;
     public const int FETCH_BY_MAX = 500;
