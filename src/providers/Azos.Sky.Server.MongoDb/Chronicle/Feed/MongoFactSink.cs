@@ -45,17 +45,10 @@ namespace Azos.Sky.Chronicle.Feed.Server
     {
       var doc = new BSONDocument();
 
-      doc.Set(DataDocConverter.GDID_CLRtoBSON("_id", fact.Gdid));
+      doc.Set(DataDocConverter.GDID_CLRtoBSON(Query._ID, fact.Gdid));
       doc.Set(DataDocConverter.GUID_CLRtoBSON("id", fact.Id));
+      doc.Set(DataDocConverter.GUID_CLRtoBSON("rel", fact.RelatedId));
 
-      if (fact.RelatedId != Guid.Empty)
-      {
-        doc.Set(DataDocConverter.GUID_CLRtoBSON("rel", fact.RelatedId));
-      }
-      else
-      {
-        doc.Set(new BSONNullElement("rel"));
-      }
 
       doc.Set(new BSONInt64Element("chn", (long)fact.Channel.ID));
       doc.Set(new BSONInt64Element("top", (long)fact.Topic.ID));
@@ -84,7 +77,7 @@ namespace Azos.Sky.Chronicle.Feed.Server
       }
 
       var metrics = BSONExtensions.ToBson(fact.Metrics);
-      if (dims != null)
+      if (metrics != null)
       {
         doc.Set(new BSONDocumentElement("met", metrics));
       }

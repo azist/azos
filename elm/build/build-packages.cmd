@@ -1,6 +1,6 @@
 @echo on
 
-set VER=3.5.0.1
+set VER=3.5.0.3
 set HEADLINE=#869 FeedPullAgent, Message.SrcShard, SpecificShard filter
 call build-all Release %VER%
 

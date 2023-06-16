@@ -31,8 +31,8 @@ namespace Azos.Sky.Chronicle.Feed
     private const string CONFIG_SERVICE_SECTION = "uplink-service";
 
     private const int RUN_GRANULARITY_MS = 500;
-    private const int CHECKPOINT_WRITE_INTERVAL_MS = 10_000;
-    private const int SOURCE_REPOLL_INTERVAL_MS = 15_000;
+    private const int CHECKPOINT_WRITE_INTERVAL_MS = 25_000;
+    private const int SOURCE_REPOLL_INTERVAL_MS = 30_000;
 
     public PullAgentDaemon(IApplication application) : base(application) { }
     public PullAgentDaemon(IModule parent) : base(parent) { }
