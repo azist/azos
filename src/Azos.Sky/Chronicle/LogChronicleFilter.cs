@@ -56,7 +56,7 @@ namespace Azos.Sky.Chronicle
     [Field(isArow: true, backendName: "allshards", description: "When true, all shards in cross-shard request must succeed, otherwise the whole request will fail")]
     public bool DemandAllShards{ get; set; }
 
-    [Field(isArow: true, backendName: "shard", description: "Can only be set if CrossShard is false, if set then only takes data from specific shard if server supports multiplexing")]
+    [Field(isArow: true, backendName: "shard", description: "Can only be set if CrossShard is false, if set then only takes data from the specified shard if server supports multiplexing")]
     public int? SpecificShard { get; set; }
 
     [InjectModule] ILogChronicle m_Chronicle;

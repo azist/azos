@@ -345,12 +345,12 @@ namespace Azos.Log
     protected override object FilterJsonSerializerField(Schema.FieldDef def, JsonWritingOptions options, out string name)
     {
       if (
-          (def.Name == nameof(RelatedTo) && RelatedTo == Guid.Empty) ||
-          (def.Name == nameof(Channel) && Channel.IsZero) ||
+          (def.Name == nameof(RelatedTo)  && RelatedTo == Guid.Empty) ||
+          (def.Name == nameof(Channel)    && Channel.IsZero) ||
           (def.Name == nameof(Parameters) && Parameters.IsNullOrWhiteSpace()) ||
-          (def.Name == nameof(ExceptionData) && ExceptionData==null)  ||
+          (def.Name == nameof(ExceptionData)     && ExceptionData==null)  ||
           (def.Name == nameof(ArchiveDimensions) && ArchiveDimensions.IsNullOrWhiteSpace()) ||
-          (def.Name == nameof(SrcDataShard) && !SrcDataShard.HasValue)
+          (def.Name == nameof(SrcDataShard)      && !SrcDataShard.HasValue)
          )
       {
         name = null;

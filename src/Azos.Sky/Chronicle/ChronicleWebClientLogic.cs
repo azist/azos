@@ -20,7 +20,8 @@ using Azos.Web;
 namespace Azos.Sky.Chronicle
 {
   /// <summary>
-  /// Provides client for consuming ILogChronicle and  IInstrumentationChronicle remote services
+  /// Provides client for consuming ILogChronicle and  IInstrumentationChronicle remote services.
+  /// Multiplexes reading from multiple shards when `CrossShard` filter param is passed
   /// </summary>
   public sealed class ChronicleWebClientLogic : ModuleBase, ILogChronicleLogic, IInstrumentationChronicleLogic
   {
@@ -102,10 +103,10 @@ namespace Azos.Sky.Chronicle
       filter.CrossShard = false; //stop recursion, each shard should return just its own data
       var shards = m_Server.GetEndpointsForAllShards(LogServiceAddress, nameof(ILogChronicle));
 
-      async Task<(int shard, JsonDataMap data)> callBody(IHttpTransport tx)
+      async Task<(int shard, JsonDataMap data)> callBody(IHttpTransport http)
       {
-        var data = await tx.Client.PostAndGetJsonMapAsync("filter", new { filter = filter }).ConfigureAwait(false);
-        return (tx.Assignment.Endpoint.Shard, data);
+        var data = await http.Client.PostAndGetJsonMapAsync("filter", new { filter = filter }).ConfigureAwait(false);
+        return (http.Assignment.Endpoint.Shard, data);
       }
 
       var calls = shards.Select(shard => shard.Call((http, ct) => callBody(http)));

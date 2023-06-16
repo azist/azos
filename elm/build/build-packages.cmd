@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.4.0.1
-set HEADLINE=#876 App container stuck ref fix
+set VER=3.5.0.1
+set HEADLINE=#869 FeedPullAgent, Message.SrcShard, SpecificShard filter
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

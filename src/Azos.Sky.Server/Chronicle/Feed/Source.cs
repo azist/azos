@@ -112,7 +112,7 @@ namespace Azos.Sky.Chronicle.Feed
     public bool LastFetchHadData => m_LastFetchHadData;
 
     /// <summary>
-    /// If set tells the multiplexing server source to return data from specific shard
+    /// If set tells the multiplexing server source to return data from the specified shard
     /// </summary>
     public int? SpecificShard => m_SpecificShard;
 
