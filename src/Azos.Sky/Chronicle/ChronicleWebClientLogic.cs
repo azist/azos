@@ -102,7 +102,13 @@ namespace Azos.Sky.Chronicle
       filter.CrossShard = false; //stop recursion, each shard should return just its own data
       var shards = m_Server.GetEndpointsForAllShards(LogServiceAddress, nameof(ILogChronicle));
 
-      var calls = shards.Select(shard => shard.Call((http, ct) => http.Client.PostAndGetJsonMapAsync("filter", new {filter = filter})));
+      async Task<(int shard, JsonDataMap data)> callBody(IHttpTransport tx)
+      {
+        var data = await tx.Client.PostAndGetJsonMapAsync("filter", new { filter = filter }).ConfigureAwait(false);
+        return (tx.Assignment.Endpoint.Shard, data);
+      }
+
+      var calls = shards.Select(shard => shard.Call((http, ct) => callBody(http)));
 
       var responses = await Task.WhenAll(calls.Select( async call => {
         try
@@ -115,13 +121,19 @@ namespace Azos.Sky.Chronicle
 
           if (filter.DemandAllShards) throw;
 
-          return null;
+          return (0, null);
         }
       })).ConfigureAwait(false);
 
-      var result = responses.SelectMany(response => response.UnwrapPayloadArray()
-                                                            .OfType<JsonDataMap>()
-                                                            .Select(imap => JsonReader.ToDoc<Message>(imap)))
+      var result = responses.Where(one => one.data != null)
+                            .SelectMany(response => response.data.UnwrapPayloadArray()
+                                                                 .OfType<JsonDataMap>()
+                                                                 .Select(imap =>
+                                                                 {
+                                                                    var msg =  JsonReader.ToDoc<Message>(imap);
+                                                                    msg.SrcDataShard = response.shard;
+                                                                    return msg;
+                                                                 }))
                             .OrderBy(m => m.UTCTimeStamp)
                             .ToArray();
 
