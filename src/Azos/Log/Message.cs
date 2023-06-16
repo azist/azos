@@ -64,7 +64,7 @@ namespace Azos.Log
     private WrappedExceptionData m_ExceptionData;
     private Exception m_Exception;
     private string m_ArchiveDimensions;
-    private int m_SrcDataShard;
+    private int? m_SrcDataShard;
     #endregion
 
 
@@ -270,7 +270,7 @@ namespace Azos.Log
     /// This is non-stored lookup property which is set by server when sourcing data from multiple shards
     /// </summary>
     [Field, Field(isArow: true, backendName: "dshard")]
-    public int SrcDataShard
+    public int? SrcDataShard
     {
       get => m_SrcDataShard;
       set => m_SrcDataShard = value;
@@ -350,7 +350,7 @@ namespace Azos.Log
           (def.Name == nameof(Parameters) && Parameters.IsNullOrWhiteSpace()) ||
           (def.Name == nameof(ExceptionData) && ExceptionData==null)  ||
           (def.Name == nameof(ArchiveDimensions) && ArchiveDimensions.IsNullOrWhiteSpace()) ||
-          (def.Name == nameof(SrcDataShard) && SrcDataShard == 0)
+          (def.Name == nameof(SrcDataShard) && SrcDataShard == null)
          )
       {
         name = null;

@@ -144,6 +144,8 @@ namespace Azos.Sky.Chronicle
     {
       JsonDataMap response;
 
+      int? srcDataShard = null;
+
       if (!filter.SpecificShard.HasValue)
       {
         response = await m_Server.Call(LogServiceAddress,
@@ -156,12 +158,19 @@ namespace Azos.Sky.Chronicle
         var sidx = filter.SpecificShard.Value;
         var shards = m_Server.GetEndpointsForAllShards(LogServiceAddress, nameof(ILogChronicle)).ToArray();
         if (sidx < 0 || sidx >= shards.Length ) return Enumerable.Empty<Message>();
-        response = await shards[sidx].Call((http, ct) => http.Client.PostAndGetJsonMapAsync("filter", new { filter = filter })).ConfigureAwait(false);
+        var shard = shards[sidx];
+        srcDataShard = shard.FirstOrDefault().Endpoint?.Shard;
+        response = await shard.Call((http, ct) => http.Client.PostAndGetJsonMapAsync("filter", new { filter = filter })).ConfigureAwait(false);
       }
 
       var result = response.UnwrapPayloadArray()
               .OfType<JsonDataMap>()
-              .Select(imap => JsonReader.ToDoc<Message>(imap));
+              .Select(imap =>
+              {
+                var result = JsonReader.ToDoc<Message>(imap);
+                result.SrcDataShard = srcDataShard;
+                return result;
+              });
 
       return result;
     }
