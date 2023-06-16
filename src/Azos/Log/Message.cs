@@ -350,7 +350,7 @@ namespace Azos.Log
           (def.Name == nameof(Parameters) && Parameters.IsNullOrWhiteSpace()) ||
           (def.Name == nameof(ExceptionData) && ExceptionData==null)  ||
           (def.Name == nameof(ArchiveDimensions) && ArchiveDimensions.IsNullOrWhiteSpace()) ||
-          (def.Name == nameof(SrcDataShard) && SrcDataShard == null)
+          (def.Name == nameof(SrcDataShard) && !SrcDataShard.HasValue)
          )
       {
         name = null;
