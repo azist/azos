@@ -3,15 +3,12 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-
   <title>Log Chronicle [:APP:] on `[:HOST:]`/`[:ENV:]` </title>
   <meta name="description" content="Sky Log Chronicles">
   <meta name="author" content="Azos">
 
   <script>
     const ABOUT_SESSION = "[:USER:]@[:APP:] on `[:HOST:]`/`[:ENV:]`";
-
-
     //const TEZT_RESPONSE = {
     //  "data": [
     //    {
@@ -33,19 +30,17 @@
     //  ],
     //  "OK": true
     //};
-
-
   </script>
 
   <style>
     htmtl, body {
-        background: #f4f4f4;
-        font-family: Tahoma, Arial, sans-serif;
-        font-size: 12px;
-        color: #444;
-        padding: 0px;
-        margin: 0px;
-        min-width: 480px
+      background: #f4f4f4;
+      font-family: Tahoma, Arial, sans-serif;
+      font-size: 12px;
+      color: #444;
+      padding: 0px;
+      margin: 0px;
+      min-width: 480px
     }
 
     h1 {  font-size: 1.6em; }
@@ -55,53 +50,53 @@
     h5 {  font-size: 1.1em; }
 
     pre{
-        padding: 10px;
-        border: 1px solid #dcc;
-        background: #fff;
-        box-shadow: 0px 0px 4px #ccc;
-        color: #444;
-        border-radius: 6px;
-        margin: 8px;
-        overflow: auto;
+      padding: 10px;
+      border: 1px solid #dcc;
+      background: #fff;
+      box-shadow: 0px 0px 4px #ccc;
+      color: #444;
+      border-radius: 6px;
+      margin: 8px;
+      overflow: auto;
     }
 
     header{
-        background: linear-gradient(90deg, #e4e4e4 10%, #c8c8c0);
-        border-bottom: 1px solid #c4c4c4;
-        position: fixed;
-        padding: 12px;
-        height: 28px;
-        box-shadow: 0px 0px 8px #888;
-        top: 0px;
-        width: 100%;
-        z-index: 1;
-        transition: 0.2s;
+      background: linear-gradient(90deg, #e4e4e4 10%, #c8c8c0);
+      border-bottom: 1px solid #c4c4c4;
+      position: fixed;
+      padding: 12px;
+      height: 28px;
+      box-shadow: 0px 0px 8px #888;
+      top: 0px;
+      width: 100%;
+      z-index: 1;
+      transition: 0.2s;
     }
 
     svg{ filter: grayscale(0.75);}
 
     .filter{
-       height: auto;
-       opacity: 0.80;
-       box-shadow: 0px 10px 60px #a0a0a0;
-       border: none;
-       background: #2a2a2a;
+      height: auto;
+      opacity: 0.80;
+      box-shadow: 0px 10px 60px #a0a0a0;
+      border: none;
+      background: #2a2a2a;
     }
 
     .logo{
-        width: 68px;
-        height: 68px;
-        margin: -10px -2px -10px 0px;
+      width: 68px;
+      height: 68px;
+      margin: -10px -2px -10px 0px;
     }
 
     .header-title {
-        font-size: 30px;
-        color: #686868;
-        position: relative;
-        top: -22px;
-        display: inline;
-        margin-left: 8px;
-        white-space: nowrap;
+      font-size: 30px;
+      color: #686868;
+      position: relative;
+      top: -22px;
+      display: inline;
+      margin-left: 8px;
+      white-space: nowrap;
     }
 
     .filter .header-title{
@@ -142,20 +137,20 @@
     }
 
     footer{
-        text-align: center;
-        color: #999;
-        margin-top: 20px;
-        margin-bottom: 10px;
+      text-align: center;
+      color: #999;
+      margin-top: 20px;
+      margin-bottom: 10px;
     }
 
     section#body{
-        padding: 22px;
-        margin-top: 48px;
+      padding: 22px;
+      margin-top: 48px;
     }
 
     section#body.over{
-        filter: blur(6px);
-        transition: 0.4s;
+      filter: blur(6px);
+      transition: 0.4s;
     }
 
     @media only screen and (max-width: 480px){
@@ -166,8 +161,8 @@
     }
 
     a{
-        color: #4080e0;
-        text-decoration: none;
+      color: #4080e0;
+      text-decoration: none;
     }
 
 
@@ -244,46 +239,46 @@
     }
 
     .msg-type-warning{
-      background-color: #f4f4a0 !important;
+     background-color: #f4f4a0 !important;
     }
 
     .msg-type-error{
-      background-color: #f4c0c0 !important;
+     background-color: #f4c0c0 !important;
     }
 
     .msg-type-emergency{
-      background-color: #303030 !important;
-      color: #fea000 !important;
+     background-color: #303030 !important;
+     color: #fea000 !important;
     }
 
     .msg-type-catastrophicerror{
-      background-color: #303030 !important;
-      color: #fe5000 !important;
+     background-color: #303030 !important;
+     color: #fe5000 !important;
     }
 
     .snippet{
-      font-family: 'Lucida Console, monospace';
-      font-size: 8px;
-      max-width: 30em;
-      max-height: 4.25em;
-      overflow: hidden;
-      text-overflow: ellipsis;
+     font-family: 'Lucida Console, monospace';
+     font-size: 8px;
+     max-width: 30em;
+     max-height: 4.25em;
+     overflow: hidden;
+     text-overflow: ellipsis;
     }
 
     .text{
-      white-space: normal;
-      max-width: 30em;
-      max-height: 4.25em;
-      overflow: hidden;
-      text-overflow: ellipsis;
+     white-space: normal;
+     max-width: 30em;
+     max-height: 4.25em;
+     overflow: hidden;
+     text-overflow: ellipsis;
     }
 
     .text-pre{
-      white-space: pre;
-      max-width: 30em;
-      max-height: 4.25em;
-      overflow: hidden;
-      text-overflow: ellipsis;
+     white-space: pre;
+     max-width: 30em;
+     max-height: 4.25em;
+     overflow: hidden;
+     text-overflow: ellipsis;
     }
 
     .wide{
@@ -480,7 +475,9 @@
          <option value="DebugB">DebugB</option>
          <option value="DebugC">DebugC</option>
          <option value="DebugD">DebugD</option>
+         <option value="DebugError">DebugError</option>
          <option value="DebugSQL">DebugSQL</option>
+         <option value="DebugGlue">DebugGlue</option>
          <option value="DebugZ">DebugZ</option>
          <option value="Trace">Trace</option>
          <option value="TraceA">TraceA</option>
@@ -489,17 +486,22 @@
          <option value="TraceD">TraceD</option>
          <option value="TraceErrors">TraceErrors</option>
          <option value="TraceSQL">TraceSQL</option>
+         <option value="TraceNetGlue">TraceNetGlue</option>
          <option value="TraceZ">TraceZ</option>
+         <option value="PerformanceInstrumentation">PerformanceInstrumentation</option>
          <option value="Info">Info</option>
          <option value="InfoA">InfoA</option>
          <option value="InfoB">InfoB</option>
          <option value="InfoC">InfoC</option>
          <option value="InfoD">InfoD</option>
          <option value="InfoZ">InfoZ</option>
+         <option value="Aggregate">Aggregate</option>
          <option value="SecurityAudit">SecurityAudit</option>
          <option value="Notice">Notice</option>
          <option value="Warning">Warning</option>
+         <option value="WarningExpectation">WarningExpectation</option>
          <option value="Error">Error</option>
+         <option value="ErrorInfo">ErrorInfo</option>
          <option value="Critical">Critical</option>
          <option value="CriticalAlert">CriticalAlert</option>
          <option value="Emergency">Emergency</option>
@@ -514,7 +516,9 @@
          <option value="DebugB">DebugB</option>
          <option value="DebugC">DebugC</option>
          <option value="DebugD">DebugD</option>
+         <option value="DebugError">DebugError</option>
          <option value="DebugSQL">DebugSQL</option>
+         <option value="DebugGlue">DebugGlue</option>
          <option value="DebugZ">DebugZ</option>
          <option value="Trace">Trace</option>
          <option value="TraceA">TraceA</option>
@@ -523,17 +527,22 @@
          <option value="TraceD">TraceD</option>
          <option value="TraceErrors">TraceErrors</option>
          <option value="TraceSQL">TraceSQL</option>
+         <option value="TraceNetGlue">TraceNetGlue</option>
          <option value="TraceZ">TraceZ</option>
+         <option value="PerformanceInstrumentation">PerformanceInstrumentation</option>
          <option value="Info">Info</option>
          <option value="InfoA">InfoA</option>
          <option value="InfoB">InfoB</option>
          <option value="InfoC">InfoC</option>
          <option value="InfoD">InfoD</option>
          <option value="InfoZ">InfoZ</option>
+         <option value="Aggregate">Aggregate</option>
          <option value="SecurityAudit">SecurityAudit</option>
          <option value="Notice">Notice</option>
          <option value="Warning">Warning</option>
+         <option value="WarningExpectation">WarningExpectation</option>
          <option value="Error">Error</option>
+         <option value="ErrorInfo">ErrorInfo</option>
          <option value="Critical">Critical</option>
          <option value="CriticalAlert">CriticalAlert</option>
          <option value="Emergency">Emergency</option>
@@ -544,11 +553,8 @@
        <select id="fldCount">
          <option value="25">25</option>
          <option value="50">50</option>
-         <option value="75">75</option>
          <option value="100">100</option>
-         <option value="150">150</option>
-         <option value="200">200</option>
-         <option value="300">300</option>
+         <option value="250" selected="selected">250</option>
          <option value="500">500</option>
          <option value="750">750</option>
        </select>
@@ -579,7 +585,7 @@
   </table>
  </section>
  <footer>
-   Sky Log Chronicles Browser&copy;2008-2020 Azos Sky<br>
+   Sky Log Chronicles Browser&copy;2008-2023 Azos Sky<br>
    [:USER:]@[:APP:] on `[:HOST:]`/`[:ENV:]`
  </footer>
 
@@ -893,12 +899,18 @@
 
     document.onkeydown = function (e) {
       if (e.keyCode == 27) hideModal();//ESC
-      /*if (e.keyCode == 13 && e.ctrlKey) send();//enter
-      else if (e.keyCode == 38 && e.ctrlKey) history(-1);//up
-      else if (e.keyCode == 40 && e.ctrlKey) history(1);//down
+      else if (e.keyCode == 116) apply();//f5
+      else if (e.keyCode == 13 && e.ctrlKey) apply();//enter
       else return;
-      e.preventDefault();*/
+      e.preventDefault();
     };
+
+    if (document.getElementById("fldId").value == "" &&
+        document.getElementById("fldRelId").value == "") {
+      var utcNow = new Date();
+      utcNow.setHours(utcNow.getHours() - 24);
+      document.getElementById("fldStartUtc").value = utcNow.toISOString();
+    }
 
     apply();
   </script>

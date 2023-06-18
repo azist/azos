@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.5.0.3
-set HEADLINE=#869 FeedPullAgent, Message.SrcShard, SpecificShard filter
+set VER=3.5.0.5
+set HEADLINE=#878 Chronicle shard coloring
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
