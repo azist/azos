@@ -11,28 +11,29 @@
   <script>
     const ABOUT_SESSION = "[:USER:]@[:APP:] on `[:HOST:]`/`[:ENV:]`";
 
-    /*
-    const TEZT_RESPONSE = {
-      "data": [
-        {
-          "Gdid": "0:10:0",
-          "Guid": "dc06d988-ae74-44c8-856e-a952de63bcc8",
-          "RelatedTo": "5a7643e8-7d26-478a-a5fe-1fa132068721",
-          "App": "rtpb",
-          "Channel": "oplog",
-          "Type": "TraceA",
-          "Source": 0,
-          "UTCTimeStamp": "2020-08-14T16:28:09.571Z",
-          "Host": "/us/east/cle/BIZMIX-WU001",
-          "From": "TeztLogic.Check",
-          "Topic": "blogic",
-          "Text": "Got Rtpb request",
-          "Parameters": "{a: 1, b:2, c: true}"
-        }
-      ],
-      "OK": true
-    };
-    */
+
+    //const TEZT_RESPONSE = {
+    //  "data": [
+    //    {
+    //      "Gdid": "0:10:0",
+    //      "Guid": "dc06d988-ae74-44c8-856e-a952de63bcc8",
+    //      "RelatedTo": "5a7643e8-7d26-478a-a5fe-1fa132068721",
+    //      "App": "rtpb",
+    //      "Channel": "oplog",
+    //      "Type": "TraceA",
+    //      "Source": 0,
+    //      "UTCTimeStamp": "2020-08-14T16:28:09.571Z",
+    //      "Host": "/us/east/cle/BIZMIX-WU001",
+    //      "From": "TeztLogic.Check",
+    //      "Topic": "blogic",
+    //      "Text": "Got Rtpb request",
+    //      "Parameters": "{a: 1, b:2, c: true}",
+    //      "SrcDataShard": 0,
+    //    },
+    //  ],
+    //  "OK": true
+    //};
+
 
   </script>
 
@@ -442,6 +443,10 @@
     .code-number { color: #70f010; }
     .code-boolean { color: #f0d090; }
     .code-null { color: #f48080; }
+
+    .shard-0{ padding: 3px; background: rgba(120, 240, 10, 0.5); color: #50b010; margin-right: 6px; border-radius: 2px; box-shadow: 1px 1px 4px #70d080; opacity: 0.85;}
+    .shard-1{ padding: 3px; background: rgba(10, 120, 240, 0.6); color: #a0e0ff; margin-right: 6px; border-radius: 2px; box-shadow: 1px 1px 4px #a0a0ff; opacity: 0.85;}
+    .shard-2{ padding: 3px; background: rgba(250, 120, 10, 0.5); color: #d06010; margin-right: 6px; border-radius: 2px; box-shadow: 1px 1px 4px #d08070; opacity: 0.85;}
 </style>
 
 </head>
@@ -649,9 +654,9 @@
     }
 
     async function apply() {
-     //// buildGrid(TEZT_RESPONSE.data); return;
+     ////  buildGrid(TEZT_RESPONSE.data); return;
       const callBody = { filter: buildFilter() };
-      //alert(JSON.stringify(filter));
+     ////alert(JSON.stringify(filter));
 
       try {
         let uri = "filter";
@@ -732,8 +737,13 @@
     }
 
     function buildOneMsg(i, msg, fullGuids, channel) {
+      let shard = "";
+      if (msg.SrcDataShard !== undefined) {
+        shard = `<span class="shard-${msg.SrcDataShard % 3}">${msg.SrcDataShard}</span>`;
+      }
+
       return `<tr class="msg-type-${html(msg.Type).toLowerCase()}" ondblclick="showMsgJson(${i})">
-          <td class="col-gdid">${html(msg.Gdid)}</td>
+          <td class="col-gdid">${shard}${html(msg.Gdid)}</td>
           <td class="col-guid">${html(guid(msg.Guid, fullGuids))}</td>
           <td class="col-rel">${html(guid(msg.RelatedTo, fullGuids))}</td>
           <td class="col-type">${html(msg.Type)}</td>
