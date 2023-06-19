@@ -10,11 +10,11 @@ using System.Linq;
 
 using Azos;
 using Azos.Data;
-using Azos.Log;
 using Azos.Scripting;
 using Azos.Serialization.Bix;
 using Azos.Serialization.JSON;
 using Azos.Time;
+using Azos.Log;
 
 namespace Azos.Tests.Nub.Serialization
 {
@@ -1067,6 +1067,57 @@ Simple:
       }
       bixonTime.Stop();
       "BIXON read {0:n0} in {1:n1} sec at {2:n0} ops/sec".SeeArgs(count, bixonTime.ElapsedSec, count / bixonTime.ElapsedSec); ;
+    }
+
+    [Run]
+    public void LogMessageArray()
+    {
+      var data = new {OK = true, data = /*(IEnumerable<object>)*/new Message[]
+      {
+         new Message{ Guid = Guid.NewGuid(), Type = MessageType.DebugA, Topic = "123", From = "from1",  Text = "Text1" } ,
+         new Message{ Guid = Guid.NewGuid(), Type = MessageType.DebugD, Topic = "321", From = "from2",  Text = "Text2" } ,
+         new Message{ Guid = Guid.NewGuid(), Type = MessageType.TraceA, Topic = "topic_1", From = "from3",  Text = "Text3" } ,
+      }
+      };
+
+
+      using var w = new BixWriterBufferScope(1024);
+      Bixon.WriteObject(w.Writer, data);
+      w.Buffer.ToHexDump().See();
+
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = Bixon.ReadObject(r.Reader) as JsonDataMap;
+
+      got.See();
+      Aver.IsNotNull(got);
+
+    }
+
+    [Run]
+    public void LogFactArray()
+    {
+      var data = new
+      {
+        OK = true,
+        data = (IEnumerable<Fact>) new Fact[]
+      {
+         new Fact{ Id = Guid.NewGuid(), RecordType = MessageType.DebugA, Topic = Atom.Encode("t1"), FactType = Atom.Encode("f1"), Source = 1 } ,
+         new Fact{ Id = Guid.NewGuid(), RecordType = MessageType.DebugD, Topic = Atom.Encode("t2"), FactType = Atom.Encode("f2"), Source = 2 } ,
+         new Fact{ Id = Guid.NewGuid(), RecordType = MessageType.TraceA, Topic = Atom.Encode("t3"), FactType = Atom.Encode("f3"), Source = 3 } ,
+      }
+      };
+
+
+      using var w = new BixWriterBufferScope(1024);
+      Bixon.WriteObject(w.Writer, data);
+      w.Buffer.ToHexDump().See();
+
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = Bixon.ReadObject(r.Reader) as JsonDataMap;
+
+      got.See();
+      Aver.IsNotNull(got);
+
     }
 
   }
