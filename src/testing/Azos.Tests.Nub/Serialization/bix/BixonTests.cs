@@ -907,9 +907,25 @@ Simple:
   BIXON read 250,000 in 0.5 sec at 516,437 ops/sec
     */
 
+    /*
+2023 June 19 .Net 6 Release
+--------------------------
+Complex:
+JSON wrote 32,000 in 1.1 sec at 30,307 ops/sec; 1,590 chars
+JSON read 32,000 in 2.6 sec at 12,445 ops/sec
+BIXON wrote 32,000 in 0.9 sec at 34,575 ops/sec; 1,201 bytes
+BIXON read 32,000 in 0.7 sec at 45,064 ops/sec
+
+Simple:
+JSON wrote 250,000 in 0.8 sec at 333,280 ops/sec; 307 chars
+JSON read 250,000 in 2.3 sec at 110,569 ops/sec
+BIXON wrote 250,000 in 0.9 sec at 268,040 ops/sec; 265 bytes
+BIXON read 250,000 in 0.5 sec at 549,256 ops/sec
+    */
 
 
-    //[Run("count=32000")]
+
+   // [Run("count=32000")]
     [Run("count=5000")]
     public void Benchmark_Complex(int count)
     {
@@ -987,7 +1003,7 @@ Simple:
 
     }
 
-    // [Run("count=250000")]
+   //  [Run("count=250000")]
     [Run("count=8000")]
     public void Benchmark_Simple(int count)
     {
@@ -1100,11 +1116,11 @@ Simple:
       {
         OK = true,
         data = (IEnumerable<Fact>) new Fact[]
-      {
-         new Fact{ Id = Guid.NewGuid(), RecordType = MessageType.DebugA, Topic = Atom.Encode("t1"), FactType = Atom.Encode("f1"), Source = 1 } ,
-         new Fact{ Id = Guid.NewGuid(), RecordType = MessageType.DebugD, Topic = Atom.Encode("t2"), FactType = Atom.Encode("f2"), Source = 2 } ,
-         new Fact{ Id = Guid.NewGuid(), RecordType = MessageType.TraceA, Topic = Atom.Encode("t3"), FactType = Atom.Encode("f3"), Source = 3 } ,
-      }
+        {
+           new Fact{ Id = Guid.NewGuid(), RecordType = MessageType.DebugA, Topic = Atom.Encode("t1"), FactType = Atom.Encode("f1"), Source = 1 } ,
+           new Fact{ Id = Guid.NewGuid(), RecordType = MessageType.DebugD, Topic = Atom.Encode("t2"), FactType = Atom.Encode("f2"), Source = 2 } ,
+           new Fact{ Id = Guid.NewGuid(), RecordType = MessageType.TraceA, Topic = Atom.Encode("t3"), FactType = Atom.Encode("f3"), Source = 3 } ,
+        }.OrderBy(one => one.UtcTimestamp)
       };
 
 
