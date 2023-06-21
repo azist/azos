@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.5.0.6
-set HEADLINE=#877 Bixon IEnumerable support
+set VER=3.5.0.7
+set HEADLINE=#879 Feed pull service tail call problem
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
