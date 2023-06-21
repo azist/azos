@@ -23,7 +23,7 @@ namespace Azos.Sky.Chronicle.Feed
   public abstract class Sink : ApplicationComponent<PullAgentDaemon>, INamed
   {
     public const string CONFIG_SINK_SECTION = "sink";
-    public const int MAX_NAME_LEN = Source.MAX_NAME_LEN;
+    public const int MAX_NAME_LEN = 24;
 
     public Sink(PullAgentDaemon director, IConfigSectionNode cfg) : base(director)
     {

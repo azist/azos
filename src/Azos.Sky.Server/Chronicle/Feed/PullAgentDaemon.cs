@@ -31,7 +31,8 @@ namespace Azos.Sky.Chronicle.Feed
     private const string CONFIG_SERVICE_SECTION = "uplink-service";
 
     private const int RUN_GRANULARITY_MS = 500;
-    private const int CHECKPOINT_WRITE_INTERVAL_MS = 10_000;
+    private const int CHECKPOINT_WRITE_INTERVAL_MS = 25_000;
+    private const int SOURCE_REPOLL_INTERVAL_MS = 30_000;
 
     public PullAgentDaemon(IApplication application) : base(application) { }
     public PullAgentDaemon(IModule parent) : base(parent) { }
@@ -116,6 +117,8 @@ namespace Azos.Sky.Chronicle.Feed
       m_Sources.All(one => m_Sinks[one.SinkName] != null).IsTrue("All sources pointing to existing sinks");
       m_Sources.All(one => m_UplinkService.Endpoints.Any(ep => ep.RemoteAddress.EqualsOrdIgnoreCase(one.UplinkAddress))).IsTrue("All sources pointing to registered uplink addresses");
 
+      readCheckpoints();
+
       base.DoStart();
       scheduleNextRun();
     }
@@ -140,10 +143,11 @@ namespace Azos.Sky.Chronicle.Feed
       if (!Running) return;
       try
       {
-        var allSourceTasks = m_Sources.Select(src => processOneSourceSlice(src)).ToArray();
+        var utcNow = App.TimeSource.UTCNow;
+
+        var allSourceTasks = m_Sources.Select(src => processOneSource(src, utcNow)).ToArray();
         await Task.WhenAll(allSourceTasks).ConfigureAwait(false);
 
-        var utcNow = App.TimeSource.UTCNow;
         if ((utcNow - m_LastCheckpointWriteUtc).TotalMilliseconds > CHECKPOINT_WRITE_INTERVAL_MS)
         {
           writeCheckpoints(utcNow);
@@ -159,17 +163,25 @@ namespace Azos.Sky.Chronicle.Feed
       }
     }
 
-    private async Task processOneSourceSlice(Source src)
+    private async Task processOneSource(Source source, DateTime utcNow)
     {
       try
       {
-        //fetch
-        //if something came
-        //write into sink
+        var sink = m_Sinks[source.SinkName];
+        if (sink == null) return;//safeguard
+
+        if (!source.LastFetchHadData &&
+            (utcNow - source.LastFetchUtc).TotalMilliseconds < SOURCE_REPOLL_INTERVAL_MS.ChangeByRndPct(0.5f)) return;//do not fetch yet
+
+        var batch = await source.PullAsync(m_UplinkService).ConfigureAwait(false);
+        if (batch.Length == 0) return;
+
+        await sink.WriteAsync(batch).ConfigureAwait(false);
+        source.SetCheckpointUtc(batch.Max(one => one.UTCTimeStamp));
       }
       catch(Exception error)
       {
-
+        WriteLog(MessageType.Error, nameof(processOneSource), "Leaked: " + error.ToMessageWithType(), error);
       }
     }
 
@@ -183,13 +195,19 @@ namespace Azos.Sky.Chronicle.Feed
 
     private DateTime m_LastCheckpointWriteUtc;
 
-    private void writeCheckpointsUnsafe(DateTime utcNow)
+    private string getFullCheckpointFilePath()
     {
-      var hasFetched = m_Sources.Any(one => one.HasFetched);
-      if (!hasFetched) return;
-
       var fn = $"{nameof(PullAgentDaemon)}.{App.AppId}.{Name}.chkpt";
       var fullFn = Path.Combine(m_DataDir, fn);
+      return fullFn;
+    }
+
+    private void writeCheckpointsUnsafe(DateTime utcNow)
+    {
+      var chkChanged = m_Sources.Any(one => one.CheckpointChanged);
+      if (!chkChanged) return;
+
+      var fn = getFullCheckpointFilePath();
 
       var cfg = new LaconicConfiguration();
       cfg.Create("checkpoints");
@@ -200,19 +218,39 @@ namespace Azos.Sky.Chronicle.Feed
 
       foreach(var source in m_Sources)
       {
-        var nChannel = cfg.Root.AddChildNode(Source.CONFIG_SOURCE_SECTION);
-        nChannel.AddAttributeNode("name", source.Name);
+        var nSource = cfg.Root.AddChildNode(Source.CONFIG_SOURCE_SECTION);
+        nSource.AddAttributeNode("name", source.Name);
         var chkUtc = source.CheckpointUtc;
-        nChannel.AddAttributeNode("utc-checkpoint", chkUtc.ToString("o"));//ISO8601 with time zone (utc Z)
-        nChannel.AddAttributeNode("utc-checkpoint-nix-ms", chkUtc.ToMillisecondsSinceUnixEpochStart());
+        nSource.AddAttributeNode("utc-checkpoint", chkUtc.ToString("o"));//ISO8601 with time zone (utc Z)
+        nSource.AddAttributeNode("utc-checkpoint-nix-ms", chkUtc.ToMillisecondsSinceUnixEpochStart());
       }
       //SAVE whole log ============================================================
-      cfg.SaveAs(fullFn, CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint);
+      cfg.SaveAs(fn, CodeAnalysis.Laconfig.LaconfigWritingOptions.PrettyPrint);
       //===========================================================================
 
       //must be last line if there is no exception
-      m_Sources.ForEach(one => one.ResetHasFetched());
+      m_Sources.ForEach(one => one.ResetCheckpointChanged());
       m_LastCheckpointWriteUtc = utcNow;
+    }
+
+    private void readCheckpoints()
+    {
+      var fn = getFullCheckpointFilePath();
+      if (!File.Exists(fn)) return;
+
+      var data = new LaconicConfiguration(fn);
+
+      foreach(var nsrc in data.Root.ChildrenNamed(Source.CONFIG_SOURCE_SECTION))
+      {
+        var sname = nsrc.ValOf("name");
+        var source = m_Sources[sname];
+        if (source==null)
+        {
+          WriteLog(MessageType.Warning, nameof(readCheckpoints), "Checkpoint references source `{0}` which is not in the list of registered pull sources".Args(sname));
+          continue;
+        }
+        source.SetCheckpointUtc(nsrc.Of("utc-checkpoint-nix-ms").ValueAsLong().FromMillisecondsSinceUnixEpochStart());
+      }
     }
   }
 }

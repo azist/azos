@@ -287,10 +287,15 @@ namespace Azos.Serialization.Bix
         return;
       }
 
-      //Array/List
-      if (value is IList array && value is not byte[])
+      //Array/List/Enumerable
+      if ((value is IList || (value is IEnumerable && value is not string)) && value is not byte[])
       {
         writer.Write(TypeCode.Array);
+
+        //20230619 DKh - treat IEnumerable as a List<object>, yes making copy
+        var array = value as IList;
+        if (array==null) array = ((IEnumerable)value).Cast<object>().ToList();
+
 
         if (set == null)//the trick is to allocate set only here
         {               //so most cases with top-level map do NOT allocate set as it allocates only on a first field of type map
