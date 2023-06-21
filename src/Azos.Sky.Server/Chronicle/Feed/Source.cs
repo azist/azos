@@ -5,6 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -12,6 +13,7 @@ using Azos.Apps;
 using Azos.Client;
 using Azos.Collections;
 using Azos.Conf;
+using Azos.Data;
 using Azos.Instrumentation;
 using Azos.Log;
 using Azos.Serialization.JSON;
@@ -26,6 +28,7 @@ namespace Azos.Sky.Chronicle.Feed
   {
     public const string CONFIG_SOURCE_SECTION = "source";
     public const int MAX_NAME_LEN = 48;
+    private const int PULL_LOG_CAPACITY = 1024;
 
     public const int FETCH_BY_MIN = 8;
     public const int FETCH_BY_MAX = 500;
@@ -50,20 +53,15 @@ namespace Azos.Sky.Chronicle.Feed
     [Config] private Atom m_Channel;
     [Config] private string m_SinkName;
     [Config] private int? m_SpecificShard;
-    private bool m_CheckpointChanged;
-
-    private DateTime m_LastFetchUtc;
-    private bool m_LastFetchHadData;
-
-    private int m_FetchBy = FETCH_BY_DEFAULT;
 
     private DateTime m_CheckpointUtc;
+    private bool m_CheckpointChanged;
+    private Dictionary<GDID, DateTime> m_PullLog = new Dictionary<GDID, DateTime>();
+    private bool m_LastFetchHadData;
+    private DateTime m_LastFetchUtc;
+    private int m_FetchBy = FETCH_BY_DEFAULT;
 
-    internal void SetCheckpointUtc(DateTime utc)
-    {
-      m_CheckpointUtc = utc;
-      m_CheckpointChanged = true;
-    }
+
 
 
     public override string ComponentLogTopic => CoreConsts.LOG_TOPIC;
@@ -135,7 +133,8 @@ namespace Azos.Sky.Chronicle.Feed
 
       var result = response.UnwrapPayloadArray()
              .OfType<JsonDataMap>()
-             .Select(imap => JsonReader.ToDoc<Message>(imap))
+             .Select (map => JsonReader.ToDoc<Message>(map))
+             .Where  (msg => !m_PullLog.ContainsKey(msg.Gdid))
              .OrderBy(msg => msg.UTCTimeStamp)
              .ToArray();
 
@@ -143,5 +142,37 @@ namespace Azos.Sky.Chronicle.Feed
       m_LastFetchUtc = App.TimeSource.UTCNow;
       return result;
     }
+
+    public void InitPullStateAsOfCheckpointUtc(DateTime utc)
+    {
+      m_CheckpointUtc = utc;
+      m_CheckpointChanged = false;
+      m_LastFetchUtc = default(DateTime);
+      m_LastFetchHadData = false;
+      m_PullLog.Clear();
+    }
+
+    public void SetCheckpointUtc(Message[] batch)
+    {
+      if (batch == null || batch.Length == 0) return;
+
+      //Trim pull log - delete Older data over capacity
+      while (m_PullLog.Count > PULL_LOG_CAPACITY)
+      {
+        var oldest = m_PullLog.MinBy(one => one.Value);
+        m_PullLog.Remove(oldest.Key);
+      }
+
+      for(var i = 0; i < batch.Length; i++)
+      {
+        var msg = batch[i];
+        m_PullLog[msg.Gdid] = msg.UTCTimeStamp;
+        if (msg.UTCTimeStamp > m_CheckpointUtc)
+        {
+          m_CheckpointUtc = msg.UTCTimeStamp;
+          m_CheckpointChanged = true;
+        }
+      }
+    }//SetCheckpointUtc
   }
 }
