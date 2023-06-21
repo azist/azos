@@ -61,7 +61,7 @@ namespace Azos.Sky.Chronicle.Feed
     private DateTime m_LastFetchUtc;
     private int m_FetchBy = FETCH_BY_DEFAULT;
 
-
+    private int m_ConsecutivePullCount;
 
 
     public override string ComponentLogTopic => CoreConsts.LOG_TOPIC;
@@ -114,6 +114,16 @@ namespace Azos.Sky.Chronicle.Feed
     /// </summary>
     public int? SpecificShard => m_SpecificShard;
 
+    /// <summary>
+    /// How many pulls where called consecutively
+    /// </summary>
+    public int ConsecutivePullCount => m_ConsecutivePullCount;
+
+    /// <summary>
+    /// Resets to zero
+    /// </summary>
+    public void ResetConsecutivePullCount() => m_ConsecutivePullCount = 0;
+
 
     public async Task<Message[]> PullAsync(HttpService uplink)
     {
@@ -138,6 +148,7 @@ namespace Azos.Sky.Chronicle.Feed
              .OrderBy(msg => msg.UTCTimeStamp)
              .ToArray();
 
+      m_ConsecutivePullCount++;
       m_LastFetchHadData = result.Length > 0;
       m_LastFetchUtc = App.TimeSource.UTCNow;
       return result;
@@ -147,6 +158,7 @@ namespace Azos.Sky.Chronicle.Feed
     {
       m_CheckpointUtc = utc;
       m_CheckpointChanged = false;
+      m_ConsecutivePullCount = 0;
       m_LastFetchUtc = default(DateTime);
       m_LastFetchHadData = false;
       m_PullLog.Clear();

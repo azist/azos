@@ -29,6 +29,7 @@ namespace Azos.Sky.Chronicle.Feed
     private const int RUN_GRANULARITY_MS = 500;
     private const int CHECKPOINT_WRITE_INTERVAL_MS = 25_000;
     private const int SOURCE_REPOLL_INTERVAL_MS = 30_000;
+    private const int SOURCE_POLL_BURST_CALL_COUNT = 8;
 
     public PullAgentDaemon(IApplication application) : base(application) { }
     public PullAgentDaemon(IModule parent) : base(parent) { }
@@ -166,8 +167,19 @@ namespace Azos.Sky.Chronicle.Feed
         var sink = m_Sinks[source.SinkName];
         if (sink == null) return;//safeguard
 
-        if (!source.LastFetchHadData &&
-            (utcNow - source.LastFetchUtc).TotalMilliseconds < SOURCE_REPOLL_INTERVAL_MS.ChangeByRndPct(0.5f)) return;//do not fetch yet
+        if (source.LastFetchHadData) //In Burst mode
+        {
+          if (source.ConsecutivePullCount > SOURCE_POLL_BURST_CALL_COUNT)
+          {
+            if ((utcNow - source.LastFetchUtc).TotalMilliseconds < SOURCE_REPOLL_INTERVAL_MS.ChangeByRndPct(0.5f)) return;//do not fetch after long call burst
+            source.ResetConsecutivePullCount();
+          }
+        }
+        else
+        {
+          if ((utcNow - source.LastFetchUtc).TotalMilliseconds < SOURCE_REPOLL_INTERVAL_MS.ChangeByRndPct(0.5f)) return;
+          source.ResetConsecutivePullCount();
+        }
 
         var batch = await source.PullAsync(m_UplinkService).ConfigureAwait(false);
         if (batch.Length == 0) return;
