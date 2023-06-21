@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.5.0.5
-set HEADLINE=#878 Chronicle shard coloring
+set VER=3.5.0.6
+set HEADLINE=#877 Bixon IEnumerable support
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
