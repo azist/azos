@@ -50,9 +50,16 @@ namespace Azos
   /// <para>
   /// The string value is constrained to ASCII-only digits, upper or lower case letters and the following separators:  '-','_'
   /// </para>
+  /// <para>
+  /// A note about sorting atoms on "string" aka "lexicographical" sorting: Atoms are integers, they sort as integers via `IComparable&lt;Atom&gt;`.
+  /// The fact that an atom is encoded from a string does NOT mean that its sorting should coincide with sorting on its string value representation.
+  /// If you need to sort atoms as strings, sort on `atom.Value: string` property which is still more efficient than using
+  /// just strings as atom string values are self-interned automatically.
+  /// </para>
   /// </remarks>
   [Serializable]
   public struct Atom : IEquatable<Atom>,
+                       IComparable<Atom>,
                        Data.Idgen.IDistributedStableHashProvider,
                        IJsonWritable,
                        IJsonReadable,
@@ -295,6 +302,8 @@ namespace Azos
 
     //important to keep this as Value because Atoms are used in many format strings (which uses toString())
     public override string ToString() => Value;
+
+    public int CompareTo(Atom other) => this.ID.CompareTo(other.ID);
 
 
     public static bool operator == (Atom lhs, Atom rhs) =>  lhs.Equals(rhs);
