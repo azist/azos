@@ -331,7 +331,11 @@ namespace Azos
       }
     }
 
-    public static IEnumerable<TResult> ProjectEither<T1, T2, TResult>(this IEnumerable<object> source, Func<T1, TResult> case1, Func<T2, TResult> case2, Func<object, TResult> nonMatch = null)
+    /// <summary>
+    /// Similarly to select, projects an item of TSource as either T1 or T2 subtypes into enumerable of TResult.
+    /// When a value can not be matched by either, then `nonMatch` is called. If `nonMatch` is null, throws <see cref="AzosException"/>
+    /// </summary>
+    public static IEnumerable<TResult> SelectEither<TSource, T1, T2, TResult>(this IEnumerable<TSource> source, Func<T1, TResult> case1, Func<T2, TResult> case2, Func<TSource, TResult> nonMatch = null)
     {
       if (source == null) yield break;
       case1.NonNull(nameof(case1));
@@ -345,13 +349,43 @@ namespace Azos
         {
           if (nonMatch == null)
           {
-            throw new AzosException("Enumerable member of type `{0}` is not handled by projection".Args(one == null ? "<null>" : one.GetType().DisplayNameWithExpandedGenericArgs()));
+            throw new AzosException(StringConsts.SELECT_EITHER_MATCH_NOT_HANDLED_ERROR.Args(one == null ? "<null>" : one.GetType().DisplayNameWithExpandedGenericArgs()));
           }
 
           yield return nonMatch(one);
         }
       }
     }
+
+    /// <summary>
+    /// Similarly to select, projects an item of TSource as either T1 or T2 subtypes into enumerable of TResult.
+    /// When a value can not be matched by either, then `nonMatch` is called. If `nonMatch` is null, throws <see cref="AzosException"/>
+    /// </summary>
+    public static IEnumerable<TResult> SelectEither<TSource, T1, T2, T3, TResult>(this IEnumerable<TSource> source, Func<T1, TResult> case1, Func<T2, TResult> case2, Func<T3, TResult> case3, Func<TSource, TResult> nonMatch = null)
+    {
+      if (source == null) yield break;
+      case1.NonNull(nameof(case1));
+      case2.NonNull(nameof(case2));
+      case3.NonNull(nameof(case3));
+
+      foreach (var one in source)
+      {
+        if (one is T1 v1) yield return case1(v1);
+        else if (one is T2 v2) yield return case2(v2);
+        else if (one is T3 v3) yield return case3(v3);
+        else
+        {
+          if (nonMatch == null)
+          {
+            throw new AzosException(StringConsts.SELECT_EITHER_MATCH_NOT_HANDLED_ERROR.Args(one == null ? "<null>" : one.GetType().DisplayNameWithExpandedGenericArgs()));
+          }
+
+          yield return nonMatch(one);
+        }
+      }
+    }
+
+
 
 
     /// <summary>

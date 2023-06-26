@@ -79,9 +79,11 @@ namespace Azos.Sky.FileGateway
                                           async (http, ct) => await http.Client.GetJsonMapAsync("systems").ConfigureAwait(false));
 
       var result = response.UnwrapPayloadArray()
-                           .ProjectEither<string, Atom, Atom>(
-                             (str) => Atom.Encode(str),
-                             (atm) => atm);
+                           .SelectEither(
+                              (string str) => Atom.Encode(str),
+                              (Atom atm) => atm,
+                              _ => Atom.ZERO)
+                           .Where(one => !one.IsZero);
 
 
       return result;
