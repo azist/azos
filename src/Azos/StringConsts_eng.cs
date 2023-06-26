@@ -47,7 +47,7 @@ namespace Azos
 
         public const string ARGUMENT_ERROR = "Argument error: ";
 
-        public const string SELECT_EITHER_MATCH_NOT_HANDLED_ERROR = "Enumerable value of type `{0}` is not handled by any of cases of `SelectEither()` projection";
+        public const string SELECT_EITHER_MATCH_NOT_HANDLED_ERROR = "Enumerable value of type `{0}` is not handled by any of cases of `SelectEitherOf()` projection";
 
 
         public const string APP_CONTAINER_NESTING_ERROR =

@@ -79,19 +79,27 @@ namespace Azos.Sky.FileGateway
                                           async (http, ct) => await http.Client.GetJsonMapAsync("systems").ConfigureAwait(false));
 
       var result = response.UnwrapPayloadArray()
-                           .SelectEither(
-                              (string str) => Atom.Encode(str),
-                              (Atom atm) => atm,
-                              _ => Atom.ZERO)
-                           .Where(one => !one.IsZero);
-
+                           .SelectEitherOf((string str) => Atom.Encode(str), (Atom   atm) => atm);
 
       return result;
     }
 
-    public Task<IEnumerable<Atom>> GetVolumesAsync(Atom system)
+    public async Task<IEnumerable<Atom>> GetVolumesAsync(Atom system)
     {
-      throw new NotImplementedException();
+      system.HasRequiredValue(nameof(system));
+      var uri = new UriQueryBuilder("volumes")
+               .Add("system", system)
+               .ToString();
+
+      var response = await m_Server.Call(GatewayServiceAddress,
+                                          nameof(IFileGatewayLogic),
+                                          new ShardKey(DateTime.UtcNow),
+                                          async (http, ct) => await http.Client.GetJsonMapAsync(uri).ConfigureAwait(false));
+
+      var result = response.UnwrapPayloadArray()
+                           .SelectEitherOf((string str) => Atom.Encode(str), (Atom atm) => atm);
+
+      return result;
     }
 
     public Task<IEnumerable<ItemInfo>> GetItemListAsync(EntityId path, int recurseLevels = 0)
