@@ -47,7 +47,7 @@ namespace Azos.Sky.FileGateway
     /// Logical service address of file gateway
     /// </summary>
     [Config]
-    public string GatewayServiceAddress{  get; set; }
+    public string GatewayServiceAddress{ get; set; }
 
 
     protected override void DoConfigure(IConfigSectionNode node)
@@ -71,9 +71,20 @@ namespace Azos.Sky.FileGateway
     }
 
     #region IFileGatewayLogic
-    public Task<IEnumerable<Atom>> GetSystemsAsync()
+    public async Task<IEnumerable<Atom>> GetSystemsAsync()
     {
-      throw new NotImplementedException();
+      var response = await m_Server.Call(GatewayServiceAddress,
+                                          nameof(IFileGatewayLogic),
+                                          new ShardKey(DateTime.UtcNow),
+                                          async (http, ct) => await http.Client.GetJsonMapAsync("systems").ConfigureAwait(false));
+
+      var result = response.UnwrapPayloadArray()
+                           .ProjectEither<string, Atom, Atom>(
+                             (str) => Atom.Encode(str),
+                             (atm) => atm);
+
+
+      return result;
     }
 
     public Task<IEnumerable<Atom>> GetVolumesAsync(Atom system)

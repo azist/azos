@@ -331,6 +331,29 @@ namespace Azos
       }
     }
 
+    public static IEnumerable<TResult> ProjectEither<T1, T2, TResult>(this IEnumerable<object> source, Func<T1, TResult> case1, Func<T2, TResult> case2, Func<object, TResult> nonMatch = null)
+    {
+      if (source == null) yield break;
+      case1.NonNull(nameof(case1));
+      case2.NonNull(nameof(case2));
+
+      foreach (var one in source)
+      {
+        if (one is T1 v1)      yield return case1(v1);
+        else if (one is T2 v2) yield return case2(v2);
+        else
+        {
+          if (nonMatch == null)
+          {
+            throw new AzosException("Enumerable member of type `{0}` is not handled by projection".Args(one == null ? "<null>" : one.GetType().DisplayNameWithExpandedGenericArgs()));
+          }
+
+          yield return nonMatch(one);
+        }
+      }
+    }
+
+
     /// <summary>
     /// Changes key value by delta. If value does not exist then creates key with the specified value
     /// </summary>
