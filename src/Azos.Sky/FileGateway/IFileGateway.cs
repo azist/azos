@@ -9,33 +9,10 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Azos.Apps;
 using Azos.Data;
-using Azos.Log;
 
 
 namespace Azos.Sky.FileGateway
 {
-  /// <summary>
-  /// Specifies the file creation mode
-  /// </summary>
-  public enum CreateMode
-  {
-    /// <summary>
-    /// If file exists it throws. The file may not exist at the time of the call
-    /// </summary>
-    Create,
-
-    /// <summary>
-    /// If file exists, it first truncates it to zero bytes, then post new content which replaces the existing file
-    /// </summary>
-    Replace,
-
-    /// <summary>
-    /// If file does not exist, it gets created, if it exists, it is kept as is and written-to at the specified chunk preserving other chunks
-    /// </summary>
-    Update,
-  }
-
-
   /// <summary>
   /// Provides file upload/download services.
   /// The server exposes "systems" which contain named "volumes", then a file/dir is identified by
@@ -79,9 +56,11 @@ namespace Azos.Sky.FileGateway
     Task<ItemInfo> UploadFileChunk(EntityId path, long offset, byte[] content);
 
     /// <summary>
-    /// Downloads file chunk at the specified offset of specified size. Path must exist and be a file (not a directory)
+    /// Downloads file chunk at the specified offset of specified size. Path must exist and be a file (not a directory).
+    /// The system may return less than requested in `size`, in which case the caller assumes EOF condition (eof will be true).
+    /// If size is less or equal to zero, then the system sends as much as it can, returning `eof` bool value appropriately
     /// </summary>
-    Task<byte[]> DownloadFileChunk(EntityId path, long offset, int size);
+    Task<(byte[] data, bool eof)> DownloadFileChunk(EntityId path, long offset = 0, int size = 0);
 
     /// <summary>
     /// Deletes an item by path

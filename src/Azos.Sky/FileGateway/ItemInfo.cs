@@ -5,21 +5,12 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Azos.Apps;
 using Azos.Data;
 using Azos.Data.Business;
-using Azos.Log;
 using Azos.Serialization.Bix;
 
 namespace Azos.Sky.FileGateway
 {
-  /// <summary>
-  /// File or Directory
-  /// </summary>
-  public enum ItemType{ File = 1, Directory = 2 };
-
   [Bix("595824e8-da4a-4117-b0d8-e88b8a5b6e59")]
   [Schema(Description = "Provides information of files or directories")]
   public sealed class ItemInfo : TransientModel
