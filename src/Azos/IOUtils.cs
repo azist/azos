@@ -1562,5 +1562,24 @@ namespace Azos
       return result.ToString();
     }
 
+    /// <summary>
+    /// Returns true if the path segment can be used on *Nix or Windows systems
+    /// </summary>
+    public static bool IsValidWindowsOrNixPathSegment(this string seg)
+    {
+      if (seg.IsNullOrWhiteSpace()) return false;
+
+      //Windows does not allow trailing dot
+      if (seg.EndsWith('.')) return false;
+
+      for(var i=0; i<seg.Length; i++)
+      {
+
+      }
+
+
+      return true;
+    }
+
   }
 }
