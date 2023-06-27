@@ -102,44 +102,158 @@ namespace Azos.Sky.FileGateway
       return result;
     }
 
-    public Task<IEnumerable<ItemInfo>> GetItemListAsync(EntityId path, int recurseLevels = 0)
+    public async Task<IEnumerable<ItemInfo>> GetItemListAsync(EntityId path, int recurseLevels = 0)
     {
-      throw new NotImplementedException();
+      path.HasRequiredValue(nameof(path));
+
+      var response = await m_Server.Call(GatewayServiceAddress,
+                                          nameof(IFileGatewayLogic),
+                                          new ShardKey(DateTime.UtcNow),
+                                          async (http, ct) => await http.Client.PostAndGetJsonMapAsync("item-list", new{ path = path, recurse = recurseLevels}).ConfigureAwait(false));
+
+      var result = response.UnwrapPayloadArray()
+                           .OfType<JsonDataMap>()
+                           .Select(imap => JsonReader.ToDoc<ItemInfo>(imap))
+                           .ToArray();
+
+      return result;
     }
 
-    public Task<IEnumerable<ItemInfo>> GetItemInfoAsync(EntityId path)
+    public async Task<IEnumerable<ItemInfo>> GetItemInfoAsync(EntityId path)
     {
-      throw new NotImplementedException();
+      path.HasRequiredValue(nameof(path));
+      var uri = new UriQueryBuilder("item-info")
+               .Add("path", path)
+               .ToString();
+
+      var response = await m_Server.Call(GatewayServiceAddress,
+                                          nameof(IFileGatewayLogic),
+                                          new ShardKey(DateTime.UtcNow),
+                                          async (http, ct) => await http.Client.GetJsonMapAsync(uri).ConfigureAwait(false));
+
+      var result = response.UnwrapPayloadArray()
+                           .OfType<JsonDataMap>()
+                           .Select(imap => JsonReader.ToDoc<ItemInfo>(imap))
+                           .ToArray();
+
+      return result;
     }
 
-    public Task<ItemInfo> CreateDirectory(EntityId path)
+    public async Task<ItemInfo> CreateDirectory(EntityId path)
     {
-      throw new NotImplementedException();
+      path.HasRequiredValue(nameof(path));
+
+      var response = await m_Server.Call(GatewayServiceAddress,
+                                          nameof(IFileGatewayLogic),
+                                          new ShardKey(DateTime.UtcNow),
+                                          async (http, ct) => await http.Client.PostAndGetJsonMapAsync("directory", new { path = path }).ConfigureAwait(false));
+
+      var result = JsonReader.ToDoc<ItemInfo>(response.UnwrapPayloadMap());
+
+      return result;
     }
 
-    public Task<ItemInfo> CreateFile(EntityId path, CreateMode mode, long offset, byte[] content)
+    public async Task<ItemInfo> CreateFile(EntityId path, CreateMode mode, long offset, byte[] content)
     {
-      throw new NotImplementedException();
+      path.HasRequiredValue(nameof(path));
+      content.NonNull(nameof(content));
+
+      var response = await m_Server.Call(GatewayServiceAddress,
+                                          nameof(IFileGatewayLogic),
+                                          new ShardKey(DateTime.UtcNow),
+                                          async (http, ct) => await http.Client.PostAndGetJsonMapAsync("file",
+                                            new
+                                            {
+                                              path = path,
+                                              mode = mode,
+                                              offset = offset,
+                                              content = content
+                                            }
+                                          ,
+                                          requestBixon: true).ConfigureAwait(false));
+
+      var result = JsonReader.ToDoc<ItemInfo>(response.UnwrapPayloadMap());
+
+      return result;
     }
 
-    public Task<ItemInfo> UploadFileChunk(EntityId path, long offset, byte[] content)
+    public async Task<ItemInfo> UploadFileChunk(EntityId path, long offset, byte[] content)
     {
-      throw new NotImplementedException();
+      path.HasRequiredValue(nameof(path));
+      content.NonNull(nameof(content));
+
+      var response = await m_Server.Call(GatewayServiceAddress,
+                                          nameof(IFileGatewayLogic),
+                                          new ShardKey(DateTime.UtcNow),
+                                          async (http, ct) => await http.Client.PutAndGetJsonMapAsync("file",
+                                            new
+                                            {
+                                              path = path,
+                                              offset = offset,
+                                              content = content
+                                            }
+                                          ,
+                                          requestBixon: true).ConfigureAwait(false));
+
+      var result = JsonReader.ToDoc<ItemInfo>(response.UnwrapPayloadMap());
+
+      return result;
     }
 
-    public Task<(byte[] data, bool eof)> DownloadFileChunk(EntityId path, long offset = 0, int size = 0)
+    public async Task<(byte[] data, bool eof)> DownloadFileChunk(EntityId path, long offset = 0, int size = 0)
     {
-      throw new NotImplementedException();
+      path.HasRequiredValue(nameof(path));
+      var uri = new UriQueryBuilder("file")
+               .Add("path", path)
+               .Add("offset", offset)
+               .Add("size", size)
+               .ToString();
+
+      var response = await m_Server.Call(GatewayServiceAddress,
+                                          nameof(IFileGatewayLogic),
+                                          new ShardKey(DateTime.UtcNow),
+                                          async (http, ct) => await http.Client.GetJsonMapAsync(uri).ConfigureAwait(false));
+
+      var resultMap = response.UnwrapPayloadMap();
+      var eof = resultMap["eof"].AsBool();
+      var data = resultMap["data"] as byte[];
+      return (data, eof);
     }
 
-    public Task<bool> DeleteItem(EntityId path)
+    public async Task<bool> DeleteItem(EntityId path)
     {
-      throw new NotImplementedException();
+      path.HasRequiredValue(nameof(path));
+      var uri = new UriQueryBuilder("file")
+               .Add("path", path);
+
+      var response = await m_Server.Call(GatewayServiceAddress,
+                                          nameof(IFileGatewayLogic),
+                                          new ShardKey(DateTime.UtcNow),
+                                          async (http, ct) => await http.Client.DeleteAndGetJsonMapAsync(uri).ConfigureAwait(false));
+
+      var resultMap = response.UnwrapPayloadMap();
+      var deleted = resultMap["deleted"].AsBool();
+      return deleted;
     }
 
-    public Task<bool> RenameItem(EntityId path, EntityId newPath)
+    public async Task<bool> RenameItem(EntityId path, EntityId newPath)
     {
-      throw new NotImplementedException();
+      path.HasRequiredValue(nameof(path));
+      newPath.HasRequiredValue(nameof(newPath));
+
+      var response = await m_Server.Call(GatewayServiceAddress,
+                                          nameof(IFileGatewayLogic),
+                                          new ShardKey(DateTime.UtcNow),
+                                          async (http, ct) => await http.Client.PutAndGetJsonMapAsync("file-name",
+                                            new
+                                            {
+                                              path = path,
+                                              newPath = newPath
+                                            }).ConfigureAwait(false));
+
+      var resultMap = response.UnwrapPayloadMap();
+      var renamed = resultMap["renamed"].AsBool();
+      return renamed;
     }
     #endregion
   }
