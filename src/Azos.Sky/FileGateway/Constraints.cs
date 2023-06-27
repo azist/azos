@@ -39,8 +39,8 @@ namespace Azos.Sky.FileGateway
         result.Append(one);
       }
 
-      (result.Length>0).IsTrue("Non empty path");
-      (result.Length< MAX_PATH_TOTAL_LEN).IsTrue($"Total len < {MAX_PATH_TOTAL_LEN}");
+      (result.Length > 0).IsTrue("Non empty path");
+      (result.Length < MAX_PATH_TOTAL_LEN).IsTrue($"Total len < {MAX_PATH_TOTAL_LEN}");
 
       return result.ToString();
     }
