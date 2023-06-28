@@ -104,7 +104,7 @@ namespace Azos.Sky.FileGateway
 
     public async Task<IEnumerable<ItemInfo>> GetItemListAsync(EntityId path, int recurseLevels = 0)
     {
-      path.HasRequiredValue(nameof(path));
+      path = Constraints.SanitizePath(path, false);
 
       var response = await m_Server.Call(GatewayServiceAddress,
                                           nameof(IFileGatewayLogic),
@@ -121,7 +121,7 @@ namespace Azos.Sky.FileGateway
 
     public async Task<IEnumerable<ItemInfo>> GetItemInfoAsync(EntityId path)
     {
-      path.HasRequiredValue(nameof(path));
+      path = Constraints.SanitizePath(path, false);
       var uri = new UriQueryBuilder("item-info")
                .Add("path", path)
                .ToString();
@@ -141,7 +141,7 @@ namespace Azos.Sky.FileGateway
 
     public async Task<ItemInfo> CreateDirectory(EntityId path)
     {
-      path.HasRequiredValue(nameof(path));
+      path = Constraints.SanitizePath(path, false);
 
       var response = await m_Server.Call(GatewayServiceAddress,
                                           nameof(IFileGatewayLogic),
@@ -155,7 +155,8 @@ namespace Azos.Sky.FileGateway
 
     public async Task<ItemInfo> CreateFile(EntityId path, CreateMode mode, long offset, byte[] content)
     {
-      path.HasRequiredValue(nameof(path));
+      path = Constraints.SanitizePath(path, true);
+      (offset >= 0).IsTrue("Offset >= 0");
       content.NonNull(nameof(content));
 
       var response = await m_Server.Call(GatewayServiceAddress,
@@ -179,7 +180,8 @@ namespace Azos.Sky.FileGateway
 
     public async Task<ItemInfo> UploadFileChunk(EntityId path, long offset, byte[] content)
     {
-      path.HasRequiredValue(nameof(path));
+      path = Constraints.SanitizePath(path, true);
+      (offset >= 0).IsTrue("Offset >= 0");
       content.NonNull(nameof(content));
 
       var response = await m_Server.Call(GatewayServiceAddress,
@@ -202,7 +204,9 @@ namespace Azos.Sky.FileGateway
 
     public async Task<(byte[] data, bool eof)> DownloadFileChunk(EntityId path, long offset = 0, int size = 0)
     {
-      path.HasRequiredValue(nameof(path));
+      path = Constraints.SanitizePath(path, true);
+      (offset >= 0).IsTrue("offset >= 0");
+      (size >= 0).IsTrue("size >= 0");
       var uri = new UriQueryBuilder("file")
                .Add("path", path)
                .Add("offset", offset)
@@ -222,7 +226,7 @@ namespace Azos.Sky.FileGateway
 
     public async Task<bool> DeleteItem(EntityId path)
     {
-      path.HasRequiredValue(nameof(path));
+      path = Constraints.SanitizePath(path, false);
       var uri = new UriQueryBuilder("file")
                .Add("path", path);
 
@@ -238,13 +242,13 @@ namespace Azos.Sky.FileGateway
 
     public async Task<bool> RenameItem(EntityId path, EntityId newPath)
     {
-      path.HasRequiredValue(nameof(path));
-      newPath.HasRequiredValue(nameof(newPath));
+      path = Constraints.SanitizePath(path, false);
+      newPath = Constraints.SanitizePath(newPath, false);
 
       var response = await m_Server.Call(GatewayServiceAddress,
                                           nameof(IFileGatewayLogic),
                                           new ShardKey(DateTime.UtcNow),
-                                          async (http, ct) => await http.Client.PutAndGetJsonMapAsync("file-name",
+                                          async (http, ct) => await http.Client.PostAndGetJsonMapAsync("item-name",
                                             new
                                             {
                                               path = path,
