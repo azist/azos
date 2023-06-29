@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 
 using Azos.Apps;
 using Azos.Client;
+using Azos.Collections;
 using Azos.Conf;
 using Azos.Data;
 using Azos.Serialization.JSON;
@@ -25,32 +26,47 @@ namespace Azos.Sky.FileGateway.Server
 
     protected override void Destructor()
     {
-      //DisposeAndNull(ref X);
+      cleanup();
       base.Destructor();
     }
+
+    private void cleanup()
+    {
+      var was = m_Systems.ToArray();
+      m_Systems = new AtomRegistry<GatewaySystem>();
+      was.ForEach(one => this.DontLeak(() => one.Dispose(), errorFrom: nameof(cleanup)));
+    }
+
+    private AtomRegistry<GatewaySystem> m_Systems;
 
     public override bool IsHardcodedModule => false;
     public override string ComponentLogTopic => CoreConsts.IO_TOPIC;
 
+    /// <summary>
+    /// Returns a system by name or throws if not found
+    /// </summary>
+    public GatewaySystem this[Atom system] => m_Systems[system.IsValidNonZero(nameof(system))] ?? throw $"Gateway system `{system}`".IsNotFound();
+
     #region Protected
     protected override void DoConfigure(IConfigSectionNode node)
     {
-      //base.DoConfigure(node);
-      //DisposeAndNull(ref m_Server);
-      //if (node == null) return;
+      base.DoConfigure(node);
+      cleanup();
+      if (node == null) return;
 
-      //var nServer = node[CONFIG_SERVICE_SECTION];
-      //m_Server = FactoryUtils.MakeDirectedComponent<HttpService>(this,
-      //                                                           nServer,
-      //                                                           typeof(HttpService),
-      //                                                           new object[] { nServer });
+      m_Systems = new AtomRegistry<GatewaySystem>();
+
+      foreach(var nSystem in node.ChildrenNamed(GatewaySystem.CONFIG_SYSTEM_SECTION))
+      {
+        var one = FactoryUtils.MakeDirectedComponent<GatewaySystem>(this, nSystem, typeof(GatewaySystem), new[]{ nSystem });
+        m_Systems.Register(one).IsTrue($"Unique {one.GetType().DisplayNameWithExpandedGenericArgs()}(`{one.Name}`)");
+      }
     }
 
     //check preconditions/config
     protected override bool DoApplicationAfterInit()
     {
-      //m_Server.NonNull("Not configured Server of config section `{0}`".Args(CONFIG_SERVICE_SECTION));
-      //GatewayServiceAddress.NonBlank(nameof(GatewayServiceAddress));
+      (m_Systems.NonNull(nameof(m_Systems)).Count > 0).IsTrue("Configured systems");
       return base.DoApplicationAfterInit();
     }
 

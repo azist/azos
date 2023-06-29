@@ -22,12 +22,15 @@ namespace Azos.Sky.FileGateway.Server
   {
     public Task<IEnumerable<Atom>> GetSystemsAsync()
     {
-      throw new NotImplementedException();
+      //todo Check permission
+      return Task.FromResult(m_Systems.Names);
     }
 
     public Task<IEnumerable<Atom>> GetVolumesAsync(Atom system)
     {
-      throw new NotImplementedException();
+      //todo check permissions
+      var sys = this[system];
+      return Task.FromResult(sys.Volumes.Names);
     }
 
     public Task<IEnumerable<ItemInfo>> GetItemListAsync(EntityId path, int recurseLevels = 0)
