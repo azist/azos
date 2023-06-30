@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.5.0.7
-set HEADLINE=#879 Feed pull service tail call problem
+set VER=3.5.0.8
+set HEADLINE=Chronicle shardding
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
