@@ -38,7 +38,7 @@ namespace Azos.Sky.FileGateway.Server
     public override string ComponentLogTopic => ComponentDirector.ComponentLogTopic;
 
 
-    public abstract Task<IEnumerable<ItemInfo>> GetItemListAsync(int recurseLevels);
+    public abstract Task<IEnumerable<ItemInfo>> GetItemListAsync(string volumePath, bool recurse);
     public abstract Task<ItemInfo> GetItemInfoAsync(string volumePath);
     public abstract Task<ItemInfo> CreateDirectoryAsync(string volumePath);
     public abstract Task<ItemInfo> CreateFileAsync(string volumePath, CreateMode mode, long offset, byte[] content);

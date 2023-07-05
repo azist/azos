@@ -33,11 +33,11 @@ namespace Azos.Sky.FileGateway.Server
       return Task.FromResult(sys.Volumes.Names);
     }
 
-    public async Task<IEnumerable<ItemInfo>> GetItemListAsync(EntityId path, int recurseLevels = 0)
+    public async Task<IEnumerable<ItemInfo>> GetItemListAsync(EntityId path, bool recurse = false)
     {
       //todo check permission
       var vol = getVolume(path);
-      var result = await vol.GetItemListAsync(recurseLevels).ConfigureAwait(false);
+      var result = await vol.GetItemListAsync(path.Address, recurse).ConfigureAwait(false);
       return result;
     }
 

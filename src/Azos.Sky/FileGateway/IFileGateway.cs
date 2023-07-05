@@ -33,7 +33,7 @@ namespace Azos.Sky.FileGateway
     /// <summary>
     /// Gets a listing of items at the specified path level
     /// </summary>
-    Task<IEnumerable<ItemInfo>> GetItemListAsync(EntityId path, int recurseLevels = 0);
+    Task<IEnumerable<ItemInfo>> GetItemListAsync(EntityId path, bool recurse = false);
 
     /// <summary>
     /// Gets item info for a specific item or null if it does not exist

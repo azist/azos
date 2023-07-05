@@ -8,14 +8,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Azos.Apps;
-using Azos.Client;
-using Azos.Collections;
+using System.IO;
+
 using Azos.Conf;
 using Azos.Data;
 using Azos.Serialization.JSON;
 using Azos.Web;
-using System.IO;
 
 namespace Azos.Sky.FileGateway.Server
 {
@@ -40,14 +38,52 @@ namespace Azos.Sky.FileGateway.Server
     public string MountPath => m_MountPath;
 
 
-    public override Task<IEnumerable<ItemInfo>> GetItemListAsync(int recurseLevels)
+    private string getPhysicalPath(string volumePath)
     {
-      throw new NotImplementedException();
+      volumePath.NonBlankMax(Constraints.MAX_PATH_TOTAL_LEN, nameof(volumePath));
+      var fullPath = Path.Join(m_MountPath, volumePath);
+      return fullPath;
+    }
+
+    private ItemInfo getItemInfo(string path)
+    {
+      var result = new ItemInfo();
+      var volumePath = Path.GetRelativePath(MountPath, path);
+      result.Path = new EntityId(ComponentDirector.Name, this.Name, Atom.ZERO, volumePath);
+
+      if (Directory.Exists(path))
+      {
+        var di = new DirectoryInfo(path);
+        result.Type = ItemType.Directory;
+        result.CreateUtc = di.CreationTimeUtc;
+        result.LastChangeUtc = di.LastWriteTimeUtc;
+        result.Size = 0;
+      }
+
+      //File
+      result.Type = ItemType.File;
+      var fi = new FileInfo(path);
+      result.CreateUtc =  fi.CreationTimeUtc;
+      result.LastChangeUtc = fi.LastWriteTimeUtc;
+      result.Size = fi.Length;
+      return result;
+    }
+
+
+    public override Task<IEnumerable<ItemInfo>> GetItemListAsync(string volumePath, bool recurse)
+    {
+      var path = getPhysicalPath(volumePath);
+      File.GetAttributes(path).HasFlag(FileAttributes.Directory).IsTrue("Directory path");
+      var all = Directory.GetFileSystemEntries(path,  "*", recurse ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
+      IEnumerable<ItemInfo> result = all.Select(one => getItemInfo(one)).ToArray();
+      return Task.FromResult(result);
     }
 
     public override Task<ItemInfo> GetItemInfoAsync(string volumePath)
     {
-      throw new NotImplementedException();
+      var path = getPhysicalPath(volumePath);
+      var result = getItemInfo(path);
+      return Task.FromResult(result);
     }
 
     public override Task<ItemInfo> CreateDirectoryAsync(string volumePath)

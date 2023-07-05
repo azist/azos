@@ -102,14 +102,14 @@ namespace Azos.Sky.FileGateway
       return result;
     }
 
-    public async Task<IEnumerable<ItemInfo>> GetItemListAsync(EntityId path, int recurseLevels = 0)
+    public async Task<IEnumerable<ItemInfo>> GetItemListAsync(EntityId path, bool recurse = false)
     {
       path = Constraints.SanitizePath(path, false);
 
       var response = await m_Server.Call(GatewayServiceAddress,
                                           nameof(IFileGatewayLogic),
                                           new ShardKey(DateTime.UtcNow),
-                                          async (http, ct) => await http.Client.PostAndGetJsonMapAsync("item-list", new{ path = path, recurse = recurseLevels}).ConfigureAwait(false));
+                                          async (http, ct) => await http.Client.PostAndGetJsonMapAsync("item-list", new{ path = path, recurse = recurse}).ConfigureAwait(false));
 
       var result = response.UnwrapPayloadArray()
                            .OfType<JsonDataMap>()
