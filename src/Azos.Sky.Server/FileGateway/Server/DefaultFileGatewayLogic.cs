@@ -70,6 +70,15 @@ namespace Azos.Sky.FileGateway.Server
       return base.DoApplicationAfterInit();
     }
 
+
+    private Volume getVolume(EntityId path)
+    {
+      path = Constraints.SanitizePath(path, false);
+      var sys = this[path.System];
+      var vol = sys[path.Type];
+      return vol;
+    }
+
     #endregion
 
   }

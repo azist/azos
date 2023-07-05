@@ -33,45 +33,74 @@ namespace Azos.Sky.FileGateway.Server
       return Task.FromResult(sys.Volumes.Names);
     }
 
-    public Task<IEnumerable<ItemInfo>> GetItemListAsync(EntityId path, int recurseLevels = 0)
+    public async Task<IEnumerable<ItemInfo>> GetItemListAsync(EntityId path, int recurseLevels = 0)
     {
-      throw new NotImplementedException();
+      //todo check permission
+      var vol = getVolume(path);
+      var result = await vol.GetItemListAsync(recurseLevels).ConfigureAwait(false);
+      return result;
     }
 
-    public Task<IEnumerable<ItemInfo>> GetItemInfoAsync(EntityId path)
+    public async Task<ItemInfo> GetItemInfoAsync(EntityId path)
     {
-      throw new NotImplementedException();
+      var vol = getVolume(path);
+      var result = await vol.GetItemInfoAsync(path.Address).ConfigureAwait(false);
+      return result;
     }
 
 
-    public Task<ItemInfo> CreateDirectory(EntityId path)
+    public async Task<ItemInfo> CreateDirectoryAsync(EntityId path)
     {
-      throw new NotImplementedException();
+      var vol = getVolume(path);
+      var result = await vol.CreateDirectoryAsync(path.Address).ConfigureAwait(false);
+      return result;
     }
 
-    public Task<ItemInfo> CreateFile(EntityId path, CreateMode mode, long offset, byte[] content)
+    public async Task<ItemInfo> CreateFileAsync(EntityId path, CreateMode mode, long offset, byte[] content)
     {
-      throw new NotImplementedException();
+      (offset >= 0).IsTrue("offset >= 0");
+      content.NonNull(nameof(content));
+      (content.Length < Constraints.MAX_FILE_CHUNK_SIZE).IsTrue($"contet.len < {Constraints.MAX_FILE_CHUNK_SIZE}");
+
+      var vol = getVolume(path);
+      var result = await vol.CreateFileAsync(path.Address, mode, offset, content).ConfigureAwait(false);
+      return result;
     }
 
-    public Task<bool> DeleteItem(EntityId path)
+    public async Task<bool> DeleteItemAsync(EntityId path)
     {
-      throw new NotImplementedException();
+      var vol = getVolume(path);
+      var result = await vol.DeleteItemAsync(path.Address).ConfigureAwait(false);
+      return result;
     }
 
-    public Task<(byte[] data, bool eof)> DownloadFileChunk(EntityId path, long offset = 0, int size = 0)
+    public async Task<(byte[] data, bool eof)> DownloadFileChunkAsync(EntityId path, long offset = 0, int size = 0)
     {
-      throw new NotImplementedException();
+      (offset >= 0).IsTrue("offset >= 0");
+      (size > 0 && size < Constraints.MAX_FILE_CHUNK_SIZE).IsTrue($"0 < size < {Constraints.MAX_FILE_CHUNK_SIZE}");
+
+      var vol = getVolume(path);
+      var result = await vol.DownloadFileChunkAsync(path.Address, offset, size).ConfigureAwait(false);
+      return result;
     }
 
-    public Task<bool> RenameItem(EntityId path, EntityId newPath)
+    public async Task<bool> RenameItemAsync(EntityId path, string newPath)
     {
-      throw new NotImplementedException();
+      newPath.NonBlankMax(Constraints.MAX_PATH_TOTAL_LEN, nameof(newPath));
+      var vol = getVolume(path);
+      var result = await vol.RenameItemAsync(path.Address, newPath).ConfigureAwait(false);
+      return result;
     }
 
-    public Task<ItemInfo> UploadFileChunk(EntityId path, long offset, byte[] content)
+    public async Task<ItemInfo> UploadFileChunkAsync(EntityId path, long offset, byte[] content)
     {
-      throw new NotImplementedException();
+      (offset >= 0).IsTrue("offset >= 0");
+      content.NonNull(nameof(content));
+      (content.Length < Constraints.MAX_FILE_CHUNK_SIZE).IsTrue($"contet.len < {Constraints.MAX_FILE_CHUNK_SIZE}");
+
+      var vol = getVolume(path);
+      var result = await vol.UploadFileChunkAsync(path.Address, offset, content).ConfigureAwait(false);
+      return result;
     }
   }
 }

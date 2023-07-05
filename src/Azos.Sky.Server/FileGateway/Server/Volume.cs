@@ -36,5 +36,17 @@ namespace Azos.Sky.FileGateway.Server
     public Atom Name => m_Name;
 
     public override string ComponentLogTopic => ComponentDirector.ComponentLogTopic;
+
+
+    public abstract Task<IEnumerable<ItemInfo>> GetItemListAsync(int recurseLevels);
+    public abstract Task<ItemInfo> GetItemInfoAsync(string volumePath);
+    public abstract Task<ItemInfo> CreateDirectoryAsync(string volumePath);
+    public abstract Task<ItemInfo> CreateFileAsync(string volumePath, CreateMode mode, long offset, byte[] content);
+    public abstract Task<bool> DeleteItemAsync(string volumePath);
+    public abstract Task<(byte[] data, bool eof)> DownloadFileChunkAsync(EntityId path, long offset, int size);
+    public abstract Task<bool> RenameItemAsync(EntityId path, string newPath);
+    public abstract Task<ItemInfo> UploadFileChunkAsync(EntityId path, long offset, byte[] content);
+
+
   }
 }

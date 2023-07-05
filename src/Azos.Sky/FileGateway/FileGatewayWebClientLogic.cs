@@ -139,7 +139,7 @@ namespace Azos.Sky.FileGateway
       return result;
     }
 
-    public async Task<ItemInfo> CreateDirectory(EntityId path)
+    public async Task<ItemInfo> CreateDirectoryAsync(EntityId path)
     {
       path = Constraints.SanitizePath(path, false);
 
@@ -153,11 +153,12 @@ namespace Azos.Sky.FileGateway
       return result;
     }
 
-    public async Task<ItemInfo> CreateFile(EntityId path, CreateMode mode, long offset, byte[] content)
+    public async Task<ItemInfo> CreateFileAsync(EntityId path, CreateMode mode, long offset, byte[] content)
     {
       path = Constraints.SanitizePath(path, true);
-      (offset >= 0).IsTrue("Offset >= 0");
+      (offset >= 0).IsTrue("offset >= 0");
       content.NonNull(nameof(content));
+      (content.Length < Constraints.MAX_FILE_CHUNK_SIZE).IsTrue($"contet.len < {Constraints.MAX_FILE_CHUNK_SIZE}");
 
       var response = await m_Server.Call(GatewayServiceAddress,
                                           nameof(IFileGatewayLogic),
@@ -178,11 +179,12 @@ namespace Azos.Sky.FileGateway
       return result;
     }
 
-    public async Task<ItemInfo> UploadFileChunk(EntityId path, long offset, byte[] content)
+    public async Task<ItemInfo> UploadFileChunkAsync(EntityId path, long offset, byte[] content)
     {
       path = Constraints.SanitizePath(path, true);
-      (offset >= 0).IsTrue("Offset >= 0");
+      (offset >= 0).IsTrue("offset >= 0");
       content.NonNull(nameof(content));
+      (content.Length < Constraints.MAX_FILE_CHUNK_SIZE).IsTrue($"contet.len < {Constraints.MAX_FILE_CHUNK_SIZE}");
 
       var response = await m_Server.Call(GatewayServiceAddress,
                                           nameof(IFileGatewayLogic),
@@ -202,7 +204,7 @@ namespace Azos.Sky.FileGateway
       return result;
     }
 
-    public async Task<(byte[] data, bool eof)> DownloadFileChunk(EntityId path, long offset = 0, int size = 0)
+    public async Task<(byte[] data, bool eof)> DownloadFileChunkAsync(EntityId path, long offset = 0, int size = 0)
     {
       path = Constraints.SanitizePath(path, true);
       (offset >= 0).IsTrue("offset >= 0");
@@ -224,7 +226,7 @@ namespace Azos.Sky.FileGateway
       return (data, eof);
     }
 
-    public async Task<bool> DeleteItem(EntityId path)
+    public async Task<bool> DeleteItemAsync(EntityId path)
     {
       path = Constraints.SanitizePath(path, false);
       var uri = new UriQueryBuilder("file")
@@ -240,7 +242,7 @@ namespace Azos.Sky.FileGateway
       return deleted;
     }
 
-    public async Task<bool> RenameItem(EntityId path, EntityId newPath)
+    public async Task<bool> RenameItemAsync(EntityId path, string newPath)
     {
       path = Constraints.SanitizePath(path, false);
       newPath = Constraints.SanitizePath(newPath, false);

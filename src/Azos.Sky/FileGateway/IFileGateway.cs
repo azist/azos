@@ -43,36 +43,36 @@ namespace Azos.Sky.FileGateway
     /// <summary>
     /// Create a directory. If it exists, then does nothing
     /// </summary>
-    Task<ItemInfo> CreateDirectory(EntityId path);
+    Task<ItemInfo> CreateDirectoryAsync(EntityId path);
 
     /// <summary>
     /// Creates a file and sets its content chunk at the specified offset
     /// </summary>
-    Task<ItemInfo> CreateFile(EntityId path, CreateMode mode, long offset, byte[] content);
+    Task<ItemInfo> CreateFileAsync(EntityId path, CreateMode mode, long offset, byte[] content);
 
     /// <summary>
     /// Uploads file chunk at the specified offset. Path must exist and be a file (not a directory)
     /// </summary>
-    Task<ItemInfo> UploadFileChunk(EntityId path, long offset, byte[] content);
+    Task<ItemInfo> UploadFileChunkAsync(EntityId path, long offset, byte[] content);
 
     /// <summary>
     /// Downloads file chunk at the specified offset of specified size. Path must exist and be a file (not a directory).
     /// The system may return less than requested in `size`, in which case the caller assumes EOF condition (eof will be true).
     /// If size is less or equal to zero, then the system sends as much as it can, returning `eof` bool value appropriately
     /// </summary>
-    Task<(byte[] data, bool eof)> DownloadFileChunk(EntityId path, long offset = 0, int size = 0);
+    Task<(byte[] data, bool eof)> DownloadFileChunkAsync(EntityId path, long offset = 0, int size = 0);
 
     /// <summary>
     /// Deletes an item by path
     /// </summary>
-    Task<bool> DeleteItem(EntityId path);
+    Task<bool> DeleteItemAsync(EntityId path);
 
     /// <summary>
     ///Renames item in-place, this is an atomic operation which can be used for "remote transactions"
     ///when large file needs to be uploaded in chunks, you can then rename the file to a name which the
     ///other party cal "see at once" after the upload has been finalized
     /// </summary>
-    Task<bool> RenameItem(EntityId path, EntityId newPath);
+    Task<bool> RenameItemAsync(EntityId path, string newPath);
   }
 
   /// <summary>

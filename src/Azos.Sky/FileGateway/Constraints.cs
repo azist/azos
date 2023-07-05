@@ -19,6 +19,8 @@ namespace Azos.Sky.FileGateway
     public const int MAX_PATH_SEG_LEN = 24;
     public const int MAX_PATH_TOTAL_LEN = 150;
 
+    public const int MAX_FILE_CHUNK_SIZE = 8 * 1024 * 1024;
+
     public static EntityId SanitizePath(EntityId path, bool isFile)
     {
       path.HasRequiredValue(nameof(path));
