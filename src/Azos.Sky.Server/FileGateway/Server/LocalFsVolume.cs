@@ -39,6 +39,9 @@ namespace Azos.Sky.FileGateway.Server
     private string getPhysicalPath(string volumePath)
     {
       volumePath.NonBlankMax(Constraints.MAX_PATH_TOTAL_LEN, nameof(volumePath));
+
+      (Path.IsPathFullyQualified(volumePath) || Path.IsPathRooted(volumePath)).IsTrue("Relative path");
+
       var fullPath = Path.Join(m_MountPath, volumePath);
       return fullPath;
     }
