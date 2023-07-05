@@ -38,7 +38,7 @@ namespace Azos.Sky.FileGateway
     /// <summary>
     /// Gets item info for a specific item or null if it does not exist
     /// </summary>
-    Task<IEnumerable<ItemInfo>> GetItemInfoAsync(EntityId path);
+    Task<ItemInfo> GetItemInfoAsync(EntityId path);
 
     /// <summary>
     /// Create a directory. If it exists, then does nothing
