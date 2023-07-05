@@ -31,7 +31,7 @@ namespace Azos.Sky.FileGateway.Server
       m_Name.HasRequiredValue(nameof(Name));
     }
 
-    private Atom m_Name;
+    [Config] private Atom m_Name;
 
     public Atom Name => m_Name;
 

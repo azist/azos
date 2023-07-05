@@ -53,6 +53,7 @@ namespace Azos.Sky.FileGateway.Server
       was.ForEach(one => this.DontLeak(() => one.Dispose(), errorFrom: nameof(cleanup)));
     }
 
+    [Config]
     private Atom m_Name;
     private AtomRegistry<Volume> m_Volumes;
 
