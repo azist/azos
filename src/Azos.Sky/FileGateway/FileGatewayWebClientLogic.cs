@@ -119,7 +119,7 @@ namespace Azos.Sky.FileGateway
       return result;
     }
 
-    public async Task<IEnumerable<ItemInfo>> GetItemInfoAsync(EntityId path)
+    public async Task<ItemInfo> GetItemInfoAsync(EntityId path)
     {
       path = Constraints.SanitizePath(path, false);
       var uri = new UriQueryBuilder("item-info")
@@ -131,10 +131,7 @@ namespace Azos.Sky.FileGateway
                                           new ShardKey(DateTime.UtcNow),
                                           async (http, ct) => await http.Client.GetJsonMapAsync(uri).ConfigureAwait(false));
 
-      var result = response.UnwrapPayloadArray()
-                           .OfType<JsonDataMap>()
-                           .Select(imap => JsonReader.ToDoc<ItemInfo>(imap))
-                           .ToArray();
+      var result = JsonReader.ToDoc<ItemInfo>(response.UnwrapPayloadMap());
 
       return result;
     }
