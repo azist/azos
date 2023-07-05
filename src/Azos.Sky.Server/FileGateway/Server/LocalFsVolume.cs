@@ -12,8 +12,6 @@ using System.IO;
 
 using Azos.Conf;
 using Azos.Data;
-using Azos.Serialization.JSON;
-using Azos.Web;
 
 namespace Azos.Sky.FileGateway.Server
 {
@@ -29,7 +27,7 @@ namespace Azos.Sky.FileGateway.Server
     }
 
 
-    private string m_MountPath;
+    [Config] private string m_MountPath;
 
 
     /// <summary>
@@ -88,7 +86,10 @@ namespace Azos.Sky.FileGateway.Server
 
     public override Task<ItemInfo> CreateDirectoryAsync(string volumePath)
     {
-      throw new NotImplementedException();
+      var path = getPhysicalPath(volumePath);
+      Directory.CreateDirectory(path);
+      var result = getItemInfo(path);
+      return Task.FromResult(result);
     }
 
     public override Task<ItemInfo> CreateFileAsync(string volumePath, CreateMode mode, long offset, byte[] content)
