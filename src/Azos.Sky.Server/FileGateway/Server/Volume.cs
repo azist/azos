@@ -43,9 +43,9 @@ namespace Azos.Sky.FileGateway.Server
     public abstract Task<ItemInfo> CreateDirectoryAsync(string volumePath);
     public abstract Task<ItemInfo> CreateFileAsync(string volumePath, CreateMode mode, long offset, byte[] content);
     public abstract Task<bool> DeleteItemAsync(string volumePath);
-    public abstract Task<(byte[] data, bool eof)> DownloadFileChunkAsync(EntityId path, long offset, int size);
-    public abstract Task<bool> RenameItemAsync(EntityId path, string newPath);
-    public abstract Task<ItemInfo> UploadFileChunkAsync(EntityId path, long offset, byte[] content);
+    public abstract Task<(byte[] data, bool eof)> DownloadFileChunkAsync(string volumePath, long offset, int size);
+    public abstract Task<bool> RenameItemAsync(string volumePath, string newVolumePath);
+    public abstract Task<ItemInfo> UploadFileChunkAsync(string volumePath, long offset, byte[] content);
 
 
   }

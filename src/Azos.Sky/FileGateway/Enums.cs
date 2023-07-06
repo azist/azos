@@ -24,7 +24,7 @@ namespace Azos.Sky.FileGateway
     /// <summary>
     /// If file does not exist, it gets created, if it exists, it is kept as is and written-to at the specified chunk preserving other chunks
     /// </summary>
-    Update,
+    Save,
   }
 
   /// <summary>
