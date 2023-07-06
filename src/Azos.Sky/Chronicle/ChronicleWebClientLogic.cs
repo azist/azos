@@ -78,12 +78,14 @@ namespace Azos.Sky.Chronicle
       return base.DoApplicationAfterInit();
     }
 
+    private int m_CallClock;
+    private ShardKey nextShard() =>  new ShardKey((uint)System.Threading.Interlocked.Increment(ref m_CallClock));
 
     public async Task WriteAsync(LogBatch data)
     {
       var response = await m_Server.Call(LogServiceAddress,
                                           nameof(ILogChronicle),
-                                          new ShardKey(DateTime.UtcNow),
+                                          nextShard(),
                                           (http, ct) => http.Client.PostAndGetJsonMapAsync("batch", new {batch = data})).ConfigureAwait(false);
       response.UnwrapChangeResult();
     }
@@ -237,7 +239,7 @@ namespace Azos.Sky.Chronicle
     {
       var response = await m_Server.Call(InstrumentationServiceAddress,
                                          nameof(IInstrumentationChronicle),
-                                         new ShardKey(DateTime.UtcNow),
+                                         nextShard(),
                                          (http, ct) => http.Client.PostAndGetJsonMapAsync("batch", new {batch = data})).ConfigureAwait(false);
       response.UnwrapChangeResult();
     }

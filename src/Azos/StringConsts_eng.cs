@@ -47,6 +47,9 @@ namespace Azos
 
         public const string ARGUMENT_ERROR = "Argument error: ";
 
+        public const string SELECT_EITHER_MATCH_NOT_HANDLED_ERROR = "Enumerable value of type `{0}` is not handled by any of cases of `SelectEitherOf()` projection";
+
+
         public const string APP_CONTAINER_NESTING_ERROR =
 @"Catastrophic error trying to nest app container of type '{0}' over an existing app '{1}' which does not have AllowNesting flag set.
  Revise app container allocation logic which is usually at the app entry point.

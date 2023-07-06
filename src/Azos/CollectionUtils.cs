@@ -332,6 +332,95 @@ namespace Azos
     }
 
     /// <summary>
+    /// Similarly to select, projects an item of TSource as either T1 or T2 subtypes into enumerable of TResult.
+    /// When a value can not be matched by either, then `nonMatch` is called. If `nonMatch` is null, throws <see cref="AzosException"/>
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The method is handy at places where client calls the server and the server may return the content using different serialization
+    /// schemes, for example `json` vs `json+thints` vs `vnd.azos.bixon`; consequently
+    /// a data array may be filled with either strings, or a specific type object instances (such as GDIDs or Atoms) if serializers preserves type identity.
+    /// It is therefore important to be able to read the data making whatever conversions necessary ONLY WHEN needed.
+    /// </para>
+    /// <para>
+    /// Example:
+    /// <code>
+    ///  //`json` returns every atom value as a string, but `json+thints` returns atoms already
+    ///  var result = response.UnwrapPayloadArray()
+    ///                       .SelectEitherOf((string str) => Atom.Encode(str), (Atom atm) => atm);
+    /// </code>
+    /// </para>
+    /// </remarks>
+    public static IEnumerable<TResult> SelectEitherOf<TSource, T1, T2, TResult>(this IEnumerable<TSource> source, Func<T1, TResult> case1, Func<T2, TResult> case2, Func<TSource, TResult> nonMatch = null)
+    {
+      if (source == null) yield break;
+      case1.NonNull(nameof(case1));
+      case2.NonNull(nameof(case2));
+
+      foreach (var one in source)
+      {
+        if (one is T1 v1)      yield return case1(v1);
+        else if (one is T2 v2) yield return case2(v2);
+        else
+        {
+          if (nonMatch == null)
+          {
+            throw new AzosException(StringConsts.SELECT_EITHER_MATCH_NOT_HANDLED_ERROR.Args(one == null ? "<null>" : one.GetType().DisplayNameWithExpandedGenericArgs()));
+          }
+
+          yield return nonMatch(one);
+        }
+      }
+    }
+
+    /// <summary>
+    /// Similarly to select, projects an item of TSource as either T1 or T2 subtypes into enumerable of TResult.
+    /// When a value can not be matched by either, then `nonMatch` is called. If `nonMatch` is null, throws <see cref="AzosException"/>
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The method is handy at places where client calls the server and the server may return the content using different serialization
+    /// schemes, for example `json` vs `json+thints` vs `vnd.azos.bixon`; consequently
+    /// a data array may be filled with either strings, or a specific type object instances (such as GDIDs or Atoms) if serializers preserves type identity.
+    /// It is therefore important to be able to read the data making whatever conversions necessary ONLY WHEN needed.
+    /// </para>
+    /// <para>
+    /// Example:
+    /// <code>
+    ///  //`json` returns every atom value as a string, but `json+thints` returns atoms already
+    ///  var result = response.UnwrapPayloadArray()
+    ///                       .SelectEitherOf((string str) => Atom.Encode(str), (Atom atm) => atm);
+    /// </code>
+    /// </para>
+    /// </remarks>
+    public static IEnumerable<TResult> SelectEitherOf<TSource, T1, T2, T3, TResult>(this IEnumerable<TSource> source, Func<T1, TResult> case1, Func<T2, TResult> case2, Func<T3, TResult> case3, Func<TSource, TResult> nonMatch = null)
+    {
+      if (source == null) yield break;
+      case1.NonNull(nameof(case1));
+      case2.NonNull(nameof(case2));
+      case3.NonNull(nameof(case3));
+
+      foreach (var one in source)
+      {
+        if (one is T1 v1) yield return case1(v1);
+        else if (one is T2 v2) yield return case2(v2);
+        else if (one is T3 v3) yield return case3(v3);
+        else
+        {
+          if (nonMatch == null)
+          {
+            throw new AzosException(StringConsts.SELECT_EITHER_MATCH_NOT_HANDLED_ERROR.Args(one == null ? "<null>" : one.GetType().DisplayNameWithExpandedGenericArgs()));
+          }
+
+          yield return nonMatch(one);
+        }
+      }
+    }
+
+
+
+
+    /// <summary>
     /// Changes key value by delta. If value does not exist then creates key with the specified value
     /// </summary>
     public static void Increase<TKey>(this IDictionary<TKey, int> dict, TKey key, int by = 1)

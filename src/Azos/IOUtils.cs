@@ -1562,5 +1562,47 @@ namespace Azos
       return result.ToString();
     }
 
+    /// <summary>
+    /// Returns true if the path segment can be used on *Nix or Windows systems
+    /// </summary>
+    public static bool IsValidWindowsOrNixPathSegment(this string seg)
+    {
+      if (seg.IsNullOrWhiteSpace()) return false;
+
+      //Windows does not allow trailing dot
+      if (seg.EndsWith('.')) return false;
+
+      for(var i=0; i<seg.Length; i++)
+      {
+        var one = seg[i];
+        if (one < 0x20) return false;//Windows control characters
+        if (RESERVED_FILESYSTEM_CHARS.Contains(one)) return false;
+      }
+
+      return true;
+    }
+
+    private static readonly HashSet<char> RESERVED_FILESYSTEM_CHARS = new HashSet<char>()
+    {
+      '<', '>', ':', '"', '/', '\\', '\'', '|', '?', '*'
+    };
+
+    private static readonly HashSet<string> RESERVED_FILE_NAMES = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    {
+      "CON", "PRN", "AUX", "NUL",
+      "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
+      "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9",
+    };
+
+    public static bool IsValidWindowsOrNixFileName(this string seg)
+    {
+      if (!IsValidWindowsOrNixPathSegment(seg)) return false;
+      if (RESERVED_FILE_NAMES.Contains(seg))  return false;
+
+      var fn = Path.GetFileNameWithoutExtension(seg);
+      if (RESERVED_FILE_NAMES.Contains(fn)) return false;
+      return true;
+    }
+
   }
 }

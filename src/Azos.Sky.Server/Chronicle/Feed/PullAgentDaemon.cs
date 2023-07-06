@@ -12,14 +12,10 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Azos.Apps;
-using Azos.Apps.Injection;
 using Azos.Client;
 using Azos.Collections;
 using Azos.Conf;
-using Azos.Data;
-using Azos.Data.Idgen;
 using Azos.Log;
-using Azos.Serialization.JSON;
 
 namespace Azos.Sky.Chronicle.Feed
 {
@@ -33,6 +29,7 @@ namespace Azos.Sky.Chronicle.Feed
     private const int RUN_GRANULARITY_MS = 500;
     private const int CHECKPOINT_WRITE_INTERVAL_MS = 25_000;
     private const int SOURCE_REPOLL_INTERVAL_MS = 30_000;
+    private const int SOURCE_POLL_BURST_CALL_COUNT = 8;
 
     public PullAgentDaemon(IApplication application) : base(application) { }
     public PullAgentDaemon(IModule parent) : base(parent) { }
@@ -117,7 +114,7 @@ namespace Azos.Sky.Chronicle.Feed
       m_Sources.All(one => m_Sinks[one.SinkName] != null).IsTrue("All sources pointing to existing sinks");
       m_Sources.All(one => m_UplinkService.Endpoints.Any(ep => ep.RemoteAddress.EqualsOrdIgnoreCase(one.UplinkAddress))).IsTrue("All sources pointing to registered uplink addresses");
 
-      readCheckpoints();
+      initSources();
 
       base.DoStart();
       scheduleNextRun();
@@ -170,14 +167,25 @@ namespace Azos.Sky.Chronicle.Feed
         var sink = m_Sinks[source.SinkName];
         if (sink == null) return;//safeguard
 
-        if (!source.LastFetchHadData &&
-            (utcNow - source.LastFetchUtc).TotalMilliseconds < SOURCE_REPOLL_INTERVAL_MS.ChangeByRndPct(0.5f)) return;//do not fetch yet
+        if (source.LastFetchHadData) //In Burst mode
+        {
+          if (source.ConsecutivePullCount > SOURCE_POLL_BURST_CALL_COUNT)
+          {
+            if ((utcNow - source.LastFetchUtc).TotalMilliseconds < SOURCE_REPOLL_INTERVAL_MS.ChangeByRndPct(0.5f)) return;//do not fetch after long call burst
+            source.ResetConsecutivePullCount();
+          }
+        }
+        else
+        {
+          if ((utcNow - source.LastFetchUtc).TotalMilliseconds < SOURCE_REPOLL_INTERVAL_MS.ChangeByRndPct(0.5f)) return;
+          source.ResetConsecutivePullCount();
+        }
 
         var batch = await source.PullAsync(m_UplinkService).ConfigureAwait(false);
         if (batch.Length == 0) return;
 
         await sink.WriteAsync(batch).ConfigureAwait(false);
-        source.SetCheckpointUtc(batch.Max(one => one.UTCTimeStamp));
+        source.SetCheckpointUtc(batch);
       }
       catch(Exception error)
       {
@@ -233,7 +241,7 @@ namespace Azos.Sky.Chronicle.Feed
       m_LastCheckpointWriteUtc = utcNow;
     }
 
-    private void readCheckpoints()
+    private void initSources()
     {
       var fn = getFullCheckpointFilePath();
       if (!File.Exists(fn)) return;
@@ -246,10 +254,10 @@ namespace Azos.Sky.Chronicle.Feed
         var source = m_Sources[sname];
         if (source==null)
         {
-          WriteLog(MessageType.Warning, nameof(readCheckpoints), "Checkpoint references source `{0}` which is not in the list of registered pull sources".Args(sname));
+          WriteLog(MessageType.Warning, nameof(initSources), "Checkpoint references source `{0}` which is not in the list of registered pull sources".Args(sname));
           continue;
         }
-        source.SetCheckpointUtc(nsrc.Of("utc-checkpoint-nix-ms").ValueAsLong().FromMillisecondsSinceUnixEpochStart());
+        source.InitPullStateAsOfCheckpointUtc(nsrc.Of("utc-checkpoint-nix-ms").ValueAsLong().FromMillisecondsSinceUnixEpochStart());
       }
     }
   }
