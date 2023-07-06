@@ -111,7 +111,7 @@ namespace Azos.Apps
       CleanupComponent(ref m_Instrumentation, "Instrumentation"); //6.  instrumentation
       CleanupComponent(ref m_EventTimer, "EventTimer");           //5.  event scheduler/bg jobs
       CleanupComponent(ref m_SecurityManager, "Secman");          //4.  security context
-      CleanupComponent(ref m_TimeSource, "TimeSource");          //3.  start accurate time asap
+      CleanupComponent(ref m_TimeSource, "TimeSource");           //3.  start accurate time asap
       CleanupComponent(ref m_Module, "Module");                   //2.  other services may use module references
       CleanupComponent(ref m_Log, "Log");                         //1.  must be the last one so others can log
     }
