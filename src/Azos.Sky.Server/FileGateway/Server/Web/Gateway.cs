@@ -81,5 +81,89 @@ namespace Azos.Sky.FileGateway.Server.Web
     [ActionOnGet(Name = "systems"), AcceptsJson]
     public async Task<object> GetItemInfo(EntityId path) => GetLogicResult(await m_Logic.GetItemInfoAsync(path).ConfigureAwait(false));
 
+
+    [ApiEndpointDoc(Title = "Create Directory",
+                    Uri = "directory",
+                    Description = "Creates directory `{@ItemInfo}`",
+                    Methods = new[] { "POST = {path: EntityId}" },
+                    RequestHeaders = new[] { API_DOC_HDR_ACCEPT_JSON },
+                    ResponseHeaders = new[] { API_DOC_HDR_NO_CACHE },
+                    RequestBody = "JSON map {path: EntityId}`",
+                    ResponseContent = "JSON for created directory `{@ItemInfo}`",
+                    TypeSchemas = new[] { typeof(EntityId), typeof(ItemInfo) })]
+    [ActionOnPost(Name = "directory"), AcceptsJson]
+    public async Task<object>CreateDirectory(EntityId path, bool recurse = false)
+      => GetLogicResult(await m_Logic.CreateDirectoryAsync(path).ConfigureAwait(false));
+
+    [ApiEndpointDoc(Title = "Create File",
+                  Uri = "file",
+                  Description = "Creates file `{@ItemInfo}`",
+                  Methods = new[] { "POST = {path: EntityId, mode: CreateMode, offset: long, content: byte[]}" },
+                  RequestHeaders = new[] { API_DOC_HDR_ACCEPT_JSON },
+                  ResponseHeaders = new[] { API_DOC_HDR_NO_CACHE },
+                  RequestBody = "JSON map {path: EntityId, mode: CreateMode, offset: long, content: byte[]}`",
+                  ResponseContent = "JSON for created file `{@ItemInfo}`",
+                  TypeSchemas = new[] { typeof(EntityId), typeof(ItemInfo) })]
+    [ActionOnPost(Name = "file"), AcceptsJson]
+    public async Task<object> CreateFile(EntityId path, CreateMode mode, long offset, byte[] content)
+      => GetLogicResult(await m_Logic.CreateFileAsync(path, mode, offset, content).ConfigureAwait(false));
+
+    [ApiEndpointDoc(Title = "Upload File Chunk",
+                  Uri = "file",
+                  Description = "Upload file chunk `{@ItemInfo}`",
+                  Methods = new[] { "PUT = {path: EntityId, offset: long, content: byte[]}" },
+                  RequestHeaders = new[] { API_DOC_HDR_ACCEPT_JSON },
+                  ResponseHeaders = new[] { API_DOC_HDR_NO_CACHE },
+                  RequestBody = "JSON map {path: EntityId, offset: long, content: byte[]}`",
+                  ResponseContent = "JSON for created file `{@ItemInfo}`",
+                  TypeSchemas = new[] { typeof(EntityId), typeof(ItemInfo) })]
+    [ActionOnPut(Name = "file"), AcceptsJson]
+    public async Task<object> UploadChunk(EntityId path, long offset, byte[] content)
+      => GetLogicResult(await m_Logic.UploadFileChunkAsync(path, offset, content).ConfigureAwait(false));
+
+
+    [ApiEndpointDoc(Title = "Download file chunk",
+                    Uri = "file",
+                    Description = "Gets file chunk for the specified path",
+                    Methods = new[] { "GET = gets file chunk" },
+                    RequestQueryParameters = new[] { "path = EntityId path", "offset = Long offset", "size = int size" },
+                    RequestHeaders = new[] { API_DOC_HDR_ACCEPT_JSON },
+                    ResponseHeaders = new[] { API_DOC_HDR_NO_CACHE },
+                    ResponseContent = "JSON map {data: byte[], eof: bool}",
+                    TypeSchemas = new[] { typeof(EntityId), typeof(ItemInfo) })]
+    [ActionOnGet(Name = "files"), AcceptsJson]
+    public async Task<object> DownloadFileChunk(EntityId path, long offset, int size)
+    {
+      var (data, eof) = await m_Logic.DownloadFileChunkAsync(path, offset, size).ConfigureAwait(false);
+
+     return GetLogicResult(new{ data, eof });
+    }
+
+    [ApiEndpointDoc(Title = "Delete Item",
+                  Uri = "item",
+                  Description = "Delete item",
+                  Methods = new[] { "DELETE = {path: EntityId}" },
+                  RequestHeaders = new[] { API_DOC_HDR_ACCEPT_JSON },
+                  ResponseHeaders = new[] { API_DOC_HDR_NO_CACHE },
+                  RequestBody = "JSON map {path: EntityId}`",
+                  ResponseContent = "JSON map {deleted: bool}",
+                  TypeSchemas = new[] { typeof(EntityId) })]
+    [ActionOnDelete(Name = "item"), AcceptsJson]
+    public async Task<object> Delete(EntityId path)
+      => GetLogicResult(new {deleted = await m_Logic.DeleteItemAsync(path).ConfigureAwait(false)});
+
+    [ApiEndpointDoc(Title = "Rename Item",
+                  Uri = "item-name",
+                  Description = "Rename item",
+                  Methods = new[] { "POST = {path: EntityId, newPath: string}" },
+                  RequestHeaders = new[] { API_DOC_HDR_ACCEPT_JSON },
+                  ResponseHeaders = new[] { API_DOC_HDR_NO_CACHE },
+                  RequestBody = "JSON map {path: EntityId, newPath: string}`",
+                  ResponseContent = "JSON map {renamed: bool}",
+                  TypeSchemas = new[] { typeof(EntityId) })]
+    [ActionOnDelete(Name = "item"), AcceptsJson]
+    public async Task<object> Rename(EntityId path, string newPath)
+      => GetLogicResult(new { renamed = await m_Logic.RenameItemAsync(path, newPath).ConfigureAwait(false) });
+
   }
 }

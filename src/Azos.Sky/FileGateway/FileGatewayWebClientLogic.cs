@@ -226,7 +226,7 @@ namespace Azos.Sky.FileGateway
     public async Task<bool> DeleteItemAsync(EntityId path)
     {
       path = Constraints.SanitizePath(path, false);
-      var uri = new UriQueryBuilder("file")
+      var uri = new UriQueryBuilder("item")
                .Add("path", path);
 
       var response = await m_Server.Call(GatewayServiceAddress,
