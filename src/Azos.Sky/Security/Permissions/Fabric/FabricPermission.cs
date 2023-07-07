@@ -31,7 +31,7 @@ namespace Azos.Security.Fabric
   }
 
   /// <summary>
-  /// Controls whether users can access chronicle functionality
+  /// Controls whether users can access Fabric functionality
   /// </summary>
   /// <example>
   /// Sample ACL:

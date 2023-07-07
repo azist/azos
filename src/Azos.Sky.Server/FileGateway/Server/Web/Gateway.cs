@@ -9,11 +9,12 @@ using System.Threading.Tasks;
 
 using Azos.Security.Fabric;
 using Azos.Wave.Mvc;
+using Azos.Security.FileGateway;
 
 namespace Azos.Sky.FileGateway.Server.Web
 {
   [NoCache]
-  [FabricPermission]
+  [FileGatewayPermission]
   [ApiControllerDoc(
     BaseUri = "/file/gateway",
     Connection = "default/keep alive",
@@ -22,7 +23,7 @@ namespace Azos.Sky.FileGateway.Server.Web
     Description = "Provides REST API for working with remote files",
     TypeSchemas = new[]{typeof(FabricPermission) }
   )]
-  [Release(ReleaseType.Preview, 2023, 06, 29, "Initial Release", Description = "First release of API")]
+  [Release(ReleaseType.Preview, 2023, 07, 07, "Initial Release", Description = "First release of API")]
   public class Gateway : ApiProtocolController
   {
 
