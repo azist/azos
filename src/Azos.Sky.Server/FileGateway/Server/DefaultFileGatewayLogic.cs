@@ -32,9 +32,10 @@ namespace Azos.Sky.FileGateway.Server
 
     private void cleanup()
     {
-      var was = m_Systems.ToArray();
+      var was = m_Systems?.ToArray();
       m_Systems = new AtomRegistry<GatewaySystem>();
-      was.ForEach(one => this.DontLeak(() => one.Dispose(), errorFrom: nameof(cleanup)));
+
+      if (was != null) was.ForEach(one => this.DontLeak(() => one.Dispose(), errorFrom: nameof(cleanup)));
     }
 
     private AtomRegistry<GatewaySystem> m_Systems;

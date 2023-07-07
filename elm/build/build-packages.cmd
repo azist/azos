@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.5.0.10
-set HEADLINE=#883 FileGateway 1
+set VER=3.5.1.1
+set HEADLINE=#883 FileGateway 3
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
