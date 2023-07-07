@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.5.0.9
-set HEADLINE=#884 Xml encoding FileGateway WIP
+set VER=3.5.0.10
+set HEADLINE=#883 FileGateway 1
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
