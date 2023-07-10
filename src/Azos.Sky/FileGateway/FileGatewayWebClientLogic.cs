@@ -106,10 +106,15 @@ namespace Azos.Sky.FileGateway
     {
       path = Constraints.SanitizePath(path, false);
 
+      var uri = new UriQueryBuilder("item-list")
+               .Add("path", path.AsString)
+               .Add("recurse", recurse)
+               .ToString();
+
       var response = await m_Server.Call(GatewayServiceAddress,
                                           nameof(IFileGatewayLogic),
                                           new ShardKey(DateTime.UtcNow),
-                                          async (http, ct) => await http.Client.PostAndGetJsonMapAsync("item-list", new{ path = path, recurse = recurse}).ConfigureAwait(false));
+                                          async (http, ct) => await http.Client.GetJsonMapAsync(uri).ConfigureAwait(false));
 
       var result = response.UnwrapPayloadArray()
                            .OfType<JsonDataMap>()
@@ -122,7 +127,7 @@ namespace Azos.Sky.FileGateway
     public async Task<ItemInfo> GetItemInfoAsync(EntityId path)
     {
       path = Constraints.SanitizePath(path, false);
-      var uri = new UriQueryBuilder("item-info")
+      var uri = new UriQueryBuilder("item")
                .Add("path", path)
                .ToString();
 
@@ -226,7 +231,7 @@ namespace Azos.Sky.FileGateway
     public async Task<bool> DeleteItemAsync(EntityId path)
     {
       path = Constraints.SanitizePath(path, false);
-      var uri = new UriQueryBuilder("file")
+      var uri = new UriQueryBuilder("item")
                .Add("path", path);
 
       var response = await m_Server.Call(GatewayServiceAddress,

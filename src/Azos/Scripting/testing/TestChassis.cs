@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.IO;
 using System.Runtime.CompilerServices;
 
 using Azos.Apps;
@@ -47,6 +48,27 @@ namespace Azos.Scripting
     /// Return true if exception is already handled and should not be reported to script runner
     /// </summary>
     protected virtual bool DoEpilogue(Runner runner, FID id, Exception error) => false;
+
+    /// <summary>
+    /// Override to return a different SKY home path root, by default this gets assigned from `$SKY_HOME` env variable.
+    /// The getter does not ensure that this directory exists
+    /// </summary>
+    public virtual string SkyHomePath => Environment.GetEnvironmentVariable(CoreConsts.SKY_HOME);
+
+    /// <summary>
+    /// Override to return a different home path root, by default this gets assigned as `SkyHomePath.get()+'/testing'`.
+    /// This property ensures that this root directory exists by creating it on get.
+    /// This property is not designed to be accessed many times (1000s) in tight loops. Callers must cache the value instead
+    /// </summary>
+    public virtual string TestingHomePath
+    {
+      get
+      {
+        var path = Path.Combine(SkyHomePath, CoreConsts.SKY_TESTING_HOME_DIR);
+        var di = Directory.CreateDirectory(path);
+        return di.FullName;
+      }
+    }
 
 
     /// <summary>

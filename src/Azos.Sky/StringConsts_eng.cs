@@ -51,6 +51,9 @@ namespace Azos.Sky
     public const string PERMISSION_DESCRIPTION_FabricPermission =
        "Controls whether users can manage fabric of fibers";
 
+    public const string PERMISSION_DESCRIPTION_FileGatewayPermission =
+       "Controls whether users can use file gateway";
+
     public const string PERMISSION_DESCRIPTION_EventProducer =
        "Controls whether users can produce event hub events";
 

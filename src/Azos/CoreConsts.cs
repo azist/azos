@@ -18,6 +18,12 @@ namespace Azos
     /// </summary>
     public const string SKY_HOME = "SKY_HOME";
 
+    /// <summary>
+    /// Default name of directory which is used testing data output
+    /// </summary>
+    public const string SKY_TESTING_HOME_DIR = "testing";
+
+
     public const string NULL_STRING = "<null>";
 
     public const int ABS_HASH_MASK = 0x7FFFFFFF;

@@ -67,21 +67,39 @@ namespace Azos.Conf
     /// <summary>
     /// Saves configuration to a file with optional link to XSL file
     /// </summary>
-    public void SaveAs(string filename, string xsl)
+    public void SaveAs(string filename, string xsl, string encoding = null)
     {
       if (string.IsNullOrEmpty(filename))
         throw new ConfigException(StringConsts.CONFIGURATION_FILE_UNKNOWN_ERROR);
 
-      var doc = buildXmlDoc(xsl);
+      var doc = buildXmlDoc(xsl, encoding);
       doc.Save(filename);
+    }
+
+    /// <summary>
+    /// Saves configuration to a TextWriter with optional link to XSL file
+    /// </summary>
+    public void SaveAs(TextWriter wri, string xsl = null, string encoding = null)
+    {
+      var doc = buildXmlDoc(xsl, encoding);
+      doc.Save(wri.NonDisposed(nameof(wri)));
+    }
+
+    /// <summary>
+    /// Saves configuration to a TextWriter with optional link to XSL file
+    /// </summary>
+    public void SaveAs(XmlWriter wri, string xsl = null, string encoding = null)
+    {
+      var doc = buildXmlDoc(xsl, encoding);
+      doc.Save(wri.NonDisposed(nameof(wri)));
     }
 
     /// <summary>
     /// Saves XML configuration with optional link to XSL file, into string and returns it
     /// </summary>
-    public string SaveToString(string xsl = null)
+    public string SaveToString(string xsl = null, string encoding = null)
     {
-      var doc = buildXmlDoc(xsl);
+      var doc = buildXmlDoc(xsl, encoding);
       using (var writer = new StringWriter())
       {
         doc.Save(writer);

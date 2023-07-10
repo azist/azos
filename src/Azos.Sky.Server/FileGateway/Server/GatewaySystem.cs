@@ -48,9 +48,10 @@ namespace Azos.Sky.FileGateway.Server
 
     private void cleanup()
     {
-      var was = m_Volumes.ToArray();
+      var was = m_Volumes?.ToArray();
       m_Volumes = new AtomRegistry<Volume>();
-      was.ForEach(one => this.DontLeak(() => one.Dispose(), errorFrom: nameof(cleanup)));
+
+      if (was != null) was.ForEach(one => this.DontLeak(() => one.Dispose(), errorFrom: nameof(cleanup)));
     }
 
     [Config]

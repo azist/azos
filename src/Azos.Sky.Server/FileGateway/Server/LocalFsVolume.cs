@@ -39,35 +39,46 @@ namespace Azos.Sky.FileGateway.Server
     private string getPhysicalPath(string volumePath)
     {
       volumePath.NonBlankMax(Constraints.MAX_PATH_TOTAL_LEN, nameof(volumePath));
-
-      (Path.IsPathFullyQualified(volumePath) || Path.IsPathRooted(volumePath)).IsTrue("Relative path");
+      volumePath = volumePath.Trim();
+      (volumePath.IndexOf(':') < 0).IsTrue("No ':'");
+      (volumePath.IndexOf("..") < 0).IsTrue("No '..'");
+      (!volumePath.Contains(@"\\") && !volumePath.Contains(@"//")).IsTrue("No UNC");
 
       var fullPath = Path.Join(m_MountPath, volumePath);
       return fullPath;
     }
 
-    private ItemInfo getItemInfo(string path)
+    private ItemInfo getItemInfo(string fullLocalPath)
     {
       var result = new ItemInfo();
-      var volumePath = Path.GetRelativePath(MountPath, path);
-      result.Path = new EntityId(ComponentDirector.Name, this.Name, Atom.ZERO, volumePath);
-
-      if (Directory.Exists(path))
+      try
       {
-        var di = new DirectoryInfo(path);
-        result.Type = ItemType.Directory;
-        result.CreateUtc = di.CreationTimeUtc;
-        result.LastChangeUtc = di.LastWriteTimeUtc;
-        result.Size = 0;
-      }
+        var volumePath = Path.GetRelativePath(MountPath, fullLocalPath);
+        result.Path = new EntityId(ComponentDirector.Name, this.Name, Atom.ZERO, volumePath);
 
-      //File
-      result.Type = ItemType.File;
-      var fi = new FileInfo(path);
-      result.CreateUtc =  fi.CreationTimeUtc;
-      result.LastChangeUtc = fi.LastWriteTimeUtc;
-      result.Size = fi.Length;
-      return result;
+        if (Directory.Exists(fullLocalPath))
+        {
+          var di = new DirectoryInfo(fullLocalPath);
+          result.Type = ItemType.Directory;
+          result.CreateUtc = di.CreationTimeUtc;
+          result.LastChangeUtc = di.LastWriteTimeUtc;
+          result.Size = 0;
+        }
+
+        //File
+        result.Type = ItemType.File;
+        var fi = new FileInfo(fullLocalPath);
+        result.CreateUtc =  fi.CreationTimeUtc;
+        result.LastChangeUtc = fi.LastWriteTimeUtc;
+        result.Size = fi.Length;
+        return result;
+      }
+      catch(Exception error)
+      {
+        var got = new FileGatewayException($"getItemInfo(`{fullLocalPath}`): {error.Message}", error);
+        WriteLogFromHere(Azos.Log.MessageType.Error, got.ToMessageWithType(), got);
+        throw got;
+      }
     }
 
 
@@ -95,30 +106,161 @@ namespace Azos.Sky.FileGateway.Server
       return Task.FromResult(result);
     }
 
-    public override Task<ItemInfo> CreateFileAsync(string volumePath, CreateMode mode, long offset, byte[] content)
+    public override async Task<ItemInfo> CreateFileAsync(string volumePath, CreateMode mode, long offset, byte[] content)
     {
-      throw new NotImplementedException();
+      var path = getPhysicalPath(volumePath);
+
+      var fmode = mode == CreateMode.Create  ? FileMode.CreateNew :
+                  mode == CreateMode.Replace ? FileMode.Create    :
+                                               FileMode.OpenOrCreate;
+      try
+      {
+        using(var fs = new FileStream(path, fmode, FileAccess.Write, FileShare.None))
+        {
+          fs.Position = offset;
+          if (content != null)
+          {
+            await fs.WriteAsync(content, 0, content.Length).ConfigureAwait(false);
+          }
+        }
+      }
+      catch(Exception error)
+      {
+        var got = new FileGatewayException($"CreateFileAsync(`{volumePath}`, {mode}, {offset}, byte[{content?.Length ?? -1}]): {error.Message}", error);
+        WriteLogFromHere(Azos.Log.MessageType.Error, got.ToMessageWithType(), got);
+        throw got;
+      }
+
+      return getItemInfo(path);
     }
 
     public override Task<bool> DeleteItemAsync(string volumePath)
     {
-      throw new NotImplementedException();
+      var path = getPhysicalPath(volumePath);
+      try
+      {
+        if (File.GetAttributes(path).HasFlag(FileAttributes.Directory))
+        {
+          if (!Directory.Exists(path)) return Task.FromResult(false);
+
+          Directory.Delete(path, true);
+        }
+        else
+        {
+          if (!File.Exists(path)) return Task.FromResult(false);
+          File.Delete(path);
+        }
+      }
+      catch (Exception error)
+      {
+        var got = new FileGatewayException($"DeleteItemAsync(`{volumePath}`): {error.Message}", error);
+        WriteLogFromHere(Azos.Log.MessageType.Error, got.ToMessageWithType(), got);
+        throw got;
+      }
+
+      return Task.FromResult(true);
     }
 
-    public override Task<(byte[] data, bool eof)> DownloadFileChunkAsync(EntityId path, long offset, int size)
+    public override async Task<(byte[] data, bool eof)> DownloadFileChunkAsync(string volumePath, long offset, int size)
     {
-      throw new NotImplementedException();
+      (size < Constraints.MAX_FILE_CHUNK_SIZE).IsTrue($"size < {Constraints.MAX_FILE_CHUNK_SIZE}");
+      (offset >= 0).IsTrue("offset >= 0");
+
+      var path = getPhysicalPath(volumePath);
+
+      try
+      {
+        using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+        {
+          if (offset >= fs.Length) return (null, true);
+
+          fs.Position = offset;
+          var buff = new byte[size];
+          var eof = false;
+
+          for(var i = 0; i < size;)
+          {
+            var got = await fs.ReadAsync(buff, i, buff.Length - i).ConfigureAwait(false);
+            if (got == 0)
+            {
+              eof = true;
+              break;
+            }
+            i += got;
+          }
+          return (buff, eof);
+        }
+      }
+      catch (Exception error)
+      {
+        var got = new FileGatewayException($"DownloadFileChunkAsync(`{volumePath}`, {offset}, {size}): {error.Message}", error);
+        WriteLogFromHere(Azos.Log.MessageType.Error, got.ToMessageWithType(), got);
+        throw got;
+      }
     }
 
-    public override Task<bool> RenameItemAsync(EntityId path, string newPath)
+    public override async Task<ItemInfo> UploadFileChunkAsync(string volumePath, long offset, byte[] content)
     {
-      throw new NotImplementedException();
+      content.NonNull(nameof(content));
+      (content.Length < Constraints.MAX_FILE_CHUNK_SIZE).IsTrue($"size < {Constraints.MAX_FILE_CHUNK_SIZE}");
+      (offset >= 0).IsTrue("offset >= 0");
+
+      var path = getPhysicalPath(volumePath);
+
+      try
+      {
+        using (var fs = new FileStream(path, FileMode.Open, FileAccess.Write, FileShare.None))
+        {
+          fs.Position = offset;
+          await fs.WriteAsync(content, 0, content.Length).ConfigureAwait(false);
+        }
+      }
+      catch (Exception error)
+      {
+        var got = new FileGatewayException($"UploadFileChunkAsync(`{volumePath}`, {offset}, byte[{content.Length}]): {error.Message}", error);
+        WriteLogFromHere(Azos.Log.MessageType.Error, got.ToMessageWithType(), got);
+        throw got;
+      }
+
+      return getItemInfo(path);
     }
 
-    public override Task<ItemInfo> UploadFileChunkAsync(EntityId path, long offset, byte[] content)
+    public override Task<bool> RenameItemAsync(string volumePath, string newVolumePath)
     {
-      throw new NotImplementedException();
-    }
+      var oldPath = getPhysicalPath(volumePath);
+      var newPath = getPhysicalPath(newVolumePath);
 
+      FileAttributes fatr;
+      try
+      {
+        fatr = File.GetAttributes(oldPath);
+      }
+      catch(FileNotFoundException)
+      {
+        return Task.FromResult(false);
+      }
+
+      try
+      {
+        if (fatr.HasFlag(FileAttributes.Directory))
+        {
+          var di = new DirectoryInfo(oldPath);
+          di.MoveTo(newPath);
+        }
+        else
+        {
+          var fi = new FileInfo(oldPath);
+          fi.MoveTo(newPath);
+        }
+      }
+      catch (Exception error)
+      {
+        var got = new FileGatewayException($"RenameItemAsync(`{volumePath}`, `{newVolumePath}`): {error.Message}", error);
+        WriteLogFromHere(Azos.Log.MessageType.Error, got.ToMessageWithType(), got);
+        throw got;
+      }
+
+      return Task.FromResult(true);
+    }
   }
 }

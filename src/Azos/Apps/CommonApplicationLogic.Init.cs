@@ -157,15 +157,17 @@ namespace Azos.Apps
         }
       }
 
-      WriteLog(MessageType.Trace, FROM, "Common application initialized in '{0}' time location".Args(this.TimeLocation));
+      WriteLog(MessageType.Info, FROM, "Common application initialized in '{0}' time location".Args(this.TimeLocation));
 
-      var related = WriteLog(MessageType.Trace, FROM, "Component dump:");
-
-      foreach (var cmp in ApplicationComponent.AllComponents(this))
-        WriteLog(MessageType.Info,
-                 FROM,
-                 "  -> Component: {0}  '{1}'  '{2}' ".Args(cmp.ComponentSID, cmp.GetType().FullName, cmp.ComponentCommonName),
-                 related: related);
+      if (ChassisLogLevel <= MessageType.Trace) //#884
+      {
+        var related = WriteLog(MessageType.Trace, FROM, "Component dump:");
+        foreach (var cmp in ApplicationComponent.AllComponents(this))
+          WriteLog(MessageType.Trace,
+                   FROM,
+                   "  -> Component: {0}  '{1}'  '{2}' ".Args(cmp.ComponentSID, cmp.GetType().FullName, cmp.ComponentCommonName),
+                   related: related);
+      }
     }
 
     //Must be called first to boot log before all other components
