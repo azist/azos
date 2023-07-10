@@ -39,19 +39,19 @@ namespace Azos.Security.FileGateway
   /// <example>
   /// Sample ACL:
   /// <code>
-  /// fabric
+  /// FileGateway
   /// {
   ///   level=0
   ///
   ///   case
   ///   {
-  ///     of="man::vision2, man::fin"
+  ///     of="man:vision2, man:fin"
   ///     level=2
   ///   }
   ///
   ///   case
   ///   {
-  ///     of= "sys::*"
+  ///     of= "sys:*"
   ///     level=3
   ///   }
   /// }

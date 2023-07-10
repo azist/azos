@@ -51,26 +51,26 @@ namespace Azos.Sky.FileGateway.Server.Web
                     ResponseHeaders = new[] { API_DOC_HDR_NO_CACHE },
                     ResponseContent = "JSON enumerable of `{@Atom}`",
                     TypeSchemas = new[] { typeof(Atom) })]
-    [ActionOnGet(Name = "systems"), AcceptsJson]
+    [ActionOnGet(Name = "volumes"), AcceptsJson]
     public async Task<object> GetVolumes(Atom system) => GetLogicResult(await m_Logic.GetVolumesAsync(system).ConfigureAwait(false));
 
 
     [ApiEndpointDoc(Title = "Get Item List",
                     Uri = "item-list",
                     Description = "Gets a list of `{@ItemInfo}`",
-                    Methods = new[] { "POST = {path: EntityId, recurse: bool}" },
+                    Methods = new[] { "GET = {path: EntityId, recurse: bool}" },
                     RequestHeaders = new[] { API_DOC_HDR_ACCEPT_JSON },
                     ResponseHeaders = new[] { API_DOC_HDR_NO_CACHE },
                     RequestBody = "JSON map {path: EntityId, recurse: bool}`",
                     ResponseContent = "JSON enumerable of `{@ItemInfo}`",
                     TypeSchemas = new[] { typeof(EntityId), typeof(ItemInfo) })]
-    [ActionOnPost(Name = "item-list"), AcceptsJson]
+    [ActionOnGet(Name = "item-list"), AcceptsJson]
     public async Task<object> GetItemList(EntityId path, bool recurse = false)
       => GetLogicResult(await m_Logic.GetItemListAsync(path, recurse).ConfigureAwait(false));
 
 
     [ApiEndpointDoc(Title = "Get ItemInfo",
-                    Uri = "item-info",
+                    Uri = "item",
                     Description = "Gets `{@ItemInfo}` for the specified path",
                     Methods = new[] { "GET = gets item info by path" },
                     RequestQueryParameters = new[] { "path = EntityId path" },
@@ -78,7 +78,7 @@ namespace Azos.Sky.FileGateway.Server.Web
                     ResponseHeaders = new[] { API_DOC_HDR_NO_CACHE },
                     ResponseContent = "JSON enumerable of `{@ItemInfo}`",
                     TypeSchemas = new[] { typeof(EntityId), typeof(ItemInfo) })]
-    [ActionOnGet(Name = "systems"), AcceptsJson]
+    [ActionOnGet(Name = "item"), AcceptsJson]
     public async Task<object> GetItemInfo(EntityId path) => GetLogicResult(await m_Logic.GetItemInfoAsync(path).ConfigureAwait(false));
 
 
@@ -131,7 +131,7 @@ namespace Azos.Sky.FileGateway.Server.Web
                     ResponseHeaders = new[] { API_DOC_HDR_NO_CACHE },
                     ResponseContent = "JSON map {data: byte[], eof: bool}",
                     TypeSchemas = new[] { typeof(EntityId), typeof(ItemInfo) })]
-    [ActionOnGet(Name = "files"), AcceptsJson]
+    [ActionOnGet(Name = "file"), AcceptsJson]
     public async Task<object> DownloadFileChunk(EntityId path, long offset, int size)
     {
       var (data, eof) = await m_Logic.DownloadFileChunkAsync(path, offset, size).ConfigureAwait(false);
@@ -161,7 +161,7 @@ namespace Azos.Sky.FileGateway.Server.Web
                   RequestBody = "JSON map {path: EntityId, newPath: string}`",
                   ResponseContent = "JSON map {renamed: bool}",
                   TypeSchemas = new[] { typeof(EntityId) })]
-    [ActionOnDelete(Name = "item"), AcceptsJson]
+    [ActionOnPost(Name = "item-name"), AcceptsJson]
     public async Task<object> Rename(EntityId path, string newPath)
       => GetLogicResult(new { renamed = await m_Logic.RenameItemAsync(path, newPath).ConfigureAwait(false) });
 
