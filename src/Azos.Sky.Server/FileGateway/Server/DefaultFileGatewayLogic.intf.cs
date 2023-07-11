@@ -56,9 +56,9 @@ namespace Azos.Sky.FileGateway.Server
 
     public async Task<ItemInfo> CreateFileAsync(EntityId path, CreateMode mode, long offset, byte[] content)
     {
-      (offset >= 0).IsTrue("offset >= 0");
-      content.NonNull(nameof(content));
-      (content.Length < Constraints.MAX_FILE_CHUNK_SIZE).IsTrue($"contet.len < {Constraints.MAX_FILE_CHUNK_SIZE}");
+      (offset >= 0).IsTrue("offset >= 0", putExternalDetails: true);
+      content.NonNull(nameof(content), putExternalDetails: true);
+      (content.Length < Constraints.MAX_FILE_CHUNK_SIZE).IsTrue($"contet.len < {Constraints.MAX_FILE_CHUNK_SIZE}", putExternalDetails: true);
 
       var vol = getVolume(path);
       App.Authorize(new FileGatewayPermission(FileGatewayAccessLevel.Write, path.System, path.Type));
@@ -76,8 +76,8 @@ namespace Azos.Sky.FileGateway.Server
 
     public async Task<(byte[] data, bool eof)> DownloadFileChunkAsync(EntityId path, long offset = 0, int size = 0)
     {
-      (offset >= 0).IsTrue("offset >= 0");
-      (size > 0 && size < Constraints.MAX_FILE_CHUNK_SIZE).IsTrue($"0 < size < {Constraints.MAX_FILE_CHUNK_SIZE}");
+      (offset >= 0).IsTrue("offset >= 0", putExternalDetails: true);
+      (size > 0 && size < Constraints.MAX_FILE_CHUNK_SIZE).IsTrue($"0 < size < {Constraints.MAX_FILE_CHUNK_SIZE}", putExternalDetails: true);
 
       App.Authorize(new FileGatewayPermission(FileGatewayAccessLevel.Read, path.System, path.Type));
       var vol = getVolume(path);
@@ -87,7 +87,7 @@ namespace Azos.Sky.FileGateway.Server
 
     public async Task<bool> RenameItemAsync(EntityId path, string newPath)
     {
-      newPath.NonBlankMax(Constraints.MAX_PATH_TOTAL_LEN, nameof(newPath));
+      newPath.NonBlankMax(Constraints.MAX_PATH_TOTAL_LEN, nameof(newPath), putExternalDetails: true);
       var vol = getVolume(path);
       App.Authorize(new FileGatewayPermission(FileGatewayAccessLevel.Write, path.System, path.Type));
       var result = await vol.RenameItemAsync(path.Address, newPath).ConfigureAwait(false);
@@ -96,9 +96,9 @@ namespace Azos.Sky.FileGateway.Server
 
     public async Task<ItemInfo> UploadFileChunkAsync(EntityId path, long offset, byte[] content)
     {
-      (offset >= 0).IsTrue("offset >= 0");
-      content.NonNull(nameof(content));
-      (content.Length < Constraints.MAX_FILE_CHUNK_SIZE).IsTrue($"contet.len < {Constraints.MAX_FILE_CHUNK_SIZE}");
+      (offset >= 0).IsTrue("offset >= 0", putExternalDetails: true);
+      content.NonNull(nameof(content), putExternalDetails: true);
+      (content.Length < Constraints.MAX_FILE_CHUNK_SIZE).IsTrue($"contet.len < {Constraints.MAX_FILE_CHUNK_SIZE}", putExternalDetails: true);
 
       var vol = getVolume(path);
       App.Authorize(new FileGatewayPermission(FileGatewayAccessLevel.Write, path.System, path.Type));

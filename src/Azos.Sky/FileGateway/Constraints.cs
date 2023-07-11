@@ -13,6 +13,9 @@ using Azos.Data;
 
 namespace Azos.Sky.FileGateway
 {
+  /// <summary>
+  /// Imposes limits/constraints on file gateway related functionality like paths length etc..
+  /// </summary>
   public static class Constraints
   {
     public const int MAX_PATH_SEGS = 8;
@@ -23,15 +26,15 @@ namespace Azos.Sky.FileGateway
 
     public static EntityId SanitizePath(EntityId path, bool isFile)
     {
-      path.HasRequiredValue(nameof(path));
-      path.Type.HasRequiredValue(nameof(path.Type));
+      path.HasRequiredValue(nameof(path), putExternalDetails: true);
+      path.Type.HasRequiredValue(nameof(path.Type), putExternalDetails: true);
       var addr = SanitizePath(path.Address, isFile);
       return new EntityId(path.System, path.Type, Atom.ZERO, addr);
     }
 
     public static string SanitizePath(string path, bool isFile)
     {
-      path.NonBlankMax(MAX_PATH_TOTAL_LEN, nameof(path));
+      path.NonBlankMax(MAX_PATH_TOTAL_LEN, nameof(path), putExternalDetails: true);
 
       var segs = path.Split('/', '\\');
 
@@ -41,12 +44,12 @@ namespace Azos.Sky.FileGateway
       foreach(var seg in segs)
       {
         if (seg.IsNullOrWhiteSpace()) continue;
-        (cnt++ < MAX_PATH_SEGS).IsTrue($"Total seg count < {MAX_PATH_TOTAL_LEN}");
+        (cnt++ < MAX_PATH_SEGS).IsTrue($"Total seg count < {MAX_PATH_TOTAL_LEN}", putExternalDetails: true);
         var one = seg.Trim();
-        one.NonBlankMax(MAX_PATH_SEG_LEN, "path segment");
+        one.NonBlankMax(MAX_PATH_SEG_LEN, "path segment", putExternalDetails: true);
 
       //https://stackoverflow.com/questions/1976007/what-characters-are-forbidden-in-windows-and-linux-directory-names
-        seg.IsValidWindowsOrNixPathSegment().IsTrue("Valid path seg");
+        seg.IsValidWindowsOrNixPathSegment().IsTrue("Valid path seg", putExternalDetails: true);
 
         if (result.Length > 0) result.Append('/');
 
@@ -54,12 +57,12 @@ namespace Azos.Sky.FileGateway
         last = one;
       }
 
-      (result.Length < MAX_PATH_TOTAL_LEN).IsTrue($"Total len < {MAX_PATH_TOTAL_LEN}");
+      (result.Length < MAX_PATH_TOTAL_LEN).IsTrue($"Total len < {MAX_PATH_TOTAL_LEN}", putExternalDetails: true);
 
       if (isFile)
       {
-        (result.Length > 0).IsTrue("Non empty file path");
-        last.IsValidWindowsOrNixFileName().IsTrue("Valid file name");
+        (result.Length > 0).IsTrue("Non empty file path", putExternalDetails: true);
+        last.IsValidWindowsOrNixFileName().IsTrue("Valid file name", putExternalDetails: true);
       }
 
       return result.ToString();

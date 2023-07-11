@@ -46,7 +46,7 @@ namespace Azos
     /// <summary>When set to true, will provide details in HttpStatusDescription</summary>
     public bool PutDetailsInHttpStatus { get; set; }
 
-    /// <summary>When set to true, will provide error details via IExternalStatusProvider interface</summary>
+    /// <summary>When set to true, will put error details via IExternalStatusProvider interface</summary>
     public bool PutDetailsInExternalStatus { get; set; }
 
     /// <summary>Name of member/caller which employs the guard</summary>

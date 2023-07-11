@@ -36,11 +36,11 @@ namespace Azos.Sky.FileGateway.Server
 
     private string getPhysicalPath(string volumePath)
     {
-      volumePath.NonBlankMax(Constraints.MAX_PATH_TOTAL_LEN, nameof(volumePath));
+      volumePath.NonBlankMax(Constraints.MAX_PATH_TOTAL_LEN, nameof(volumePath), putExternalDetails: true);
       volumePath = volumePath.Trim();
-      (volumePath.IndexOf(':') < 0).IsTrue("No ':'");
-      (volumePath.IndexOf("..") < 0).IsTrue("No '..'");
-      (!volumePath.Contains(@"\\") && !volumePath.Contains(@"//")).IsTrue("No UNC");
+      (volumePath.IndexOf(':') < 0).IsTrue("No ':'", putExternalDetails: true);
+      (volumePath.IndexOf("..") < 0).IsTrue("No '..'", putExternalDetails: true);
+      (!volumePath.Contains(@"\\") && !volumePath.Contains(@"//")).IsTrue("No UNC", putExternalDetails: true);
 
       var fullPath = Path.Join(m_MountPath, volumePath);
       return fullPath;
@@ -84,7 +84,7 @@ namespace Azos.Sky.FileGateway.Server
     public override Task<IEnumerable<ItemInfo>> GetItemListAsync(string volumePath, bool recurse)
     {
       var path = getPhysicalPath(volumePath);
-      File.GetAttributes(path).HasFlag(FileAttributes.Directory).IsTrue("Directory path");
+      File.GetAttributes(path).HasFlag(FileAttributes.Directory).IsTrue("Directory path", putExternalDetails: true);
       var all = Directory.GetFileSystemEntries(path,  "*", recurse ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
       IEnumerable<ItemInfo> result = all.Select(one => getItemInfo(one)).ToArray();
       return Task.FromResult(result);
@@ -161,8 +161,8 @@ namespace Azos.Sky.FileGateway.Server
 
     public override async Task<(byte[] data, bool eof)> DownloadFileChunkAsync(string volumePath, long offset, int size)
     {
-      (size < Constraints.MAX_FILE_CHUNK_SIZE).IsTrue($"size < {Constraints.MAX_FILE_CHUNK_SIZE}");
-      (offset >= 0).IsTrue("offset >= 0");
+      (size < Constraints.MAX_FILE_CHUNK_SIZE).IsTrue($"size < {Constraints.MAX_FILE_CHUNK_SIZE}", putExternalDetails: true);
+      (offset >= 0).IsTrue("offset >= 0", putExternalDetails: true);
 
       var path = getPhysicalPath(volumePath);
 
@@ -202,9 +202,9 @@ namespace Azos.Sky.FileGateway.Server
 
     public override async Task<ItemInfo> UploadFileChunkAsync(string volumePath, long offset, byte[] content)
     {
-      content.NonNull(nameof(content));
-      (content.Length < Constraints.MAX_FILE_CHUNK_SIZE).IsTrue($"size < {Constraints.MAX_FILE_CHUNK_SIZE}");
-      (offset >= 0).IsTrue("offset >= 0");
+      content.NonNull(nameof(content), putExternalDetails: true);
+      (content.Length < Constraints.MAX_FILE_CHUNK_SIZE).IsTrue($"size < {Constraints.MAX_FILE_CHUNK_SIZE}", putExternalDetails: true);
+      (offset >= 0).IsTrue("offset >= 0", putExternalDetails: true);
 
       var path = getPhysicalPath(volumePath);
 
