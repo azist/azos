@@ -77,7 +77,8 @@ namespace Azos
       if (PutDetailsInExternalStatus)
       {
         result[CoreConsts.EXT_STATUS_KEY_SITE] = CallSite;
-        result[CoreConsts.EXT_STATUS_KEY_PARAM] = ParamName;
+        result[CoreConsts.EXT_STATUS_KEY_CLAUSE] = ParamName;
+        result[CoreConsts.EXT_STATUS_KEY_MESSAGE] = Message;
       }
 
       return result;

@@ -44,7 +44,7 @@ namespace Azos.Sky.FileGateway
       foreach(var seg in segs)
       {
         if (seg.IsNullOrWhiteSpace()) continue;
-        (cnt++ < MAX_PATH_SEGS).IsTrue($"Total seg count < {MAX_PATH_TOTAL_LEN}", putExternalDetails: true);
+        (cnt++ < MAX_PATH_SEGS).IsTrue($"Total seg count < {MAX_PATH_SEGS}", putExternalDetails: true);
         var one = seg.Trim();
         one.NonBlankMax(MAX_PATH_SEG_LEN, "path segment", putExternalDetails: true);
 

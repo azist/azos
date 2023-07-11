@@ -83,37 +83,65 @@ namespace Azos.Sky.FileGateway.Server
 
     public override Task<IEnumerable<ItemInfo>> GetItemListAsync(string volumePath, bool recurse)
     {
-      var path = getPhysicalPath(volumePath);
-      File.GetAttributes(path).HasFlag(FileAttributes.Directory).IsTrue("Directory path", putExternalDetails: true);
-      var all = Directory.GetFileSystemEntries(path,  "*", recurse ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
-      IEnumerable<ItemInfo> result = all.Select(one => getItemInfo(one)).ToArray();
-      return Task.FromResult(result);
+      try
+      {
+        var path = getPhysicalPath(volumePath);
+        if (!Directory.Exists(path)) throw Azos.Web.HTTPStatusException.NotFound_404($"Dir: `{volumePath}`");
+        var all = Directory.GetFileSystemEntries(path,  "*", recurse ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
+        IEnumerable<ItemInfo> result = all.Select(one => getItemInfo(one)).ToArray();
+        return Task.FromResult(result);
+      }
+      catch (Exception error)
+      {
+        var got = new FileGatewayException($"GetItemListAsync(`{volumePath}`): {error.Message}", error);
+        WriteLogFromHere(Azos.Log.MessageType.Error, got.ToMessageWithType(), got);
+        throw got;
+      }
     }
 
     public override Task<ItemInfo> GetItemInfoAsync(string volumePath)
     {
-      var path = getPhysicalPath(volumePath);
-      var result = getItemInfo(path);
-      return Task.FromResult(result);
+      try
+      {
+        var path = getPhysicalPath(volumePath);
+        if (!File.Exists(path) && !Directory.Exists(path)) throw Azos.Web.HTTPStatusException.NotFound_404($"Item: `{volumePath}`");
+        var result = getItemInfo(path);
+        return Task.FromResult(result);
+      }
+      catch (Exception error)
+      {
+        var got = new FileGatewayException($"GetItemInfoAsync(`{volumePath}`): {error.Message}", error);
+        WriteLogFromHere(Azos.Log.MessageType.Error, got.ToMessageWithType(), got);
+        throw got;
+      }
     }
 
     public override Task<ItemInfo> CreateDirectoryAsync(string volumePath)
     {
-      var path = getPhysicalPath(volumePath);
-      Directory.CreateDirectory(path);
-      var result = getItemInfo(path);
-      return Task.FromResult(result);
+      try
+      {
+        var path = getPhysicalPath(volumePath);
+        Directory.CreateDirectory(path);
+        var result = getItemInfo(path);
+        return Task.FromResult(result);
+      }
+      catch (Exception error)
+      {
+        var got = new FileGatewayException($"CreateDirectoryAsync(`{volumePath}`): {error.Message}", error);
+        WriteLogFromHere(Azos.Log.MessageType.Error, got.ToMessageWithType(), got);
+        throw got;
+      }
     }
 
     public override async Task<ItemInfo> CreateFileAsync(string volumePath, CreateMode mode, long offset, byte[] content)
     {
-      var path = getPhysicalPath(volumePath);
-
-      var fmode = mode == CreateMode.Create  ? FileMode.CreateNew :
-                  mode == CreateMode.Replace ? FileMode.Create    :
-                                               FileMode.OpenOrCreate;
       try
       {
+        var path = getPhysicalPath(volumePath);
+
+        var fmode = mode == CreateMode.Create  ? FileMode.CreateNew :
+                    mode == CreateMode.Replace ? FileMode.Create    :
+                                                 FileMode.OpenOrCreate;
         using(var fs = new FileStream(path, fmode, FileAccess.Write, FileShare.None))
         {
           fs.Position = offset;
@@ -122,6 +150,8 @@ namespace Azos.Sky.FileGateway.Server
             await fs.WriteAsync(content, 0, content.Length).ConfigureAwait(false);
           }
         }
+
+        return getItemInfo(path);
       }
       catch(Exception error)
       {
@@ -129,15 +159,14 @@ namespace Azos.Sky.FileGateway.Server
         WriteLogFromHere(Azos.Log.MessageType.Error, got.ToMessageWithType(), got);
         throw got;
       }
-
-      return getItemInfo(path);
     }
 
     public override Task<bool> DeleteItemAsync(string volumePath)
     {
-      var path = getPhysicalPath(volumePath);
       try
       {
+        var path = getPhysicalPath(volumePath);
+
         if (Directory.Exists(path))
         {
           Directory.Delete(path, true);
@@ -161,13 +190,15 @@ namespace Azos.Sky.FileGateway.Server
 
     public override async Task<(byte[] data, bool eof)> DownloadFileChunkAsync(string volumePath, long offset, int size)
     {
-      (size < Constraints.MAX_FILE_CHUNK_SIZE).IsTrue($"size < {Constraints.MAX_FILE_CHUNK_SIZE}", putExternalDetails: true);
-      (offset >= 0).IsTrue("offset >= 0", putExternalDetails: true);
-
-      var path = getPhysicalPath(volumePath);
-
       try
       {
+        (size < Constraints.MAX_FILE_CHUNK_SIZE).IsTrue($"size < {Constraints.MAX_FILE_CHUNK_SIZE}", putExternalDetails: true);
+        (offset >= 0).IsTrue("offset >= 0", putExternalDetails: true);
+
+        var path = getPhysicalPath(volumePath);
+
+        if (!File.Exists(path)) throw Azos.Web.HTTPStatusException.NotFound_404($"File: `{volumePath}`");
+
         using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
         {
           if (offset >= fs.Length) return (null, true);
@@ -202,19 +233,21 @@ namespace Azos.Sky.FileGateway.Server
 
     public override async Task<ItemInfo> UploadFileChunkAsync(string volumePath, long offset, byte[] content)
     {
-      content.NonNull(nameof(content), putExternalDetails: true);
-      (content.Length < Constraints.MAX_FILE_CHUNK_SIZE).IsTrue($"size < {Constraints.MAX_FILE_CHUNK_SIZE}", putExternalDetails: true);
-      (offset >= 0).IsTrue("offset >= 0", putExternalDetails: true);
-
-      var path = getPhysicalPath(volumePath);
-
       try
       {
+        content.NonNull(nameof(content), putExternalDetails: true);
+        (content.Length < Constraints.MAX_FILE_CHUNK_SIZE).IsTrue($"size < {Constraints.MAX_FILE_CHUNK_SIZE}", putExternalDetails: true);
+        (offset >= 0).IsTrue("offset >= 0", putExternalDetails: true);
+
+        var path = getPhysicalPath(volumePath);
+
         using (var fs = new FileStream(path, FileMode.Open, FileAccess.Write, FileShare.None))
         {
           fs.Position = offset;
           await fs.WriteAsync(content, 0, content.Length).ConfigureAwait(false);
         }
+
+        return getItemInfo(path);
       }
       catch (Exception error)
       {
@@ -222,8 +255,6 @@ namespace Azos.Sky.FileGateway.Server
         WriteLogFromHere(Azos.Log.MessageType.Error, got.ToMessageWithType(), got);
         throw got;
       }
-
-      return getItemInfo(path);
     }
 
     public override Task<bool> RenameItemAsync(string volumePath, string newVolumePath)
