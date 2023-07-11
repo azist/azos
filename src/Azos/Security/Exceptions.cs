@@ -23,6 +23,22 @@ namespace Azos.Security
   }
 
   /// <summary>
+  /// A sub type of <see cref="SecurityException"/>
+  /// which denotes an invalid denied access attempt to the <see cref="TheSafe"/>.
+  /// This condition indicates either an invalid access attempt or implementation error
+  /// where the caller forgot to set the security checks with <see cref="SecurityFlowScope"/>
+  /// proper Safe flag inclusion that would have signified the intent to use <see cref="TheSafe"/>
+  /// </summary>
+  [Serializable]
+  public sealed class AccessToTheSafeDeniedException : SecurityException
+  {
+    public AccessToTheSafeDeniedException() { }
+    public AccessToTheSafeDeniedException(string message) : base(message) { }
+    public AccessToTheSafeDeniedException(string message, Exception inner) : base(message, inner) { }
+    private AccessToTheSafeDeniedException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+  }
+
+  /// <summary>
   /// Thrown by Azos security framework to indicate the authorization problem conditions, such as permission access denial.
   /// This exception is a subtype of a broader SecurityException which denotes problems related to security in general
   /// </summary>

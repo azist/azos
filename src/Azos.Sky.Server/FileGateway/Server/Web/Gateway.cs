@@ -92,7 +92,7 @@ namespace Azos.Sky.FileGateway.Server.Web
                     ResponseContent = "JSON for created directory `{@ItemInfo}`",
                     TypeSchemas = new[] { typeof(EntityId), typeof(ItemInfo) })]
     [ActionOnPost(Name = "directory"), AcceptsJson]
-    public async Task<object>CreateDirectory(EntityId path, bool recurse = false)
+    public async Task<object>CreateDirectory(EntityId path)
       => GetLogicResult(await m_Logic.CreateDirectoryAsync(path).ConfigureAwait(false));
 
     [ApiEndpointDoc(Title = "Create File",

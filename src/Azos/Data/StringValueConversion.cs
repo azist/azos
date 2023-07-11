@@ -33,17 +33,16 @@ namespace Azos.Data
     }
 
     public static readonly char[] ARRAY_SPLIT_CHARS = new[] { ',', ' ', ';' };
+    public const string BASE64_VALUE_PREFIX = "base64:";
 
     public static byte[] AsByteArray(this string val, byte[] dflt = null)
     {
-      const string BASE64 = "base64:";
-
       if (val == null) return dflt;
       try
       {
-        if (val.Length > BASE64.Length && val.StartsWith(BASE64, StringComparison.OrdinalIgnoreCase))
+        if (val.Length > BASE64_VALUE_PREFIX.Length && val.StartsWith(BASE64_VALUE_PREFIX, StringComparison.OrdinalIgnoreCase))
         {
-          return val.Substring(BASE64.Length).FromWebSafeBase64();
+          return val.Substring(BASE64_VALUE_PREFIX.Length).FromWebSafeBase64();
         }
 
         var result = new List<byte>();
