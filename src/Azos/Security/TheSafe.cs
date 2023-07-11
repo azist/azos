@@ -21,14 +21,14 @@ namespace Azos.Security
     /// <summary>
     /// If this flag is set on the current call scope, authorizes access to safe
     /// decipher method, otherwise <see cref="DecipherConfigValue(string, string)"/>
-    /// would fail with <see cref="AccessToSafeDeniedException"/>
+    /// would fail with <see cref="AccessToTheSafeDeniedException"/>
     /// </summary>
     public static readonly Atom SAFE_CONFIG_ACCESS_FLAG = Atom.Encode("safeconf");
 
     /// <summary>
     /// If this flag is set on the current call scope, authorizes access to safe
     /// decipher method, otherwise <see cref="DecipherConfigValue(string, string)"/>
-    /// would fail with <see cref="AccessToSafeDeniedException"/>
+    /// would fail with <see cref="AccessToTheSafeDeniedException"/>
     /// </summary>
     public static readonly Atom SAFE_GENERAL_ACCESS_FLAG = Atom.Encode("safegen");
 
