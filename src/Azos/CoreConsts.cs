@@ -73,6 +73,9 @@ namespace Azos
     public const string EXT_STATUS_KEY_CONTROLLER = "controller";
     public const string EXT_STATUS_KEY_ACTION = "action";
 
+    public const string EXT_STATUS_KEY_SITE = "site";
+    public const string EXT_STATUS_KEY_PARAM = "param";
+
     public const string EXT_STATUS_KEY_HTTP_CODE = "http::code";
     public const string EXT_STATUS_KEY_HTTP_DESCRIPTION = "http::descr";
 

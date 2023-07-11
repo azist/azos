@@ -54,11 +54,11 @@ namespace Azos.Sky.FileGateway
         last = one;
       }
 
-      (result.Length > 0).IsTrue("Non empty path");
       (result.Length < MAX_PATH_TOTAL_LEN).IsTrue($"Total len < {MAX_PATH_TOTAL_LEN}");
 
       if (isFile)
       {
+        (result.Length > 0).IsTrue("Non empty file path");
         last.IsValidWindowsOrNixFileName().IsTrue("Valid file name");
       }
 

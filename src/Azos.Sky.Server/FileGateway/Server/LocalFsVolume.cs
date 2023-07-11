@@ -23,12 +23,10 @@ namespace Azos.Sky.FileGateway.Server
     internal LocalFsVolume(GatewaySystem director, IConfigSectionNode conf) : base(director, conf)
     {
       m_MountPath.NonBlank(nameof(MountPath));
-      Directory.Exists(m_MountPath).IsTrue("Existing MountPath");
+      Directory.Exists(m_MountPath).IsTrue("Existing `MountPath`");
     }
 
-
     [Config] private string m_MountPath;
-
 
     /// <summary>
     /// Root mount path as of which the external pass is based
@@ -56,13 +54,14 @@ namespace Azos.Sky.FileGateway.Server
         var volumePath = Path.GetRelativePath(MountPath, fullLocalPath);
         result.Path = new EntityId(ComponentDirector.Name, this.Name, Atom.ZERO, volumePath);
 
-        if (Directory.Exists(fullLocalPath))
+        if (File.GetAttributes(fullLocalPath).HasFlag(FileAttributes.Directory))
         {
           var di = new DirectoryInfo(fullLocalPath);
           result.Type = ItemType.Directory;
           result.CreateUtc = di.CreationTimeUtc;
           result.LastChangeUtc = di.LastWriteTimeUtc;
           result.Size = 0;
+          return result;
         }
 
         //File
@@ -139,17 +138,16 @@ namespace Azos.Sky.FileGateway.Server
       var path = getPhysicalPath(volumePath);
       try
       {
-        if (File.GetAttributes(path).HasFlag(FileAttributes.Directory))
+        if (Directory.Exists(path))
         {
-          if (!Directory.Exists(path)) return Task.FromResult(false);
-
           Directory.Delete(path, true);
         }
-        else
+        else if (File.Exists(path))
         {
-          if (!File.Exists(path)) return Task.FromResult(false);
           File.Delete(path);
         }
+        else
+          return Task.FromResult(false);
       }
       catch (Exception error)
       {
@@ -177,18 +175,21 @@ namespace Azos.Sky.FileGateway.Server
           fs.Position = offset;
           var buff = new byte[size];
           var eof = false;
-
-          for(var i = 0; i < size;)
+          var total = 0;
+          while(total < size)
           {
-            var got = await fs.ReadAsync(buff, i, buff.Length - i).ConfigureAwait(false);
+            var got = await fs.ReadAsync(buff, total, buff.Length - total).ConfigureAwait(false);
             if (got == 0)
             {
               eof = true;
               break;
             }
-            i += got;
+            total += got;
           }
-          return (buff, eof);
+
+          var result = new byte[total];
+          Array.Copy(buff, result, total);
+          return (result, eof);
         }
       }
       catch (Exception error)

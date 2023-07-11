@@ -7,7 +7,9 @@ using System;
 using System.Runtime.Serialization;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+
 using Azos.Data;
+using Azos.Serialization.JSON;
 
 namespace Azos
 {
@@ -16,7 +18,7 @@ namespace Azos
   /// Guards are typically applied to method parameters in a fluent manner
   /// </summary>
   [Serializable]
-  public class CallGuardException : AzosException, IHttpStatusProvider
+  public class CallGuardException : AzosException, IHttpStatusProvider, IExternalStatusProvider
   {
     public const string DETAILS_FLD_NAME = "GUARD-DETAILS";
     public const string SITE_FLD_NAME = "GUARD-SITE";
@@ -44,6 +46,9 @@ namespace Azos
     /// <summary>When set to true, will provide details in HttpStatusDescription</summary>
     public bool PutDetailsInHttpStatus { get; set; }
 
+    /// <summary>When set to true, will provide error details via IExternalStatusProvider interface</summary>
+    public bool PutDetailsInExternalStatus { get; set; }
+
     /// <summary>Name of member/caller which employs the guard</summary>
     public string CallSite { get; set; }
 
@@ -65,6 +70,19 @@ namespace Azos
       base.GetObjectData(info, context);
     }
 
+    public virtual JsonDataMap ProvideExternalStatus(bool includeDump)
+    {
+      var result = this.DefaultBuildErrorStatusProviderMap(includeDump, "guard");
+
+      if (PutDetailsInExternalStatus)
+      {
+        result[CoreConsts.EXT_STATUS_KEY_SITE] = CallSite;
+        result[CoreConsts.EXT_STATUS_KEY_PARAM] = ParamName;
+      }
+
+      return result;
+    }
+
     /// <summary>
     /// Surrounds an action by protected scope: any exception thrown by this action gets wrapped in a CallGuardException.
     /// If action is unassigned, nothing is done
@@ -75,7 +93,9 @@ namespace Azos
     public static void Protect(Action action,
                               [CallerFilePath]   string callFile = null,
                               [CallerLineNumber] int callLine = 0,
-                              [CallerMemberName] string callMember = null)
+                              [CallerMemberName] string callMember = null,
+                              bool putHttpDetails = false,
+                              bool putExternalDetails = false)
     {
       if (action==null) return;
 
@@ -90,7 +110,7 @@ namespace Azos
                                      nameof(action),
                                      StringConsts.GUARDED_ACTION_SCOPE_ERROR
                                                  .Args(callSite ?? CoreConsts.UNKNOWN, error.ToMessageWithType()),
-                                     error);
+                                     error){ PutDetailsInHttpStatus = putHttpDetails, PutDetailsInExternalStatus = putExternalDetails };
       }
     }
 
@@ -104,7 +124,9 @@ namespace Azos
     public static async Task ProtectAsync(Func<Task> action,
                               [CallerFilePath]   string callFile = null,
                               [CallerLineNumber] int callLine = 0,
-                              [CallerMemberName] string callMember = null)
+                              [CallerMemberName] string callMember = null,
+                              bool putHttpDetails = false,
+                              bool putExternalDetails = false)
     {
       if (action == null) return;
 
@@ -119,7 +141,7 @@ namespace Azos
                                      nameof(action),
                                      StringConsts.GUARDED_ACTION_SCOPE_ERROR
                                                  .Args(callSite ?? CoreConsts.UNKNOWN, error.ToMessageWithType()),
-                                     error);
+                                     error){ PutDetailsInHttpStatus = putHttpDetails, PutDetailsInExternalStatus = putExternalDetails };
       }
     }
 
@@ -133,7 +155,9 @@ namespace Azos
     public static void Protect<TArg>(TArg arg, Action<TArg> action,
                               [CallerFilePath]   string callFile = null,
                               [CallerLineNumber] int callLine = 0,
-                              [CallerMemberName] string callMember = null)
+                              [CallerMemberName] string callMember = null,
+                              bool putHttpDetails = false,
+                              bool putExternalDetails = false)
     {
       if (action == null) return;
 
@@ -148,7 +172,7 @@ namespace Azos
                                      nameof(action),
                                      StringConsts.GUARDED_ACTION_SCOPE_ERROR
                                                  .Args(callSite ?? CoreConsts.UNKNOWN, error.ToMessageWithType()),
-                                     error);
+                                     error){ PutDetailsInHttpStatus = putHttpDetails, PutDetailsInExternalStatus = putExternalDetails };
       }
     }
 
@@ -162,7 +186,9 @@ namespace Azos
     public static async Task ProtectAsync<TArg>(TArg arg, Func<TArg, Task> action,
                               [CallerFilePath]   string callFile = null,
                               [CallerLineNumber] int callLine = 0,
-                              [CallerMemberName] string callMember = null)
+                              [CallerMemberName] string callMember = null,
+                              bool putHttpDetails = false,
+                              bool putExternalDetails = false)
     {
       if (action == null) return;
 
@@ -177,7 +203,7 @@ namespace Azos
                                      nameof(action),
                                      StringConsts.GUARDED_ACTION_SCOPE_ERROR
                                                  .Args(callSite ?? CoreConsts.UNKNOWN, error.ToMessageWithType()),
-                                     error);
+                                     error){ PutDetailsInHttpStatus = putHttpDetails, PutDetailsInExternalStatus = putExternalDetails };
       }
     }
   }
@@ -198,13 +224,16 @@ namespace Azos
     public static CallGuardException IsNotFound(this string name,
                                [CallerFilePath]   string callFile = null,
                                [CallerLineNumber] int callLine = 0,
-                               [CallerMemberName] string callMember = null)
+                               [CallerMemberName] string callMember = null,
+                               bool putHttpDetails = false,
+                               bool putExternalDetails = false)
     {
       var callSite = callSiteOf(callFile, callLine, callMember);
       return new CallGuardException(callSite,
                                     name,
                                     StringConsts.GUARDED_CLAUSE_NOT_FOUND_ERROR
-                                                .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN));
+                                                .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN))
+      { PutDetailsInHttpStatus = putHttpDetails, PutDetailsInExternalStatus = putExternalDetails };
     }
 
 
@@ -215,7 +244,9 @@ namespace Azos
                                string name = null,
                                [CallerFilePath]   string callFile = null,
                                [CallerLineNumber] int    callLine = 0,
-                               [CallerMemberName] string callMember = null) where T : class
+                               [CallerMemberName] string callMember = null,
+                               bool putHttpDetails = false,
+                               bool putExternalDetails = false) where T : class
     {
       if (obj == null)
       {
@@ -223,7 +254,8 @@ namespace Azos
         throw new CallGuardException(callSite,
                                  name,
                                  StringConsts.GUARDED_CLAUSE_MAY_NOT_BE_NULL_ERROR
-                                             .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN));
+                                             .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN))
+        { PutDetailsInHttpStatus = putHttpDetails, PutDetailsInExternalStatus = putExternalDetails };
       }
       return obj;
     }
@@ -236,7 +268,9 @@ namespace Azos
                                string name = null,
                                [CallerFilePath]   string callFile = null,
                                [CallerLineNumber] int callLine = 0,
-                               [CallerMemberName] string callMember = null) where T : struct
+                               [CallerMemberName] string callMember = null,
+                               bool putHttpDetails = false,
+                               bool putExternalDetails = false) where T : struct
     {
       if (!value.HasValue)
       {
@@ -244,7 +278,8 @@ namespace Azos
         throw new CallGuardException(callSite,
                                  name,
                                  StringConsts.GUARDED_CLAUSE_MAY_NOT_BE_NULL_ERROR
-                                             .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN));
+                                             .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN))
+        { PutDetailsInHttpStatus = putHttpDetails, PutDetailsInExternalStatus = putExternalDetails };
       }
       return value;
     }
@@ -259,7 +294,9 @@ namespace Azos
                                string name = null,
                                [CallerFilePath]   string callFile = null,
                                [CallerLineNumber] int callLine = 0,
-                               [CallerMemberName] string callMember = null) where T : class
+                               [CallerMemberName] string callMember = null,
+                               bool putHttpDetails = false,
+                               bool putExternalDetails = false) where T : class
     {
       if (obj != null)
       {
@@ -273,7 +310,8 @@ namespace Azos
                                 name,
                                 (obj == null ? StringConsts.GUARDED_CLAUSE_MAY_NOT_BE_NULL_ERROR
                                              : StringConsts.GUARDED_CLAUSE_MAY_NOT_BE_DISPOSED_ERROR)
-                                  .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN));
+                                  .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN))
+      { PutDetailsInHttpStatus = putHttpDetails, PutDetailsInExternalStatus = putExternalDetails };
     }
 
     /// <summary>
@@ -283,7 +321,9 @@ namespace Azos
                                string name = null,
                                [CallerFilePath]   string callFile = null,
                                [CallerLineNumber] int callLine = 0,
-                               [CallerMemberName] string callMember = null)
+                               [CallerMemberName] string callMember = null,
+                               bool putHttpDetails = false,
+                               bool putExternalDetails = false)
     {
       if (type == null || !typeof(T).IsAssignableFrom(type))
       {
@@ -291,7 +331,8 @@ namespace Azos
         throw new CallGuardException(callSite,
                                  name,
                                  StringConsts.GUARDED_CLAUSE_OFTYPE_ERROR
-                                             .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN, typeof(T).Name));
+                                             .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN, typeof(T).Name))
+        { PutDetailsInHttpStatus = putHttpDetails, PutDetailsInExternalStatus = putExternalDetails };
       }
       return type;
     }
@@ -304,7 +345,9 @@ namespace Azos
                                string name = null,
                                [CallerFilePath]   string callFile = null,
                                [CallerLineNumber] int callLine = 0,
-                               [CallerMemberName] string callMember = null)
+                               [CallerMemberName] string callMember = null,
+                               bool putHttpDetails = false,
+                               bool putExternalDetails = false)
     {
       if (type == null || !expectedType.NonNull(nameof(expectedType)).IsAssignableFrom(type))
       {
@@ -312,7 +355,8 @@ namespace Azos
         throw new CallGuardException(callSite,
                                  name,
                                  StringConsts.GUARDED_CLAUSE_OFTYPE_ERROR
-                                             .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN, expectedType.Name));
+                                             .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN, expectedType.Name))
+        { PutDetailsInHttpStatus = putHttpDetails, PutDetailsInExternalStatus = putExternalDetails };
       }
       return type;
     }
@@ -325,7 +369,9 @@ namespace Azos
                                string name = null,
                                [CallerFilePath]   string callFile = null,
                                [CallerLineNumber] int callLine = 0,
-                               [CallerMemberName] string callMember = null)
+                               [CallerMemberName] string callMember = null,
+                               bool putHttpDetails = false,
+                               bool putExternalDetails = false)
     {
       if (value == null || !typeof(T).IsAssignableFrom(value.GetType()))
       {
@@ -333,7 +379,8 @@ namespace Azos
         throw new CallGuardException(callSite,
                                  name,
                                  StringConsts.GUARDED_CLAUSE_VALUEOFTYPE_ERROR
-                                             .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN, typeof(T).Name));
+                                             .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN, typeof(T).Name))
+        { PutDetailsInHttpStatus = putHttpDetails, PutDetailsInExternalStatus = putExternalDetails };
       }
       return value;
     }
@@ -346,7 +393,9 @@ namespace Azos
                                string name = null,
                                [CallerFilePath]   string callFile = null,
                                [CallerLineNumber] int callLine = 0,
-                               [CallerMemberName] string callMember = null)
+                               [CallerMemberName] string callMember = null,
+                               bool putHttpDetails = false,
+                               bool putExternalDetails = false)
     {
       if (value == null || !expectedType.NonNull(nameof(expectedType)).IsAssignableFrom(value.GetType()))
       {
@@ -354,7 +403,8 @@ namespace Azos
         throw new CallGuardException(callSite,
                                  name,
                                  StringConsts.GUARDED_CLAUSE_VALUEOFTYPE_ERROR
-                                             .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN, expectedType.Name));
+                                             .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN, expectedType.Name))
+        { PutDetailsInHttpStatus = putHttpDetails, PutDetailsInExternalStatus = putExternalDetails };
       }
       return value;
     }
@@ -367,7 +417,9 @@ namespace Azos
                                string name = null,
                                [CallerFilePath]   string callFile = null,
                                [CallerLineNumber] int callLine = 0,
-                               [CallerMemberName] string callMember = null)
+                               [CallerMemberName] string callMember = null,
+                               bool putHttpDetails = false,
+                               bool putExternalDetails = false)
     {
       if (value is TResult result) return result;
 
@@ -375,7 +427,8 @@ namespace Azos
       throw new CallGuardException(callSite,
                                   name,
                                   StringConsts.GUARDED_CLAUSE_TYPECAST_ERROR
-                                              .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN, typeof(TResult).DisplayNameWithExpandedGenericArgs()));
+                                              .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN, typeof(TResult).DisplayNameWithExpandedGenericArgs()))
+      { PutDetailsInHttpStatus = putHttpDetails, PutDetailsInExternalStatus = putExternalDetails };
     }
 
     /// <summary>
@@ -385,7 +438,9 @@ namespace Azos
                                 string name = null,
                                [CallerFilePath]   string callFile = null,
                                [CallerLineNumber] int callLine = 0,
-                               [CallerMemberName] string callMember = null) where T : Conf.IConfigNode
+                               [CallerMemberName] string callMember = null,
+                               bool putHttpDetails = false,
+                               bool putExternalDetails = false) where T : Conf.IConfigNode
     {
       if (node==null || !node.Exists)
       {
@@ -393,7 +448,8 @@ namespace Azos
         throw new CallGuardException(callSite,
                                  name,
                                  StringConsts.GUARDED_CONFIG_NODE_CLAUSE_MAY_NOT_BE_EMPTY_ERROR
-                                             .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN));
+                                             .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN))
+        { PutDetailsInHttpStatus = putHttpDetails, PutDetailsInExternalStatus = putExternalDetails };
       }
       return node;
     }
@@ -405,7 +461,9 @@ namespace Azos
                                   string name = null,
                                   [CallerFilePath]   string callFile = null,
                                   [CallerLineNumber] int callLine = 0,
-                                  [CallerMemberName] string callMember = null)
+                                  [CallerMemberName] string callMember = null,
+                                  bool putHttpDetails = false,
+                                  bool putExternalDetails = false)
     {
       if (str.IsNullOrWhiteSpace())
       {
@@ -413,7 +471,8 @@ namespace Azos
         throw new CallGuardException(callSite,
                                  name,
                                  StringConsts.GUARDED_STRING_CLAUSE_MAY_NOT_BE_BLANK_ERROR
-                                             .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN));
+                                             .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN))
+        { PutDetailsInHttpStatus = putHttpDetails, PutDetailsInExternalStatus = putExternalDetails };
       }
       return str;
     }
@@ -426,7 +485,9 @@ namespace Azos
                                      string name = null,
                                      [CallerFilePath]   string callFile = null,
                                      [CallerLineNumber] int callLine = 0,
-                                     [CallerMemberName] string callMember = null)
+                                     [CallerMemberName] string callMember = null,
+                                     bool putHttpDetails = false,
+                                     bool putExternalDetails = false)
     {
       var len = str.NonBlank(name, callFile, callLine, callMember).Length;
       if (len > maxLen)
@@ -439,7 +500,8 @@ namespace Azos
                                                   name ?? CoreConsts.UNKNOWN,
                                                   str.TakeFirstChars(15, ".."),
                                                   len,
-                                                  maxLen));
+                                                  maxLen))
+        { PutDetailsInHttpStatus = putHttpDetails, PutDetailsInExternalStatus = putExternalDetails };
       }
       return str;
     }
@@ -452,7 +514,9 @@ namespace Azos
                                      string name = null,
                                      [CallerFilePath]   string callFile = null,
                                      [CallerLineNumber] int callLine = 0,
-                                     [CallerMemberName] string callMember = null)
+                                     [CallerMemberName] string callMember = null,
+                                     bool putHttpDetails = false,
+                                     bool putExternalDetails = false)
     {
       var len = str.NonBlank(name, callFile, callLine, callMember).Length;
       if (len < minLen)
@@ -465,7 +529,8 @@ namespace Azos
                                                   name ?? CoreConsts.UNKNOWN,
                                                   str.TakeFirstChars(15, ".."),
                                                   len,
-                                                  minLen));
+                                                  minLen))
+        { PutDetailsInHttpStatus = putHttpDetails, PutDetailsInExternalStatus = putExternalDetails };
       }
       return str;
     }
@@ -479,7 +544,9 @@ namespace Azos
                                         string name = null,
                                         [CallerFilePath]   string callFile = null,
                                         [CallerLineNumber] int callLine = 0,
-                                        [CallerMemberName] string callMember = null)
+                                        [CallerMemberName] string callMember = null,
+                                        bool putHttpDetails = false,
+                                        bool putExternalDetails = false)
     {
       var len = str.NonBlank(name, callFile, callLine, callMember).Length;
       if (len < minLen || len > maxLen)
@@ -493,7 +560,8 @@ namespace Azos
                                                   str.TakeFirstChars(15, ".."),
                                                   len,
                                                   minLen,
-                                                  maxLen));
+                                                  maxLen))
+        { PutDetailsInHttpStatus = putHttpDetails, PutDetailsInExternalStatus = putExternalDetails };
       }
       return str;
     }
@@ -508,7 +576,9 @@ namespace Azos
                                string targetName = null,
                                [CallerFilePath]   string callFile = null,
                                [CallerLineNumber] int callLine = 0,
-                               [CallerMemberName] string callMember = null) where T : Data.IRequiredCheck
+                               [CallerMemberName] string callMember = null,
+                               bool putHttpDetails = false,
+                               bool putExternalDetails = false) where T : Data.IRequiredCheck
     {
       if (obj == null || !obj.CheckRequired(targetName))
       {
@@ -516,7 +586,8 @@ namespace Azos
         throw new CallGuardException(callSite,
                                  name,
                                  StringConsts.GUARDED_CLAUSE_NO_REQUIRED_VALUE_ERROR
-                                             .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN));
+                                             .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN))
+        { PutDetailsInHttpStatus = putHttpDetails, PutDetailsInExternalStatus = putExternalDetails };
       }
       return obj;
     }
@@ -530,7 +601,9 @@ namespace Azos
                                string name = null,
                                [CallerFilePath]   string callFile = null,
                                [CallerLineNumber] int callLine = 0,
-                               [CallerMemberName] string callMember = null)
+                               [CallerMemberName] string callMember = null,
+                               bool putHttpDetails = false,
+                               bool putExternalDetails = false)
     {
       if (f!=null && !f(value))
       {
@@ -538,7 +611,8 @@ namespace Azos
         throw new CallGuardException(callSite,
                                  name,
                                  StringConsts.GUARDED_CLAUSE_CONDITION_ERROR
-                                             .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN));
+                                             .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN))
+        { PutDetailsInHttpStatus = putHttpDetails, PutDetailsInExternalStatus = putExternalDetails };
       }
       return value;
     }
@@ -550,7 +624,9 @@ namespace Azos
                                string name = null,
                                [CallerFilePath]   string callFile = null,
                                [CallerLineNumber] int callLine = 0,
-                               [CallerMemberName] string callMember = null)
+                               [CallerMemberName] string callMember = null,
+                               bool putHttpDetails = false,
+                               bool putExternalDetails = false)
     {
       if (!condition)
       {
@@ -558,7 +634,8 @@ namespace Azos
         throw new CallGuardException(callSite,
                                  name,
                                  StringConsts.GUARDED_CLAUSE_CONDITION_ERROR
-                                             .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN));
+                                             .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN))
+        { PutDetailsInHttpStatus = putHttpDetails, PutDetailsInExternalStatus = putExternalDetails };
       }
     }
 
@@ -572,7 +649,9 @@ namespace Azos
                                string scope = null,
                                [CallerFilePath]   string callFile = null,
                                [CallerLineNumber] int callLine = 0,
-                               [CallerMemberName] string callMember = null) where T : IValidatable
+                               [CallerMemberName] string callMember = null,
+                               bool putHttpDetails = false,
+                               bool putExternalDetails = false) where T : IValidatable
     {
       if (!state.IsAssigned) state = new ValidState(TargetedAttribute.ANY_TARGET, ValidErrorMode.FastBatch);
 
@@ -586,7 +665,8 @@ namespace Azos
                                  StringConsts.GUARDED_CLAUSE_VALIDATION_ERROR
                                              .Args(callSite ?? CoreConsts.UNKNOWN,
                                                    name ?? CoreConsts.UNKNOWN,
-                                                   state.Error.Message), state.Error);
+                                                   state.Error.Message), state.Error)
+        { PutDetailsInHttpStatus = putHttpDetails, PutDetailsInExternalStatus = putExternalDetails };
       }
 
       return value;
@@ -603,12 +683,14 @@ namespace Azos
                                  string scope = null,
                                  [CallerFilePath]   string callFile = null,
                                  [CallerLineNumber] int callLine = 0,
-                                 [CallerMemberName] string callMember = null) where T : class, IValidatable
+                                 [CallerMemberName] string callMember = null,
+                                 bool putHttpDetails = false,
+                                 bool putExternalDetails = false) where T : class, IValidatable
     {
       app.NonNull(nameof(app), callFile, callLine, callMember)
          .InjectInto(value.NonNull(name, callFile, callLine, callMember));
 
-      return value.AsValid(name, state, scope, callFile, callLine, callMember);
+      return value.AsValid(name, state, scope, callFile, callLine, callMember, putHttpDetails, putExternalDetails);
     }
 
 
@@ -619,7 +701,9 @@ namespace Azos
                                       string name = null,
                                       [CallerFilePath] string callFile = null,
                                       [CallerLineNumber] int callLine = 0,
-                                      [CallerMemberName] string callMember = null)
+                                      [CallerMemberName] string callMember = null,
+                                      bool putHttpDetails = false,
+                                      bool putExternalDetails = false)
     {
       if (value.IsZero || !value.IsValid)
       {
@@ -627,7 +711,8 @@ namespace Azos
         throw new CallGuardException(callSite,
                                  name,
                                  StringConsts.GUARDED_CLAUSE_ATOM_VALUE_ZERO_INVALID_ERROR
-                                             .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN));
+                                             .Args(callSite ?? CoreConsts.UNKNOWN, name ?? CoreConsts.UNKNOWN))
+        { PutDetailsInHttpStatus = putHttpDetails, PutDetailsInExternalStatus = putExternalDetails };
       }
 
       return value;
