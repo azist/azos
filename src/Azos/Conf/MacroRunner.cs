@@ -33,25 +33,13 @@ namespace Azos.Conf
   [Serializable]
   public class DefaultMacroRunner : IMacroRunner
   {
-    #region CONSTS
-
     public const string AS_PREFIX = "as-";
 
-    #endregion
-
-    #region STATIC
-
     private static DefaultMacroRunner s_Instance = new DefaultMacroRunner();
-
     private DefaultMacroRunner() { }
 
-    /// <summary>
-    /// Returns a singleton class instance
-    /// </summary>
-    public static DefaultMacroRunner Instance
-    {
-      get { return s_Instance; }
-    }
+    /// <summary>Returns a singleton class instance </summary>
+    public static DefaultMacroRunner Instance => s_Instance;
 
     /// <summary>
     /// Returns a string value converted to desired type with optional default and format
@@ -89,7 +77,6 @@ namespace Azos.Conf
       else
         return result.ToString();
     }
-    #endregion
 
     /// <summary>
     /// Virtual method to run the named Macro using the provided input section node, input string, params section node, and context object
@@ -107,43 +94,66 @@ namespace Azos.Conf
                           macroParams.Navigate("$fmt|$format").Value);
 
       }
-      else if (string.Equals(macroName, "now", StringComparison.InvariantCultureIgnoreCase))
+      else if (macroName.EqualsIgnoreCase("now"))
       {
-        var utc = macroParams.AttrByName("utc").ValueAsBool(false);
-
-        var fmt = macroParams.Navigate("$fmt|$format").ValueAsString();
-
-        var valueAttr = macroParams.AttrByName("value");
-
-
-        var now = Ambient.UTCNow;
-        if (!utc)
-        {
-          ILocalizedTimeProvider timeProvider = context as ILocalizedTimeProvider;
-          if (timeProvider == null && context is IApplicationComponent cmp)
-          {
-            timeProvider = cmp.ComponentDirector as ILocalizedTimeProvider;
-            if (timeProvider == null) timeProvider = cmp.App;
-          }
-
-          now = timeProvider != null ? timeProvider.LocalizedTime : now.ToLocalTime();
-        }
-
-        // We inspect the "value" param that may be provided for testing purposes
-        if (valueAttr.Exists)
-          now = valueAttr.Value.AsDateTimeFormat(now, fmt,
-                   utc ? DateTimeStyles.AssumeUniversal : DateTimeStyles.AssumeLocal);
-
-        return fmt == null ? now.ToString() : now.ToString(fmt);
+        return Macro_now(macroParams, context);
       }
-      else if (string.Equals(macroName, "ctx-name", StringComparison.InvariantCultureIgnoreCase))
+      else if (macroName.EqualsIgnoreCase("ctx-name"))
       {
         if (context is Collections.INamed)
           return ((Collections.INamed)context).Name;
       }
+      else if (macroName.EqualsIgnoreCase("decipher")) //#870
+      {
+        return Macro_decipher(node, inputValue, macroName, macroParams, context);
+      }
 
 
       return inputValue;
+    }
+
+    public virtual string Macro_now(IConfigSectionNode macroParams, object context)
+    {
+      var utc = macroParams.AttrByName("utc").ValueAsBool(false);
+
+      var fmt = macroParams.Navigate("$fmt|$format").ValueAsString();
+
+      var valueAttr = macroParams.AttrByName("value");
+
+
+      var now = Ambient.UTCNow;
+      if (!utc)
+      {
+        ILocalizedTimeProvider timeProvider = context as ILocalizedTimeProvider;
+        if (timeProvider == null && context is IApplicationComponent cmp)
+        {
+          timeProvider = cmp.ComponentDirector as ILocalizedTimeProvider;
+          if (timeProvider == null) timeProvider = cmp.App;
+        }
+
+        now = timeProvider != null ? timeProvider.LocalizedTime : now.ToLocalTime();
+      }
+
+      // We inspect the "value" param that may be provided for testing purposes
+      if (valueAttr.Exists)
+        now = valueAttr.Value.AsDateTimeFormat(now, fmt,
+                 utc ? DateTimeStyles.AssumeUniversal : DateTimeStyles.AssumeLocal);
+
+      return fmt == null ? now.ToString() : now.ToString(fmt);
+    }
+
+    //#870
+    public virtual string Macro_decipher(IConfigSectionNode node, string inputValue, string macroName, IConfigSectionNode macroParams, object context)
+    {
+      if (inputValue.IsNullOrWhiteSpace()) //inputValue takes precedence
+      {
+        inputValue = macroParams.ValOf("value", "val", "v");//this is used if input value is empty
+      }
+
+      var algorithmName = macroParams.ValOf("algorithm", "alg", "a");//this may be blank
+      var toString = macroParams.Of("string", "str").ValueAsBool(false);//true to decode into string vs base:64 byte array
+      var result = Security.TheSafe.DecipherConfigValue(inputValue, toString, algorithmName);
+      return result;
     }
   }
 
