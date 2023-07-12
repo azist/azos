@@ -31,7 +31,7 @@ namespace Azos.Tests.Nub.Configuration
     public void Test_02()
     {
       //dcba
-      var cfg = "encoded=base64:ZGNiYQ   pwd='$($encoded::decipher string=true)'".AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw);
+      var cfg = "    encoded=base64:ZGNiYQ       pwd='$($encoded::decipher string=true)'    ".AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw);
 
       using (var flow = new Azos.Security.SecurityFlowScope(Azos.Security.TheSafe.SAFE_CONFIG_ACCESS_FLAG))
       {
