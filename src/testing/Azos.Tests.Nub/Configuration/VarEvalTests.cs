@@ -11,7 +11,6 @@ using Azos.Scripting;
 
 namespace Azos.Tests.Nub.Configuration
 {
-
   [Runnable]
   public class VarEvalTests
   {

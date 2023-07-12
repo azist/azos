@@ -2021,6 +2021,7 @@ namespace Azos.Conf
     private string runMacro(string value, TokenParser.Token macro)
     {
       var config = new MemoryConfiguration();
+      config.Application = this.Configuration.Application;
       config.Create();
 
       foreach (var key in macro.Keys)
@@ -2030,7 +2031,7 @@ namespace Azos.Conf
           if (attr != null)
             config.Root.AddAttributeNode(attr.Name, attr.Value);
         }
-      return m_Configuration.RunMacro(this, value, macro.Name, config.Root);
+      return m_Configuration.RunMacro(this, value, macro.Name, config.Root) ?? string.Empty;
     }
 
 

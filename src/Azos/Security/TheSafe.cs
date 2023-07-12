@@ -52,14 +52,17 @@ namespace Azos.Security
         throw new AccessToTheSafeDeniedException(StringConsts.SECURITY_ACCESS_TO_THESAFE_DENIED_ERROR.Args($"{nameof(SecurityFlowScope)}({nameof(TheSafe)}.{nameof(SAFE_CONFIG_ACCESS_FLAG)})"));
 
       var ain = value.AsByteArray();
+
+      ////Azos.Scripting.Conout.See(ain.ToHexDump());
+
       var aout = decipher(ain, algorithmName);
 
       if (aout == null) return null;
 
       if (toString)
-        return ain.FromUTF8Bytes();
+        return aout.FromUTF8Bytes();
       else
-        return StringValueConversion.BASE64_VALUE_PREFIX + ain.ToWebSafeBase64();
+        return StringValueConversion.BASE64_VALUE_PREFIX + aout.ToWebSafeBase64();
     }
 
     /// <summary>
@@ -87,7 +90,7 @@ namespace Azos.Security
       for(var i=0; i<value.Length; i++) result[result.Length-i-1] = value[i];
       #endregion Temp Code
 
-      return null;
+      return result;
     }
 
 
