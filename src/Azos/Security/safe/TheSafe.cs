@@ -16,7 +16,7 @@ namespace Azos.Security
   /// Facilitates process-global access to secrets such as passwords and crypto key strings.
   /// This class does not use application chassis and is PROCESS-INSTANCE-GLOBAL by design.
   /// </summary>
-  public static class TheSafe
+  public static partial class TheSafe
   {
     /// <summary>
     /// If this flag is set on the current call scope, authorizes access to safe
@@ -84,12 +84,9 @@ namespace Azos.Security
     private static byte[] decipher(byte[] value, string algorithmName)
     {
       if (value == null) return null;
-
-      #region Temp code
-      var result = new byte[value.Length];
-      for(var i=0; i<value.Length; i++) result[result.Length-i-1] = value[i];
-      #endregion Temp Code
-
+      var algo = s_Algorithms[algorithmName.Default(ALGORITHM_NAME_DEFAULT)];
+      if (algo == null) return null;
+      var result = algo.Decipher(value);
       return result;
     }
 
