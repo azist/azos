@@ -5,6 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using Azos.Collections;
@@ -15,22 +16,76 @@ namespace Azos.Security
 {
   static partial class TheSafe
   {
+    public const string FILE_SKY_SAFE = ".skysafe";
     public const string ALGORITHM_NAME_NOP = "nop";
     public const string ALGORITHM_NAME_DEFAULT = "default";
+
+    public const string CONFIG_ALGORITHM_SECTION = "algorithm";
 
     static TheSafe()
     {
       s_CryptoRnd = new RNGCryptoServiceProvider();
       s_Algorithms = new Registry<Algorithm>();
       s_Algorithms.Register(NopAlgorithm.Instance);
-
-      //todo REad all algorithms from IConfigSectionNode
-      // var dalg = new DefaultAlgorithm();
-      // s_Algorithms.Register(dalg);
     }
 
     private static readonly RNGCryptoServiceProvider s_CryptoRnd;
     private static readonly Registry<Algorithm> s_Algorithms;
+
+    /// <summary>
+    /// Initializes The Safe with the specified config vector.
+    /// If passed config is null, then the system tries to read `.skysafe` file
+    /// starting at app executable entry point and continuing its search through parent directories
+    /// </summary>
+    public static void Init(IConfigSectionNode cfg = null)
+    {
+      if (cfg == null || !cfg.Exists)
+      {
+        cfg = GetDefaultConfiguration();
+      }
+
+      s_Algorithms.Clear();
+      s_Algorithms.Register(NopAlgorithm.Instance);
+
+      foreach (var nAlgo in cfg.Children.Where(c => c.IsSameName(CONFIG_ALGORITHM_SECTION)))
+      {
+        var algo = FactoryUtils.Make<Algorithm>(nAlgo, args: new[] { nAlgo });
+        if (!s_Algorithms.Register(algo))
+        {
+          throw new SecurityException("Algorithm `{0}` is already registered".Args(algo.Name));
+        }
+      }//foreach
+    }
+
+    /// <summary>
+    /// Returns default configuration read from `.skysafe` file starting at app executable root
+    /// and continuing file search in its parent directories
+    /// </summary>
+    public static IConfigSectionNode GetDefaultConfiguration()
+    {
+      try
+      {
+        var path = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
+        while(true)
+        {
+          var fn = Path.Combine(path, FILE_SKY_SAFE);
+          if (File.Exists(fn))
+          {
+            var config = new LaconicConfiguration(fn);
+            return config.Root;
+          }
+          path = Path.GetDirectoryName(path);
+          if (path.IsNullOrWhiteSpace() || path == Path.GetPathRoot(path)) break;
+        }
+
+        return Configuration.NewEmptyRoot();
+      }
+      catch(Exception error)
+      {
+        throw new SecurityException($"Error in {nameof(GetDefaultConfiguration)}(): {error.ToMessageWithType()}", error);
+      }
+    }
+
 
     internal static byte[] GenerateRandomBytes(int count)
     {
