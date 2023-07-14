@@ -80,27 +80,5 @@ namespace Azos
     public static async Task<AccessLevel> GetAccessLevelAsync(this IApplication app, Permission permission, User user = null)
      => await app.NonNull(nameof(app)).SecurityManager.AuthorizeAsync(user ?? Ambient.CurrentCallUser, permission).ConfigureAwait(false);
 
-
-    ///// <summary>
-    ///// A one-way function which turns a pass-phrase such as a s password into a key of the specified length.
-    ///// The function uses KDF derivation to come up with a key derived form a string of Unicode characters
-    ///// </summary>
-    ///// <param name="passphrase">A passphrase to turn into a key, may not be null or empty</param>
-    ///// <returns>A key of desired length: 16 (128bits), 32(256bits), or 64(512 bits) bytes </returns>
-    //public static byte[] PassphraseStringToKey(string passphrase)
-    //{
-    //  passphrase.NonBlank(nameof(passphrase));
-    //  var emptySalt = Array.Empty<byte>();
-    //  var iterations = 1000;
-    //  var desiredKeyLength = 16; // 16 bytes equal 128 bits.
-    //  var hashMethod = HashAlgorithmName.SHA384;
-    //  //new Rfc2898DeriveBytes(passphrase, )
-
-    //  return Rfc2898DeriveBytes. .Pbkdf2(Encoding.Unicode.GetBytes(password),
-    //                                   emptySalt,
-    //                                   iterations,
-    //                                   hashMethod,
-    //                                   desiredKeyLength);
-    //}
   }
 }
