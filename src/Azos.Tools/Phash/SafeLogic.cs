@@ -36,7 +36,7 @@ namespace Azos.Tools.Phash
                                  }
 
                                  ConsoleUtils.WriteMarkupContent("!!! Error protecting <f color=red>`{0}`<f color=gray> \n Error text: <f color=yellow> {1}<f color=gray>\n".Args(fn, err.ToMessageWithType()));
-                                 return false;
+                                 return true;
                                });
     }
 
@@ -57,7 +57,7 @@ namespace Azos.Tools.Phash
                                   }
 
                                   ConsoleUtils.WriteMarkupContent("!!! Error unprotecting <f color=red>`{0}`<f color=gray> \n Error text: <f color=yellow> {1}<f color=gray>\n".Args(fn, err.ToMessageWithType()));
-                                  return false;
+                                  return true;
                                 });
     }
 

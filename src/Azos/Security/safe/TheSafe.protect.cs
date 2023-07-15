@@ -284,7 +284,7 @@ namespace Azos.Security
         try
         {
           var plain = File.ReadAllBytes(fn);
-          if (HasPreamble(plain, 0)) continue;//ensure absence of preamble in file
+          if (plain.Length == 0 || HasPreamble(plain, 0)) continue;//non blank file and ensure absence of preamble in file
 
           var cipher = Protect(plain, password);
           File.WriteAllBytes(fnSafe, cipher);
@@ -344,7 +344,7 @@ namespace Azos.Security
         try
         {
           var cipher = File.ReadAllBytes(fn);
-          if (!HasPreamble(cipher, 0)) continue;//ensure preamble in file
+          if (cipher.Length == 0 || !HasPreamble(cipher, 0)) continue;//non blank file and ensure preamble in file
 
           var original = Unprotect(cipher, password);
           if (original == null) throw new SecurityException("Could not unprotect file: `{0}`".Args(fn));
