@@ -42,6 +42,7 @@ namespace Azos.Tools.Phash
         {
           Console.WriteLine("Re type secure password to confirm: ");
           confirm = ConsoleUtils.ReadPassword('#');
+          Console.WriteLine();
         }
         while(!result.EqualsOrdSenseCase(confirm));
       }
