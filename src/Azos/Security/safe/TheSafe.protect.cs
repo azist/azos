@@ -20,7 +20,7 @@ namespace Azos.Security
     public const string FILE_EXTENSION_SAFE = ".safe";
 
     private static readonly Encoding PROTECTION_STRING_ENCODING = new UTF8Encoding(false, false);
-    private const int KDF_ITERATIONS = 25_000;
+    private const int KDF_ITERATIONS = 15_000;
 
     private const int PREAMBLE_LEN = 0x08;
     private const byte PREAMBLE_0 = 0x2e;
@@ -78,9 +78,9 @@ namespace Azos.Security
         keyCipherHmac = kdf.GetBytes(HMAC_KEY_LEN);
       }
 
-Azos.Scripting.Conout.SeeArgs("keyAes: \n:{0}", keyAes.ToHexDump());
-Azos.Scripting.Conout.SeeArgs("keyPlainHmac: \n:{0}", keyPlainHmac.ToHexDump());
-Azos.Scripting.Conout.SeeArgs("keyCipherHmac: \n:{0}", keyCipherHmac.ToHexDump());
+//Azos.Scripting.Conout.SeeArgs("keyAes: \n:{0}", keyAes.ToHexDump());
+//Azos.Scripting.Conout.SeeArgs("keyPlainHmac: \n:{0}", keyPlainHmac.ToHexDump());
+//Azos.Scripting.Conout.SeeArgs("keyCipherHmac: \n:{0}", keyCipherHmac.ToHexDump());
 
       Array.Clear(pwdBytes, 0, pwdBytes.Length);
 
@@ -88,7 +88,7 @@ Azos.Scripting.Conout.SeeArgs("keyCipherHmac: \n:{0}", keyCipherHmac.ToHexDump()
       {
         using (var encryptor = aes.CreateEncryptor(keyAes, iv))
         {
-Azos.Scripting.Conout.SeeArgs("encrypted: \n:{0}", content.ToHexDump());
+//Azos.Scripting.Conout.SeeArgs("encrypted: \n:{0}", content.ToHexDump());
           var encrypted = encryptor.TransformFinalBlock(content, 0, content.Length);
           var hmacPlain  = getHMAC(keyPlainHmac,  new ArraySegment<byte>(iv), content);
           var hmacCipher = getHMAC(keyCipherHmac, new ArraySegment<byte>(iv), encrypted);
@@ -161,9 +161,9 @@ Azos.Scripting.Conout.SeeArgs("encrypted: \n:{0}", content.ToHexDump());
         keyCipherHmac = kdf.GetBytes(HMAC_KEY_LEN);
       }
 
-Azos.Scripting.Conout.SeeArgs("keyAes: \n:{0}", keyAes.ToHexDump());
-Azos.Scripting.Conout.SeeArgs("keyPlainHmac: \n:{0}", keyPlainHmac.ToHexDump());
-Azos.Scripting.Conout.SeeArgs("keyCipherHmac: \n:{0}", keyCipherHmac.ToHexDump());
+//Azos.Scripting.Conout.SeeArgs("keyAes: \n:{0}", keyAes.ToHexDump());
+//Azos.Scripting.Conout.SeeArgs("keyPlainHmac: \n:{0}", keyPlainHmac.ToHexDump());
+//Azos.Scripting.Conout.SeeArgs("keyCipherHmac: \n:{0}", keyCipherHmac.ToHexDump());
 
       Array.Clear(pwdBytes, 0, pwdBytes.Length);
 
@@ -179,7 +179,7 @@ Azos.Scripting.Conout.SeeArgs("keyCipherHmac: \n:{0}", keyCipherHmac.ToHexDump()
             if (!gotHmacCipher.MemBufferEquals(hmacCipher)) return null;//HMAC mismatch: ciphered message has been tampered with
 
             var decrypted = decryptor.TransformFinalBlock(content, HDR_LEN, content.Length - HDR_LEN);//never disclose the error reason
-Azos.Scripting.Conout.SeeArgs("decrypted: \n:{0}", decrypted.ToHexDump());
+//Azos.Scripting.Conout.SeeArgs("decrypted: \n:{0}", decrypted.ToHexDump());
             var gotHmacPlain = new byte[HMAC_LEN];
             Array.Copy(content, PREAMBLE_LEN + PREIV_LEN, gotHmacPlain, 0, HMAC_LEN);
             var hmacPlain = getHMAC(keyPlainHmac, new ArraySegment<byte>(iv), new ArraySegment<byte>(decrypted));
@@ -342,7 +342,7 @@ Azos.Scripting.Conout.SeeArgs("decrypted: \n:{0}", decrypted.ToHexDump());
           if (!HasPreamble(cipher, 0)) continue;//ensure preamble in file
 
           var original = Unprotect(cipher, password);
-          if (original == null) throw new SecurityException("Cant unprotect: `{0}`".Args(fn));
+          if (original == null) throw new SecurityException("Could not unprotect file: `{0}`".Args(fn));
           File.WriteAllBytes(fnOriginal, original);
           if (deleteOriginal) File.Delete(fn);
         }
