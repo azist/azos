@@ -16,7 +16,7 @@ namespace Azos.Security
     ////https://security.stackexchange.com/questions/38828/how-can-i-securely-convert-a-string-password-to-a-key-used-in-aes
 
     private static readonly Encoding PROTECTION_STRING_ENCODING = new UTF8Encoding(false, false);
-    private const int KDF_ITERATIONS = 250_000;
+    private const int KDF_ITERATIONS = 25_000;
 
     private const int PREIV_LEN = 256;
     private const int IV_LEN = 128 / 8; // 16 bytes
@@ -63,12 +63,17 @@ namespace Azos.Security
         keyCipherHmac = kdf.GetBytes(HMAC_KEY_LEN);
       }
 
+Azos.Scripting.Conout.SeeArgs("keyAes: \n:{0}", keyAes.ToHexDump());
+Azos.Scripting.Conout.SeeArgs("keyPlainHmac: \n:{0}", keyPlainHmac.ToHexDump());
+Azos.Scripting.Conout.SeeArgs("keyCipherHmac: \n:{0}", keyCipherHmac.ToHexDump());
+
       Array.Clear(pwdBytes, 0, pwdBytes.Length);
 
       using(var aes = makeAes())
       {
         using (var encryptor = aes.CreateEncryptor(keyAes, iv))
         {
+Azos.Scripting.Conout.SeeArgs("encrypted: \n:{0}", content.ToHexDump());
           var encrypted = encryptor.TransformFinalBlock(content, 0, content.Length);
           var hmacPlain  = getHMAC(keyPlainHmac,  new ArraySegment<byte>(iv), content);
           var hmacCipher = getHMAC(keyCipherHmac, new ArraySegment<byte>(iv), encrypted);
@@ -128,6 +133,10 @@ namespace Azos.Security
         keyCipherHmac = kdf.GetBytes(HMAC_KEY_LEN);
       }
 
+Azos.Scripting.Conout.SeeArgs("keyAes: \n:{0}", keyAes.ToHexDump());
+Azos.Scripting.Conout.SeeArgs("keyPlainHmac: \n:{0}", keyPlainHmac.ToHexDump());
+Azos.Scripting.Conout.SeeArgs("keyCipherHmac: \n:{0}", keyCipherHmac.ToHexDump());
+
       Array.Clear(pwdBytes, 0, pwdBytes.Length);
 
       try
@@ -138,11 +147,11 @@ namespace Azos.Security
           {
             var gotHmacCipher = new byte[HMAC_LEN];
             Array.Copy(content, PREIV_LEN + HMAC_LEN, gotHmacCipher, 0, HMAC_LEN);
-            var hmacCipher = getHMAC(keyCipherHmac, new ArraySegment<byte>(iv), new ArraySegment<byte>(content, PREIV_LEN + HMAC_LEN, HMAC_LEN));
+            var hmacCipher = getHMAC(keyCipherHmac, new ArraySegment<byte>(iv), new ArraySegment<byte>(content, HDR_LEN, content.Length - HDR_LEN));
             if (!gotHmacCipher.MemBufferEquals(hmacCipher)) return null;//HMAC mismatch: ciphered message has been tampered with
 
             var decrypted = decryptor.TransformFinalBlock(content, HDR_LEN, content.Length - HDR_LEN);//never disclose the error reason
-
+Azos.Scripting.Conout.SeeArgs("decrypted: \n:{0}", decrypted.ToHexDump());
             var gotHmacPlain = new byte[HMAC_LEN];
             Array.Copy(content, PREIV_LEN, gotHmacPlain, 0, HMAC_LEN);
             var hmacPlain = getHMAC(keyPlainHmac, new ArraySegment<byte>(iv), new ArraySegment<byte>(decrypted));
