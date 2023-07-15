@@ -279,6 +279,8 @@ Azos.Scripting.Conout.SeeArgs("decrypted: \n:{0}", decrypted.ToHexDump());
         try
         {
           var plain = File.ReadAllBytes(fn);
+          if (HasPreamble(plain, 0)) continue;//ensure absence of preamble in file
+
           var cipher = Protect(plain, password);
           File.WriteAllBytes(fnSafe, cipher);
           if (deleteOriginal) File.Delete(fn);
@@ -328,6 +330,7 @@ Azos.Scripting.Conout.SeeArgs("decrypted: \n:{0}", decrypted.ToHexDump());
         var ext = Path.GetExtension(fn).Trim();
         if (!ext.EqualsIgnoreCase(fileExtension)) continue;//filter out already unprotected files
 
+
         var fnOriginal = Path.GetFileNameWithoutExtension(fn);
         if (progress != null)
         {
@@ -336,6 +339,8 @@ Azos.Scripting.Conout.SeeArgs("decrypted: \n:{0}", decrypted.ToHexDump());
         try
         {
           var cipher = File.ReadAllBytes(fn);
+          if (!HasPreamble(cipher, 0)) continue;//ensure preamble in file
+
           var original = Unprotect(cipher, password);
           if (original == null) throw new SecurityException("Cant unprotect: `{0}`".Args(fn));
           File.WriteAllBytes(fnOriginal, original);
