@@ -287,7 +287,7 @@ Azos.Scripting.Conout.SeeArgs("decrypted: \n:{0}", decrypted.ToHexDump());
         {
           if (progress != null)
           {
-            if (!progress(fn, fnOriginal, cause)) throw;
+            if (!progress(fn, fnSafe, cause)) throw;
           }
           else throw;
         }
