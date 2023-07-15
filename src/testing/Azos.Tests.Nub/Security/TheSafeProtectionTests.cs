@@ -24,7 +24,7 @@ namespace Azos.Tests.Nub.Security
     }
 
     [Run("!safe-all-lengths", "count=1500")]
-    public void StringSizes_01(int count)
+    public void AllStringSizes(int count)
     {
       for(var i = 1; i <= count; i++)
       {
@@ -76,10 +76,7 @@ namespace Azos.Tests.Nub.Security
 
       Aver.IsNull(TheSafe.Unprotect(got, "123456789"));
       Aver.IsNull(TheSafe.Unprotect(got, "0123456789"));
-
     }
-
-
 
   }
 }

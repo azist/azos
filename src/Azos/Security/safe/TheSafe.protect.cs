@@ -205,7 +205,11 @@ namespace Azos.Security
     /// Returns true when the specified msg starts with preamble at the offset
     /// </summary>
     public static bool HasPreamble(byte[] msg, int offset)
-      =>  (msg.NonNull(nameof(msg))[offset + 0] == PREAMBLE_0) &&
+    {
+      msg.NonNull(nameof(msg));
+      if (msg.Length <= PREAMBLE_LEN) return false;
+
+      return (msg[offset + 0] == PREAMBLE_0) &&
           (msg[offset + 1] == PREAMBLE_1) &&
           (msg[offset + 2] == PREAMBLE_2) &&
           (msg[offset + 3] == PREAMBLE_3) &&
@@ -213,6 +217,7 @@ namespace Azos.Security
           (msg[offset + 5] == PREAMBLE_5) &&
           (msg[offset + 6] == PREAMBLE_6) &&
           (msg[offset + 7] == PREAMBLE_7);
+    }
 
     /// <summary>
     /// Returns true if the specified file exists and starts with preamble
@@ -331,7 +336,7 @@ namespace Azos.Security
         if (!ext.EqualsIgnoreCase(fileExtension)) continue;//filter out already unprotected files
 
 
-        var fnOriginal = Path.GetFileNameWithoutExtension(fn);
+        var fnOriginal = Path.Join(Path.GetDirectoryName(fn), Path.GetFileNameWithoutExtension(fn));
         if (progress != null)
         {
           progress(fn, fnOriginal, null);

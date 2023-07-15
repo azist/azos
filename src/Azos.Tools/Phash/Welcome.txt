@@ -1,6 +1,6 @@
 ﻿<push><b color=black><f color=white>
-Azos Password Hash Generator Utility<f color=gray>
+Azos Safe, Password Hash, and Key Generator Utility<f color=gray>
 Copyright (c) 2018-2023 Azist Group
-Version 5.0 / Azos as of May 2023
+Version 6.0 / Azos as of July 2023
 
 <pop>

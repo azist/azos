@@ -35,7 +35,7 @@ namespace Azos.Tools.Phash
       }
       catch(Exception error)
       {
-        ConsoleUtils.Error(error.ToMessageWithType());
+        ConsoleUtils.Error(new WrappedExceptionData(error).ToJson(JsonWritingOptions.PrettyPrintRowsAsMapASCII));
         System.Environment.ExitCode = -1;
       }
     }
@@ -44,10 +44,11 @@ namespace Azos.Tools.Phash
     {
       var args = app.CommandArgs;
 
-      if (args["list"].Exists)
+      var node = args["list"];
+      if (node.Exists)
       {
         Console.WriteLine(" #   Type  (name)");
-        Console.WriteLine("--------------------------------");
+        Console.WriteLine("-----------------------------------------------");
         app.SecurityManager.PasswordManager.Algorithms.ForEach( (alg, i) =>
           Console.WriteLine("[{0}]  {1}(`{2}`)", i, alg.GetType().DisplayNameWithExpandedGenericArgs(), alg.Name)
         );
@@ -55,6 +56,19 @@ namespace Azos.Tools.Phash
         return;
       }
 
+      node = args["safe-protect"];
+      if (node.Exists)
+      {
+        SafeLogic.Protect(app, node);
+        return;
+      }
+
+      node = args["safe-unprotect"];
+      if (node.Exists)
+      {
+        SafeLogic.Unprotect(app, node);
+        return;
+      }
 
       var pretty = args["pp", "pretty"].Exists;
       var noEntropy = args["ne", "noentropy"].Exists;
