@@ -1429,7 +1429,10 @@ namespace Azos.Conf
       {
         ts_Depth_ProcessAllExistingIncludes++;
         if (ts_Depth_ProcessAllExistingIncludes > MAX_INCLUDE_DEPTH)
-            throw new ConfigException(StringConsts.CONFIG_INCLUDE_PRAGMA_DEPTH_ERROR.Args(MAX_INCLUDE_DEPTH));
+        {
+          ts_Depth_ProcessAllExistingIncludes = 0;
+          throw new ConfigException(StringConsts.CONFIG_INCLUDE_PRAGMA_DEPTH_ERROR.Args(MAX_INCLUDE_DEPTH));
+        }
 
         var found = ProcessIncludePragmas(true, includePragma, overrideRules);
         if (found) ProcessAllExistingIncludes(configLevelName, includePragma, overrideRules);
@@ -1735,7 +1738,11 @@ namespace Azos.Conf
           return (null, isOverride);
         }
 
-        var root = Configuration.ProviderLoadFromFile(fileName).Root;
+        //20230716 DKh #870
+        var safeAlgo = pragma.ValOf(Configuration.CONFIG_INCLUDE_PRAGMA_SAFE_ALGO_ATTR);
+        var safeExt = pragma.ValOf(Configuration.CONFIG_INCLUDE_PRAGMA_SAFE_EXT_ATTR);
+        //20230716 DKh #870
+        var root = Configuration.ProviderLoadFromFile(fileName, safeAlgo, safeExt).Root;
         return (root, isOverride);
       }
 
