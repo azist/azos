@@ -6,13 +6,17 @@
 
 using System;
 using System.Security.Cryptography;
+
 using Azos.Conf;
 
 namespace Azos.Security
 {
   static partial class TheSafe
   {
-    public class AesAlgorithm : Algorithm
+    /// <summary>
+    /// Protects/unprotects payload using HMAC and AES
+    /// </summary>
+    public sealed class AesAlgorithm : Algorithm
     {
       private const int IV_LEN = 128 / 8;
       private const int HMAC_LEN = 256 / 8;
