@@ -16,7 +16,6 @@ namespace Azos.Security
 {
   static partial class TheSafe
   {
-    public const string FILE_SKY_SAFE = ".skysafe";
     public const string ALGORITHM_NAME_NOP = "nop";
     public const string ALGORITHM_NAME_DEFAULT = "default";
 
@@ -68,7 +67,7 @@ namespace Azos.Security
         var path = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
         while(true)
         {
-          var fn = Path.Combine(path, FILE_SKY_SAFE);
+          var fn = Path.Combine(path, FILE_EXTENSION_SAFE);
           if (File.Exists(fn))
           {
             var config = new LaconicConfiguration(fn);

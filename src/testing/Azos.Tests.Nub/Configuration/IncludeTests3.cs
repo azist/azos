@@ -44,6 +44,42 @@ namespace Azos.Tests.Nub.Configuration
       Aver.AreEqual("ვეპხის ტყაოსანი შოთა რუსთაველი", cfg["CameFromFile"].Of("rustaveli").Value);
     }
 
+    [Run]
+    public void IncludeSafeFile()
+    {
+      var cfg = @"cfg
+      {
+        a=123
+        b='I am here'
+        _include
+        {
+          name=CameFromFile
+          pre-process-all-includes=true
+          file = 'safe--nub-test.laconf.safe'
+          safe-algo='SHERLOCK'
+        }
+      }".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
+
+
+      Azos.Security.TheSafe.Init(@"
+        safe
+        {
+          algorithm{ type='Azos.Security.TheSafe+PwdAlgorithm, Azos' name='SHERLOCK' password=12345}
+        } ".AsLaconicConfig());
+
+      cfg.ProcessAllExistingIncludes();
+      cfg.ToLaconicString().See();
+
+      Aver.IsTrue(cfg["CameFromFile"].Exists);
+      Aver.AreEqual(123, cfg.Of("a").ValueAsInt());
+      Aver.AreEqual("I am here", cfg.Of("b").Value);
+
+      Aver.AreEqual(1, cfg["CameFromFile"].Of("a").ValueAsInt());
+      Aver.AreEqual(2, cfg["CameFromFile"].Of("b").ValueAsInt());
+      Aver.AreEqual("ЭЮЯ?", cfg["CameFromFile"].Of("russian").Value);
+      Aver.AreEqual("ვეპხის ტყაოსანი შოთა რუსთაველი", cfg["CameFromFile"].Of("rustaveli").Value);
+    }
+
 
 
   }

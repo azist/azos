@@ -18,9 +18,8 @@ namespace Azos.Security
     /// </summary>
     public sealed class PwdAlgorithm : Algorithm
     {
-      public PwdAlgorithm(string name, IConfigSectionNode config) : base(name, config)
+      public PwdAlgorithm(IConfigSectionNode config) : base(config.NonEmpty(nameof(config)).ValOf(Configuration.CONFIG_NAME_ATTR), config)
       {
-        config.NonEmpty(nameof(config));
         m_Password = config.ValOf("password", "pwd");
         m_Password.NonBlank("$pwd|$password");
       }
