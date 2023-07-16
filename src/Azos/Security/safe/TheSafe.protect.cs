@@ -20,7 +20,7 @@ namespace Azos.Security
     public const string FILE_EXTENSION_SAFE = ".safe";
 
     private static readonly Encoding PROTECTION_STRING_ENCODING = new UTF8Encoding(false, false);
-    private const int KDF_ITERATIONS = 15_000;
+    private const int KDF_ITERATIONS = 18_000;
 
     private const int PREAMBLE_LEN = 0x08;
     private const byte PREAMBLE_0 = 0x2e;

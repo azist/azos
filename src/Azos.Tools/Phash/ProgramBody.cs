@@ -20,7 +20,7 @@ namespace Azos.Tools.Phash
   /// <summary>
   /// Program entry point for PASSWORD HASH generator tool
   /// </summary>
-  [Platform.ProcessActivation.ProgramBody("phash,pwd", Description = "Security password hash generator tool")]
+  [Platform.ProcessActivation.ProgramBody("safe,phash,pwd", Description = "Security safe tool for generating password, keys, hashes, and file encryption")]
   public static class ProgramBody
   {
     public static void Main(string[] args)
@@ -56,14 +56,14 @@ namespace Azos.Tools.Phash
         return;
       }
 
-      node = args["safe-protect"];
+      node = args["protect"];
       if (node.Exists)
       {
         SafeLogic.Protect(app, node);
         return;
       }
 
-      node = args["safe-unprotect"];
+      node = args["unprotect"];
       if (node.Exists)
       {
         SafeLogic.Unprotect(app, node);

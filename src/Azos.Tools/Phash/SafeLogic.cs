@@ -22,29 +22,38 @@ namespace Azos.Tools.Phash
     public static string GetPassword(IConfigSectionNode argsSafe, bool doConfirm)
     {
       var result = argsSafe.ValOf("pwd");
-      Console.WriteLine();
+      if (result.IsNotNullOrWhiteSpace()) return  result;
+
       while(result.IsNullOrWhiteSpace())
       {
-        Console.WriteLine("Type-in secure password: ");
+        Console.WriteLine();
+        Console.WriteLine("Please type-in the secure password: ");
         result = ConsoleUtils.ReadPassword('*');
       }
       Console.WriteLine();
 
       if (doConfirm)
       {
-        ConsoleUtils.Warning("Make sure you remember the password and confirm it!");
-        ConsoleUtils.Warning("Otherwise your content will not be deciphered back if you delete the original unprotected files");
+        ConsoleUtils.Info("You will now need to retype your password again a few times");
+        ConsoleUtils.Warning("Make sure you remember the password and confirm it properly,");
+        ConsoleUtils.Warning("otherwise your content will not be decipherable back if you delete the original unprotected files and forget the password");
+        Console.WriteLine();
+        ConsoleUtils.Warning("This is irrevocable operation and there is no way to recover your password!");
         Console.WriteLine();
         ConsoleUtils.Info("You can hit CTRL+C now to abort if needed");
         Console.WriteLine();
         string confirm;
-        do
+        for(int i=0; i < 3; i++)
         {
-          Console.WriteLine("Re type secure password to confirm: ");
+          Console.WriteLine("Type your secure password again to confirm or hit CTRL+C to abort if unsure:");
           confirm = ConsoleUtils.ReadPassword('#');
           Console.WriteLine();
+          if (!result.EqualsOrdSenseCase(confirm))
+          {
+            ConsoleUtils.Error("Passwords do not match. Hit CTRL+C if you need to abort, or retype your password again");
+            i = 0;
+          }
         }
-        while(!result.EqualsOrdSenseCase(confirm));
       }
 
       Console.WriteLine();

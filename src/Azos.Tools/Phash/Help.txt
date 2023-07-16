@@ -1,7 +1,7 @@
 ﻿<push><f color=magenta>
  Usage:
 <f color=white>
-   phash <f color=darkCyan>[-h | -? | -help]
+   safe <f color=darkCyan>[-h | -? | -help]
               [-k | -key  bit_length]
               [-pp | -pretty]
               [-ne | -noentropy]
@@ -9,8 +9,11 @@
               [-lvl | -level]
               [-list]
               [-alg]
-              [-safe-protect]
-              [-safe-unprotect]
+              [-protect]
+              [-unprotect]
+ <f color=green>
+  Note: <f color=darkred>
+   `safe`|`pwd`|`phash` <f color=darkgray>can be used interchangeably as they are aliases for the same command
 
 <f color=magenta>
  Options:
@@ -26,21 +29,35 @@
  <f color=darkCyan>-lvl | -level  <level><f color=gray> - the strength level of hash
               level = <f color=darkRed>Default| Minimum |BelowNormal|Normal|AboveNormal|Maximum
 
- <f color=darkCyan>-safe-protect path pwd=string pfx=string ext=string recurse=bool delete=bool <f color=gray> - perform directory protection
- <f color=darkCyan>-safe-unprotect path pwd=string pfx=string ext=string recurse=bool delete=bool <f color=gray> - perform directory unprotection
+ <f color=darkCyan>-protect path pwd=string pfx=string ext=string recurse=bool delete=bool <f color=gray> - perform directory protection
+
+ <f color=darkCyan>-unprotect path pwd=string pfx=string ext=string recurse=bool delete=bool <f color=gray> - perform directory unprotection
 
 <f color=magenta>
  Examples:
 <f color=yellow>
-  phash -pp -st 90 -lvl Normal<f color=gray>
+  pwd -pp -st 90 -lvl Normal<f color=gray>
  Pretty print with score threshold 90% hashing strength Normal
 
  <f color=yellow>
-  phash -alg kdf2023 -ne<f color=gray>
+  pwd -alg kdf2023 -ne<f color=gray>
  Use 'kdf2023' algorithm skipping extra entropy acquisition
 
  <f color=yellow>
-  phash -k 256<f color=gray>
+  safe -k 256<f color=gray>
  Generate 256 crypto-safe random key of 256 bits in length
+
+ <f color=yellow>
+  safe -protect c:\sky\safe pwd=123 delete=true recurse=true <f color=darkgray>
+ and complimentary<f color=yellow>
+  safe -unprotect c:\sky\safe pwd=123 delete=true recurse=true<f color=gray>
+ Using the specified password protect and unprotect files starting with default prefix `safe--`
+ with default extension `.safe` delete the originals and recurse into subdirectories.
+
+ <f color=yellow>
+  safe -protect c:\sky\safe delete=true recurse=true <f color=darkgray>
+ and complimentary<f color=yellow>
+  safe -unprotect c:\sky\safe delete=true recurse=true<f color=gray>
+ Same as above, but get prompted for a password
 
 <pop>
