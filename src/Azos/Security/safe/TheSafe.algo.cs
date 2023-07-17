@@ -182,7 +182,7 @@ namespace Azos.Security
       private readonly string m_Name;
 
       [Config]
-      private readonly bool m_Default;
+      private bool m_Default;
 
       public string Name => m_Name;
       public bool Default => m_Default;
