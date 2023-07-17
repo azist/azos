@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Azos.Security;
 using Azos.Serialization.JSON;
@@ -78,5 +79,6 @@ namespace Azos
     /// </summary>
     public static async Task<AccessLevel> GetAccessLevelAsync(this IApplication app, Permission permission, User user = null)
      => await app.NonNull(nameof(app)).SecurityManager.AuthorizeAsync(user ?? Ambient.CurrentCallUser, permission).ConfigureAwait(false);
+
   }
 }

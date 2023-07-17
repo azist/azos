@@ -80,7 +80,7 @@ client-side data embedded in a token itself (and protected cryptographically), s
 **claim-based identity**, or may require the use of **server-side token authorities** (aka `TokenRing` in Azos) which for additional security
 are cross-checked via a back channel for every API call. Server-side token authorities are more secure and more complex to implement because:
 
-- They do not divulge any information even in an encrypted form because server tokens are nothing but randomly generated IDs which point-to security data maintain on the server
+- They do not divulge any information even in an encrypted form because server tokens are nothing but randomly generated IDs which point-to security data maintained on the server side
 - Server tokens may be revoked/deleted from the store at any time without having to rely on the client-token expiration or blacklisting
 - Server side token introduce state which needs to be checked for every call, this does introduce some performance penalty which can be mitigated by using in-process volatile short-term caching
 - There are simply more components with server-side token authorities, therefore they should be used only when really needed

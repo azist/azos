@@ -86,7 +86,7 @@ namespace Azos.Sky.FileGateway
 
     public async Task<IEnumerable<Atom>> GetVolumesAsync(Atom system)
     {
-      system.HasRequiredValue(nameof(system));
+      system.HasRequiredValue(nameof(system), putExternalDetails: true);
       var uri = new UriQueryBuilder("volumes")
                .Add("system", system)
                .ToString();
@@ -158,9 +158,9 @@ namespace Azos.Sky.FileGateway
     public async Task<ItemInfo> CreateFileAsync(EntityId path, CreateMode mode, long offset, byte[] content)
     {
       path = Constraints.SanitizePath(path, true);
-      (offset >= 0).IsTrue("offset >= 0");
-      content.NonNull(nameof(content));
-      (content.Length < Constraints.MAX_FILE_CHUNK_SIZE).IsTrue($"contet.len < {Constraints.MAX_FILE_CHUNK_SIZE}");
+      (offset >= 0).IsTrue("offset >= 0", putExternalDetails: true);
+      content.NonNull(nameof(content), putExternalDetails: true);
+      (content.Length < Constraints.MAX_FILE_CHUNK_SIZE).IsTrue($"contet.len < {Constraints.MAX_FILE_CHUNK_SIZE}", putExternalDetails: true);
 
       var response = await m_Server.Call(GatewayServiceAddress,
                                           nameof(IFileGatewayLogic),
@@ -184,9 +184,9 @@ namespace Azos.Sky.FileGateway
     public async Task<ItemInfo> UploadFileChunkAsync(EntityId path, long offset, byte[] content)
     {
       path = Constraints.SanitizePath(path, true);
-      (offset >= 0).IsTrue("offset >= 0");
-      content.NonNull(nameof(content));
-      (content.Length < Constraints.MAX_FILE_CHUNK_SIZE).IsTrue($"contet.len < {Constraints.MAX_FILE_CHUNK_SIZE}");
+      (offset >= 0).IsTrue("offset >= 0", putExternalDetails: true);
+      content.NonNull(nameof(content), putExternalDetails: true);
+      (content.Length < Constraints.MAX_FILE_CHUNK_SIZE).IsTrue($"contet.len < {Constraints.MAX_FILE_CHUNK_SIZE}", putExternalDetails: true);
 
       var response = await m_Server.Call(GatewayServiceAddress,
                                           nameof(IFileGatewayLogic),
@@ -209,8 +209,8 @@ namespace Azos.Sky.FileGateway
     public async Task<(byte[] data, bool eof)> DownloadFileChunkAsync(EntityId path, long offset = 0, int size = 0)
     {
       path = Constraints.SanitizePath(path, true);
-      (offset >= 0).IsTrue("offset >= 0");
-      (size >= 0).IsTrue("size >= 0");
+      (offset >= 0).IsTrue("offset >= 0", putExternalDetails: true);
+      (size >= 0).IsTrue("size >= 0", putExternalDetails: true);
       var uri = new UriQueryBuilder("file")
                .Add("path", path)
                .Add("offset", offset)

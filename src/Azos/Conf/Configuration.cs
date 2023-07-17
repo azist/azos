@@ -38,6 +38,8 @@ namespace Azos.Conf
     public const string CONFIG_INCLUDE_PRAGMA_OVERRIDE_ATTR = "override";
     public const string CONFIG_INCLUDE_PRAGMA_PREPROCESS_ALL_INCLUDES_ATTR = "pre-process-all-includes";
     public const string CONFIG_INCLUDE_PRAGMA_WITH_SECTION = "with";
+    public const string CONFIG_INCLUDE_PRAGMA_SAFE_ALGO_ATTR = "safe-algo";
+    public const string CONFIG_INCLUDE_PRAGMA_SAFE_EXT_ATTR = "safe-ext";
 
     public const string DEFAULT_VAR_ESCAPE = "$(###)";
     public const string DEFAULT_VAR_START = "$(";
@@ -93,11 +95,45 @@ namespace Azos.Conf
     }
 
     /// <summary>
-    /// Loads the contents of the supplied file name in an appropriate configuration provider implementation for the supplied extension format
+    /// Loads the contents of the supplied file name in an appropriate configuration provider implementation for the supplied extension format.
+    /// If `safeAlgorithmName` is specified AND the file name ends with `safeExt` then the file contents is deciphered first using <see cref="Security.TheSafe"/>
     /// </summary>
-    public static Configuration ProviderLoadFromFile(string fileName)
+    public static Configuration ProviderLoadFromFile(string fileName, string safeAlgorithmName = null, string safeExt = null)
     {
+      fileName.NonBlank(nameof(fileName));
       var ext = Path.GetExtension(fileName).ToLower();
+
+      //#870
+      if (safeAlgorithmName.IsNotNullOrWhiteSpace())
+      try
+      {
+        if (safeExt.IsNullOrWhiteSpace()) safeExt = Security.TheSafe.FILE_EXTENSION_SAFE;
+        if (!safeExt.StartsWith('.')) safeExt = "." + safeExt;
+        if (ext.EqualsSenseCase(safeExt))
+        {
+          using(var scope = new Security.SecurityFlowScope(Security.TheSafe.SAFE_ACCESS_FLAG))
+          {
+            var ciphered = File.ReadAllBytes(fileName);
+            var decipheredTxtConfig = Security.TheSafe.DecipherText(ciphered, safeAlgorithmName);
+
+            if (decipheredTxtConfig==null)
+              throw new ConfigException("TheSafe.DecipherText() failure");
+
+            var extDeciphered = Path.GetExtension(Path.GetFileNameWithoutExtension(fileName));
+            if (extDeciphered.IsNotNullOrWhiteSpace())
+            {
+               return ProviderLoadFromString(decipheredTxtConfig, extDeciphered);
+            }
+          }
+        }
+      }
+      catch(Exception error)
+      {
+        throw new ConfigException(StringConsts.CONFIG_PROVIDER_LOAD_FILE_THESAFE_ERROR + error.ToMessageWithType());
+      }
+      //#870
+
+
 
       if (ext.StartsWith(".")) ext = ext.Remove(0, 1);
 

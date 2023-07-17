@@ -26,20 +26,22 @@ namespace Azos.Tools.Trun
         {
           try
           {
-           using(var app = new AzosApplication(true, args, null))
-           {
-             app.SetConsolePort(LocalConsolePort.Default);
+            Security.TheSafe.Init(onlyWhenHasNotInitBefore: true);
 
-             Console.CancelKeyPress += (_, e) =>
-             {
-               app.Stop();
-               //20210210 DKh stop the inner most app as well, which can be a unit test local app
-               ((IApplicationImplementation)ExecutionContext.Application).Stop();
-               e.Cancel = true;
-             };
+            using(var app = new AzosApplication(true, args, null))
+            {
+              app.SetConsolePort(LocalConsolePort.Default);
 
-             System.Environment.ExitCode = run(app);
-           }
+              Console.CancelKeyPress += (_, e) =>
+              {
+                app.Stop();
+                //20210210 DKh stop the inner most app as well, which can be a unit test local app
+                ((IApplicationImplementation)ExecutionContext.Application).Stop();
+                e.Cancel = true;
+              };
+
+              System.Environment.ExitCode = run(app);
+            }
           }
           catch(Exception error)
           {

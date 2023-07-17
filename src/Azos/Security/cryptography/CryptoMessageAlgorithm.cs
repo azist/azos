@@ -70,7 +70,7 @@ namespace Azos.Security
     {
       var result = keyNode.NonEmpty(nameof(keyNode))
                           .AttrByName(CONFIG_KEY_ATTR)
-                          .ValueAsByteArray(null) //respects hex or base64: format
+                          .ValueAsByteArray(null) //respects hex or base64: format and evaluates ::decipher TheSafe access macro
                           ??
                           throw new SecurityException("{0} config section `{1}` does not contain a valid key byte array".Args(GetType().Name, keyNode.RootPath));
 

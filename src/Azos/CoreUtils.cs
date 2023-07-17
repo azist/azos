@@ -276,7 +276,11 @@ namespace Azos
 
       if (error is AzosException aze)
       {
-        result[CoreConsts.EXT_STATUS_KEY_CODE] = aze.Code;
+        var code = aze.Code;
+        if (code != 0)
+        {
+          result[CoreConsts.EXT_STATUS_KEY_CODE] = code;
+        }
       }
 
       var inner = error.InnerException.SearchThisOrInnerExceptionOf<IExternalStatusProvider>();

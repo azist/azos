@@ -31,6 +31,8 @@ namespace Azos.Apps.Hosting
     /// </summary>
     public static int InteractiveConsoleMain(BootArgs args)
     {
+      Security.TheSafe.Init(onlyWhenHasNotInitBefore: true);
+
       var result = interactiveConsoleMainBody(args);
 
       if (System.Diagnostics.Debugger.IsAttached)
@@ -154,6 +156,7 @@ namespace Azos.Apps.Hosting
     /// </summary>
     public static int GovernedConsoleMain(BootArgs args)
     {
+      Security.TheSafe.Init(onlyWhenHasNotInitBefore: true);
       var result = governedConsoleMainBody(args);
       return result;
     }

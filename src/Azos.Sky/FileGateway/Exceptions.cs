@@ -20,11 +20,13 @@ namespace Azos.Sky.FileGateway
     public FileGatewayException(string message, Exception inner) : base(message, inner) { }
     protected FileGatewayException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 
-    public int HttpStatusCode => 591;
+    public int HttpStatusCode
+     => InnerException.SearchThisOrInnerExceptionOf<IHttpStatusProvider>()?.HttpStatusCode ?? 591;
 
-    public string HttpStatusDescription => "File gateway error";
+    public string HttpStatusDescription
+     => InnerException.SearchThisOrInnerExceptionOf<IHttpStatusProvider>()?.HttpStatusDescription ?? "File gateway error";
 
     public virtual JsonDataMap ProvideExternalStatus(bool includeDump)
-     => this.DefaultBuildErrorStatusProviderMap(includeDump, "fs");
+     => this.DefaultBuildErrorStatusProviderMap(includeDump, "file.gateway");
   }
 }

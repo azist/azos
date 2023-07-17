@@ -98,11 +98,12 @@ namespace Azos.Security
     {
       base.DoConfigure(node);
       cleanupAlgorithms();
+
       foreach(var n in node.Children.Where(c => c.IsSameName(CONFIG_ALGORITHM_SECTION)))
       {
         var algo = FactoryUtils.MakeDirectedComponent<ICryptoMessageAlgorithmImplementation>(this, n, extraArgs: new[]{n});
         if (!m_MessageProtectionAlgorithms.Register(algo))
-         throw new SecurityException("Algorithm `{0}` is already registered".Args(algo.Name));
+          throw new SecurityException("Algorithm `{0}` is already registered".Args(algo.Name));
       }
     }
     #endregion

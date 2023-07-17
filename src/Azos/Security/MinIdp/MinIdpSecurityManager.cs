@@ -323,24 +323,27 @@ namespace Azos.Security.MinIdp
 
     protected override void DoConfigure(IConfigSectionNode node)
     {
-      base.DoConfigure(node);
+      using(new SecurityFlowScope(TheSafe.SAFE_ACCESS_FLAG))
+      {
+        base.DoConfigure(node);
 
-      DisposeAndNull(ref m_Cryptography);
-      m_Cryptography = FactoryUtils.MakeAndConfigureDirectedComponent<ICryptoManagerImplementation>(
-                                              this,
-                                              node[CONFIG_CRYPTOGRAPHY_SECTION],
-                                              typeof(DefaultCryptoManager));
+        DisposeAndNull(ref m_Cryptography);
+        m_Cryptography = FactoryUtils.MakeAndConfigureDirectedComponent<ICryptoManagerImplementation>(
+                                                this,
+                                                node[CONFIG_CRYPTOGRAPHY_SECTION],
+                                                typeof(DefaultCryptoManager));
 
-      DisposeAndNull(ref m_PasswordManager);
-      m_PasswordManager = FactoryUtils.MakeAndConfigureDirectedComponent<IPasswordManagerImplementation>(
-                                              this,
-                                              node[CONFIG_PASSWORD_MANAGER_SECTION],
-                                              typeof(DefaultPasswordManager));
+        DisposeAndNull(ref m_PasswordManager);
+        m_PasswordManager = FactoryUtils.MakeAndConfigureDirectedComponent<IPasswordManagerImplementation>(
+                                                this,
+                                                node[CONFIG_PASSWORD_MANAGER_SECTION],
+                                                typeof(DefaultPasswordManager));
 
-      DisposeAndNull(ref m_Store);
-      m_Store = FactoryUtils.MakeAndConfigureDirectedComponent<IMinIdpStoreImplementation>(
-                                              this,
-                                              node[CONFIG_STORE_SECTION]);
+        DisposeAndNull(ref m_Store);
+        m_Store = FactoryUtils.MakeAndConfigureDirectedComponent<IMinIdpStoreImplementation>(
+                                                this,
+                                                node[CONFIG_STORE_SECTION]);
+      }
     }
 
     protected override void DoStart()
