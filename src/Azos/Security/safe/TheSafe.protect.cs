@@ -14,13 +14,27 @@ namespace Azos.Security
 {
   static partial class TheSafe
   {
+
+    /*
+      W      W      A     rrrrr    n    n   II   N    N   gggggggg
+      W      W    A   A   r   R    n   nn   II   NN   N   g     gg
+      W   W  W   A     A  rrrrr    n  n n   II   N N  N   g
+      W W  W W   AAAAAAA  r R      n n  n   II   N  N N   g   gggg
+      WW    WW   A     A  r  R     nn   n   II   N   NN   g     gg
+      W      W   A     A  r   R    n    n   II   N    N   gggggggg
+
+      DO NOT INADVERTENTLY CHANGE ANYTHING IN THIS FILE
+      AS IT WILL RENDER ALL STORED/ENCRYPTED DATA AS UNREADABLE
+    */
+
+    //// Reading:
     ////https://security.stackexchange.com/questions/38828/how-can-i-securely-convert-a-string-password-to-a-key-used-in-aes
 
     public const string FILE_PREFIX_SAFE = "safe--";
     public const string FILE_EXTENSION_SAFE = ".safe";
 
     private static readonly Encoding PROTECTION_STRING_ENCODING = new UTF8Encoding(false, false);
-    private const int KDF_ITERATIONS = 18_000;
+    private const int KDF_ITERATIONS = 18_000; //changing this, will invalidate all encrypted data
 
     private const int PREAMBLE_LEN = 0x08;
     private const byte PREAMBLE_0 = 0x2e;
@@ -403,3 +417,4 @@ namespace Azos.Security
     }
   }
 }
+
