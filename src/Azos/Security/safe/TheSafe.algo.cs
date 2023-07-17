@@ -16,6 +16,10 @@ namespace Azos.Security
 {
   static partial class TheSafe
   {
+    public const string ENV_VAR_SKY_SAFE = "SKY_SAFE";
+    public const string ENV_VAR_SKY_SAFE_PWD = "SKY_SAFE_PWD";
+    public const string FILE_NAME_SAFE_1 = ".skysafe.safe";
+    public const string FILE_NAME_SAFE_2 = ".skysafe";
     public const string ALGORITHM_NAME_NOP = "nop";
     public const string ALGORITHM_NAME_DEFAULT = "default";
 
@@ -57,22 +61,71 @@ namespace Azos.Security
     }
 
     /// <summary>
-    /// Returns default configuration read from `.skysafe` file starting at app executable root
-    /// and continuing file search in its parent directories
+    /// Returns default configuration read from `.skysafe` or `.skysafe.safe` file.
+    /// The file search starts at `SKY_SAFE` env var if it is set, otherwise the env var
+    /// `SKY_HOME` is probed, otherwise the search is performed starting at the app
+    /// entry point executable root and continuing file search in its parent directories
     /// </summary>
     public static IConfigSectionNode GetDefaultConfiguration()
     {
+      IConfigSectionNode loadFile(string fn)
+      {
+        var raw = File.ReadAllBytes(fn);
+        if (raw.Length == 0) return null;
+        var isSecure = HasPreamble(raw, 0);
+
+        if (isSecure)
+        {
+          var pwd = Environment.GetEnvironmentVariable(ENV_VAR_SKY_SAFE_PWD);
+
+          if (pwd == null) throw new SecurityException("Environment variable `{0}` must be set to access safe config file".Args(ENV_VAR_SKY_SAFE_PWD));
+
+          var laconf = UnprotectString(raw, pwd);
+          if (laconf == null) throw new SecurityException("Failure reading safe file. Revise env variable `{0}`".Args(ENV_VAR_SKY_SAFE_PWD));
+          return LaconicConfiguration.CreateFromString(laconf).Root;
+        }
+        else
+        {
+          return new LaconicConfiguration(fn).Root;
+        }
+      }
+
+      IConfigSectionNode load(string path)
+      {
+        var fn = Path.Combine(path, FILE_NAME_SAFE_1);
+        if (File.Exists(fn)) return loadFile(fn);
+
+        fn = Path.Combine(path, FILE_NAME_SAFE_2);
+        if (File.Exists(fn)) return loadFile(fn);
+
+        return null;
+      }
+
       try
       {
+        //1. Try SKY_SAFE path
+        var varSkySafe = Environment.GetEnvironmentVariable(ENV_VAR_SKY_SAFE);
+        if (varSkySafe.IsNotNullOrWhiteSpace() && Directory.Exists(varSkySafe))
+        {
+          var result = load(varSkySafe);
+          if (result != null) return result;
+        }
+
+        //2. Try SKY_HOME path
+        var varSkyHome = Environment.GetEnvironmentVariable(CoreConsts.SKY_HOME);
+        if (varSkyHome.IsNotNullOrWhiteSpace() && Directory.Exists(varSkyHome))
+        {
+          var result = load(varSkyHome);
+          if (result != null) return result;
+        }
+
+        //3. Look in app diretory
         var path = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
         while(true)
         {
-          var fn = Path.Combine(path, FILE_EXTENSION_SAFE);
-          if (File.Exists(fn))
-          {
-            var config = new LaconicConfiguration(fn);
-            return config.Root;
-          }
+          var result = load(path);
+          if (result != null) return result;
+
           path = Path.GetDirectoryName(path);
           if (path.IsNullOrWhiteSpace() || path == Path.GetPathRoot(path)) break;
         }
@@ -81,7 +134,7 @@ namespace Azos.Security
       }
       catch(Exception error)
       {
-        throw new SecurityException($"Error in {nameof(GetDefaultConfiguration)}(): {error.ToMessageWithType()}", error);
+        throw new SecurityException($"Error in TheSafe.{nameof(GetDefaultConfiguration)}(): {error.ToMessageWithType()}", error);
       }
     }
 

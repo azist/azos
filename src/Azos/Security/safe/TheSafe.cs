@@ -61,7 +61,7 @@ namespace Azos.Security
       if (aout == null) return null;
 
       if (toString)
-        return aout.FromUTF8Bytes();
+        return PROTECTION_STRING_ENCODING.GetString(aout);
       else
         return StringValueConversion.BASE64_VALUE_PREFIX + aout.ToWebSafeBase64();
     }
@@ -98,6 +98,56 @@ namespace Azos.Security
       return r.ReadToEnd();
     }
 
+    /// <summary>
+    /// Using the specified algorithm ciphers a config text value into ciphered `byte[]` value
+    /// encoded using a `base64:` prefix. Null returned for null input string
+    /// </summary>
+    public static string CipherConfigValue(string value, string algorithmName = null)
+    {
+      var aout = CipherText(value, algorithmName);
+      if (aout == null) return null;
+      return StringValueConversion.BASE64_VALUE_PREFIX + aout.ToWebSafeBase64();
+    }
+
+    /// <summary>
+    /// Using the specified algorithm ciphers a config binary value into ciphered `byte[]` value
+    /// encoded using a `base64:` prefix. Null returned for null input byte buffer
+    /// </summary>
+    public static string CipherConfigValue(byte[] value, string algorithmName = null)
+    {
+      var aout = Cipher(value, algorithmName);
+      if (aout == null) return null;
+      return StringValueConversion.BASE64_VALUE_PREFIX + aout.ToWebSafeBase64();
+    }
+
+    /// <summary>
+    /// Using the specified algorithm name, ciphers the byte buffer value.
+    /// Null returned for null input byte buffer
+    /// </summary>
+    public static byte[] Cipher(byte[] value, string algorithmName = null)
+    {
+      if (value == null) return null;
+
+      if (!SecurityFlowScope.CheckFlag(SAFE_GENERAL_ACCESS_FLAG))
+        throw new AccessToTheSafeDeniedException(StringConsts.SECURITY_ACCESS_TO_THESAFE_DENIED_ERROR.Args($"{nameof(SecurityFlowScope)}({nameof(TheSafe)}.{nameof(SAFE_GENERAL_ACCESS_FLAG)})"));
+
+      return cipher(value, algorithmName);
+    }
+
+    /// <summary>
+    /// Using the spcified algo name ciphers a string value into a byte[].
+    /// Null returned for null string
+    /// </summary>
+    public static byte[] CipherText(string value, string algorithmName = null)
+    {
+      if (value == null) return null;
+      var raw = PROTECTION_STRING_ENCODING.GetBytes(value);
+      var result = Cipher(raw, algorithmName);
+      return result;
+    }
+
+
+
     private static byte[] decipher(byte[] value, string algorithmName)
     {
       if (value == null) return null;
@@ -107,6 +157,13 @@ namespace Azos.Security
       return result;
     }
 
-
+    private static byte[] cipher(byte[] value, string algorithmName)
+    {
+      if (value == null) return null;
+      var algo = s_Algorithms[algorithmName.Default(ALGORITHM_NAME_DEFAULT)];
+      if (algo == null) return null;
+      var result = algo.Cipher(value);
+      return result;
+    }
   }
 }
