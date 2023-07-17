@@ -158,34 +158,37 @@ namespace Azos.Security
 
       if (sect.Exists)
       {
-        IConfigSectionNode usern = sect.Configuration.EmptySection;
-
-        if (credentials is IDPasswordCredentials idpass) usern = findUserNode(sect, idpass);
-        if (credentials is EntityUriCredentials enturi) usern = findUserNode(sect, enturi);
-
-        if (usern.Exists)
+        using(new SecurityFlowScope(TheSafe.SAFE_ACCESS_FLAG))
         {
-          var name = usern.AttrByName(CONFIG_NAME_ATTR).ValueAsString(string.Empty);
-          var descr = usern.AttrByName(CONFIG_DESCRIPTION_ATTR).ValueAsString(string.Empty);
-          var status = usern.AttrByName(CONFIG_STATUS_ATTR).ValueAsEnum(UserStatus.Invalid);
+          IConfigSectionNode usern = sect.Configuration.EmptySection;
 
-          var rights = Rights.None;
+          if (credentials is IDPasswordCredentials idpass) usern = findUserNode(sect, idpass);
+          if (credentials is EntityUriCredentials enturi) usern = findUserNode(sect, enturi);
 
-          var rightsn = usern[CONFIG_RIGHTS_SECTION];
-
-          if (rightsn.Exists)
+          if (usern.Exists)
           {
-            var data = new MemoryConfiguration();
-            data.CreateFromNode(rightsn);
-            rights = new Rights(data);
-          }
+            var name = usern.AttrByName(CONFIG_NAME_ATTR).ValueAsString(string.Empty);
+            var descr = usern.AttrByName(CONFIG_DESCRIPTION_ATTR).ValueAsString(string.Empty);
+            var status = usern.AttrByName(CONFIG_STATUS_ATTR).ValueAsEnum(UserStatus.Invalid);
 
-          return MakeUser(credentials,
-                          credToAuthToken(credentials),
-                          status,
-                          name,
-                          descr,
-                          rights);
+            var rights = Rights.None;
+
+            var rightsn = usern[CONFIG_RIGHTS_SECTION];
+
+            if (rightsn.Exists)
+            {
+              var data = new MemoryConfiguration();
+              data.CreateFromNode(rightsn);
+              rights = new Rights(data);
+            }
+
+            return MakeUser(credentials,
+                            credToAuthToken(credentials),
+                            status,
+                            name,
+                            descr,
+                            rights);
+          }
         }
       }
 
@@ -232,20 +235,23 @@ namespace Azos.Security
     #region Protected
     protected override void DoConfigure(IConfigSectionNode node)
     {
-      base.DoConfigure(node);
-      m_Config = node;
+      using (new Security.SecurityFlowScope(Security.TheSafe.SAFE_ACCESS_FLAG))
+      {
+        base.DoConfigure(node);
+        m_Config = node;
 
-      DisposeAndNull(ref m_Cryptography);
-      m_Cryptography = FactoryUtils.MakeAndConfigureDirectedComponent<ICryptoManagerImplementation>(
-                                              this,
-                                              node[CONFIG_CRYPTOGRAPHY_SECTION],
-                                              typeof(DefaultCryptoManager));
+        DisposeAndNull(ref m_Cryptography);
+        m_Cryptography = FactoryUtils.MakeAndConfigureDirectedComponent<ICryptoManagerImplementation>(
+                                                this,
+                                                node[CONFIG_CRYPTOGRAPHY_SECTION],
+                                                typeof(DefaultCryptoManager));
 
-      DisposeAndNull(ref m_PasswordManager);
-      m_PasswordManager = FactoryUtils.MakeAndConfigureDirectedComponent<IPasswordManagerImplementation>(
-                                              this,
-                                              node[CONFIG_PASSWORD_MANAGER_SECTION],
-                                              typeof(DefaultPasswordManager));
+        DisposeAndNull(ref m_PasswordManager);
+        m_PasswordManager = FactoryUtils.MakeAndConfigureDirectedComponent<IPasswordManagerImplementation>(
+                                                this,
+                                                node[CONFIG_PASSWORD_MANAGER_SECTION],
+                                                typeof(DefaultPasswordManager));
+      }
     }
 
     protected override void DoStart()

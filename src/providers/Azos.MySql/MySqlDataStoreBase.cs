@@ -217,7 +217,10 @@ namespace Azos.Data.Access.MySql
     #region IConfigurable Members
     public virtual void Configure(IConfigSectionNode node)
     {
-      ConfigAttribute.Apply(this, node);
+      using(new SecurityFlowScope(TheSafe.SAFE_ACCESS_FLAG))
+      {
+        ConfigAttribute.Apply(this, node);
+      }
     }
     #endregion
 

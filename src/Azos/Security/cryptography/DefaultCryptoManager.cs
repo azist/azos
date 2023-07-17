@@ -99,14 +99,11 @@ namespace Azos.Security
       base.DoConfigure(node);
       cleanupAlgorithms();
 
-      using(var scope = new SecurityFlowScope(TheSafe.SAFE_ACCESS_FLAG))
+      foreach(var n in node.Children.Where(c => c.IsSameName(CONFIG_ALGORITHM_SECTION)))
       {
-        foreach(var n in node.Children.Where(c => c.IsSameName(CONFIG_ALGORITHM_SECTION)))
-        {
-          var algo = FactoryUtils.MakeDirectedComponent<ICryptoMessageAlgorithmImplementation>(this, n, extraArgs: new[]{n});
-          if (!m_MessageProtectionAlgorithms.Register(algo))
-           throw new SecurityException("Algorithm `{0}` is already registered".Args(algo.Name));
-        }
+        var algo = FactoryUtils.MakeDirectedComponent<ICryptoMessageAlgorithmImplementation>(this, n, extraArgs: new[]{n});
+        if (!m_MessageProtectionAlgorithms.Register(algo))
+          throw new SecurityException("Algorithm `{0}` is already registered".Args(algo.Name));
       }
     }
     #endregion
