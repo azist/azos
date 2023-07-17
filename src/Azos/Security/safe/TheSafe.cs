@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 using Azos.Data;
@@ -53,7 +54,7 @@ namespace Azos.Security
 
       var ain = value.AsByteArray();
 
-      ////Azos.Scripting.Conout.See(ain.ToHexDump());
+ //// Azos.Scripting.Conout.See(ain.ToHexDump());
 
       var aout = decipher(ain, algorithmName);
 
@@ -79,6 +80,22 @@ namespace Azos.Security
         throw new AccessToTheSafeDeniedException(StringConsts.SECURITY_ACCESS_TO_THESAFE_DENIED_ERROR.Args($"{nameof(SecurityFlowScope)}({nameof(TheSafe)}.{nameof(SAFE_GENERAL_ACCESS_FLAG)})"));
 
       return decipher(value, algorithmName);
+    }
+
+    /// <summary>
+    /// Using the specified named algorithm deciphers the value into string.
+    /// Returns null if value is invalid or algorithm is not found or mismatches the value.
+    /// For security purposes this method does not throw exceptions explaining why the value has not been deciphered.
+    /// A null algorithm name means the default algorithm
+    /// </summary>
+    public static string DecipherText(byte[] value, string algorithmName = null)
+    {
+      var raw = Decipher(value, algorithmName);
+      if (raw == null) return null;
+
+      using var ms = new MemoryStream(raw);
+      using var r = new StreamReader(ms, true);
+      return r.ReadToEnd();
     }
 
     private static byte[] decipher(byte[] value, string algorithmName)

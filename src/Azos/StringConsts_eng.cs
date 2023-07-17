@@ -331,7 +331,7 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
         "No configuration provider can load content from file name: ";
 
     public const string CONFIG_PROVIDER_LOAD_FILE_THESAFE_ERROR =
-        "Error obtaining configuration provider content from TheSafe: ";
+        "Error obtaining configuration provider content from TheSafe.\nCheck that TheSafe is configured with matching algorithms and keys/passwords: ";
 
     public const string CONFIG_NO_PROVIDER_HANDLE_FILE_ERROR =
         "No configuration provider can handle file name: ";

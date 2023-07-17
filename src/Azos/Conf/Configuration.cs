@@ -95,7 +95,8 @@ namespace Azos.Conf
     }
 
     /// <summary>
-    /// Loads the contents of the supplied file name in an appropriate configuration provider implementation for the supplied extension format
+    /// Loads the contents of the supplied file name in an appropriate configuration provider implementation for the supplied extension format.
+    /// If `safeAlgorithmName` is specified AND the file name ends with `safeExt` then the file contents is deciphered first using <see cref="Security.TheSafe"/>
     /// </summary>
     public static Configuration ProviderLoadFromFile(string fileName, string safeAlgorithmName = null, string safeExt = null)
     {
@@ -110,15 +111,18 @@ namespace Azos.Conf
         if (!safeExt.StartsWith('.')) safeExt = "." + safeExt;
         if (ext.EqualsSenseCase(safeExt))
         {
-          using(var scope = new Security.SecurityFlowScope(Security.TheSafe.SAFE_CONFIG_ACCESS_FLAG))
+          using(var scope = new Security.SecurityFlowScope(Security.TheSafe.SAFE_GENERAL_ACCESS_FLAG))
           {
-            var ciphered = File.ReadAllText(fileName);
-            var txtConfig = Security.TheSafe.DecipherConfigValue(ciphered, true, safeAlgorithmName);
-            txtConfig.NonBlank("TheSafe deciphered content using proper algorithm");
+            var ciphered = File.ReadAllBytes(fileName);
+            var decipheredTxtConfig = Security.TheSafe.DecipherText(ciphered, safeAlgorithmName);
+
+            if (decipheredTxtConfig==null)
+              throw new ConfigException("TheSafe.DecipherText() failure");
+
             var extDeciphered = Path.GetExtension(Path.GetFileNameWithoutExtension(fileName));
             if (extDeciphered.IsNotNullOrWhiteSpace())
             {
-               return ProviderLoadFromString(txtConfig, extDeciphered);
+               return ProviderLoadFromString(decipheredTxtConfig, extDeciphered);
             }
           }
         }

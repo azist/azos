@@ -64,7 +64,7 @@ namespace Azos.Tests.Nub.Configuration
       Azos.Security.TheSafe.Init(@"
         safe
         {
-          algorithm{ type='Azos.Security.TheSafe+PwdAlgorithm, Azos' name='SHERLOCK' password=12345}
+          algorithm{ type='Azos.Security.TheSafe+PwdAlgorithm, Azos' name='SHERLOCK' password='12345'}
         } ".AsLaconicConfig());
 
       cfg.ProcessAllExistingIncludes();
