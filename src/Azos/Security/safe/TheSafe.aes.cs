@@ -25,7 +25,7 @@ namespace Azos.Security
       public const string CONFIG_HMAC_SECTION = "hmac";
       public const string CONFIG_AES_SECTION = "aes";
 
-      public AesAlgorithm(string name, IConfigSectionNode config) : base(name, config)
+      public AesAlgorithm(IConfigSectionNode config) : base(config.NonEmpty(nameof(config)).ValOf(Configuration.CONFIG_NAME_ATTR), config)
       {
         m_HMACKeys = BuildKeysFromConfig(config, CONFIG_HMAC_SECTION, 64);//HMAC SHA2 = 64 byte key
         m_AESKeys = BuildKeysFromConfig(config, CONFIG_AES_SECTION, 256 / 8);//AES256 = 256 bit key
