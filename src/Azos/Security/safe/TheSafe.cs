@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 using Azos.Data;
@@ -146,12 +147,10 @@ namespace Azos.Security
       return result;
     }
 
-
-
     private static byte[] decipher(byte[] value, string algorithmName)
     {
       if (value == null) return null;
-      var algo = s_Algorithms[algorithmName.Default(ALGORITHM_NAME_DEFAULT)];
+      var algo = getAlgorithmOrDefault(algorithmName);
       if (algo == null) return null;
       var result = algo.Decipher(value);
       return result;
@@ -160,7 +159,7 @@ namespace Azos.Security
     private static byte[] cipher(byte[] value, string algorithmName)
     {
       if (value == null) return null;
-      var algo = s_Algorithms[algorithmName.Default(ALGORITHM_NAME_DEFAULT)];
+      var algo = getAlgorithmOrDefault(algorithmName);
       if (algo == null) return null;
       var result = algo.Cipher(value);
       return result;

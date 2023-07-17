@@ -21,7 +21,6 @@ namespace Azos.Security
     public const string FILE_NAME_SAFE_1 = ".skysafe.safe";
     public const string FILE_NAME_SAFE_2 = ".skysafe";
     public const string ALGORITHM_NAME_NOP = "nop";
-    public const string ALGORITHM_NAME_DEFAULT = "default";
 
     public const string CONFIG_ALGORITHM_SECTION = "algorithm";
 
@@ -35,25 +34,36 @@ namespace Azos.Security
     private static readonly RNGCryptoServiceProvider s_CryptoRnd;
     private static readonly Registry<Algorithm> s_Algorithms;
 
+    private static Algorithm getAlgorithmOrDefault(string algorithmName)
+    {
+      if (algorithmName.IsNullOrWhiteSpace()) return s_Algorithms.FirstOrDefault(one => one.Default);
+      return s_Algorithms[algorithmName];
+    }
+
     /// <summary>
     /// Initializes The Safe with the specified config vector.
-    /// If passed config is null, then the system tries to read `.skysafe` file
-    /// starting at app executable entry point and continuing its search through parent directories
+    /// If passed config is null, then the system tries to locate and read `.skysafe`/`.skysafe.safe` files
+    /// looking in pointed to directory by environment variables in succession: `SKY_SAFE`,`SKY_HOME`, then
+    /// starting at app executable entry point and continuing its search through parent directories.
+    /// Pass `keep=true` to add algorithms to existing safe configuration
     /// </summary>
-    public static void Init(IConfigSectionNode cfg = null)
+    public static void Init(IConfigSectionNode cfg = null, bool keep = false)
     {
       if (cfg == null || !cfg.Exists)
       {
         cfg = GetDefaultConfiguration();
       }
 
-      s_Algorithms.Clear();
-      s_Algorithms.Register(NopAlgorithm.Instance);
+      if (!keep)
+      {
+        s_Algorithms.Clear();
+        s_Algorithms.Register(NopAlgorithm.Instance);
+      }
 
       foreach (var nAlgo in cfg.Children.Where(c => c.IsSameName(CONFIG_ALGORITHM_SECTION)))
       {
         var algo = FactoryUtils.Make<Algorithm>(nAlgo, args: new[] { nAlgo });
-        if (!s_Algorithms.Register(algo))
+        if (!keep && !s_Algorithms.Register(algo))
         {
           throw new SecurityException("Algorithm `{0}` is already registered".Args(algo.Name));
         }
@@ -81,7 +91,7 @@ namespace Azos.Security
           if (pwd == null) throw new SecurityException("Environment variable `{0}` must be set to access safe config file".Args(ENV_VAR_SKY_SAFE_PWD));
 
           var laconf = UnprotectString(raw, pwd);
-          if (laconf == null) throw new SecurityException("Failure reading safe file. Revise env variable `{0}`".Args(ENV_VAR_SKY_SAFE_PWD));
+          if (laconf == null) throw new SecurityException("Failure reading safe config file. Revise env variable `{0}`".Args(ENV_VAR_SKY_SAFE_PWD));
           return LaconicConfiguration.CreateFromString(laconf).Root;
         }
         else
@@ -160,8 +170,15 @@ namespace Azos.Security
           ConfigAttribute.Apply(this, config);
         }
       }
+
       private readonly string m_Name;
+
+      [Config]
+      private readonly bool m_Default;
+
       public string Name => m_Name;
+      public bool Default => m_Default;
+
       public abstract byte[] Cipher(byte[] originalValue);
       public abstract byte[] Decipher(byte[] protectedValue);
 
