@@ -44,6 +44,14 @@ namespace Azos.Tools.Phash
     {
       var args = app.CommandArgs;
 
+      ConsoleUtils.WriteMarkupContent(typeof(ProgramBody).GetText("Welcome.txt"));
+
+      if (args["?", "h", "help"].Exists)
+      {
+        ConsoleUtils.WriteMarkupContent(typeof(ProgramBody).GetText("Help.txt"));
+        return;
+      }
+
       var node = args["list"];
       if (node.Exists)
       {
@@ -70,32 +78,28 @@ namespace Azos.Tools.Phash
         return;
       }
 
-      var pretty = args["pp", "pretty"].Exists;
       var noEntropy = args["ne", "noentropy"].Exists;
-      var scoreThreshold = args["st", "score"].AttrByIndex(0).ValueAsInt(80);
-      if (scoreThreshold < 20) scoreThreshold = 20;
-      if (scoreThreshold > 100) scoreThreshold = 100;
-      var strength = args["lvl", "level"].AttrByIndex(0).ValueAsEnum<PasswordStrengthLevel>(PasswordStrengthLevel.Default);
-      var algname = args["alg", "algo", "algorithm"].AttrByIndex(0).Value;
-
-      ConsoleUtils.WriteMarkupContent(typeof(ProgramBody).GetText("Welcome.txt"));
-
-      if (args["?", "h", "help"].Exists)
-      {
-        ConsoleUtils.WriteMarkupContent(typeof(ProgramBody).GetText("Help.txt"));
-        return;
-      }
-
       if (!noEntropy) getEntropy();
 
+      var safeSwitch = args["safe"];
       var keySwitch = args["k", "key"];
       if (keySwitch.Exists)
-       doKey(app,keySwitch);
+      {
+        doKey(app,keySwitch, safeSwitch);
+      }
       else
-       doPassword(app, pretty, scoreThreshold, strength, algname);
+      {
+        var pretty = args["pp", "pretty"].Exists;
+        var scoreThreshold = args["st", "score"].AttrByIndex(0).ValueAsInt(80);
+        if (scoreThreshold < 20) scoreThreshold = 20;
+        if (scoreThreshold > 100) scoreThreshold = 100;
+        var strength = args["lvl", "level"].AttrByIndex(0).ValueAsEnum<PasswordStrengthLevel>(PasswordStrengthLevel.Default);
+        var algname = args["alg", "algo", "algorithm"].AttrByIndex(0).Value;
+        doPassword(app, pretty, scoreThreshold, strength, algname, safeSwitch);
+      }
     }
 
-    private static void doKey(IApplication app, IConfigSectionNode keySwitch)
+    private static void doKey(IApplication app, IConfigSectionNode keySwitch, IConfigSectionNode safeSwitch)
     {
       var bitLength = keySwitch.AttrByIndex(0).ValueAsInt(256);
 
@@ -111,9 +115,20 @@ namespace Azos.Tools.Phash
       var key = app.SecurityManager.Cryptography.GenerateRandomBytes(count);
       Console.WriteLine("As BASE64: \"base64:{0}\"".Args(key.ToWebSafeBase64()));
       Console.WriteLine("As HEX: \"{0}\"".Args(string.Join(",", key.Select(b => b.ToString("X2")))));
+
+      if (safeSwitch.Exists)
+      {
+        using(var scope = new SecurityFlowScope(TheSafe.SAFE_GENERAL_ACCESS_FLAG))
+        {
+          Console.WriteLine();
+
+          Console.WriteLine("As safe protected BASE64: \"{0}\"".Args(TheSafe.CipherConfigValue(key, safeSwitch.ValOf("algo", "algorithm"))));
+          Console.WriteLine();
+        }
+      }
     }
 
-    private static void doPassword(IApplication app, bool pretty, int scoreThreshold, PasswordStrengthLevel strength, string algname)
+    private static void doPassword(IApplication app, bool pretty, int scoreThreshold, PasswordStrengthLevel strength, string algname, IConfigSectionNode safeSwitch)
     {
 
       ConsoleUtils.Info("Score Threshold: {0}%".Args(scoreThreshold));
@@ -177,8 +192,20 @@ namespace Azos.Tools.Phash
 
       Console.WriteLine("Hashed Password:");
       Console.WriteLine();
-
       Console.WriteLine(toPrint);
+
+      if (safeSwitch.Exists)
+      {
+        using (var scope = new SecurityFlowScope(TheSafe.SAFE_GENERAL_ACCESS_FLAG))
+        {
+          Console.WriteLine();
+          Console.WriteLine();
+          Console.WriteLine("Hashed Password protected for TheSafe:");
+          Console.WriteLine();
+          Console.WriteLine(TheSafe.CipherConfigValue(toPrint, safeSwitch.ValOf("algo", "algorithm")));
+          Console.WriteLine();
+        }
+      }
     }
 
     private static void getEntropy()

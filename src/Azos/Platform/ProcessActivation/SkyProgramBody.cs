@@ -25,6 +25,7 @@ namespace Azos.Platform.ProcessActivation
       ProgramBodyActivator activator = null;
       try
       {
+        Azos.Security.TheSafe.Init();//Init default safe config
         activator = new ProgramBodyActivator(args, assemblyResolverFixup.NonNull(nameof(assemblyResolverFixup)));
         activator.Run();
       }

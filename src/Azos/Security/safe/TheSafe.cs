@@ -160,7 +160,10 @@ namespace Azos.Security
     {
       if (value == null) return null;
       var algo = getAlgorithmOrDefault(algorithmName);
-      if (algo == null) return null;
+      if (algo == null)
+      {
+        throw new SecurityException("Algorithm `{0}` is required for cipher operation by the Safe".Args(algorithmName ?? "<default>"));
+      }
       var result = algo.Cipher(value);
       return result;
     }

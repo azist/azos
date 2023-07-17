@@ -9,6 +9,7 @@
               [-lvl | -level]
               [-list]
               [-alg]
+              [-safe]
               [-protect]
               [-unprotect]
  <f color=green>
@@ -25,9 +26,10 @@
  <f color=darkCyan>-st | -score  <int><f color=gray> - strength score threshold
  <f color=darkCyan>-alg | -algorithm  <name><f color=gray> - use specified named password hashing algorithm
  <f color=darkCyan>-list<f color=gray> - list all registered password hashing algorithms
-
  <f color=darkCyan>-lvl | -level  <level><f color=gray> - the strength level of hash
               level = <f color=darkRed>Default| Minimum |BelowNormal|Normal|AboveNormal|Maximum
+ <f color=darkCyan>-safe  algo=<algo><f color=gray> - the strength level of hash
+              algo = <f color=darkRed>Algorithm name which mut be present in TheSafe
 
  <f color=darkCyan>-protect path pwd=string pfx=string ext=string recurse=bool delete=bool <f color=gray> - perform directory protection
 
@@ -46,6 +48,11 @@
  <f color=yellow>
   safe -k 256<f color=gray>
  Generate 256 crypto-safe random key of 256 bits in length
+
+  <f color=yellow>
+  safe -k 256 -safe algo=keyer<f color=gray>
+ Generate 256 crypto-safe random key of 256 bits in length and
+ output its protected value using the `keyer` safe algorithm
 
  <f color=yellow>
   safe -protect c:\sky\safe pwd=123 delete=true recurse=true <f color=darkgray>
