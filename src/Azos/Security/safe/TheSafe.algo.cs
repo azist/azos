@@ -47,8 +47,16 @@ namespace Azos.Security
     /// starting at app executable entry point and continuing its search through parent directories.
     /// Pass `keep=true` to add algorithms to existing safe configuration
     /// </summary>
-    public static void Init(IConfigSectionNode cfg = null, bool keep = false)
+    /// <param name="cfg">Configuration to use as init vector. If null, then the system uses <see cref="GetDefaultConfiguration"/></param>
+    /// <param name="onlyWhenHasNotInitBefore">
+    /// False by default, when true will ONLY do anything if this method has not been called before this call,
+    /// or it has not added any algorithms
+    /// </param>
+    /// <param name="keep">When true will add extra (if any) algorithms in the supplied config vector to the safe algo registry</param>
+    public static void Init(IConfigSectionNode cfg = null, bool onlyWhenHasNotInitBefore = false,  bool keep = false)
     {
+      if (onlyWhenHasNotInitBefore && s_Algorithms.Count > 1/*nop algorithm is always present*/) return;
+
       if (cfg == null || !cfg.Exists)
       {
         cfg = GetDefaultConfiguration();
@@ -100,12 +108,12 @@ namespace Azos.Security
         }
       }
 
-      IConfigSectionNode load(string path)
+      IConfigSectionNode load(string dirPath)
       {
-        var fn = Path.Combine(path, FILE_NAME_SAFE_1);
+        var fn = Path.Combine(dirPath, FILE_NAME_SAFE_1);
         if (File.Exists(fn)) return loadFile(fn);
 
-        fn = Path.Combine(path, FILE_NAME_SAFE_2);
+        fn = Path.Combine(dirPath, FILE_NAME_SAFE_2);
         if (File.Exists(fn)) return loadFile(fn);
 
         return null;

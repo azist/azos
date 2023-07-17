@@ -31,10 +31,13 @@ namespace Azos.Client
 
     private void ctor(IConfigSectionNode conf)
     {
-      ConfigAttribute.Apply(this, conf);
-      if (m_Name.IsNullOrWhiteSpace()) m_Name = GetType().Name;
-      BuildEndpoints(conf);
-      BuildAspects(conf);
+      using(new Security.SecurityFlowScope(Security.TheSafe.SAFE_ACCESS_FLAG))
+      {
+        ConfigAttribute.Apply(this, conf);
+        if (m_Name.IsNullOrWhiteSpace()) m_Name = GetType().Name;
+        BuildEndpoints(conf);
+        BuildAspects(conf);
+      }
     }
 
     /// <summary>

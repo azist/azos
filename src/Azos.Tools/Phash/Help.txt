@@ -28,7 +28,7 @@
  <f color=darkCyan>-list<f color=gray> - list all registered password hashing algorithms
  <f color=darkCyan>-lvl | -level  <level><f color=gray> - the strength level of hash
               level = <f color=darkRed>Default| Minimum |BelowNormal|Normal|AboveNormal|Maximum
- <f color=darkCyan>-safe  algo=<algo><f color=gray> - the strength level of hash
+ <f color=darkCyan>-safe  algo=<algo><f color=gray> - cipher the result value (such as pwd hash or a key) with TheSafe
               algo = <f color=darkRed>Algorithm name which mut be present in TheSafe
 
  <f color=darkCyan>-protect path pwd=string pfx=string ext=string recurse=bool delete=bool <f color=gray> - perform directory protection
@@ -40,6 +40,10 @@
 <f color=yellow>
   pwd -pp -st 90 -lvl Normal<f color=gray>
  Pretty print with score threshold 90% hashing strength Normal
+
+ <f color=yellow>
+  pwd -ne -safe algo=pwddflt<f color=gray>
+ Terse password bypass entropy acquisition and add safe protection using `pwddflt` algorithm
 
  <f color=yellow>
   pwd -alg kdf2023 -ne<f color=gray>

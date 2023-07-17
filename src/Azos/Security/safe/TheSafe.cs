@@ -25,14 +25,7 @@ namespace Azos.Security
     /// decipher method, otherwise <see cref="DecipherConfigValue(string, bool, string)"/>
     /// would fail with <see cref="AccessToTheSafeDeniedException"/>
     /// </summary>
-    public static readonly Atom SAFE_CONFIG_ACCESS_FLAG = Atom.Encode("safeconf");
-
-    /// <summary>
-    /// If this flag is set on the current call scope, authorizes access to safe
-    /// decipher method, otherwise <see cref="Decipher(byte[], string)"/>
-    /// would fail with <see cref="AccessToTheSafeDeniedException"/>
-    /// </summary>
-    public static readonly Atom SAFE_GENERAL_ACCESS_FLAG = Atom.Encode("safegen");
+    public static readonly Atom SAFE_ACCESS_FLAG = Atom.Encode("safeflag");
 
 
     /// <summary>
@@ -50,8 +43,8 @@ namespace Azos.Security
     {
       if (value.IsNullOrWhiteSpace()) return null;
 
-      if (!SecurityFlowScope.CheckFlag(SAFE_CONFIG_ACCESS_FLAG))
-        throw new AccessToTheSafeDeniedException(StringConsts.SECURITY_ACCESS_TO_THESAFE_DENIED_ERROR.Args($"{nameof(SecurityFlowScope)}({nameof(TheSafe)}.{nameof(SAFE_CONFIG_ACCESS_FLAG)})"));
+      if (!SecurityFlowScope.CheckFlag(SAFE_ACCESS_FLAG))
+        throw new AccessToTheSafeDeniedException(StringConsts.SECURITY_ACCESS_TO_THESAFE_DENIED_ERROR.Args($"{nameof(SecurityFlowScope)}({nameof(TheSafe)}.{nameof(SAFE_ACCESS_FLAG)})"));
 
       var ain = value.AsByteArray();
 
@@ -77,8 +70,8 @@ namespace Azos.Security
     {
       if (value == null) return null;
 
-      if (!SecurityFlowScope.CheckFlag(SAFE_GENERAL_ACCESS_FLAG))
-        throw new AccessToTheSafeDeniedException(StringConsts.SECURITY_ACCESS_TO_THESAFE_DENIED_ERROR.Args($"{nameof(SecurityFlowScope)}({nameof(TheSafe)}.{nameof(SAFE_GENERAL_ACCESS_FLAG)})"));
+      if (!SecurityFlowScope.CheckFlag(SAFE_ACCESS_FLAG))
+        throw new AccessToTheSafeDeniedException(StringConsts.SECURITY_ACCESS_TO_THESAFE_DENIED_ERROR.Args($"{nameof(SecurityFlowScope)}({nameof(TheSafe)}.{nameof(SAFE_ACCESS_FLAG)})"));
 
       return decipher(value, algorithmName);
     }
@@ -129,8 +122,8 @@ namespace Azos.Security
     {
       if (value == null) return null;
 
-      if (!SecurityFlowScope.CheckFlag(SAFE_GENERAL_ACCESS_FLAG))
-        throw new AccessToTheSafeDeniedException(StringConsts.SECURITY_ACCESS_TO_THESAFE_DENIED_ERROR.Args($"{nameof(SecurityFlowScope)}({nameof(TheSafe)}.{nameof(SAFE_GENERAL_ACCESS_FLAG)})"));
+      if (!SecurityFlowScope.CheckFlag(SAFE_ACCESS_FLAG))
+        throw new AccessToTheSafeDeniedException(StringConsts.SECURITY_ACCESS_TO_THESAFE_DENIED_ERROR.Args($"{nameof(SecurityFlowScope)}({nameof(TheSafe)}.{nameof(SAFE_ACCESS_FLAG)})"));
 
       return cipher(value, algorithmName);
     }

@@ -20,7 +20,7 @@ namespace Azos.Tests.Nub.Configuration
       //dcba
       var cfg = "pwd='$(::decipher value=base64:ZGNiYQ string=true)'".AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw);
 
-      using(var flow = new Azos.Security.SecurityFlowScope(Azos.Security.TheSafe.SAFE_CONFIG_ACCESS_FLAG))
+      using(var flow = new Azos.Security.SecurityFlowScope(Azos.Security.TheSafe.SAFE_ACCESS_FLAG))
       {
         var got = cfg.ValOf("pwd");
         Aver.AreEqual("abcd", got);
@@ -33,7 +33,7 @@ namespace Azos.Tests.Nub.Configuration
       //dcba
       var cfg = "    encoded=base64:ZGNiYQ       pwd='$($encoded::decipher string=true)'    ".AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw);
 
-      using (var flow = new Azos.Security.SecurityFlowScope(Azos.Security.TheSafe.SAFE_CONFIG_ACCESS_FLAG))
+      using (var flow = new Azos.Security.SecurityFlowScope(Azos.Security.TheSafe.SAFE_ACCESS_FLAG))
       {
         var got = cfg.ValOf("pwd");
         Aver.AreEqual("abcd", got);

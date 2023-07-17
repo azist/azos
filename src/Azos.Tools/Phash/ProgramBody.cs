@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
 
 using Azos.Apps;
 using Azos.IO.Console;
@@ -13,7 +14,6 @@ using Azos.Security;
 using Azos.Serialization.JSON;
 using Azos.Platform;
 using Azos.Conf;
-using System.Linq;
 
 namespace Azos.Tools.Phash
 {
@@ -118,7 +118,7 @@ namespace Azos.Tools.Phash
 
       if (safeSwitch.Exists)
       {
-        using(var scope = new SecurityFlowScope(TheSafe.SAFE_GENERAL_ACCESS_FLAG))
+        using(var scope = new SecurityFlowScope(TheSafe.SAFE_ACCESS_FLAG))
         {
           Console.WriteLine();
 
@@ -196,7 +196,7 @@ namespace Azos.Tools.Phash
 
       if (safeSwitch.Exists)
       {
-        using (var scope = new SecurityFlowScope(TheSafe.SAFE_GENERAL_ACCESS_FLAG))
+        using (var scope = new SecurityFlowScope(TheSafe.SAFE_ACCESS_FLAG))
         {
           Console.WriteLine();
           Console.WriteLine();

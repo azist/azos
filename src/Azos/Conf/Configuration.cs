@@ -111,7 +111,7 @@ namespace Azos.Conf
         if (!safeExt.StartsWith('.')) safeExt = "." + safeExt;
         if (ext.EqualsSenseCase(safeExt))
         {
-          using(var scope = new Security.SecurityFlowScope(Security.TheSafe.SAFE_GENERAL_ACCESS_FLAG))
+          using(var scope = new Security.SecurityFlowScope(Security.TheSafe.SAFE_ACCESS_FLAG))
           {
             var ciphered = File.ReadAllBytes(fileName);
             var decipheredTxtConfig = Security.TheSafe.DecipherText(ciphered, safeAlgorithmName);
