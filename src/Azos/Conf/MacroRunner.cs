@@ -150,7 +150,7 @@ namespace Azos.Conf
         inputValue = macroParams.ValOf("value", "val", "v");//this is used if input value is empty
       }
 
-      var algorithmName = macroParams.ValOf("algorithm", "alg", "a");//this may be blank
+      var algorithmName = macroParams.ValOf("algorithm", "algo", "a");//this may be blank
       var toString = macroParams.Of("string", "str").ValueAsBool(false);//true to decode into string vs base:64 byte array
       var result = Security.TheSafe.DecipherConfigValue(inputValue, toString, algorithmName);
       return result;

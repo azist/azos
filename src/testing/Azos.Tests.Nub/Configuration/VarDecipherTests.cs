@@ -18,7 +18,7 @@ namespace Azos.Tests.Nub.Configuration
     public void Test_01()
     {
       //dcba
-      var cfg = "pwd='$(::decipher value=base64:ZGNiYQ string=true)'".AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw);
+      var cfg = "pwd='$(::decipher value=base64:YWJjZA string=true algo=nop)'".AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw);
 
       using(var flow = new Azos.Security.SecurityFlowScope(Azos.Security.TheSafe.SAFE_ACCESS_FLAG))
       {
@@ -31,7 +31,7 @@ namespace Azos.Tests.Nub.Configuration
     public void Test_02()
     {
       //dcba
-      var cfg = "    encoded=base64:ZGNiYQ       pwd='$($encoded::decipher string=true)'    ".AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw);
+      var cfg = "    encoded=base64:YWJjZA       pwd='$($encoded::decipher string=true algo=nop)'    ".AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw);
 
       using (var flow = new Azos.Security.SecurityFlowScope(Azos.Security.TheSafe.SAFE_ACCESS_FLAG))
       {
