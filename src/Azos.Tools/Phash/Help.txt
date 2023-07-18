@@ -35,8 +35,8 @@
 
  <f color=darkCyan>-protect path pwd=string pfx=string ext=string recurse=bool delete=bool <f color=gray> - perform directory protection
  <f color=darkCyan>-unprotect path pwd=string pfx=string ext=string recurse=bool delete=bool <f color=gray> - perform directory unprotection
- <f color=darkCyan>-cipher value algo=string<f color=gray> - ciphers a single value
- <f color=darkCyan>-decipher value algo=string<f color=gray> - deciphers a value
+ <f color=darkCyan>-cipher value algo=string text=bool<f color=gray> - ciphers a single value
+ <f color=darkCyan>-decipher value algo=string text=bool<f color=gray> - deciphers a value
 
 <f color=magenta>
  Examples:
@@ -73,5 +73,23 @@
  and complimentary<f color=yellow>
   safe -unprotect c:\sky\safe delete=true recurse=true<f color=gray>
  Same as above, but get prompted for a password
+
+ <f color=yellow>
+  sky safe -cipher 12345 algo=nop <f color=gray>
+ Cipher the value `12345` using `nop` safe algorithm
+
+ <f color=yellow>
+  sky safe -cipher <f color=gray>
+ Cipher a value which will be prompted for using a default algorithm
+
+ <f color=yellow>
+  safe -decipher base64:MTIzNDU algo=nop <f color=gray>
+ Decipher the base 64 value ciphered before into the original text value `12345`
+ using a `nop` algorithm
+
+ <f color=yellow>
+  safe -decipher base64:MTIzNDU text=false <f color=gray>
+ Decipher the `base64` value ciphered before into the original binary value represented as `base64`
+ using a default algorithm
 
 <pop>

@@ -61,7 +61,7 @@ namespace Azos.Tools.Phash
 
     public static string GetValue(IConfigSectionNode argsSafe)
     {
-      var result = argsSafe.AttrByIndex(0).Value;
+      var result = argsSafe.Attributes.FirstOrDefault(one => one.Name.StartsWith("?"))?.Value;
       if (result.IsNotNullOrWhiteSpace()) return result;
       Console.WriteLine();
       Console.WriteLine("Please provide a value to process: ");
@@ -119,7 +119,6 @@ namespace Azos.Tools.Phash
       var val = GetValue(argsSafe);
       var alg = argsSafe.ValOf("alg", "algo", "algorithm");
       var text = argsSafe.Of("text").ValueAsBool(true);
-      Console.WriteLine("value:" + val);
       var got = text ? TheSafe.CipherConfigValue(val, alg) : TheSafe.CipherConfigValue(val.AsByteArray(), alg);
       Console.WriteLine("Ciphered:");
       Console.WriteLine(got ?? "<null>");
