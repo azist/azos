@@ -78,6 +78,20 @@ namespace Azos.Tools.Phash
         return;
       }
 
+      node = args["cipher"];
+      if (node.Exists)
+      {
+        SafeLogic.Cipher(app, node);
+        return;
+      }
+
+      node = args["decipher"];
+      if (node.Exists)
+      {
+        SafeLogic.Decipher(app, node);
+        return;
+      }
+
       var noEntropy = args["ne", "noentropy"].Exists;
       if (!noEntropy) getEntropy();
 
