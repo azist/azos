@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.6.0.1
-set HEADLINE=#870 TheSafe
+set VER=3.6.0.2
+set HEADLINE=Config eval
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
