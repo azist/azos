@@ -150,9 +150,16 @@ namespace Azos.Conf
         inputValue = macroParams.ValOf("value", "val", "v");//this is used if input value is empty
       }
 
-      var algorithmName = macroParams.ValOf("algorithm", "algo", "a");//this may be blank
-      var toString = macroParams.Of("string", "str").ValueAsBool(false);//true to decode into string vs base:64 byte array
+      var algorithmName = macroParams.ValOf("algo", "alg", "a", "algorithm");//this may be blank
+      var toString = macroParams.Of("string", "str", "text", "txt").ValueAsBool(false);//true to decode into string vs base:64 byte array
+
       var result = Security.TheSafe.DecipherConfigValue(inputValue, toString, algorithmName);
+
+      if (result == null && !macroParams.Of("allow-failure").ValueAsBool(false))
+      {
+        throw new ConfigException(StringConsts.CONFIG_MACRO_DECIPHER_FAILURE_ERROR.Args(node.RootPath));
+      }
+
       return result;
     }
   }
