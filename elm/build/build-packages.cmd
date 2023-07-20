@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.6.0.2
-set HEADLINE=Config eval
+set VER=3.6.0.3
+set HEADLINE=Decipher null check
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
