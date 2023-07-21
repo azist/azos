@@ -293,5 +293,71 @@ namespace Azos.Tests.Nub
     [Run] public void TakeLastSegment_4() => Aver.AreEqual("here", "snake.zhaba/here".TakeLastSegment('/'));
     [Run] public void TakeLastSegment_5() => Aver.AreEqual("zhaba/here", "snake.zhaba/here".TakeLastSegment('.'));
 
+
+    [Run]
+    public void IndexOfPrefix_0()
+    {
+      string v = null;
+      string p = null;
+      Aver.AreEqual(-1, v.IndexOfPrefix(p));
+
+      p = "a";
+      Aver.AreEqual(-1, v.IndexOfPrefix(p));
+
+      v = "abc";
+      p = null;
+      Aver.AreEqual(-1, v.IndexOfPrefix(p));
+
+      v = "   ";
+      p = null;
+      Aver.AreEqual(-1, v.IndexOfPrefix(p));
+
+      v = null;
+      p = "  ";
+      Aver.AreEqual(-1, v.IndexOfPrefix(p));
+    }
+
+    [Run]
+    public void IndexOfPrefix_1()
+    {
+      Aver.AreEqual(-1, "   base64:fada".IndexOfPrefix("base65"));
+      Aver.AreEqual(-1, "   base64:fada".IndexOfPrefix("base64="));
+      Aver.AreEqual(0,  "base64:fada".IndexOfPrefix("base64"));
+      Aver.AreEqual(0,  "base64:fada".IndexOfPrefix("base64:"));
+      Aver.AreEqual(0,  "base64:fada".IndexOfPrefix("base64:fada"));
+      Aver.AreEqual(-1, "base64:fada".IndexOfPrefix("base64:fadaBa"));
+
+      Aver.AreEqual(3, "   base64:fada".IndexOfPrefix("base64:"));
+      Aver.AreEqual(11, " \t \r\r   \n  base64:fada".IndexOfPrefix("base64:"));
+      Aver.AreEqual(11, " \t \r\r   \n  base64:fada".IndexOfPrefix("base64"));
+    }
+
+    [Run]
+    public void GetPrefixedPart_1()
+    {
+      Aver.AreEqual(-1, "   base64:fada".GetPrefixedPart("base65").idxPfx);
+      Aver.AreEqual(-1, "   base64:fada".GetPrefixedPart("base64=").idxPfx);
+
+      Aver.AreEqual(0, "base64:fada".GetPrefixedPart("base64").idxPfx);
+      Aver.AreEqual(":fada", "base64:fada".GetPrefixedPart("base64").part);
+
+      Aver.AreEqual(0,  "base64:fada".GetPrefixedPart("base64:").idxPfx);
+      Aver.AreEqual("fada", "base64:fada".GetPrefixedPart("base64:").part);
+
+      Aver.AreEqual(0,  "base64:fada".GetPrefixedPart("base64:fada").idxPfx);
+      Aver.AreEqual("", "base64:fada".GetPrefixedPart("base64:fada").part);
+
+      Aver.AreEqual(-1, "base64:fada".GetPrefixedPart("base64:fadaBa").idxPfx);
+
+      Aver.AreEqual(3,  "   base64:fada".GetPrefixedPart("base64:").idxPfx);
+      Aver.AreEqual("fada", "   base64:fada".GetPrefixedPart("base64:").part);
+
+      Aver.AreEqual(11,     " \t \r\r   \n  base64:fada".GetPrefixedPart("base64:").idxPfx);
+      Aver.AreEqual("fada", " \t \r\r   \n  base64:fada".GetPrefixedPart("base64:").part);
+
+      Aver.AreEqual(11,      " \t \r\r   \n  base64:fada".GetPrefixedPart("base64").idxPfx);
+      Aver.AreEqual(":fada", " \t \r\r   \n  base64:fada".GetPrefixedPart("base64").part);
+    }
+
   }
 }

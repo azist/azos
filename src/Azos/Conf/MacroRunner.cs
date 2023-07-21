@@ -151,16 +151,28 @@ namespace Azos.Conf
       }
 
       var algorithmName = macroParams.ValOf("algo", "alg", "a", "algorithm");//this may be blank
-      var toString = macroParams.Of("string", "str", "text", "txt").ValueAsBool(false);//true to decode into string vs base:64 byte array
+      var required      = macroParams.Of("req", "require", "required").ValueAsBool(true);
+      var allowFailure  = macroParams.Of("allow-failure").ValueAsBool(false);
+      var toString      = macroParams.Of("string", "str", "text", "txt").ValueAsBool(false);//true to decode into string vs base:64 byte array
 
-      var result = Security.TheSafe.DecipherConfigValue(inputValue, toString, algorithmName);
-
-      if (result == null && !macroParams.Of("allow-failure").ValueAsBool(false))
+      if (inputValue.IsNotNullOrWhiteSpace())
       {
-        throw new ConfigException(StringConsts.CONFIG_MACRO_DECIPHER_FAILURE_ERROR.Args(node.RootPath));
+        var result = Security.TheSafe.DecipherConfigValue(inputValue, toString, algorithmName);
+
+        if (result == null && !allowFailure)
+        {
+          throw new ConfigException(StringConsts.CONFIG_MACRO_DECIPHER_FAILURE_ERROR.Args(inputValue.TakeFirstChars(8), inputValue.Length, node.RootPath));
+        }
+
+        return result;
       }
 
-      return result;
+      if (required)
+      {
+        throw new ConfigException(StringConsts.CONFIG_MACRO_DECIPHER_RQUIRED_ERROR.Args(node.RootPath));
+      }
+
+      return null;
     }
   }
 

@@ -40,9 +40,13 @@ namespace Azos.Data
       if (val == null) return dflt;
       try
       {
-        if (val.Length > BASE64_VALUE_PREFIX.Length && val.StartsWith(BASE64_VALUE_PREFIX, StringComparison.OrdinalIgnoreCase))
+        if (val.Length > BASE64_VALUE_PREFIX.Length)
         {
-          return val.Substring(BASE64_VALUE_PREFIX.Length).FromWebSafeBase64();
+          var pp = val.GetPrefixedPart(BASE64_VALUE_PREFIX, StringComparison.OrdinalIgnoreCase);
+          if (pp.part.IsNotNullOrWhiteSpace())
+          {
+            return pp.part.FromWebSafeBase64();
+          }
         }
 
         var result = new List<byte>();
