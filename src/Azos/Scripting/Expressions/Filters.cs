@@ -34,14 +34,17 @@ namespace Azos.Scripting.Expressions
     public const string CONFIG_INCLUDE_ATTR = "include";
     public const string CONFIG_EXCLUDE_ATTR = "exclude";
     public const string CONFIG_CASE_ATTR = "case";
+    public const string CONFIG_DEFAULT_ATTR = "default";
     public const string DELIMITER = ";";
 
     protected string[] m_Includes;
     protected string[] m_Excludes;
     protected bool m_SenseCase;
+    protected bool m_Default = true;
 
 
     protected virtual bool SenseCase => m_SenseCase;
+    protected virtual bool Default => m_Default;
 
     /// <summary>
     /// Override to extract string value out of TContext
@@ -65,7 +68,7 @@ namespace Azos.Scripting.Expressions
         if (m_Excludes.Any(p => value.MatchPattern(p, senseCase: SenseCase))) return false;
       }
 
-      return true;
+      return Default;
     }
 
     protected override void DoConfigure(IConfigSectionNode node)
@@ -73,6 +76,7 @@ namespace Azos.Scripting.Expressions
       base.DoConfigure(node);
 
       m_SenseCase = node.Of(CONFIG_CASE_ATTR).ValueAsBool();
+      m_Default = node.Of(CONFIG_DEFAULT_ATTR).ValueAsBool(true);
 
       var d = node.Of(CONFIG_DELIMITER_ATTR).ValueAsString(DELIMITER)[0];
 
@@ -102,10 +106,14 @@ namespace Azos.Scripting.Expressions
     public const string CONFIG_DELIMITER_ATTR = PatternSetFilter<TContext>.CONFIG_DELIMITER_ATTR;
     public const string CONFIG_INCLUDE_ATTR = PatternSetFilter<TContext>.CONFIG_INCLUDE_ATTR;
     public const string CONFIG_EXCLUDE_ATTR = PatternSetFilter<TContext>.CONFIG_EXCLUDE_ATTR;
+    public const string CONFIG_DEFAULT_ATTR = PatternSetFilter<TContext>.CONFIG_DEFAULT_ATTR;
     public const string DELIMITER = PatternSetFilter<TContext>.DELIMITER;
 
     protected Atom[] m_Includes;
     protected Atom[] m_Excludes;
+    protected bool m_Default = true;
+
+    protected virtual bool Default => m_Default;
 
     /// <summary>
     /// Override to extract Atom value out of TContext
@@ -129,12 +137,14 @@ namespace Azos.Scripting.Expressions
         if (m_Excludes.Any(p => value == p)) return false;
       }
 
-      return true;
+      return Default;
     }
 
     protected override void DoConfigure(IConfigSectionNode node)
     {
       base.DoConfigure(node);
+
+      m_Default = node.Of(CONFIG_DEFAULT_ATTR).ValueAsBool(true);
 
       var d = node.Of(CONFIG_DELIMITER_ATTR).ValueAsString(DELIMITER)[0];
 

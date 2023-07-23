@@ -14,6 +14,7 @@ using Azos.Text;
 using Azos.IO.FileSystem;
 using Azos.Serialization.JSON;
 using Azos.CodeAnalysis.Laconfig;
+using Azos.Scripting.Expressions.Conf;
 
 namespace Azos.Conf
 {
@@ -1511,6 +1512,49 @@ namespace Azos.Conf
       }
 
       return result;
+    }
+
+    /// <summary>
+    /// Processes exclude pragmas by deleting the specified nodes when conditions match
+    /// </summary>
+    public bool ProcessExcludes(bool recurse, string configLevelName = null, string excludePragma = null)
+    {
+      if (excludePragma.IsNullOrWhiteSpace())
+        excludePragma = Configuration.DEFAULT_CONFIG_EXCLUDE_PRAGMA;
+
+      var wasChange = false;
+      checkCanModify();
+
+      bool filterCondition(IConfigSectionNode one)
+      {
+        try
+        {
+          var filter = FactoryUtils.MakeAndConfigure<ConfigNodeFilter>(one, typeof(ConfigNodeFilter));
+          var result = filter.Evaluate(this);
+          return result;
+        }
+        catch(Exception error)
+        {
+          throw new ConfigException("ProcessExcludes() filter error: " + error.ToMessageWithType(), error);
+        }
+      }
+
+      foreach (var child in Children)//Children does snapshot
+      {
+        if (!child.IsSameName(excludePragma)) continue;
+
+        var fit = filterCondition(child);
+        if (!fit) continue;
+        child.Delete();
+        wasChange = true;
+
+        if (recurse)
+        {
+          wasChange |= child.ProcessExcludes(recurse, child.Name, excludePragma);
+        }
+      }
+
+      return wasChange;
     }
 
     /// <summary>

@@ -43,6 +43,7 @@ namespace Azos.Apps
     public const string CONFIG_FORCE_INVARIANT_CULTURE_ATTR = "force-invariant-culture";
     public const string CONFIG_ENVIRONMENT_NAME_ATTR = "environment-name";
     public const string CONFIG_PROCESS_INCLUDES = "process-includes";
+    public const string CONFIG_PROCESS_EXCLUDES = "process-excludes";
 
     public const string CONFIG_EXPECTED_COMPONENT_SHUTDOWN_DURATION_MS = "expected-component-shutdown-duration-ms";
     public const int DFLT_EXPECTED_COMPONENT_SHUTDOWN_DURATION_MS = 1_250;
@@ -84,7 +85,25 @@ namespace Azos.Apps
       appConfigRoot.NonNull(nameof(appConfigRoot));
       var includePragma = appConfigRoot.AttrByName(CONFIG_PROCESS_INCLUDES).Value;
       if (includePragma.IsNotNullOrWhiteSpace())
+      {
         appConfigRoot.ProcessAllExistingIncludes(nameof(CommonApplicationLogic), includePragma);
+      }
+    }
+
+    /// <summary>
+    /// Processes all exclude pragmas if they are specified in the root `process-exclude` attribute.
+    /// This method is called for auto-loaded entry point config automatically.
+    /// You may call this method for configs acquired from external sources prior to
+    /// passing it to application .ctor
+    /// </summary>
+    public static void ProcessConfigurationExcludes(ConfigSectionNode appConfigRoot)
+    {
+      appConfigRoot.NonNull(nameof(appConfigRoot));
+      var excludePragma = appConfigRoot.AttrByName(CONFIG_PROCESS_EXCLUDES).Value;
+      if (excludePragma.IsNotNullOrWhiteSpace())
+      {
+        appConfigRoot.ProcessExcludes(true, nameof(CommonApplicationLogic), excludePragma);
+      }
     }
 
     //fx internal, called by derivatives
@@ -577,6 +596,9 @@ namespace Azos.Apps
 
       //20190416 DKh added support for root config pragma includes
       ProcessAllExistingConfigurationIncludes(conf.Root);
+
+      //20230722 DKh added support for root pragma excludes #888
+      ProcessConfigurationExcludes(conf.Root);
 
       return conf;
     }

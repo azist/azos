@@ -27,6 +27,7 @@ namespace Azos.Conf
     #region CONSTS
 
     public const string DEFAULT_CONFIG_INCLUDE_PRAGMA = "_include";
+    public const string DEFAULT_CONFIG_EXCLUDE_PRAGMA = "_exclude";
 
     public const string CONFIG_INCLUDE_PRAGMA_PROVIDER_SECTION = "provider";
 
