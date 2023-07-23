@@ -1541,13 +1541,17 @@ namespace Azos.Conf
 
       foreach (var child in Children)//Children does snapshot
       {
-        if (!child.IsSameName(excludePragma)) continue;
-
-        var fit = filterCondition(child);
-        if (!fit) continue;
-        child.Delete();
-        wasChange = true;
-
+        if (child.IsSameName(excludePragma))
+        {
+          var fit = filterCondition(child);
+          if (!fit) continue;
+          var parent = child.Parent;
+          if (parent.Exists)
+          {
+            parent.Delete();
+            wasChange = true;
+          }
+        }
         if (recurse)
         {
           wasChange |= child.ProcessExcludes(recurse, child.Name, excludePragma);

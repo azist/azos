@@ -16,7 +16,7 @@ namespace Azos.Scripting.Expressions.Conf
     /// <summary>
     /// A relative path to get a value from. The value is then tested against the pattern set filter
     /// </summary>
-    public string Path { get; set; }
+    public string ValueExpression { get; set; }
 
     /// <summary>
     /// Keep processing until all vars evaluated recursively
@@ -25,12 +25,12 @@ namespace Azos.Scripting.Expressions.Conf
 
     protected override bool Default => false;
 
-    protected override string GetValue(IConfigSectionNode context) => context?.EvaluateValueVariables(Path, Recurse);
+    protected override string GetValue(IConfigSectionNode context) => context?.EvaluateValueVariables(ValueExpression, Recurse);
 
     protected override void DoConfigure(IConfigSectionNode node)
     {
       base.DoConfigure(node);
-      Path = node.Of(nameof(Path)).VerbatimValue;//Notice VERBATIM specifier - we do NOT want to evaluate the expression
+      ValueExpression = node.Of("expr", "val", "value").VerbatimValue;//Notice VERBATIM specifier - we do NOT want to evaluate the expression
     }
   }
 }

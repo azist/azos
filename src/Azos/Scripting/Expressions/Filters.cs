@@ -57,18 +57,21 @@ namespace Azos.Scripting.Expressions
     public override bool Evaluate(TContext context)
     {
       var value = GetValue(context);
+      var result = Default;
 
       if (m_Includes != null && m_Includes.Length > 0)
       {
         if (!m_Includes.Any(p => value.MatchPattern(p, senseCase: SenseCase))) return false;
+        result = true;
       }
 
       if (m_Excludes != null && m_Excludes.Length > 0)
       {
         if (m_Excludes.Any(p => value.MatchPattern(p, senseCase: SenseCase))) return false;
+        result = true;
       }
 
-      return Default;
+      return result;
     }
 
     protected override void DoConfigure(IConfigSectionNode node)
@@ -127,17 +130,21 @@ namespace Azos.Scripting.Expressions
     {
       var value = GetValue(context);
 
+      var result = Default;
+
       if (m_Includes != null && m_Includes.Length > 0)
       {
         if (!m_Includes.Any(p => value == p)) return false;
+        result = true;
       }
 
       if (m_Excludes != null && m_Excludes.Length > 0)
       {
         if (m_Excludes.Any(p => value == p)) return false;
+        result = true;
       }
 
-      return Default;
+      return result;
     }
 
     protected override void DoConfigure(IConfigSectionNode node)
