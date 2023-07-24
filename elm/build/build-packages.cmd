@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.6.0.5
-set HEADLINE=Base64 leading spaces
+set VER=3.6.0.6
+set HEADLINE=888 Process Excludes
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
