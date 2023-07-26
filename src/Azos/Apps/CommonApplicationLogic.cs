@@ -102,7 +102,7 @@ namespace Azos.Apps
       var excludePragma = appConfigRoot.AttrByName(CONFIG_PROCESS_EXCLUDES).Value;
       if (excludePragma.IsNotNullOrWhiteSpace())
       {
-        appConfigRoot.ProcessExcludes(true, nameof(CommonApplicationLogic), excludePragma);
+        appConfigRoot.ProcessExcludes(true, true, nameof(CommonApplicationLogic), excludePragma);
       }
     }
 

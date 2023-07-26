@@ -505,9 +505,10 @@ namespace Azos.Conf
     /// Creates new configuration from other node, which may belong to a different configuration instance
     /// </summary>
     /// <param name="otherNode">A base node that data is defaulted from</param>
-    public void CreateFromNode(IConfigSectionNode otherNode)
+    public Configuration CreateFromNode(IConfigSectionNode otherNode)
     {
       m_Root = new ConfigSectionNode(this, null, otherNode);
+      return this;
     }
 
     /// <summary>

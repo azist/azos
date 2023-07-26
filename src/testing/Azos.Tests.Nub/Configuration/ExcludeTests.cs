@@ -16,7 +16,7 @@ namespace Azos.Tests.Nub.Configuration
   public class ExcludeTests
   {
     [Run]
-    public void Test_01()
+    public void Test_01_ConditionMatched()
     {
       var cfg = @"
 root
@@ -38,9 +38,71 @@ root
 
 
       Aver.AreEqual(4, cfg.ChildCount);
-      cfg.ProcessExcludes(true);
+      cfg.ProcessExcludes(true, true);
       Aver.AreEqual(3, cfg.ChildCount);
       Aver.AreEqual(4, cfg["b"].Of("id").ValueAsInt());
+    }
+
+    [Run]
+    public void Test_02_ConditionMismatch_keep()
+    {
+      var cfg = @"
+root
+{
+  env=abcd
+
+  a{ id=1 }
+  b
+  {
+    id=2
+    _exclude
+    {
+      condition{ type='Azos.Scripting.Expressions.Conf.ValuePattern, Azos' expr='$(/$env)' include='DEV' case=false }
+    }
+  }
+  c{ id=3 }
+  b{ id=4 }
+}".AsLaconicConfig();
+
+
+      Aver.AreEqual(4, cfg.ChildCount);
+      cfg.ProcessExcludes(true, deletePragmas: false);
+      Aver.AreEqual(4, cfg.ChildCount);
+      Aver.AreEqual(2, cfg["b"].Of("id").ValueAsInt());
+
+      Aver.IsTrue(cfg["b"]["_exclude"]["condition"].Exists);
+      cfg.See();
+    }
+
+    [Run]
+    public void Test_03_ConditionMismatch_delete()
+    {
+      var cfg = @"
+  root
+  {
+    env=abcd
+
+    a{ id=1 }
+    b
+    {
+      id=2
+      _exclude
+      {
+        condition{ type='Azos.Scripting.Expressions.Conf.ValuePattern, Azos' expr='$(/$env)' include='DEV' case=false }
+      }
+    }
+    c{ id=3 }
+    b{ id=4 }
+  }".AsLaconicConfig();
+
+
+      Aver.AreEqual(4, cfg.ChildCount);
+      cfg.ProcessExcludes(true, deletePragmas: true);
+      Aver.AreEqual(4, cfg.ChildCount);
+      Aver.AreEqual(2, cfg["b"].Of("id").ValueAsInt());
+
+      Aver.IsFalse(cfg["b"]["_exclude"]["condition"].Exists);
+      cfg.See();
     }
   }
 }

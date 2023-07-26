@@ -1515,9 +1515,17 @@ namespace Azos.Conf
     }
 
     /// <summary>
-    /// Processes exclude pragmas by deleting the specified nodes when conditions match
+    /// Processes exclude pragmas by deleting the specified nodes when conditions match.
     /// </summary>
-    public bool ProcessExcludes(bool recurse, string configLevelName = null, string excludePragma = null)
+    /// <param name="recurse">To process child sections</param>
+    /// <param name="deletePragmas">
+    /// Pass true to delete pragma sections with conditions which did not match. When conditions match the whole
+    /// parent node gets excluded from config, however when conditions do not match then the pragma node itself
+    /// will be deleted if you pass true
+    /// </param>
+    /// <param name="configLevelName">Optional logic name of config level which gets included in exception text in case of error</param>
+    /// <param name="excludePragma">Pragma name, <see cref="Configuration.DEFAULT_CONFIG_EXCLUDE_PRAGMA"/> by default</param>
+    public bool ProcessExcludes(bool recurse, bool deletePragmas, string configLevelName = null, string excludePragma = null)
     {
       if (excludePragma.IsNullOrWhiteSpace())
         excludePragma = Configuration.DEFAULT_CONFIG_EXCLUDE_PRAGMA;
@@ -1544,7 +1552,11 @@ namespace Azos.Conf
         if (child.IsSameName(excludePragma))
         {
           var fit = filterCondition(child);
-          if (!fit) continue;
+          if (!fit)
+          {
+            if (deletePragmas) child.Delete();
+            continue;
+          }
           var parent = child.Parent;
           if (parent.Exists)
           {
@@ -1554,7 +1566,7 @@ namespace Azos.Conf
         }
         if (recurse)
         {
-          wasChange |= child.ProcessExcludes(recurse, child.Name, excludePragma);
+          wasChange |= child.ProcessExcludes(recurse, deletePragmas, child.Name, excludePragma);
         }
       }
 
@@ -1744,7 +1756,10 @@ namespace Azos.Conf
                                           Configuration.CONFIG_INCLUDE_PRAGMA_COPY_ATTR));
 
         var root = pragma.NavigateSection(copyPath);
-        return (root.Exists ? root : null, isOverride);
+
+        //20230725 DKh #889
+        if (!root.Exists) return (null, isOverride);
+        return (new MemoryConfiguration().CreateFromNode(root).Root, isOverride);
       }
 
       if (fileName.IsNullOrWhiteSpace() && !ndProvider.Exists)
