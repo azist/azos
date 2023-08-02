@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.6.0.7
-set HEADLINE=Flow scope to Http listener and Log sinks
+set VER=3.6.0.8
+set HEADLINE=Daemon config hook virt method
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

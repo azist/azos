@@ -58,11 +58,11 @@ namespace Azos.Log.Sinks
     public string Body { get; set; }
 
 
-    protected override void DoConfigure(IConfigSectionNode node)
+    protected override void DoConfigureLockedDaemon(IConfigSectionNode fromNode)
     {
       using(var scope = new Security.SecurityFlowScope(Security.TheSafe.SAFE_ACCESS_FLAG))
       {
-        base.DoConfigure(node);
+        base.DoConfigureLockedDaemon(fromNode);
       }
     }
 
