@@ -12,26 +12,21 @@ using Azos.Conf;
 namespace Azos.Log.Sinks
 {
   /// <summary>
-  /// Implements log sink that sends emails
+  /// Implements log sink that sends emails using SMTP protocol
   /// </summary>
   public class SmtpSink : Sink
   {
     public const int DEFAULT_SMTP_PORT = 587;
 
 
-    public SmtpSink(ISinkOwner owner) : base(owner)
-    {
-
-    }
-
-    public SmtpSink(ISinkOwner owner, string name, int order) : base(owner, name, order)
-    {
-    }
+    public SmtpSink(ISinkOwner owner) : base(owner){ }
+    public SmtpSink(ISinkOwner owner, string name, int order) : base(owner, name, order){ }
 
     private SmtpClient m_Smtp;
 
     [Config]
     public string SmtpHost { get; set; }
+
     [Config(Default = DEFAULT_SMTP_PORT)]
     public int SmtpPort { get; set; }
 
@@ -41,7 +36,6 @@ namespace Azos.Log.Sinks
     [Config]
     public string DropFolder { get; set; }
 
-
     [Config]
     public string FromAddress { get; set; }
     [Config]
@@ -49,6 +43,7 @@ namespace Azos.Log.Sinks
 
     [Config]
     public string ToAddress { get; set; }
+
 
     [Config]
     public string CredentialsID { get; set; }
@@ -63,6 +58,13 @@ namespace Azos.Log.Sinks
     public string Body { get; set; }
 
 
+    protected override void DoConfigure(IConfigSectionNode node)
+    {
+      using(var scope = new Security.SecurityFlowScope(Security.TheSafe.SAFE_ACCESS_FLAG))
+      {
+        base.DoConfigure(node);
+      }
+    }
 
     protected override void DoStart()
     {

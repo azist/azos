@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.6.0.6
-set HEADLINE=888 Process Excludes
+set VER=3.6.0.7
+set HEADLINE=Flow scope to Http listener and Log sinks
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
