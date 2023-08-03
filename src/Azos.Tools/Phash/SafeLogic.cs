@@ -118,7 +118,7 @@ namespace Azos.Tools.Phash
       using var s = new Security.SecurityFlowScope(TheSafe.SAFE_ACCESS_FLAG);
       var val = GetValue(argsSafe);
       var alg = argsSafe.ValOf("alg", "algo", "algorithm");
-      var text = argsSafe.Of("text").ValueAsBool(true);
+      var text = argsSafe.Of("text", "str", "txt", "string").ValueAsBool(true);
       var got = text ? TheSafe.CipherConfigValue(val, alg) : TheSafe.CipherConfigValue(val.AsByteArray(), alg);
       Console.WriteLine("Ciphered:");
       Console.WriteLine(got ?? "<null>");
@@ -130,7 +130,7 @@ namespace Azos.Tools.Phash
       using var s = new Security.SecurityFlowScope(TheSafe.SAFE_ACCESS_FLAG);
       var val = GetValue(argsSafe);
       var alg = argsSafe.ValOf("alg", "algo", "algorithm");
-      var text = argsSafe.Of("text").ValueAsBool(true);
+      var text = argsSafe.Of("text", "str", "txt", "string").ValueAsBool(true);
       object got = TheSafe.DecipherConfigValue(val, text, alg);
       Console.WriteLine("Deciphered:");
       Console.WriteLine(got ?? "<null>");
