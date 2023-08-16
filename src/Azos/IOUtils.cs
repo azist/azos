@@ -1454,27 +1454,30 @@ namespace Azos
     {
       if (content.IsNullOrWhiteSpace()) return null;
 
-      var cl = content.Length;
-      var pl = cl % 4;
+      var charLen = 0;
+      var cbuf = new char[content.Length + 4]; //+ max padding of 4
+      for (var i = 0; i < content.Length; i++)
+      {
+        var c = content[i];
+        if (c == ' ' || c == '\t' || c == '\n' || c == '\r')
+        {
+          continue;//skip these characters
+        }
+
+        if (c == '-') c = '+';
+        else if (c == '_') c = '/';
+
+        cbuf[charLen++] = c;
+      }
+
+      for(var i = charLen; i < cbuf.Length; i++) cbuf[i] = '=';
+
+      var pl = charLen % 4;
       if (pl==2) pl = 2;
       else if (pl==3) pl = 1;
       else pl = 0;
 
-      var chars = new char[cl + pl];
-      for (var i = 0; i < chars.Length; i++)
-      {
-        if (i<content.Length)
-        {
-          var c = content[i];
-          if (c == '-') c = '+';
-          else if (c == '_') c = '/';
-          chars[i] = c;
-        }
-        else
-          chars[i] = '=';
-      }
-
-      return Convert.FromBase64CharArray(chars, 0, chars.Length);
+      return Convert.FromBase64CharArray(cbuf, 0, charLen + pl);
     }
 
     /// <summary>

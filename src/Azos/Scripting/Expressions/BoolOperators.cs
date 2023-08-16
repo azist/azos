@@ -6,6 +6,23 @@
 
 namespace Azos.Scripting.Expressions
 {
+  /// <summary>
+  /// Represents a TRUE boolean constant expression
+  /// </summary>
+  public class BoolTrue<TContext> : Expression<TContext, bool>
+  {
+    public override bool Evaluate(TContext context) => true;
+  }
+
+  /// <summary>
+  /// Represents a FALSE boolean constant expression
+  /// </summary>
+  public class BoolFalse<TContext> : Expression<TContext, bool>
+  {
+    public override bool Evaluate(TContext context) => false;
+  }
+
+
   public class BoolAnd<TContext> : BinaryOperator<TContext, bool, bool, bool>
   {
     public override bool Evaluate(TContext context)

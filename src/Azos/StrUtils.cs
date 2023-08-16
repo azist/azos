@@ -555,6 +555,40 @@ namespace Azos
     }
 
     /// <summary>
+    /// Returns an index of a starting segment (a prefix) in a string, bypassing all of
+    /// the following white characters (space, tab, return, LF) before the prefix.
+    /// Returns -1 if the string does not have a prefix or is null or whitespace
+    /// </summary>
+    public static int IndexOfPrefix(this string str, string pfx, StringComparison comp = StringComparison.Ordinal)
+    {
+      if (str.IsNullOrWhiteSpace()) return -1;
+      if (pfx.IsNullOrWhiteSpace()) return -1;
+
+      for(var i=0; i < str.Length; i++)
+      {
+        var c = str[i];
+        if (c is ' ' or '\t' or '\r' or '\n') continue;
+        if (str.IndexOf(pfx, i, comp) == i) return i;
+        return -1;
+      }
+
+      return -1;
+    }
+
+    /// <summary>
+    /// Tries to find a prefix bypassing whitespace characters in the beginning, then returns a prefixed remaining part
+    /// along with prefix index start. Returns (-1, null) if not found <seealso cref="IndexOfPrefix(string, string, StringComparison)"/>
+    /// </summary>
+    public static (int idxPfx, string part) GetPrefixedPart(this string str, string pfx, StringComparison comp = StringComparison.Ordinal)
+    {
+      var idx = str.IndexOfPrefix(pfx, comp);
+      if (idx < 0) return (-1, null);
+      var part = str.Substring(idx + pfx.Length);
+      return (idx, part);
+    }
+
+
+    /// <summary>
     /// Provides string to byte[] conversion using a rented buffer.
     /// You must release the common buffer back by calling TextBytes.Dispose().
     /// </summary>

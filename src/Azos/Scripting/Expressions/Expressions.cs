@@ -35,6 +35,20 @@ namespace Azos.Scripting.Expressions
         throw new ScriptingException("Expression `{0}` declaration error while trying to make `{1}` around:  ... {2} ...".Args(GetType().Name, section, parent.ToLaconicString(CodeAnalysis.Laconfig.LaconfigWritingOptions.Compact)), error);
       }
     }
+
+    /// <summary> Makes entity with descriptive error </summary>
+    protected virtual T Make<T>(IConfigSectionNode node) where T : IConfigurable
+    {
+      node.NonNull(nameof(node));
+      try
+      {
+        return FactoryUtils.MakeAndConfigure<T>(node);
+      }
+      catch (ConfigException error)
+      {
+        throw new ScriptingException("Expression `{0}` declaration error while trying to make instance around:  ... {1} ...".Args(GetType().Name, node.ToLaconicString(CodeAnalysis.Laconfig.LaconfigWritingOptions.Compact)), error);
+      }
+    }
   }
 
   public abstract class Expression<TContext, TResult> : Expression

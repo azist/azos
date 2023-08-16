@@ -144,12 +144,19 @@ namespace Azos.Apps
       }
     }
 
-    void IConfigurable.Configure(IConfigSectionNode node)
+    void IConfigurable.Configure(IConfigSectionNode node) => DoConfigureInScope(node);
+
+    /// <summary>
+    /// Override to add crosscutting concerns such as establish SecurityFlowScope
+    /// around configuration code block
+    /// </summary>
+    protected virtual void DoConfigureInScope(IConfigSectionNode node)
     {
       ConfigAttribute.Apply(this, node);
       DoConfigureChildModules(node);
       DoConfigure(node);
     }
+
 
     IEnumerable<KeyValuePair<string, Type>> IExternallyParameterized.ExternalParameters
       => DoGetExternalParameters();

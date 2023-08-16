@@ -339,6 +339,9 @@ and the name of module or INamed entity must match if the 'Name' constraint was 
     public const string CONFIG_NO_PROVIDER_LOAD_FORMAT_ERROR =
         "No configuration provider can open content supplied in this format: ";
 
+    public const string CONFIG_MACRO_DECIPHER_FAILURE_ERROR = "Could not `::decipher` the value `{0}...`[{1}] around `{2}`. Check safe keys";
+    public const string CONFIG_MACRO_DECIPHER_RQUIRED_ERROR = "Missing required value for `::decipher` around `{0}`";
+
     public const string CONFIG_VARS_EVAL_ERROR =
         "Configuration variable '{0}' evaluation error: {1}";
 

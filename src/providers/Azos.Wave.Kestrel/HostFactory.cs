@@ -5,6 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
+using System.Linq;
 
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Builder;
@@ -19,7 +20,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
 using System.Net;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Azos.Wave.Kestrel
 {
@@ -49,8 +49,11 @@ namespace Azos.Wave.Kestrel
         int.TryParse(cfg.Of("port").Value, out var port).IsTrue("Valid port");
         Port = port;
 
-        CertificateFile = cfg.Of("cert-file").Value;
-        CertificatePassword = cfg.Of("cert-pwd").Value;
+        using(var scope = new Security.SecurityFlowScope(Security.TheSafe.SAFE_ACCESS_FLAG))
+        {
+          CertificateFile = cfg.Of("cert-file").Value;
+          CertificatePassword = cfg.Of("cert-pwd").Value;
+        }
       }
 
 

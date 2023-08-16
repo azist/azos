@@ -115,10 +115,12 @@ namespace Azos.Sky.Messaging
 
     protected override void DoConfigure(IConfigSectionNode node)
     {
-      base.DoConfigure(node);
-
-      m_Sink = FactoryUtils.MakeAndConfigure<MessageSink>(node[CONFIG_SINK_SECTION], typeof(Sinks.SMTPMessageSink), args: new object[] { this });
-      m_FallbackSink = FactoryUtils.MakeAndConfigure<MessageSink>(node[CONFIG_FALLBACK_SINK_SECTION], typeof(Sinks.NOPMessageSink), args: new object[] { this });
+      using(var scope = new Security.SecurityFlowScope(Security.TheSafe.SAFE_ACCESS_FLAG))
+      {
+        base.DoConfigure(node);
+        m_Sink = FactoryUtils.MakeAndConfigure<MessageSink>(node[CONFIG_SINK_SECTION], typeof(Sinks.SMTPMessageSink), args: new object[] { this });
+        m_FallbackSink = FactoryUtils.MakeAndConfigure<MessageSink>(node[CONFIG_FALLBACK_SINK_SECTION], typeof(Sinks.NOPMessageSink), args: new object[] { this });
+      }
     }
 
     protected override void DoStart()

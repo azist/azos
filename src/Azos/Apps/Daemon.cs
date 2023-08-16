@@ -134,11 +134,22 @@ namespace Azos.Apps
       EnsureObjectNotDisposed();
       lock (m_StatusLock)
       {
-          CheckDaemonInactive();
-          ConfigAttribute.Apply(this, fromNode);
-          DoConfigure(fromNode);
+        CheckDaemonInactive();
+        DoConfigureLockedDaemon(fromNode);
       }
     }
+
+    /// <summary>
+    /// Called as a safe body of <see cref="Configure"/> under the lock.
+    /// Override to perform additional tasks such as set <see cref="Security.SecurityFlowScope"/>
+    /// where needed. The default implementation calls DoConfigure() after applying default config attribute
+    /// </summary>
+    protected virtual void DoConfigureLockedDaemon(IConfigSectionNode fromNode)
+    {
+      ConfigAttribute.Apply(this, fromNode);
+      DoConfigure(fromNode);
+    }
+
 
     /// <summary>
     /// Blocking call that starts the daemon instance if it is not decorated by [DontAutoStartDaemon]

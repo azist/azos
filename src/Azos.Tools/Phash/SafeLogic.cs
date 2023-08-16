@@ -6,14 +6,13 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
 
 using Azos.Apps;
 using Azos.IO.Console;
 using Azos.Security;
-using Azos.Serialization.JSON;
-using Azos.Platform;
 using Azos.Conf;
-using System.Linq;
+using Azos.Data;
 
 namespace Azos.Tools.Phash
 {
@@ -57,6 +56,16 @@ namespace Azos.Tools.Phash
       }
 
       Console.WriteLine();
+      return result;
+    }
+
+    public static string GetValue(IConfigSectionNode argsSafe)
+    {
+      var result = argsSafe.Attributes.FirstOrDefault(one => one.Name.StartsWith("?"))?.Value;
+      if (result.IsNotNullOrWhiteSpace()) return result;
+      Console.WriteLine();
+      Console.WriteLine("Please provide a value to process: ");
+      result = Console.ReadLine();
       return result;
     }
 
@@ -104,5 +113,28 @@ namespace Azos.Tools.Phash
                                 });
     }
 
+    public static void Cipher(IApplication app, IConfigSectionNode argsSafe)
+    {
+      using var s = new Security.SecurityFlowScope(TheSafe.SAFE_ACCESS_FLAG);
+      var val = GetValue(argsSafe);
+      var alg = argsSafe.ValOf("alg", "algo", "algorithm");
+      var text = argsSafe.Of("text", "str", "txt", "string").ValueAsBool(true);
+      var got = text ? TheSafe.CipherConfigValue(val, alg) : TheSafe.CipherConfigValue(val.AsByteArray(), alg);
+      Console.WriteLine("Ciphered:");
+      Console.WriteLine(got ?? "<null>");
+      Console.WriteLine();
+    }
+
+    public static void Decipher(IApplication app, IConfigSectionNode argsSafe)
+    {
+      using var s = new Security.SecurityFlowScope(TheSafe.SAFE_ACCESS_FLAG);
+      var val = GetValue(argsSafe);
+      var alg = argsSafe.ValOf("alg", "algo", "algorithm");
+      var text = argsSafe.Of("text", "str", "txt", "string").ValueAsBool(true);
+      object got = TheSafe.DecipherConfigValue(val, text, alg);
+      Console.WriteLine("Deciphered:");
+      Console.WriteLine(got ?? "<null>");
+      Console.WriteLine();
+    }
   }
 }

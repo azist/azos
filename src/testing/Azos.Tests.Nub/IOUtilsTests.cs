@@ -6,6 +6,7 @@
 
 using System;
 
+using Azos.Data;
 using Azos.Scripting;
 
 namespace Azos.Tests.Nub
@@ -13,6 +14,53 @@ namespace Azos.Tests.Nub
   [Runnable]
   public class IOUtilsTests
   {
+    [Run]
+    public void Base64DecodeWithSpaces_256()
+    {
+      var expect = "CD,7D,B1,13,A8,54,9C,5E,0F,14,E9,15,02,E4,1C,70,7C,E6,A3,34,AD,F4,95,34,DC,0F,9D,E2,C3,BD,CE,CD".AsByteArray();
+      Aver.AreEqual(0xcd, expect[0]);
+      Aver.AreEqual(0x7d, expect[1]);
+      Aver.AreEqual(0xcd, expect[^1]);
+      var got = "zX2xE6hUnF4PFOkVAuQccHzmozSt9JU03A-d4sO9zs0".FromWebSafeBase64();
+      Aver.AreArraysEquivalent(expect, got);
+
+      got = "zX2x E6\nhU n F 4        PFO\r\r\nkVAuQc  \t  c H zmoz \t \tSt9JU03A- d4sO    9zs0".FromWebSafeBase64();
+      Aver.AreArraysEquivalent(expect, got);
+
+      got = @"zX2xE6hU
+              nF4PFOkV
+              AuQccHzm
+              ozSt9JU0
+              3A-d4sO9zs0".FromWebSafeBase64();
+      Aver.AreArraysEquivalent(expect, got);
+
+      got = @"zX2xE6hU nF4PFOkV
+              AuQccH zmozSt9JU0
+              3A-d4sO 9zs0".FromWebSafeBase64();
+      Aver.AreArraysEquivalent(expect, got);
+    }
+
+    [Run]
+    public void Base64DecodeWithSpaces_SizeLoop()
+    {
+      for (var cnt = 1; cnt < 1024; cnt++)
+      {
+        var expect = Ambient.Random.NextRandomBytes(cnt);
+        var a = expect.ToWebSafeBase64();
+
+        for(var i=0; i< 10; i++)
+        {
+          a = a.Insert(Ambient.Random.NextScaledRandomInteger(0, a.Length-1), " \n ");
+        }
+
+        var got = a.FromWebSafeBase64();
+        Aver.AreArraysEquivalent(expect, got);
+      }
+    }
+
+
+
+
     [Run("a='0'")]
     [Run("a='0,0,0'")]
     [Run("a='255,255,255'")]

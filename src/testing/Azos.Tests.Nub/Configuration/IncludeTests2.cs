@@ -360,5 +360,47 @@ namespace Azos.Tests.Nub.Configuration
       CommonApplicationLogic.ProcessAllExistingConfigurationIncludes(cfg);
     }
 
+    //#889
+    [Run]
+    public void IncludeCopy_With()
+    {
+      var cfg = @"app
+      {
+        sectA{ a=-1 b=2}
+
+        <inc>
+        {
+          name=sectB
+          copy=/sectA
+          with
+          {
+            c=333
+            d=-90.23
+          }
+        }
+      }".AsLaconicConfig(handling: ConvertErrorHandling.Throw);
+
+      cfg.See();
+      cfg.ProcessAllExistingIncludes(includePragma: "<inc>");
+      cfg.See();
+
+
+      Aver.AreEqual(2, cfg.ChildCount);
+
+      Aver.AreEqual(2, cfg["sectA"].AttrCount);
+      Aver.AreEqual(4, cfg["sectB"].AttrCount);
+
+      Aver.AreEqual(-1,cfg["sectA"].Of("a").ValueAsInt());
+      Aver.AreEqual(2, cfg["sectA"].Of("b").ValueAsInt());
+
+      Aver.AreEqual(-1,  cfg["sectB"].Of("a").ValueAsInt());
+      Aver.AreEqual(2,   cfg["sectB"].Of("b").ValueAsInt());
+      Aver.AreEqual(333, cfg["sectB"].Of("c").ValueAsInt());
+      Aver.AreEqual(-90.23d, cfg["sectB"].Of("d").ValueAsDouble());
+
+    }
+
+
+
   }
 }

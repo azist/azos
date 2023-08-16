@@ -49,6 +49,13 @@ namespace Azos.Data.Access.MsSql
     protected static readonly DataRpcPermission PERM_READ = new DataRpcPermission(DataRpcAccessLevel.Read);
     protected static readonly DataRpcPermission PERM_TRANSACT = new DataRpcPermission(DataRpcAccessLevel.Transact);
 
+    protected override void DoConfigureInScope(IConfigSectionNode node)
+    {
+      using(new Security.SecurityFlowScope(Security.TheSafe.SAFE_ACCESS_FLAG))
+      {
+        base.DoConfigureInScope(node);
+      }
+    }
 
     protected override bool DoApplicationAfterInit()
     {

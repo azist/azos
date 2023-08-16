@@ -8,6 +8,9 @@ using Azos.Scripting.Expressions;
 
 namespace Azos.Log.Filters
 {
+  public class True  : BoolTrue<Message>  { }
+  public class False : BoolFalse<Message> { }
+
   public class And       : BoolAnd       <Message> { }
   public class Or        : BoolOr        <Message> { }
   public class Xor       : BoolXor       <Message> { }
