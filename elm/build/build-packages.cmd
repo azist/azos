@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.6.0.10
-set HEADLINE=Relax File Gateway constraints
+set VER=3.6.0.11
+set HEADLINE=EntityId.ToString()
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

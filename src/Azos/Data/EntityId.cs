@@ -166,7 +166,7 @@ namespace Azos.Data
       }
     }
 
-    public override string ToString() => IsAssigned ? "{0}(`{1}`)".Args(GetType().Name, AsString) : string.Empty;
+    public override string ToString() => AsString;//20230816 DKh JPK JGW // IsAssigned ? "{0}(`{1}`)".Args(GetType().Name, AsString) : string.Empty;
 
     public override int GetHashCode() => System.GetHashCode() ^
                                          Type.GetHashCode() ^
