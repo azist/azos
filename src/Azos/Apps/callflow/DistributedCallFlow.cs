@@ -311,7 +311,7 @@ namespace Azos.Apps
 
 
     /// <summary>
-    /// True if this call was already logged and <see cref=""/> was called
+    /// True if this call was already logged and <see cref="SetWasLogged(bool)"/> was called
     /// </summary>
     public bool WasLogged => m_WasLogged;
 

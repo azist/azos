@@ -18,9 +18,9 @@ namespace Azos.Sky.FileGateway
   /// </summary>
   public static class Constraints
   {
-    public const int MAX_PATH_SEGS = 8;
-    public const int MAX_PATH_SEG_LEN = 24;
-    public const int MAX_PATH_TOTAL_LEN = 150;
+    public const int MAX_PATH_SEGS = 10;
+    public const int MAX_PATH_SEG_LEN = 48;
+    public const int MAX_PATH_TOTAL_LEN = 236;
 
     public const int MAX_FILE_CHUNK_SIZE = 8 * 1024 * 1024;
 
