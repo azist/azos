@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Azos.Apps;
 using Azos.Serialization.JSON;
 
 namespace Azos.AuthKit.Tools.idp
@@ -22,6 +23,17 @@ namespace Azos.AuthKit.Tools.idp
     {
       Console.WriteLine("Come on Starbear!");
       var filter = new UserListFilter{ };
+
+      //SET data CONTEXT session
+      var session = Ambient.CurrentCallSession;
+      if (session is NOPSession)
+      {
+        session = new BaseSession(Guid.NewGuid(), m_Logic.App.Random.NextRandomUnsignedLong);
+        Azos.Apps.ExecutionContext.__SetThreadLevelSessionContext(session);
+      }
+      session.DataContextName = "gdi";
+
+
       var users = m_Logic.GetUserListAsync(filter).AwaitResult();
 
       if (m_Silent)

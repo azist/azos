@@ -54,12 +54,12 @@ namespace Azos.AuthKit.Tools.idp
       }
 
       IIdpUserAdminLogic logic = app.ModuleRoot.TryGet<IIdpUserAdminLogic>();
-      //if (logic == null)
-      //{
-      //  throw new AuthKitException("The required `IIdpUserAdminLogic` module could not be resolved. \n" +
-      //   "We need to know what IDP server to connect to, using what corresponding credentials, which are supplied via configured app module instance. \n" +
-      //   "Did you forget to run the tool with the config switch pointing to an appropriate file e.g. `-config ~/your-idp-environment.laconf`? ");
-      //}
+      if (logic == null)
+      {
+        throw new AuthKitException("The required `IIdpUserAdminLogic` module could not be resolved. \n" +
+         "We need to know what IDP server to connect to, using what corresponding credentials, which are supplied via configured app module instance. \n" +
+         "Did you forget to run the tool with the config switch pointing to an appropriate file e.g. `-config ~/your-idp-environment.laconf`? ");
+      }
 
       var verbName = app.CommandArgs.AttrByIndex(0).Value;
       if (verbName.IsNullOrWhiteSpace())
@@ -76,7 +76,7 @@ namespace Azos.AuthKit.Tools.idp
       var verb = Activator.CreateInstance(tverb, logic, silent) as Verb;
       try
       {
-      
+
         verb.Run();
       }
       finally
