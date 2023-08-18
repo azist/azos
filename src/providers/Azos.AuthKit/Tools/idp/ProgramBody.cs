@@ -12,7 +12,7 @@ using Azos.Security;
 using Azos.Glue;
 using Azos.Glue.Protocol;
 using Azos.Platform;
-
+using Azos.Serialization.JSON;
 
 namespace Azos.AuthKit.Tools.idp
 {
@@ -30,12 +30,7 @@ namespace Azos.AuthKit.Tools.idp
       }
       catch (Exception error)
       {
-        ConsoleUtils.Error(error.ToMessageWithType());
-        ConsoleUtils.Info("Exception details:");
-        Console.WriteLine(error.ToString());
-
-        if (error is RemoteException)
-          TerminalUtils.ShowRemoteException((RemoteException)error);
+        ConsoleUtils.Error(new WrappedExceptionData(error).ToJson(JsonWritingOptions.PrettyPrintRowsAsMapASCII));
 
         Environment.ExitCode = -1;
       }
@@ -48,8 +43,8 @@ namespace Azos.AuthKit.Tools.idp
       {
         ConsoleUtils.WriteMarkupContent(typeof(ProgramBody).GetText("Welcome.txt"));
 
-        ConsoleUtils.Info("Build:  " + BuildInformation.ForFramework);
-        ConsoleUtils.Info("App description:  " + app.Description);
+        ConsoleUtils.Info("Build: " + BuildInformation.ForFramework);
+        ConsoleUtils.Info("App conf descr: " + app.Description);
       }
 
       if (app.CommandArgs["?", "h", "help"].Exists)
@@ -58,7 +53,36 @@ namespace Azos.AuthKit.Tools.idp
         return;
       }
 
-    }//run
+      IIdpUserAdminLogic logic = app.ModuleRoot.TryGet<IIdpUserAdminLogic>();
+      //if (logic == null)
+      //{
+      //  throw new AuthKitException("The required `IIdpUserAdminLogic` module could not be resolved. \n" +
+      //   "We need to know what IDP server to connect to, using what corresponding credentials, which are supplied via configured app module instance. \n" +
+      //   "Did you forget to run the tool with the config switch pointing to an appropriate file e.g. `-config ~/your-idp-environment.laconf`? ");
+      //}
 
+      var verbName = app.CommandArgs.AttrByIndex(0).Value;
+      if (verbName.IsNullOrWhiteSpace())
+      {
+        throw new AuthKitException("Dont know what to do - missing verb. Try adding something like `userlist`");
+      }
+
+      var tname = "Azos.AuthKit.Tools.idp.{0}Verb, Azos.AuthKit".Args(verbName);
+      var tverb = Type.GetType(tname, throwOnError: false, ignoreCase: true);
+      if (tverb == null || !tverb.IsSubclassOf(typeof(Verb)))
+      {
+        throw new AuthKitException("Dont know how to handle `{0}`".Args(verbName));
+      }
+      var verb = Activator.CreateInstance(tverb, logic, silent) as Verb;
+      try
+      {
+      
+        verb.Run();
+      }
+      finally
+      {
+        DisposableObject.DisposeIfDisposableAndNull(ref verb);
+      }
+    }//run
   }
 }
