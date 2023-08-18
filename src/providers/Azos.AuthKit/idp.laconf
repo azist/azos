@@ -1,0 +1,8 @@
+﻿app
+{
+  id='idp'
+  name='idp'
+  unit-test=false
+  force-invariant-culture=true
+  description='AuthKit Identity Provider CLI'
+}

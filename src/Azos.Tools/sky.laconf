@@ -13,6 +13,13 @@
     //exclude-types="Namespace.*.Type"
   }
 
+  //AuthKit tools
+  assembly
+  {
+    file="*Azos.AuthKit.dll"  types="*"
+  }
+
+  //Toy
   assembly
   {
     file="*TestBusinessLogic.dll"  types="*"

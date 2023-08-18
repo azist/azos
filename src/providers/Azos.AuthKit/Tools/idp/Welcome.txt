@@ -1,0 +1,8 @@
+﻿<push><b color=black><f color=white>
+Azos AuthKit Identity Provider Console<f color=darkCyan>
+WARNING: IDP is a mission critical component of your system.
+Plan, review, and verify your changes at least 3 times!<f color=gray>
+Copyright (c) 2023 Azist Group
+Version 1.0 / Aug 2023
+
+<pop>
