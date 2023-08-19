@@ -78,7 +78,7 @@ namespace Azos.AuthKit.Tools.idp
       var verbName = app.CommandArgs.AttrByIndex(0).Value;
       if (verbName.IsNullOrWhiteSpace())
       {
-        throw new AuthKitException("Dont know what to do - missing verb. Try adding something like `userlist`");
+        throw new AuthKitException("Dont know what to do - missing verb. Try adding something like `kiosk` or `userlist`");
       }
 
       if (!silent)
