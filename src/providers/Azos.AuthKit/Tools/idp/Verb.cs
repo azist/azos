@@ -12,14 +12,13 @@ namespace Azos.AuthKit.Tools.idp
 {
   public abstract class Verb
   {
-    protected Verb(IIdpUserAdminLogic logic, bool silent)
-    {
-      m_Silent = silent;
-      m_Logic = logic;
-    }
+    protected Verb(IIdpUserAdminLogic logic) => m_Logic = logic;
+    private readonly IIdpUserAdminLogic m_Logic;
 
-    protected readonly bool m_Silent;
-    protected readonly IIdpUserAdminLogic m_Logic;
+    protected IApplication App => m_Logic.App;
+    protected IIdpUserAdminLogic Logic => m_Logic;
+    protected bool IsSilent => App.CommandArgs["s", "silent"].Exists;
+    protected bool IsJson => App.CommandArgs["json"].Exists;
 
     public abstract void Run();
   }

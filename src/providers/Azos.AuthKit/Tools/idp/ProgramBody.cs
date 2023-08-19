@@ -44,7 +44,7 @@ namespace Azos.AuthKit.Tools.idp
         ConsoleUtils.WriteMarkupContent(typeof(ProgramBody).GetText("Welcome.txt"));
 
         ConsoleUtils.Info("Build: " + BuildInformation.ForFramework);
-        ConsoleUtils.Info("App conf descr: " + app.Description);
+        ConsoleUtils.Info("App configuration description: " + app.Description);
       }
 
       if (app.CommandArgs["?", "h", "help"].Exists)
@@ -53,6 +53,7 @@ namespace Azos.AuthKit.Tools.idp
         return;
       }
 
+      //1. Get Logic
       IIdpUserAdminLogic logic = app.ModuleRoot.TryGet<IIdpUserAdminLogic>();
       if (logic == null)
       {
@@ -61,10 +62,29 @@ namespace Azos.AuthKit.Tools.idp
          "Did you forget to run the tool with the config switch pointing to an appropriate file e.g. `-config ~/your-idp-environment.laconf`? ");
       }
 
+      //2. Get Realm
+      //SET data CONTEXT session
+      var session = new BaseSession(Guid.NewGuid(), app.Random.NextRandomUnsignedLong);
+      var realm = app.ConfigRoot.Of("realm").ValueAsAtom(Atom.ZERO);
+      session.DataContextName = realm.Value;
+      Azos.Apps.ExecutionContext.__SetThreadLevelSessionContext(session);
+      if (realm.IsZero || !realm.IsValid)
+      {
+        throw new AuthKitException("Must specify valid idp `$realm` attribute in app conf root");
+      }
+
+
+      //3. Get Verb
       var verbName = app.CommandArgs.AttrByIndex(0).Value;
       if (verbName.IsNullOrWhiteSpace())
       {
         throw new AuthKitException("Dont know what to do - missing verb. Try adding something like `userlist`");
+      }
+
+      if (!silent)
+      {
+        ConsoleUtils.Info("Logic: " + logic.GetType().DisplayNameWithExpandedGenericArgs());
+        ConsoleUtils.Info("Realm: " + realm);
       }
 
       var tname = "Azos.AuthKit.Tools.idp.{0}Verb, Azos.AuthKit".Args(verbName);
@@ -73,7 +93,7 @@ namespace Azos.AuthKit.Tools.idp
       {
         throw new AuthKitException("Dont know how to handle `{0}`".Args(verbName));
       }
-      var verb = Activator.CreateInstance(tverb, logic, silent) as Verb;
+      var verb = Activator.CreateInstance(tverb, logic) as Verb;
       try
       {
 

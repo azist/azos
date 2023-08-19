@@ -15,29 +15,14 @@ namespace Azos.AuthKit.Tools.idp
 {
   public sealed class UserListVerb : Verb
   {
-    public UserListVerb(IIdpUserAdminLogic logic, bool silent) : base(logic, silent)
-    {
-    }
-
+    public UserListVerb(IIdpUserAdminLogic logic) : base(logic) {  }
 
     public override void Run()
     {
-      Console.WriteLine("Come on Starbear!");
       var filter = new UserListFilter{};// Name = "dkh" };
+      var users = Logic.GetUserListAsync(filter).AwaitResult();
 
-      //SET data CONTEXT session
-      var session = Ambient.CurrentCallSession;
-      if (session is NOPSession)
-      {
-        session = new BaseSession(Guid.NewGuid(), m_Logic.App.Random.NextRandomUnsignedLong);
-        Azos.Apps.ExecutionContext.__SetThreadLevelSessionContext(session);
-      }
-      session.DataContextName = "gdi";
-
-
-      var users = m_Logic.GetUserListAsync(filter).AwaitResult();
-
-      if (m_Silent)
+      if (IsJson)
       {
         var json = users.ToJson(JsonWritingOptions.PrettyPrintRowsAsMapASCII);
         Console.WriteLine(json);
