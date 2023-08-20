@@ -22,8 +22,23 @@ namespace Azos.AuthKit.Tools.idp
     public override void Run()
     {
       ConsoleUtils.WriteMarkupContent(@"
-<push><f color=white>User management Interactive Kiosk mode
+<push>
+
+<f color=green> ██▓▓█████▄  ██▓███    <f color=cyan>  ██ ▄█▀ ██▓ ▒█████    ██████  ██ ▄█▀
+<f color=green>▓██▒▒██▀ ██▌▓██░  ██▒  <f color=cyan>  ██▄█▒ ▓██▒▒██▒  ██▒▒██    ▒  ██▄█▒ 
+<f color=green>▒██▒░██   █▌▓██░ ██▓▒  <f color=cyan> ▓███▄░ ▒██▒▒██░  ██▒░ ▓██▄   ▓███▄░ 
+<f color=green>░██░░▓█▄   ▌▒██▄█▓▒ ▒  <f color=cyan> ▓██ █▄ ░██░▒██   ██░  ▒   ██▒▓██ █▄ 
+<f color=green>░██░░▒████▓ ▒██▒ ░  ░  <f color=cyan> ▒██▒ █▄░██░░ ████▓▒░▒██████▒▒▒██▒ █▄
+<f color=green>░▓   ▒▒▓  ▒ ▒▓▒░ ░  ░  <f color=cyan> ▒ ▒▒ ▓▒░▓  ░ ▒░▒░▒░ ▒ ▒▓▒ ▒ ░▒ ▒▒ ▓▒
+<f color=green> ▒ ░ ░ ▒  ▒ ░▒ ░       <f color=cyan> ░ ░▒ ▒░ ▒ ░  ░ ▒ ▒░ ░ ░▒  ░ ░░ ░▒ ▒░
+<f color=green> ▒ ░ ░ ░  ░ ░░         <f color=cyan> ░ ░░ ░  ▒ ░░ ░ ░ ▒  ░  ░  ░  ░ ░░ ░ 
+<f color=green> ░     ░               <f color=cyan> ░  ░    ░      ░ ░        ░  ░  ░   
+<f color=green>     ░                 <f color=cyan>                                     
+
+<f color=white>IDP management Interactive Kiosk mode  <f color=darkgray>
 <f color=darkcyan>We will guide you step-by-step through various user creation and maintenance flows
+
+
 <pop>");
 
       while (true)
