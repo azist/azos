@@ -350,7 +350,7 @@ namespace Azos
                                bool putHttpDetails = false,
                                bool putExternalDetails = false)
     {
-      if (type == null || !expectedType.NonNull(nameof(expectedType)).IsAssignableFrom(type))
+      if (type == null || !expectedType.NonNull(nameof(expectedType), callFile, callLine, callMember, putHttpDetails, putExternalDetails).IsAssignableFrom(type))
       {
         var callSite = callSiteOf(callFile, callLine, callMember);
         throw new CallGuardException(callSite,
@@ -398,7 +398,7 @@ namespace Azos
                                bool putHttpDetails = false,
                                bool putExternalDetails = false)
     {
-      if (value == null || !expectedType.NonNull(nameof(expectedType)).IsAssignableFrom(value.GetType()))
+      if (value == null || !expectedType.NonNull(nameof(expectedType), callFile, callLine, callMember, putHttpDetails, putExternalDetails).IsAssignableFrom(value.GetType()))
       {
         var callSite = callSiteOf(callFile, callLine, callMember);
         throw new CallGuardException(callSite,
@@ -490,7 +490,7 @@ namespace Azos
                                      bool putHttpDetails = false,
                                      bool putExternalDetails = false)
     {
-      var len = str.NonBlank(name, callFile, callLine, callMember).Length;
+      var len = str.NonBlank(name, callFile, callLine, callMember, putHttpDetails, putExternalDetails).Length;
       if (len > maxLen)
       {
         var callSite = callSiteOf(callFile, callLine, callMember);
@@ -519,7 +519,7 @@ namespace Azos
                                      bool putHttpDetails = false,
                                      bool putExternalDetails = false)
     {
-      var len = str.NonBlank(name, callFile, callLine, callMember).Length;
+      var len = str.NonBlank(name, callFile, callLine, callMember, putHttpDetails, putExternalDetails).Length;
       if (len < minLen)
       {
         var callSite = callSiteOf(callFile, callLine, callMember);
@@ -549,7 +549,7 @@ namespace Azos
                                         bool putHttpDetails = false,
                                         bool putExternalDetails = false)
     {
-      var len = str.NonBlank(name, callFile, callLine, callMember).Length;
+      var len = str.NonBlank(name, callFile, callLine, callMember, putHttpDetails, putExternalDetails).Length;
       if (len < minLen || len > maxLen)
       {
         var callSite = callSiteOf(callFile, callLine, callMember);
@@ -688,8 +688,8 @@ namespace Azos
                                  bool putHttpDetails = false,
                                  bool putExternalDetails = false) where T : class, IValidatable
     {
-      app.NonNull(nameof(app), callFile, callLine, callMember)
-         .InjectInto(value.NonNull(name, callFile, callLine, callMember));
+      app.NonNull(nameof(app), callFile, callLine, callMember, putHttpDetails, putExternalDetails)
+         .InjectInto(value.NonNull(name, callFile, callLine, callMember, putHttpDetails, putExternalDetails));
 
       return value.AsValid(name, state, scope, callFile, callLine, callMember, putHttpDetails, putExternalDetails);
     }
