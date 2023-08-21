@@ -84,7 +84,7 @@ namespace Azos.AuthKit
     /// <summary>
     /// Free form text notes associated with the account
     /// </summary>
-    [Field(maxLength:Constraints.NOTE_MAX_LEN,
+    [Field(maxLength: Constraints.NOTE_MAX_LEN,
            Description = "Free form text notes associated with the account")]
     public string Note { get; set; }
 

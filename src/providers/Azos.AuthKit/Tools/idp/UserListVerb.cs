@@ -19,7 +19,7 @@ namespace Azos.AuthKit.Tools.idp
 
     public override void Run()
     {
-      var filter = new UserListFilter{};// Name = "dkh" };
+      var filter = FilterBuilder.Build(); //new UserListFilter{};//// Name = "dkh" };
       var users = Logic.GetUserListAsync(filter).AwaitResult();
 
       if (IsJson)

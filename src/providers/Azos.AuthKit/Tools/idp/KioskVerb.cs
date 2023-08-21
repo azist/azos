@@ -59,18 +59,23 @@ Menu:
       }
     }
 
-    public void FindUser()
+    public bool FindUser()
     {
       Console.WriteLine("* * * Find User * * *");
+      var filter = FilterBuilder.Build();
 
-      Console.WriteLine();
+      Console.WriteLine(filter.ToJson());
+      return true;
     }
 
-    public void AddNewUser()
+    public bool AddNewUser()
     {
       Console.WriteLine("* * * Add New User * * *");
 
-      Console.WriteLine("....user added");
+      var user = UserBuilder.Build();
+
+      Console.WriteLine(user.ToJson());
+      return true;
     }
   }
 }
