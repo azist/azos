@@ -13,6 +13,7 @@ using Azos.Data;
 using Azos.IO.Console;
 using Azos.Security;
 using Azos.Serialization.JSON;
+using Azos.Time;
 
 namespace Azos.AuthKit.Tools.idp
 {
@@ -22,14 +23,20 @@ namespace Azos.AuthKit.Tools.idp
     {
       var result = new UserEntity();
 
+      string role = "";
       while(true)
       {
         OneField("Name", () => result.Name, v => result.Name = v);
-        OneField("Level", () => result.Level.ToString(), v => result.Level = v.AsEnum(UserStatus.Invalid));
+        OneField("Level", () => result.Level.ToString(), v => result.Level = v.AsEnum(UserStatus.Invalid, ConvertErrorHandling.Throw));
         OneField("Description", () => result.Description, v => result.Description = v);
-        OneField("Valid UTC Start", () => result.ValidSpanUtc?.Start?.ToString(), v => result.ValidSpanUtc = new Azos.Time.DateRange(v.AsDateTime(), result.ValidSpanUtc?.End));
-        OneField("Valid UTC End", () => result.ValidSpanUtc?.End?.ToString(), v => result.ValidSpanUtc = new Azos.Time.DateRange(result.ValidSpanUtc?.Start, v.AsDateTime()));
+        OneField("Valid UTC Start", () => result.ValidSpanUtc?.Start?.ToString(), v => result.ValidSpanUtc = new DateRange(v.AsDateTime(CoreConsts.UTC_TIMESTAMP_STYLES), result.ValidSpanUtc?.End));
+        OneField("Valid UTC End", () => result.ValidSpanUtc?.End?.ToString(), v => result.ValidSpanUtc = new DateRange(result.ValidSpanUtc?.Start, v.AsDateTime(CoreConsts.UTC_TIMESTAMP_STYLES)));
+        OneField("Org Unit", () => result.OrgUnit?.AsString, v => result.OrgUnit = v.AsEntityId(EntityId.EMPTY, ConvertErrorHandling.Throw));
+        OneField("Role", () => role, v => role = v);
+        //todo check role
+        result.Props = new ConfigVector("prop{  role='"+role+"'}");
 
+        OneField("Note", () => result.Note, v => result.Note = v);
 
         var ve = result.Validate();
         if (ve == null)
@@ -49,9 +56,23 @@ namespace Azos.AuthKit.Tools.idp
     public static void OneField(string fn,  Func<string> getter, Action<string> setter)
     {
       ConsoleUtils.WriteMarkupContent($"<f color=gray>Please enter <f color=white>{fn}<f color=gray>: <f color=darkcyan>{getter()}  <f color=gray>");
-      var val = Console.ReadLine();
-      if (val.IsNullOrWhiteSpace()) return;
-      setter(val);
+
+      while(true)
+      {
+        var val = Console.ReadLine();
+        if (val.IsNullOrWhiteSpace()) return;
+
+        try
+        {
+          setter(val);
+          break;
+        }
+        catch(Exception error)
+        {
+          ConsoleUtils.Error("You have entered bad field value: " + error.ToMessageWithType());
+          Console.WriteLine("Reenter the value: ");
+        }
+      }
     }
 
 
