@@ -20,15 +20,15 @@ namespace Azos.AuthKit.Tools.idp
 {
   public static class UserBuilder
   {
-    public static UserEntity Build()
+    public static UserEntity BuildUserEntity(UserEntity result = null)
     {
-      var result = new UserEntity();
+      if (result==null) result = new UserEntity();
 
       ConfigSectionNode prop = Configuration.NewEmptyRoot(Constraints.CONFIG_PROP_ROOT_SECTION);
       ConfigSectionNode claims = prop.AddChildNode(Constraints.CONFIG_CLAIMS_SECTION);
-      result.Props = new ConfigVector(prop);
+      ConfigSectionNode pubClaims = claims.AddChildNode(Constraints.CONFIG_PUBLIC_SECTION);
 
-      while(true)
+      while (true)
       {
         OneField("Name", () => result.Name, v => result.Name = v);
         OneField("Level (<push><f color=darkred>Usr|Adm|Sys<pop>)", () => result.Level.ToString(), v => result.Level = v.AsEnum(UserStatus.Invalid, ConvertErrorHandling.Throw));
@@ -36,9 +36,29 @@ namespace Azos.AuthKit.Tools.idp
         OneField("Validity Utc span start (mm/dd/yyyy hh:mm)", () => result.ValidSpanUtc?.Start?.ToString(), v => result.ValidSpanUtc = new DateRange(v.AsDateTime(CoreConsts.UTC_TIMESTAMP_STYLES), result.ValidSpanUtc?.End));
         OneField("Validity Utc span end (mm/dd/yyyy hh: mm)", () => result.ValidSpanUtc?.End?.ToString(), v => result.ValidSpanUtc = new DateRange(result.ValidSpanUtc?.Start, v.AsDateTime(CoreConsts.UTC_TIMESTAMP_STYLES)));
         OneField("Org Unit", () => result.OrgUnit?.AsString, v => result.OrgUnit = v.AsEntityId(EntityId.EMPTY, ConvertErrorHandling.Throw));
-        OneField("Role", () => prop.ValOf(Constraints.CONFIG_ROLE_ATTR), v => prop.AttrByName(Constraints.CONFIG_ROLE_ATTR, autoCreate: true).Value = v.AsNullableEntityId(null, ConvertErrorHandling.Throw));
+        OneField("Role", () => prop.ValOf(Constraints.CONFIG_ROLE_ATTR), v => prop.AttrByName(Constraints.CONFIG_ROLE_ATTR, autoCreate: true).Value = v.AsNullableEntityId(null, ConvertErrorHandling.Throw)?.AsString);
+
+        OneField("Public Claims", () => pubClaims.ToLaconicString(), v =>
+        {
+          var nv = v.AsLaconicConfig(null, Constraints.CONFIG_PUBLIC_SECTION, ConvertErrorHandling.Throw);
+          nv.Name = Constraints.CONFIG_PUBLIC_SECTION;
+
+          var replace = nv.Of("_replace");
+          if (replace.Exists)
+          {
+            ((ConfigAttrNode)replace).Delete();
+            pubClaims.ReplaceBy(nv);
+          }
+          else
+          {
+            pubClaims.OverrideBy(nv);
+          }
+        });
+
         OneField("Note", () => result.Note, v => result.Note = v);
 
+
+        result.Props = new ConfigVector(prop);
         var ve = result.Validate();
         if (ve == null)
         {

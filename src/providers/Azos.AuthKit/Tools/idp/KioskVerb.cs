@@ -72,7 +72,7 @@ Menu:
     {
       Console.WriteLine("* * * Add New User * * *");
 
-      var user = UserBuilder.Build();
+      var user = UserBuilder.BuildUserEntity();
 
       Console.WriteLine(user.ToJson());
       return true;
