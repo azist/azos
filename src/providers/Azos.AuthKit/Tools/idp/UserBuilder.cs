@@ -20,9 +20,15 @@ namespace Azos.AuthKit.Tools.idp
 {
   public static class UserBuilder
   {
+    public const string CONFIG_REPLACE_PRAGMA = "_replace";
+
     public static UserEntity BuildUserEntity(UserEntity result = null)
     {
-      if (result==null) result = new UserEntity();
+      if (result==null)
+      {
+        result = new UserEntity();
+        result.FormMode = FormMode.Insert;
+      }
 
       ConfigSectionNode prop = Configuration.NewEmptyRoot(Constraints.CONFIG_PROP_ROOT_SECTION);
       ConfigSectionNode claims = prop.AddChildNode(Constraints.CONFIG_CLAIMS_SECTION);
@@ -43,7 +49,7 @@ namespace Azos.AuthKit.Tools.idp
           var nv = v.AsLaconicConfig(null, Constraints.CONFIG_PUBLIC_SECTION, ConvertErrorHandling.Throw);
           nv.Name = Constraints.CONFIG_PUBLIC_SECTION;
 
-          var replace = nv.Of("_replace");
+          var replace = nv.Of(CONFIG_REPLACE_PRAGMA);
           if (replace.Exists)
           {
             ((ConfigAttrNode)replace).Delete();
