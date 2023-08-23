@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Azos.Apps;
 using Azos.Data;
@@ -24,6 +25,7 @@ namespace Azos.AuthKit.Tools.idp
 
       if (IsJson)
       {
+Console.WriteLine("Orgunit: "+users.ToArray()[0].OrgUnit+ "    AMORPHPUS: "+ users.ToArray()[0].AmorphousData.ToJson());
         var json = users.ToJson(JsonWritingOptions.PrettyPrintRowsAsMapASCII);
         Console.WriteLine(json);
       }
