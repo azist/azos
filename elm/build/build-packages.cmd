@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.6.0.12
-set HEADLINE=FileGatewayClient async
+set VER=3.6.1.1
+set HEADLINE=Fix #891 json reader nullable
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
