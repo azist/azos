@@ -66,6 +66,7 @@ Menu:
         var choice = Console.ReadLine();
         if (choice.EqualsOrdIgnoreCase("1"))  FindUser();
         else if (choice.EqualsOrdIgnoreCase("2"))  AddNewUser();
+        else if (choice.EqualsOrdIgnoreCase("3")) ModifyUser();
         else if (choice.EqualsOrdIgnoreCase("x")) return;
       }
     }
@@ -106,6 +107,11 @@ Menu:
       ConsoleUtils.WriteMarkupContent($"<f color=darkGray>Validity   | <f color=White>{info.ValidSpanUtc} \n");
       ConsoleUtils.WriteMarkupContent($"<f color=darkGray>OrgUnit    | <f color=White>{info.OrgUnit} \n");
       ConsoleUtils.WriteMarkupContent($"<f color=darkgray>Props:\n    <f color=cyan> {info.Props.Content} \n");
+      if (info.Rights != null && info.Rights.Content.IsNotNullOrWhiteSpace())
+      {
+        ConsoleUtils.WriteMarkupContent($"<f color=darkgray>Rights:\n   <f color=cyan> {info.Rights.Content} \n");
+      }
+
       ConsoleUtils.WriteMarkupContent($"<f color=darkGray>Note: \n    <f color=cyan>{info.Note} \n");
 
       ConsoleUtils.WriteMarkupContent($"<f color=darkGray>Version: \n    <f color=darkgreen>{info.CreateVersion.ToJson()} \n");
@@ -179,5 +185,52 @@ Menu:
 
       return true;
     }
+
+    public bool ModifyUser()
+    {
+      Console.ForegroundColor = ConsoleColor.White;
+      Console.WriteLine("* * * Modify User * * *");
+      Console.ForegroundColor = ConsoleColor.Gray;
+
+      if (CurrentUser==null)
+      {
+        ConsoleUtils.Error("Select the user first");
+        return false;
+      }
+
+      var userInfo = GetUserInfo(CurrentUser.Gdid);
+      if (userInfo==null)
+      {
+        ConsoleUtils.Error("User not found");
+        return false;
+      }
+
+      var user = UserEntity.FromUserInfo(userInfo);
+      user = UserBuilder.BuildUserEntity(user);
+
+      try
+      {
+        var userChange = Logic.SaveUserAsync(user).AwaitResult();
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine("SERVER RESPONSE: ");
+        Console.ForegroundColor = ConsoleColor.DarkGreen;
+        Console.WriteLine(userChange.ToJson(JsonWritingOptions.PrettyPrintRowsAsMapASCII));
+        Console.ForegroundColor = ConsoleColor.Gray;
+
+        var data = (userChange.Data as JsonDataMap).NonNull("User change server response map");
+        var gUser = data["Id_Gdid"].AsGDID(GDID.ZERO, handling: ConvertErrorHandling.Throw);
+        ConsoleUtils.WriteMarkupContent($"<f color=gray> User GDID: <f color=white>{gUser}<f color=gray>");
+
+        this.CurrentUser = GetUserInfo(gUser).NonNull("User record roundtrip");
+      }
+      catch (Exception err)
+      {
+        ConsoleUtils.Error(new WrappedExceptionData(err).ToJson());
+        return false;
+      }
+
+      return true;
+    }
+
   }
 }

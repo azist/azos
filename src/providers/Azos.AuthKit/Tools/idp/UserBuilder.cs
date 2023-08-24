@@ -30,9 +30,11 @@ namespace Azos.AuthKit.Tools.idp
         result.FormMode = FormMode.Insert;
       }
 
-      ConfigSectionNode prop = Configuration.NewEmptyRoot(Constraints.CONFIG_PROP_ROOT_SECTION);
-      ConfigSectionNode claims = prop.AddChildNode(Constraints.CONFIG_CLAIMS_SECTION);
-      ConfigSectionNode pubClaims = claims.AddChildNode(Constraints.CONFIG_PUBLIC_SECTION);
+      ConfigSectionNode prop = result.Props ??  Configuration.NewEmptyRoot(Constraints.CONFIG_PROP_ROOT_SECTION);
+      ConfigSectionNode claims = prop[Constraints.CONFIG_CLAIMS_SECTION];
+      if (!claims.Exists) claims = prop.AddChildNode(Constraints.CONFIG_CLAIMS_SECTION);
+      ConfigSectionNode pubClaims = claims[Constraints.CONFIG_PUBLIC_SECTION];
+      if (!pubClaims.Exists) pubClaims = claims.AddChildNode(Constraints.CONFIG_PUBLIC_SECTION);
 
       while (true)
       {
