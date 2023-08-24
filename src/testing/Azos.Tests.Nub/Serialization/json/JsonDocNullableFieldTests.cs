@@ -18,6 +18,10 @@ using Azos.Time;
 
 namespace Azos.Tests.Nub.Serialization
 {
+  /// <summary>
+  /// The point of these tests is to deserialize from JsonDataMap which was gotten with type hints, the values of int, EntityId, Gdid etc, not strings.
+  /// The bug #891 was about inability to bind data doc from a map with PRESERVED (typehinted) values, so EntityId failed to read into EntityId?
+  /// </summary>
   [Runnable]
   public class JsonDocNullableFieldTests
   {
@@ -25,11 +29,30 @@ namespace Azos.Tests.Nub.Serialization
     {
       public override bool AmorphousDataEnabled => true;
 
-      [Field]
-      public DateRange? ValidSpanUtc { get; set; }
+      [Field] public int? Int1 { get; set; }
+      [Field] public int Int2 { get; set; }
 
-      [Field]
-      public EntityId? OrgUnit { get; set; }
+      [Field] public decimal? Decimal1 { get; set; }
+      [Field] public decimal Decimal2 { get; set; }
+
+      [Field] public DateTime? DateTime1 { get; set; }
+      [Field] public DateTime DateTime2 { get; set; }
+
+      [Field] public EntityId? EntityId1 { get; set; }
+      [Field] public EntityId EntityId2 { get; set; }
+
+      [Field] public Atom? Atom1 { get; set; }
+      [Field] public Atom Atom2 { get; set; }
+
+      [Field] public GDID? GDID1 { get; set; }
+      [Field] public GDID GDID2 { get; set; }
+
+      [Field] public RGDID? RGDID1 { get; set; }
+      [Field] public RGDID RGDID2 { get; set; }
+
+
+      [Field] public DateRange? ValidSpanUtc { get; set; }
+      [Field] public EntityId? OrgUnit { get; set; }
     }
 
 
@@ -153,6 +176,205 @@ namespace Azos.Tests.Nub.Serialization
 
       Aver.IsFalse(got.HasAmorphousData);
       got.See();
+    }
+
+
+    [Run]
+    public void TestAll_map_int()
+    {
+      var json = new JsonDataMap()
+      {
+        { "int1", 123},
+        { "int2", -456}
+      };
+
+      var got = JsonReader.ToDoc<DocWithNullables>(json);
+      Aver.AreEqual(123, got.Int1);
+      Aver.AreEqual(-456, got.Int2);
+    }
+
+    [Run]
+    public void TestAll_map_int_null()
+    {
+      var json = new JsonDataMap()
+      {
+        { "int1", null},
+        { "int2", null}
+      };
+
+      var got = JsonReader.ToDoc<DocWithNullables>(json);
+      Aver.AreEqual(null, got.Int1);
+      Aver.AreEqual(0, got.Int2);
+    }
+
+    [Run]
+    public void TestAll_map_decimal()
+    {
+      var json = new JsonDataMap()
+      {
+        { "decimal1", 123.02m},
+        { "decimal2", -456.03m}
+      };
+
+      var got = JsonReader.ToDoc<DocWithNullables>(json);
+      Aver.AreEqual(123.02m, got.Decimal1);
+      Aver.AreEqual(-456.03m, got.Decimal2);
+    }
+
+    [Run]
+    public void TestAll_map_int_decimal_null()
+    {
+      var json = new JsonDataMap()
+      {
+        { "decimal1", null},
+        { "decimal2", null}
+      };
+
+      var got = JsonReader.ToDoc<DocWithNullables>(json);
+      Aver.AreEqual(null, got.Decimal1);
+      Aver.AreEqual(0m, got.Decimal2);
+    }
+
+    [Run]
+    public void TestAll_map_datetime()
+    {
+      var json = new JsonDataMap()
+      {
+        { "datetime1", DateTime.Parse("4/5/2021")},
+        { "datetime2", DateTime.Parse("7/8/2004")}
+      };
+
+      var got = JsonReader.ToDoc<DocWithNullables>(json);
+      Aver.AreEqual(2021, got.DateTime1.Value.Year);
+      Aver.AreEqual(2004, got.DateTime2.Year);
+    }
+
+    [Run]
+    public void TestAll_map_int_datetime_null()
+    {
+      var json = new JsonDataMap()
+      {
+        { "datetime1", null},
+        { "datetime2", null}
+      };
+
+      var got = JsonReader.ToDoc<DocWithNullables>(json);
+      Aver.AreEqual(null, got.DateTime1);
+      Aver.AreEqual(1, got.DateTime2.Year);
+    }
+
+    [Run]
+    public void TestAll_map_eid()
+    {
+      var json = new JsonDataMap()
+      {
+        { "EntityId1", EntityId.Parse("a@b::c")},
+        { "EntityId2", EntityId.Parse("d@e::f")}
+      };
+
+      var got = JsonReader.ToDoc<DocWithNullables>(json);
+      Aver.AreEqual("c", got.EntityId1.Value.Address);
+      Aver.AreEqual("f", got.EntityId2.Address);
+    }
+
+    [Run]
+    public void TestAll_map_int_eid_null()
+    {
+      var json = new JsonDataMap()
+      {
+        { "EntityId1", null},
+        { "EntityId2", null}
+      };
+
+      var got = JsonReader.ToDoc<DocWithNullables>(json);
+      Aver.AreEqual(null, got.EntityId1);
+      Aver.AreEqual(null, got.EntityId2.Address);
+    }
+
+    [Run]
+    public void TestAll_map_atom()
+    {
+      var json = new JsonDataMap()
+      {
+        { "Atom1", Atom.Encode("abc")},
+        { "Atom2", Atom.Encode("def")}
+      };
+
+      var got = JsonReader.ToDoc<DocWithNullables>(json);
+      Aver.AreEqual("abc", got.Atom1.Value.Value);
+      Aver.AreEqual("def", got.Atom2.Value);
+    }
+
+    [Run]
+    public void TestAll_map_int_atom_null()
+    {
+      var json = new JsonDataMap()
+      {
+        { "Atom1", null},
+        { "Atom2", null}
+      };
+
+      var got = JsonReader.ToDoc<DocWithNullables>(json);
+      Aver.AreEqual(null, got.Atom1);
+      Aver.AreEqual(null, got.Atom2.Value);
+    }
+
+    [Run]
+    public void TestAll_map_gdid()
+    {
+      var json = new JsonDataMap()
+      {
+        { "GDID1", GDID.Parse("0:1:2")},
+        { "GDID2", GDID.Parse("3:4:5")}
+      };
+
+      var got = JsonReader.ToDoc<DocWithNullables>(json);
+      Aver.AreEqual(2uL, got.GDID1.Value.Counter);
+      Aver.AreEqual(5uL,  got.GDID2.Counter);
+    }
+
+    [Run]
+    public void TestAll_map_int_gdid_null()
+    {
+      var json = new JsonDataMap()
+      {
+        { "GDID1", null},
+        { "GDID2", null}
+      };
+
+      var got = JsonReader.ToDoc<DocWithNullables>(json);
+      Aver.AreEqual(null, got.GDID1);
+      Aver.AreEqual(0uL, got.GDID2.Counter);
+    }
+
+    [Run]
+    public void TestAll_map_rgdid()
+    {
+      var json = new JsonDataMap()
+      {
+        { "RGDID1", RGDID.Parse("378:0:1:278")},
+        { "RGDID2", RGDID.Parse("379:3:4:543")}
+      };
+
+      var got = JsonReader.ToDoc<DocWithNullables>(json);
+      Aver.AreEqual(378u, got.RGDID1.Value.Route);
+      Aver.AreEqual(379u, got.RGDID2.Route);
+      Aver.AreEqual(278uL, got.RGDID1.Value.Gdid.Counter);
+      Aver.AreEqual(543uL, got.RGDID2.Gdid.Counter);
+    }
+
+    [Run]
+    public void TestAll_map_int_rgdid_null()
+    {
+      var json = new JsonDataMap()
+      {
+        { "RGDID1", null},
+        { "RGDID2", null}
+      };
+
+      var got = JsonReader.ToDoc<DocWithNullables>(json);
+      Aver.AreEqual(null, got.RGDID1);
+      Aver.AreEqual(0uL, got.RGDID2.Gdid.Counter);
     }
 
   }
