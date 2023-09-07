@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.6.1.1
-set HEADLINE=Fix #891 json reader nullable
+set VER=3.6.2.1
+set HEADLINE=#894 #893 DCF/ICallFlow and ChangeResult json data
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
