@@ -109,7 +109,7 @@ namespace Azos
 
 
   /// <summary>
-  /// Marshals exception details
+  /// Marshals exception details with optional stack trace and call flow capture
   /// </summary>
   [Serializable]
   [Arow("CBE82107-8FDA-4A2C-84D2-5D953907C9A0")]
@@ -120,7 +120,7 @@ namespace Azos
     /// <summary>
     /// Initializes instance form local exception
     /// </summary>
-    public WrappedExceptionData(Exception error, bool captureStack = true, bool captureExternalStatus = true)
+    public WrappedExceptionData(Exception error, bool captureStack = true, bool captureExternalStatus = true, bool captureCallFlow = true)
     {
       error.NonNull(nameof(error));
 
@@ -142,12 +142,22 @@ namespace Azos
 
       if (error.InnerException != null)
       {
-        m_InnerException = new WrappedExceptionData(error.InnerException, captureStack, captureExternalStatus);
+        m_InnerException = new WrappedExceptionData(error.InnerException, captureStack, captureExternalStatus, captureCallFlow: false);
       }
 
       if (captureExternalStatus && error is IExternalStatusProvider esp)
       {
         m_ExternalStatus = esp.ProvideExternalStatus(captureStack);
+      }
+
+      //20230995 DKh #893
+      if (captureCallFlow)
+      {
+        var cf = Ambient.CurrentCallFlow;
+        if (cf != null)
+        {
+          m_CallFlow = cf.RepresentAsJson();
+        }
       }
     }
 
@@ -160,6 +170,7 @@ namespace Azos
     private string m_StackTrace;
     private JsonDataMap m_ExternalStatus;
     private WrappedExceptionData m_InnerException;
+    private JsonDataMap m_CallFlow;
 
     /// <summary>
     /// Returns the name of remote exception type
@@ -252,8 +263,15 @@ namespace Azos
       set => m_InnerException = value;
     }
 
-    public override string ToString() => $"[{TypeName}:{Code}:{AppId}] {Message}";
+    //20230907 DKh #893
+    [Field, Field(isArow: true, backendName: "call")]
+    public JsonDataMap CallFlow
+    {
+      get => m_CallFlow;
+      set => m_CallFlow = value;
+    }
 
+    public override string ToString() => $"[{TypeName}:{Code}:{AppId}] {Message}";
   }
 
   /// <summary>

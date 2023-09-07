@@ -228,7 +228,7 @@ namespace Azos.Wave
       result[CoreConsts.EXT_STATUS_KEY_OK] = false;
 
       var http = error.SearchThisOrInnerExceptionOf<IHttpStatusProvider>();
-      if (http!=null)
+      if (http != null)
       {
         result[CoreConsts.EXT_STATUS_KEY_HTTP_CODE] = http.HttpStatusCode;
         result[CoreConsts.EXT_STATUS_KEY_HTTP_DESCRIPTION] = http.HttpStatusDescription;
@@ -248,7 +248,10 @@ namespace Azos.Wave
 
       if (withDump)
       {
-        result[CoreConsts.EXT_STATUS_KEY_DEV_DUMP] = new WrappedExceptionData(error, captureStack: true, captureExternalStatus: false);
+        result[CoreConsts.EXT_STATUS_KEY_DEV_DUMP] = new WrappedExceptionData(error,
+                                                       captureStack: true,
+                                                       captureExternalStatus: false,
+                                                       captureCallFlow: true);
       }
 
       return result;

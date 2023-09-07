@@ -145,7 +145,7 @@ namespace Azos.Wave.Filters
       if (work==null || error==null) return;
 
       var showDump = showDumpMatches != null ?
-                      showDumpMatches.OrderedValues.Any(m => m.Make(work)!=null) : false;
+                     showDumpMatches.OrderedValues.Any(m => m.Make(work)!=null) : false;
 
       if (work.Response.Buffered)
         work.Response.CancelBuffered();
@@ -277,6 +277,13 @@ namespace Azos.Wave.Filters
 
           if (work.GeoEntity != null)
             matched["$geo"] = work.GeoEntity.LocalityName;
+
+          //20230905 DKh #893
+          var cf = Ambient.CurrentCallFlow;
+          if (cf != null)
+          {
+            matched["$call"] = cf.RepresentAsJson();
+          }
 
           work.Log(Log.MessageType.Error, error.ToMessageWithType(), typeof(ErrorFilter).FullName, pars: matched.ToJson(JsonWritingOptions.CompactASCII));
         }

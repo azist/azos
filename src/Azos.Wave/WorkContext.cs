@@ -170,6 +170,25 @@ namespace Azos.Wave
     IEnumerable<KeyValuePair<string, object>> Apps.ICallFlow.Items
       => m_CallFlowValues==null ? Enumerable.Empty<KeyValuePair<string, object>>() : m_CallFlowValues;
 
+    //20230907 DKh #893
+    JsonDataMap Apps.ICallFlow.RepresentAsJson()
+    {
+      var cf = (Apps.ICallFlow)this;
+      var map = new JsonDataMap
+      {
+        {"tp", "wave.wc"},
+        {nameof(ID), cf.ID },
+        {nameof(Apps.ICallFlow.DirectorName),  cf.DirectorName },
+        {nameof(Apps.ICallFlow.CallerAddress), cf.CallerAddress },
+        {nameof(Apps.ICallFlow.CallerAgent),   cf.CallerAgent },
+        {nameof(Apps.ICallFlow.CallerPort),    cf.CallerPort },
+        {nameof(Apps.ICallFlow.Items),         cf.Items?.ToArray() },
+      };
+
+      return map;
+    }
+
+
     /// <summary>
     /// Returns the application that this context is under
     /// </summary>

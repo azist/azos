@@ -65,9 +65,11 @@ namespace Azos.Apps
     /// Enumerates all items in the flow or returns an empty enumerable
     /// </summary>
     IEnumerable<KeyValuePair<string, object>> Items{ get; }
+
+    /// <summary>
+    /// Creates a JSON-serializable representation of the ICallFlow instance state
+    /// which is suitable for storage/logging/marshaling
+    /// </summary>
+    Serialization.JSON.JsonDataMap RepresentAsJson();   //20230907 DKh #893
   }
-
-
-
-
 }
