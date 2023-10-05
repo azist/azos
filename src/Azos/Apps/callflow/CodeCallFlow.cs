@@ -8,6 +8,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using Azos.Serialization.JSON;
 
 namespace Azos.Apps
 {
@@ -77,6 +78,20 @@ namespace Azos.Apps
         m_Items[key] = value;
       }//set
     }
+
+    //20230907 DKh #893
+    public JsonDataMap RepresentAsJson()
+     => new JsonDataMap
+     {
+       {"tp", "code"},
+       {nameof(ICallFlow.ID), ID },
+       {nameof(ICallFlow.DirectorName), DirectorName },
+       {nameof(ICallFlow.CallerAddress), CallerAddress },
+       {nameof(ICallFlow.CallerAgent), CallerAgent },
+       {nameof(ICallFlow.CallerPort), CallerPort },
+       {nameof(ICallFlow.Items), Items?.ToArray() },
+     };
+
 
   }
 }

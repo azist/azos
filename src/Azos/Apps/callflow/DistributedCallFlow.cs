@@ -149,6 +149,9 @@ namespace Azos.Apps
       }
 
       public void WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
+        => JsonWriter.WriteMap(wri, RepresentAsJson(), nestingLevel + 1, options);
+
+      public JsonDataMap RepresentAsJson()
       {
         var map = new JsonDataMap
         {
@@ -158,14 +161,14 @@ namespace Azos.Apps
         };
 
         if (Session.IsNotNullOrWhiteSpace()) map["ssn"] = Session;
-        if (!App.IsZero)                     map["app"] = App;
-        if (!Origin.IsZero)                  map["org"] = Origin;
-        if (Host.IsNotNullOrWhiteSpace())    map["h"] = Host;
-        if (Type.IsNotNullOrWhiteSpace())    map["t"] = Type;
-        if (DirectorName.IsNotNullOrWhiteSpace())  map["dir"] = DirectorName;
+        if (!App.IsZero) map["app"] = App;
+        if (!Origin.IsZero) map["org"] = Origin;
+        if (Host.IsNotNullOrWhiteSpace()) map["h"] = Host;
+        if (Type.IsNotNullOrWhiteSpace()) map["t"] = Type;
+        if (DirectorName.IsNotNullOrWhiteSpace()) map["dir"] = DirectorName;
         if (CallerAddress.IsNotNullOrWhiteSpace()) map["cad"] = CallerAddress;
-        if (CallerAgent.IsNotNullOrWhiteSpace())   map["cag"] = CallerAgent;
-        if (CallerPort.IsNotNullOrWhiteSpace())    map["cpr"] = CallerPort;
+        if (CallerAgent.IsNotNullOrWhiteSpace()) map["cag"] = CallerAgent;
+        if (CallerPort.IsNotNullOrWhiteSpace()) map["cpr"] = CallerPort;
 
 
         var items = m_Items;
@@ -174,7 +177,7 @@ namespace Azos.Apps
           map["items"] = items;
         }
 
-        JsonWriter.WriteMap(wri, map, nestingLevel + 1, options);
+        return map;
       }
     }
 
@@ -402,5 +405,7 @@ namespace Azos.Apps
       => JsonWriter.WriteMap(wri, nestingLevel + 1, options,
                     new System.Collections.DictionaryEntry("d", m_Description),
                     new System.Collections.DictionaryEntry("steps", m_List));
+
+    public JsonDataMap RepresentAsJson() => new JsonDataMap{ {"tp", "dcf"}, {"d", m_Description}, {"steps", m_List} };
   }
 }

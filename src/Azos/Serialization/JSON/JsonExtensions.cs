@@ -22,6 +22,20 @@ namespace Azos.Serialization.JSON
   /// </summary>
   public static class JsonExtensions
   {
+    /// <summary> Requires an <see cref="IJsonDataObject"/> value to be non null instance of type <see cref="JsonDataArray"/> </summary>
+    public static JsonDataArray ExpectJsonDataArray(this IJsonDataObject jdo) => jdo.CastTo<JsonDataArray>(nameof(ExpectJsonDataArray));
+
+    /// <summary> Requires an <see cref="IJsonDataObject"/> value to be non null instance of type <see cref="JsonDataMap"/> </summary>
+    public static JsonDataMap ExpectJsonDataMap(this IJsonDataObject jdo) => jdo.CastTo<JsonDataMap>(nameof(ExpectJsonDataMap));
+
+    /// <summary> Requires an <see cref="IJsonDataObject"/> value to be either null or an instance of type <see cref="JsonDataArray"/> </summary>
+    public static JsonDataArray ExpectNullOrJsonDataArray(this IJsonDataObject jdo)
+      => jdo == null ? null : jdo.CastTo<JsonDataArray>(nameof(ExpectNullOrJsonDataArray));
+
+    /// <summary> Requires an <see cref="IJsonDataObject"/> value to be either null or an instance of type <see cref="JsonDataMap"/> </summary>
+    public static JsonDataMap ExpectNullOrJsonDataMap(this IJsonDataObject jdo)
+      => jdo == null ? null : jdo.CastTo<JsonDataMap>(nameof(ExpectNullOrJsonDataMap));
+
     /// <summary>
     ///  Deserializes JSON content into dynamic JSON object
     /// </summary>

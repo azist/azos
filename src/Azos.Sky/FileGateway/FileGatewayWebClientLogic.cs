@@ -76,7 +76,7 @@ namespace Azos.Sky.FileGateway
       var response = await m_Server.Call(GatewayServiceAddress,
                                           nameof(IFileGatewayLogic),
                                           new ShardKey(DateTime.UtcNow),
-                                          async (http, ct) => await http.Client.GetJsonMapAsync("systems").ConfigureAwait(false));
+                                          (http, ct) => http.Client.GetJsonMapAsync("systems")).ConfigureAwait(false);
 
       var result = response.UnwrapPayloadArray()
                            .SelectEitherOf((string str) => Atom.Encode(str), (Atom   atm) => atm);
@@ -94,7 +94,7 @@ namespace Azos.Sky.FileGateway
       var response = await m_Server.Call(GatewayServiceAddress,
                                           nameof(IFileGatewayLogic),
                                           new ShardKey(DateTime.UtcNow),
-                                          async (http, ct) => await http.Client.GetJsonMapAsync(uri).ConfigureAwait(false));
+                                          (http, ct) => http.Client.GetJsonMapAsync(uri)).ConfigureAwait(false);
 
       var result = response.UnwrapPayloadArray()
                            .SelectEitherOf((string str) => Atom.Encode(str), (Atom atm) => atm);
@@ -114,7 +114,7 @@ namespace Azos.Sky.FileGateway
       var response = await m_Server.Call(GatewayServiceAddress,
                                           nameof(IFileGatewayLogic),
                                           new ShardKey(DateTime.UtcNow),
-                                          async (http, ct) => await http.Client.GetJsonMapAsync(uri).ConfigureAwait(false));
+                                          (http, ct) => http.Client.GetJsonMapAsync(uri)).ConfigureAwait(false);
 
       var result = response.UnwrapPayloadArray()
                            .OfType<JsonDataMap>()
@@ -134,7 +134,7 @@ namespace Azos.Sky.FileGateway
       var response = await m_Server.Call(GatewayServiceAddress,
                                           nameof(IFileGatewayLogic),
                                           new ShardKey(DateTime.UtcNow),
-                                          async (http, ct) => await http.Client.GetJsonMapAsync(uri).ConfigureAwait(false));
+                                          (http, ct) => http.Client.GetJsonMapAsync(uri)).ConfigureAwait(false);
 
       var result = JsonReader.ToDoc<ItemInfo>(response.UnwrapPayloadMap());
 
@@ -148,7 +148,7 @@ namespace Azos.Sky.FileGateway
       var response = await m_Server.Call(GatewayServiceAddress,
                                           nameof(IFileGatewayLogic),
                                           new ShardKey(DateTime.UtcNow),
-                                          async (http, ct) => await http.Client.PostAndGetJsonMapAsync("directory", new { path = path }).ConfigureAwait(false));
+                                          (http, ct) => http.Client.PostAndGetJsonMapAsync("directory", new { path = path })).ConfigureAwait(false);
 
       var result = JsonReader.ToDoc<ItemInfo>(response.UnwrapPayloadMap());
 
@@ -165,7 +165,7 @@ namespace Azos.Sky.FileGateway
       var response = await m_Server.Call(GatewayServiceAddress,
                                           nameof(IFileGatewayLogic),
                                           new ShardKey(DateTime.UtcNow),
-                                          async (http, ct) => await http.Client.PostAndGetJsonMapAsync("file",
+                                          (http, ct) => http.Client.PostAndGetJsonMapAsync("file",
                                             new
                                             {
                                               path = path,
@@ -174,7 +174,7 @@ namespace Azos.Sky.FileGateway
                                               content = content
                                             }
                                           ,
-                                          requestBixon: true).ConfigureAwait(false));
+                                          requestBixon: true)).ConfigureAwait(false);
 
       var result = JsonReader.ToDoc<ItemInfo>(response.UnwrapPayloadMap());
 
@@ -191,7 +191,7 @@ namespace Azos.Sky.FileGateway
       var response = await m_Server.Call(GatewayServiceAddress,
                                           nameof(IFileGatewayLogic),
                                           new ShardKey(DateTime.UtcNow),
-                                          async (http, ct) => await http.Client.PutAndGetJsonMapAsync("file",
+                                          (http, ct) => http.Client.PutAndGetJsonMapAsync("file",
                                             new
                                             {
                                               path = path,
@@ -199,7 +199,7 @@ namespace Azos.Sky.FileGateway
                                               content = content
                                             }
                                           ,
-                                          requestBixon: true).ConfigureAwait(false));
+                                          requestBixon: true)).ConfigureAwait(false);
 
       var result = JsonReader.ToDoc<ItemInfo>(response.UnwrapPayloadMap());
 
@@ -220,7 +220,7 @@ namespace Azos.Sky.FileGateway
       var response = await m_Server.Call(GatewayServiceAddress,
                                           nameof(IFileGatewayLogic),
                                           new ShardKey(DateTime.UtcNow),
-                                          async (http, ct) => await http.Client.GetJsonMapAsync(uri).ConfigureAwait(false));
+                                          (http, ct) => http.Client.GetJsonMapAsync(uri)).ConfigureAwait(false);
 
       var resultMap = response.UnwrapPayloadMap();
       var eof = resultMap["eof"].AsBool();
@@ -237,7 +237,7 @@ namespace Azos.Sky.FileGateway
       var response = await m_Server.Call(GatewayServiceAddress,
                                           nameof(IFileGatewayLogic),
                                           new ShardKey(DateTime.UtcNow),
-                                          async (http, ct) => await http.Client.DeleteAndGetJsonMapAsync(uri).ConfigureAwait(false));
+                                          (http, ct) => http.Client.DeleteAndGetJsonMapAsync(uri)).ConfigureAwait(false);
 
       var resultMap = response.UnwrapPayloadMap();
       var deleted = resultMap["deleted"].AsBool();
@@ -252,12 +252,12 @@ namespace Azos.Sky.FileGateway
       var response = await m_Server.Call(GatewayServiceAddress,
                                           nameof(IFileGatewayLogic),
                                           new ShardKey(DateTime.UtcNow),
-                                          async (http, ct) => await http.Client.PostAndGetJsonMapAsync("item-name",
+                                          (http, ct) => http.Client.PostAndGetJsonMapAsync("item-name",
                                             new
                                             {
                                               path = path,
                                               newPath = newPath
-                                            }).ConfigureAwait(false));
+                                            })).ConfigureAwait(false);
 
       var resultMap = response.UnwrapPayloadMap();
       var renamed = resultMap["renamed"].AsBool();

@@ -1,0 +1,53 @@
+﻿<push>
+<f color=magenta>
+ Usage:
+<f color=white>
+   ascon <f color=green>glue_node <f color=darkCyan>[/h | /? | /help]
+              [/s | /silent]
+              [/config config_file]
+              [/c | /cred id=user_id [pwd=user_password]]
+              [/f | /file command_file]
+              [/t | /txt command_text]
+
+ <f color=green>node<f color=gray> - Glue node specification in the form [biding://]host[:service]
+
+<f color=magenta>
+ Options:
+
+ <f color=darkCyan>/h | /help | /?<f color=gray> - displays help message
+ <f color=darkCyan>/s | /silent<f color=gray> - suppresses logo and other info messages
+ <f color=darkCyan>/c | /cred<f color=gray> - specified user credentials
+ <f color=darkCyan>/f | /file<f color=gray> - reads and executes command text from command_file	parameter
+ <f color=darkCyan>/t | /txt<f color=gray> - reads and executes command from command_text parameter
+ <f color=darkCyan>/config<f color=gray> - specifies alternate configuration. This option is
+  usefull when multiple tool instances need to run and they may conflict
+  while writing to the common logger location.
+  Inject an alternate config file to divert log output to a different place or
+  use a NOP loggger/destination.
+  An alternate config file "nolog.laconf" is provided for NOP-logger config
+
+ Note:
+  If both "/txt" and "/file" switches are both specified at the same time then
+  command specified with the "/txt" switch is executed first
+
+
+<f color=magenta>
+ Examples:
+
+<f color=yellow>
+  ascon "async://192.168.3.18:7700" /cred id="alex"<f color=gray>
+Connects to server by IP using "async" binding supplying "alex" for user name
+
+<f color=yellow>
+  ascon /c id="mary" pwd="suMMer45" /t who /s<f color=gray>
+Connects to local host governor (default Glue node) supplying "mary" for user
+name along with plain-text password. Immediately executes "who" command.
+Suppresses all logo and info messages
+
+<f color=yellow>
+  ascon /c id="jake" /config nolog.laconf<f color=gray>
+Connects to local host governor (default Glue node) supplying "jake" for user
+name and uses "nolog" config so many instances of the tool will not conflict
+while writing to log
+
+<pop>

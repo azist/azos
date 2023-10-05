@@ -17,6 +17,16 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="Tools\idp\Help.txt" />
+    <None Remove="Tools\idp\Welcome.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Tools\idp\Help.txt" />
+    <EmbeddedResource Include="Tools\idp\Welcome.txt" />
+  </ItemGroup>
+
 
   <ItemGroup>
     <ProjectReference Include="..\..\Azos.Sky\Azos.Sky.csproj" />
@@ -26,6 +36,13 @@
 
   <ItemGroup>
     <Folder Include="rest\" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <None Update="idp.laconf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

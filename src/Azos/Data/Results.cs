@@ -178,6 +178,27 @@ namespace Azos.Data
 
       return (false, null);
     }
+
+    //20230907 DKh, JPK, JGW #894
+    /// <summary>
+    /// Represents the <see cref="Data"/> field as <see cref="IJsonDataObject"/> - either a null, a map, or an array
+    /// as-if the Data came over wire.
+    /// Sometimes you need to read the data, but it contains an anonymous object in which case you can convert
+    /// such an object into a JsonDataMap/array.
+    /// If the Data is already populated with IJsonDataOBject then this method returns it as-is
+    /// </summary>
+    public IJsonDataObject GetDataAsJsonObject()
+    {
+      if (Data == null) return null;
+      if (Data is IJsonDataObject jdo) return jdo;
+      if (Data is Doc doc)
+      {
+        return doc.ToJsonDataMap(JsonWritingOptions.CompactRowsAsMapWithTypeHints);
+      }
+      var json = Data.ToJson(JsonWritingOptions.CompactRowsAsMapWithTypeHints);
+      jdo = json.JsonToDataObject(JsonReadingOptions.DefaultWithTypeHints);
+      return jdo;
+    }
   }
 
 

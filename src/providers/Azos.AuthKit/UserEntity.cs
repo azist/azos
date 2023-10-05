@@ -25,6 +25,22 @@ namespace Azos.AuthKit
   [UniqueSequence(Constraints.ID_NS_AUTHKIT, Constraints.ID_SEQ_USER)]
   public sealed class UserEntity : EntityBase<IIdpUserCoreLogic, ChangeResult>
   {
+    public static UserEntity FromUserInfo(UserInfo info)
+    {
+      if (info==null) return null;
+      var result = new UserEntity();
+      result.Gdid = info.Gdid;
+      result.Name = info.Name;
+      result.Level = info.Level;
+      result.Description = info.Description;
+      result.ValidSpanUtc = info.ValidSpanUtc;
+      result.OrgUnit = info.OrgUnit;
+      result.Props = info.Props;
+      result.Rights = info.Rights != null && info.Rights.Content.IsNotNullOrWhiteSpace() ? new ConfigVector(info.Rights.Content) : null;
+      result.Note = info.Note;
+      return result;
+    }
+
     public override EntityId Id => new EntityId(Constraints.SYS_AUTHKIT,
                                                 Constraints.ETP_USER,
                                                 Constraints.SCH_GDID, Gdid.ToString());
@@ -84,7 +100,7 @@ namespace Azos.AuthKit
     /// <summary>
     /// Free form text notes associated with the account
     /// </summary>
-    [Field(maxLength:Constraints.NOTE_MAX_LEN,
+    [Field(maxLength: Constraints.NOTE_MAX_LEN,
            Description = "Free form text notes associated with the account")]
     public string Note { get; set; }
 
