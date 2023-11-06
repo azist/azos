@@ -39,6 +39,7 @@ namespace Azos.Tests.Nub.DataAccess
       public Relative Mother { get; set; }
     }
 
+    [Schema(name: "sss")]
     public class Relative : TypedDoc
     {
       [Field(required: true, Description = "First name")]
@@ -55,7 +56,7 @@ namespace Azos.Tests.Nub.DataAccess
     [Run]
     public void Case01()
     {
-      var got = SchemaSerializer.Serialize(default, Schema.GetForTypedDoc<DocA>(), "PrianBerry");
+      var got = SchemaSerializer.Serialize(new SchemaSerializer.SerCtx(Schema.GetForTypedDoc<DocA>()), "BarMarLey");
       got.See();
     }
 

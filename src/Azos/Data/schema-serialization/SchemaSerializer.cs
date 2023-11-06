@@ -23,21 +23,26 @@ namespace Azos.Data
   {
     public readonly struct SerCtx
     {
-      public SerCtx(Func<SerCtx, TargetedAttribute, bool> targetFilter,
-                    Func<SerCtx, Type, object> typeMapper,
-                    Func<SerCtx, TargetedAttribute, JsonDataMap> metaConverter)
+      public SerCtx(Schema rootSchema,
+                    Func<SerCtx, TargetedAttribute, bool> targetFilter = null,
+                    Func<SerCtx, Type, object> typeMapper = null,
+                    Func<SerCtx, TargetedAttribute, JsonDataMap> metaConverter = null)
       {
+        RootSchema = rootSchema.NonNull(nameof(rootSchema));
         TypeMap = new Dictionary<Schema, JsonDataMap>();
         TargetFilter  = targetFilter ?? DefaultTargetFilter;
         TypeMapper    = typeMapper ?? DefaultTypeMapper;
         MetaConverter = metaConverter ?? DefaultMetadataConverter;
       }
 
+      public readonly Schema RootSchema;
       public readonly Dictionary<Schema, JsonDataMap> TypeMap;
       public readonly Func<SerCtx, TargetedAttribute, bool> TargetFilter;
       public readonly Func<SerCtx, Type, object> TypeMapper;
       public readonly Func<SerCtx, TargetedAttribute, JsonDataMap> MetaConverter;
 
+
+      public bool IsAssigned => RootSchema != null;
       public bool HasTypes => TypeMap.Count > 0;
 
       public JsonDataMap GetAllTypes()
@@ -53,6 +58,8 @@ namespace Azos.Data
 
       public string GetSchemaHandle(Schema schema)
       {
+        if (schema == RootSchema) return "#0";
+
         if (!TypeMap.TryGetValue(schema, out var map))
         {
           map = new JsonDataMap();
@@ -66,12 +73,10 @@ namespace Azos.Data
 
 
     public static JsonDataMap Serialize(SerCtx ctx,
-                                        Schema schema,
                                         string nameOverride = null)
     {
-      if (schema == null) return null;
-      if (ctx.TypeMap == null) ctx = new SerCtx(null, null, null);
-      var result = serialize(new JsonDataMap(), ctx, schema, nameOverride);
+      ctx.IsAssigned.IsTrue("Assigned ctx");
+      var result = serialize(new JsonDataMap(), ctx, ctx.RootSchema, nameOverride);
 
       if (ctx.HasTypes) result["types"] = ctx.GetAllTypes();
       return result;
