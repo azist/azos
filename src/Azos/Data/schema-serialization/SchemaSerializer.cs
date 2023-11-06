@@ -31,7 +31,7 @@ namespace Azos.Data
     public static JsonDataMap Serialize(Schema schema,
                                         string nameOverride = null,
                                         Func<TargetedAttribute, bool> fTargetFilter = null,
-                                        Func<Type, JsonDataMap, object> fTypeMapper = null,
+                                        Func<Type, JsonDataMap, Func<TargetedAttribute, bool>, MetadataConverterFunc, object> fTypeMapper = null,
                                         MetadataConverterFunc fMetaConverter = null)
     {
       if (schema==null) return null;
@@ -54,7 +54,7 @@ namespace Azos.Data
     }
 
     private static IEnumerable<JsonDataMap> serializeSchemaAttrs(IEnumerable<SchemaAttribute> attrs,
-                                                                 Func<Type, JsonDataMap, object> fTypeMapper,
+                                                                 Func<Type, JsonDataMap, Func<TargetedAttribute, bool>, MetadataConverterFunc, object> fTypeMapper,
                                                                  MetadataConverterFunc fMetaConverter)
     {
       foreach(var attr in attrs)
@@ -72,7 +72,7 @@ namespace Azos.Data
     private static IEnumerable<JsonDataMap> serializeFields(IEnumerable<Schema.FieldDef> defs,
                                                             JsonDataMap tpMap,
                                                             Func<TargetedAttribute, bool> fTargetFilter,
-                                                            Func<Type, JsonDataMap, object> fTypeMapper,
+                                                            Func<Type, JsonDataMap, Func<TargetedAttribute, bool>, MetadataConverterFunc, object> fTypeMapper,
                                                             MetadataConverterFunc fMetaConverter)
     {
       foreach (var def in defs)
@@ -81,7 +81,7 @@ namespace Azos.Data
         result["name"] = def.Name;
         result["order"] = def.Order;
         result["getOnly"] = def.GetOnly;
-        result["type"] = fTypeMapper(def.Type, tpMap);
+        result["type"] = fTypeMapper(def.Type, tpMap, fTargetFilter, fMetaConverter);
 
         var attrs = new List<JsonDataMap>();
         result["attributes"] = attrs;
@@ -92,17 +92,23 @@ namespace Azos.Data
           atrMap["target"] = attr.TargetName;
           atrMap["description"] = attr.Description;
           atrMap["meta"] = fMetaConverter(attr);
-          atrMap["backName"] = attr.BackendName;
-          atrMap["backType"] = attr.BackendType;
-          atrMap["charCase"] = attr.CharCase;
-          atrMap["storeFlag"] = attr.StoreFlag;
-          atrMap["key"] = attr.Key;
-          atrMap["required"] = attr.Required;
-          atrMap["kind"] = attr.Kind;
-          atrMap["visible"] = attr.Visible;
-          atrMap["min"] = attr.Min;
-          atrMap["max"] = attr.Max;
-          atrMap["default"] = attr.Default;
+          if (attr.BackendName != null) atrMap["backName"] = attr.BackendName;
+          if (attr.BackendType != null) atrMap["backType"] = attr.BackendType;
+          if (attr.CharCase != CharCase.AsIs) atrMap["charCase"] = attr.CharCase;
+          if (attr.StoreFlag != StoreFlag.LoadAndStore) atrMap["storeFlag"] = attr.StoreFlag;
+          if (attr.Key) atrMap["key"] = attr.Key;
+          if (attr.Required) atrMap["required"] = attr.Required;
+          if (attr.Kind != DataKind.Text) atrMap["kind"] = attr.Kind;
+          if (!attr.Visible) atrMap["visible"] = attr.Visible;
+          if (attr.Min != null) atrMap["min"] = attr.Min;
+          if (attr.Max != null) atrMap["max"] = attr.Max;
+          if (attr.Default != null) atrMap["default"] = attr.Default;
+          if (attr.MinLength != 0) atrMap["minLen"] = attr.MinLength;
+          if (attr.MaxLength != 0) atrMap["maxLen"] = attr.MaxLength;
+          if (attr.NonUI) atrMap["nonUi"] = attr.NonUI;
+          if (attr.FormatRegExp != null) atrMap["fmtRegExp"] = attr.FormatRegExp;
+          if (attr.FormatDescription != null) atrMap["fmtDescr"] = attr.FormatDescription;
+          if (attr.DisplayFormat != null) atrMap["displayFormat"] = attr.DisplayFormat;
 
           if (attr.HasValueList)
           {
@@ -110,12 +116,10 @@ namespace Azos.Data
             atrMap["valueList"] = attr.ParseValueList();
           }
 
-
           attrs.Add(atrMap);
         }
-
         yield return result;
-      }
+      }//defs
     }
 
 
@@ -124,8 +128,23 @@ namespace Azos.Data
       return targetedAttr.TargetName == TargetedAttribute.ANY_TARGET;
     }
 
-    public static object DefaultTypeMapper(Type t, JsonDataMap tpMap)
+    public static object DefaultTypeMapper(Type t, JsonDataMap tpMap, Func<TargetedAttribute, bool> fTargetFilter, MetadataConverterFunc fMetaConverter)
     {
+     //build types
+     //need to check for array[t] .GetElementType()
+     var isArray = t.IsArray;
+     var telm = isArray ? t.GetElementType() : t;
+
+     //check for List<T>; Nullable<T>; JsonDataMap
+     //else object
+
+      if (typeof(TypedDoc).IsAssignableFrom(telm))
+      {
+        var schema = Schema.GetForTypedDoc(telm);
+        var tkey = Guid.NewGuid().ToString();
+        tpMap[tkey] = Serialize(schema, null, fTargetFilter, DefaultTypeMapper, fMetaConverter);
+        return tkey;
+      }
       return t.Name;
     }
 
