@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Azos.Conf;
+using Azos.Serialization.Bix;
 using Azos.Serialization.JSON;
 
 namespace Azos.Data
@@ -87,6 +88,12 @@ namespace Azos.Data
       map["handle"] = $"#{ctx.TypeMap.Count}";
       map["name"] = nameOverride.Default(schema.Name);
       map["readonly"] = schema.ReadOnly;
+
+      if (schema.TypedDocType != null)
+      {
+        var bix = BixAttribute.TryGetGuidTypeAttribute<TypedDoc, BixAttribute>(schema.TypedDocType);
+        if (bix != null) map["bix"] = bix.TypeGuid.ToString();
+      }
 
       map["attrs"] = serializeSchemaAttrs(ctx, schema.SchemaAttrs.Where(one => ctx.TargetFilter(ctx, one))).ToArray();
       map["fields"] = serializeFields(ctx, schema.FieldDefs).ToArray();

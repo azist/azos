@@ -11,7 +11,9 @@ using System.Linq;
 
 using Azos.Data;
 using Azos.Data.Adlib;
+using Azos.Geometry;
 using Azos.Scripting;
+using Azos.Serialization.Bix;
 using Azos.Serialization.JSON;
 
 namespace Azos.Tests.Nub.DataAccess
@@ -19,6 +21,7 @@ namespace Azos.Tests.Nub.DataAccess
   [Runnable]
   public class SchemaSerialization01Tests
   {
+    [Bix("5aaa3f66-5593-460f-bcd7-0d480310aaea")]
     [Schema(Description = "Test document A")]
     [Schema(targetName: "oldShit", Description = "Test document A in the old system")]
     public class DocA : TypedDoc
@@ -33,13 +36,25 @@ namespace Azos.Tests.Nub.DataAccess
       public List<DocA> Subdocuments{ get; set; }
 
       [Field]
+      public JsonDataMap Props { get; set; }
+
+      [Field]
+      public GDID[] ExtraGdids { get; set; }
+
+      [Field]
+      public Atom[] Flags { get; set; }
+
+      [Field]
+      public List<LatLng> Locations { get; set; }
+
+      [Field]
       public Relative Father { get; set; }
 
       [Field]
       public Relative Mother { get; set; }
     }
 
-    [Schema(name: "sss")]
+    [Bix("5aaa3f66-5593-460f-bcd7-0d480310aaff")]
     public class Relative : TypedDoc
     {
       [Field(required: true, Description = "First name")]
