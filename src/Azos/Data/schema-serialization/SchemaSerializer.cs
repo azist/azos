@@ -14,48 +14,81 @@ using Azos.Serialization.JSON;
 namespace Azos.Data
 {
   /// <summary>
-  /// Extracts metadata from <see cref="TargetedAttribute"/>.
-  /// You can pattern match on <see cref="SchemaAttribute"/> vs <see cref="FieldAttribute"/>
-  /// </summary>
-  public delegate JsonDataMap MetadataConverterFunc(TargetedAttribute targetedAttr);
-
-
-  /// <summary>
   /// Facilitates detailed schema serialization functionality.
   /// This serializer is capable of serializing/deserializing detailed schema definitions with multiple targets
   /// and references to other schemas (e.g. a collection).
   /// The type is used by clients/frameworks (such as AZOS.JS) etc to retrieve a detailed schema in a non-CLR environment
   /// </summary>
-  public static class SchemaSerializer
+  public static partial class SchemaSerializer
   {
-    public static JsonDataMap Serialize(Schema schema,
-                                        string nameOverride = null,
-                                        Func<TargetedAttribute, bool> fTargetFilter = null,
-                                        Func<Type, JsonDataMap, Func<TargetedAttribute, bool>, MetadataConverterFunc, object> fTypeMapper = null,
-                                        MetadataConverterFunc fMetaConverter = null)
+    public readonly struct SerCtx
     {
-      if (schema==null) return null;
-      if (fTargetFilter == null) fTargetFilter = DefaultTargetFilter;
-      if (fTypeMapper == null) fTypeMapper = DefaultTypeMapper;
-      if (fMetaConverter==null) fMetaConverter = DefaultMetadataConverter;
+      public SerCtx(Func<SerCtx, TargetedAttribute, bool> targetFilter,
+                    Func<SerCtx, Type, object> typeMapper,
+                    Func<SerCtx, TargetedAttribute, JsonDataMap> metaConverter)
+      {
+        TypeMap = new Dictionary<Schema, JsonDataMap>();
+        TargetFilter  = targetFilter ?? DefaultTargetFilter;
+        TypeMapper    = typeMapper ?? DefaultTypeMapper;
+        MetaConverter = metaConverter ?? DefaultMetadataConverter;
+      }
 
-      var result = new JsonDataMap();
-      var tpMap = new JsonDataMap();
+      public readonly Dictionary<Schema, JsonDataMap> TypeMap;
+      public readonly Func<SerCtx, TargetedAttribute, bool> TargetFilter;
+      public readonly Func<SerCtx, Type, object> TypeMapper;
+      public readonly Func<SerCtx, TargetedAttribute, JsonDataMap> MetaConverter;
 
-      result["name"] = nameOverride.Default(schema.Name);
-      result["readonly"] = schema.ReadOnly;
+      public bool HasTypes => TypeMap.Count > 0;
 
-      result["attrs"] = serializeSchemaAttrs(schema.SchemaAttrs.Where(one => fTargetFilter(one)), fTypeMapper, fMetaConverter);
-      result["fields"] = serializeFields(schema.FieldDefs, tpMap, fTargetFilter, fTypeMapper, fMetaConverter);
+      public JsonDataMap GetAllTypes()
+      {
+        var result = new JsonDataMap();
 
-      if (tpMap.Count > 0) result["types"] = tpMap;
+        foreach (var kvp in TypeMap)
+        {
+          result[kvp.Value["handle"].AsString()] = kvp.Value;
+        }
+        return result;
+      }
 
+      public string GetSchemaHandle(Schema schema)
+      {
+        if (!TypeMap.TryGetValue(schema, out var map))
+        {
+          map = new JsonDataMap();
+          TypeMap.Add(schema, map);
+          serialize(map, this, schema, null);
+        }
+        return map["handle"].AsString();
+      }
+    }
+
+
+
+    public static JsonDataMap Serialize(SerCtx ctx,
+                                        Schema schema,
+                                        string nameOverride = null)
+    {
+      if (schema == null) return null;
+      if (ctx.TypeMap == null) ctx = new SerCtx(null, null, null);
+      var result = serialize(new JsonDataMap(), ctx, schema, nameOverride);
+
+      if (ctx.HasTypes) result["types"] = ctx.GetAllTypes();
       return result;
     }
 
-    private static IEnumerable<JsonDataMap> serializeSchemaAttrs(IEnumerable<SchemaAttribute> attrs,
-                                                                 Func<Type, JsonDataMap, Func<TargetedAttribute, bool>, MetadataConverterFunc, object> fTypeMapper,
-                                                                 MetadataConverterFunc fMetaConverter)
+    private static JsonDataMap serialize(JsonDataMap map, SerCtx ctx, Schema schema, string nameOverride)
+    {
+      map["handle"] = $"#{ctx.TypeMap.Count}";
+      map["name"] = nameOverride.Default(schema.Name);
+      map["readonly"] = schema.ReadOnly;
+
+      map["attrs"] = serializeSchemaAttrs(ctx, schema.SchemaAttrs.Where(one => ctx.TargetFilter(ctx, one))).ToArray();
+      map["fields"] = serializeFields(ctx, schema.FieldDefs).ToArray();
+      return map;
+    }
+
+    private static IEnumerable<JsonDataMap> serializeSchemaAttrs(SerCtx ctx, IEnumerable<SchemaAttribute> attrs)
     {
       foreach(var attr in attrs)
       {
@@ -64,16 +97,12 @@ namespace Azos.Data
         result["name"] = attr.Name;
         result["description"] = attr.Description;
         result["immutable"] = attr.Immutable;
-        result["meta"] = fMetaConverter(attr);
+        result["meta"] = ctx.MetaConverter(ctx, attr);
         yield return result;
       }
     }
 
-    private static IEnumerable<JsonDataMap> serializeFields(IEnumerable<Schema.FieldDef> defs,
-                                                            JsonDataMap tpMap,
-                                                            Func<TargetedAttribute, bool> fTargetFilter,
-                                                            Func<Type, JsonDataMap, Func<TargetedAttribute, bool>, MetadataConverterFunc, object> fTypeMapper,
-                                                            MetadataConverterFunc fMetaConverter)
+    private static IEnumerable<JsonDataMap> serializeFields(SerCtx ctx, IEnumerable<Schema.FieldDef> defs)
     {
       foreach (var def in defs)
       {
@@ -81,17 +110,17 @@ namespace Azos.Data
         result["name"] = def.Name;
         result["order"] = def.Order;
         result["getOnly"] = def.GetOnly;
-        result["type"] = fTypeMapper(def.Type, tpMap, fTargetFilter, fMetaConverter);
+        result["type"] = ctx.TypeMapper(ctx, def.Type);
 
         var attrs = new List<JsonDataMap>();
         result["attributes"] = attrs;
 
-        foreach(var attr in def.Attrs.Where(one => fTargetFilter(one)))
+        foreach(var attr in def.Attrs.Where(one => ctx.TargetFilter(ctx, one)))
         {
           var atrMap = new JsonDataMap();
           atrMap["target"] = attr.TargetName;
           atrMap["description"] = attr.Description;
-          atrMap["meta"] = fMetaConverter(attr);
+          atrMap["meta"] = ctx.MetaConverter(ctx, attr);
           if (attr.BackendName != null) atrMap["backName"] = attr.BackendName;
           if (attr.BackendType != null) atrMap["backType"] = attr.BackendType;
           if (attr.CharCase != CharCase.AsIs) atrMap["charCase"] = attr.CharCase;
@@ -122,36 +151,63 @@ namespace Azos.Data
       }//defs
     }
 
-
-    public static bool DefaultTargetFilter(TargetedAttribute targetedAttr)
+    /// <summary>
+    /// Default implementation which matches anything
+    /// </summary>
+    public static bool DefaultTargetFilter(SerCtx ctx, TargetedAttribute targetedAttr)
     {
-      return targetedAttr.TargetName == TargetedAttribute.ANY_TARGET;
+      //targetedAttr.TargetName == TargetedAttribute.ANY_TARGET;
+      return true;
     }
 
-    public static object DefaultTypeMapper(Type t, JsonDataMap tpMap, Func<TargetedAttribute, bool> fTargetFilter, MetadataConverterFunc fMetaConverter)
+    public static object DefaultTypeMapper(SerCtx ctx, Type t)
     {
-     //build types
-     //need to check for array[t] .GetElementType()
-     var isArray = t.IsArray;
-     var telm = isArray ? t.GetElementType() : t;
+      var originalType = t.NonNull(nameof(t));
 
-     //check for List<T>; Nullable<T>; JsonDataMap
-     //else object
+      //-2 Array?
+      var isArray = t.IsArray;
+      if (isArray) t = t.GetElementType();
 
-      if (typeof(TypedDoc).IsAssignableFrom(telm))
+      //-1. List<T>?
+      var isList = !isArray && t.IsGenericType && t.GetGenericTypeDefinition() == typeof(List<>);
+      if (isList) t = t.GetGenericArguments()[0];
+
+      //collection specifier: adds optional [] at the end
+      var cspec = isArray || isList ? "[]" : "";
+
+      //0. Check Nullable<T>
+      var isNullable = t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Nullable<>);
+      if (isNullable) t = t.GetGenericArguments()[0];
+
+      //1. Primitive/Nullable<Primitive>?
+      if (PRIMITIVE_TYPES.TryGetValue(t, out var moniker)) return (isNullable ? $"{moniker}?" : moniker) + cspec;// amount?[]
+
+      if (typeof(JsonDataMap).IsAssignableFrom(t))
       {
-        var schema = Schema.GetForTypedDoc(telm);
-        var tkey = Guid.NewGuid().ToString();
-        tpMap[tkey] = Serialize(schema, null, fTargetFilter, DefaultTypeMapper, fMetaConverter);
-        return tkey;
+        return "map" + cspec;
       }
-      return t.Name;
+
+      if (typeof(JsonDataArray).IsAssignableFrom(t))
+      {
+        return "object[]";
+      }
+
+      if (typeof(TypedDoc).IsAssignableFrom(t))
+      {
+        var schema = Schema.GetForTypedDoc(t);
+        return ctx.GetSchemaHandle(schema) + cspec;
+      }
+
+      return "object" + cspec;
     }
 
-    public static JsonDataMap DefaultMetadataConverter(TargetedAttribute targetedAttr)
+    /// <summary> Default implementation discloses everything from metadata property </summary>
+    public static JsonDataMap DefaultMetadataConverter(SerCtx ctx, TargetedAttribute targetedAttr)
     {
       return targetedAttr.Metadata?.ToJSONDataMap();
     }
+
+
 
     public static Schema Deserialize(JsonDataMap map)
     {
