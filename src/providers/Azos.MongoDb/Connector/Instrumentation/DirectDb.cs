@@ -63,7 +63,7 @@ DirectDb
   db='mydb'
   cmd=$'{createIndexes: ""log"", indexes: [
     {
-      key: {utc: 1},      //list of document fields
+      key: {u: 1},      //list of document fields
       name: ""idx_utc"",  //name of index
       unique: false       //not unique
     }
