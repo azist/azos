@@ -18,7 +18,7 @@ namespace Azos.Data
     {
       public SerCtx(Schema rootSchema,
                     Func<SerCtx, TargetedAttribute, bool> targetFilter = null,
-                    Func<SerCtx, Type, object> typeMapper = null,
+                    Func<SerCtx, Schema.FieldDef, object> typeMapper = null,
                     Func<SerCtx, TargetedAttribute, string> metaConverter = null)
       {
         RootSchema = rootSchema.NonNull(nameof(rootSchema));
@@ -31,7 +31,7 @@ namespace Azos.Data
       public readonly Schema RootSchema;
       public readonly Dictionary<Schema, JsonDataMap> TypeMap;
       public readonly Func<SerCtx, TargetedAttribute, bool> TargetFilter;
-      public readonly Func<SerCtx, Type, object> TypeMapper;
+      public readonly Func<SerCtx, Schema.FieldDef, object> TypeMapper;
       public readonly Func<SerCtx, TargetedAttribute, string> MetaConverter;
 
 

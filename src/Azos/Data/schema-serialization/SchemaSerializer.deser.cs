@@ -117,7 +117,9 @@ namespace Azos.Data
 
         var name = map["name"].AsString();
         var (t, tschema) = ctx.TypeMapper(ctx, map["type"]);//<==============
-        var attrs = deserFieldAttributes(ctx, schema, map["attributes"].CastTo<IEnumerable<JsonDataMap>>("Attributes collection"));
+        var attrs = deserFieldAttributes(ctx, schema, map["attributes"].CastTo<IEnumerable>("Enumerable attributes")
+                                                                       .Cast<object>()
+                                                                       .OfType<JsonDataMap>());
         var def = new Schema.FieldDef(name, t, attrs, tschema);
         result.Add(def);
       }
@@ -132,10 +134,10 @@ namespace Azos.Data
       var spec = tspec.NonNull(nameof(tspec)).AsString();
 
       var isArray = spec.EndsWith("[]");
-      if (isArray) spec.Replace("[]", "");
+      if (isArray) spec = spec.Replace("[]", "");
 
       var isNullable = spec.EndsWith("?");
-      if (isNullable) spec.Replace("?", "");
+      if (isNullable) spec = spec.Replace("?", "");
 
       var isSchema = spec.StartsWith("#");
       if (isSchema)

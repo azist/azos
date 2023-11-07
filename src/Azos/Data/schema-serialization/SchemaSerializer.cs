@@ -73,7 +73,7 @@ namespace Azos.Data
         result["name"] = def.Name;
         result["order"] = def.Order;
         result["getOnly"] = def.GetOnly;
-        result["type"] = ctx.TypeMapper(ctx, def.Type);
+        result["type"] = ctx.TypeMapper(ctx, def);
 
         var attrs = new List<JsonDataMap>();
         result["attributes"] = attrs;
@@ -123,9 +123,9 @@ namespace Azos.Data
       return true;
     }
 
-    public static object DefaultTypeMapper(SerCtx ctx, Type t)
+    public static object DefaultTypeMapper(SerCtx ctx, Schema.FieldDef def)
     {
-      var originalType = t.NonNull(nameof(t));
+      var t = def.NonNull(nameof(def)).Type;
 
       //-2 Array?
       var isArray = t.IsArray;
@@ -158,6 +158,12 @@ namespace Azos.Data
       if (typeof(TypedDoc).IsAssignableFrom(t))
       {
         var schema = Schema.GetForTypedDoc(t);
+        return ctx.GetSchemaHandle(schema) + cspec;
+      }
+
+      if (typeof(DynamicDoc).IsAssignableFrom(t) && def.ComplexTypeSchema != null)
+      {
+        var schema = def.ComplexTypeSchema;
         return ctx.GetSchemaHandle(schema) + cspec;
       }
 

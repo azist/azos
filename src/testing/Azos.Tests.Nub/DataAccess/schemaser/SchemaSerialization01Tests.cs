@@ -47,10 +47,10 @@ namespace Azos.Tests.Nub.DataAccess
       [Field]
       public List<LatLng> Locations { get; set; }
 
-      [Field]
+      [Field(required: true)]
       public Relative Father { get; set; }
 
-      [Field]
+      [Field(required: true)]
       public Relative Mother { get; set; }
     }
 
@@ -60,7 +60,7 @@ namespace Azos.Tests.Nub.DataAccess
       [Field(required: true, Description = "First name")]
       public string FirstName { get; set; }
 
-      [Field(required: true, Description = "Lastname")]
+      [Field(required: true, maxLength: 16, Description = "Lastname", ValueList = "Smith: Smithonian farter;Wallace: Boltzman farting skew")]
       public string LastName { get; set; }
 
       [Field(Description = "DOB")]
@@ -72,12 +72,34 @@ namespace Azos.Tests.Nub.DataAccess
     public void Case01()
     {
       var orig = Schema.GetForTypedDoc<DocA>();
-      var got = SchemaSerializer.Serialize(new SchemaSerializer.SerCtx(orig), "BarMarLey");
-      got.See();
+      var map1 = SchemaSerializer.Serialize(new SchemaSerializer.SerCtx(orig), "BarMarLey");
+      map1.See();
 
-      var got2 = SchemaSerializer.Deserialize(new SchemaSerializer.DeserCtx(got));
-      got2.See();
+      var got = SchemaSerializer.Deserialize(new SchemaSerializer.DeserCtx(map1));
+      var map2 = SchemaSerializer.Serialize(new SchemaSerializer.SerCtx(got), "BarMarLey");
+      map2.See();
     }
 
+    [Run]
+    public void FullCycle()
+    {
+      var orig = Schema.GetForTypedDoc<DocA>();
+      var map1 = SchemaSerializer.Serialize(new SchemaSerializer.SerCtx(orig), "form1");
+      var json = map1.ToJson();
+
+      json.See("WIRE JSON ========================= ");
+
+      var schema2 = SchemaSerializer.Deserialize(new SchemaSerializer.DeserCtx(json.JsonToDataObject().ExpectJsonDataMap()));
+
+      var form = new DynamicDoc(schema2);
+
+      var father = new DynamicDoc(form.Schema["Father"].ComplexTypeSchema);
+      form["Father"] = father;
+
+      father["LastName"] = "Smith the fart";
+
+      var vstate = form.Validate(new ValidState("*", ValidErrorMode.Batch, 1000));
+      new WrappedExceptionData(vstate.Error).See();
+    }
   }
 }
