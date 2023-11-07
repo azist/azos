@@ -86,7 +86,7 @@ namespace Azos.Data
     private static JsonDataMap serialize(JsonDataMap map, SerCtx ctx, Schema schema, string nameOverride)
     {
       map["handle"] = $"#{ctx.TypeMap.Count}";
-      map["name"] = nameOverride.Default(schema.Name);
+      map["name"] = nameOverride.Default(schema.TypedDocType?.DisplayNameWithExpandedGenericArgs()).Default(schema.Name);
       map["readonly"] = schema.ReadOnly;
 
       if (schema.TypedDocType != null)
