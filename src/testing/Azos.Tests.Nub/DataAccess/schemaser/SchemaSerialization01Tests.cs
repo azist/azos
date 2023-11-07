@@ -71,8 +71,12 @@ namespace Azos.Tests.Nub.DataAccess
     [Run]
     public void Case01()
     {
-      var got = SchemaSerializer.Serialize(new SchemaSerializer.SerCtx(Schema.GetForTypedDoc<DocA>()), "BarMarLey");
+      var orig = Schema.GetForTypedDoc<DocA>();
+      var got = SchemaSerializer.Serialize(new SchemaSerializer.SerCtx(orig), "BarMarLey");
       got.See();
+
+      var got2 = SchemaSerializer.Deserialize(new SchemaSerializer.DeserCtx(got));
+      got2.See();
     }
 
   }
