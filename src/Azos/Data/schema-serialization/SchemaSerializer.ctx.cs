@@ -84,6 +84,15 @@ namespace Azos.Data
 
 
       public bool IsAssigned => RootMap != null;
+
+      /// <summary>
+      /// Gets <see cref="Schema"/> instance by handle or throws if such handle is not known
+      /// </summary>
+      public Schema GetSchemaByHandle(string handle)
+      {
+        if (Schemas.TryGetValue(handle, out var schema)) return schema;
+        throw new DataException($"Bad schema handle: `{handle}`");
+      }
     }//DeserCtx
 
   }

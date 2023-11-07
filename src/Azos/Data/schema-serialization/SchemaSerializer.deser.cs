@@ -116,7 +116,7 @@ namespace Azos.Data
         if (!ctx.TargetFilter(ctx, true, map)) continue;
 
         var name = map["name"].AsString();
-        Type t = null;//<=================== TYPE
+        var (t, tschema) = ctx.TypeMapper(ctx, map["type"]);//<==============
         var attrs = deserFieldAttributes(ctx, schema, map["attributes"].CastTo<IEnumerable<JsonDataMap>>("Attributes collection"));
         var def = new Schema.FieldDef(name, t, attrs);
         result.Add(def);
@@ -124,9 +124,45 @@ namespace Azos.Data
       return result;
     }
 
+    /// <summary>
+    /// Default type mapper maps from `type?[]` string
+    /// </summary>
     private static (Type t, Schema sch) DefaultTypeMapper(DeserCtx ctx, object tspec)
     {
-      return (typeof(object), null);
+      var spec = tspec.NonNull(nameof(tspec)).AsString();
+
+      var isArray = spec.EndsWith("[]");
+      if (isArray) spec.Replace("[]", "");
+
+      var isNullable = spec.EndsWith("?");
+      if (isNullable) spec.Replace("?", "");
+
+      var isSchema = spec.StartsWith("#");
+      if (isSchema)
+      {
+        var t = typeof(DynamicDoc);
+        if (isArray) t = t.MakeArrayType();
+        var schema = ctx.GetSchemaByHandle(spec);
+        return (t, schema);
+      }
+
+
+      //1. Primitive/Nullable<Primitive>?
+      if (PRIMITIVE_MONIKERS.TryGetValue(spec, out var tmon))
+      {
+        tmon = isNullable ? typeof(Nullable<>).MakeGenericType(tmon) : tmon;
+        if (isArray) tmon = tmon.MakeArrayType();
+        return (tmon, null);
+      }
+
+      if (spec.EqualsIgnoreCase("map"))
+        tmon = typeof(JsonDataMap);
+      else
+        tmon = typeof(object);
+
+      //================
+      if (isArray) tmon = tmon.MakeArrayType();
+      return (tmon, null);
     }
 
 
