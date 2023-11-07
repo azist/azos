@@ -43,8 +43,5 @@ namespace Azos.Data
     };
 
     private static readonly Dictionary<string, Type> PRIMITIVE_MONIKERS = new(PRIMITIVE_TYPES.Select(kvp => new KeyValuePair<string, Type>(kvp.Value, kvp.Key)));
-
-
-
   }
 }

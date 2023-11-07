@@ -22,59 +22,10 @@ namespace Azos.Data
   /// </summary>
   public static partial class SchemaSerializer
   {
-    public readonly struct SerCtx
-    {
-      public SerCtx(Schema rootSchema,
-                    Func<SerCtx, TargetedAttribute, bool> targetFilter = null,
-                    Func<SerCtx, Type, object> typeMapper = null,
-                    Func<SerCtx, TargetedAttribute, JsonDataMap> metaConverter = null)
-      {
-        RootSchema = rootSchema.NonNull(nameof(rootSchema));
-        TypeMap = new Dictionary<Schema, JsonDataMap>();
-        TargetFilter  = targetFilter ?? DefaultTargetFilter;
-        TypeMapper    = typeMapper ?? DefaultTypeMapper;
-        MetaConverter = metaConverter ?? DefaultMetadataConverter;
-      }
-
-      public readonly Schema RootSchema;
-      public readonly Dictionary<Schema, JsonDataMap> TypeMap;
-      public readonly Func<SerCtx, TargetedAttribute, bool> TargetFilter;
-      public readonly Func<SerCtx, Type, object> TypeMapper;
-      public readonly Func<SerCtx, TargetedAttribute, JsonDataMap> MetaConverter;
-
-
-      public bool IsAssigned => RootSchema != null;
-      public bool HasTypes => TypeMap.Count > 0;
-
-      public JsonDataMap GetAllTypes()
-      {
-        var result = new JsonDataMap();
-
-        foreach (var kvp in TypeMap)
-        {
-          result[kvp.Value["handle"].AsString()] = kvp.Value;
-        }
-        return result;
-      }
-
-      public string GetSchemaHandle(Schema schema)
-      {
-        if (schema == RootSchema) return "#0";
-
-        if (!TypeMap.TryGetValue(schema, out var map))
-        {
-          map = new JsonDataMap();
-          TypeMap.Add(schema, map);
-          serialize(map, this, schema, null);
-        }
-        return map["handle"].AsString();
-      }
-    }
-
-
-
-    public static JsonDataMap Serialize(SerCtx ctx,
-                                        string nameOverride = null)
+    /// <summary>
+    /// Serializes <see cref="Schema"/> object into <see cref="JsonDataMap"/> consumable by <see cref="Deserialize(JsonDataMap)"/>
+    /// </summary>
+    public static JsonDataMap Serialize(SerCtx ctx, string nameOverride = null)
     {
       ctx.IsAssigned.IsTrue("Assigned ctx");
       var result = serialize(new JsonDataMap(), ctx, ctx.RootSchema, nameOverride);
@@ -214,16 +165,9 @@ namespace Azos.Data
     }
 
     /// <summary> Default implementation discloses everything from metadata property </summary>
-    public static JsonDataMap DefaultMetadataConverter(SerCtx ctx, TargetedAttribute targetedAttr)
+    public static string DefaultMetadataConverter(SerCtx ctx, TargetedAttribute targetedAttr)
     {
-      return targetedAttr.Metadata?.ToJSONDataMap();
-    }
-
-
-
-    public static Schema Deserialize(JsonDataMap map)
-    {
-      return null;
+      return targetedAttr.MetadataContent;
     }
   }
 }
