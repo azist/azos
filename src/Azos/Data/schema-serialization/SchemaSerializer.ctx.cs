@@ -68,22 +68,19 @@ namespace Azos.Data
     public readonly struct DeserCtx
     {
       public DeserCtx(JsonDataMap rootMap,
-                    Func<DeserCtx, TargetedAttribute, bool> targetFilter = null,
-                    Func<DeserCtx, Type, object> typeMapper = null,
-                    Func<DeserCtx, TargetedAttribute, JsonDataMap> metaConverter = null)
+                      Func<DeserCtx, bool, JsonDataMap, bool> targetFilter = null,
+                      Func<DeserCtx, object, (Type,Schema)> typeMapper = null)
       {
         RootMap = rootMap.NonNull(nameof(rootMap));
         Schemas = new Dictionary<string, Schema>();
         TargetFilter = targetFilter ?? DefaultTargetFilter;
         TypeMapper = typeMapper ?? DefaultTypeMapper;
-        MetaConverter = metaConverter ?? DefaultMetadataConverter;
       }
 
       public readonly JsonDataMap RootMap;
       public readonly Dictionary<string, Schema> Schemas;
-      public readonly Func<DeserCtx, TargetedAttribute, bool> TargetFilter;
-      public readonly Func<DeserCtx, Type, object> TypeMapper;
-      public readonly Func<DeserCtx, TargetedAttribute, JsonDataMap> MetaConverter;
+      public readonly Func<DeserCtx, bool, JsonDataMap, bool> TargetFilter;
+      public readonly Func<DeserCtx, object, (Type, Schema)> TypeMapper;
 
 
       public bool IsAssigned => RootMap != null;

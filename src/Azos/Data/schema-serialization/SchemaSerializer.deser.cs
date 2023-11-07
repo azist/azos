@@ -56,6 +56,14 @@ namespace Azos.Data
       return rootSchema;
     }
 
+    /// <summary>
+    /// Default implementation which matches anything
+    /// </summary>
+    public static bool DefaultTargetFilter(DeserCtx ctx, bool isField, JsonDataMap data)
+    {
+      return true;
+    }
+
     private static void deserSchema(DeserCtx ctx, Schema schema, JsonDataMap map)
     {
       var name = map["name"].AsString();
@@ -84,6 +92,8 @@ namespace Azos.Data
       var result = new List<SchemaAttribute>();
       foreach(var map in attrs)
       {
+        if (!ctx.TargetFilter(ctx, false, map)) continue;
+
         var atr = new SchemaAttribute
         {
           TargetName = map["target"].AsString(),
@@ -103,6 +113,8 @@ namespace Azos.Data
       var result = new List<Schema.FieldDef>();
       foreach (var map in fields)
       {
+        if (!ctx.TargetFilter(ctx, true, map)) continue;
+
         var name = map["name"].AsString();
         Type t = null;//<=================== TYPE
         var attrs = deserFieldAttributes(ctx, schema, map["attributes"].CastTo<IEnumerable<JsonDataMap>>("Attributes collection"));
@@ -111,6 +123,12 @@ namespace Azos.Data
       }
       return result;
     }
+
+    private static (Type t, Schema sch) DefaultTypeMapper(DeserCtx ctx, object tspec)
+    {
+      return (typeof(object), null);
+    }
+
 
     private static List<FieldAttribute> deserFieldAttributes(DeserCtx ctx, Schema schema, IEnumerable<JsonDataMap> attributes)
     {
