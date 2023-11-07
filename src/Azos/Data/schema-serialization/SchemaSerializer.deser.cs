@@ -118,7 +118,7 @@ namespace Azos.Data
         var name = map["name"].AsString();
         var (t, tschema) = ctx.TypeMapper(ctx, map["type"]);//<==============
         var attrs = deserFieldAttributes(ctx, schema, map["attributes"].CastTo<IEnumerable<JsonDataMap>>("Attributes collection"));
-        var def = new Schema.FieldDef(name, t, attrs);
+        var def = new Schema.FieldDef(name, t, attrs, tschema);
         result.Add(def);
       }
       return result;
