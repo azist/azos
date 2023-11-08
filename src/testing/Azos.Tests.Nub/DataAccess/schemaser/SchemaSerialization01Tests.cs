@@ -114,7 +114,7 @@ namespace Azos.Tests.Nub.DataAccess
       //var vstate = form.Validate(new ValidState("*", ValidErrorMode.Batch, 1000));
       //new WrappedExceptionData(vstate.Error).See();
 
-      var formJson = form.ToJson();
+      var formJson = form.ToJson(JsonWritingOptions.CompactRowsAsMap);
       formJson.See("FORM ====== WIRE JSON ========================= ");
 
       var form2 = new DynamicDoc(schema2);
