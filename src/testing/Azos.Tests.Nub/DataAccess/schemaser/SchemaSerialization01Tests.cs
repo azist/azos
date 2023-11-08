@@ -87,19 +87,42 @@ namespace Azos.Tests.Nub.DataAccess
       var map1 = SchemaSerializer.Serialize(new SchemaSerializer.SerCtx(orig), "form1");
       var json = map1.ToJson();
 
-      json.See("WIRE JSON ========================= ");
+      json.See("SCHEMA ====== WIRE JSON ========================= ");
 
       var schema2 = SchemaSerializer.Deserialize(new SchemaSerializer.DeserCtx(json.JsonToDataObject().ExpectJsonDataMap()));
 
       var form = new DynamicDoc(schema2);
 
+      form["FirstName"] = "Kozloff";
+
+      form["Flags"] = new[]{Atom.Encode("abc"), Atom.Encode("def")};
+
+
       var father = new DynamicDoc(form.Schema["Father"].ComplexTypeSchema);
       form["Father"] = father;
 
-      father["LastName"] = "Smith the fart";
+      father["FirstName"] = "Jack";
+      father["LastName"] = "Wallace";
 
-      var vstate = form.Validate(new ValidState("*", ValidErrorMode.Batch, 1000));
-      new WrappedExceptionData(vstate.Error).See();
+      var mother = new DynamicDoc(form.Schema["Mother"].ComplexTypeSchema);
+      form["Mother"] = mother;
+
+      mother["FirstName"] = "Sonya";
+      mother["LastName"] = "Smith";
+
+
+      //var vstate = form.Validate(new ValidState("*", ValidErrorMode.Batch, 1000));
+      //new WrappedExceptionData(vstate.Error).See();
+
+      var formJson = form.ToJson();
+      formJson.See("FORM ====== WIRE JSON ========================= ");
+
+      var form2 = new DynamicDoc(schema2);
+      JsonReader.ToDoc(form2, formJson);
+
+      form2.See();
+
+
     }
   }
 }
