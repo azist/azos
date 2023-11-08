@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.6.2.2
-set HEADLINE=MsSql DataExtensions
+set VER=3.7.0.1
+set HEADLINE=#900 #901 Schema Serializer
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
