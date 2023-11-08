@@ -146,7 +146,7 @@ namespace Azos.Data
         }
         catch
         {
-          state = new ValidState(state, new FieldValidationException(nameof(EntityId), scope.Default("<entityId>"), "Invalid composite value"));
+          state = new ValidState(state, new FieldValidationException(nameof(EntityId), scope.Default("<eid>"), "Invalid composite value", scope));
         }
       }
       return state;

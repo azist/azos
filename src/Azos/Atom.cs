@@ -357,7 +357,7 @@ namespace Azos
     public ValidState Validate(ValidState state, string scope = null)
     {
       if (!IsValid)
-        state = new ValidState(state, new FieldValidationException(nameof(Atom), scope.Default("<atom>"), "Invalid value"));
+        state = new ValidState(state, new FieldValidationException(nameof(Atom), scope.Default("<atom>"), "Invalid value", scope));
 
       return state;
     }

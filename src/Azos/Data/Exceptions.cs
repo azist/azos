@@ -110,36 +110,40 @@ namespace Azos.Data
     public const string SCHEMA_NAME_FLD_NAME    = "FVE-SCH";
     public const string FIELD_NAME_FLD_NAME     = "FVE-FN";
     public const string CLIENT_MESSAGE_FLD_NAME = "FVE-CM";
+    public const string SCOPE_FLD_NAME          = "FVE-SCOPE";
 
     public const string WHAT = "Schema field: '{0}'.{1}; ";
 
-    public FieldValidationException(Doc doc, string fieldName, string message)
+    public FieldValidationException(Doc doc, string fieldName, string message, string scope = null)
       : this(doc.NonNull(nameof(doc)).Schema.DisplayName,
-             doc.Schema[fieldName].NonNull(name: "field {0} not found in schema".Args(fieldName)).Name, message)
+             doc.Schema[fieldName].NonNull(name: "field {0} not found in schema".Args(fieldName)).Name, message, scope)
     { }
 
-    public FieldValidationException(string schemaName, string fieldName)
+    public FieldValidationException(string schemaName, string fieldName, string scope)
       : base(WHAT.Args(schemaName, fieldName))
     {
       SchemaName = schemaName;
       FieldName = fieldName;
       ClientMessage = "Validation error";
+      Scope = scope;
     }
 
-    public FieldValidationException(string schemaName, string fieldName, string message)
+    public FieldValidationException(string schemaName, string fieldName, string message, string scope)
       : base(WHAT.Args(schemaName, fieldName) + message)
     {
       SchemaName = schemaName;
       FieldName = fieldName;
       ClientMessage = message;
+      Scope = scope;
     }
 
-    public FieldValidationException(string schemaName, string fieldName, string message, Exception inner)
+    public FieldValidationException(string schemaName, string fieldName, string message, Exception inner, string scope = null)
       : base(WHAT.Args(schemaName, fieldName) + message, inner)
     {
       SchemaName = schemaName;
       FieldName = fieldName;
       ClientMessage = message;
+      Scope = scope;
     }
 
     protected FieldValidationException(SerializationInfo info, StreamingContext context)
@@ -148,11 +152,13 @@ namespace Azos.Data
       SchemaName = info.GetString(SCHEMA_NAME_FLD_NAME);
       FieldName = info.GetString(FIELD_NAME_FLD_NAME);
       ClientMessage = info.GetString(CLIENT_MESSAGE_FLD_NAME);
+      Scope = info.GetString(SCOPE_FLD_NAME);
     }
 
     public readonly string SchemaName;
     public readonly string FieldName;
     public readonly string ClientMessage;
+    public readonly string Scope;
 
     public override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
@@ -161,12 +167,14 @@ namespace Azos.Data
       info.AddValue(SCHEMA_NAME_FLD_NAME, SchemaName);
       info.AddValue(FIELD_NAME_FLD_NAME, FieldName);
       info.AddValue(CLIENT_MESSAGE_FLD_NAME, ClientMessage);
+      info.AddValue(SCOPE_FLD_NAME, Scope);
       base.GetObjectData(info, context);
     }
     public override JsonDataMap ProvideExternalStatus(bool includeDump)
     {
       var result = base.ProvideExternalStatus(includeDump);
       result[CoreConsts.EXT_STATUS_KEY_SCHEMA] = SchemaName;
+      result[CoreConsts.EXT_STATUS_KEY_SCOPE] = Scope;
       result[CoreConsts.EXT_STATUS_KEY_FIELD] = FieldName;
       result[CoreConsts.EXT_STATUS_KEY_MESSAGE] = ClientMessage;
       return result;

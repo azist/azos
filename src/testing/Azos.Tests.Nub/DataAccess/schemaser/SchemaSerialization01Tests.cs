@@ -94,15 +94,18 @@ namespace Azos.Tests.Nub.DataAccess
       var form = new DynamicDoc(schema2);
 
       form["FirstName"] = "Kozloff";
-
-      form["Flags"] = new[]{Atom.Encode("abc"), Atom.Encode("def")};
+      form["Flags"] = new[] {Atom.Encode("abc"), Atom.Encode("def")};
+      form["Locations"] = new[] { new LatLng(10, 12, "Snakersville"), new LatLng(13, 42, "Chickenrun")};
+      form["ExtraGdids"] = new[] { new GDID(10,1000), new GDID(2, 2000) };
+      form["Props"] = new JsonDataMap{ { "a", 1}, {"b", true }, {"c", new {x = 9,y=-900} } };
+      form["Subdocuments"] = new[] { new DynamicDoc(schema2), new DynamicDoc(schema2) };
 
 
       var father = new DynamicDoc(form.Schema["Father"].ComplexTypeSchema);
       form["Father"] = father;
 
       father["FirstName"] = "Jack";
-      father["LastName"] = "Wallace";
+      father["LastName"] =  "Wallace";
 
       var mother = new DynamicDoc(form.Schema["Mother"].ComplexTypeSchema);
       form["Mother"] = mother;
@@ -111,8 +114,8 @@ namespace Azos.Tests.Nub.DataAccess
       mother["LastName"] = "Smith";
 
 
-      //var vstate = form.Validate(new ValidState("*", ValidErrorMode.Batch, 1000));
-      //new WrappedExceptionData(vstate.Error).See();
+      var vstate = form.Validate(new ValidState("*", ValidErrorMode.Batch, 1000));
+      new WrappedExceptionData(vstate.Error).See();
 
       var formJson = form.ToJson(JsonWritingOptions.CompactRowsAsMap);
       formJson.See("FORM ====== WIRE JSON ========================= ");
