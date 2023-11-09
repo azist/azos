@@ -171,18 +171,18 @@ namespace Azos.Time
     public ValidState Validate(ValidState state, string scope = null)
     {
       if (!Start.HasValue && !End.HasValue)
-        state = new ValidState(state, new FieldValidationException(nameof(DateRange), scope.Default($"<{nameof(DateRange)}>"), "Both Start/End unassigned"));
+        state = new ValidState(state, new FieldValidationException(nameof(DateRange), scope.Default($"<{nameof(DateRange)}>"), "Both Start/End unassigned", scope));
 
       if (state.ShouldStop) return state;
 
 
       if (Start.HasValue && End.HasValue && Start.Value.Kind != End.Value.Kind)
-        state = new ValidState(state, new FieldValidationException(nameof(DateRange), scope.Default($"<{nameof(DateRange)}>"), "Different Start/End date kinds"));
+        state = new ValidState(state, new FieldValidationException(nameof(DateRange), scope.Default($"<{nameof(DateRange)}>"), "Different Start/End date kinds", scope));
 
       if (state.ShouldStop) return state;
 
       if (End < Start)
-        state = new ValidState(state, new FieldValidationException(nameof(DateRange), scope.Default($"<{nameof(DateRange)}>"), "End < Start"));
+        state = new ValidState(state, new FieldValidationException(nameof(DateRange), scope.Default($"<{nameof(DateRange)}>"), "End < Start", scope));
 
       return state;
     }

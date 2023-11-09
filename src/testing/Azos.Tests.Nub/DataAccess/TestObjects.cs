@@ -91,7 +91,7 @@ namespace Azos.Tests.Nub.DataAccess
       if (state.ShouldStop) return state;
 
       if (!Description.Contains("Chaplin"))
-        state = new ValidState(state, new FieldValidationException("Chaplin is required in description", "Description"));
+        state = new ValidState(state, new FieldValidationException("Chaplin is required in description", "Description", null));
 
       return state;
     }

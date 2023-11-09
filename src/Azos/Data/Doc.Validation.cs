@@ -59,7 +59,7 @@ namespace Azos.Data
       if (fdef == null)
         throw new FieldValidationException(Schema.DisplayName,
                                            CoreConsts.NULL_STRING,
-                                           StringConsts.ARGUMENT_ERROR + ".ValidateField(fdef=null)");
+                                           StringConsts.ARGUMENT_ERROR + ".ValidateField(fdef=null)", scope);
 
       var atr = fdef[state.TargetName];
       if (atr==null) return state; //not found per target
@@ -123,7 +123,7 @@ namespace Azos.Data
       if (missing)
       {
         if (atr.Required)
-          return (false, new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_REQUIRED_ERROR));
+          return (false, new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_REQUIRED_ERROR, scope));
 
         return (false, null); //no other validations are needed as field is null anyway
       }
@@ -138,10 +138,10 @@ namespace Azos.Data
       if (value is ILengthCheck lc)
       {
         if (atr.MinLength > 0 && !lc.CheckMinLength(targetName, atr.MinLength))
-          return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_MIN_LENGTH_ERROR.Args(atr.MinLength));
+          return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_MIN_LENGTH_ERROR.Args(atr.MinLength), scope);
 
         if (atr.MaxLength > 0 && !lc.CheckMaxLength(targetName, atr.MaxLength))
-          return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_MAX_LENGTH_ERROR.Args(atr.MaxLength));
+          return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_MAX_LENGTH_ERROR.Args(atr.MaxLength), scope);
 
         return null;
       }
@@ -155,12 +155,12 @@ namespace Azos.Data
         if (ecount >= 0)
         {
           if (ecount < atr.MinLength)
-            return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_MIN_LENGTH_ERROR.Args(atr.MinLength));
+            return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_MIN_LENGTH_ERROR.Args(atr.MinLength), scope);
         }
         else
         {
           if (value.ToString().Length < atr.MinLength)
-            return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_MIN_LENGTH_ERROR.Args(atr.MinLength));
+            return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_MIN_LENGTH_ERROR.Args(atr.MinLength), scope);
         }
       }
 
@@ -169,12 +169,12 @@ namespace Azos.Data
         if (ecount >= 0)
         {
           if (ecount > atr.MaxLength)
-            return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_MAX_LENGTH_ERROR.Args(atr.MaxLength));
+            return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_MAX_LENGTH_ERROR.Args(atr.MaxLength), scope);
         }
         else
         {
           if (value.ToString().Length > atr.MaxLength)
-            return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_MAX_LENGTH_ERROR.Args(atr.MaxLength));
+            return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_MAX_LENGTH_ERROR.Args(atr.MaxLength), scope);
         }
       }
 
@@ -186,22 +186,22 @@ namespace Azos.Data
       if (atr.Kind == DataKind.ScreenName)
       {
         if (!Azos.Text.DataEntryUtils.CheckScreenName(value.ToString()))
-          return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_SCREEN_NAME_ERROR);
+          return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_SCREEN_NAME_ERROR, scope);
       }
       else if (atr.Kind == DataKind.EMail)
       {
         if (!Azos.Text.DataEntryUtils.CheckEMail(value.ToString()))
-          return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_EMAIL_ERROR);
+          return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_EMAIL_ERROR, scope);
       }
       else if (atr.Kind == DataKind.Telephone)
       {
         if (!Azos.Text.DataEntryUtils.CheckTelephone(value.ToString()))
-          return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_PHONE_ERROR);
+          return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_PHONE_ERROR, scope);
       }
       else if (atr.Kind == DataKind.Uri)
       {
         if (!Uri.TryCreate(value.ToString(), UriKind.RelativeOrAbsolute, out var _))
-          return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_PHONE_ERROR);
+          return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_PHONE_ERROR, scope);
       }
 
       return null;
@@ -294,14 +294,14 @@ namespace Azos.Data
         if (dynValueList.Count == 0) return null;//Nothing to check against; this is used to return empty list to override ValueList list
         var fv = value.ToString();
         if (!dynValueList.ContainsKey(fv))
-         return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_IS_NOT_IN_LIST_ERROR.Args(fv.TakeFirstChars(9, "..")));
+         return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_IS_NOT_IN_LIST_ERROR.Args(fv.TakeFirstChars(9, "..")), scope);
       }
       else if (atr.HasValueList)//check ValueList dictionary
       {
         var parsed = atr.ParseValueList();
         var fv = value.ToString();
         if (!parsed.ContainsKey(fv))
-          return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_IS_NOT_IN_LIST_ERROR.Args(fv.TakeFirstChars(9, "..")));
+          return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_IS_NOT_IN_LIST_ERROR.Args(fv.TakeFirstChars(9, "..")), scope);
       }
 
       return null;
@@ -321,7 +321,7 @@ namespace Azos.Data
             bound = Convert.ChangeType(bound, tval) as IComparable;
 
             if (val.CompareTo(bound)<0)
-                return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_MIN_BOUND_ERROR);
+                return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_MIN_BOUND_ERROR, scope);
         }
       }
 
@@ -335,7 +335,7 @@ namespace Azos.Data
             bound = Convert.ChangeType(bound, tval) as IComparable;
 
             if (val.CompareTo(bound)>0)
-                return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_MAX_BOUND_ERROR);
+                return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_MAX_BOUND_ERROR, scope);
         }
       }
 
@@ -356,7 +356,7 @@ namespace Azos.Data
         {
           if (!System.Text.RegularExpressions.Regex.IsMatch(value.ToString(), atr.FormatRegExp))
             return new FieldValidationException(Schema.DisplayName, fdef.Name,
-              StringConsts.CRUD_FIELD_VALUE_REGEXP_ERROR.Args(atr.FormatDescription ?? "Input format: {0}".Args(atr.FormatRegExp)));
+              StringConsts.CRUD_FIELD_VALUE_REGEXP_ERROR.Args(atr.FormatDescription ?? "Input format: {0}".Args(atr.FormatRegExp)), scope);
         }
       }
 

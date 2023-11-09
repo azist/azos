@@ -484,7 +484,7 @@ namespace Azos.Serialization.JSON
     private static bool setOneField(Doc doc, Schema.FieldDef def, object fv, bool fromUI, DocReadOptions options)
     {
       var fieldCustomHandler = JsonHandlerAttribute.TryFind(def.MemberInfo);
-      var converted = cast(fv, def.Type, fromUI, options, fieldCustomHandler);
+      var converted = cast(fv, def.Type, def.ComplexTypeSchema, fromUI, options, fieldCustomHandler);
 
       if (converted != null)
       {
@@ -497,7 +497,7 @@ namespace Azos.Serialization.JSON
 
 
     //Returns non null on success; may return null for collection sub-element in which case null=null and does not indicate failure
-    private static object cast(object v, Type toType, bool fromUI, DocReadOptions options, JsonHandlerAttribute fieldCustomHandler = null)
+    private static object cast(object v, Type toType, Schema dynComplexTypeSchema, bool fromUI, DocReadOptions options, JsonHandlerAttribute fieldCustomHandler = null)
     {
       //See #264 - the collection inability to cast has no amorphous data so it MUST throw
       //used only for collections inner calls
@@ -575,6 +575,16 @@ namespace Azos.Serialization.JSON
       }
       //20191217 DKh
 
+      //#900 DKh 20231108
+      if (typeof(DynamicDoc).IsAssignableFrom(toType))
+      {
+        if (dynComplexTypeSchema == null) return null;//no schema supplied
+        var doc = (Doc)Activator.CreateInstance(toType, dynComplexTypeSchema);
+        if (v is JsonDataMap jdm) JsonReader.ToDoc(doc, jdm, fromUI, options);
+        else JsonReader.ToDoc(doc, v.ToString(), fromUI, options);
+        return doc;
+      }//#900 DKh 20231108
+
 
       //Custom JSON Readable (including config)
       if (typeof(IJsonReadable).IsAssignableFrom(nntp) || typeof(IConfigSectionNode).IsAssignableFrom(nntp))
@@ -618,7 +628,7 @@ namespace Azos.Serialization.JSON
         var fvseq = v as IEnumerable;
         if (fvseq == null) return null;//can not set non enumerable into array
 
-        var arr = fvseq.Cast<object>().Select(e => cast(e, toType.GetElementType(), fromUI, options, fieldCustomHandler)).ToArray();
+        var arr = fvseq.Cast<object>().Select(e => cast(e, toType.GetElementType(), dynComplexTypeSchema, fromUI, options, fieldCustomHandler)).ToArray();
         var newval = Array.CreateInstance(toType.GetElementType(), arr.Length);
         for(var i=0; i<newval.Length; i++)
           newval.SetValue(arr[i], i);
@@ -632,7 +642,7 @@ namespace Azos.Serialization.JSON
         var fvseq = v as IEnumerable;
         if (fvseq == null) return false;//can not set non enumerable into List<t>
 
-        var arr = fvseq.Cast<object>().Select(e => cast(e, toType.GetGenericArguments()[0], fromUI, options, fieldCustomHandler)).ToArray();
+        var arr = fvseq.Cast<object>().Select(e => cast(e, toType.GetGenericArguments()[0], dynComplexTypeSchema, fromUI, options, fieldCustomHandler)).ToArray();
         var newval = SerializationUtils.MakeNewObjectInstance(toType) as IList;
         for (var i = 0; i < arr.Length; i++)
           newval.Add(arr[i]);

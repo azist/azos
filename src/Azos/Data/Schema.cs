@@ -230,6 +230,13 @@ namespace Azos.Data
     }
 
     public Schema(string name, bool readOnly, IEnumerable<FieldDef> fieldDefs, IEnumerable<SchemaAttribute> schemaAttributes = null)
+      => __ctor(name, readOnly, fieldDefs, schemaAttributes);
+
+    /// <summary> Internal ctor used by 2 phase linking during deserialization of schema graphs </summary>
+    internal Schema(){ }
+
+    /// <summary> Internal Ctor body used by 2 phase linking during deserialization of schema graphs </summary>
+    internal void __ctor(string name, bool readOnly, IEnumerable<FieldDef> fieldDefs, IEnumerable<SchemaAttribute> schemaAttributes)
     {
       if (name.IsNullOrWhiteSpace())
         throw new DataException(StringConsts.ARGUMENT_ERROR + "CRUD.Schema.ctor(name==null|empty)");

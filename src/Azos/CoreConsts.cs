@@ -64,6 +64,7 @@ namespace Azos
     public const string EXT_STATUS_KEY_SCHEMA = "schema";
     public const string EXT_STATUS_KEY_FIELD = "field";
     public const string EXT_STATUS_KEY_MESSAGE = "message";
+    public const string EXT_STATUS_KEY_SCOPE = "scope";
 
     public const string EXT_STATUS_KEY_BATCH = "batch";
 

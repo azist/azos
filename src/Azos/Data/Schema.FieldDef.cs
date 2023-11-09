@@ -32,8 +32,8 @@ namespace Azos.Data
         ctor(name, 0, type, new[] { attr }, null);
       }
 
-      public FieldDef(string name, Type type, IEnumerable<FieldAttribute> attrs)
-       => ctor(name, 0, type, attrs, null);
+      public FieldDef(string name, Type type, IEnumerable<FieldAttribute> attrs, Schema complexTypeSchema = null)
+       => ctor(name, 0, type, attrs, null, complexTypeSchema);
 
       public FieldDef(string name, Type type, Access.QuerySource.ColumnDef columnDef)
       {
@@ -57,7 +57,7 @@ namespace Azos.Data
        => ctor(name, order, type, attrs, memberInfo);
 
       //common constructor body
-      private void ctor(string name, int order, Type type, IEnumerable<FieldAttribute> attrs, PropertyInfo memberInfo = null)
+      private void ctor(string name, int order, Type type, IEnumerable<FieldAttribute> attrs, PropertyInfo memberInfo = null, Schema complexTypeSchema = null)
       {
         if (name.IsNullOrWhiteSpace() || type == null || attrs == null)
           throw new DataException(StringConsts.ARGUMENT_ERROR + "FieldDef.ctor(..null..)");
@@ -98,6 +98,8 @@ namespace Azos.Data
           m_NonNullableType = type;
 
         m_AnyTargetKey = this[null].Key;
+
+        m_ComplexTypeSchema = complexTypeSchema;
       }
 
       //20200305 DKh
@@ -171,11 +173,13 @@ namespace Azos.Data
       internal int m_Order;
       private Type m_Type;
       private Type m_NonNullableType;
+      private Schema m_ComplexTypeSchema;
       private bool m_GetOnly;
       private List<FieldAttribute> m_Attrs;
       private PropertyInfo m_MemberInfo;
       private Action<TypedDoc, object> m_MemberSet;
       private bool m_AnyTargetKey;
+
 
       /// <summary>
       /// Returns the name of the field
@@ -192,6 +196,12 @@ namespace Azos.Data
       /// For reference types returns the same type as Type property
       /// </summary>
       public Type NonNullableType => m_NonNullableType;
+
+      /// <summary>
+      /// Set for complex types which have schema, for example <see cref="DynamicDoc"/>
+      /// can have a schema specified
+      /// </summary>
+      public Schema ComplexTypeSchema => m_ComplexTypeSchema;
 
 
       /// <summary>

@@ -244,7 +244,7 @@ namespace Azos.AuthKit.Server
         {
           var idNode = m_Handler.GetIdpConfigTreeNodePath(user.Realm, user.OrgUnit);
           var tNode = await m_Forest.GetNodeInfoAsync(idNode).ConfigureAwait(false);
-          if (tNode == null) state = new ValidState(state, new FieldValidationException(nameof(UserEntity), "OrgUnit was not found"));
+          if (tNode == null) state = new ValidState(state, new FieldValidationException(nameof(UserEntity), "OrgUnit was not found", null));
         }
       }
 

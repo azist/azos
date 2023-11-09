@@ -100,7 +100,7 @@ namespace Azos.AuthKit
       if (state.ShouldContinue)
       {
         if (ValidSpanUtc.HasValue && (!ValidSpanUtc.Value.Start.HasValue || !ValidSpanUtc.Value.End.HasValue))
-          state = new ValidState(state, new FieldValidationException(nameof(ValidSpanUtc), "Either Start/End unassigned"));
+          state = new ValidState(state, new FieldValidationException(nameof(ValidSpanUtc), "Either Start/End unassigned", scope));
       }
 
       if (Props != null)
@@ -109,7 +109,7 @@ namespace Azos.AuthKit
         try { nProps = Props.Node; } catch { /* Double guard is needed in case of batch validation mode */ }
         if (nProps != null && nProps.Exists && !nProps.IsSameName(Constraints.CONFIG_PROP_ROOT_SECTION))
         {
-          state = new ValidState(state, new FieldValidationException(nameof(Props), $"LoginEntity.Props root node should be called `{Constraints.CONFIG_PROP_ROOT_SECTION}`"));
+          state = new ValidState(state, new FieldValidationException(nameof(Props), $"LoginEntity.Props root node should be called `{Constraints.CONFIG_PROP_ROOT_SECTION}`", null));
         }
       }
 
@@ -119,7 +119,7 @@ namespace Azos.AuthKit
         try { nRights = Rights.Node; } catch { /* Double guard is needed in case of batch validation mode */ }
         if (nRights != null && nRights.Exists && !nRights.IsSameName(Azos.Security.Rights.CONFIG_ROOT_SECTION))
         {
-          state = new ValidState(state, new FieldValidationException(nameof(Rights), $"LoginEntity.Rights root node should be called `{Security.Rights.CONFIG_ROOT_SECTION}`"));
+          state = new ValidState(state, new FieldValidationException(nameof(Rights), $"LoginEntity.Rights root node should be called `{Security.Rights.CONFIG_ROOT_SECTION}`", null));
         }
       }
 
