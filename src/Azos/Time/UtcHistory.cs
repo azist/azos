@@ -23,16 +23,19 @@ namespace Azos.Time
   public sealed class UtcHistory<T> : IEnumerable<UtcHistory<T>.Entry>, IRequiredCheck, ILengthCheck, IJsonReadable, IJsonWritable
                             where T : IJsonWritable, IJsonReadable, new()
   {
+    /// <summary>
+    /// Entry tuple stored by UtcHistory class. Equatable an comparable only on Utc date
+    /// </summary>
     public struct Entry : IEquatable<Entry>, IComparable<Entry>
     {
-      internal Entry(DateTime asof, T d){ AsOf = asof; Data = d;}
-      public readonly DateTime AsOf;
+      internal Entry(DateTime utc, T d){ Utc = utc; Data = d;}
+      public readonly DateTime Utc;
       public readonly T Data;
-      public bool Assigned => AsOf != default;
+      public bool Assigned => Utc != default;
       public override bool Equals(object obj) => obj is Entry other ? Equals(other) : false;
-      public override int GetHashCode() => AsOf.GetHashCode();
-      public bool Equals(Entry other) => this.AsOf == other.AsOf;
-      public int CompareTo(Entry other) => this.AsOf < other.AsOf ? -1 : this.AsOf == other.AsOf ? 0 : +1;
+      public override int GetHashCode() => Utc.GetHashCode();
+      public bool Equals(Entry other) => this.Utc == other.Utc;
+      public int CompareTo(Entry other) => this.Utc < other.Utc ? -1 : this.Utc == other.Utc ? 0 : +1;
     }
 
     public UtcHistory()
@@ -42,23 +45,27 @@ namespace Azos.Time
 
     private List<Entry> m_Data;
 
+
+    /// <summary> Count of entries </summary>
+    public int Count => m_Data.Count;
+
     /// <summary>
-    /// Provides a way to obtain an entry as of arbitrary point in time.
+    /// Provides a way to obtain an entry as of arbitrary point in UTC time.
     /// The system scans the history and finds the most adjacent record time-wise which logically covers the requested point in time.
     /// An <see cref="Entry"/> is returned, you can check its <see cref="Entry.Assigned"/> property.
     /// If nothing was found then entry is not assigned meaning that you are trying to get data which is BEFORE any known historical entry.
     /// </summary>
-    public Entry this[DateTime asof]
+    public Entry this[DateTime asOfUtc]
     {
       get
       {
-        utc(asof);
+        utc(asOfUtc);
 
         Entry result = default;
         for (var i = 0; i < m_Data.Count; i++)
         {
           var itm = m_Data[i];
-          if (itm.AsOf <= asof)
+          if (itm.Utc <= asOfUtc)
           {
             result = itm;
             continue;
@@ -72,9 +79,9 @@ namespace Azos.Time
     /// <summary>
     /// Adds an entry as of date
     /// </summary>
-    /// <param name="asof">Must be UTC</param>
+    /// <param name="asOfUtc">Must be UTC</param>
     /// <param name="data">Data to store as of the specified history entry</param>
-    public void Add(DateTime asof, T data) => Add(new Entry(asof, data));
+    public void Add(DateTime asOfUtc, T data) => Add(new Entry(asOfUtc, data));
 
     /// <summary>
     /// Adds an entry
@@ -82,17 +89,19 @@ namespace Azos.Time
     /// <param name="entry">Must be UTC</param>
     public void Add(Entry entry)
     {
-      utc(entry.AsOf);
+      utc(entry.Utc);
 
       for (var i = 0; i < m_Data.Count; i++)
       {
         var itm = m_Data[i];
-        if (itm.AsOf >= entry.AsOf)
+        if (itm.Utc >= entry.Utc)
         {
           m_Data.Insert(i, entry);
           return;
         }
       }
+
+      m_Data.Add(entry);
     }
 
     /// <summary>
@@ -104,7 +113,7 @@ namespace Azos.Time
       for(var i=0; i < m_Data.Count; i++)
       {
         var itm = m_Data[i];
-        if (itm.AsOf == specific)
+        if (itm.Utc == specific)
         {
           m_Data.RemoveAt(i);
           return true;
@@ -130,10 +139,10 @@ namespace Azos.Time
         m_Data.Clear();
         foreach(var map in dataArray.OfType<JsonDataMap>())
         {
-          var asof = map["asof"].AsDateTime(CoreConsts.UTC_TIMESTAMP_STYLES);
+          var utc = map["utc"].AsDateTime(CoreConsts.UTC_TIMESTAMP_STYLES);
           var d = new T();
           var (ok, dd) = d.ReadAsJson(map["d"], fromUI, options);
-          if (ok) Add(asof, (T)dd);
+          if (ok) Add(utc, (T)dd);
         }
         return (true, this);
       }
@@ -141,6 +150,6 @@ namespace Azos.Time
     }
 
     void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options)
-      => JsonWriter.WriteArray(wri, m_Data.Select(one => new {asof = one.AsOf, d = one.Data}), nestingLevel+1, options);
+      => JsonWriter.WriteArray(wri, m_Data.Select(one => new {utc = one.Utc, d = one.Data}), nestingLevel+1, options);
   }
 }
