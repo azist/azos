@@ -97,6 +97,17 @@ namespace Azos.Tests.Nub.Time
 
       var ve3 = orig.Validate(new ValidState(null, ValidErrorMode.Batch)).Error;
       Aver.IsNull(ve3);
+
+      Aver.AreEqual(2, orig.P2.Count);
+      Aver.IsTrue(orig.P2.Remove(utc(2011, 7, 4)));
+      Aver.AreEqual(1, orig.P2.Count);
+      Aver.IsFalse(orig.P2.Remove(utc(2011, 7, 4)));
+      Aver.AreEqual(1, orig.P2.Count);
+      Aver.IsFalse(orig.P2.Remove(utc(1989, 1, 7)));
+      Aver.AreEqual(1, orig.P2.Count);
+
+      var ve4 = orig.Validate(new ValidState(null, ValidErrorMode.Batch)).Error as FieldValidationException;
+      Aver.AreEqual("P2", ve2.FieldName);
     }
 
     [Run]
