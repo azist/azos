@@ -30,7 +30,7 @@ namespace Azos.Wave
     public const string CONFIG_PATH_ATTR = "path";
     public const string CONFIG_NOT_PATH_ATTR = "not-path";
 
-    public static readonly char[] LIST_DELIMITERS = new char[]{',',';','|'};
+    public static readonly char[] LIST_DELIMITERS = new []{',', ';', '|'};
 
 
     /// <summary>
@@ -46,10 +46,7 @@ namespace Azos.Wave
       public readonly string Name;
       public readonly string Value;
 
-      public override string ToString()
-      {
-        return "['{0}' = '{1}']".Args(Name, Value);
-      }
+      public override string ToString() => "['{0}' = '{1}']".Args(Name, Value);
 
       /// <summary>
       /// Converts a string with a list of separated pairs into a list i.e. "a=1;b=2"
@@ -222,7 +219,7 @@ namespace Azos.Wave
     /// <summary>
     /// Returns the match instance name
     /// </summary>
-    public string Name { get{ return m_Name;}}
+    public string Name => m_Name;
 
     /// <summary>
     /// Returns the match order in handler registry. Order is used for URI pattern matching.
@@ -231,8 +228,8 @@ namespace Azos.Wave
     /// </summary>
     public int Order
     {
-      get{ return m_Order;}
-      set {m_Order = value;}
+      get => m_Order;
+      set => m_Order = value;
     }
 
     /// <summary>
@@ -240,8 +237,8 @@ namespace Azos.Wave
     /// </summary>
     public UriPattern PathPattern
     {
-      get { return m_PathPattern; }
-      set { m_PathPattern = value;}
+      get => m_PathPattern;
+      set => m_PathPattern = value;
     }
 
     /// <summary>
@@ -249,8 +246,8 @@ namespace Azos.Wave
     /// </summary>
     public UriPattern NotPathPattern
     {
-      get { return m_NotPathPattern; }
-      set { m_NotPathPattern = value;}
+      get => m_NotPathPattern;
+      set => m_NotPathPattern = value;
     }
 
     /// <summary>
@@ -259,15 +256,15 @@ namespace Azos.Wave
     [Config]
     public string TypeNsPrefix
     {
-      get { return m_TypeNsPrefix;}
-      set { m_TypeNsPrefix = value;}
+      get => m_TypeNsPrefix;
+      set => m_TypeNsPrefix = value;
     }
 
     [Config]
     public string Schemes
     {
-      get { return m_Schemes==null ? null : string.Join(",", m_Schemes); }
-      set { m_Schemes = value.IsNullOrWhiteSpace() ? null : value.Split(LIST_DELIMITERS, StringSplitOptions.RemoveEmptyEntries); }
+      get => m_Schemes==null ? null : string.Join(",", m_Schemes);
+      set => m_Schemes = value.IsNullOrWhiteSpace() ? null : value.Split(LIST_DELIMITERS, StringSplitOptions.RemoveEmptyEntries);
     }
 
     [Config]
@@ -283,8 +280,8 @@ namespace Azos.Wave
     [Config]
     public bool AcceptJson
     {
-      get{ return m_AcceptJson;}
-      set{ m_AcceptJson = value;}
+      get { return m_AcceptJson;}
+      set { m_AcceptJson = value;}
     }
 
     [Config]
@@ -353,36 +350,36 @@ namespace Azos.Wave
     [Config]
     public bool? IsLocal
     {
-      get { return m_IsLocal; }
-      set { m_IsLocal = value; }
+      get => m_IsLocal;
+      set => m_IsLocal = value;
     }
 
     [Config]
     public bool? IsSocialNetBot
     {
-      get { return m_IsSocialNetBot; }
-      set { m_IsSocialNetBot = value;}
+      get => m_IsSocialNetBot;
+      set => m_IsSocialNetBot = value;
     }
 
     [Config]
     public bool? IsSearchCrawler
     {
-      get { return m_IsSearchCrawler; }
-      set { m_IsSearchCrawler = value;}
+      get => m_IsSearchCrawler;
+      set => m_IsSearchCrawler = value;
     }
 
     [Config]
     public int? ApiMinVer
     {
-      get { return m_ApiMinVer; }
-      set { m_ApiMinVer = value; }
+      get => m_ApiMinVer;
+      set => m_ApiMinVer = value;
     }
 
     [Config]
     public int? ApiMaxVer
     {
-      get { return m_ApiMaxVer; }
-      set { m_ApiMaxVer = value; }
+      get => m_ApiMaxVer;
+      set => m_ApiMaxVer = value;
     }
 
     /// <summary>
@@ -391,20 +388,20 @@ namespace Azos.Wave
     [Config]
     public bool CompositeCapture
     {
-      get { return m_CompositeCapture;}
-      set { m_CompositeCapture = value;}
+      get => m_CompositeCapture;
+      set => m_CompositeCapture = value;
     }
 
     public IEnumerable<Permission> Permissions
     {
-      get { return m_Permissions;}
-      set { m_Permissions = value;}
+      get => m_Permissions;
+      set => m_Permissions = value;
     }
 
     /// <summary>
     /// Returns registry of variables. May register/unregister variables at runtime
     /// </summary>
-    public Registry<Variable> Variables { get { return m_Variables;}}
+    public Registry<Variable> Variables => m_Variables;
 
 
     /// <summary>
@@ -493,7 +490,14 @@ namespace Azos.Wave
     protected virtual bool Check_Hosts(WorkContext work)
     {
       if (m_Hosts==null) return true;
-      return m_Hosts.Any(h => h.EqualsOrdIgnoreCase(work.Request.Host));
+      return m_Hosts.Any(h => {
+        var host = work.Request.Host;
+        if (h.EndsWith('.')) //check prefix #903
+        {
+          return host.StartsWith(h, StringComparison.OrdinalIgnoreCase);
+        }
+        return h.EqualsOrdIgnoreCase(host);
+      });
     }
 
     protected virtual bool Check_Ports(WorkContext work)
