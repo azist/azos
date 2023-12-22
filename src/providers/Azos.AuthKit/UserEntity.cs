@@ -146,7 +146,7 @@ namespace Azos.AuthKit
       var result = await base.DoAfterValidateOnSaveAsync(state).ConfigureAwait(false);
       if (!result.ShouldContinue) return result;
 
-      state = await m_SaveLogic.ValidateUserAsync(this, state).ConfigureAwait(false);
+      state = await SaveLogic.ValidateUserAsync(this, state).ConfigureAwait(false);
 
       return result;
     }

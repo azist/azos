@@ -45,7 +45,15 @@ namespace Azos.Data.Business
     protected IGdidProviderModule m_GdidGenerator;
 
     [Inject]
-    protected TSaveLogic m_SaveLogic;
+    private TSaveLogic m_SaveLogic;
+
+    /// <summary>
+    /// The logic which is used by the entity to validate and persist itself.
+    /// It must be injected using DI or CTOR.
+    /// To use DI use "entity.SaveAsync(App)" extension method, or if you are calling from
+    /// ApiProtocolController then use "SaveNewAsync()/SaveEditAsync()" family of methods
+    /// </summary>
+    public TSaveLogic SaveLogic => m_SaveLogic.NonNull("Injected SaveLogic");
 
     /// <summary>
     /// Returns true if the target logic module is server implementation vs a client library
@@ -104,9 +112,7 @@ namespace Azos.Data.Business
 
     protected sealed override async Task<SaveResult<TSaveResult>> DoSaveAsync()
     {
-      var logic = m_SaveLogic.NonNull("injected " + nameof(m_SaveLogic));
-
-      var got = await SaveBody(logic).ConfigureAwait(false);
+      var got = await SaveBody(SaveLogic).ConfigureAwait(false);
 
       var result = new SaveResult<TSaveResult>(got);
 
