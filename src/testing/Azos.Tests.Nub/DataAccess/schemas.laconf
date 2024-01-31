@@ -3,7 +3,13 @@
   TestDataDocA
   {
     description="Schema-level description is here"
-    Name {description="My long description" value-list="A:Apple,B:Book"}
+    meta
+    {
+      a=1 b=2
+      sub{c=3}
+    }
+
+    Name {description="My long description" value-list="A:Apple,B:Book" meta{ a{v=1} b{v=2} c{v=3 another{v=-249} }}}
     Field {description="Description of field"}
   }
 
