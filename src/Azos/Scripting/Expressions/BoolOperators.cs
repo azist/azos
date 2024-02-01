@@ -98,8 +98,8 @@ namespace Azos.Scripting.Expressions
 
       var lv = left.Evaluate(context);
       var rv = right.Evaluate(context);
-      if (lv == null && rv == null) return true;
-      if (lv == null || rv == null) return false;
+      if (lv == null && rv == null) return false;
+      if (lv == null || rv == null) return true;
 
       return !lv.Equals(rv);
     }
