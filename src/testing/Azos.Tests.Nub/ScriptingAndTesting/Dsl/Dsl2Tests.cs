@@ -83,7 +83,7 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
       var fn = "JSON_01.json";
       saveJsonFile(fn, get_TEZT_JSON_01()); // ********** SAVE FILE **********
 
-      var runnable = new StepRunner(NOPApplication.Instance, JSON_LOAD_ITERATE_FROM_FILE.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+      var runnable = new StepRunner(NOPApplication.Instance, JSON_LOAD_ITERATE_FROM_FILE.AsLaconicConfig(handling: ConvertErrorHandling.Throw));
       var state = await runnable.RunAsync();
 
       delJsonFile(fn); // ********** DEL FILE **********
@@ -114,7 +114,7 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
     [Run]
     public async Task ReadJson_FromJson()
     {
-      var runnable = new StepRunner(NOPApplication.Instance, READ_JSON_FROM_JSON.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+      var runnable = new StepRunner(NOPApplication.Instance, READ_JSON_FROM_JSON.AsLaconicConfig(handling: ConvertErrorHandling.Throw));
       var state = await runnable.RunAsync();
 
       var gotGlobal = runnable.GlobalState["global_tezt"] as JsonDataMap;
@@ -193,7 +193,7 @@ do{ type='Set' global='gname' to='Gurariy' }
       var fn = "JSON_02.json";
       saveJsonFile(fn, @"{""name"":""Gurariy""}"); // ********** SAVE FILE **********
 
-      var runnable = new StepRunner(NOPApplication.Instance, READ_JSON_FROM_FILE.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+      var runnable = new StepRunner(NOPApplication.Instance, READ_JSON_FROM_FILE.AsLaconicConfig(handling: ConvertErrorHandling.Throw));
       var state = await runnable.RunAsync();
 
       delJsonFile(fn); // ********** DEL FILE **********

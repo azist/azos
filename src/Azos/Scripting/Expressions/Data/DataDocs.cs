@@ -16,8 +16,6 @@ namespace Azos.Scripting.Expressions.Data
   /// </summary>
   public class ByNameOfDoc : UnaryOperator<ScriptCtx, object, object>
   {
-    public ByNameOfDoc(string fieldName) => Field = fieldName;
-
     [Config] public string Field{  get; set; }
 
     public sealed override object Evaluate(ScriptCtx context)
@@ -33,10 +31,8 @@ namespace Azos.Scripting.Expressions.Data
   /// <summary>
   /// Gets field value by name from context primary data
   /// </summary>
-  public abstract class ByName : Expression<ScriptCtx, object>
+  public class ByName : Expression<ScriptCtx, object>
   {
-    public ByName(string fieldName) => Field = fieldName;
-
     [Config] public string Field { get; set; }
 
     public sealed override object Evaluate(ScriptCtx context)

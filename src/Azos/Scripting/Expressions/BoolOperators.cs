@@ -22,6 +22,22 @@ namespace Azos.Scripting.Expressions
     public override bool Evaluate(TContext context) => false;
   }
 
+  /// <summary>
+  /// Represents a TRUE object constant expression
+  /// </summary>
+  public class ObjectTrue<TContext> : Expression<TContext, object>
+  {
+    public override object Evaluate(TContext context) => true;
+  }
+
+  /// <summary>
+  /// Represents a FALSE object constant expression
+  /// </summary>
+  public class ObjectFalse<TContext> : Expression<TContext, object>
+  {
+    public override object Evaluate(TContext context) => false;
+  }
+
 
   public class BoolAnd<TContext> : BinaryOperator<TContext, bool, bool, bool>
   {

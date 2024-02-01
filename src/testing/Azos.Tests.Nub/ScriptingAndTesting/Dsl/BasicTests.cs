@@ -34,7 +34,7 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
     [Run]
     public async Task TestSee()
     {
-       var runnable = new StepRunner(NOPApplication.Instance, SEE.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+       var runnable = new StepRunner(NOPApplication.Instance, SEE.AsLaconicConfig(handling: ConvertErrorHandling.Throw));
        await runnable.RunAsync();
     }
 
@@ -70,7 +70,7 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
     [Run]
     public async Task Json()
     {
-      var runnable = new StepRunner(NOPApplication.Instance, JSON.AsJSONConfig(handling: Data.ConvertErrorHandling.Throw));
+      var runnable = new StepRunner(NOPApplication.Instance, JSON.AsJSONConfig(handling: ConvertErrorHandling.Throw));
       await runnable.RunAsync();
     }
 
@@ -93,7 +93,7 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
     [Aver.RunTime(MaxSec = 0.634)]
     public async Task TestGoto()
     {
-      var runnable = new StepRunner(NOPApplication.Instance, GOTO.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+      var runnable = new StepRunner(NOPApplication.Instance, GOTO.AsLaconicConfig(handling: ConvertErrorHandling.Throw));
       await runnable.RunAsync();
     }
 
@@ -129,7 +129,7 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
     [Run]
     public async Task TestSubs()
     {
-      var runnable = new StepRunner(NOPApplication.Instance, SUBS.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+      var runnable = new StepRunner(NOPApplication.Instance, SUBS.AsLaconicConfig(handling: ConvertErrorHandling.Throw));
       await runnable.RunAsync();
       Aver.AreEqual(2, runnable.GlobalState["cc"].AsInt());
     }
@@ -175,7 +175,7 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
     [Run]
     public async Task TestSubArgs()
     {
-      var runnable = new StepRunner(NOPApplication.Instance, SUB_ARGS.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+      var runnable = new StepRunner(NOPApplication.Instance, SUB_ARGS.AsLaconicConfig(handling: ConvertErrorHandling.Throw));
       await runnable.RunAsync();
       Aver.AreEqual(26, runnable.GlobalState["ar"].AsInt());
       Aver.AreEqual(75, runnable.GlobalState["sr"].AsInt());
@@ -197,7 +197,7 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
     [Run]
     public async Task TestExpressions()
     {
-      var runnable = new StepRunner(NOPApplication.Instance, EXPR.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+      var runnable = new StepRunner(NOPApplication.Instance, EXPR.AsLaconicConfig(handling: ConvertErrorHandling.Throw));
       await runnable.RunAsync();
       Aver.AreEqual(2_100, runnable.GlobalState["x"].AsInt());
 
@@ -221,7 +221,7 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
     [Run]
     public async Task TestStringConcat()
     {
-      var runnable = new StepRunner(NOPApplication.Instance, STRCONCAT.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+      var runnable = new StepRunner(NOPApplication.Instance, STRCONCAT.AsLaconicConfig(handling: ConvertErrorHandling.Throw));
       await runnable.RunAsync();
       Aver.AreEqual("Sonya Mamzyan", runnable.GlobalState["who"].AsString());
     }
@@ -264,7 +264,7 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
     [Run]
     public async Task TestIf()
     {
-      var runnable = new StepRunner(NOPApplication.Instance, IF.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+      var runnable = new StepRunner(NOPApplication.Instance, IF.AsLaconicConfig(handling: ConvertErrorHandling.Throw));
       await runnable.RunAsync();
       Aver.AreEqual("normal", runnable.GlobalState["capacity"].AsString());
     }
@@ -293,7 +293,7 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
     [Run]
     public async Task TestVarScope()
     {
-      var runnable = new StepRunner(NOPApplication.Instance, VARSCOPE.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+      var runnable = new StepRunner(NOPApplication.Instance, VARSCOPE.AsLaconicConfig(handling: ConvertErrorHandling.Throw));
       var state = await runnable.RunAsync();
       Aver.AreEqual(-2, runnable.GlobalState["z"].AsInt());
       Aver.AreEqual(-2, state["z"].AsInt());
@@ -317,7 +317,7 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
     [Run]
     public async Task TestSETRESULT()
     {
-      var runnable = new StepRunner(NOPApplication.Instance, SETRESULT.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+      var runnable = new StepRunner(NOPApplication.Instance, SETRESULT.AsLaconicConfig(handling: ConvertErrorHandling.Throw));
       var state = await runnable.RunAsync();
       Aver.AreEqual(-123, runnable.GlobalState["x"].AsInt());
       Aver.AreEqual("Yes!ok", runnable.GlobalState["y"].AsString());
@@ -340,7 +340,7 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
     [Run]
     public async Task TestNav1()
     {
-      var runnable = new StepRunner(NOPApplication.Instance, NAV1.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+      var runnable = new StepRunner(NOPApplication.Instance, NAV1.AsLaconicConfig(handling: ConvertErrorHandling.Throw));
       var state = await runnable.RunAsync();
       Aver.AreEqual(6, runnable.GlobalState["y"].AsInt());
     }
@@ -372,7 +372,7 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
     [Run]
     public async Task JsonLoadIterate()
     {
-      var runnable = new StepRunner(NOPApplication.Instance, JSON_LOAD_ITERATE.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+      var runnable = new StepRunner(NOPApplication.Instance, JSON_LOAD_ITERATE.AsLaconicConfig(handling: ConvertErrorHandling.Throw));
       var state = await runnable.RunAsync();
       Aver.AreEqual(1, runnable.GlobalState["a"].AsInt());
       Aver.AreEqual(2, runnable.GlobalState["b"].AsInt());
@@ -405,7 +405,7 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
     [Run]
     public async Task SetObject()
     {
-      var runnable = new StepRunner(NOPApplication.Instance, SET_OBJECT.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+      var runnable = new StepRunner(NOPApplication.Instance, SET_OBJECT.AsLaconicConfig(handling: ConvertErrorHandling.Throw));
       var state = await runnable.RunAsync();
       var obj = runnable.GlobalState["obj"] as JsonDataMap;
 
@@ -473,7 +473,7 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
     [Run]
     public async Task SetObjectFrom()
     {
-      var runnable = new StepRunner(NOPApplication.Instance, SET_OBJECT_FROM.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+      var runnable = new StepRunner(NOPApplication.Instance, SET_OBJECT_FROM.AsLaconicConfig(handling: ConvertErrorHandling.Throw));
       var state = await runnable.RunAsync();
       var obj = runnable.GlobalState["obj"] as JsonDataMap;
 
@@ -526,7 +526,7 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
     [Run]
     public async Task ConvertEntityId()
     {
-      var runnable = new StepRunner(NOPApplication.Instance, CONVERT_ENTITY_ID.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+      var runnable = new StepRunner(NOPApplication.Instance, CONVERT_ENTITY_ID.AsLaconicConfig(handling: ConvertErrorHandling.Throw));
       var local = new JsonDataMap();
       await runnable.RunAsync(state: local);
 
@@ -569,7 +569,7 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Dsl
     [Run]
     public async Task ConvertDateTime_AddTimeSpan()
     {
-      var runnable = new StepRunner(NOPApplication.Instance, DATETIME_CONVERT.AsLaconicConfig(handling: Data.ConvertErrorHandling.Throw));
+      var runnable = new StepRunner(NOPApplication.Instance, DATETIME_CONVERT.AsLaconicConfig(handling: ConvertErrorHandling.Throw));
       var local = new JsonDataMap();
       await runnable.RunAsync(state: local);
 
