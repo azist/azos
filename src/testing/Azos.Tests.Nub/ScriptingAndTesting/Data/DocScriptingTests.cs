@@ -107,7 +107,21 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Data
       data.Name = "321";
       (found, valid) = ctx.RunScript(atrSchema, "nameAsInt");
       Aver.IsTrue(found);
-      Aver.AreEqual(321, valid.AsInt());
+      Aver.AreObjectsEqual(321, valid);
+    }
+
+    [Run]
+    public void Case04()
+    {
+      var data = new DocA();
+
+      var ctx = new ScriptCtx(data);
+
+      var atrSchema = data.Schema.SchemaAttrs.FirstOrDefault();
+
+      var (found, valid) = ctx.RunScript(atrSchema, "const1");
+      Aver.IsTrue(found);
+      Aver.AreObjectsEqual(-157.82m, valid);
     }
 
 
