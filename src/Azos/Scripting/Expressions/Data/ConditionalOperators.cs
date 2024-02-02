@@ -53,7 +53,10 @@ namespace Azos.Scripting.Expressions.Data
       catch(Exception error)
       {
         context.SetError(error);
-        return OnError.EvaluateObject(context);
+        if (OnError != null)
+          return OnError.EvaluateObject(context);
+        else
+          return null;
       }
     }
 

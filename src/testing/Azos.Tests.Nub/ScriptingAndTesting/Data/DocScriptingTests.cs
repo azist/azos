@@ -124,6 +124,27 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Data
       Aver.AreObjectsEqual(-157.82m, valid);
     }
 
+    [Run]
+    public void Case05()
+    {
+      var data = new DocA();
+
+      var ctx = new ScriptCtx(data);
+
+      var atrSchema = data.Schema.SchemaAttrs.FirstOrDefault();
+
+      data.Name = "bad integer";
+      var (found, got) = ctx.RunScript(atrSchema, "guard1");
+      Aver.IsTrue(found);
+      //got.See();
+      Aver.IsTrue(got is Exception);
+
+      data.Name = "4321";
+      (found, got) = ctx.RunScript(atrSchema, "guard1");
+      Aver.IsTrue(found);
+      Aver.AreObjectsEqual(4321, got);
+    }
+
 
     [Schema(MetadataContent = "./")]
     class DocA : TypedDoc

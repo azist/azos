@@ -22,6 +22,8 @@
         nameAsInt{type=Cast type-name="System.Int32" operand{type=ByName field=name }}
 
         const1{type=Const type-name="System.Decimal" value=-157.82}
+
+        guard1{type=Guard operand{type=Cast type-name="System.Int32" operand{type=ByName field=name}} onError{type=Error} }
       }
     }
 
