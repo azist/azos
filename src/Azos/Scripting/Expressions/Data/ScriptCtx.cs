@@ -27,5 +27,23 @@ namespace Azos.Scripting.Expressions.Data
     /// Primary Data document which this script operates on
     /// </summary>
     public readonly Doc Data;
+
+    private Exception m_Error;
+
+    /// <summary>
+    /// Returns current error or null if none
+    /// </summary>
+    public Exception Error => m_Error;
+
+    /// <summary>
+    /// Sets the current error object
+    /// </summary>
+    public void SetError(Exception err) => m_Error = err;
+
+    /// <summary>
+    /// Clears current error
+    /// </summary>
+    public void ClearError(){ m_Error = null; }
+
   }
 }

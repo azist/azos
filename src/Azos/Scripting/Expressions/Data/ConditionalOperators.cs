@@ -35,4 +35,41 @@ namespace Azos.Scripting.Expressions.Data
     }
   }
 
+  /// <summary>
+  /// Performs block call with exception handling, returning an optional value on error
+  /// </summary>
+  public class Guard : UnaryOperator<ScriptCtx, object, object>
+  {
+    public Expression OnError { get; set; }
+
+    public override object Evaluate(ScriptCtx context)
+    {
+      Operand.NonNull(nameof(Operand));
+
+      try
+      {
+        return Operand.Evaluate(context);
+      }
+      catch(Exception error)
+      {
+        context.SetError(error);
+        return OnError.EvaluateObject(context);
+      }
+    }
+
+    protected override void DoConfigure(IConfigSectionNode node)
+    {
+      base.DoConfigure(node);
+      OnError = Make<Expression>(node, nameof(OnError));
+    }
+  }
+
+  /// <summary>
+  /// Returns current error or null
+  /// </summary>
+  public class Error : Expression<ScriptCtx, object>
+  {
+    public override object Evaluate(ScriptCtx context) => context.NonNull(nameof(context)).Error;
+  }
+
 }

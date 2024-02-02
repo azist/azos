@@ -17,7 +17,9 @@
                 type=Or
               right{type=AsBool operand{type=ByName field=FlagB}}
             }//else
-        }
+        }//validate
+
+        nameAsInt{type=Cast type-name="System.Int32" operand{type=ByName field=name }}
       }
     }
 

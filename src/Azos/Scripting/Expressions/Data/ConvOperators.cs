@@ -36,4 +36,23 @@ namespace Azos.Scripting.Expressions.Data
     public override object Evaluate(ScriptCtx context) => Operand.NonNull(nameof(Operand)).Evaluate(context);
   }
 
+
+  /// <summary>
+  /// Returns constant value cast to the specified type (or string)
+  /// </summary>
+  public class Const : Expression<ScriptCtx, object>
+  {
+    [Config] public string TypeName { get; set; }
+
+    [Config] public string Value { get; set; }
+
+    public override object Evaluate(ScriptCtx context)
+    {
+      var tp = TypeName.IsNotNullOrEmpty() ? Type.GetType(TypeName).NonNull($"Existing type `{TypeName}`") : null;
+      if (Value == null) return null;
+      var result = tp == null ? Value : Value.AsType(tp, false);
+      return result;
+    }
+  }
+
 }

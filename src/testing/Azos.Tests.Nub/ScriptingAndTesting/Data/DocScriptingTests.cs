@@ -90,6 +90,27 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Data
       Aver.IsFalse(valid.AsBool());//both flags are turned off
     }
 
+    [Run]
+    public void Case03()
+    {
+      var data = new DocA();
+
+      var ctx = new ScriptCtx(data);
+
+      var atrSchema = data.Schema.SchemaAttrs.FirstOrDefault();
+
+      data.Name = "-123";
+      var (found, valid) = ctx.RunScript(atrSchema, "nameAsInt");
+      Aver.IsTrue(found);
+      Aver.AreEqual(-123, valid.AsInt());
+
+      data.Name = "321";
+      (found, valid) = ctx.RunScript(atrSchema, "nameAsInt");
+      Aver.IsTrue(found);
+      Aver.AreEqual(321, valid.AsInt());
+    }
+
+
     [Schema(MetadataContent = "./")]
     class DocA : TypedDoc
     {
