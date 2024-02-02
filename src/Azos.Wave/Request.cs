@@ -41,15 +41,26 @@ namespace Azos.Wave
 
     public string HeaderAsString(string name) => AspRequest.Headers[name];
     public string QueryVarAsString(string name) => AspRequest.Query[name];
-
     public IQueryCollection Query => AspRequest.Query;
-
     public Stream BodyStream => AspRequest.Body;
-
-
     public PathString Path => AspRequest.Path;
-
     public string Url => AspRequest.PathBase + AspRequest.Path + AspRequest.QueryString;
+
+    /// <summary>
+    /// Returns the first domain segment of the Host, for example `xyz` for `xyz.somewhere.com`
+    /// which typically contains the name of the WEB origin, such as
+    /// system application name moniker, e.g. `billing.contoso.com`
+    /// </summary>
+    public string OriginName
+    {
+      get
+      {
+        var host = this.Host;
+        var i = host.IndexOf('.');
+        if (i > 0 && i < host.Length-1) return host.Substring(0, i);//smth before and after the dot
+        return null;
+      }
+    }
 
     public bool IsLocal
     {

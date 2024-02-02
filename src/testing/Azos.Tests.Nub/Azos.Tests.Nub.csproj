@@ -18,6 +18,7 @@
   <ItemGroup>
     <None Remove="DataAccess\custom\aaa.laconf" />
     <None Remove="DataAccess\schemas.laconf" />
+    <None Remove="ScriptingAndTesting\Data\schemas.laconf" />
     <None Remove="Serialization\json\bad-json-body.txt" />
     <None Remove="Web\MultiPart\Resources\bmp.dat" />
     <None Remove="Web\MultiPart\Resources\test.dat" />
@@ -27,6 +28,7 @@
   <ItemGroup>
     <EmbeddedResource Include="DataAccess\custom\aaa.laconf" />
     <EmbeddedResource Include="DataAccess\schemas.laconf" />
+    <EmbeddedResource Include="ScriptingAndTesting\Data\schemas.laconf" />
     <EmbeddedResource Include="Serialization\json\bad-json-body.txt" />
     <EmbeddedResource Include="Web\MultiPart\Resources\bmp.dat" />
     <EmbeddedResource Include="Web\MultiPart\Resources\test.dat" />

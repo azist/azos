@@ -1,0 +1,48 @@
+﻿schemas
+{
+  DocA
+  {
+    meta
+    {
+      type-path="Azos.Scripting.Expressions.Data, Azos"
+      scripts
+      {
+        validate
+        {
+          type=If
+            condition{ type=IsNotNull operand{type=ByName field=name }}
+            then { type=True }
+            else {
+              left {type=AsBool operand{type=ByName field=FlagA}}
+                type=Or
+              right{type=AsBool operand{type=ByName field=FlagB}}
+            }//else
+        }//validate
+
+        nameAsInt{type=Cast type-name="System.Int32" operand{type=ByName field=name }}
+
+        const1{type=Const type-name="System.Decimal" value=-157.82}
+
+        guard1{type=Guard operand{type=Cast type-name="System.Int32" operand{type=ByName field=name}} onError{type=Error} }
+      }
+    }
+
+    Name
+    {
+      meta
+      {
+        type-path="Azos.Scripting.Expressions.Data, Azos"
+        scripts
+        {
+          // visible = ctx.Data["FlagA"].AsBool() || ctx.Data["FlagB"].AsBool();
+          visible{ type=Or  left{type=AsBool operand{type=ByName field=FlagA}}  right{type=AsBool operand{type=ByName field=FlagB}} }
+
+          // marked
+          marked{ type=IsNull operand{type=ByName field=id } }
+        }
+      }
+    }//Name
+  }//DocA
+
+
+}

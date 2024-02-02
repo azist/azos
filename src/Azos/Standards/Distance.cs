@@ -8,10 +8,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 using Azos.Data;
 using Azos.Serialization.JSON;
-using System.Linq;
 
 namespace Azos.Standards
 {
@@ -128,7 +128,7 @@ namespace Azos.Standards
     public readonly long ValueInMicrons;
 
     /// <summary>
-    /// Calculated value expressed in factional units of distance
+    /// Calculated value expressed in fractional units of distance
     /// </summary>
     public readonly decimal Value;
 

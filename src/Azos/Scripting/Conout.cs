@@ -9,6 +9,7 @@ using System.Text;
 using Azos.IO.Console;
 using Azos.Serialization.JSON;
 using Azos.Platform;
+using System;
 
 namespace Azos.Scripting
 {
@@ -134,6 +135,14 @@ namespace Azos.Scripting
     }
 
     /// <summary>
+    /// Writes Exception object described as <see cref="WrappedExceptionData"/> into console in JSON format
+    /// </summary>
+    public static void SeeError(this Exception err, JsonWritingOptions options = null)
+    {
+      if (err != null) new WrappedExceptionData(err).See(options);
+    }
+
+    /// <summary>
     /// Writes object into console in JSON format
     /// </summary>
     public static void See(this (IConsoleOut console, object obj) see, JsonWritingOptions options = null)
@@ -162,6 +171,14 @@ namespace Azos.Scripting
     public static void See(this object obj, string header, JsonWritingOptions options = null)
     {
       Port.DefaultConsole.See(obj, header, options);
+    }
+
+    /// <summary>
+    /// Writes Exception object described as <see cref="WrappedExceptionData"/> into console in JSON format with a header
+    /// </summary>
+    public static void SeeError(this Exception err, string header, JsonWritingOptions options = null)
+    {
+      if (err != null) new WrappedExceptionData(err).See(header, options);
     }
 
     /// <summary>

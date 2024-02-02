@@ -194,9 +194,12 @@ namespace Azos.Data
       if (tDoc == null) return;
 
       this.Description = ExpandOneResourceReferences(tDoc, entity, "description", this.Description);
+
+      //20240131 DKh #904
+      this.MetadataContent = ExpandOneResourceReferences(tDoc, entity, "meta", this.MetadataContent, isConfigContent: true);
     }
 
-    protected string ExpandOneResourceReferences(Type tDoc, string entity, string name, string value)
+    protected string ExpandOneResourceReferences(Type tDoc, string entity, string name, string value, bool isConfigContent = false)
     {
       const string PFX = "./";
       if (value.IsNullOrWhiteSpace()) return value;
@@ -220,8 +223,17 @@ namespace Azos.Data
       try
       {
         var cfg = resContent.AsLaconicConfig(handling: ConvertErrorHandling.Throw);
-        var path = entity.IsNotNullOrWhiteSpace() ? "!/{0}/{1}/${2}".Args(tDoc.Name, entity, name) : "!/{0}/${1}".Args(tDoc.Name, name);
-        return cfg.Navigate(path).Value;
+
+        if (!isConfigContent)
+        {
+          var path = entity.IsNotNullOrWhiteSpace() ? "!/{0}/{1}/${2}".Args(tDoc.Name, entity, name) : "!/{0}/${1}".Args(tDoc.Name, name);
+          return cfg.Navigate(path).Value;
+        }
+        else //20240131 DKh #904
+        {
+          var path = entity.IsNotNullOrWhiteSpace() ? "!/{0}/{1}/{2}".Args(tDoc.Name, entity, name) : "!/{0}/{1}".Args(tDoc.Name, name);
+          return cfg.NavigateSection(path).ToLaconicString(CodeAnalysis.Laconfig.LaconfigWritingOptions.Compact);
+        }
       }
       catch (Exception error)
       {
