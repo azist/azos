@@ -1,6 +1,6 @@
 ﻿schemas
 {
-  TestDataDocA
+  Azos.Tests.Nub.DataAccess.TestDataDocA
   {
     description="Schema-level description is here"
     meta

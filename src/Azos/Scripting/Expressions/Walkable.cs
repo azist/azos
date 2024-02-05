@@ -51,10 +51,10 @@ namespace Azos.Scripting.Expressions
     public sealed override IEnumerable<TOperand> Evaluate(TContext context)
     {
       var operand = Operand.NonNull(nameof(Operand));
-      var root = Filter.NonNull(nameof(Filter));
+      var filter = Filter.NonNull(nameof(Filter));
 
       var source = operand.Evaluate(context);
-      return source.Where(e => root.Evaluate(e));
+      return source.Where(e => filter.Evaluate(e));
     }
 
     protected override void DoConfigure(IConfigSectionNode node)
@@ -77,10 +77,10 @@ namespace Azos.Scripting.Expressions
     public sealed override bool Evaluate(TContext context)
     {
       var operand = Operand.NonNull(nameof(Operand));
-      var root = Filter.NonNull(nameof(Filter));
+      var filter = Filter.NonNull(nameof(Filter));
 
       var source = operand.Evaluate(context);
-      return source.Any(e => root.Evaluate(e));
+      return source.Any(e => filter.Evaluate(e));
     }
 
     protected override void DoConfigure(IConfigSectionNode node)
@@ -96,8 +96,6 @@ namespace Azos.Scripting.Expressions
   /// </summary>
   public class Skip<TContext, TOperand> : UnaryOperator<TContext, IEnumerable<TOperand>, IEnumerable<TOperand>>
   {
-    public Skip(int count) => Count = count;
-
     [Config] public int Count { get; set; }
 
     public sealed override IEnumerable<TOperand> Evaluate(TContext context)
@@ -123,10 +121,10 @@ namespace Azos.Scripting.Expressions
     public sealed override TOperand Evaluate(TContext context)
     {
       var operand = Operand.NonNull(nameof(Operand));
-      var root = Filter.NonNull(nameof(Filter));
+      var filter = Filter.NonNull(nameof(Filter));
 
       var source = operand.Evaluate(context);
-      return source.First(e => root.Evaluate(e));
+      return source.First(e => filter.Evaluate(e));
     }
 
     protected override void DoConfigure(IConfigSectionNode node)
@@ -137,7 +135,7 @@ namespace Azos.Scripting.Expressions
   }
 
   /// <summary>
-  /// Implements .FirstorDefault(f)
+  /// Implements .FirstOrDefault(f)
   /// </summary>
   public class FirstOrDefault<TContext, TOperand> : UnaryOperator<TContext, TOperand, IEnumerable<TOperand>>
   {
@@ -149,10 +147,10 @@ namespace Azos.Scripting.Expressions
     public sealed override TOperand Evaluate(TContext context)
     {
       var operand = Operand.NonNull(nameof(Operand));
-      var root = Filter.NonNull(nameof(Filter));
+      var filter = Filter.NonNull(nameof(Filter));
 
       var source = operand.Evaluate(context);
-      return source.FirstOrDefault(e => root.Evaluate(e));
+      return source.FirstOrDefault(e => filter.Evaluate(e));
     }
 
     protected override void DoConfigure(IConfigSectionNode node)

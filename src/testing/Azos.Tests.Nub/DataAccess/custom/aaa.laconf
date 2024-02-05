@@ -1,6 +1,6 @@
 ﻿schemas
 {
-  TestDataDocB
+  Azos.Tests.Nub.DataAccess.TestDataDocB
   {
     Name {description="My longest description" value-list="A:Adam,B:Buba"}
     Field {description="Description of field"}

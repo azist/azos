@@ -29,7 +29,17 @@ namespace Azos.Scripting.Expressions.Data
   }
 
   /// <summary>
-  /// Gets field value by name from context primary data
+  /// Gets primary document: Context.Data property
+  /// </summary>
+  public class CtxData : Expression<ScriptCtx, object>
+  {
+    public sealed override object Evaluate(ScriptCtx context) => context?.Data;
+  }
+
+  /// <summary>
+  /// Gets field value by name from context primary data. The field name property may include a path for example: "Patient.LastName"
+  /// in which case "Patient" is a field of primary data context of type "Doc" having a field name "LastName".
+  /// You can escape field names with dots with "%2e" for example: "Geometry.%2eX" = "Geometry[dot].X"
   /// </summary>
   public class ByName : Expression<ScriptCtx, object>
   {
@@ -37,9 +47,19 @@ namespace Azos.Scripting.Expressions.Data
 
     public sealed override object Evaluate(ScriptCtx context)
     {
-      var fn = Field.NonBlank(nameof(Field));
+      context.NonNull(nameof(context));
+      var fns = Field.NonBlank(nameof(Field)).Split('.', StringSplitOptions.RemoveEmptyEntries);
 
-      return context?.Data?[fn];
+      var ds = context.Data;
+      object result = null;
+      foreach(var fn in fns)
+      {
+        if (ds == null) throw new ScriptingException("Bad field by name navigation: `{0}`".Args(Field));
+        result = ds[fn.Replace("%2e", ".")];
+        ds = result as Doc;
+      }
+
+      return result;
     }
   }
 

@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.7.0.4
-set HEADLINE=Azos.Scripting.Expressions.Data
+set VER=3.7.0.5
+set HEADLINE=Azos.Scripting.Expressions.Data field nav and linq
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

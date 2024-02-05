@@ -1,6 +1,6 @@
 ﻿schemas
 {
-  DocA
+  Azos.Tests.Nub.ScriptingAndTesting.Data.DocScriptingTests+DocA
   {
     meta
     {
@@ -24,6 +24,9 @@
         const1{type=Const type-name="System.Decimal" value=-157.82}
 
         guard1{type=Guard operand{type=Cast type-name="System.Int32" operand{type=ByName field=name}} onError{type=Error} }
+
+        getInner1{type=ByName field=Inner.Value}
+        getInner2{type=ByName field=Inner.Another.Inner.Value}
       }
     }
 
