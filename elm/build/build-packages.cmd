@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.7.0.3
-set HEADLINE=Wave.OriginName
+set VER=3.7.0.4
+set HEADLINE=Azos.Scripting.Expressions.Data
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
