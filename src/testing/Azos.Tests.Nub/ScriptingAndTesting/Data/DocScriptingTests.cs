@@ -167,7 +167,10 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Data
 
       var atrSchema = data.Schema.SchemaAttrs.FirstOrDefault();
 
-      data.Name = "bad integer";
+      //data.Name = "bad integer";
+      atrSchema.MetadataContent.See("\n Schema meta: \n");
+      data.Schema["Name"].Attrs.First().MetadataContent.See("\n Field 'Name' meta: \n");
+
       var (found, got) = ctx.RunScript(atrSchema, "getInner1");
       Aver.IsTrue(found);
       Aver.AreObjectsEqual("Heron", got);

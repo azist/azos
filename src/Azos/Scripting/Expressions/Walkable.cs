@@ -25,10 +25,10 @@ namespace Azos.Scripting.Expressions
     public sealed override IEnumerable<TResult> Evaluate(TContext context)
     {
       var operand = Operand.NonNull(nameof(Operand));
-      var root = Map.NonNull(nameof(Map));
+      var map = Map.NonNull(nameof(Map));
 
       var source = operand.Evaluate(context);
-      return source.Select(e => root.Evaluate(e));
+      return source.Select(e => map.Evaluate(e));
     }
 
     protected override void DoConfigure(IConfigSectionNode node)

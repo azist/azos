@@ -15,5 +15,5 @@ namespace Azos.Scripting.Expressions.Data
   public class Any    : Any<ScriptCtx, Doc> { }
   public class Skip   : Skip<ScriptCtx, Doc> { }
   public class First  : First<ScriptCtx, Doc> { }
-  public class FirstOrDefault<ScriptCtx, Doc> { }
+  public class FirstOrDefault : FirstOrDefault<ScriptCtx, Doc> { }
 }
