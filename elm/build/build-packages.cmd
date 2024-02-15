@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.7.0.5
-set HEADLINE=Azos.Scripting.Expressions.Data field nav and linq
+set VER=3.7.0.6
+set HEADLINE=Service calls to use SelectEitherOf() and ToArray()
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

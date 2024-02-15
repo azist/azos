@@ -106,11 +106,11 @@ namespace Azos.Data.Access.Rpc
       var response = await m_Server.Call(RpcHandlerServiceAddress,
                                           nameof(IRpcHandler),
                                           new ShardKey(DateTime.UtcNow),
-                                          async (http, ct) => await http.Client.PostAndGetJsonMapAsync("reader",
-                                                                new
-                                                                {
-                                                                  request = request
-                                                                }, requestHeaders: dataContextHeader).ConfigureAwait(false));
+                                          (http, ct) => http.Client.PostAndGetJsonMapAsync("reader",
+                                                              new
+                                                              {
+                                                                request = request
+                                                              }, requestHeaders: dataContextHeader)).ConfigureAwait(false);
 
       var result = response.UnwrapPayloadMap();
       return result;
@@ -123,11 +123,11 @@ namespace Azos.Data.Access.Rpc
       var response = await m_Server.Call(RpcHandlerServiceAddress,
                                           nameof(IRpcHandler),
                                           new ShardKey(DateTime.UtcNow),
-                                          async (http, ct) => await http.Client.PostAndGetJsonMapAsync("transaction",
-                                                                new
-                                                                {
-                                                                  request = request
-                                                                }, requestHeaders: dataContextHeader).ConfigureAwait(false));
+                                          (http, ct) => http.Client.PostAndGetJsonMapAsync("transaction",
+                                                              new
+                                                              {
+                                                                request = request
+                                                              }, requestHeaders: dataContextHeader)).ConfigureAwait(false);
 
       var result = response.UnwrapChangeResult();
       return result;

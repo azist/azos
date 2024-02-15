@@ -173,7 +173,7 @@ namespace Azos.Sky.Chronicle
                 var result = JsonReader.ToDoc<Message>(imap);
                 result.SrcDataShard = srcDataShard;
                 return result;
-              });
+              }).ToArray();
 
       return result;
     }
@@ -230,7 +230,8 @@ namespace Azos.Sky.Chronicle
 
       var result = response.UnwrapPayloadArray()
               .OfType<JsonDataMap>()
-              .Select(imap => JsonReader.ToDoc<Fact>(imap));
+              .Select(imap => JsonReader.ToDoc<Fact>(imap))
+              .ToArray();
 
       return result;
     }
@@ -252,7 +253,8 @@ namespace Azos.Sky.Chronicle
                                            (http, ct) => http.Client.PostAndGetJsonMapAsync("filter", new {filter = filter})).ConfigureAwait(false);
 
       var result = response.UnwrapPayloadArray()
-                           .OfType<JsonDataMap>();
+                           .OfType<JsonDataMap>()
+                           .ToArray();
 
       return result;
     }
