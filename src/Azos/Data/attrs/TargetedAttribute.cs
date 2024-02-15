@@ -212,13 +212,15 @@ namespace Azos.Data
 
       var resContent = tDoc.NonNull(nameof(tDoc)).GetText(res);
 
-      if (resContent==null && useDefaultName)
+      var docName = tDoc.NonNull(nameof(tDoc)).FullName;
+
+      if (resContent == null && useDefaultName)
       {
-        res = "{0}.laconf".Args(tDoc.Name);
+        res = "{0}.laconf".Args(docName);
         resContent = tDoc.GetText(res);
       }
 
-      resContent.NonBlank("Resource `{0}` referenced by {1}.{2}.{3}".Args(res, tDoc.Name, entity, name));
+      resContent.NonBlank("Resource `{0}` referenced by {1}.{2}.{3}".Args(res, docName, entity, name));
 
       try
       {
@@ -226,18 +228,18 @@ namespace Azos.Data
 
         if (!isConfigContent)
         {
-          var path = entity.IsNotNullOrWhiteSpace() ? "!/{0}/{1}/${2}".Args(tDoc.Name, entity, name) : "!/{0}/${1}".Args(tDoc.Name, name);
+          var path = entity.IsNotNullOrWhiteSpace() ? "!/{0}/{1}/${2}".Args(docName, entity, name) : "!/{0}/${1}".Args(docName, name);
           return cfg.Navigate(path).Value;
         }
         else //20240131 DKh #904
         {
-          var path = entity.IsNotNullOrWhiteSpace() ? "!/{0}/{1}/{2}".Args(tDoc.Name, entity, name) : "!/{0}/{1}".Args(tDoc.Name, name);
+          var path = entity.IsNotNullOrWhiteSpace() ? "!/{0}/{1}/{2}".Args(docName, entity, name) : "!/{0}/{1}".Args(docName, name);
           return cfg.NavigateSection(path).ToLaconicString(CodeAnalysis.Laconfig.LaconfigWritingOptions.Compact);
         }
       }
       catch (Exception error)
       {
-        throw new DataException("Error expanding resource reference {0}.{1}.{2} resource: {3}".Args(tDoc.Name, entity, name, error.ToMessageWithType()), error);
+        throw new DataException("Error expanding resource reference {0}.{1}.{2} resource: {3}".Args(docName, entity, name, error.ToMessageWithType()), error);
       }
     }
 

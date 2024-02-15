@@ -145,6 +145,41 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Data
       Aver.AreObjectsEqual(4321, got);
     }
 
+    [Run]
+    public void Case06()
+    {
+      var data = new DocA()
+      {
+        Inner = new DocB
+        {
+          Value = "Heron",
+          Another = new DocA
+          {
+            Inner = new DocB
+            {
+              Value = "Toad"
+            }
+          }
+        }
+      };
+
+      var ctx = new ScriptCtx(data);
+
+      var atrSchema = data.Schema.SchemaAttrs.FirstOrDefault();
+
+      //data.Name = "bad integer";
+      atrSchema.MetadataContent.See("\n Schema meta: \n");
+      data.Schema["Name"].Attrs.First().MetadataContent.See("\n Field 'Name' meta: \n");
+
+      var (found, got) = ctx.RunScript(atrSchema, "getInner1");
+      Aver.IsTrue(found);
+      Aver.AreObjectsEqual("Heron", got);
+
+      (found, got) = ctx.RunScript(atrSchema, "getInner2");
+      Aver.IsTrue(found);
+      Aver.AreObjectsEqual("Toad", got);
+    }
+
 
     [Schema(MetadataContent = "./")]
     class DocA : TypedDoc
@@ -160,6 +195,18 @@ namespace Azos.Tests.Nub.ScriptingAndTesting.Data
 
       [Field(MetadataContent = "./")]
       public string Name{ get; set;}
+
+      [Field]
+      public DocB Inner{ get; set; }
+    }
+
+    class DocB : TypedDoc
+    {
+      [Field]
+      public string Value{ get; set; }
+
+      [Field]
+      public DocA Another{ get; set;}
     }
 
   }//tests

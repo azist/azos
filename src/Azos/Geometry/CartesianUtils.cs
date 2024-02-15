@@ -62,47 +62,23 @@ namespace Azos.Geometry
     /// <summary>
     /// Calculates distance between two points
     /// </summary>
-    public static int Distance(int x1, int y1, int x2, int y2)
-    {
-      return (int)Math.Sqrt
-             (
-               Math.Pow(x1 - x2, 2) +
-               Math.Pow(y1 - y2, 2)
-             );
-    }
+    public static int Distance(Point p1, Point p2) => (int)Distance(p1.X, p1.Y, p2.X, p2.Y);
+
+    /// <summary>
+    /// Calculates distance between two points in Euclidean space
+    /// </summary>
+    public static double Distance(double x1, double y1, double x2, double y2)
+      => Math.Sqrt(Math.Pow(x1 - x2, 2) + Math.Pow(y1 - y2, 2));
 
     /// <summary>
     /// Calculates distance between two points
     /// </summary>
-    public static int Distance(Point p1, Point p2)
-    {
-      return Distance(p1.X, p1.Y, p2.X, p2.Y);
-    }
+    public static double Distance(PointF p1, PointF p2) => Distance(p1.X, p1.Y, p2.X, p2.Y);
 
-    /// <summary>
-    /// Calculates distance between two points
-    /// </summary>
-    public static float Distance(float x1, float y1, float x2, float y2)
-    {
-      return (float)Math.Sqrt
-             (
-               Math.Pow(x1 - x2, 2) +
-               Math.Pow(y1 - y2, 2)
-             );
-    }
-
-    /// <summary>
-    /// Calculates distance between two points
-    /// </summary>
-    public static float Distance(PointF p1, PointF p2)
-    {
-      return Distance(p1.X, p1.Y, p2.X, p2.Y);
-    }
-
-    /// <summary>
+    // <summary>
     /// Calculates azimuth for vector in rads
     /// </summary>
-    public static double AzimuthRad(int centerX, int centerY, int pointX, int pointY)
+    public static double AzimuthRad(double centerX, double centerY, double pointX, double pointY)
     {
       double theta = Math.Atan2(pointY - centerY, pointX - centerX);
 
@@ -141,9 +117,29 @@ namespace Azos.Geometry
     }
 
     /// <summary>
+    /// Converts Point to polar coordinate point
+    /// </summary>
+    public static PolarPoint PointToPolarPoint(PointF center, PointF point)
+    {
+      return VectorToPolarPoint(center.X, center.Y, point.X, point.Y);
+    }
+
+    /// <summary>
     /// Converts vector in 'x1, y1, x2, y2' representation to polar coordinate point
     /// </summary>
     public static PolarPoint VectorToPolarPoint(int centerX, int centerY, int pointX, int pointY)
+    {
+      double dist = Distance(centerX, centerY, pointX, pointY);
+
+      double theta = AzimuthRad(centerX, centerY, pointX, pointY);
+
+      return new PolarPoint(dist, theta);
+    }
+
+    /// <summary>
+    /// Converts vector in 'x1, y1, x2, y2' representation to polar coordinate point
+    /// </summary>
+    public static PolarPoint VectorToPolarPoint(double centerX, double centerY, double pointX, double pointY)
     {
       double dist = Distance(centerX, centerY, pointX, pointY);
 
