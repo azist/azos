@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.7.0.6
-set HEADLINE=Service calls to use SelectEitherOf() and ToArray()
+set VER=3.8.0.1
+set HEADLINE=Major fix to MVC binder Bixom typeddoc handling #907
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
