@@ -158,6 +158,7 @@ namespace Azos.Data.Adlib.Server
       {
         selector = new BSONDocument();
         selector.Set(new BSONInt32Element(FLD_GDID, 1));
+        selector.Set(new BSONInt32Element(FLD_SEGMENT, 1));
         selector.Set(new BSONInt32Element(FLD_CREATEUTC, 1));
         selector.Set(new BSONInt32Element(FLD_ORIGIN, 1));
         selector.Set(new BSONInt32Element(FLD_HEADERS, 1));
