@@ -212,9 +212,9 @@ namespace Azos.Wave.Handlers
     protected virtual async Task<object[]> BindParametersAsync(Controller controller, string action, ActionBaseAttribute attrAction, MethodInfo method,  WorkContext work)
     {
       var mpars = method.GetParameters();
-      var args = new object[mpars.Length];
-
       if (mpars.Length == 0) return null;
+
+      var args = new object[mpars.Length];
 
       var requested = await work.GetWholeRequestAsJsonDataMapAsync().ConfigureAwait(false);
 
@@ -233,20 +233,28 @@ namespace Azos.Wave.Handlers
           continue;
         }
 
-        if (typeof(TypedDoc).IsAssignableFrom(ctp) && got is JsonDataMap docMap)
+        //20240216 Dkh+Jpk Bixon is not binding correctly  AZ#907
+        if (typeof(TypedDoc).IsAssignableFrom(ctp))
         {
-          try
+          if (got is TypedDoc tdoc)//#907 20240216 Added handling for cases like Bixon
           {
-            args[i] = JsonReader.ToDoc(ctp, docMap);
-            continue;
+            args[i] = tdoc;
           }
-          catch(Exception error)
+          else if (got is JsonDataMap docMap)
           {
-            throw new HTTPStatusException(WebConsts.STATUS_400,
-                                          WebConsts.STATUS_400_DESCRIPTION,
-                                          error.ToMessageWithType(),
-                                          error);
-          }
+            try
+            {
+              args[i] = JsonReader.ToDoc(ctp, docMap);
+              continue;
+            }
+            catch(Exception error)
+            {
+              throw new HTTPStatusException(WebConsts.STATUS_400,
+                                            WebConsts.STATUS_400_DESCRIPTION,
+                                            error.ToMessageWithType(),
+                                            error);
+            }
+          }//else if JsonDataMap
         }
       }//for
 

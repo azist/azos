@@ -45,8 +45,9 @@ namespace Azos.Data.Adlib.Server
       var db = getDb(space);
       var cnames = db.GetCollectionNames()
                      .Where(cn => cn.StartsWith(BsonConvert.ADLIB_COLLECTION_PREFIX))
-                     .Select(cn => BsonConvert.MongoToCanonicalCollectionName(cn));
-      return Task.FromResult(cnames);
+                     .Select(cn => BsonConvert.MongoToCanonicalCollectionName(cn))
+                     .ToArray();
+      return Task.FromResult<IEnumerable<Atom>>(cnames);
     }
 
     public Task<IEnumerable<Item>> GetListAsync(ItemFilter filter)
