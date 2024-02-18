@@ -100,8 +100,36 @@ namespace Azos.Tests.Nub
     }
 
     [Run("sz       =1")]//AZ#908
+    [Run("sz       =2")]//AZ#908
+    [Run("sz       =3")]//AZ#908
+    [Run("sz       =4")]//AZ#908
+    [Run("sz       =5")]//AZ#908
+    [Run("sz       =6")]//AZ#908
+    [Run("sz       =7")]//AZ#908
+    [Run("sz       =8")]//AZ#908
+    [Run("sz       =9")]//AZ#908
+    [Run("sz       =10")]//AZ#908
+    [Run("sz       =11")]//AZ#908
+    [Run("sz       =12")]//AZ#908
+    [Run("sz       =13")]//AZ#908
+    [Run("sz       =14")]//AZ#908
+    [Run("sz       =15")]//AZ#908
+    [Run("sz       =16")]//AZ#908
+    [Run("sz       =17")]//AZ#908
+    [Run("sz       =547")]//AZ#908
+    [Run("sz       =548")]//AZ#908
+    [Run("sz       =549")]//AZ#908
+    [Run("sz       =550")]//AZ#908
+    [Run("sz       =551")]//AZ#908
+    [Run("sz       =552")]//AZ#908
     [Run("sz =1000000")]//AZ#908
     [Run("sz =1234567")]//AZ#908
+    [Run("sz =1234568")]//AZ#908
+    [Run("sz =1234569")]//AZ#908
+    [Run("sz =1234510")]//AZ#908
+    [Run("sz =1234511")]//AZ#908
+    [Run("sz =1234512")]//AZ#908
+    [Run("sz =1234513")]//AZ#908
     [Run("sz=17009340")]//AZ#908
     public void LargeBufferBase64(int sz)
     {

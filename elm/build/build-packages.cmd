@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.8.0.1
-set HEADLINE=Major fix to MVC binder Bixom typeddoc handling #907
+set VER=3.8.0.2
+set HEADLINE=#908 buffer overflow fix
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
