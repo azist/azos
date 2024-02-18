@@ -99,6 +99,21 @@ namespace Azos.Tests.Nub
       }
     }
 
+    [Run("sz       =1")]//AZ#908
+    [Run("sz =1000000")]//AZ#908
+    [Run("sz =1234567")]//AZ#908
+    [Run("sz=17009340")]//AZ#908
+    public void LargeBufferBase64(int sz)
+    {
+      var array = Ambient.Random.NextRandomBytes(sz);
+
+      var b64 = array.ToWebSafeBase64();
+      var got = b64.FromWebSafeBase64();
+
+      Aver.IsTrue(array.MemBufferEquals(got));
+    }
+
+
     [Run("v='1883739E-48F0-4FA7-9DF2-AF6B067D605D'")]
     [Run("v='F13C9A02-C1BF-4C1A-89F7-19DB1CD441F7'")]
     [Run("v='3FAF3D3E-1DEA-43E8-8684-DF046CC10498'")]
