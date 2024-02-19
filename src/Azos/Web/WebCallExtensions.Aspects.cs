@@ -31,6 +31,15 @@ namespace Azos.Web
       DistributedCallFlow GetDistributedCallFlow();
     }
 
+    /// <summary> Decorates caller which supply <see cref="JsonReadingOptions"/> which control payload processing </summary>
+    public interface IJsonReadingOptionsAspect : ICallerAspect//AZ#909
+    {
+      /// <summary>
+      /// Gets the options object or NULL which is treated as an absence of specific options so the system can use the defaults
+      /// </summary>
+      JsonReadingOptions GetJsonReadingOptions();
+    }
+
     /// <summary>
     /// Designates the caller as authentication provider for remote impersonation - provides
     /// header name and header value if caller impersonation is used
