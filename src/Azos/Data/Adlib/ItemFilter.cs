@@ -62,6 +62,9 @@ namespace Azos.Data.Adlib
     [Field(description: "Tag filter expression tree")]
     public Expression TagFilter { get; set; }
 
+    [Field(description: "True to ignore partial reads when some shards may have failed, otherwise crashes " +
+                        "the whole filter processing on any shard error (the default behavior)")]
+    public bool IgnoreShardErrors { get; set; }
 
     [InjectModule] IAdlibLogic m_Logic;
 

@@ -144,11 +144,13 @@ namespace Azos.Data.Adlib
         catch (Exception error)
         {
           WriteLog(MessageType.Warning, nameof(getCrossShard), "Shard fetch error: " + error.ToMessageWithType(), error);
-          return null;
+          if (filter.IgnoreShardErrors) return null;
+          throw;
         }
       })).ConfigureAwait(false);
 
-      var result = responses.SelectMany(response => response.UnwrapPayloadArray()
+      var result = responses.Where(one => one != null)
+                            .SelectMany(response => response.UnwrapPayloadArray()
                                                             .OfType<JsonDataMap>()
                                                             .Select(imap => JsonReader.ToDoc<Item>(imap)))
                             .ToArray();
