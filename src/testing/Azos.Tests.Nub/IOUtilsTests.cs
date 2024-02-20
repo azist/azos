@@ -99,6 +99,49 @@ namespace Azos.Tests.Nub
       }
     }
 
+    [Run("sz       =1")]//AZ#908
+    [Run("sz       =2")]//AZ#908
+    [Run("sz       =3")]//AZ#908
+    [Run("sz       =4")]//AZ#908
+    [Run("sz       =5")]//AZ#908
+    [Run("sz       =6")]//AZ#908
+    [Run("sz       =7")]//AZ#908
+    [Run("sz       =8")]//AZ#908
+    [Run("sz       =9")]//AZ#908
+    [Run("sz       =10")]//AZ#908
+    [Run("sz       =11")]//AZ#908
+    [Run("sz       =12")]//AZ#908
+    [Run("sz       =13")]//AZ#908
+    [Run("sz       =14")]//AZ#908
+    [Run("sz       =15")]//AZ#908
+    [Run("sz       =16")]//AZ#908
+    [Run("sz       =17")]//AZ#908
+    [Run("sz       =547")]//AZ#908
+    [Run("sz       =548")]//AZ#908
+    [Run("sz       =549")]//AZ#908
+    [Run("sz       =550")]//AZ#908
+    [Run("sz       =551")]//AZ#908
+    [Run("sz       =552")]//AZ#908
+    [Run("sz =1000000")]//AZ#908
+    [Run("sz =1234567")]//AZ#908
+    [Run("sz =1234568")]//AZ#908
+    [Run("sz =1234569")]//AZ#908
+    [Run("sz =1234510")]//AZ#908
+    [Run("sz =1234511")]//AZ#908
+    [Run("sz =1234512")]//AZ#908
+    [Run("sz =1234513")]//AZ#908
+    [Run("sz=17009340")]//AZ#908
+    public void LargeBufferBase64(int sz)
+    {
+      var array = Ambient.Random.NextRandomBytes(sz);
+
+      var b64 = array.ToWebSafeBase64();
+      var got = b64.FromWebSafeBase64();
+
+      Aver.IsTrue(array.MemBufferEquals(got));
+    }
+
+
     [Run("v='1883739E-48F0-4FA7-9DF2-AF6B067D605D'")]
     [Run("v='F13C9A02-C1BF-4C1A-89F7-19DB1CD441F7'")]
     [Run("v='3FAF3D3E-1DEA-43E8-8684-DF046CC10498'")]

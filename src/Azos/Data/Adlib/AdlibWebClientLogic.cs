@@ -75,11 +75,10 @@ namespace Azos.Data.Adlib
       var response = await m_Server.Call(AdlibServiceAddress,
                                           nameof(IAdlibLogic),
                                           new ShardKey(DateTime.UtcNow),
-                                          async (http, ct) => await http.Client.GetJsonMapAsync("spaces").ConfigureAwait(false));
+                                          (http, ct) => http.Client.GetJsonMapAsync("spaces")).ConfigureAwait(false);
       var result = response.UnwrapPayloadArray()
-              .OfType<string>()
-              .Select(sn => Atom.Encode(sn));
-
+                           .SelectEitherOf((string str) => Atom.Encode(str), (Atom atm) => atm)
+                           .ToArray();
       return result;
     }
 
@@ -93,10 +92,10 @@ namespace Azos.Data.Adlib
       var response = await m_Server.Call(AdlibServiceAddress,
                                          nameof(IAdlibLogic),
                                          new ShardKey(DateTime.UtcNow),
-                                         async (http, ct) => await http.Client.GetJsonMapAsync(uri).ConfigureAwait(false));
+                                         (http, ct) => http.Client.GetJsonMapAsync(uri)).ConfigureAwait(false);
       var result = response.UnwrapPayloadArray()
-              .OfType<string>()
-              .Select(sn => Atom.Encode(sn));
+                           .SelectEitherOf((string str) => Atom.Encode(str), (Atom atm) => atm)
+                           .ToArray();
 
       return result;
     }
@@ -125,7 +124,8 @@ namespace Azos.Data.Adlib
 
       var result = response.UnwrapPayloadArray()
               .OfType<JsonDataMap>()
-              .Select(imap => JsonReader.ToDoc<Item>(imap));
+              .Select(imap => JsonReader.ToDoc<Item>(imap))
+              .ToArray();
 
       return result;
     }

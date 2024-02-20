@@ -23,13 +23,16 @@ namespace Azos.Client
   /// </summary>
   public class HttpEndpoint : EndpointBase<HttpService>, IHttpEndpoint
   {
+    public const string CONFIG_JSON_READING_SECTION = "json-reading";
+
     /// <summary>
     /// Implements internal HttpClient wrapper which supports various aspects (e.g. IAuthImpersonationAspect, IDistributedCallFlowAspect etc.)
     /// </summary>
     internal class ClientWithAspects : HttpClient,
                                        WebCallExtensions.IDistributedCallFlowAspect,
                                        WebCallExtensions.IAuthImpersonationAspect,
-                                       WebCallExtensions.IRequestBodyErrorAspect
+                                       WebCallExtensions.IRequestBodyErrorAspect,
+                                       WebCallExtensions.IJsonReadingOptionsAspect
     {
       public ClientWithAspects(HttpEndpoint endpoint, HttpMessageHandler handler, bool disposeHandler) : base(handler, disposeHandler)
        => Endpoint = endpoint;
@@ -85,6 +88,14 @@ namespace Azos.Client
                                            rawResponseContent,
                                            bodyErrorValues).ConfigureAwait(false);
       }
+
+      public JsonReadingOptions GetJsonReadingOptions(bool needTypeHints)
+      {
+        var opt = Endpoint.JsonReadingOptions;
+        if (opt == null) return null;
+        if (opt.EnableTypeHints != needTypeHints) return null;
+        return opt;
+      }
     }
 
 
@@ -92,6 +103,11 @@ namespace Azos.Client
 
     public HttpEndpoint(HttpService service, IConfigSectionNode conf) : base(service, conf)
     {
+      var nopt = conf[CONFIG_JSON_READING_SECTION]; //AZ#909
+      if (nopt.Exists)
+      {
+        m_JsonReadingOptions = new JsonReadingOptions(nopt);
+      }
     }
 
     protected override void Destructor()
@@ -104,6 +120,7 @@ namespace Azos.Client
     private object m_Lock = new object();
     private HttpClientHandler m_ClientHandler;
     private HttpClient m_Client;
+    private JsonReadingOptions m_JsonReadingOptions;
 
     /// <summary>
     /// Physical URI of the endpoint (the physical address of Http endpoint) base address.
@@ -201,6 +218,9 @@ namespace Azos.Client
     /// <summary> When set imposes maximum on connection count </summary>
     [Config]
     public int? MaxConnections { get; private set; }
+
+    /// <summary> When set, specifies <see cref="JsonReadingOptions"/> for response processing. If null, then defaults are used </summary>
+    public JsonReadingOptions JsonReadingOptions { get; private set; }
 
     /// <summary>
     /// Returns Http Client which is used to make calls to the remote http endpoint

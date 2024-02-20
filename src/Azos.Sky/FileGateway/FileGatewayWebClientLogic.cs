@@ -79,7 +79,8 @@ namespace Azos.Sky.FileGateway
                                           (http, ct) => http.Client.GetJsonMapAsync("systems")).ConfigureAwait(false);
 
       var result = response.UnwrapPayloadArray()
-                           .SelectEitherOf((string str) => Atom.Encode(str), (Atom   atm) => atm);
+                           .SelectEitherOf((string str) => Atom.Encode(str), (Atom   atm) => atm)
+                           .ToArray();
 
       return result;
     }
@@ -97,7 +98,8 @@ namespace Azos.Sky.FileGateway
                                           (http, ct) => http.Client.GetJsonMapAsync(uri)).ConfigureAwait(false);
 
       var result = response.UnwrapPayloadArray()
-                           .SelectEitherOf((string str) => Atom.Encode(str), (Atom atm) => atm);
+                           .SelectEitherOf((string str) => Atom.Encode(str), (Atom atm) => atm)
+                           .ToArray();
 
       return result;
     }

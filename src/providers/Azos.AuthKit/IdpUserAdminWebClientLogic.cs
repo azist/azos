@@ -93,7 +93,8 @@ namespace Azos.AuthKit
 
       var result = response.UnwrapPayloadArray()
                            .OfType<JsonDataMap>()
-                           .Select(imap => JsonReader.ToDoc<UserInfo>(imap));
+                           .Select(imap => JsonReader.ToDoc<UserInfo>(imap))
+                           .ToArray();
 
       return result;
     }
@@ -107,7 +108,8 @@ namespace Azos.AuthKit
 
       var result = response.UnwrapPayloadArray()
                            .OfType<JsonDataMap>()
-                           .Select(imap => JsonReader.ToDoc<LoginInfo>(imap));
+                           .Select(imap => JsonReader.ToDoc<LoginInfo>(imap))
+                           .ToArray();
 
       return result;
     }
