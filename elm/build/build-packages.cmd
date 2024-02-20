@@ -1,6 +1,6 @@
 @echo on
 
-set VER=3.8.0.3
+set VER=3.8.0.4
 set HEADLINE=#909 WebCallExtensions.IJsonReadingOptionsAspect
 call build-all Release %VER%
 
