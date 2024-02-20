@@ -37,7 +37,7 @@ namespace Azos.Web
       /// <summary>
       /// Gets the options object or NULL which is treated as an absence of specific options so the system can use the defaults
       /// </summary>
-      JsonReadingOptions GetJsonReadingOptions();
+      JsonReadingOptions GetJsonReadingOptions(bool needTypeHints);
     }
 
     /// <summary>
