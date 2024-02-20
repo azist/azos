@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.8.0.2
-set HEADLINE=#908 buffer overflow fix
+set VER=3.8.0.3
+set HEADLINE=#909 WebCallExtensions.IJsonReadingOptionsAspect
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
