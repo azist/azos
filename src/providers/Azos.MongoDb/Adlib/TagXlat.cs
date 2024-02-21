@@ -154,21 +154,21 @@ namespace Azos.Data.Adlib.Server
       //1
       doc.Set(new BSONDocumentElement("tags.p", new BSONDocument().Set(new BSONInt64Element("$eq", (long)prop.ID))));
 
-          BSONElement ev;
-          if (v == null) ev = new BSONNullElement(op);
-          else if (v is string sv) ev = new BSONStringElement(op, sv);
-          else
-          {
-            try
-            {
-              var ul = Convert.ToUInt64(v);
-              ev = new BSONInt64Element(op, (long)ul);
-            }
-            catch
-            {
-              throw new ASTException(StringConsts.AST_BAD_SYNTAX_ERROR.Args("value must be string or ulong-convertible", "{0} {1} {2}".Args(prop, op, v)).TakeFirstChars(48));
-            }
-          }
+      BSONElement ev;
+      if (v == null) ev = new BSONNullElement(op);
+      else if (v is string sv) ev = new BSONStringElement(op, sv);
+      else
+      {
+        try
+        {
+          var ul = Convert.ToInt64(v);//#909
+          ev = new BSONInt64Element(op, ul);
+        }
+        catch
+        {
+          throw new ASTException(StringConsts.AST_BAD_SYNTAX_ERROR.Args("require a string or a long-convertible value", "{0} {1} {2}".Args(prop, op, v)).TakeFirstChars(250));
+        }
+      }
 
       //2
       doc.Set(new BSONDocumentElement("tags.v", new BSONDocument().Set(ev)));
@@ -251,7 +251,7 @@ namespace Azos.Data.Adlib.Server
     }
 
     private object throwSyntaxErrorNear(Expression expr, string cause)
-      => throw new ASTException(StringConsts.AST_BAD_SYNTAX_ERROR.Args(cause, expr.ToJson(JsonWritingOptions.CompactRowsAsMap).TakeFirstChars(48)));
+      => throw new ASTException(StringConsts.AST_BAD_SYNTAX_ERROR.Args(cause, expr.ToJson(JsonWritingOptions.CompactRowsAsMap).TakeFirstChars(64)));
 
   }
 }
