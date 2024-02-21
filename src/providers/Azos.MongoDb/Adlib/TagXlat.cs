@@ -161,8 +161,8 @@ namespace Azos.Data.Adlib.Server
       {
         try
         {
-          var ul = Convert.ToInt64(v);//#909
-          ev = new BSONInt64Element(op, ul);
+          var lv = Convert.ToInt64(v);//#909
+          ev = new BSONInt64Element(op, lv);
         }
         catch
         {

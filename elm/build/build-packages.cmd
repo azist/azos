@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.8.0.4
-set HEADLINE=#909 WebCallExtensions.IJsonReadingOptionsAspect
+set VER=3.8.0.5
+set HEADLINE=#909 Mongo xlat
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
