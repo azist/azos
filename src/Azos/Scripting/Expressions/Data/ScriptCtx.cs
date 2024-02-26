@@ -45,5 +45,13 @@ namespace Azos.Scripting.Expressions.Data
     /// </summary>
     public void ClearError(){ m_Error = null; }
 
+    public IEnumerable<string> TypeSearchPaths
+    {
+      get
+      {
+        yield return "Azos.Scripting.Expressions.Data, Azos";
+      }
+    }
+
   }
 }

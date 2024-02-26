@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.8.0.5
-set HEADLINE=#909 Mongo xlat
+set VER=3.8.0.6
+set HEADLINE=#904 Multifield expressions and config TypeSearchPaths
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

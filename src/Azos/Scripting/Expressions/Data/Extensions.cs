@@ -5,7 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
-
+using System.Linq;
 using Azos.Conf;
 using Azos.Data;
 
@@ -54,8 +54,10 @@ namespace Azos.Scripting.Expressions.Data
       ctx.NonNull(nameof(ctx));
       if (script == null || !script.Exists) return (false, null);//no script
 
+      var tspOriginal = script.TypeSearchPaths;
       try
       {
+        ((ConfigSectionNode)script).TypeSearchPaths = tspOriginal == null ? ctx.TypeSearchPaths : tspOriginal.Concat(ctx.TypeSearchPaths);
         var expr = FactoryUtils.MakeAndConfigure<Expression>(script);
         var result = expr.EvaluateObject(ctx);
         return (true, result);
@@ -64,6 +66,10 @@ namespace Azos.Scripting.Expressions.Data
       {
         throw new ScriptingException("RunScript failed on `{0}`. Error: {1}".Args(script.ToLaconicString(CodeAnalysis.Laconfig.LaconfigWritingOptions.Compact),
                                                                                   cause.ToMessageWithType()), cause);
+      }
+      finally
+      {
+        ((ConfigSectionNode)script).TypeSearchPaths = tspOriginal;
       }
     }
   }
