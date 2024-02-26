@@ -50,7 +50,7 @@ namespace Azos.Scripting.Expressions.Data
     /// type search namespaces/assemblies multiple times
     /// Default implementation adds `Azos.Scripting.Expressions.Data, Azos`
     /// </summary>
-    public IEnumerable<string> TypeSearchPaths
+    public virtual IEnumerable<string> TypeSearchPaths
     {
       get
       {
