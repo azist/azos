@@ -45,6 +45,11 @@ namespace Azos.Scripting.Expressions.Data
     /// </summary>
     public void ClearError(){ m_Error = null; }
 
+    /// <summary>
+    /// Provides extra paths to config script for type searches. This is needed to avoid repeating
+    /// type search namespaces/assemblies multiple times
+    /// Default implementation adds `Azos.Scripting.Expressions.Data, Azos`
+    /// </summary>
     public IEnumerable<string> TypeSearchPaths
     {
       get
