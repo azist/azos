@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.8.0.9
-set HEADLINE=#904 Multifield expressions and config TypeSearchPaths
+set VER=3.8.0.10
+set HEADLINE=PersistedEntity ctor
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
