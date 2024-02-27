@@ -72,6 +72,36 @@ namespace Azos.Web
 
 
     /// <summary>
+    /// Gets JsonDataMap result on success. If server returns 4040 then it is treated as NULL response, and not as an error.
+    /// This is SOMETIMES an expected behavior when a resource identifier is represented by URI and such resource does not exist,
+    /// in which case 404 indicates an absence of such resource for example: "doc/123" would indicate that there is no such document with id "123".
+    /// A body (rarely used with GET if ever) is a string, a binary blob or object converted to json using JsonWritingOptions
+    /// </summary>
+    public static async Task<JsonDataMap> GetJsonMapOr404NullAsync(this HttpClient client,
+                                                          string uri,
+                                                          object body = null,
+                                                          string contentType = null,
+                                                          JsonWritingOptions options = null,
+                                                          bool fetchErrorContent = true,
+                                                          IEnumerable<KeyValuePair<string, string>> requestHeaders = null,
+                                                          Func<object> fGetIdentityContext = null,
+                                                          JsonReadingOptions ropt = null,
+                                                          bool requestBixon = false)
+     {
+       try
+       {
+         return await CallAndGetJsonMapAsync(client, uri, HttpMethod.Get, body, contentType, options, fetchErrorContent, requestHeaders, fGetIdentityContext, ropt, requestBixon).ConfigureAwait(false);
+       }
+       catch(WebCallException wce)
+       {
+         if (wce.HttpStatusCode == 404) return null;
+         throw;
+       }
+     }
+
+
+
+    /// <summary>
     /// Posts body into remote endpoint returning a JsonDataMap result on success.
     /// A body is a string, a binary blob or object converted to json using JsonWritingOptions
     /// </summary>

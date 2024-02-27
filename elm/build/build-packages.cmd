@@ -1,6 +1,6 @@
 @echo on
 
-set VER=3.8.0.7
+set VER=3.8.0.9
 set HEADLINE=#904 Multifield expressions and config TypeSearchPaths
 call build-all Release %VER%
 
