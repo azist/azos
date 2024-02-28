@@ -49,10 +49,10 @@ namespace Azos.Data.Business
     [Field(required: true, Description = "Returns EntityId of this item")]
     public abstract EntityId Id { get; }
 
-    [Inject(Optional = true)]
+    [Inject(Optional = true), NonSerialized]
     protected IGdidProviderModule m_GdidGenerator;
 
-    [Inject]
+    [Inject, NonSerialized]
     private TSaveLogic m_SaveLogic;
 
     /// <summary>
