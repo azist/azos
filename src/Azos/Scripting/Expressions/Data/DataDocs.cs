@@ -5,6 +5,7 @@
 </FILE_LICENSE>*/
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Azos.Conf;
@@ -68,6 +69,62 @@ namespace Azos.Scripting.Expressions.Data
 
       return result;
     }
+
+
+  ////////#warning  WIP!!!!!!!!!!!!!!!!!!!!! ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ!!!!!!!!!!!!!!!!!!!!!!
+  ////////  public static (Doc doc, Schema.FieldDef fld, object val) NavigateOneFieldPath(ScriptCtx ctx, string path, bool lax = false)
+  ////////  {
+  ////////    var segs = path.NonBlank(nameof(path)).Split('.', StringSplitOptions.RemoveEmptyEntries);
+
+  ////////    var ds = ctx.Data;
+  ////////    Doc doc = ds;
+  ////////    Schema.FieldDef fd = null;
+  ////////    object fv = null;
+
+  ////////    foreach (var seg in segs)
+  ////////    {
+  ////////      if (ds == null)
+  ////////      {
+  ////////        if (lax) break;
+  ////////        throw new ScriptingException("Bad field by name navigation: `{0}`".Args(path));
+  ////////      }
+
+  ////////      //Check for []
+  ////////      var (fn, sub) = seg.SplitKVP('[');
+  ////////      if (sub != null)
+  ////////      {
+  ////////        if (sub[^1] != ']') throw new ScriptingException("Bad field by name navigation: `{0}`".Args(path));
+  ////////        sub = sub[..^1];
+  ////////      }
+  ////////      if (fn.IsNullOrWhiteSpace()) throw new ScriptingException("Bad field by name navigation: `{0}`".Args(path));
+
+
+  ////////      doc = ds;
+  ////////      var dsfn = fn.Replace("%2e", ".").Replace("%5b", "[");
+  ////////      fd = ds.Schema[dsfn];
+  ////////      if (fd == null)
+  ////////        throw new ScriptingException("Bad field by name navigation: `{0}`. Unknown field: `{1}`".Args(path, dsfn));
+
+  ////////      fv = ds.GetFieldValue(fd);
+
+  ////////      //Subscript check
+  ////////      if (sub.IsNotNullOrWhiteSpace())
+  ////////      {
+  ////////        var col = fv as IEnumerable;
+  ////////        if (col == null)
+  ////////        {
+  ////////          if (lax) break;
+  ////////          throw new ScriptingException("Bad field by name navigation: `{0}`. Subscript `{1}` requires an IEnumerable".Args(path, sub));
+  ////////          //Interpret the subscript
+  ////////        }
+  ////////      }
+
+  ////////      ds = fv as Doc;
+  ////////    }
+
+  ////////    return (doc, fd, fv);
+  ////////  }
+
   }
 
 
