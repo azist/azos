@@ -241,4 +241,63 @@ namespace Azos.Scripting.Expressions.Data
   }
 
 
+  /// <summary>
+  /// Abstraction for a bool function checking scalar values for equality
+  /// </summary>
+  public abstract class MultifieldScalarPredicate : MultifieldByName<bool>
+  {
+    protected bool Predicate(object v)
+    {
+      if (v == null)
+      {
+        if (Value == null) return true;
+        return false;
+      }
+      var cv = Format.IsNullOrWhiteSpace() ? v.ToString() : Format.Args(v);
+      return cv == Value;
+    }
+
+    [Config] public string Value { get; set; }
+    [Config] public string Format { get; set; }
+  }
+
+  /// <summary>
+  /// Bool predicate operator returning true WHEN ALL values of the referenced fields are equal to
+  /// the specified scalar value
+  /// </summary>
+  public abstract class AllScalarsAre : MultifieldScalarPredicate
+  {
+    public override bool Evaluate(ScriptCtx context) => GetFields(context).All(one => Predicate(one.val));
+  }
+
+  /// <summary>
+  /// Bool predicate operator returning true WHEN ALL values of the referenced fields are NOT equal to
+  /// the specified scalar value
+  /// </summary>
+  public abstract class AllScalarsAreNot : MultifieldScalarPredicate
+  {
+    public override bool Evaluate(ScriptCtx context) => GetFields(context).All(one => !Predicate(one.val));
+  }
+
+  /// <summary>
+  /// Bool predicate operator returning true WHEN ANY values of the referenced fields are equal to
+  /// the specified scalar value
+  /// </summary>
+  public abstract class AnyScalarsAre : MultifieldScalarPredicate
+  {
+    public override bool Evaluate(ScriptCtx context) => GetFields(context).Any(one => Predicate(one.val));
+  }
+
+  /// <summary>
+  /// Bool predicate operator returning true WHEN ANY values of the referenced fields are NOT equal to
+  /// the specified scalar value
+  /// </summary>
+  public abstract class AnyScalarsAreNot : MultifieldScalarPredicate
+  {
+    public override bool Evaluate(ScriptCtx context) => GetFields(context).Any(one => !Predicate(one.val));
+  }
+
+
+
+
 }

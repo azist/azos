@@ -76,6 +76,7 @@ namespace Azos.Tests.Nub.DataAccess
       var got = SchemaSerializer.Deserialize(new SchemaSerializer.DeserCtx(map1));
       var map2 = SchemaSerializer.Serialize(new SchemaSerializer.SerCtx(got), "RoomForm");
       map2.See();
+      //got.See();
     }
 
     [Run]
