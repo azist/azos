@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Azos.Data;
+using Azos.Serialization.JSON;
 
 namespace Azos.Scripting.Expressions.Data
 {
@@ -21,12 +22,18 @@ namespace Azos.Scripting.Expressions.Data
     public ScriptCtx(Doc doc)
     {
       Data = doc.NonNull(nameof(doc));
+      State = new JsonDataMap();
     }
 
     /// <summary>
     /// Primary Data document which this script operates on
     /// </summary>
     public readonly Doc Data;
+
+    /// <summary>
+    /// Use this for adhoc storage
+    /// </summary>
+    public JsonDataMap State;
 
     private Exception m_Error;
 

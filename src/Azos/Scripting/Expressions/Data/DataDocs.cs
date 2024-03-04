@@ -42,7 +42,8 @@ namespace Azos.Scripting.Expressions.Data
   /// <summary>
   /// Gets field value by name from context primary data. The field name property may include a path for example: "Patient.LastName"
   /// in which case "Patient" is a field of primary data context of type "Doc" having a field name "LastName".
-  /// You can escape field names with dots with "%2e" for example: "Geometry.%2eX" = "Geometry[dot].X"
+  /// You can escape field names with dots with "%2e" for example: "Geometry.%2eX" = "Geometry[dot].X".
+  /// You can also use a different data doc root which should be set in the `ctx.State` object by its name: `dataset1:a.b.c`
   /// </summary>
   public class ByName : Expression<ScriptCtx, object>
   {
@@ -51,80 +52,73 @@ namespace Azos.Scripting.Expressions.Data
 
     public sealed override object Evaluate(ScriptCtx context)
     {
-      context.NonNull(nameof(context));
-      var fns = Field.NonBlank(nameof(Field)).Split('.', StringSplitOptions.RemoveEmptyEntries);
-
-      var ds = context.Data;
-      object result = null;
-      foreach(var fn in fns)
-      {
-        if (ds == null)
-        {
-          if (Lax) return null;
-          throw new ScriptingException("Bad field by name navigation: `{0}`".Args(Field));
-        }
-        result = ds[fn.Replace("%2e", ".")];
-        ds = result as Doc;
-      }
-
+      var (_, _, result) = NavigateOneFieldPath(context.NonNull(nameof(context)), Field.NonBlank(nameof(Field)), Lax);
       return result;
     }
 
+    /// <summary>
+    /// As of CTX navigates a field nav expression of a form:  `state:f1.f2.fx` or `f1.f2.fx`. The state is a name of named dataset stores in `Ctx.State[name]`
+    /// </summary>
+    public static (Doc doc, Schema.FieldDef fld, object val) NavigateOneFieldPath(ScriptCtx ctx, string path, bool lax = false)// 20240304 DKh
+    {
+      path.NonBlank(nameof(path));
 
-  ////////#warning  WIP!!!!!!!!!!!!!!!!!!!!! ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ!!!!!!!!!!!!!!!!!!!!!!
-  ////////  public static (Doc doc, Schema.FieldDef fld, object val) NavigateOneFieldPath(ScriptCtx ctx, string path, bool lax = false)
-  ////////  {
-  ////////    var segs = path.NonBlank(nameof(path)).Split('.', StringSplitOptions.RemoveEmptyEntries);
+      Doc ds = ctx.Data;
 
-  ////////    var ds = ctx.Data;
-  ////////    Doc doc = ds;
-  ////////    Schema.FieldDef fd = null;
-  ////////    object fv = null;
+      var (key, val) = path.SplitKVP(':');// key:a.b.c
+      if (val.IsNotNullOrWhiteSpace())
+      {
+        path = val;
+        ds = ctx.State[key].CastTo<Doc>($"State `{key}` is `Doc`");
+      }
 
-  ////////    foreach (var seg in segs)
-  ////////    {
-  ////////      if (ds == null)
-  ////////      {
-  ////////        if (lax) break;
-  ////////        throw new ScriptingException("Bad field by name navigation: `{0}`".Args(path));
-  ////////      }
+      var segs = path.Split('.', StringSplitOptions.RemoveEmptyEntries);
 
-  ////////      //Check for []
-  ////////      var (fn, sub) = seg.SplitKVP('[');
-  ////////      if (sub != null)
-  ////////      {
-  ////////        if (sub[^1] != ']') throw new ScriptingException("Bad field by name navigation: `{0}`".Args(path));
-  ////////        sub = sub[..^1];
-  ////////      }
-  ////////      if (fn.IsNullOrWhiteSpace()) throw new ScriptingException("Bad field by name navigation: `{0}`".Args(path));
+      Doc doc = ds;
+      Schema.FieldDef fd = null;
+      object fv = null;
+      foreach (var seg in segs)
+      {
+        if (ds == null)
+        {
+          if (lax) break;
+          throw new ScriptingException("Bad field by name navigation: `{0}`".Args(path));
+        }
+
+        //Check for []
+        var (fn, sub) = seg.SplitKVP('[');
+        if (sub.IsNotNullOrWhiteSpace())
+        {
+          if (sub[^1] != ']') throw new ScriptingException("Bad field by name navigation: `{0}`".Args(path));
+          sub = sub[..^1];
+
+        }
+        if (fn.IsNullOrWhiteSpace()) throw new ScriptingException("Bad field by name navigation: `{0}`".Args(path));
 
 
-  ////////      doc = ds;
-  ////////      var dsfn = fn.Replace("%2e", ".").Replace("%5b", "[");
-  ////////      fd = ds.Schema[dsfn];
-  ////////      if (fd == null)
-  ////////        throw new ScriptingException("Bad field by name navigation: `{0}`. Unknown field: `{1}`".Args(path, dsfn));
+        doc = ds;
+        var dsfn = fn.Replace("%2e", ".")
+                     .Replace("%5b", "[")
+                     .Replace("%5d", "]")
+                     .Replace("%3a", ":");
 
-  ////////      fv = ds.GetFieldValue(fd);
+        fd = ds.Schema[dsfn];
+        if (fd == null)
+          throw new ScriptingException("Bad field by name navigation: `{0}`. Unknown field: `{1}`".Args(path, dsfn));
 
-  ////////      //Subscript check
-  ////////      if (sub.IsNotNullOrWhiteSpace())
-  ////////      {
-  ////////        var col = fv as IEnumerable;
-  ////////        if (col == null)
-  ////////        {
-  ////////          if (lax) break;
-  ////////          throw new ScriptingException("Bad field by name navigation: `{0}`. Subscript `{1}` requires an IEnumerable".Args(path, sub));
-  ////////          //Interpret the subscript
-  ////////        }
-  ////////      }
+        fv = ds.GetFieldValue(fd);
 
-  ////////      ds = fv as Doc;
-  ////////    }
+        //Subscript check
+        if (sub.IsNotNullOrWhiteSpace())
+        {
+          throw new ScriptingException("Field navigation subscripts are not supported yet: `{0}`".Args(path));
+          //Interpret the subscript  fv as IEnumerable etc...
+        }
 
-  ////////    return (doc, fd, fv);
-  ////////  }
-
+        ds = fv as Doc;
+      }//foreach seg
+      return (doc, fd, fv);
+    }
   }
 
 
@@ -133,6 +127,7 @@ namespace Azos.Scripting.Expressions.Data
   /// Each field name property may have a single field or a path: "Patient.LastName"
   /// in which case "Patient" is a field of primary data context of type "Doc" having a field name "LastName".
   /// You can escape field names with dots with "%2e" for example: "Geometry.%2eX" = "Geometry[dot].X"
+  /// You can also use a different data doc root which should be set in the `ctx.State` object by its name: `dataset1:a.b.c`
   /// </summary>
   public abstract class MultifieldByName<TResult> : Expression<ScriptCtx, TResult>
   {
@@ -148,30 +143,8 @@ namespace Azos.Scripting.Expressions.Data
       var paths = Fields.NonBlank(nameof(Fields)).Split(';');
       foreach(var path in paths.Where(p => p.IsNotNullOrWhiteSpace()))
       {
-        var fns = path.NonBlank(nameof(path)).Split('.', StringSplitOptions.RemoveEmptyEntries);
-
-        var ds = context.Data;
-        Doc doc = ds;
-        Schema.FieldDef fd = null;
-        object fv = null;
-
-        foreach (var fn in fns)
-        {
-          if (ds == null)
-          {
-            if (Lax) break;
-            throw new ScriptingException("Bad field by name navigation: `{0}`".Args(path));
-          }
-          doc = ds;
-          var dsfn = fn.Replace("%2e", ".");
-          fd = ds.Schema[dsfn];
-          if (fd == null)
-            throw new ScriptingException("Bad field by name navigation: `{0}`. Unknown field: `{1}`".Args(path, dsfn));
-
-          fv = ds.GetFieldValue(fd);
-          ds = fv as Doc;
-        }
-
+        var escp = path.Replace("%3b", ";");
+        var (doc, fd, fv) = ByName.NavigateOneFieldPath(context, escp, Lax);
         if (fd != null) yield return (doc, fd, fv);
       }//foreach
     }
