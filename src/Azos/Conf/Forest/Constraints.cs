@@ -44,6 +44,8 @@ namespace Azos.Conf.Forest
     public const string CONFIG_PROP_ROOT_SECTION = "prop";
     public const string CONFIG_CONF_ROOT_SECTION = "conf";
 
+    public const string CONFIG_GIS_SECTION = "geo";
+
     public const int DEFAULT_POLICY_REFRESH_WINDOW_MINUTES = 10;
 
 

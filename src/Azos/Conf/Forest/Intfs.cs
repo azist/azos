@@ -57,6 +57,10 @@ namespace Azos.Conf.Forest
     /// <param name="cache">Controls cache options used by the call, such as bypass cache etc.</param>
     /// <returns>TreeNodeInfo object or null if such item is not found</returns>
     Task<TreeNodeInfo> GetNodeInfoAsync(EntityId id, DateTime? asOfUtc = null, ICacheParams cache = null);
+
+    //Task<IEnumerable<TreeNodeHeader>> GetNodesByTagGeoAddressAsync(Atom idForest, Atom idTree, Atom tag, string tagValue, DateTime? asOfUtc = null, ICacheParams cache = null);
+    // Task<IEnumerable<TreeNodeInfo>> GetNodesByGeoAddressAsync(Atom idForest, Atom idTree, AddressSpec address, int radius, DateTime? asOfUtc = null, ICacheParams cache = null);
+    // Task<IEnumerable<TreeNodeInfo>> GetNodesByGeoLocationAsync(Atom idForest, Atom idTree, LatLng location, int radius, DateTime? asOfUtc = null, ICacheParams cache = null);
   }
 
   /// <summary>
