@@ -123,6 +123,14 @@ namespace Azos.Conf.Forest.Server
 
       return  result;
     }
+
+    /// <inheritdoc/>
+    public async Task<IEnumerable<TreeNodeInfo>> ExecGeoQueryAsync(GeoQuery query)
+    {
+      throw new NotImplementedException("Book the cook");
+    }
+
+
     #endregion
 
     #region IForestSetupLogic

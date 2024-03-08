@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 
 using Azos.Data;
 using Azos.Data.Business;
+using Azos.Geometry;
+using Azos.Standards;
 
 namespace Azos.Conf.Forest
 {
@@ -58,10 +60,13 @@ namespace Azos.Conf.Forest
     /// <returns>TreeNodeInfo object or null if such item is not found</returns>
     Task<TreeNodeInfo> GetNodeInfoAsync(EntityId id, DateTime? asOfUtc = null, ICacheParams cache = null);
 
-    //Task<IEnumerable<TreeNodeHeader>> GetNodesByTagGeoAddressAsync(Atom idForest, Atom idTree, Atom tag, string tagValue, DateTime? asOfUtc = null, ICacheParams cache = null);
-    // Task<IEnumerable<TreeNodeInfo>> GetNodesByGeoAddressAsync(Atom idForest, Atom idTree, AddressSpec address, int radius, DateTime? asOfUtc = null, ICacheParams cache = null);
-    // Task<IEnumerable<TreeNodeInfo>> GetNodesByGeoLocationAsync(Atom idForest, Atom idTree, LatLng location, int radius, DateTime? asOfUtc = null, ICacheParams cache = null);
+    /// <summary>
+    /// Executes a GeoQuery - a filter on tree node data returning a list of nodes proximal to the specified point/location
+    /// </summary>
+    Task<IEnumerable<TreeNodeInfo>> ExecGeoQueryAsync(GeoQuery query);
   }
+
+
 
   /// <summary>
   /// Defines setup operations for forest tree structures: Saving and Deleting tree nodes.
