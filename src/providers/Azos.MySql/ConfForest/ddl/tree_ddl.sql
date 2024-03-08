@@ -36,6 +36,27 @@ delimiter ;.
 delimiter ;.
   create  index `idx_tbl_nodelog_gpsd` on `tbl_nodelog`(`G_PARENT`, `PATH_SEGMENT`, `START_UTC`);.
 
+-- #905 20240308 JPK DKH adding Geo support -------------------------------------------------------
+delimiter ;.
+-- Table tbl_geo
+create table `tbl_geohash`
+(
+ `G_NLOG`         BINARY(12)     not null comment 'Node Log master reference',
+ `LID`            SMALLINT UNSIGNED  not null comment 'Line id: a number', -- ushort = 65535 max line numbers
+ `GSH`            varchar(34)    not null COLLATE 'utf8mb4_bin' comment 'Geo Hash Value depending on line type either a GEOHASH or zip etc... as prefixed',
+  constraint `pk_tbl_geohash_primary` primary key (`G_NLOG`, `LID`),
+  constraint `fk_tbl_geohash_nlog` foreign key (`G_NLOG`) references `tbl_nodelog`(`GDID`)
+)
+    comment = 'Indexes Node log records on GEO-related values (hashes) extracted from Nodes properties'
+;.
+
+delimiter ;.
+  create  index `idx_tbl_geohash_gsh` on `tbl_geohash`(`GSH`);.
+
+
+-- #905 20240308 JPK DKH adding Geo support -------------------------------------------------------
+
+
 -- Create tree root node
 delimiter ;.
 insert into `tbl_node` (`GDID`, `CREATE_UTC`)

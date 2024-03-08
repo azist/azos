@@ -127,6 +127,8 @@ namespace Azos.Conf.Forest.Server
     /// <inheritdoc/>
     public async Task<IEnumerable<TreeNodeInfo>> ExecGeoQueryAsync(GeoQuery query)
     {
+      query.NonNull(nameof(query));
+      App.Authorize(new TreePermission(TreeAccessLevel.Read));
       throw new NotImplementedException("Book the cook");
     }
 
