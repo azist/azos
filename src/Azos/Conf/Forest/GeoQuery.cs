@@ -18,9 +18,10 @@ using Azos.Standards;
 namespace Azos.Conf.Forest
 {
   /// <summary>
-  /// Provides minimal tree node information used for listing
+  /// Embodies GIS query data - either a full/partial address or LatLng location.
+  /// The query object gets submitted into the conf tree for processing yielding a list of nodes which satisfy query conditions
   /// </summary>
-  [Bix("a63c9f9e-59c2-4f9d-9ceb-da2f69e2edf4")]
+  [Bix("ad9af904-cb4b-4816-ad37-05c550c97770")]
   [Schema(Description = "Geo query request by address/lat lng")]
   public sealed class GeoQuery : FilterModel<IEnumerable<TreeNodeInfo>>
   {

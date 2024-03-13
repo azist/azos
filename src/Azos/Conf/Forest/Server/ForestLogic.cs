@@ -125,11 +125,11 @@ namespace Azos.Conf.Forest.Server
     }
 
     /// <inheritdoc/>
-    public async Task<IEnumerable<TreeNodeInfo>> ExecGeoQueryAsync(GeoQuery query)
+    public Task<IEnumerable<TreeNodeInfo>> ExecGeoQueryAsync(GeoQuery query)
     {
-      query.NonNull(nameof(query));
-      App.Authorize(new TreePermission(TreeAccessLevel.Read));
-      throw new NotImplementedException("Book the cook");
+      throw new NotImplementedException("The GEO Query support is mothballed for now, this is reserved for future. See issue number #905");
+      //query.NonNull(nameof(query));
+      //App.Authorize(new TreePermission(TreeAccessLevel.Read));
     }
 
 
