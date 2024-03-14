@@ -287,12 +287,11 @@ namespace Azos.Conf.Forest.Server
     private async Task<TreeNodeInfo> getNodeByTreePathUnsafe(TreePtr tree, TreePath path, DateTime asOfUtc, ICacheParams caching, bool allowPartialNav)
     {
       var tblCache = s_CacheTableName[tree];
-      var keyCache = nameof(getNodeByTreePath) + path + asOfUtc.Ticks;
+      var keyCache = $"{nameof(getNodeByTreePath)}{path}{asOfUtc.Ticks}-{allowPartialNav}";
 
       var result = await m_Data.Cache.FetchThroughAsync(
         keyCache, tblCache, caching,
         async key => {
-
           TreeNodeInfo nodeParent = null;
           TreeNodeInfo node = null;
           for(var i = -1; i < path.Count; i++) //going from LEFT to RIGHT
