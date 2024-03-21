@@ -195,7 +195,7 @@ namespace Azos.Conf
            throw new ConfigException(string.Format(StringConsts.CONFIGURATION_TYPE_RESOLVE_ERROR, tName, CONFIG_TYPE_PATH_ATTR));
       }
 
-      //This MUST be before allocation attempt for extra security
+      //This MUST be BEFORE allocation attempt for extra security
       if (!typeof(T).IsAssignableFrom(t))
           throw new ConfigException(string.Format(StringConsts.CONFIGURATION_TYPE_ASSIGNABILITY_ERROR, tName, typeof(T).FullName));
 
@@ -224,8 +224,24 @@ namespace Azos.Conf
 
       if (isFqn) return Type.GetType(tName);//or null if it is a bad type spec
 
+      //Scope chain
       while(scope != null && scope.Exists)
       {
+        //20240226 DKh #904 Add TypeSearchPath to config scope - has HIGHER precedence than CONFIG attribute
+        if (scope.TypeSearchPaths != null)
+        {
+          var paths = scope.TypeSearchPaths.Where(p => p.IsNotNullOrWhiteSpace()).ToArray();
+          foreach (var path in paths)
+          {
+            var kvp = path.SplitKVP(',');
+            var fqn = $"{kvp.Key}.{tName}, {kvp.Value}"; //recompose NS.Type, Assembly key etc..
+
+            var result = Type.GetType(fqn);
+            if (result != null) return result; //trip on the first match
+          }
+        }//20240226 DKh #904 Add TypeSearchPath to config scope
+
+
         var atrPaths = scope.AttrByName(CONFIG_TYPE_PATH_ATTR);
         if (atrPaths.Exists) //found attribute but it may be empty which signifies the "reset" higher-level paths behavior
         {
@@ -244,9 +260,10 @@ namespace Azos.Conf
 
           //none of the searched segments of type-path matched, so we fail
           return null;
-        }
-        scope = scope.Parent;
-      }//while
+        }//if attr was found
+
+        scope = scope.Parent;//chain
+      }//while SCOPE chain
 
       return null;//not found anywhere
     }

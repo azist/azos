@@ -123,6 +123,32 @@ namespace Azos.Conf.Forest.Server
 
       return  result;
     }
+
+
+    /// <inheritdoc/>
+    public async Task<TreeNodeInfo> ProbePathAsync(Atom idForest, Atom idTree, string path, DateTime? asOfUtc = null, ICacheParams cache = null)
+    {
+      var id = new EntityId(idForest, idTree, Constraints.SCH_PATH, path);
+      //permission checks are performed in the child traverse loop down below
+      if (cache == null) cache = CacheParams.DefaultCache;
+      var gop = GdidOrPath.OfPath(id);
+      var asof = DefaultAndAlignOnPolicyBoundary(asOfUtc, id);
+
+      var result = await getNodeByTreePath(gop.Tree, gop.PathAddress, asof, cache, allowPartialNav: true).ConfigureAwait(false);
+      return result;
+
+    }
+
+
+    /// <inheritdoc/>
+    public Task<IEnumerable<TreeNodeInfo>> ExecGeoQueryAsync(GeoQuery query)
+    {
+      throw new NotImplementedException("The GEO Query support is mothballed for now, this is reserved for future. See issue number #905");
+      //query.NonNull(nameof(query));
+      //App.Authorize(new TreePermission(TreeAccessLevel.Read));
+    }
+
+
     #endregion
 
     #region IForestSetupLogic
@@ -246,11 +272,11 @@ namespace Azos.Conf.Forest.Server
       tbl.Purge();
     }
 
-    private async Task<TreeNodeInfo> getNodeByTreePath(TreePtr tree, TreePath path, DateTime asOfUtc, ICacheParams caching)
+    private async Task<TreeNodeInfo> getNodeByTreePath(TreePtr tree, TreePath path, DateTime asOfUtc, ICacheParams caching, bool allowPartialNav = false)
     {
       try
       {
-        return await getNodeByTreePathUnsafe(tree, path, asOfUtc, caching).ConfigureAwait(false);
+        return await getNodeByTreePathUnsafe(tree, path, asOfUtc, caching, allowPartialNav).ConfigureAwait(false);
       }
       catch(Exception cause)
       {
@@ -258,22 +284,25 @@ namespace Azos.Conf.Forest.Server
       }
     }
 
-    private async Task<TreeNodeInfo> getNodeByTreePathUnsafe(TreePtr tree, TreePath path, DateTime asOfUtc, ICacheParams caching)
+    private async Task<TreeNodeInfo> getNodeByTreePathUnsafe(TreePtr tree, TreePath path, DateTime asOfUtc, ICacheParams caching, bool allowPartialNav)
     {
       var tblCache = s_CacheTableName[tree];
-      var keyCache = nameof(getNodeByTreePath) + path + asOfUtc.Ticks;
+      var keyCache = $"{nameof(getNodeByTreePath)}{path}{asOfUtc.Ticks}-{allowPartialNav}";
 
       var result = await m_Data.Cache.FetchThroughAsync(
         keyCache, tblCache, caching,
         async key => {
-
           TreeNodeInfo nodeParent = null;
           TreeNodeInfo node = null;
           for(var i = -1; i < path.Count; i++) //going from LEFT to RIGHT
           {
             var segment = i < 0 ? Constraints.VERY_ROOT_PATH_SEGMENT : path[i];
             node = await getNodeByPathSegment(tree, nodeParent == null ? GDID.ZERO : nodeParent.Gdid, segment, asOfUtc, caching).ConfigureAwait(false);
-            if (node == null) return null;// deleted
+            if (node == null)
+            {
+              return allowPartialNav ? nodeParent//20240314 DKh #910 we have navigated all the way to the parent, return previously found node
+                                     : null;// deleted
+            }
 
 
             //Config chain inheritance pattern
@@ -294,7 +323,7 @@ namespace Azos.Conf.Forest.Server
             }
             nodeParent = node;
             App.Authorize(new TreePermission(TreeAccessLevel.Read, node.FullPathId));
-          }
+          }//for path segments
           return node;
 
       }).ConfigureAwait(false);

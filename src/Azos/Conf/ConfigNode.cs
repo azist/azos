@@ -675,6 +675,15 @@ namespace Azos.Conf
     #region Properties
 
     /// <summary>
+    /// Added in Feb 26, 2024 DKh:
+    /// If set, provides an optional enumerable of type search paths which system may use
+    /// to locate types by partial name, <see cref="FactoryUtils.Make{T}(IConfigSectionNode, Type, object[])"/> family of methods.
+    /// By default, null which means no additional type paths
+    /// </summary>
+    [field:NonSerialized]
+    public IEnumerable<string> TypeSearchPaths { get; set; }
+
+    /// <summary>
     /// Indicates whether this node has any child section nodes
     /// </summary>
     public bool HasChildren

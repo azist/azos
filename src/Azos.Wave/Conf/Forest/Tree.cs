@@ -31,6 +31,7 @@ namespace Azos.Conf.Forest.Server
     public const string ACT_VERSION = "version";
     public const string ACT_VERSION_LIST = "version-list";
     public const string ACT_NODE = "node";
+    public const string ACT_NODE_PROBE = "probe";
     public const string ACT_TREE_LIST = "tree-list";
     public const string ACT_NODE_LIST = "node-list";
 
@@ -123,6 +124,25 @@ namespace Azos.Conf.Forest.Server
     public async Task<object> GetNodeInfoAsync(EntityId id, DateTime? asofutc = null, bool nocache = false)
       => GetLogicResult(await m_Logic.GetNodeInfoAsync(id, asofutc, nocache.NoOrDefaultCache()).ConfigureAwait(false));
 
+
+    [ApiEndpointDoc(
+      Title = "GET - Retrieves the Tree Node Info by probing path",
+      Description = "Retrieves a node of TreeNodeInfo by its possibly partial path as of certain point in time" +
+      "This action returns the last navigable parent TreeNodeInfo object in path or null if no path segments were ever found",
+      DocAnchor = "### /conf/forest/tree/probe/ GET",
+      RequestQueryParameters = new[]{
+            "forest=Forest atom id",
+            "tree=Tree atom id",
+            "path=path string",
+            "asofutc=Nullable timestamp as of which to retrieve the info. Null denotes UTC now (default)",
+            "nocache=Bool flag indicating whether to suppress the use of server cache and read from data store. False by default"},
+      ResponseContent = "Http 200 / JSON representation of {OK: true, data: TreeNodeInfo} or Http 404 {OK: false, data: null}",
+      Methods = new[] { "GET: Gets the TreeNodeInfo by its possibly partial path as of certain point in time" },
+      TypeSchemas = new[] { typeof(TreeNodeInfo) })]
+    [ActionOnGet(Name = ACT_NODE_PROBE)]
+    [TreePermission(TreeAccessLevel.Read)]
+    public async Task<object> ProbeNodePathAsync(Atom forest, Atom tree, string path, DateTime? asofutc = null, bool nocache = false)
+      => GetLogicResult(await m_Logic.ProbePathAsync(forest, tree, path, asofutc, nocache.NoOrDefaultCache()).ConfigureAwait(false));
 
 
     [ApiEndpointDoc(

@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Azos.Data;
+using Azos.Serialization.JSON;
 
 namespace Azos.Scripting.Expressions.Data
 {
@@ -21,12 +22,18 @@ namespace Azos.Scripting.Expressions.Data
     public ScriptCtx(Doc doc)
     {
       Data = doc.NonNull(nameof(doc));
+      State = new JsonDataMap();
     }
 
     /// <summary>
     /// Primary Data document which this script operates on
     /// </summary>
     public readonly Doc Data;
+
+    /// <summary>
+    /// Use this for adhoc storage
+    /// </summary>
+    public JsonDataMap State;
 
     private Exception m_Error;
 
@@ -44,6 +51,19 @@ namespace Azos.Scripting.Expressions.Data
     /// Clears current error
     /// </summary>
     public void ClearError(){ m_Error = null; }
+
+    /// <summary>
+    /// Provides extra paths to config script for type searches. This is needed to avoid repeating
+    /// type search namespaces/assemblies multiple times
+    /// Default implementation adds `Azos.Scripting.Expressions.Data, Azos`
+    /// </summary>
+    public virtual IEnumerable<string> TypeSearchPaths
+    {
+      get
+      {
+        yield return "Azos.Scripting.Expressions.Data, Azos";
+      }
+    }
 
   }
 }

@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 
 using Azos.Data;
 using Azos.Data.Business;
+using Azos.Geometry;
+using Azos.Standards;
 
 namespace Azos.Conf.Forest
 {
@@ -57,7 +59,26 @@ namespace Azos.Conf.Forest
     /// <param name="cache">Controls cache options used by the call, such as bypass cache etc.</param>
     /// <returns>TreeNodeInfo object or null if such item is not found</returns>
     Task<TreeNodeInfo> GetNodeInfoAsync(EntityId id, DateTime? asOfUtc = null, ICacheParams cache = null);
+
+    /// <summary>
+    /// Tries to navigate the path as deep as possible as of the specified point in time.
+    /// Returns null if nothing was found, otherwise returns the last node found
+    /// </summary>
+    /// <param name="idForest">Forest ID</param>
+    /// <param name="idTree">Tree id</param>
+    /// <param name="path">Tree path</param>
+    /// <param name="asOfUtc">As of which point in time to retrieve the state, if null passed then current timestamp assumed</param>
+    /// <param name="cache">Controls cache options used by the call, such as bypass cache etc.</param>
+    /// <returns>A node which was the last node found processing the path from its root, or null if nothing was found</returns>
+    Task<TreeNodeInfo> ProbePathAsync(Atom idForest, Atom idTree, string path, DateTime? asOfUtc = null, ICacheParams cache = null);
+
+    /// <summary>
+    /// Executes a GeoQuery - a filter on tree node data returning a list of nodes proximal to the specified point/location
+    /// </summary>
+    Task<IEnumerable<TreeNodeInfo>> ExecGeoQueryAsync(GeoQuery query);
   }
+
+
 
   /// <summary>
   /// Defines setup operations for forest tree structures: Saving and Deleting tree nodes.

@@ -106,7 +106,7 @@ namespace Azos.Client
       var nopt = conf[CONFIG_JSON_READING_SECTION]; //AZ#909
       if (nopt.Exists)
       {
-        m_JsonReadingOptions = new JsonReadingOptions(nopt);
+        JsonReadingOptions = new JsonReadingOptions(nopt);
       }
     }
 
@@ -120,7 +120,6 @@ namespace Azos.Client
     private object m_Lock = new object();
     private HttpClientHandler m_ClientHandler;
     private HttpClient m_Client;
-    private JsonReadingOptions m_JsonReadingOptions;
 
     /// <summary>
     /// Physical URI of the endpoint (the physical address of Http endpoint) base address.

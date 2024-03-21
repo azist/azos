@@ -69,9 +69,39 @@ namespace Azos.Tests.Nub.Configuration
     }
 
     [Run]
+    public void Make_6_01()
+    {
+      var cfg = "a{ type=ClassAB  }".AsLaconicConfig();
+      cfg.TypeSearchPaths = new[]{ "Azos.Tests.Nub.Configuration, Azos.Tests.Nub" };
+      var got = FactoryUtils.Make<ClassAB>(cfg);
+      Aver.IsNotNull(got);
+      Aver.IsTrue(got is ClassAB);
+    }
+
+    [Run]
+    public void Make_6_02()
+    {
+      var cfg = "a{ type-path='System.Collections'  type=ClassAB  }".AsLaconicConfig();
+      cfg.TypeSearchPaths = new[] { "Azos.Tests.Nub.Configuration, Azos.Tests.Nub" };
+      var got = FactoryUtils.Make<ClassAB>(cfg);
+      Aver.IsNotNull(got);
+      Aver.IsTrue(got is ClassAB);
+    }
+
+    [Run]
     public void Make_7()
     {
       var cfg = "a{ type-path='Azos.Tests.Nub.Configuration, Azos.Tests.Nub' b{ type=ClassAB } }".AsLaconicConfig();
+      var got = FactoryUtils.Make<ClassAB>(cfg["b"]);
+      Aver.IsNotNull(got);
+      Aver.IsTrue(got is ClassAB);
+    }
+
+    [Run]
+    public void Make_7_01()
+    {
+      var cfg = "a{  b{ type=ClassAB }  }".AsLaconicConfig();
+      cfg.TypeSearchPaths = new[] { "Azos.Tests.Nub.Configuration, Azos.Tests.Nub" };
       var got = FactoryUtils.Make<ClassAB>(cfg["b"]);
       Aver.IsNotNull(got);
       Aver.IsTrue(got is ClassAB);
