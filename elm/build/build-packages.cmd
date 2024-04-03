@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.8.0.12
-set HEADLINE=#910 Conf Forest probe
+set VER=3.8.0.13
+set HEADLINE=#912 Fix Uri query builder
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
