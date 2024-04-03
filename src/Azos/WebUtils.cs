@@ -270,7 +270,15 @@ namespace Azos
     public override string ToString()
     {
       var query = WebUtils.ComposeURLQueryString(Data);
-      return Uri.IsNotNullOrEmpty() ? Uri + (query.IsNotNullOrWhiteSpace()? "?" : "") + query : query;
+      if (query.IsNullOrWhiteSpace()) return Uri ?? string.Empty;
+
+      if (Uri.IsNotNullOrWhiteSpace())
+      {
+        var hasQuery = Uri.IndexOf("?") >= 0;
+
+        return hasQuery ? $"{Uri}&{query}" : $"{Uri}?{query}";
+      }
+      return query;
     }
 
     public string ComposedUri => ToString();

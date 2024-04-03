@@ -89,5 +89,32 @@ namespace Azos.Tests.Nub
       Aver.AreEqual("?eq=32 * sin(x) ^ 2   /   cos(y)-2 ^ e", Uri.UnescapeDataString(uri.Query));
     }
 
+    [Run] //#912
+    public void Test_11_existing_parametrs()
+    {
+      var sut = new UriQueryBuilder("http://yahoo.com?a=1&b=2") { { "c", "c_value" } };
+      Aver.AreEqual("http://yahoo.com?a=1&b=2&c=c_value", sut.ToString());
+
+      sut = new UriQueryBuilder("http://yahoo.com") { { "c", "c_value" } };
+      Aver.AreEqual("http://yahoo.com?c=c_value", sut.ToString());
+
+      sut = new UriQueryBuilder("snake") { { "c", "c_value" } };
+      Aver.AreEqual("snake?c=c_value", sut.ToString());
+
+      sut = new UriQueryBuilder("http://yahoo.com/snake") { { "c", "c_value" } };
+      Aver.AreEqual("http://yahoo.com/snake?c=c_value", sut.ToString());
+
+
+      sut = new UriQueryBuilder("http://yahoo.com/snake?toady=true") { { "c", "c_value" } };
+      Aver.AreEqual("http://yahoo.com/snake?toady=true&c=c_value", sut.ToString());
+
+      sut = new UriQueryBuilder("http://yahoo.com/snake?toady=true") { { "c", "c_value" }, { "meduza", " Sometimes  " } };
+      Aver.AreEqual("http://yahoo.com/snake?toady=true&c=c_value&meduza=%20Sometimes%20%20", sut.ToString());
+
+      sut = new UriQueryBuilder(null) { { "c", "c_value" }, { "z", "345" } };
+      Aver.AreEqual("c=c_value&z=345", sut.ToString());
+
+    }
+
   }
 }
