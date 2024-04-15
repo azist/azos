@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.9.0.1
-set HEADLINE=OAuth access and refresh token expiry review
+set VER=3.9.0.2
+set HEADLINE=SchemaSerializer.DeserContext type mapper
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

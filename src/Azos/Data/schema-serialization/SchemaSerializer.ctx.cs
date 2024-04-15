@@ -74,7 +74,7 @@ namespace Azos.Data
         RootMap = rootMap.NonNull(nameof(rootMap));
         Schemas = new Dictionary<string, Schema>();
         TargetFilter = targetFilter ?? DefaultTargetFilter;
-        TypeMapper = typeMapper ?? DefaultTypeMapper;
+        TypeMapper = typeMapper ?? DefaultTypeMapper<DynamicDoc>;
       }
 
       public readonly JsonDataMap RootMap;
