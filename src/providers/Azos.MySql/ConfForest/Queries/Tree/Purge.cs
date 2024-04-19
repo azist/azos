@@ -52,8 +52,8 @@ namespace Azos.MySql.ConfForest.Queries.Tree
           0x000000000000000000000001, -- G_PARENT
           '/', -- PATH_SEGMENT
           '1000-01-01 00:00:00', -- START_UTC
-          '{""r"": {}}', -- PROPERTIES
-          '{""r"": {}}'-- CONFIG
+          '{""prop"": {}}', -- PROPERTIES
+          '{""conf"": {}}'-- CONFIG
         )"
       ).ConfigureAwait(false);
 

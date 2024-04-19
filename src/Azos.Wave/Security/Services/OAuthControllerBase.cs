@@ -175,9 +175,9 @@ namespace Azos.Security.Services
         Description = "OAuth"
       };
 
-      if (OAuth.AccessTokenLifespanSec > 0)
+      if (OAuth.AccessTokenLifespanSec > 0 || OAuth.RefreshTokenLifespanSec > 0)
       {
-        oauthCtx.SysAuthTokenValiditySpanSec = OAuth.AccessTokenLifespanSec + 60;//+1 min for login
+        oauthCtx.SysAuthTokenValiditySpanSec = Math.Max(OAuth.AccessTokenLifespanSec, OAuth.RefreshTokenLifespanSec) + 60;//+1 min for login
       }
 
       ConfigureAuthenticationRequestContext(loginFlow, oauthCtx);

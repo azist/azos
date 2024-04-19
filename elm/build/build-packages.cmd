@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.8.0.11
-set HEADLINE=#904 Field nav state and subscripts
+set VER=3.9.0.2
+set HEADLINE=SchemaSerializer.DeserContext type mapper
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

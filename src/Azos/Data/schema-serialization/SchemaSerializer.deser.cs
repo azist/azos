@@ -127,9 +127,9 @@ namespace Azos.Data
     }
 
     /// <summary>
-    /// Default type mapper maps from `type?[]` string
+    /// Default type mapper maps from `type?[]` string. Pass Generic arg to set a baseline complex sub-type of `DynamicDoc`
     /// </summary>
-    private static (Type t, Schema sch) DefaultTypeMapper(DeserCtx ctx, object tspec)
+    public static (Type t, Schema sch) DefaultTypeMapper<TComplexTypeWithSchema>(DeserCtx ctx, object tspec) where TComplexTypeWithSchema : DynamicDoc
     {
       var spec = tspec.NonNull(nameof(tspec)).AsString();
 
@@ -139,10 +139,12 @@ namespace Azos.Data
       var isNullable = spec.EndsWith("?");
       if (isNullable) spec = spec.Replace("?", "");
 
+      //20240415 Tristan, DKh, JPK
+      //If this is a complex type
       var isSchema = spec.StartsWith("#");
       if (isSchema)
       {
-        var t = typeof(DynamicDoc);
+        var t = typeof(TComplexTypeWithSchema);
         if (isArray) t = t.MakeArrayType();
         var schema = ctx.GetSchemaByHandle(spec);
         return (t, schema);

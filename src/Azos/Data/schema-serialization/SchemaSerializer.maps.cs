@@ -16,7 +16,7 @@ namespace Azos.Data
   partial class SchemaSerializer
   {
     //primitive types, DO NOT include nullables
-    private static readonly Dictionary<Type, string> PRIMITIVE_TYPES = new() {
+    public static readonly IReadOnlyDictionary<Type, string> PRIMITIVE_TYPES = new Dictionary<Type, string>() {
       {typeof(string), "string"},
       {typeof(char),   "char"},
       {typeof(bool),   "bool"},
@@ -42,6 +42,6 @@ namespace Azos.Data
 
     };
 
-    private static readonly Dictionary<string, Type> PRIMITIVE_MONIKERS = new(PRIMITIVE_TYPES.Select(kvp => new KeyValuePair<string, Type>(kvp.Value, kvp.Key)));
+    public static readonly IReadOnlyDictionary<string, Type> PRIMITIVE_MONIKERS = new Dictionary<string, Type>(PRIMITIVE_TYPES.Select(kvp => new KeyValuePair<string, Type>(kvp.Value, kvp.Key)));
   }
 }
