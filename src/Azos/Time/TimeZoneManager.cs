@@ -21,7 +21,7 @@ namespace Azos.Time
     public const string CONFIG_NAMES_ATTR = "names";
 
 
-    public TimeZoneManager(IApplication application) : base(application)
+    public TimeZoneManager(IModule parent) : base(parent)
     {
       m_Mappings = new Registry<TimeZoneMapping>();
     }
@@ -61,15 +61,23 @@ namespace Azos.Time
         }
 
         if (iana.IsNotNullOrWhiteSpace())
-          m_Mappings.Register(new TimeZoneMapping(iana, TimeZoneMappingType.IANA, data, info)).IsTrue($"Unique id '{iana}'");
+          m_Mappings.Register(new TimeZoneMapping(iana, TimeZoneMappingType.IANA, data, info)).IsTrue($"Unique IANA id '{iana}'");
 
         if (win.IsNotNullOrWhiteSpace())
-          m_Mappings.Register(new TimeZoneMapping(win, TimeZoneMappingType.Windows, data, info)).IsTrue($"Unique id '{win}'");
+          m_Mappings.Register(new TimeZoneMapping(win, TimeZoneMappingType.Windows, data, info));//WINDOWS names are NOT unique by design!
+
+        var names = nmap.ValOf(CONFIG_NAMES_ATTR)?.Split(',', ';');
+        if (names != null)
+        {
+          foreach (var oneName in names.Where(n => n.IsNotNullOrWhiteSpace()))
+            m_Mappings.Register(new TimeZoneMapping(oneName, TimeZoneMappingType.SysAlias, data, info)).IsTrue($"Unique sys alias '{oneName}'");
+        }
       }
 
       foreach (var nzone in node.ChildrenNamed(CONFIG_ZONE_SECTION))
       {
-        var names = nzone.ValOf(CONFIG_NAMES_ATTR).Split(',',';');
+        var names = nzone.ValOf(CONFIG_NAMES_ATTR)?.Split(',',';');
+        names.NonNull($"Configured `${CONFIG_NAMES_ATTR}`");
         foreach(var oneName in names.Where(n => n.IsNotNullOrWhiteSpace()))
           m_Mappings.Register(new TimeZoneMapping(oneName, nzone)).IsTrue($"Unique id '{oneName}'");
       }
@@ -81,7 +89,6 @@ namespace Azos.Time
 
     /// <inheritdoc/>
     public TimeZoneMapping TryGetZoneMapping(string name) => m_Mappings[name.NonBlank(nameof(name))];
-
     #endregion
   }
 }

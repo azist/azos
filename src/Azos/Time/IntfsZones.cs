@@ -40,7 +40,8 @@ namespace Azos.Time
   {
     Custom = 0,
     IANA = 1,
-    Windows = 2
+    Windows = 2,
+    SysAlias = 3
   }
 
   /// <summary>
@@ -130,10 +131,10 @@ namespace Azos.Time
     public bool IsWindows => m_MappingType == TimeZoneMappingType.Windows;
 
     /// <summary> Custom mapping type - not IANA or Windows </summary>
-    public bool IsCustom => !IsIana && !IsWindows;
+    public bool IsCustom => m_MappingType == TimeZoneMappingType.Custom;
 
     /// <summary> System mapping type - either an IANA or Windows </summary>
-    public bool IsSystem => IsIana || IsWindows;
+    public bool IsSystem => !IsCustom;
 
     /// <summary> Provides arbitrary data attached to this mapping OR NULL if not custom data was present </summary>
     public IConfigSectionNode Data => m_Data;
