@@ -78,7 +78,7 @@ namespace Azos.Time
       {
         var names = nzone.ValOf(CONFIG_NAMES_ATTR)?.Split(',',';');
         names.NonNull($"Configured `${CONFIG_NAMES_ATTR}`");
-        foreach(var oneName in names.Where(n => n.IsNotNullOrWhiteSpace()))
+        foreach(var oneName in names.Where(n => n.IsNotNullOrWhiteSpace()).Select(one => one.Trim()))
           m_Mappings.Register(new TimeZoneMapping(oneName, nzone)).IsTrue($"Unique id '{oneName}'");
       }
     }

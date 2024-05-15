@@ -124,14 +124,19 @@ app
 
         Aver.AreNotSameRef(z1, kuk1);
         Aver.AreNotSameRef(z1, utc1);
+        Aver.AreNotSameRef(z1.ZoneInfo, kuk1.ZoneInfo);
+        Aver.AreNotSameRef(kuk1.ZoneInfo, utc1.ZoneInfo);
 
-        Aver.AreSameRef(z1.ZoneInfo, kuk1.ZoneInfo);
-        Aver.AreSameRef(kuk1.ZoneInfo, utc1.ZoneInfo);
-
-        Aver.AreEqual("(UTC+00:00) UTC/Kukarbattcha Rajnakhuratt", kuk1.ZoneInfo.DisplayName);
+        Aver.AreEqual("(UTC+00:00) UTC/Kukarbattcha Rajnakhuratt", utc1.ZoneInfo.DisplayName);
+        Aver.AreEqual("(UTC+00:00) UTC/Kukarbattcha Rajnakhuratt STD", utc1.ZoneInfo.StandardName);
+        Aver.AreEqual("(UTC+00:00) UTC/Kukarbattcha Rajnakhuratt",     kuk1.ZoneInfo.DisplayName);
         Aver.AreEqual("(UTC+00:00) UTC/Kukarbattcha Rajnakhuratt STD", kuk1.ZoneInfo.StandardName);
-        Aver.AreEqual(0, utc1.ZoneInfo.BaseUtcOffset.TotalSeconds);
+        Aver.AreEqual(0, z1.ZoneInfo.BaseUtcOffset.TotalSeconds);
+        Aver.AreEqual(0, kuk1.ZoneInfo.BaseUtcOffset.TotalSeconds);
+        Aver.AreEqual(0, kuk1.ZoneInfo.BaseUtcOffset.TotalSeconds);
 
+        Aver.IsNotNull(z1.Data);
+        Aver.AreEqual("Marra the lord of avidiya", z1.Data.Of("secret").Value);
         Aver.IsNotNull(kuk1.Data);
         Aver.AreEqual("Marra the lord of avidiya", kuk1.Data.Of("secret").Value);
       }
