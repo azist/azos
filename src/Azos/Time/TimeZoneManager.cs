@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Azos.Apps;
 using Azos.Collections;
@@ -39,17 +40,26 @@ namespace Azos.Time
         var data = nmap["data"];
 
         TimeZoneInfo info = null;
-        if (iana.IsNotNullOrWhiteSpace())
-        {
-          info = TimeZoneInfo.FindSystemTimeZoneById(iana);
-          m_Mappings.Register(new TimeZoneMapping(iana, TimeZoneMappingType.IANA, data, info)).IsTrue($"Unique id '{iana}'");
-        }
 
+        if (iana.IsNotNullOrWhiteSpace())
+          info = TimeZoneInfo.GetSystemTimeZones().FirstOrDefault(one => one.Id.EqualsIgnoreCase(iana));
+        if (info == null && win.IsNotNullOrWhiteSpace())
+          info = TimeZoneInfo.GetSystemTimeZones().FirstOrDefault(one => one.Id.EqualsIgnoreCase(win));
+
+        info.NonNull($"System time zone `{iana.Default(win)}`");
+
+        if (iana.IsNotNullOrWhiteSpace())
+          m_Mappings.Register(new TimeZoneMapping(iana, TimeZoneMappingType.IANA, data, info)).IsTrue($"Unique id '{iana}'");
+
+        if (win.IsNotNullOrWhiteSpace())
+          m_Mappings.Register(new TimeZoneMapping(win, TimeZoneMappingType.Windows, data, info)).IsTrue($"Unique id '{win}'");
       }
 
       foreach (var nzone in node.ChildrenNamed(CONFIG_ZONE_SECTION))
       {
-
+        var names = nzone.ValOf("names").Split(',',';');
+        foreach(var oneName in names.Where(n => n.IsNotNullOrWhiteSpace()))
+          m_Mappings.Register(new TimeZoneMapping(oneName, nzone)).IsTrue($"Unique id '{oneName}'");
       }
     }
 
