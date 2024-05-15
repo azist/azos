@@ -16,6 +16,11 @@ namespace Azos.Time
     public const string CONFIG_ZONE_SECTION = "zone";
     public const string CONFIG_MAP_SECTION = "map";
 
+    public const string CONFIG_IANA_ATTR = "iana";
+    public const string CONFIG_WIN_ATTR = "win";
+    public const string CONFIG_NAMES_ATTR = "names";
+
+
     public TimeZoneManager(IApplication application) : base(application)
     {
       m_Mappings = new Registry<TimeZoneMapping>();
@@ -35,9 +40,9 @@ namespace Azos.Time
 
       foreach(var nmap in node.ChildrenNamed(CONFIG_MAP_SECTION))
       {
-        var iana = nmap.ValOf("iana");
-        var win = nmap.ValOf("win");
-        var data = nmap["data"];
+        var iana = nmap.ValOf(CONFIG_IANA_ATTR);
+        var win = nmap.ValOf(CONFIG_WIN_ATTR);
+        var data = nmap[TimeZoneMapping.CONFIG_DATA_SECT];
 
         TimeZoneInfo info = null;
 
@@ -48,6 +53,13 @@ namespace Azos.Time
 
         info.NonNull($"System time zone `{iana.Default(win)}`");
 
+        if (data != null && data.Exists)
+        {
+          var cc = new MemoryConfiguration();
+          cc.CreateFromNode(data);
+          data = cc.Root;
+        }
+
         if (iana.IsNotNullOrWhiteSpace())
           m_Mappings.Register(new TimeZoneMapping(iana, TimeZoneMappingType.IANA, data, info)).IsTrue($"Unique id '{iana}'");
 
@@ -57,7 +69,7 @@ namespace Azos.Time
 
       foreach (var nzone in node.ChildrenNamed(CONFIG_ZONE_SECTION))
       {
-        var names = nzone.ValOf("names").Split(',',';');
+        var names = nzone.ValOf(CONFIG_NAMES_ATTR).Split(',',';');
         foreach(var oneName in names.Where(n => n.IsNotNullOrWhiteSpace()))
           m_Mappings.Register(new TimeZoneMapping(oneName, nzone)).IsTrue($"Unique id '{oneName}'");
       }

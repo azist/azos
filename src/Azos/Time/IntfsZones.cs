@@ -49,6 +49,14 @@ namespace Azos.Time
   /// </summary>
   public sealed class TimeZoneMapping : INamed
   {
+    public const string CONFIG_DATA_SECT = "data";
+    public const string CONFIG_PROVIDER_SECT = "provider";
+
+    public const string CONFIG_UTC_OFFSET_ATTR = "utc-offset";
+    public const string CONFIG_DISPLAY_NAME_ATTR = "display-name";
+    public const string CONFIG_STANDARD_NAME_ATTR = "standard-name";
+
+
     /// <summary>
     /// Provides abstraction for getting complex <see cref="TimeZoneInfo"/> instances with
     /// custom <see cref="TimeZoneInfo.AdjustmentRule"/> and <see cref="TimeZoneInfo.TransitionTime"/> settings.
@@ -68,15 +76,15 @@ namespace Azos.Time
       cfg.NonEmpty(nameof(cfg));
       m_Name = name.NonBlank(nameof(name));
       m_MappingType = TimeZoneMappingType.Custom;
-      var ndata = cfg["data"];
+      var ndata = cfg[CONFIG_DATA_SECT];
       if (ndata.Exists)
       {
-        var cc = new LaconicConfiguration();
+        var cc = new MemoryConfiguration();
         cc.CreateFromNode(ndata);
         m_Data = cc.Root;
       }
 
-      var nprovider = cfg["provider"];
+      var nprovider = cfg[CONFIG_PROVIDER_SECT];
       if (nprovider.Exists)
       {
         var provider = FactoryUtils.Make<InfoProvider>(nprovider, args: new []{ nprovider});
@@ -84,9 +92,9 @@ namespace Azos.Time
       }
       else
       {
-        var utcOffset = cfg.Of("utc-offset").ValueAsTimeSpan(TimeSpan.Zero);
-        var displayName =  cfg.ValOf("display-name");
-        var stdName = cfg.ValOf("std-name");
+        var utcOffset = cfg.Of(CONFIG_UTC_OFFSET_ATTR).ValueAsTimeSpan(TimeSpan.Zero);
+        var displayName =  cfg.ValOf(CONFIG_DISPLAY_NAME_ATTR);
+        var stdName = cfg.ValOf(CONFIG_STANDARD_NAME_ATTR);
         m_Info = TimeZoneInfo.CreateCustomTimeZone(m_Name, utcOffset, displayName, stdName);
       }
     }
@@ -98,14 +106,7 @@ namespace Azos.Time
     {
       m_Name = name.NonBlank(nameof(name));
       m_MappingType = type;
-
-      if (data != null && data.Exists)
-      {
-        var cc = new LaconicConfiguration();
-        cc.CreateFromNode(data);
-        m_Data = cc.Root;
-      }
-
+      m_Data = data;
       m_Info = sysInfo.NonNull(nameof(sysInfo));
     }
 
