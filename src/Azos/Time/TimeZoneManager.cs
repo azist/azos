@@ -34,6 +34,16 @@ namespace Azos.Time
 
       foreach(var nmap in node.ChildrenNamed(CONFIG_MAP_SECTION))
       {
+        var iana = nmap.ValOf("iana");
+        var win = nmap.ValOf("win");
+        var data = nmap["data"];
+
+        TimeZoneInfo info = null;
+        if (iana.IsNotNullOrWhiteSpace())
+        {
+          info = TimeZoneInfo.FindSystemTimeZoneById(iana);
+          m_Mappings.Register(new TimeZoneMapping(iana, TimeZoneMappingType.IANA, data, info)).IsTrue($"Unique id '{iana}'");
+        }
 
       }
 
@@ -44,16 +54,11 @@ namespace Azos.Time
     }
 
     #region ITimeZoneManager
+    /// <inheritdoc/>
+    public TimeZoneMapping GetZoneMapping(string name) => TryGetZoneMapping(name).NonNull($"Existing zone mapping '{name}'");
 
-    public TimeZoneMapping GetZoneMapping(string name)
-    {
-      throw new NotImplementedException();
-    }
-
-    public TimeZoneMapping TryGetZoneMapping(string name)
-    {
-      throw new NotImplementedException();
-    }
+    /// <inheritdoc/>
+    public TimeZoneMapping TryGetZoneMapping(string name) => m_Mappings[name.NonBlank(nameof(name))];
 
     #endregion
   }
