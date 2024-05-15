@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.9.0.3
-set HEADLINE=Add trim to MultifieldScalarPredicate
+set VER=3.9.0.4
+set HEADLINE=Add TimeZoneManager
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
