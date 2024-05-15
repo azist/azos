@@ -39,10 +39,12 @@ app
 
       zone
       {
-        names='z1,kukurbatcha,utc'
+        names='z1 ,  kukurbatcha ,utc    '
         utc-offset='00:00'
         display-name='(UTC+00:00) UTC/Kukarbattcha Rajnakhuratt'
         standard-name='(UTC+00:00) UTC/Kukarbattcha Rajnakhuratt STD'
+
+        data{ secret='Marra the lord of avidiya'}
       }
     }
   }
@@ -116,8 +118,22 @@ app
       {
         var sut = app.ModuleRoot.Get<TimeZoneManager>();
 
+        var z1 = sut.GetZoneMapping("z1");
+        var kuk1 = sut.GetZoneMapping("kukurbatcha");
+        var utc1 = sut.GetZoneMapping("utc");
 
+        Aver.AreNotSameRef(z1, kuk1);
+        Aver.AreNotSameRef(z1, utc1);
 
+        Aver.AreSameRef(z1.ZoneInfo, kuk1.ZoneInfo);
+        Aver.AreSameRef(kuk1.ZoneInfo, utc1.ZoneInfo);
+
+        Aver.AreEqual("(UTC+00:00) UTC/Kukarbattcha Rajnakhuratt", kuk1.ZoneInfo.DisplayName);
+        Aver.AreEqual("(UTC+00:00) UTC/Kukarbattcha Rajnakhuratt STD", kuk1.ZoneInfo.StandardName);
+        Aver.AreEqual(0, utc1.ZoneInfo.BaseUtcOffset.TotalSeconds);
+
+        Aver.IsNotNull(kuk1.Data);
+        Aver.AreEqual("Marra the lord of avidiya", kuk1.Data.Of("secret").Value);
       }
     }
 
