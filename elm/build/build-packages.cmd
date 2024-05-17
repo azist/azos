@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.9.0.4
-set HEADLINE=Add TimeZoneManager
+set VER=3.9.0.5
+set HEADLINE=Add TagVal
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
