@@ -1,6 +1,6 @@
 @echo on
 
-set VER=3.9.0.5
+set VER=3.9.0.6
 set HEADLINE=Add TagVal
 call build-all Release %VER%
 

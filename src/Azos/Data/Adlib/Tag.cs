@@ -101,6 +101,7 @@ namespace Azos.Data.Adlib
       return state;
     }
 
+    public override string ToString() => IsAssigned ? (IsText ? $"Tag({Prop}=`{SValue}`)" : $"Tag({Prop}={NValue}") : "Tag(<unassigned>)";
     public bool Equals(Tag other) => this.Prop == other.Prop && this.SValue.EqualsOrdSenseCase(other.SValue) && this.NValue == other.NValue;
     public override bool Equals(object obj) => obj is Tag tag ? this.Equals(tag) : false;
     public override int GetHashCode() => Prop.GetHashCode() ^ ((SValue != null) ? SValue.GetHashCode() : NValue.GetHashCode());
@@ -195,6 +196,7 @@ namespace Azos.Data.Adlib
       return state;
     }
 
+    public override string ToString() => IsText ? $"`{SValue}`" : $"{NValue}";
     public bool Equals(TagVal other) => this.SValue.EqualsOrdSenseCase(other.SValue) && this.NValue == other.NValue;
     public override bool Equals(object obj) => obj is TagVal tval ? this.Equals(tval) : false;
     public override int GetHashCode() => (SValue != null) ? SValue.GetHashCode() : NValue.GetHashCode();
