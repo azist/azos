@@ -277,7 +277,7 @@ namespace Azos.Data.Access.MsSql
             populateDoc(doc, reader, command);
             result.Add(doc);
 
-            if (result.Count > limit) break;
+            if (result.Count > limit) throw new DataAccessException("Row limit of {0} is exceeded".Args(limit));
           }
         }
       }
