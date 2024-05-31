@@ -25,7 +25,7 @@ namespace Azos.Data.Access.MsSql
     /// <summary>
     /// Absolute maximum number of rows to fetch at once
     /// </summary>
-    public const int FETCH_LIMIT = 1000;
+    public const int DEFAULT_FETCH_LIMIT = 1000;
 
 
     /// <summary>
@@ -250,9 +250,14 @@ namespace Azos.Data.Access.MsSql
       }
     }
 
+
+    protected virtual int GetFetchLimit(Command command, bool isSql) => DEFAULT_FETCH_LIMIT;
+
     private async Task<Rowset> readAsync(SqlConnection connection, Command command, bool isSql)
     {
       Rowset result = null;
+
+      var limit = GetFetchLimit(command, isSql);
 
       using(var cmd = connection.CreateCommand())
       {
@@ -272,7 +277,7 @@ namespace Azos.Data.Access.MsSql
             populateDoc(doc, reader, command);
             result.Add(doc);
 
-            if (result.Count > FETCH_LIMIT) break;
+            if (result.Count > limit) break;
           }
         }
       }

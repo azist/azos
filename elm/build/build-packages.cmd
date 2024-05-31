@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.9.0.6
-set HEADLINE=Add TagVal
+set VER=3.9.0.7
+set HEADLINE=FetchLimit or data rpc MsSql
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
