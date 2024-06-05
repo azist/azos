@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
 using Azos.Conf;
 using Azos.Data;
 using Azos.Serialization.JSON;
@@ -90,6 +91,42 @@ namespace Azos.Time
       public bool Equals(Span other) => this.Start == other.Start && this.DurationMinutes == other.DurationMinutes;
       public int CompareTo(Span other) => this.StartMinute < other.StartMinute ? -1 : this.StartMinute > other.StartMinute ? +1 : 0;
 
+      /// <summary>
+      /// Returns true if both spans are assigned and intersect in time
+      /// </summary>
+      public bool IntersectsWith(Span other)
+      {
+        if (!IsAssigned || !other.IsAssigned) return false;
+        return (other.StartMinute <= this.FinishMinute) && (other.FinishMinute >= this.StartMinute);
+      }
+
+      /// <summary>
+      /// Returns an intersection span of this span with another, or an unassigned span if they do not intersect
+      /// </summary>
+      public Span Intersect(Span other)
+      {
+        if (!IsAssigned || !other.IsAssigned) return default;
+        if (other.FinishMinute < this.StartMinute) return default;
+        if (other.StartMinute > this.FinishMinute) return default;
+
+        if (other.StartMinute < this.StartMinute)
+          return new Span(this.StartMinute, Math.Min(this.FinishMinute, other.FinishMinute) - this.StartMinute);
+        else
+          return new Span(other.StartMinute, Math.Min(other.FinishMinute, this.FinishMinute) - other.StartMinute);
+      }
+
+      /// <summary>
+      /// Returns a single new span which covers both original and the other spans AND any time in between (if any)
+      /// </summary>
+      public Span Join(Span other)
+      {
+        if (!IsAssigned) return other;
+        if (!other.IsAssigned) return this;
+
+        var s = Math.Min(this.StartMinute, other.StartMinute);
+        return new Span(s, Math.Max(this.FinishMinute, other.FinishMinute) - s);
+      }
+
       public static bool operator ==(Span a, Span b) =>  a.Equals(b);
       public static bool operator !=(Span a, Span b) => !a.Equals(b);
     }
@@ -105,12 +142,27 @@ namespace Azos.Time
       return result;
     }
 
+    /// <summary>
+    /// "Unparses" the span[] to string (which can be parsed back). Returns null for null input, empty string for empty array
+    /// </summary>
+    public static string Unparse(IEnumerable<Span> data)
+    {
+      if (data == null) return null;
+      var sb = new StringBuilder(128);
+      foreach (var one in data)
+      {
+        sb.Append(one.ToString());
+        sb.Append(',');
+      }
+      return sb.ToString();
+    }
+
     public static bool TryParse(string v, out HourList result)
     {
       var data = parse(v);
       if (data == null)
       {
-        result = default(HourList);
+        result = default;
         return false;
       }
 
@@ -123,6 +175,12 @@ namespace Azos.Time
     {
       Data = data;
       m_Spans = null;
+    }
+
+    public HourList(IEnumerable<Span> data)
+    {
+      Data = Unparse(data);
+      m_Spans = data?.ToArray();
     }
 
     [ConfigCtor]
@@ -182,11 +240,11 @@ namespace Azos.Time
     {
       get
       {
-        if (i<0) return default(Span);
-        if (m_Spans != null) return i < m_Spans.Length ? m_Spans[i] : default(Span);
-        if (!IsAssigned) return default(Span);
+        if (i<0) return default;
+        if (m_Spans != null) return i < m_Spans.Length ? m_Spans[i] : default;
+        if (!IsAssigned) return default;
         parseState();
-        return i < m_Spans.Length ? m_Spans[i] : default(Span);
+        return i < m_Spans.Length ? m_Spans[i] : default;
       }
     }
 
@@ -254,6 +312,44 @@ namespace Azos.Time
       }
       return state;
     }
+
+    /// <summary>
+    /// Creates an enumeration of ordered spans (suitable for creation of `HourList`) by including time spans from another one and merging them together in a new enumeration
+    /// </summary>
+    public static IEnumerable<Span> Include(IEnumerable<Span> self, IEnumerable<Span> other)
+    {
+      if (self == null) return other;
+      if (other == null) return self;
+
+      var all = self.Concat(other)
+                    .OrderBy(one => one.StartMinute).ToList();
+
+      for (var i = 0; i < all.Count - 1;)
+      {
+        if (all[i].IntersectsWith(all[i + 1]))
+        {
+          var sum = all[i].Join(all[i + 1]);
+          all[i] = sum;
+          all.RemoveAt(i + 1);
+        }
+        else i++;
+      }
+
+      return all;
+    }
+
+    /// <summary>
+    /// Creates a new HourList by including time spans from another one and merging them together
+    /// </summary>
+    public HourList Include(HourList other) => new HourList(Include(this.Spans, other.Spans));
+
+    //public HourList Exclude(HourList other)
+    //{
+
+    //}
+
+
+
 
     private void parseState()
     {
