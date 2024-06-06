@@ -116,7 +116,50 @@ namespace Azos.Time
       }
 
       /// <summary>
-      /// Returns a single new span which covers both original and the other spans AND any time in between (if any)
+      /// Returns true if THIS span completely contains (covers) the other span, that is: the other span intersects with this one
+      /// and it is smaller than or the same size as this one
+      /// </summary>
+      public bool CoversAnother(Span other)
+      {
+        if (!IsAssigned || !other.IsAssigned) return false;
+        return (other.StartMinute >= this.StartMinute && other.FinishMinute <= this.FinishMinute);
+      }
+
+
+      ///// <summary>
+      ///// Returns either a single span which is this span with subtracted other span, or two spans which
+      ///// come out of this span with the other span cut-out in the bounds of the original span
+      ///// </summary>
+      //public (Span a, Span b) Exclude(Span other)
+      //{
+      //  if (!IsAssigned || !other.IsAssigned) return default;
+      //  if (other.FinishMinute < this.StartMinute) return (this, default);
+      //  if (other.StartMinute > this.FinishMinute) return (this, default);
+
+      //  if (this.CoversAnother(other)) //split in 2
+      //  {
+      //    if (this == other) return default;
+      //    var af = other.StartMinute - 1;
+      //    if (af < this.StartMinute) return (new Span(other.FinishMinute + 1, this.FinishMinute - (other.FinishMinute + 1) ), default);
+
+      //    var ra = new Span(this.StartMinute, af);
+      //    var bs = other.FinishMinute + 1;
+      //    if (bs > this.FinishMinute) return (ra, default);
+
+      //    var rb = new Span(bs, this.FinishMinute - bs);
+      //    return (ra, rb);
+      //  }
+      //  else //produce 1
+      //  {
+
+
+      //  }
+
+      //}
+
+
+      /// <summary>
+      /// Returns a single new span which covers both the original and the other spans AND any time in between (if any)
       /// </summary>
       public Span Join(Span other)
       {
@@ -343,10 +386,28 @@ namespace Azos.Time
     /// </summary>
     public HourList Include(HourList other) => new HourList(Include(this.Spans, other.Spans));
 
-    //public HourList Exclude(HourList other)
-    //{
+    /// <summary>
+    /// Creates an enumeration of ordered spans (suitable for creation of `HourList`) by excluding (punch out) time spans from another
+    /// </summary>
+    public static IEnumerable<Span> Exclude(IEnumerable<Span> self, IEnumerable<Span> other)
+    {
+      if (self == null) return other;
+      if (other == null) return self;
 
-    //}
+      var result = self.OrderBy(one => one.StartMinute).ToList();
+
+      for (var i = 0; i < result.Count;)
+      {
+        var another = other.FirstOrDefault(one => one.IntersectsWith(result[i]));
+        if (another.IsAssigned)
+        {
+    //      var xor = result[i].Exclude(another);//this may produce > 1 segment
+        }
+        else i++;
+      }
+
+      return result;
+    }
 
 
 
