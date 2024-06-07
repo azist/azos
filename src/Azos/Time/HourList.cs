@@ -35,25 +35,31 @@ namespace Azos.Time
       internal Span(int start, int duration)
       {
         (start <= MINUTES_PER_DAY).IsTrue("start <= MINUTES_PER_DAY");
+        (duration >= 0).IsTrue("duration >= 0");
         StartMinute = start;
         DurationMinutes = duration;
       }
 
       /// <summary>
-      /// Start minute within a day. This value is always &lt;= to MINUTES_PER_DAY
+      /// Start minute within a day. This value is always &lt;= to MINUTES_PER_DAY.
+      /// This minute includes the first minute of duration, so a span with 1 minute duration has its `StartMinute` equal to its `FinishMinute`
       /// </summary>
       public readonly int StartMinute;
 
       /// <summary>
-      /// Duration of the span within a day
+      /// Duration of the span within a day.
+      /// This is always a positive number. A value of 0 signifies an empty span
+      /// A one minute duration span has its `StartMinute` equal to its `FinishMinute`
       /// </summary>
       public readonly int DurationMinutes;
 
       /// <summary>
       /// Finish minute relative to the day of start.
-      /// Note: this can extend beyond the original day
+      /// This minute includes the last minute of duration, so a 1min span has its `FinishMinute` equal to its `StartMinute`
+      /// Note: this can extend beyond the original day.
+      /// -1 is retuned for empty spans of zero duration
       /// </summary>
-      public int FinishMinute => StartMinute + DurationMinutes;
+      public int FinishMinute => DurationMinutes > 0 ? StartMinute + DurationMinutes - 1 : -1;
 
       /// <summary>
       /// True if the span duration extends past original day 24 period.
@@ -61,8 +67,14 @@ namespace Azos.Time
       /// </summary>
       public bool EndsTheNextDay => FinishMinute > MINUTES_PER_DAY;
 
-      public bool IsAssigned => StartMinute!=0 || DurationMinutes!=0;
+      /// <summary>
+      /// True when this structure was assigned a value: either a start minute or duration is set
+      /// </summary>
+      public bool IsAssigned => StartMinute != 0 || DurationMinutes != 0;
 
+      /// <summary>
+      /// Start time string specifier, such as `14:02` using a 24 hr clock
+      /// </summary>
       public string Start
       {
         get
@@ -73,6 +85,9 @@ namespace Azos.Time
         }
       }
 
+      /// <summary>
+      /// Finish time string specifier, such as `23:09` using a 24 hr clock
+      /// </summary>
       public string Finish
       {
         get
@@ -85,7 +100,11 @@ namespace Azos.Time
         }
       }
 
+      /// <summary>
+      /// Span string specifier using a 24 hr clock, such as `13:00-16:59`
+      /// </summary>
       public override string ToString() => Start + "-" + Finish;
+
       public override int GetHashCode() => StartMinute;
       public override bool Equals(object obj) => obj is Span span ? this.Equals(span) : false;
       public bool Equals(Span other) => this.Start == other.Start && this.DurationMinutes == other.DurationMinutes;
@@ -113,9 +132,9 @@ namespace Azos.Time
         if (other.StartMinute > this.FinishMinute) return default;
 
         if (other.StartMinute < this.StartMinute)
-          return new Span(this.StartMinute, Math.Min(this.FinishMinute, other.FinishMinute) - this.StartMinute);
+          return new Span(this.StartMinute, 1 + Math.Min(this.FinishMinute, other.FinishMinute) - this.StartMinute);
         else
-          return new Span(other.StartMinute, Math.Min(other.FinishMinute, this.FinishMinute) - other.StartMinute);
+          return new Span(other.StartMinute, 1 + Math.Min(other.FinishMinute, this.FinishMinute) - other.StartMinute);
       }
 
       /// <summary>
