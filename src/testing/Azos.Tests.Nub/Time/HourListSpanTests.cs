@@ -44,6 +44,14 @@ namespace Azos.Tests.Nub.Time
       Aver.IsFalse(new HLS(123, 100).IntersectsWith(new HLS(128, 0)));
       Aver.IsTrue(new HLS(123, 100).IntersectsWith(new HLS(223, 1)));
       Aver.IsFalse(new HLS(123, 100).IntersectsWith(new HLS(224, 1)));
+
+
+      Aver.IsFalse(new HLS(123, 100).IntersectsWith(new HLS(0, 122)));
+      Aver.IsTrue(new HLS(123, 100).IntersectsWith(new HLS(0, 123)));
+
+      Aver.IsFalse(new HLS(123, 100).IntersectsWith(new HLS(224, 1)));
+      Aver.IsTrue(new HLS(123, 100).IntersectsWith(new HLS(223, 1)));
+
     }
 
 
