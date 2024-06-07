@@ -153,6 +153,9 @@ namespace Azos.Tests.Nub.Time
       Aver.AreEqual( new HLS(9,1), new HLS(0, 10).Intersect(new HLS(9, 1)));
       Aver.AreEqual(new HLS(0, 10), new HLS(0, 10).Intersect(new HLS(0, 10)));
       Aver.AreEqual(new HLS(1, 9), new HLS(0, 10).Intersect(new HLS(1, 10)));
+
+      Aver.AreEqual(new HLS(9, 1), new HLS(9, 1).Intersect(new HLS(0, 10)));
+      Aver.AreEqual(new HLS(1, 9), new HLS(1, 10).Intersect(new HLS(0, 10)));
     }
 
     [Run]
@@ -160,7 +163,13 @@ namespace Azos.Tests.Nub.Time
     {
       Aver.AreEqual(new HLS(10 * 60, 1), new HLS(10 * 60, 10).Intersect(new HLS(10 * 60, 1)));
 
-      //Aver.AreEqual(new HLS(10 * 60, 1), new HLS(10 * 60, 10).Intersect(new HLS(10 * 60, 1)));
+      Aver.AreEqual(new HLS(), new HLS(500, 10).Intersect(new HLS(0, 10)));
+      Aver.AreEqual(new HLS(), new HLS(500, 10).Intersect(new HLS(800, 10)));
+
+      Aver.AreEqual(new HLS(505, 2), new HLS(500, 10).Intersect(new HLS(505, 2)));
+      Aver.AreEqual(new HLS(505, 2), new HLS(505, 2).Intersect(new HLS(500, 10)));
+
+      Aver.AreEqual(new HLS(500, 10), new HLS(500, 10).Intersect(new HLS(0, 1000)));
     }
 
 
