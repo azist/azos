@@ -97,7 +97,10 @@ namespace Azos.Time
       public bool IntersectsWith(Span other)
       {
         if (!IsAssigned || !other.IsAssigned) return false;
-        return (other.StartMinute <= this.FinishMinute) && (other.FinishMinute >= this.StartMinute);
+        return (this.DurationMinutes > 0) &&
+               (other.DurationMinutes > 0) &&
+               (other.StartMinute <= this.FinishMinute) &&
+               (other.FinishMinute >= this.StartMinute);
       }
 
       /// <summary>
