@@ -392,7 +392,7 @@ namespace Azos.Time
     /// </summary>
     public static IEnumerable<Span> Exclude(IEnumerable<Span> self, IEnumerable<Span> other)
     {
-      if (self == null) return other;
+      if (self == null) return null;
       if (other == null) return self;
 
       var result = self.OrderBy(one => one.StartMinute).ToList();
@@ -421,6 +421,10 @@ namespace Azos.Time
     }
 
 
+    /// <summary>
+    /// Creates a new HourList by excluding time spans from another one and merging them together
+    /// </summary>
+    public HourList Exclude(HourList other) => new HourList(Exclude(this.Spans, other.Spans));
 
 
     private void parseState()
