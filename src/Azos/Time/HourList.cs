@@ -86,13 +86,15 @@ namespace Azos.Time
       }
 
       /// <summary>
-      /// Finish time string specifier, such as `23:09` using a 24 hr clock
+      /// Finish time string specifier, such as `23:09` using a 24 hr clock.
+      /// Empty string for an unassigned instance
       /// </summary>
       public string Finish
       {
         get
         {
           var to = FinishMinute;
+          if (to < 0) return string.Empty;
           if (to > MINUTES_PER_DAY) to = to % MINUTES_PER_DAY;
           var hr = to / 60;
           var min = to % 60;
@@ -103,7 +105,7 @@ namespace Azos.Time
       /// <summary>
       /// Span string specifier using a 24 hr clock, such as `13:00-16:59`
       /// </summary>
-      public override string ToString() => Start + "-" + Finish;
+      public override string ToString() => IsAssigned ? Start + "-" + Finish : string.Empty;
 
       public override int GetHashCode() => StartMinute;
       public override bool Equals(object obj) => obj is Span span ? this.Equals(span) : false;

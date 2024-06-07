@@ -20,6 +20,72 @@ namespace Azos.Tests.Nub.Time
   public class HourListSpanTests
   {
     [Run]
+    public void Unassigned00()
+    {
+      var sut = new HLS();
+      Aver.IsFalse(sut.IsAssigned);
+      Aver.AreEqual("", sut.ToString());
+      Aver.AreEqual("0:00", sut.Start);
+      Aver.AreEqual("", sut.Finish);
+      Aver.AreEqual(0, sut.StartMinute);
+      Aver.AreEqual(-1, sut.FinishMinute);
+      Aver.AreEqual(0, sut.GetHashCode());
+      Aver.IsTrue(sut.Equals(new HLS()));
+    }
+
+    [Run]
+    public void Unassigned01()
+    {
+      var sut = new HLS(0, 0);
+      Aver.IsFalse(sut.IsAssigned);
+      Aver.AreEqual("", sut.ToString());
+      Aver.AreEqual("0:00", sut.Start);
+      Aver.AreEqual("", sut.Finish);
+      Aver.AreEqual(0, sut.StartMinute);
+      Aver.AreEqual(-1, sut.FinishMinute);
+      Aver.AreEqual(0, sut.GetHashCode());
+      Aver.IsTrue(sut.Equals(new HLS()));
+    }
+
+    [Run]
+    public void Basic01()
+    {
+      var sut = new HLS(0, 1);
+      Aver.IsTrue(sut.IsAssigned);
+      Aver.AreEqual("0:00-0:00", sut.ToString());
+      Aver.AreEqual("0:00", sut.Start);
+      Aver.AreEqual("0:00", sut.Finish);
+      Aver.AreEqual(0, sut.StartMinute);
+      Aver.AreEqual(0, sut.FinishMinute);
+      Aver.AreEqual(0, sut.GetHashCode());
+      Aver.IsTrue(sut.Equals(new HLS(0, 1)));
+      Aver.IsFalse(sut.Equals(new HLS(0, 2)));
+
+      Aver.IsTrue(sut == new HLS(0, 1));
+      Aver.IsTrue(sut != new HLS(0, 2));
+    }
+
+    [Run]
+    public void Basic02()
+    {
+      var sut = new HLS(59, 2);
+      Aver.IsTrue(sut.IsAssigned);
+      Aver.AreEqual("0:59-1:00", sut.ToString());
+      Aver.AreEqual("0:59", sut.Start);
+      Aver.AreEqual("1:00", sut.Finish);
+      Aver.AreEqual(59, sut.StartMinute);
+      Aver.AreEqual(60, sut.FinishMinute);
+      Aver.IsTrue(0 != sut.GetHashCode());
+      Aver.IsTrue(sut.Equals(new HLS(59, 2)));
+      Aver.IsFalse(sut.Equals(new HLS(58, 2)));
+      Aver.IsFalse(sut.Equals(new HLS(59, 3)));
+
+      Aver.IsTrue(sut == new HLS(59, 2));
+      Aver.IsTrue(sut != new HLS(58, 2));
+      Aver.IsTrue(sut != new HLS(59, 3));
+    }
+
+    [Run]
     public void IsAssigned()
     {
       Aver.IsFalse(new HLS().IsAssigned);
@@ -31,6 +97,8 @@ namespace Azos.Tests.Nub.Time
     [Run]
     public void ToStringTest()
     {
+      Aver.AreEqual("", new HLS().ToString());
+
       Aver.AreEqual("13:10-13:10", new HLS(13 * 60 + 10, 1).ToString());
       Aver.AreEqual("13:10-13:11", new HLS(13 * 60 + 10, 2).ToString());
       Aver.AreEqual("13:10-13:34", new HLS(13 * 60 + 10, 25).ToString());
@@ -73,9 +141,26 @@ namespace Azos.Tests.Nub.Time
     }
 
     [Run]
-    public void Intersect()
+    public void IntersectUnassigned()
+    {
+      Aver.AreEqual(false, new HLS(10 * 60, 10).Intersect(new HLS(10 * 60, 0)).IsAssigned);
+      Aver.AreEqual(false, new HLS(10 * 60, 0).Intersect(new HLS(10 * 60, 10)).IsAssigned);
+    }
+
+    [Run]
+    public void Intersect01()
     {
       Aver.AreEqual( new HLS(9,1), new HLS(0, 10).Intersect(new HLS(9, 1)));
+      Aver.AreEqual(new HLS(0, 10), new HLS(0, 10).Intersect(new HLS(0, 10)));
+      Aver.AreEqual(new HLS(1, 9), new HLS(0, 10).Intersect(new HLS(1, 10)));
+    }
+
+    [Run]
+    public void Intersect02()
+    {
+      Aver.AreEqual(new HLS(10 * 60, 1), new HLS(10 * 60, 10).Intersect(new HLS(10 * 60, 1)));
+
+      //Aver.AreEqual(new HLS(10 * 60, 1), new HLS(10 * 60, 10).Intersect(new HLS(10 * 60, 1)));
     }
 
 
