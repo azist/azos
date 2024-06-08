@@ -173,5 +173,44 @@ namespace Azos.Tests.Nub.Time
     }
 
 
+    [Run]
+    public void CoversAnother()
+    {
+      Aver.IsTrue(new HLS(100, 5).CoversAnother(new HLS(100, 5)));
+      Aver.IsFalse(new HLS(100, 5).CoversAnother(new HLS(99, 5)));
+      Aver.IsFalse(new HLS(100, 5).CoversAnother(new HLS(99, 6)));
+
+      Aver.IsTrue(new HLS(100, 5).CoversAnother(new HLS(101, 1)));
+      Aver.IsFalse(new HLS(101, 1).CoversAnother(new HLS(100, 5)));
+
+      Aver.IsFalse(new HLS(100, 5).CoversAnother(new HLS(101, 20)));
+
+      Aver.IsTrue(new HLS(0, 28 * 60).CoversAnother(new HLS(0, 25 * 60)));
+      Aver.IsTrue(new HLS(0, 28 * 60).CoversAnother(new HLS(60, 25 * 60)));
+      Aver.IsFalse(new HLS(0, 25 * 60).CoversAnother(new HLS(0, 28 * 60)));
+      Aver.IsFalse(new HLS(60, 25 * 60).CoversAnother(new HLS(0, 28 * 60)));
+    }
+
+
+    [Run]
+    public void Exclude00()
+    {
+      var (a, b) = new HLS(100, 105).Exclude(new HLS());
+      Aver.AreEqual(new HLS(100, 105), a);
+      Aver.AreEqual(new HLS(), b);
+
+      (a, b) = new HLS().Exclude(new HLS(100, 105));
+      Aver.AreEqual(new HLS(), a);
+      Aver.AreEqual(new HLS(), b);
+    }
+
+    [Run]
+    public void Exclude01()
+    {
+      var (a,b) = new HLS(100, 105).Exclude(new HLS(0, 1));
+      Aver.AreEqual(new HLS(100, 105), a);
+      Aver.AreEqual(new HLS(), b);
+    }
+
   }
 }

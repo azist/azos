@@ -156,7 +156,8 @@ namespace Azos.Time
       /// </summary>
       public (Span a, Span b) Exclude(Span other)
       {
-        if (!IsAssigned || !other.IsAssigned) return default;
+        if (!IsAssigned) return default;
+        if (!other.IsAssigned) return (this, default);
         if (other.FinishMinute < this.StartMinute) return (this, default);
         if (other.StartMinute > this.FinishMinute) return (this, default);
 
@@ -197,7 +198,7 @@ namespace Azos.Time
 
       public static bool operator ==(Span a, Span b) =>  a.Equals(b);
       public static bool operator !=(Span a, Span b) => !a.Equals(b);
-    }
+    }//span
 
     public static readonly char[] DELIMS = new[] { ',', ';' };
 
