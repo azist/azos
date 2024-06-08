@@ -115,7 +115,7 @@ namespace Azos.Tests.Nub.Time
       var got = new HourList("12am-12pm");
       Aver.AreEqual(1, got.Spans.Count());
       Aver.AreEqual(0, got.Spans.First().StartMinute);
-      Aver.AreEqual(HourList.MINUTES_PER_HALFDAY, got.Spans.First().FinishMinute);
+      Aver.AreEqual(HourList.MINUTES_PER_HALFDAY - 1, got.Spans.First().FinishMinute);
       Aver.AreEqual(12 * 60, got.Spans.First().DurationMinutes);
       got.See();
     }

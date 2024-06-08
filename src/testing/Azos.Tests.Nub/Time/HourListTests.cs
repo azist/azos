@@ -115,7 +115,7 @@ namespace Azos.Tests.Nub.Time
 
       "{0} {1}".SeeArgs(span.Start, span.Finish);
       Aver.AreEqual("1:00", span.Start);
-      Aver.AreEqual("2:15", span.Finish);
+      Aver.AreEqual("2:14", span.Finish);
     }
 
     [Run]
@@ -129,7 +129,7 @@ namespace Azos.Tests.Nub.Time
 
       "{0} {1}".SeeArgs(span.Start, span.Finish);
       Aver.AreEqual("1:00", span.Start);
-      Aver.AreEqual("23:00", span.Finish);
+      Aver.AreEqual("22:59", span.Finish);
     }
 
     [Run]
@@ -145,7 +145,7 @@ namespace Azos.Tests.Nub.Time
       Aver.IsFalse(got.IsCovered(new DateTime(1980, 1, 1,   0, 59, 59)));
       Aver.IsTrue(got.IsCovered( new DateTime(1980, 1, 1,   1,  0, 0)));
       Aver.IsTrue(got.IsCovered( new DateTime(1980, 1, 1,   13,59, 59)));
-      Aver.IsTrue(got.IsCovered( new DateTime(1980, 1, 1,   14, 0, 0)));
+      Aver.IsFalse(got.IsCovered( new DateTime(1980, 1, 1,   14, 0, 0)));
       Aver.IsFalse(got.IsCovered(new DateTime(1980, 1, 1,   14, 1, 0)));
       Aver.IsFalse(got.IsCovered(new DateTime(1980, 1, 1,   15, 1, 0)));
     }
