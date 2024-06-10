@@ -450,6 +450,7 @@ namespace Azos.Time
             result.RemoveAt(i);
             continue;
           }
+          result[i] = x1;
           if (x2.IsAssigned)
           {
             result.Insert(i + 1, x2);
