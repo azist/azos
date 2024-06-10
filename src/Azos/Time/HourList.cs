@@ -35,7 +35,7 @@ namespace Azos.Time
       internal Span(int start, int duration)
       {
         (start <= MINUTES_PER_DAY).IsTrue("start <= MINUTES_PER_DAY");
-        (duration >= 0).IsTrue("duration >= 0");
+        (duration >= 0 && duration < MINUTES_PER_DAY * 2).IsTrue("duration >= 0 && < MIN_PER-DAY*2");
         StartMinute = start;
         DurationMinutes = duration;
       }

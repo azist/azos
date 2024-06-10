@@ -24,10 +24,19 @@ namespace Azos.Tests.Nub.Time
     [Run("inc=true  a='0-0.75,13:00-14:45'  b='8pm-9pm'  c='0am-0:45am,1pm-2:45pm,8pm-9pm'")]
     [Run("inc=true  a='12am-0.75,13:00-14:45'  b='8pm-9pm'  c='12am-0:45am,1pm-2:45pm,8pm-9pm'")]
 
+    /*
+      hl.Exclude() needs to return possibly TWO hour lists, as the time may get spilled into the next adjacent day,
+      this is because HOUR LIST does not support StartTime which is beyond 1 day in principle
+
+      span.Exclude() and Hl.Exclude need to be reworked.
+
+      Include does not have such problem as it always "joins" time within an existing DAY, it never punched holes in a timeline,
+      an exclude method punches holes and since a new time may not start in the next day, this combination MAY NOT be represented by the same HourList instance
+    */
+
 
     [Run("inc=false  a='0-18:00,21:00-6:00'  b='19:00-19:15,1am-1:30am'  c='0-6pm,21:00-1am,1:30am-6am'")]
     [Run("inc=false  a='0-13:00,14-18:00,8pm-3am'  b='0:15-0:30,14:30-15:00'  c='0am-0:15am,0:30am-13:00,14-14:30,15:00-18:00,8pm-3am'")]
-
     public void IncludeOrExclude(bool inc, string a, string b, string c)
     {
       var ha = new HourList(a);

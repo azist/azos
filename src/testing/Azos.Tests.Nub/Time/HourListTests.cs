@@ -49,25 +49,6 @@ namespace Azos.Tests.Nub.Time
     }
 
     [Run]
-    public void Basic03_intoNextDay()
-    {
-      var x = new HourList("1pm-2pm,1am-2:05am");
-      var s = x.Spans.ToArray();
-      Aver.AreEqual(60, s[0].DurationMinutes);
-      Aver.AreEqual(13*60, s[0].StartMinute);
-      Aver.AreEqual(13*60 + 60 - 1, s[0].FinishMinute);//FinishMinute is INCLUDED in span, so 0-59 is 60 minutes total
-      Aver.AreEqual("13:00", s[0].Start);
-      Aver.AreEqual("13:59", s[0].Finish);
-
-      Aver.AreEqual(65, s[1].DurationMinutes);
-      Aver.AreEqual((24 + 1) * 60, s[1].StartMinute);
-      Aver.AreEqual((24 + 1) * 60 + 60 - 1, s[1].FinishMinute);//FinishMinute is INCLUDED in span, so 0-59 is 60 minutes total
-      Aver.AreEqual("1:00", s[1].Start);
-      Aver.AreEqual("1:59", s[1].Finish);
-    }
-
-
-    [Run]
     public void Single_HourOnly()
     {
       var got = new HourList("1-2");
