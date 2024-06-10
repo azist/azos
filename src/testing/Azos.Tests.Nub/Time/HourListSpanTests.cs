@@ -175,8 +175,12 @@ namespace Azos.Tests.Nub.Time
     [Run]
     public void Intersect03()
     {
+      Aver.AreEqual(new HLS(), new HLS(100, 10).Intersect(new HLS(91, 1)));
       Aver.AreEqual(new HLS(100, 1), new HLS(100, 10).Intersect(new HLS(91, 10)));
       Aver.AreEqual(new HLS(100, 1), new HLS(100, 10).Intersect(new HLS(90, 11)));
+
+      Aver.AreEqual(new HLS(109, 1), new HLS(100, 10).Intersect(new HLS(109, 1)));
+      Aver.AreEqual(new HLS(), new HLS(100, 10).Intersect(new HLS(110, 1)));
     }
 
 
