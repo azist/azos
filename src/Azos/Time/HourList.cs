@@ -361,11 +361,19 @@ namespace Azos.Time
 
 
     public void WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
-     => JsonWriter.EncodeString(wri, Data, options);
+    {
+      if (options?.Purpose == JsonSerializationPurpose.Marshalling)
+        JsonWriter.WriteMap(wri, nestingLevel + 1, options,
+          new System.Collections.DictionaryEntry("data", Data),
+          new System.Collections.DictionaryEntry("parsed", Spans));
+      else
+        JsonWriter.EncodeString(wri, Data, options);
+    }
 
     public (bool match, IJsonReadable self) ReadAsJson(object data, bool fromUI, JsonReader.DocReadOptions? options)
     {
-      if (data != null) return (true, new HourList(data.ToString()));
+      if (data is string str) return (true, new HourList(str));
+      if (data is JsonDataMap map) return (true, new HourList(map["data"].AsString()));
       return (false, null);
     }
 
