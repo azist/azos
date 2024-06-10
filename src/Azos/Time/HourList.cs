@@ -179,7 +179,7 @@ namespace Azos.Time
             return (new Span(other.FinishMinute + 1, this.FinishMinute - other.FinishMinute), default);
 
           //at right
-          return (new Span(this.StartMinute, other.StartMinute - this.StartMinute + 1), default);
+          return (new Span(this.StartMinute, other.StartMinute - this.StartMinute), default);
         }
       }
 

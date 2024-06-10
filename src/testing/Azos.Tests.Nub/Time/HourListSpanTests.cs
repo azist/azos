@@ -220,5 +220,23 @@ namespace Azos.Tests.Nub.Time
       Aver.AreEqual(new HLS(), b);
     }
 
+    [Run]
+    public void Exclude03()
+    {
+      var (a, b) = new HLS(0, 10).Exclude(new HLS(3, 2));
+      Aver.AreEqual(new HLS(0, 3), a);
+      Aver.AreEqual(new HLS(5, 5), b);
+    }
+
+    [Run]
+    public void Exclude04()
+    {
+      var (a, b) = new HLS(0, 10).Exclude(new HLS(3, 50));
+     // a.See();
+     // b.See();
+      Aver.AreEqual(new HLS(0, 3), a);
+      Aver.AreEqual(new HLS(), b);
+    }
+
   }
 }
