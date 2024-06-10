@@ -172,9 +172,16 @@ namespace Azos.Tests.Nub.Time
       Aver.AreEqual(new HLS(500, 10), new HLS(500, 10).Intersect(new HLS(0, 1000)));
     }
 
+    [Run]
+    public void Intersect03()
+    {
+      Aver.AreEqual(new HLS(100, 1), new HLS(100, 10).Intersect(new HLS(91, 10)));
+      Aver.AreEqual(new HLS(100, 1), new HLS(100, 10).Intersect(new HLS(90, 11)));
+    }
+
 
     [Run]
-    public void CoversAnother()
+    public void CoversAnother01()
     {
       Aver.IsTrue(new HLS(100, 5).CoversAnother(new HLS(100, 5)));
       Aver.IsFalse(new HLS(100, 5).CoversAnother(new HLS(99, 5)));
@@ -189,6 +196,24 @@ namespace Azos.Tests.Nub.Time
       Aver.IsTrue(new HLS(0, 28 * 60).CoversAnother(new HLS(60, 25 * 60)));
       Aver.IsFalse(new HLS(0, 25 * 60).CoversAnother(new HLS(0, 28 * 60)));
       Aver.IsFalse(new HLS(60, 25 * 60).CoversAnother(new HLS(0, 28 * 60)));
+    }
+
+    [Run]
+    public void CoversAnother02()
+    {
+      Aver.IsTrue(new HLS(0, 100).CoversAnother(new HLS(0, 100)));
+      Aver.IsTrue(new HLS(0, 100).CoversAnother(new HLS(0, 1)));
+      Aver.IsTrue(new HLS(0, 100).CoversAnother(new HLS(99, 1)));
+      Aver.IsTrue(new HLS(0, 100).CoversAnother(new HLS(10, 10)));
+      Aver.IsFalse(new HLS(0, 100).CoversAnother(new HLS(0, 101)));
+
+      Aver.IsTrue(new HLS(100, 100).CoversAnother(new HLS(100, 100)));
+      Aver.IsTrue(new HLS(100, 100).CoversAnother(new HLS(100, 1)));
+      Aver.IsTrue(new HLS(100, 100).CoversAnother(new HLS(199, 1)));
+      Aver.IsTrue(new HLS(100, 100).CoversAnother(new HLS(110, 10)));
+      Aver.IsFalse(new HLS(100, 100).CoversAnother(new HLS(100, 201)));
+      Aver.IsFalse(new HLS(100, 100).CoversAnother(new HLS(99, 50)));
+      Aver.IsTrue(new HLS(100, 100).CoversAnother(new HLS(100, 50)));
     }
 
 
@@ -404,6 +429,8 @@ namespace Azos.Tests.Nub.Time
       Aver.AreEqual(new HLS(), a);
       Aver.AreEqual(new HLS(), b);
     }
+
+
 
   }
 }
