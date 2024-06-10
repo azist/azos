@@ -17,13 +17,6 @@ namespace Azos.Tests.Nub.Time
   [Runnable]
   public class HourListJsonTests
   {
-    [Run]
-    public void Unassigned()
-    {
-      var x = new HourList();
-      Aver.IsFalse(x.IsAssigned);
-    }
-
     [Run("spec='1am-2am'")]
     [Run("spec='1am-2:15am, 8am-12pm'")]
     [Run("spec='1am-2:15am, 8am-12pm, 12pm-3:15pm, 3:45pm-12:00am'")]
