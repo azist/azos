@@ -175,11 +175,11 @@ namespace Azos.Time
         else //produce 1
         {
           //at left?
-          if (other.StartMinute < this.StartMinute)
+          if (other.StartMinute <= this.StartMinute)
             return (new Span(other.FinishMinute + 1, this.FinishMinute - other.FinishMinute), default);
 
           //at right
-          return (new Span(this.StartMinute, other.StartMinute - this.StartMinute - 1), default);
+          return (new Span(this.StartMinute, other.StartMinute - this.StartMinute + 1), default);
         }
       }
 
