@@ -434,6 +434,15 @@ namespace Azos.Tests.Nub.Time
       Aver.AreEqual(new HLS(), b);
     }
 
+    [Run]
+    public void Join01()
+    {
+      Aver.AreEqual(new HLS(0, 10), new HLS(0, 10).Join(new HLS(0,10)));
+
+      Aver.AreEqual(new HLS(0, 1), new HLS(0, 1).Join(new HLS(0, 1)));
+      Aver.AreEqual(new HLS(0, 2), new HLS(0, 1).Join(new HLS(0, 2)));
+      Aver.AreEqual(new HLS(0, 2), new HLS(0, 1).Join(new HLS(1, 1)));
+    }
 
 
   }

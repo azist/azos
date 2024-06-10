@@ -193,7 +193,7 @@ namespace Azos.Time
         if (!other.IsAssigned) return this;
 
         var s = Math.Min(this.StartMinute, other.StartMinute);
-        return new Span(s, Math.Max(this.FinishMinute, other.FinishMinute) - s);
+        return new Span(s, 1 + Math.Max(this.FinishMinute, other.FinishMinute) - s);
       }
 
       public static bool operator ==(Span a, Span b) =>  a.Equals(b);
