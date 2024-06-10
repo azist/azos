@@ -365,7 +365,16 @@ namespace Azos.Time
       if (options?.Purpose == JsonSerializationPurpose.Marshalling)
         JsonWriter.WriteMap(wri, nestingLevel + 1, options,
           new System.Collections.DictionaryEntry("data", Data),
-          new System.Collections.DictionaryEntry("parsed", Spans));
+          new System.Collections.DictionaryEntry("parsed", Spans.Select(one =>
+              new
+              {
+                sta = one.StartMinute,
+                fin = one.FinishMinute,
+                dur = one.DurationMinutes,
+                disp  = one.ToString()
+              })
+          )
+        );
       else
         JsonWriter.EncodeString(wri, Data, options);
     }
