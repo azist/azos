@@ -152,14 +152,15 @@ namespace Azos.Time
 
       /// <summary>
       /// Returns either a single span which is this span with subtracted other span, or two spans which
-      /// come out of this span with the other span cut-out of the original span
+      /// come out of this span with the other span cut-out of the original span.
+      /// Note that the 2nd span, when it is returned, may or may not start at the NEXT day, check for `bIsNextDay` flag
       /// </summary>
-      public (Span a, Span b) Exclude(Span other)
+      public (Span a, Span b, bool bIsNextDay) Exclude(Span other)
       {
         if (!IsAssigned) return default;
-        if (!other.IsAssigned) return (this, default);
-        if (other.FinishMinute < this.StartMinute) return (this, default);
-        if (other.StartMinute > this.FinishMinute) return (this, default);
+        if (!other.IsAssigned) return (this, default, false);
+        if (other.FinishMinute < this.StartMinute) return (this, default, false);
+        if (other.StartMinute > this.FinishMinute) return (this, default, false);
 
         if (other.CoversAnother(this)) return default;//nothing left as other covers this one
 
@@ -169,17 +170,21 @@ namespace Azos.Time
             other.FinishMinute < this.FinishMinute)
         {
           var ra = new Span(this.StartMinute, other.StartMinute - this.StartMinute);
-          var rb = new Span(other.FinishMinute + 1, this.FinishMinute - other.FinishMinute);
-          return (ra, rb);
+
+          var bStart = other.FinishMinute + 1;
+          var bIsNextDay = bStart >= MINUTES_PER_DAY;
+          if (bIsNextDay) bStart-=MINUTES_PER_DAY;
+          var rb = new Span(bStart, this.FinishMinute - other.FinishMinute);
+          return (ra, rb, bIsNextDay);
         }
         else //produce 1
         {
           //at left?
           if (other.StartMinute <= this.StartMinute)
-            return (new Span(other.FinishMinute + 1, this.FinishMinute - other.FinishMinute), default);
+            return (new Span(other.FinishMinute + 1, this.FinishMinute - other.FinishMinute), default, false);
 
           //at right
-          return (new Span(this.StartMinute, other.StartMinute - this.StartMinute), default);
+          return (new Span(this.StartMinute, other.StartMinute - this.StartMinute), default, false);
         }
       }
 
@@ -444,7 +449,7 @@ namespace Azos.Time
         var another = other.FirstOrDefault(one => one.IntersectsWith(result[i]));
         if (another.IsAssigned)
         {
-          var (x1, x2) = result[i].Exclude(another);//this may produce > 1 span
+          var (x1, x2, x2n) = result[i].Exclude(another);//this may produce > 1 span
           if (!x1.IsAssigned)
           {
             result.RemoveAt(i);
