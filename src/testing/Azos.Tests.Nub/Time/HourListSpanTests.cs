@@ -450,6 +450,19 @@ namespace Azos.Tests.Nub.Time
     }
 
     [Run]
+    public void Exclude19()
+    {
+      var sut = new HLS(23 * 60, 2 * 60);
+      var ex = new HLS(23 * 60 + 30, 60);
+      var (a, b, bn) = sut.Exclude(ex);
+
+      "{0} ^ {1}  ->  {2} {3} {4}".SeeArgs(sut, ex, a, b, bn);
+      Aver.AreEqual(new HLS(23 * 60, 30), a);
+      Aver.AreEqual(new HLS(30, 30), b);
+      Aver.IsTrue(bn);
+    }
+
+    [Run]
     public void Join01()
     {
       Aver.AreEqual(new HLS(0, 10), new HLS(0, 10).Join(new HLS(0,10)));

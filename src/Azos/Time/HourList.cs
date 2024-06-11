@@ -435,44 +435,59 @@ namespace Azos.Time
     public HourList Include(HourList other) => new HourList(Include(this.Spans, other.Spans));
 
     /// <summary>
-    /// Creates an enumeration of ordered spans (suitable for creation of `HourList`) by excluding (punch out) time spans from another
+    /// Creates an enumeration of ordered spans (suitable for creation of `HourList`) by excluding (punch out) time spans from another.
+    /// Keep in mind that exclusion process may leave some fractions of existing spans in the next day
     /// </summary>
-    public static IEnumerable<Span> Exclude(IEnumerable<Span> self, IEnumerable<Span> other)
+    public static (IEnumerable<Span> day, IEnumerable<Span> nextDay) Exclude(IEnumerable<Span> self, IEnumerable<Span> other)
     {
-      if (self == null) return null;
-      if (other == null) return self;
+      if (self == null) return (null, null);
+      if (other == null) return (self, null);
 
-      var result = self.OrderBy(one => one.StartMinute).ToList();
+      var thisDay = self.OrderBy(one => one.StartMinute).ToList();
+      List<Span> nextDay = null;//lazy alloc
 
-      for (var i = 0; i < result.Count;)
+      for (var i = 0; i < thisDay.Count;)
       {
-        var another = other.FirstOrDefault(one => one.IntersectsWith(result[i]));
+        var another = other.FirstOrDefault(one => one.IntersectsWith(thisDay[i]));
         if (another.IsAssigned)
         {
-          var (x1, x2, x2n) = result[i].Exclude(another);//this may produce > 1 span
+          var (x1, x2, x2n) = thisDay[i].Exclude(another);//this may produce > 1 span and the 2nd MIGHT start the next day
           if (!x1.IsAssigned)
           {
-            result.RemoveAt(i);
+            thisDay.RemoveAt(i);
             continue;
           }
-          result[i] = x1;
+          thisDay[i] = x1;
           if (x2.IsAssigned)
           {
-            result.Insert(i + 1, x2);
+            if (x2n)
+            {
+              if (nextDay == null) nextDay = new List<Span>();//lazy alloc
+              nextDay.Add(x2);
+            }
+            else
+            {
+              thisDay.Insert(i + 1, x2);
+            }
             continue;
           }
         }
         else i++;
       }
 
-      return result;
+      return (thisDay, nextDay);
     }
 
 
     /// <summary>
-    /// Creates a new HourList by excluding time spans from another one and merging them together
+    /// Creates a new HourList/s by excluding time spans from another one and merging them together.
+    /// Keep in mind that exclusion process may leave some fractions of existing spans in the next day
     /// </summary>
-    public HourList Exclude(HourList other) => new HourList(Exclude(this.Spans, other.Spans));
+    public (HourList day, HourList nextDay) Exclude(HourList other)
+    {
+      var (a, b) = Exclude(this.Spans, other.Spans);
+      return (new HourList(a), b != null ? new HourList(b) : new HourList());
+    }
 
 
     private void parseState()

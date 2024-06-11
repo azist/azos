@@ -35,21 +35,23 @@ namespace Azos.Tests.Nub.Time
     */
 
 
-    [Run("inc=false  a='0-18:00,21:00-6:00'  b='19:00-19:15,1am-1:30am'  c='0-6pm,21:00-1am,1:30am-6am'")]
+    [Run("inc=false  a='0-18:00,21:00-6:00'  b='19:00-19:15,1am-1:30am'  c='0-6pm,21:00-1am' cnext='1:30am-6am'")]
     [Run("inc=false  a='0-13:00,14-18:00,8pm-3am'  b='0:15-0:30,14:30-15:00'  c='0am-0:15am,0:30am-13:00,14-14:30,15:00-18:00,8pm-3am'")]
-    public void IncludeOrExclude(bool inc, string a, string b, string c)
+    public void IncludeOrExclude(bool inc, string a, string b, string c, string cnext = null)
     {
       var ha = new HourList(a);
       var hb = new HourList(b);
       var hc = new HourList(c);
+      var hcn = new HourList(cnext);
 
-      var got = inc ? ha.Include(hb) : ha.Exclude(hb);
+      var (got, gotn) = inc ? (ha.Include(hb), new HourList()) : ha.Exclude(hb);
 
       ("\n ({0}) {1} ({2})  " +
-       "\n expect :=>  {3} " +
-       "\n got    :=>  {4}").SeeArgs(ha, inc ? "inc" : "exc", hb, hc, got);
+       "\n expect :=>  {3} / {4}" +
+       "\n got    :=>  {5} / {6}").SeeArgs(ha, inc ? "inc" : "exc", hb, hc, hcn, got, gotn);
 
       Aver.IsTrue(hc.IsEquivalent(got));
+      Aver.IsTrue(hcn.IsEquivalent(gotn));
     }
 
   }
