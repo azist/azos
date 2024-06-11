@@ -219,45 +219,51 @@ namespace Azos.Tests.Nub.Time
     [Run]
     public void Exclude00()
     {
-      var (a, b) = new HLS(100, 105).Exclude(new HLS());
+      var (a, b, bn) = new HLS(100, 105).Exclude(new HLS());
       Aver.AreEqual(new HLS(100, 105), a);
       Aver.AreEqual(new HLS(), b);
+      Aver.IsFalse(bn);
 
-      (a, b) = new HLS().Exclude(new HLS(100, 105));
+      (a, b, bn) = new HLS().Exclude(new HLS(100, 105));
       Aver.AreEqual(new HLS(), a);
       Aver.AreEqual(new HLS(), b);
+      Aver.IsFalse(bn);
     }
 
     [Run]
     public void Exclude01()
     {
-      var (a,b) = new HLS(100, 105).Exclude(new HLS(0, 1));
+      var (a,b, bn) = new HLS(100, 105).Exclude(new HLS(0, 1));
       Aver.AreEqual(new HLS(100, 105), a);
       Aver.AreEqual(new HLS(), b);
+      Aver.IsFalse(bn);
     }
 
     [Run]
     public void Exclude02()
     {
-      var (a, b) = new HLS(0, 10).Exclude(new HLS(0, 9));
+      var (a, b, bn) = new HLS(0, 10).Exclude(new HLS(0, 9));
       Aver.AreEqual(new HLS(9, 1), a);
       Aver.AreEqual(new HLS(), b);
+      Aver.IsFalse(bn);
     }
 
     [Run]
     public void Exclude03()
     {
-      var (a, b) = new HLS(0, 10).Exclude(new HLS(3, 2));
+      var (a, b, bn) = new HLS(0, 10).Exclude(new HLS(3, 2));
       Aver.AreEqual(new HLS(0, 3), a);
       Aver.AreEqual(new HLS(5, 5), b);
+      Aver.IsFalse(bn);
     }
 
     [Run]
     public void Exclude04()
     {
-      var (a, b) = new HLS(0, 10).Exclude(new HLS(3, 50));
+      var (a, b, bn) = new HLS(0, 10).Exclude(new HLS(3, 50));
       Aver.AreEqual(new HLS(0, 3), a);
       Aver.AreEqual(new HLS(), b);
+      Aver.IsFalse(bn);
     }
 
     [Run]
@@ -265,7 +271,8 @@ namespace Azos.Tests.Nub.Time
     {
       var sut = new HLS(2 * 60, 60);
       var ex = new HLS(3, 50);
-      var (a, b) = sut.Exclude(ex);
+      var (a, b, bn) = sut.Exclude(ex);
+      Aver.IsFalse(bn);
 
       "{0} ^ {1}  ->  {2} {3}".SeeArgs(sut, ex, a, b);
       Aver.AreEqual(new HLS(2 * 60, 60), a);
@@ -277,11 +284,12 @@ namespace Azos.Tests.Nub.Time
     {
       var sut = new HLS(2 * 60, 60);
       var ex = new HLS(2 * 60, 60);
-      var (a, b) = sut.Exclude(ex);
+      var (a, b, bn) = sut.Exclude(ex);
 
       "{0} ^ {1}  ->  {2} {3}".SeeArgs(sut, ex, a, b);
       Aver.AreEqual(new HLS(), a);
       Aver.AreEqual(new HLS(), b);
+      Aver.IsFalse(bn);
     }
 
     [Run]
@@ -289,11 +297,12 @@ namespace Azos.Tests.Nub.Time
     {
       var sut = new HLS(2 * 60, 60);
       var ex = new HLS(2 * 60, 1);
-      var (a, b) = sut.Exclude(ex);
+      var (a, b, bn) = sut.Exclude(ex);
 
       "{0} ^ {1}  ->  {2} {3}".SeeArgs(sut, ex, a, b);
       Aver.AreEqual(new HLS((2 * 60)+1, 59), a);
       Aver.AreEqual(new HLS(), b);
+      Aver.IsFalse(bn);
     }
 
     [Run]
@@ -301,11 +310,12 @@ namespace Azos.Tests.Nub.Time
     {
       var sut = new HLS(2 * 60, 60);
       var ex = new HLS((2 * 60) - 1, 1);
-      var (a, b) = sut.Exclude(ex);
+      var (a, b, bn) = sut.Exclude(ex);
 
       "{0} ^ {1}  ->  {2} {3}".SeeArgs(sut, ex, a, b);
       Aver.AreEqual(new HLS(2 * 60, 60), a);
       Aver.AreEqual(new HLS(), b);
+      Aver.IsFalse(bn);
     }
 
     [Run]
@@ -313,11 +323,12 @@ namespace Azos.Tests.Nub.Time
     {
       var sut = new HLS(2 * 60, 60);
       var ex = new HLS(1 * 60, 65);
-      var (a, b) = sut.Exclude(ex);
+      var (a, b, bn) = sut.Exclude(ex);
 
       "{0} ^ {1}  ->  {2} {3}".SeeArgs(sut, ex, a, b);
       Aver.AreEqual(new HLS((2 * 60)+5, 60-5), a);
       Aver.AreEqual(new HLS(), b);
+      Aver.IsFalse(bn);
     }
 
 
@@ -326,11 +337,12 @@ namespace Azos.Tests.Nub.Time
     {
       var sut = new HLS(2 * 60, 60);
       var ex = new HLS((2 * 60) + 10, 60);
-      var (a, b) = sut.Exclude(ex);
+      var (a, b, bn) = sut.Exclude(ex);
 
       "{0} ^ {1}  ->  {2} {3}".SeeArgs(sut, ex, a, b);
       Aver.AreEqual(new HLS(2 * 60, 10), a);
       Aver.AreEqual(new HLS(), b);
+      Aver.IsFalse(bn);
     }
 
     [Run]
@@ -338,11 +350,12 @@ namespace Azos.Tests.Nub.Time
     {
       var sut = new HLS(2 * 60, 60);
       var ex = new HLS((2 * 60) + 10, 560);
-      var (a, b) = sut.Exclude(ex);
+      var (a, b, bn) = sut.Exclude(ex);
 
       "{0} ^ {1}  ->  {2} {3}".SeeArgs(sut, ex, a, b);
       Aver.AreEqual(new HLS(2 * 60, 10), a);
       Aver.AreEqual(new HLS(), b);
+      Aver.IsFalse(bn);
     }
 
     [Run]
@@ -350,11 +363,12 @@ namespace Azos.Tests.Nub.Time
     {
       var sut = new HLS(2 * 60, 60);
       var ex = new HLS((2 * 60) + 50, 560);
-      var (a, b) = sut.Exclude(ex);
+      var (a, b, bn) = sut.Exclude(ex);
 
       "{0} ^ {1}  ->  {2} {3}".SeeArgs(sut, ex, a, b);
       Aver.AreEqual(new HLS(2 * 60, 50), a);
       Aver.AreEqual(new HLS(), b);
+      Aver.IsFalse(bn);
     }
 
     [Run]
@@ -362,11 +376,12 @@ namespace Azos.Tests.Nub.Time
     {
       var sut = new HLS(2 * 60, 60);
       var ex = new HLS((2 * 60) + 50, 1);
-      var (a, b) = sut.Exclude(ex);
+      var (a, b, bn) = sut.Exclude(ex);
 
       "{0} ^ {1}  ->  {2} {3}".SeeArgs(sut, ex, a, b);
       Aver.AreEqual(new HLS(2 * 60, 50), a);
       Aver.AreEqual(new HLS((2 * 60) + 51, 9), b);
+      Aver.IsFalse(bn);
     }
 
     [Run]
@@ -374,11 +389,12 @@ namespace Azos.Tests.Nub.Time
     {
       var sut = new HLS(2 * 60, 60);
       var ex = new HLS((2 * 60) + 50, 2);
-      var (a, b) = sut.Exclude(ex);
+      var (a, b, bn) = sut.Exclude(ex);
 
       "{0} ^ {1}  ->  {2} {3}".SeeArgs(sut, ex, a, b);
       Aver.AreEqual(new HLS(2 * 60, 50), a);
       Aver.AreEqual(new HLS((2 * 60) + 52, 8), b);
+      Aver.IsFalse(bn);
     }
 
     [Run]
@@ -386,11 +402,12 @@ namespace Azos.Tests.Nub.Time
     {
       var sut = new HLS(2 * 60, 60);
       var ex = new HLS();
-      var (a, b) = sut.Exclude(ex);
+      var (a, b, bn) = sut.Exclude(ex);
 
       "{0} ^ {1}  ->  {2} {3}".SeeArgs(sut, ex, a, b);
       Aver.AreEqual(new HLS(2 * 60, 60), a);
       Aver.AreEqual(new HLS(), b);
+      Aver.IsFalse(bn);
     }
 
     [Run]
@@ -398,11 +415,12 @@ namespace Azos.Tests.Nub.Time
     {
       var sut = new HLS(2 * 60, 60);
       var ex = new HLS(0, 1);
-      var (a, b) = sut.Exclude(ex);
+      var (a, b, bn) = sut.Exclude(ex);
 
       "{0} ^ {1}  ->  {2} {3}".SeeArgs(sut, ex, a, b);
       Aver.AreEqual(new HLS(2 * 60, 60), a);
       Aver.AreEqual(new HLS(), b);
+      Aver.IsFalse(bn);
     }
 
     [Run]
@@ -410,11 +428,12 @@ namespace Azos.Tests.Nub.Time
     {
       var sut = new HLS(2 * 60, 60);
       var ex = new HLS(1000, 1);
-      var (a, b) = sut.Exclude(ex);
+      var (a, b, bn) = sut.Exclude(ex);
 
       "{0} ^ {1}  ->  {2} {3}".SeeArgs(sut, ex, a, b);
       Aver.AreEqual(new HLS(2 * 60, 60), a);
       Aver.AreEqual(new HLS(), b);
+      Aver.IsFalse(bn);
     }
 
     [Run]
@@ -422,11 +441,12 @@ namespace Azos.Tests.Nub.Time
     {
       var sut = new HLS(2 * 60, 60);
       var ex = new HLS(0, 1000);
-      var (a, b) = sut.Exclude(ex);
+      var (a, b, bn) = sut.Exclude(ex);
 
       "{0} ^ {1}  ->  {2} {3}".SeeArgs(sut, ex, a, b);
       Aver.AreEqual(new HLS(), a);
       Aver.AreEqual(new HLS(), b);
+      Aver.IsFalse(bn);
     }
 
     [Run]
