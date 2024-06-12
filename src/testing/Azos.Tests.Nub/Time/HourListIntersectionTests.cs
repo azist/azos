@@ -28,6 +28,12 @@ namespace Azos.Tests.Nub.Time
 
 
     [Run("inc=false  a='0-18:00,21:00-6:00'  b='19:00-19:15,23pm-0:30am'  c='0-6pm,21:00-23pm' cnext='0:30am-6am'")]
+
+    [Run(@"inc=false  a = '8am-1pm,1:30pm-4pm, 6pm-3am'
+                      b = '7am-7:30am, 7:45am-8:15am, 12pm-12:30pm, 9pm-2am'
+
+                      c     = '8:15am-12:00pm,12:30pm-1pm, 1:30pm-4pm, 6pm-9pm'
+                      cnext = '2am-3am'")]
     public void IncludeOrExclude(bool inc, string a, string b, string c, string cnext = null)
     {
       var ha = new HourList(a);
