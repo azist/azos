@@ -23,6 +23,7 @@ namespace Azos.Time
   public struct HourList : IEquatable<HourList>, IJsonWritable, IJsonReadable, IValidatable, IRequiredCheck, IConfigurationPersistent
   {
     public const int MINUTES_PER_DAY = 24 * 60;
+    public const int MINUTES_PER_2DAYS = 2 * 24 * 60;
     public const int MINUTES_PER_HALFDAY = 12 * 60;
 
     /// <summary>
@@ -51,6 +52,7 @@ namespace Azos.Time
         (start <= end).IsTrue("start<=end");
         StartMinute = start.Minute;
         DurationMinutes = (int)(end - start).TotalMinutes;
+        if (StartMinute + DurationMinutes > MINUTES_PER_2DAYS) DurationMinutes = MINUTES_PER_2DAYS - StartMinute;
         checkInvariants();
       }
 
