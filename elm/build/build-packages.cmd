@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.9.1.1
-set HEADLINE=#915 HourList
+set VER=3.9.1.2
+set HEADLINE=#915 HourList.Span ctor
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
