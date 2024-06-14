@@ -432,7 +432,7 @@ namespace Azos.Time
     /// <summary>
     /// Creates a new HourList by including time spans from another one and merging them together
     /// </summary>
-    public HourList Include(HourList other) => new HourList(Include(this.Spans, other.Spans));
+    public HourList Include(HourList other) => other.IsAssigned ? new HourList(Include(this.Spans, other.Spans)) : this;
 
     /// <summary>
     /// Creates an enumeration of ordered spans (suitable for creation of `HourList`) by excluding (punch out) time spans from another.
