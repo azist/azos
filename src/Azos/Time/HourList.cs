@@ -31,13 +31,27 @@ namespace Azos.Time
     /// </summary>
     public struct Span : IEquatable<Span>, IComparable<Span>
     {
-
-      internal Span(int start, int duration)
+      private void checkInvariants()
       {
-        (start <= MINUTES_PER_DAY).IsTrue("start <= MINUTES_PER_DAY");
-        (duration >= 0 && duration < MINUTES_PER_DAY * 2).IsTrue("duration >= 0 && < MIN_PER-DAY*2");
+        (StartMinute <= MINUTES_PER_DAY).IsTrue("start <= MINUTES_PER_DAY");
+        (DurationMinutes >= 0).IsTrue("dur >= 0");
+        (StartMinute + DurationMinutes < MINUTES_PER_DAY * 2).IsTrue("finish < 2 days");
+      }
+
+      public Span(int start, int duration)
+      {
         StartMinute = start;
         DurationMinutes = duration;
+        checkInvariants();
+      }
+
+      public Span(DateTime start, DateTime end)
+      {
+        (start.Kind == end.Kind).IsTrue("sd.kind==ed.kind");
+        (start <= end).IsTrue("start<=end");
+        StartMinute = start.Minute;
+        DurationMinutes = (int)(end - start).TotalMinutes;
+        checkInvariants();
       }
 
       /// <summary>
