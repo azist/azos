@@ -134,7 +134,7 @@ namespace Azos.Tests.Nub.Configuration.Business
       var satHr = satHrList.Spans.FirstOrDefault();
 
       Aver.AreEqual("10:00", satHr.Start);
-      Aver.AreEqual("13:59", satHr.Finish);
+      Aver.AreEqual("14:00", satHr.Finish);
 
       var satHrUtcTrue = new DateTime(2010, 7, 3, 11, 0, 5, DateTimeKind.Utc);
       Aver.IsTrue(satHrList.IsCovered(satHrUtcTrue));

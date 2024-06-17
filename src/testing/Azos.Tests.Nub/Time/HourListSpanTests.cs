@@ -5,7 +5,9 @@
 </FILE_LICENSE>*/
 
 using System;
+using System.Linq;
 using Azos.Scripting;
+using Azos.Time;
 using HLS = Azos.Time.HourList.Span;
 
 
@@ -47,9 +49,9 @@ namespace Azos.Tests.Nub.Time
     {
       var sut = new HLS(0, 1);
       Aver.IsTrue(sut.IsAssigned);
-      Aver.AreEqual("0:00-0:00", sut.ToString());
+      Aver.AreEqual("0:00-0:01", sut.ToString());
       Aver.AreEqual("0:00", sut.Start);
-      Aver.AreEqual("0:00", sut.Finish);
+      Aver.AreEqual("0:01", sut.Finish);
       Aver.AreEqual(0, sut.StartMinute);
       Aver.AreEqual(0, sut.FinishMinute);
       Aver.AreEqual(0, sut.GetHashCode());
@@ -58,6 +60,8 @@ namespace Azos.Tests.Nub.Time
 
       Aver.IsTrue(sut == new HLS(0, 1));
       Aver.IsTrue(sut != new HLS(0, 2));
+
+      Aver.AreEqual(sut, HourList.Parse(sut.ToString()).Spans.First());
     }
 
     [Run]
@@ -65,9 +69,9 @@ namespace Azos.Tests.Nub.Time
     {
       var sut = new HLS(59, 2);
       Aver.IsTrue(sut.IsAssigned);
-      Aver.AreEqual("0:59-1:00", sut.ToString());
+      Aver.AreEqual("0:59-1:01", sut.ToString());
       Aver.AreEqual("0:59", sut.Start);
-      Aver.AreEqual("1:00", sut.Finish);
+      Aver.AreEqual("1:01", sut.Finish);
       Aver.AreEqual(59, sut.StartMinute);
       Aver.AreEqual(60, sut.FinishMinute);
       Aver.IsTrue(0 != sut.GetHashCode());
@@ -78,6 +82,8 @@ namespace Azos.Tests.Nub.Time
       Aver.IsTrue(sut == new HLS(59, 2));
       Aver.IsTrue(sut != new HLS(58, 2));
       Aver.IsTrue(sut != new HLS(59, 3));
+
+      Aver.AreEqual(sut, HourList.Parse(sut.ToString()).Spans.First());
     }
 
     [Run]
@@ -94,16 +100,33 @@ namespace Azos.Tests.Nub.Time
     {
       Aver.AreEqual("", new HLS().ToString());
 
-      Aver.AreEqual("13:10-13:10", new HLS(13 * 60 + 10, 1).ToString());
-      Aver.AreEqual("13:10-13:11", new HLS(13 * 60 + 10, 2).ToString());
-      Aver.AreEqual("13:10-13:34", new HLS(13 * 60 + 10, 25).ToString());
+      Aver.AreEqual("13:10-13:11", new HLS(13 * 60 + 10, 1).ToString());
+      Aver.AreEqual("13:10-13:12", new HLS(13 * 60 + 10, 2).ToString());
+      Aver.AreEqual("13:10-13:35", new HLS(13 * 60 + 10, 25).ToString());
 
-      Aver.AreEqual("0:59-0:59", new HLS(59, 1).ToString());
-      Aver.AreEqual("0:59-1:00", new HLS(59, 2).ToString());
-      Aver.AreEqual("0:59-1:01", new HLS(59, 3).ToString());
-      Aver.AreEqual("0:59-1:06", new HLS(59, 8).ToString());
+      Aver.AreEqual("0:59-1:00", new HLS(59, 1).ToString());
+      Aver.AreEqual("0:59-1:01", new HLS(59, 2).ToString());
+      Aver.AreEqual("0:59-1:02", new HLS(59, 3).ToString());
+      Aver.AreEqual("0:59-1:07", new HLS(59, 8).ToString());
 
-      Aver.AreEqual("3:59-4:06", new HLS(3 * 60 + 59, 8).ToString());
+      Aver.AreEqual("3:59-4:07", new HLS(3 * 60 + 59, 8).ToString());
+    }
+
+    [Run]
+    public void ToStringAndParseTest()
+    {
+      Aver.AreEqual("", new HLS().ToString());
+
+      Aver.AreEqual("13:10-13:11", HourList.Parse(new HLS(13 * 60 + 10, 1).ToString()).Spans.First().ToString());
+      Aver.AreEqual("13:10-13:12", HourList.Parse(new HLS(13 * 60 + 10, 2).ToString()).Spans.First().ToString());
+      Aver.AreEqual("13:10-13:35", HourList.Parse(new HLS(13 * 60 + 10, 25).ToString()).Spans.First().ToString());
+
+      Aver.AreEqual("0:59-1:00", HourList.Parse(new HLS(59, 1).ToString()).Spans.First().ToString());
+      Aver.AreEqual("0:59-1:01", HourList.Parse(new HLS(59, 2).ToString()).Spans.First().ToString());
+      Aver.AreEqual("0:59-1:02", HourList.Parse(new HLS(59, 3).ToString()).Spans.First().ToString());
+      Aver.AreEqual("0:59-1:07", HourList.Parse(new HLS(59, 8).ToString()).Spans.First().ToString());
+
+      Aver.AreEqual("3:59-4:07", HourList.Parse(new HLS(3 * 60 + 59, 8).ToString()).Spans.First().ToString());
     }
 
 

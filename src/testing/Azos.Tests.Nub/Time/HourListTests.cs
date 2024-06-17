@@ -33,7 +33,7 @@ namespace Azos.Tests.Nub.Time
       Aver.AreEqual(60, s.StartMinute);
       Aver.AreEqual(60 + 60 - 1, s.FinishMinute);//FinishMinute is INCLUDED in span, so 0-59 is 60 minutes total
       Aver.AreEqual("1:00", s.Start);
-      Aver.AreEqual("1:59", s.Finish);//this minute is INCLUDED
+      Aver.AreEqual("2:00", s.Finish);//this minute is EXCLUDED
     }
 
     [Run]
@@ -45,7 +45,7 @@ namespace Azos.Tests.Nub.Time
       Aver.AreEqual(0, s.StartMinute);
       Aver.AreEqual(0 + 60 - 1, s.FinishMinute);//FinishMinute is INCLUDED in span, so 0-59 is 60 minutes total
       Aver.AreEqual("0:00", s.Start);
-      Aver.AreEqual("0:59", s.Finish);//this minute is INCLUDED
+      Aver.AreEqual("1:00", s.Finish);//this minute is EXCLUDED
     }
 
     [Run]
@@ -139,7 +139,7 @@ namespace Azos.Tests.Nub.Time
 
       "{0} {1}".SeeArgs(span.Start, span.Finish);
       Aver.AreEqual("1:00", span.Start);
-      Aver.AreEqual("2:14", span.Finish);
+      Aver.AreEqual("2:15", span.Finish);
     }
 
     [Run]
@@ -153,7 +153,7 @@ namespace Azos.Tests.Nub.Time
 
       "{0} {1}".SeeArgs(span.Start, span.Finish);
       Aver.AreEqual("1:00", span.Start);
-      Aver.AreEqual("22:59", span.Finish);
+      Aver.AreEqual("23:00", span.Finish);
     }
 
     [Run]

@@ -78,10 +78,10 @@ namespace Azos.Time
       public int FinishMinute => DurationMinutes > 0 ? StartMinute + DurationMinutes - 1 : -1;
 
       /// <summary>
-      /// True if the span duration extends past original day 24 period.
+      /// True if the span duration extends past original day 24 hour period.
       /// For example:  23pm-3am working hour window starts at the day end but finishes at the NEXT day start
       /// </summary>
-      public bool EndsTheNextDay => FinishMinute > MINUTES_PER_DAY;
+      public bool EndsTheNextDay => FinishMinute >= MINUTES_PER_DAY;
 
       /// <summary>
       /// True when this structure was assigned a value: either a start minute or duration is set
@@ -97,24 +97,24 @@ namespace Azos.Time
         {
           var hr = StartMinute / 60;
           var min = StartMinute % 60;
-          return "{0:D}:{1:D2}".Args(hr, min);
+          return string.Format(CultureInfo.InvariantCulture, "{0:D}:{1:D2}", hr, min);
         }
       }
 
       /// <summary>
       /// Finish time string specifier, such as `23:09` using a 24 hr clock.
-      /// Empty string for an unassigned instance
+      /// Empty string for an unassigned instance. The specifier is FinishMinute + 1 which is NOT included in this span duration
       /// </summary>
       public string Finish
       {
         get
         {
-          var to = FinishMinute;
-          if (to < 0) return string.Empty;
+          var to = FinishMinute + 1;
+          if (to < 1) return string.Empty;
           if (to > MINUTES_PER_DAY) to = to % MINUTES_PER_DAY;
           var hr = to / 60;
           var min = to % 60;
-          return "{0:D}:{1:D2}".Args(hr, min);
+          return string.Format(CultureInfo.InvariantCulture, "{0:D}:{1:D2}", hr, min);
         }
       }
 
