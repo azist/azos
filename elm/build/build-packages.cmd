@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.9.1.3
-set HEADLINE=#915 HourList.Span tostring bug
+set VER=3.9.1.4
+set HEADLINE=Add UTC_MASQUERADE SQL rpc header for transmission
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
