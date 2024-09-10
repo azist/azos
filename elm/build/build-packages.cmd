@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.9.1.4
-set HEADLINE=Add UTC_MASQUERADE SQL rpc header for transmission
+set VER=3.9.2.1
+set HEADLINE=#917 #918
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
