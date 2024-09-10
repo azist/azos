@@ -93,7 +93,7 @@ namespace Azos.Data.Adlib
     public List<Tag> Tags { get; set; }
 
     /// <summary> Raw item content </summary>
-    [Field(required: true, maxLength: Constraints.MAX_CONTENT_LENGTH, Description = "Raw event content")]
+    [Field(required: true, maxLength: Constraints.MAX_CONTENT_LENGTH, Description = "Raw item content")]
     public byte[] Content { get; set; }
 
 

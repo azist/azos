@@ -8,6 +8,7 @@ using System;
 
 using Azos.Data;
 using Azos.Data.Business;
+using Azos.Serialization.Bix;
 using Azos.Serialization.JSON;
 
 namespace Azos.Sky.Messaging.Services
@@ -15,6 +16,8 @@ namespace Azos.Sky.Messaging.Services
   /// <summary>
   /// Provides message header info suitable for message list display
   /// </summary>
+  [Bix("51f794ce-0e89-4b27-9330-a188993c81e7")]
+  [Schema("Provides message header info suitable for message list display")]
   public sealed class MessageStatusLog : TransientModel
   {
     public enum Status
@@ -24,6 +27,11 @@ namespace Azos.Sky.Messaging.Services
       Success = 1
     }
 
+    /// <summary>
+    /// Data for a single message status log line
+    /// </summary>
+    [Bix("55bb16fa-77d0-4de5-bf3a-6d4568d45f45")]
+    [Schema("Data for a single message status log line")]
     public sealed class Line : TransientModel
     {
       [Field(Description = "UTC of the log line")]
