@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
 using Azos.Conf;
 using Azos.Data;
 using Azos.Serialization.JSON;
@@ -22,6 +23,7 @@ namespace Azos.Time
   public struct HourList : IEquatable<HourList>, IJsonWritable, IJsonReadable, IValidatable, IRequiredCheck, IConfigurationPersistent
   {
     public const int MINUTES_PER_DAY = 24 * 60;
+    public const int MINUTES_PER_2DAYS = 2 * 24 * 60;
     public const int MINUTES_PER_HALFDAY = 12 * 60;
 
     /// <summary>
@@ -30,69 +32,194 @@ namespace Azos.Time
     /// </summary>
     public struct Span : IEquatable<Span>, IComparable<Span>
     {
-
-      internal Span(int start, int duration)
+      private void checkInvariants()
       {
-        (start <= MINUTES_PER_DAY).IsTrue("start <= MINUTES_PER_DAY");
+        (StartMinute <= MINUTES_PER_DAY).IsTrue("start <= MINUTES_PER_DAY");
+        (DurationMinutes >= 0).IsTrue("dur >= 0");
+        (StartMinute + DurationMinutes < MINUTES_PER_DAY * 2).IsTrue("finish < 2 days");
+      }
+
+      public Span(int start, int duration)
+      {
         StartMinute = start;
         DurationMinutes = duration;
+        checkInvariants();
+      }
+
+      public Span(DateTime start, DateTime end)
+      {
+        (start.Kind == end.Kind).IsTrue("sd.kind==ed.kind");
+        (start <= end).IsTrue("start<=end");
+        StartMinute = start.Minute;
+        DurationMinutes = (int)(end - start).TotalMinutes;
+        if (StartMinute + DurationMinutes > MINUTES_PER_2DAYS) DurationMinutes = MINUTES_PER_2DAYS - StartMinute;
+        checkInvariants();
       }
 
       /// <summary>
-      /// Start minute within a day. This value is always &lt;= to MINUTES_PER_DAY
+      /// Start minute within a day. This value is always &lt;= to MINUTES_PER_DAY.
+      /// This minute includes the first minute of duration, so a span with 1 minute duration has its `StartMinute` equal to its `FinishMinute`
       /// </summary>
       public readonly int StartMinute;
 
       /// <summary>
-      /// Duration of the span within a day
+      /// Duration of the span within a day.
+      /// This is always a positive number. A value of 0 signifies an empty span
+      /// A one minute duration span has its `StartMinute` equal to its `FinishMinute`
       /// </summary>
       public readonly int DurationMinutes;
 
       /// <summary>
       /// Finish minute relative to the day of start.
-      /// Note: this can extend beyond the original day
+      /// This minute includes the last minute of duration, so a 1min span has its `FinishMinute` equal to its `StartMinute`
+      /// Note: this can extend beyond the original day.
+      /// -1 is retuned for empty spans of zero duration
       /// </summary>
-      public int FinishMinute => StartMinute + DurationMinutes;
+      public int FinishMinute => DurationMinutes > 0 ? StartMinute + DurationMinutes - 1 : -1;
 
       /// <summary>
-      /// True if the span duration extends past original day 24 period.
+      /// True if the span duration extends past original day 24 hour period.
       /// For example:  23pm-3am working hour window starts at the day end but finishes at the NEXT day start
       /// </summary>
-      public bool EndsTheNextDay => FinishMinute > MINUTES_PER_DAY;
+      public bool EndsTheNextDay => FinishMinute >= MINUTES_PER_DAY;
 
-      public bool IsAssigned => StartMinute!=0 || DurationMinutes!=0;
+      /// <summary>
+      /// True when this structure was assigned a value: either a start minute or duration is set
+      /// </summary>
+      public bool IsAssigned => StartMinute != 0 || DurationMinutes != 0;
 
+      /// <summary>
+      /// Start time string specifier, such as `14:02` using a 24 hr clock
+      /// </summary>
       public string Start
       {
         get
         {
           var hr = StartMinute / 60;
           var min = StartMinute % 60;
-          return "{0:D}:{1:D2}".Args(hr, min);
+          return string.Format(CultureInfo.InvariantCulture, "{0:D}:{1:D2}", hr, min);
         }
       }
 
+      /// <summary>
+      /// Finish time string specifier, such as `23:09` using a 24 hr clock.
+      /// Empty string for an unassigned instance. The specifier is FinishMinute + 1 which is NOT included in this span duration
+      /// </summary>
       public string Finish
       {
         get
         {
-          var to = FinishMinute;
+          var to = FinishMinute + 1;
+          if (to < 1) return string.Empty;
           if (to > MINUTES_PER_DAY) to = to % MINUTES_PER_DAY;
           var hr = to / 60;
           var min = to % 60;
-          return "{0:D}:{1:D2}".Args(hr, min);
+          return string.Format(CultureInfo.InvariantCulture, "{0:D}:{1:D2}", hr, min);
         }
       }
 
-      public override string ToString() => Start + "-" + Finish;
+      /// <summary>
+      /// Span string specifier using a 24 hr clock, such as `13:00-16:59`
+      /// </summary>
+      public override string ToString() => IsAssigned ? Start + "-" + Finish : string.Empty;
+
       public override int GetHashCode() => StartMinute;
       public override bool Equals(object obj) => obj is Span span ? this.Equals(span) : false;
       public bool Equals(Span other) => this.Start == other.Start && this.DurationMinutes == other.DurationMinutes;
       public int CompareTo(Span other) => this.StartMinute < other.StartMinute ? -1 : this.StartMinute > other.StartMinute ? +1 : 0;
 
+      /// <summary>
+      /// Returns true if both spans are assigned and intersect in time
+      /// </summary>
+      public bool IntersectsWith(Span other)
+      {
+        if (!IsAssigned || !other.IsAssigned) return false;
+        return (this.DurationMinutes > 0) &&
+               (other.DurationMinutes > 0) &&
+               (other.StartMinute <= this.FinishMinute) &&
+               (other.FinishMinute >= this.StartMinute);
+      }
+
+      /// <summary>
+      /// Returns an intersection span of this span with another, or an unassigned span if they do not intersect
+      /// </summary>
+      public Span Intersect(Span other)
+      {
+        if (!IsAssigned || !other.IsAssigned) return default;
+        if (other.FinishMinute < this.StartMinute) return default;
+        if (other.StartMinute > this.FinishMinute) return default;
+
+        if (other.StartMinute < this.StartMinute)
+          return new Span(this.StartMinute, 1 + Math.Min(this.FinishMinute, other.FinishMinute) - this.StartMinute);
+        else
+          return new Span(other.StartMinute, 1 + Math.Min(other.FinishMinute, this.FinishMinute) - other.StartMinute);
+      }
+
+      /// <summary>
+      /// Returns true if THIS span completely contains (covers) the other span, that is: the other span intersects with this one
+      /// and it is smaller than or the same size as this one
+      /// </summary>
+      public bool CoversAnother(Span other)
+      {
+        if (!IsAssigned || !other.IsAssigned) return false;
+        return (other.StartMinute >= this.StartMinute && other.FinishMinute <= this.FinishMinute);
+      }
+
+
+      /// <summary>
+      /// Returns either a single span which is this span with subtracted other span, or two spans which
+      /// come out of this span with the other span cut-out of the original span.
+      /// Note that the 2nd span, when it is returned, may or may not start at the NEXT day, check for `bIsNextDay` flag
+      /// </summary>
+      public (Span a, Span b, bool bIsNextDay) Exclude(Span other)
+      {
+        if (!IsAssigned) return default;
+        if (!other.IsAssigned) return (this, default, false);
+        if (other.FinishMinute < this.StartMinute) return (this, default, false);
+        if (other.StartMinute > this.FinishMinute) return (this, default, false);
+
+        if (other.CoversAnother(this)) return default;//nothing left as other covers this one
+
+        //Split in 2
+        if (this.CoversAnother(other) &&
+            other.StartMinute > this.StartMinute &&
+            other.FinishMinute < this.FinishMinute)
+        {
+          var ra = new Span(this.StartMinute, other.StartMinute - this.StartMinute);
+
+          var bStart = other.FinishMinute + 1;
+          var bIsNextDay = bStart >= MINUTES_PER_DAY;
+          if (bIsNextDay) bStart-=MINUTES_PER_DAY;
+          var rb = new Span(bStart, this.FinishMinute - other.FinishMinute);
+          return (ra, rb, bIsNextDay);
+        }
+        else //produce 1
+        {
+          //at left?
+          if (other.StartMinute <= this.StartMinute)
+            return (new Span(other.FinishMinute + 1, this.FinishMinute - other.FinishMinute), default, false);
+
+          //at right
+          return (new Span(this.StartMinute, other.StartMinute - this.StartMinute), default, false);
+        }
+      }
+
+
+      /// <summary>
+      /// Returns a single new span which covers both the original and the other spans AND any time in between (if any)
+      /// </summary>
+      public Span Join(Span other)
+      {
+        if (!IsAssigned) return other;
+        if (!other.IsAssigned) return this;
+
+        var s = Math.Min(this.StartMinute, other.StartMinute);
+        return new Span(s, 1 + Math.Max(this.FinishMinute, other.FinishMinute) - s);
+      }
+
       public static bool operator ==(Span a, Span b) =>  a.Equals(b);
       public static bool operator !=(Span a, Span b) => !a.Equals(b);
-    }
+    }//span
 
     public static readonly char[] DELIMS = new[] { ',', ';' };
 
@@ -105,12 +232,27 @@ namespace Azos.Time
       return result;
     }
 
+    /// <summary>
+    /// "Unparses" the span[] to string (which can be parsed back). Returns null for null input, empty string for empty array
+    /// </summary>
+    public static string Unparse(IEnumerable<Span> data)
+    {
+      if (data == null) return null;
+      var sb = new StringBuilder(128);
+      foreach (var one in data)
+      {
+        sb.Append(one.ToString());
+        sb.Append(',');
+      }
+      return sb.ToString();
+    }
+
     public static bool TryParse(string v, out HourList result)
     {
       var data = parse(v);
       if (data == null)
       {
-        result = default(HourList);
+        result = default;
         return false;
       }
 
@@ -123,6 +265,12 @@ namespace Azos.Time
     {
       Data = data;
       m_Spans = null;
+    }
+
+    public HourList(IEnumerable<Span> data)
+    {
+      Data = Unparse(data);
+      m_Spans = data?.ToArray();
     }
 
     [ConfigCtor]
@@ -182,11 +330,11 @@ namespace Azos.Time
     {
       get
       {
-        if (i<0) return default(Span);
-        if (m_Spans != null) return i < m_Spans.Length ? m_Spans[i] : default(Span);
-        if (!IsAssigned) return default(Span);
+        if (i<0) return default;
+        if (m_Spans != null) return i < m_Spans.Length ? m_Spans[i] : default;
+        if (!IsAssigned) return default;
         parseState();
-        return i < m_Spans.Length ? m_Spans[i] : default(Span);
+        return i < m_Spans.Length ? m_Spans[i] : default;
       }
     }
 
@@ -234,11 +382,28 @@ namespace Azos.Time
 
 
     public void WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
-     => JsonWriter.EncodeString(wri, Data, options);
+    {
+      if (options?.Purpose == JsonSerializationPurpose.Marshalling)
+        JsonWriter.WriteMap(wri, nestingLevel + 1, options,
+          new System.Collections.DictionaryEntry("data", Data),
+          new System.Collections.DictionaryEntry("parsed", Spans.Select(one =>
+              new
+              {
+                sta = one.StartMinute,
+                fin = one.FinishMinute,
+                dur = one.DurationMinutes,
+                disp  = one.ToString()
+              })
+          )
+        );
+      else
+        JsonWriter.EncodeString(wri, Data, options);
+    }
 
     public (bool match, IJsonReadable self) ReadAsJson(object data, bool fromUI, JsonReader.DocReadOptions? options)
     {
-      if (data != null) return (true, new HourList(data.ToString()));
+      if (data is string str) return (true, new HourList(str));
+      if (data is JsonDataMap map) return (true, new HourList(map["data"].AsString()));
       return (false, null);
     }
 
@@ -254,6 +419,92 @@ namespace Azos.Time
       }
       return state;
     }
+
+    /// <summary>
+    /// Creates an enumeration of ordered spans (suitable for creation of `HourList`) by including time spans from another one and merging them together in a new enumeration
+    /// </summary>
+    public static IEnumerable<Span> Include(IEnumerable<Span> self, IEnumerable<Span> other)
+    {
+      if (self == null) return other;
+      if (other == null) return self;
+
+      var all = self.Concat(other)
+                    .OrderBy(one => one.StartMinute).ToList();
+
+      for (var i = 0; i < all.Count - 1;)
+      {
+        if (all[i].IntersectsWith(all[i + 1]))
+        {
+          var sum = all[i].Join(all[i + 1]);
+          all[i] = sum;
+          all.RemoveAt(i + 1);
+        }
+        else i++;
+      }
+
+      return all;
+    }
+
+    /// <summary>
+    /// Creates a new HourList by including time spans from another one and merging them together
+    /// </summary>
+    public HourList Include(HourList other) => other.IsAssigned ? new HourList(Include(this.Spans, other.Spans)) : this;
+
+    /// <summary>
+    /// Creates an enumeration of ordered spans (suitable for creation of `HourList`) by excluding (punch out) time spans from another.
+    /// Keep in mind that exclusion process may leave some fractions of existing spans in the next day
+    /// </summary>
+    public static (IEnumerable<Span> day, IEnumerable<Span> nextDay) Exclude(IEnumerable<Span> self, IEnumerable<Span> other)
+    {
+      if (self == null) return (null, null);
+      if (other == null) return (self, null);
+
+      var thisDay = self.OrderBy(one => one.StartMinute).ToList();
+      List<Span> nextDay = null;//lazy alloc
+
+      for (var i = 0; i < thisDay.Count;)
+      {
+        var another = other.FirstOrDefault(one => one.IntersectsWith(thisDay[i]));
+        if (another.IsAssigned)
+        {
+          var (x1, x2, x2n) = thisDay[i].Exclude(another);//this may produce > 1 span and the 2nd MIGHT start the next day
+          if (!x1.IsAssigned)
+          {
+            thisDay.RemoveAt(i);
+            continue;
+          }
+          thisDay[i] = x1;
+          if (x2.IsAssigned)
+          {
+            if (x2n)
+            {
+              if (nextDay == null) nextDay = new List<Span>();//lazy alloc
+              nextDay.Add(x2);
+            }
+            else
+            {
+              thisDay.Insert(i + 1, x2);
+            }
+            continue;
+          }
+        }
+        else i++;
+      }
+
+      return (thisDay, nextDay);
+    }
+
+
+    /// <summary>
+    /// Creates a new HourList/s by excluding time spans from another one and merging them together.
+    /// Keep in mind that exclusion process may leave some fractions of existing spans in the next day
+    /// </summary>
+    public (HourList day, HourList nextDay) Exclude(HourList other)
+    {
+      var (a, b) = Exclude(this.Spans, other.Spans);
+      return (new HourList(a), b != null ? new HourList(b) : new HourList());
+    }
+
 
     private void parseState()
     {

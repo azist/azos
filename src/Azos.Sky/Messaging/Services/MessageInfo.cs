@@ -8,16 +8,19 @@ using System;
 
 using Azos.Data;
 using Azos.Data.Business;
+using Azos.Serialization.Bix;
 
 namespace Azos.Sky.Messaging.Services
 {
   /// <summary>
   /// Provides message header info suitable for message list display
   /// </summary>
+  [Bix("a616654a-0015-48a1-900b-44033780aed1")]
+  [Schema(Description = "Provides message header info suitable for message list display")]
   public sealed class MessageInfo : TransientModel
   {
     [Field(Description = "Id used for message archiving")]
-    public string ArchiveId {  get; set; }
+    public string ArchiveId { get; set; }
 
     [Field(Description = "Message.ID")]
     public Guid ID { get; set; }

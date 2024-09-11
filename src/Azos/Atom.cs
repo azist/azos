@@ -68,6 +68,9 @@ namespace Azos
                        ILengthCheck
   {
 
+    //imposes a limit on maximum atom cache size
+    private const int MAX_CACHE_SIZE = 200_000;
+
     /// <summary>
     /// Zero constant
     /// </summary>
@@ -272,6 +275,8 @@ namespace Azos
 
         //lock-free lookup covers 99.99% of cases
         if (s_Cache.TryGetValue(ID, out var value)) return value;
+
+        if (s_Cache.Count >= MAX_CACHE_SIZE) return getValue();//do not cache #917
 
         //the creation of new Atoms is slow
         lock(s_Lock)

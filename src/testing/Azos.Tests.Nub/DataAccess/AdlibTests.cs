@@ -156,5 +156,31 @@ namespace Azos.Tests.Nub.DataAccess
 
     }
 
+
+    [Run]
+    public void SerializeTagVals_1()
+    {
+      var list = new List<TagVal>
+      {
+        new TagVal(-9_777_333_000L),
+        new TagVal("Hello"),
+        new TagVal("Dolly"),
+        new TagVal(129)
+      };
+
+      var json = list.ToJson();
+
+      json.See();
+
+      var got = JsonReader.DeserializeDataObject(json) as JsonDataArray;
+      Aver.IsNotNull(got);
+      Aver.AreEqual(4, got.Count);
+      Aver.AreEqual(-9_777_333_000L, got[0].AsLong());
+
+      Aver.AreEqual("Hello", got[1].AsString());
+      Aver.AreEqual("Dolly", got[2].AsString());
+      Aver.AreEqual(129, got[3].AsLong());
+    }
+
   }
 }

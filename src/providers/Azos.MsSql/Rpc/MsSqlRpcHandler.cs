@@ -25,7 +25,7 @@ namespace Azos.Data.Access.MsSql
     /// <summary>
     /// Absolute maximum number of rows to fetch at once
     /// </summary>
-    public const int FETCH_LIMIT = 1000;
+    public const int DEFAULT_FETCH_LIMIT = 1000;
 
 
     /// <summary>
@@ -233,7 +233,7 @@ namespace Azos.Data.Access.MsSql
       return new Schema(name, readOnly: true, fieldDefs: fdefs);
     }
 
-    private void populateDoc(Doc doc, SqlDataReader reader, Command command)
+    private void populateDoc(Doc doc, SqlDataReader reader, Command command, bool masqueradeDates)
     {
       for (int i = 0; i < reader.FieldCount; i++)
       {
@@ -246,15 +246,29 @@ namespace Azos.Data.Access.MsSql
           continue;
         }
 
+        //20240708 DKh maquerade dates as UTC for transmission
+        if (masqueradeDates && val is DateTime dtv)
+        {
+          val = new DateTime(dtv.Year, dtv.Month, dtv.Day,
+                             dtv.Hour, dtv.Minute, dtv.Second, dtv.Millisecond,
+                             DateTimeKind.Utc);
+        }
+
         doc[fdef.Order] = val;
       }
     }
+
+
+    protected virtual int GetFetchLimit(Command command, bool isSql) => DEFAULT_FETCH_LIMIT;
 
     private async Task<Rowset> readAsync(SqlConnection connection, Command command, bool isSql)
     {
       Rowset result = null;
 
-      using(var cmd = connection.CreateCommand())
+      var limit = GetFetchLimit(command, isSql);
+      var masqeradeDates = (command.Headers?[StandardHeaders.Sql.UTC_MASQUERADE]).AsBool();
+
+      using (var cmd = connection.CreateCommand())
       {
         cmd.CommandType = isSql ? System.Data.CommandType.Text : System.Data.CommandType.StoredProcedure;
         cmd.CommandText = command.Text;
@@ -269,10 +283,10 @@ namespace Azos.Data.Access.MsSql
           while(await reader.ReadAsync().ConfigureAwait(false))
           {
             var doc = Doc.MakeDoc(result.Schema);
-            populateDoc(doc, reader, command);
+            populateDoc(doc, reader, command, masqeradeDates);
             result.Add(doc);
 
-            if (result.Count > FETCH_LIMIT) break;
+            if (result.Count > limit) throw new DataAccessException("Row limit of {0} is exceeded".Args(limit));
           }
         }
       }

@@ -61,7 +61,7 @@ namespace Azos.Scripting.Expressions.Data
     /// </summary>
     public static (Doc doc, Schema.FieldDef fld, object val) NavigateOneFieldPath(ScriptCtx ctx, string path, bool lax = false)// 20240304 DKh
     {
-      path.NonBlank(nameof(path));
+      path = path.NonBlank(nameof(path)).Trim();
 
       Doc ds = ctx.Data;
 
@@ -227,11 +227,12 @@ namespace Azos.Scripting.Expressions.Data
         return false;
       }
       var cv = Format.IsNullOrWhiteSpace() ? v.ToString() : Format.Args(v);
-      return cv == Value;
+      return this.SenseCase ? cv.EqualsOrdSenseCase(Value) : cv.EqualsOrdIgnoreCase(Value);
     }
 
     [Config] public string Value { get; set; }
     [Config] public string Format { get; set; }
+    [Config] public bool SenseCase { get; set; }
   }
 
   /// <summary>

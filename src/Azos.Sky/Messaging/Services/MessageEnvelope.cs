@@ -5,33 +5,45 @@
 </FILE_LICENSE>*/
 
 using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Threading.Tasks;
 
 using Azos.Data.Business;
 using Azos.Apps.Injection;
 using Azos.Time;
 using Azos.Serialization.JSON;
 using Azos.Data;
-using System.Threading.Tasks;
+using Azos.Serialization.Bix;
 
 namespace Azos.Sky.Messaging.Services
 {
-
+  /// <summary>
+  /// Embodies a communication message (such as an email) with additional properties
+  /// </summary>
+  [Schema(Description = "Embodies a communication message (such as an email) with additional properties")]
+  [Bix("a332f054-7ef3-4d30-933f-b0aae64b2ec1")]
   public sealed class MessageEnvelope : PersistedModel<ChangeResult>
   {
-
     [Inject] IMessagingLogic m_MessagingLogic;
     [Inject] ITimeSource m_TimeSource;
 
+    //Used for Multipart encoding, must be enabled
     public override bool AmorphousDataEnabled => true;
 
+    /// <summary>
+    /// Required message content
+    /// </summary>
+    [Field(required: true, Description = "Required message content")]
+    public Message Content { get; set; }
 
+    /// <summary>
+    /// Optional message properties
+    /// </summary>
+    [Field(Description = "Optional message properties")]
+    public JsonDataMap Props { get; set; }
 
-    [Field(required: true)] public Message Content { get; set; }
-
-    [Field] public JsonDataMap Props { get; set; }
-
+    /// <summary>
+    /// Gets a constrained list of message properties - which can only be strings or integers <see cref="MessageProps"/>
+    /// </summary>
     public MessageProps GetMessageProps() => Props != null ? new MessageProps(Props) : null;
 
     public override ValidState Validate(ValidState state, string scope = null)

@@ -76,7 +76,7 @@ namespace Azos.Data.Adlib
     /// <summary>
     /// The id of cluster origin region/zone where the item was first triggered, among other things
     /// this value is used to prevent circular traffic - in multi-master situations so the
-    /// same event does not get replicated multiple times across regions (data centers)
+    /// same item does not get replicated multiple times across regions (data centers)
     /// </summary>
     [Field(required: true, Description = "Id of cluster origin zone/region")]
     public Atom Origin { get; set; }
@@ -92,8 +92,8 @@ namespace Azos.Data.Adlib
     [Field(required: true, maxLength: Constraints.MAX_TAG_COUNT, Description = "Indexable tags")]
     public List<Tag> Tags { get; set; }
 
-    /// <summary> Raw event content </summary>
-    [Field(required: true, maxLength: Constraints.MAX_CONTENT_LENGTH, Description = "Raw event content")]
+    /// <summary> Raw item content </summary>
+    [Field(required: true, maxLength: Constraints.MAX_CONTENT_LENGTH, Description = "Raw item content")]
     public byte[] Content { get; set; }
 
 

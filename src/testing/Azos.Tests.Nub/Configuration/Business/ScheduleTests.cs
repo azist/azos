@@ -145,11 +145,14 @@ namespace Azos.Tests.Nub.Configuration.Business
       var friHrList = sut.Spans[0].Friday;
       var friHr = satHrList.Spans.FirstOrDefault();
 
-      var friHrUtcTrue = new DateTime(2010, 7, 2, 18, 0, 5, DateTimeKind.Utc);
+      var friHrUtcTrue = new DateTime(2010, 7, 2, 17, 59, 59, DateTimeKind.Utc);
       Aver.IsTrue(friHrList.IsCovered(friHrUtcTrue));
 
-      var friHrUtcFalse = new DateTime(2010, 7, 2, 12, 15, 5, DateTimeKind.Utc);
+      var friHrUtcFalse = new DateTime(2010, 7, 2, 18, 0, 5, DateTimeKind.Utc);
       Aver.IsFalse(friHrList.IsCovered(friHrUtcFalse));
+
+      var friHrUtcFalse2 = new DateTime(2010, 7, 2, 12, 15, 5, DateTimeKind.Utc);
+      Aver.IsFalse(friHrList.IsCovered(friHrUtcFalse2));
     }
   }
 }

@@ -8,7 +8,10 @@ using System;
 using System.Linq;
 
 using Azos.Data;
+using Azos.Data.Modeling.DataTypes;
+using Azos.Scripting.Dsl;
 using Azos.Serialization.Arow;
+using Azos.Serialization.Bix;
 
 
 namespace Azos.Sky.Messaging
@@ -89,12 +92,16 @@ namespace Azos.Sky.Messaging
   ///  Body:  Hello, we wanted to let you know that your cat Bobby is ready to go home. Bobby is hungry and meowing now! Thanks, The Cat Team
   /// </remarks>
   [Serializable]
-  [Arow("31B5D987-5DBF-4CE9-AFFA-6684005D2F8F")]
+  [Schema(Description = "Represents a message such as email, SMS, MMS, voice call, etc..")]
+  [Bix("31B5D987-5DBF-4CE9-AFFA-6684005D2F8F")]
   public class Message : MessageEntity
   {
-
+    /// <summary>
+    /// Message attachment
+    /// </summary>
     [Serializable]
-    [Arow("593907F9-0577-466F-8228-03C4EB24AE50")]
+    [Schema(Description = "Message attachment")]
+    [Bix("593907F9-0577-466F-8228-03C4EB24AE50")]
     public class Attachment : MessageEntity
     {
       public Attachment(string name, long weight, byte[] content, string contentType)

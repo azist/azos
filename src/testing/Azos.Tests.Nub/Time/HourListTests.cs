@@ -25,6 +25,30 @@ namespace Azos.Tests.Nub.Time
     }
 
     [Run]
+    public void Basic01()
+    {
+      var x = new HourList("1am-2am");
+      var s = x.Spans.First();
+      Aver.AreEqual(60, s.DurationMinutes);
+      Aver.AreEqual(60, s.StartMinute);
+      Aver.AreEqual(60 + 60 - 1, s.FinishMinute);//FinishMinute is INCLUDED in span, so 0-59 is 60 minutes total
+      Aver.AreEqual("1:00", s.Start);
+      Aver.AreEqual("2:00", s.Finish);//this minute is EXCLUDED
+    }
+
+    [Run]
+    public void Basic02()
+    {
+      var x = new HourList("12am-1am");
+      var s = x.Spans.First();
+      Aver.AreEqual(60, s.DurationMinutes);
+      Aver.AreEqual(0, s.StartMinute);
+      Aver.AreEqual(0 + 60 - 1, s.FinishMinute);//FinishMinute is INCLUDED in span, so 0-59 is 60 minutes total
+      Aver.AreEqual("0:00", s.Start);
+      Aver.AreEqual("1:00", s.Finish);//this minute is EXCLUDED
+    }
+
+    [Run]
     public void Single_HourOnly()
     {
       var got = new HourList("1-2");
@@ -145,7 +169,7 @@ namespace Azos.Tests.Nub.Time
       Aver.IsFalse(got.IsCovered(new DateTime(1980, 1, 1,   0, 59, 59)));
       Aver.IsTrue(got.IsCovered( new DateTime(1980, 1, 1,   1,  0, 0)));
       Aver.IsTrue(got.IsCovered( new DateTime(1980, 1, 1,   13,59, 59)));
-      Aver.IsTrue(got.IsCovered( new DateTime(1980, 1, 1,   14, 0, 0)));
+      Aver.IsFalse(got.IsCovered( new DateTime(1980, 1, 1,   14, 0, 0)));
       Aver.IsFalse(got.IsCovered(new DateTime(1980, 1, 1,   14, 1, 0)));
       Aver.IsFalse(got.IsCovered(new DateTime(1980, 1, 1,   15, 1, 0)));
     }
