@@ -33,7 +33,7 @@ namespace Azos.Sky.Messaging.Services
     /// Throws on validation and delivery errors
     /// </para>
     /// </remarks>
-    Task<string> SendAsync(Message msg, MessageProps props = null);
+    Task<string> SendAsync(MessageEnvelope envelope);
   }
 
   /// <summary>

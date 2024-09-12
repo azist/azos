@@ -49,34 +49,34 @@ namespace Azos.Sky.Messaging.Services.Server
 
 
     /// <inheritdoc/>
-    public virtual async Task<string> SendAsync(Message message, MessageProps props)
+    public virtual async Task<string> SendAsync(MessageEnvelope envelope)
     {
       try
       {
         //1.  Validate
-        var ve = message.NonNull(nameof(message)).Validate();
+        var ve = envelope.NonNull(nameof(envelope)).Validate();
         if (ve != null) throw ve;
 
         //2. Save message into document storage, getting back a unique Id
         //which can be later used for query/retrieval
-        message.ArchiveId = await DoStoreMessageOnSendAsync(message, props).ConfigureAwait(false);
+        envelope.Content.ArchiveId = await DoStoreMessageOnSendAsync(envelope).ConfigureAwait(false);
 
         //3. Route message for delivery
         //the router implementation is 100% asynchronous by design
-        m_Router.SendMsg(message);
+        m_Router.SendMsg(envelope.Content);
 
-        DoWriteOplog(message, props, null);
+        DoWriteOplog(envelope, null);
 
-        return message.ArchiveId;
+        return envelope.Content.ArchiveId;
       }
       catch(Exception error)
       {
-        DoWriteOplog(message, props, error);
+        DoWriteOplog(envelope, error);
         throw;
       }
     }
 
-    protected Task<string> DoStoreMessageOnSendAsync(Message message, MessageProps props)
+    protected Task<string> DoStoreMessageOnSendAsync(MessageEnvelope envelope)
     {
       return Task.FromResult(Guid.NewGuid().ToString());
     }
@@ -84,18 +84,32 @@ namespace Azos.Sky.Messaging.Services.Server
     /// <summary>
     /// Override to write communication message into an oplog
     /// </summary>
-    protected virtual void DoWriteOplog(Message msg, MessageProps props, Exception error)
+    protected virtual void DoWriteOplog(MessageEnvelope envelope, Exception error)
     {
       if (m_OpLog == null) return;
-      var msgLog = CreateOplogMessage(msg, props, error);
+      var msgLog = CreateOplogMessage(envelope, error);
+      if (msgLog == null) return;
       m_OpLog.Write(msgLog);
     }
 
     /// <summary>
     /// Override to create an oplog message representation of communication message
     /// </summary>
-    protected virtual Azos.Log.Message CreateOplogMessage(Message msg, MessageProps props, Exception error)
+    protected virtual Azos.Log.Message CreateOplogMessage(MessageEnvelope envelope, Exception error)
     {
+      Message msg = null;
+      MessageProps props = null;
+
+      try
+      {
+        msg = envelope.Content;
+        props = envelope.GetMessageProps();
+      }
+      catch
+      {
+        return null;//data structure is not valid
+      }
+
       var result = new Azos.Log.Message();
 
       result.App = App.AppId;
