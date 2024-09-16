@@ -1,6 +1,6 @@
 @echo on
 
-set VER=3.9.2.2
+set VER=3.9.3.1
 set HEADLINE=#918 Refactoring
 call build-all Release %VER%
 
