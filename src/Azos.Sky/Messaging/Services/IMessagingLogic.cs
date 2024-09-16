@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Azos.Apps;
+using Azos.Data;
 using Azos.Data.Business;
 
 namespace Azos.Sky.Messaging.Services
@@ -19,6 +20,11 @@ namespace Azos.Sky.Messaging.Services
   /// </summary>
   public interface IMessagingLogic : IModule
   {
+    /// <summary>
+    /// Override to perform precondition validation before message envelope gets processed
+    /// </summary>
+    ValidState CheckPreconditions(MessageEnvelope envelope, ValidState state);
+
     /// <summary>
     /// Sends one message asynchronously optionally attaching the ad hoc properties.
     /// Returns a unique message Id which can be used to query the message (if system supports it)
@@ -50,7 +56,7 @@ namespace Azos.Sky.Messaging.Services
     /// Fetches a message by its storage id (as returned by SendAsync()) optionally fetching MessageProps.
     /// Returns NULL for messages which are not found
     /// </summary>
-    Task<(Message msg, MessageProps props)> GetMessageAsync(string msgId, bool fetchProps = false);
+    Task<MessageEnvelope> GetMessageAsync(string msgId, bool fetchProps = false);
 
     /// <summary>
     /// Fetches a specific message attachment identified by its position in the message.Attachments collection.

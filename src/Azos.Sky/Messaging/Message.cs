@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 
 using Azos.Data;
+using Azos.Data.Adlib;
 using Azos.Data.Modeling.DataTypes;
 using Azos.Scripting.Dsl;
 using Azos.Serialization.Arow;
@@ -24,23 +25,25 @@ namespace Azos.Sky.Messaging
     //Note: the following impose a maximum theoretical limits/lengths on content.
     //Actual limits depend or implementing systems as this is just a safe guard to prevent overflow attacks at minimum
     public const int MAX_ARCHIVE_ID_LEN = 1024;
-    public const int MAX_TAGS = 128;
+    public const int MAX_TAGS = 64;
     public const int MAX_TAG_LENGTH = 48;
+
+    public const int MAX_DATA_TAGS = 64;//Adlib has 128
+
     public const int MAX_ATTACHMENTS = 1024;
     public const int MAX_ADDR_LEN = 128 * 1024;
     public const int MAX_TEXT_VAL_LEN = 256 * 1024;
     public const int MAX_TEXT_CONTENT_LEN = 32 * 1024 * 1024;
 
 
+    /// <summary>Ad-hoc display/classification tags for this entity</summary>
+    [Field(required: false,
+           backendName: "tags",
+           maxLength: MAX_TAGS,
+           isArow: true,
+           Description = "Ad-hoc display/classification tags for this entity")]
+    public string[] Tags { get; set; }
 
-    /// <summary> Override to specify a different limit imposed on a total number of tag array elements </summary>
-    protected virtual int MaxTagArrayLength => MAX_TAGS;
-    /// <summary> Override to specify a different limit imposed on a total char length of each tag </summary>
-    protected virtual int MaxTagValueLength => MAX_TAG_LENGTH;
-
-
-    /// <summary>Ad-hoc tags for this entity</summary>
-    [Field(backendName: "tags", isArow: true)] public string[] Tags { get; set; }
 
     public override ValidState Validate(ValidState state, string scope = null)
     {
@@ -49,15 +52,9 @@ namespace Azos.Sky.Messaging
 
       if (this.Tags != null)
       {
-        //tags array length
-        if (this.Tags.Length > MaxTagArrayLength)
-          state = new ValidState(state, new FieldValidationException(this.Schema.DisplayName, nameof(Tags), "Item count over {0}".Args(MaxTagArrayLength)));
-
-        if (state.ShouldStop) return state;
-
         // no empty tags or long tags
-        if (this.Tags.Any(t => t.IsNullOrWhiteSpace() || t.Length > MaxTagValueLength))
-          state = new ValidState(state, new FieldValidationException(this.Schema.DisplayName, nameof(Tags), "Empty/null tags or tags exceeding {0} chars".Args(MaxTagValueLength)));
+        if (this.Tags.Any(t => t.IsNullOrWhiteSpace() || t.Length > MAX_TAG_LENGTH))
+          state = new ValidState(state, new FieldValidationException(this.Schema.DisplayName, nameof(Tags), "Empty/null tags or tags exceeding {0} chars".Args(MAX_TAG_LENGTH)));
 
         if (state.ShouldStop) return state;
 
@@ -94,7 +91,7 @@ namespace Azos.Sky.Messaging
   [Serializable]
   [Schema(Description = "Represents a message such as email, SMS, MMS, voice call, etc..")]
   [Bix("31B5D987-5DBF-4CE9-AFFA-6684005D2F8F")]
-  public class Message : MessageEntity
+  public sealed class Message : MessageEntity
   {
     /// <summary>
     /// Message attachment
@@ -102,7 +99,7 @@ namespace Azos.Sky.Messaging
     [Serializable]
     [Schema(Description = "Message attachment")]
     [Bix("593907F9-0577-466F-8228-03C4EB24AE50")]
-    public class Attachment : MessageEntity
+    public sealed class Attachment : MessageEntity
     {
       public Attachment(string name, long weight, byte[] content, string contentType)
       {
@@ -161,6 +158,18 @@ namespace Azos.Sky.Messaging
     /// </summary>
     [Field(backendName: "id", isArow: true)]
     public Guid  Id { get; private set;}
+
+
+    /// <summary>
+    /// Optional data tags which can be used for message archive search if supported
+    /// </summary>
+    [Field(required: false,
+           backendName: "dtags",
+           maxLength: MAX_DATA_TAGS,
+           isArow: true,
+           Description = "Optional data tags which can be used for message archive search if supported")]
+    public Tag[] DataTags{ get; set;}
+
 
     /// <summary>
     /// When set, identifies the message in a thread which this one relates to

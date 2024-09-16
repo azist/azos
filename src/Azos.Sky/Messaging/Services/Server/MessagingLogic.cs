@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 
 using Azos.Apps;
 using Azos.Conf;
+using Azos.Data;
 using Azos.Log;
 using Azos.Serialization.JSON;
 
@@ -49,47 +50,70 @@ namespace Azos.Sky.Messaging.Services.Server
 
 
     /// <inheritdoc/>
+    public virtual ValidState CheckPreconditions(MessageEnvelope envelope, ValidState state)
+    {
+      return state;
+    }
+
+    /// <inheritdoc/>
     public virtual async Task<string> SendAsync(MessageEnvelope envelope)
     {
+      var original = envelope.NonNull(nameof(envelope)); ;
+
       try
       {
-        //1.  Validate
-        var ve = envelope.NonNull(nameof(envelope)).Validate();
-        if (ve != null) throw ve;
+        //1. Process message, e.g. expand templates. The new message is returned
+        envelope = await DoProcessMessageAsync(original).ConfigureAwait(false);
 
         //2. Save message into document storage, getting back a unique Id
         //which can be later used for query/retrieval
-        envelope.Content.ArchiveId = await DoStoreMessageOnSendAsync(envelope).ConfigureAwait(false);
+        envelope.Content.ArchiveId = await DoStoreMessageOnSendAsync(original, envelope).ConfigureAwait(false);
 
         //3. Route message for delivery
         //the router implementation is 100% asynchronous by design
         m_Router.SendMsg(envelope.Content);
 
-        DoWriteOplog(envelope, null);
+        DoWriteOplog(original, envelope, null);
 
         return envelope.Content.ArchiveId;
       }
       catch(Exception error)
       {
-        DoWriteOplog(envelope, error);
+        DoWriteOplog(original, envelope, error);
         throw;
       }
     }
 
-    protected Task<string> DoStoreMessageOnSendAsync(MessageEnvelope envelope)
+
+    /// <summary>
+    /// Returns a new message which represents a message envelope which needs to be sent, such as
+    /// the one after expansion of tenmplates.
+    /// You can return the original envelop as-is if there is no pre-processing needed
+    /// </summary>
+    protected virtual Task<MessageEnvelope> DoProcessMessageAsync(MessageEnvelope envelope)
     {
-      return Task.FromResult(Guid.NewGuid().ToString());
+      return Task.FromResult(envelope);
+    }
+
+    protected virtual Task<string> DoStoreMessageOnSendAsync(MessageEnvelope original, MessageEnvelope envelope)
+    {
+      return Task.FromResult<string>(null);
     }
 
     /// <summary>
     /// Override to write communication message into an oplog
     /// </summary>
-    protected virtual void DoWriteOplog(MessageEnvelope envelope, Exception error)
+    protected virtual void DoWriteOplog(MessageEnvelope original, MessageEnvelope envelope, Exception error)
     {
       if (m_OpLog == null) return;
-      var msgLog = CreateOplogMessage(envelope, error);
-      if (msgLog == null) return;
-      m_OpLog.Write(msgLog);
+
+      var msgLog = CreateOplogMessage(original, error);
+      if (msgLog != null) m_OpLog.Write(msgLog);
+
+      if (object.ReferenceEquals(envelope, original)) return;
+
+      msgLog = CreateOplogMessage(envelope, error);
+      if (msgLog != null) m_OpLog.Write(msgLog);
     }
 
     /// <summary>
@@ -97,21 +121,14 @@ namespace Azos.Sky.Messaging.Services.Server
     /// </summary>
     protected virtual Azos.Log.Message CreateOplogMessage(MessageEnvelope envelope, Exception error)
     {
-      Message msg = null;
-      MessageProps props = null;
+      if (envelope ==null) return null;
 
-      try
-      {
-        msg = envelope.Content;
-        props = envelope.GetMessageProps();
-      }
-      catch
-      {
-        return null;//data structure is not valid
-      }
+      var msg = envelope.Content;
+      if (msg == null) return null;
 
       var result = new Azos.Log.Message();
 
+      result.Guid = msg.Id;
       result.App = App.AppId;
       result.Host = Platform.Computer.HostName;
       result.Topic = CoreConsts.WEBMSG_TOPIC;
@@ -128,7 +145,6 @@ namespace Azos.Sky.Messaging.Services.Server
       result.Parameters = new
       {
         archiveId = msg.ArchiveId,
-        id = msg.Id,
         cdt = msg.CreateDateUTC,
         pri = msg.Priority,
         imp = msg.Importance,
@@ -137,7 +153,7 @@ namespace Azos.Sky.Messaging.Services.Server
         repl = msg.AddressReplyTo,
         cc = msg.AddressCC,
         bcc = msg.AddressBCC,
-        props = props,
+        props = envelope.Props,
 
         bodyShort = msg.ShortBody.TakeFirstChars(100, "..."),
         body = msg.Body.TakeFirstChars(100, "..."),
@@ -150,13 +166,11 @@ namespace Azos.Sky.Messaging.Services.Server
     }
 
 
-
-
     public virtual Task<IEnumerable<MessageInfo>> GetMessageListAsync(MessageListFilter filter)
       => Task.FromResult(Enumerable.Empty<MessageInfo>());
 
-    public virtual Task<(Message msg, MessageProps props)> GetMessageAsync(string msgId, bool fetchProps = false)
-      => Task.FromResult<(Message, MessageProps)>((null, null));
+    public virtual Task<MessageEnvelope> GetMessageAsync(string msgId, bool fetchProps = false)
+      => Task.FromResult<MessageEnvelope>(null);
 
     public virtual Task<Message.Attachment> GetMessageAttachmentAsync(string msgId, int attId)
       => Task.FromResult<Message.Attachment>(null);
@@ -185,5 +199,7 @@ namespace Azos.Sky.Messaging.Services.Server
       m_Router.WaitForCompleteStop();
       return base.DoApplicationBeforeCleanup();
     }
+
+
   }
 }
