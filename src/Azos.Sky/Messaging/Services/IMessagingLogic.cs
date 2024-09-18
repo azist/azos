@@ -6,12 +6,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 using Azos.Apps;
 using Azos.Data;
-using Azos.Data.Business;
 
 namespace Azos.Sky.Messaging.Services
 {
@@ -26,9 +24,9 @@ namespace Azos.Sky.Messaging.Services
     ValidState CheckPreconditions(MessageEnvelope envelope, ValidState state);
 
     /// <summary>
-    /// Sends one message asynchronously optionally attaching the ad hoc properties.
+    /// Sends one message asynchronously. You should call `MessageEnvelope.Save()` which calls this method.
     /// Returns a unique message Id which can be used to query the message (if system supports it)
-    /// later via IMessageQueryLogic contract, or NULL if the message storage is not supported.
+    /// later via <see cref="IMessageArchiveLogic" /> contract, or NULL if the message storage is not supported.
     /// </summary>
     /// <remarks>
     /// <para>

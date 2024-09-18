@@ -49,6 +49,20 @@ namespace Azos.Sky.Messaging.Services.Server
     public string OplogModuleName{ get; set; }
 
 
+    /// <summary>
+    /// Returns a string which should be matched by requested content type
+    /// to trigger command execution.
+    /// If null is returned, then command execution is bypassed altogether
+    /// </summary>
+    /// <remarks>
+    /// When this service gets a message with RichBodyContentType set to this command content type value,
+    /// it initializes the <see cref="MessageCommand"/> instance from <see cref="Message.RichBody"/> property
+    /// and passes it to handler for execution. A handler then turns a command into some real message, like
+    /// a content template populated from CMS etc..
+    /// </remarks>
+    public virtual string CommandContentType => null;
+
+
     /// <inheritdoc/>
     public virtual ValidState CheckPreconditions(MessageEnvelope envelope, ValidState state)
     {
@@ -84,17 +98,43 @@ namespace Azos.Sky.Messaging.Services.Server
       }
     }
 
-
     /// <summary>
     /// Returns a new message which represents a message envelope which needs to be sent, such as
     /// the one after expansion of tenmplates.
     /// You can return the original envelop as-is if there is no pre-processing needed
     /// </summary>
-    protected virtual Task<MessageEnvelope> DoProcessMessageAsync(MessageEnvelope envelope)
+    protected virtual async Task<MessageEnvelope> DoProcessMessageAsync(MessageEnvelope envelope)
     {
-      return Task.FromResult(envelope);
+      if (CommandContentType.IsNotNullOrWhiteSpace() && (envelope.Content?.RichBodyContentType).EqualsIgnoreCase(CommandContentType))
+      {
+        var result = await DoHandleCommandAsync(envelope).ConfigureAwait(false);
+        return result;
+      }
+
+      return envelope;
     }
 
+    protected virtual async Task<MessageEnvelope> DoHandleCommandAsync(MessageEnvelope envelope)
+    {
+      var cmdText = envelope.Content.RichBody.NonBlank("Command text in RichBody", putHttpDetails: true, putExternalDetails: true);
+
+      //make instance of MessagingCommandClass an execute
+      var command = JsonReader.ToDoc<MessageCommand>(envelope.Content.RichBody, false);
+
+      var props = envelope.Props;
+
+      //Handler, handle the command,
+      //and generate the envelope
+
+      return envelope;
+    }
+
+
+    /// <summary>
+    /// Override to store message envelopes - and original and the real one obtained from command execution by handler.
+    /// Keep in moind that the envelope and original may be the same instance
+    /// </summary>
+    /// <returns>Id assigned by storage, or NULL if the storage/archive is not supported</returns>
     protected virtual Task<string> DoStoreMessageOnSendAsync(MessageEnvelope original, MessageEnvelope envelope)
     {
       return Task.FromResult<string>(null);
