@@ -38,7 +38,14 @@ namespace Azos.Sky.Messaging.Services.Server
     protected override void Destructor()
     {
       DisposeAndNull(ref m_Router);
+      cleanup();
       base.Destructor();
+    }
+
+    private void cleanup()
+    {
+      m_Handlers.ForEach(one => this.DontLeak(() =>  one.Dispose()));
+      m_Handlers.Clear();
     }
 
     protected MessageDaemon m_Router;
@@ -253,10 +260,19 @@ namespace Azos.Sky.Messaging.Services.Server
 
     protected override void DoConfigure(IConfigSectionNode node)
     {
+      cleanup();
+
       base.DoConfigure(node);
       if (node == null) return;
 
       m_Router.Configure(node[CONFIG_MESSAGE_ROUTER_SECTION]);
+
+
+      foreach(var nh in node.ChildrenNamed(CommandHandler.CONFIG_HANDLER_SECTION))
+      {
+        var handler = FactoryUtils.MakeDirectedComponent<CommandHandler>(this, nh, null, new object[]{ nh });
+        m_Handlers.Register(handler).IsTrue($"Uniquely named handler `{handler.Name}`");
+      }
     }
 
     protected override bool DoApplicationAfterInit()
