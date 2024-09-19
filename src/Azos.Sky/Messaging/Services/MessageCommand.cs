@@ -61,6 +61,8 @@ namespace Azos.Sky.Messaging.Services
       m_Name.NonBlankMinMax(MessageCommand.NAME_MIN_LEN, MessageCommand.NAME_MAX_LEN, "Configure handler name");
     }
 
+    public override string ComponentLogTopic => CoreConsts.WEBMSG_TOPIC;
+
     [Config] private string m_Name;
 
     public string Name => m_Name;
