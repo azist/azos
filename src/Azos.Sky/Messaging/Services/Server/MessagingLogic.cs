@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Azos.Apps;
+using Azos.Collections;
 using Azos.Conf;
 using Azos.Data;
 using Azos.Log;
@@ -30,6 +31,7 @@ namespace Azos.Sky.Messaging.Services.Server
 
     private void ctor()
     {
+      m_Handlers = new Registry<CommandHandler>(caseSensitive: false);
       m_Router = new MessageDaemon(this);
     }
 
@@ -41,12 +43,24 @@ namespace Azos.Sky.Messaging.Services.Server
 
     protected MessageDaemon m_Router;
     protected ILog m_OpLog;
+    protected Registry<CommandHandler> m_Handlers;
+
 
     public override bool IsHardcodedModule => true;
     public override string ComponentLogTopic => CoreConsts.WEBMSG_TOPIC;
 
+
+    /// <summary>
+    /// When set, turns on op logging
+    /// </summary>
     [Config]
     public string OplogModuleName{ get; set; }
+
+
+    /// <summary>
+    /// Registr of configured command handlers
+    /// </summary>
+    public IRegistry<CommandHandler> Handlers => m_Handlers;
 
 
     /// <summary>
@@ -121,23 +135,30 @@ namespace Azos.Sky.Messaging.Services.Server
       //make instance of MessagingCommandClass an execute
       var command = JsonReader.ToDoc<MessageCommand>(envelope.Content.RichBody, false);
 
-      var props = envelope.Props;
-
       //Handler, handle the command,
       //and generate the envelope
-
       //==============================================================================================
       //==============================================================================================
       //==============================================================================================
 
+      var handler = m_Handlers[command.Name];
+      if (handler == null)
+        throw $"No handler for command `{command.Name.TakeLastChars(32, "...")}`".IsNotFound(putHttpDetails: true, putExternalDetails: true);
 
-
-
+      try
+      {
+        var result = await handler.HandleCommandAsync(envelope, command).ConfigureAwait(false);
+        return result;
+      }
+      catch(Exception error)
+      {
+        var txt = "Error executing message command: {0}".Args(error.ToMessageWithType());
+        WriteLogFromHere(MessageType.Error, txt, error);
+        throw new SkyException(txt, error);
+      }
       //==============================================================================================
       //==============================================================================================
       //==============================================================================================
-
-      return envelope;
     }
 
 
