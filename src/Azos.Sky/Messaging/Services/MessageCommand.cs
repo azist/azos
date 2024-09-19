@@ -53,7 +53,7 @@ namespace Azos.Sky.Messaging.Services
   /// </summary>
   public abstract class CommandHandler : ApplicationComponent<IMessagingLogic>, INamed
   {
-    public const string CONFIG_HANDLER_SECTION = "handler";
+    public const string CONFIG_HANDLER_SECTION = "command-handler";
 
     public CommandHandler(IMessagingLogic logic, IConfigSectionNode cfg) : base(logic)
     {

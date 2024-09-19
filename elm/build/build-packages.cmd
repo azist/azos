@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.9.3.1
-set HEADLINE=#918 Refactoring
+set VER=3.9.3.2
+set HEADLINE=#918 CommandHandler
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

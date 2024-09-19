@@ -135,6 +135,11 @@ namespace Azos.Sky.Messaging.Services.Server
       return envelope;
     }
 
+    /// <summary>
+    /// By default this gets called by <see cref="DoProcessMessageAsync(MessageEnvelope)"/> when
+    /// the rich body content type matches the <see cref="CommandContentType"/> which triggers the command handler
+    /// flow.
+    /// </summary>
     protected virtual async Task<MessageEnvelope> DoHandleCommandAsync(MessageEnvelope envelope)
     {
       var cmdText = envelope.Content.RichBody.NonBlank("Command text in RichBody", putHttpDetails: true, putExternalDetails: true);
@@ -142,15 +147,15 @@ namespace Azos.Sky.Messaging.Services.Server
       //make instance of MessagingCommandClass an execute
       var command = JsonReader.ToDoc<MessageCommand>(envelope.Content.RichBody, false);
 
-      //Handler, handle the command,
-      //and generate the envelope
-      //==============================================================================================
+      //Handler, handle the command and generate the envelope
       //==============================================================================================
       //==============================================================================================
 
       var handler = m_Handlers[command.Name];
       if (handler == null)
         throw $"No handler for command `{command.Name.TakeLastChars(32, "...")}`".IsNotFound(putHttpDetails: true, putExternalDetails: true);
+
+      //==============================================================================================
 
       try
       {
