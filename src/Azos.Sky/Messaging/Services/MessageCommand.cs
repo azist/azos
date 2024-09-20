@@ -44,7 +44,7 @@ namespace Azos.Sky.Messaging.Services
     /// Optional parameter collection to pass to command. Some commands do not require any parameters
     /// </summary>
     [Field(required: true, description: "Command parameters - arguments for execution by the server")]
-    public JsonDataMap Parameters { get; set; }
+    public ConfigVector Parameters { get; set; }
   }
 
 

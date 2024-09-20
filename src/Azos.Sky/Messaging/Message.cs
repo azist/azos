@@ -35,6 +35,8 @@ namespace Azos.Sky.Messaging
     public const int MAX_TEXT_VAL_LEN = 256 * 1024;
     public const int MAX_TEXT_CONTENT_LEN = 32 * 1024 * 1024;
 
+    public const int MAX_HEADERS_LENGTH = 2 * 1024;
+
 
     /// <summary>Ad-hoc display/classification tags for this entity</summary>
     [Field(required: false,
@@ -43,6 +45,10 @@ namespace Azos.Sky.Messaging
            isArow: true,
            Description = "Ad-hoc display/classification tags for this entity")]
     public string[] Tags { get; set; }
+
+    /// <summary>Optional header content which provide extra information about this entity such as message or an attachment</summary>
+    [Field(maxLength: MAX_HEADERS_LENGTH, Description = "Optional header content which provide extra information about this entity such as message or an attachment")]
+    public ConfigVector Headers { get; set; }
 
 
     public override ValidState Validate(ValidState state, string scope = null)

@@ -36,10 +36,10 @@ namespace Azos.Sky.Messaging.Services
     public Message Content { get; set; }
 
     /// <summary>
-    /// Optional message properties which can be used for message content derivation (e.g. template expansion) and other purposes
+    /// Optional message config properties which can be used for message content derivation (e.g. template expansion) and other purposes
     /// </summary>
-    [Field(Description = "Optional message properties which can be used for message content derivation (e.g. template expansion) and other purposes")]
-    public JsonDataMap Props { get; set; }
+    [Field(Description = "Optional message envelope config properties which can be used for message content derivation (e.g. template expansion) and other purposes")]
+    public ConfigVector Props { get; set; }
 
 
     public override ValidState Validate(ValidState state, string scope = null)
