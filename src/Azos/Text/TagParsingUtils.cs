@@ -100,8 +100,8 @@ namespace Azos.Text
 
 
     /// <summary>
-    /// Builds upon <see cref="Segment"/> by adding a parsed tag representation.
-    /// A tag is a tagges segment which starts with a special tag start pragma, when it is found in tag body
+    /// Builds upon <see cref="Segment"/> by adding a parsed tag representation embodied in the <see cref="Def"/> property.
+    /// A tag is a tagged segment which starts with a special tag start pragma, when it is found in tag body
     /// it gets excised and the rest of tag contet ineterpeted as Laconic config vector
     /// </summary>
     /// <example>
@@ -126,6 +126,11 @@ namespace Azos.Text
       public readonly IConfigSectionNode Def;
     }
 
+    /// <summary>
+    /// Parses character source into tags - each tag is either a plain segment, or a tag segment with evaluated <see cref="IConfigSectionNode"/> body
+    /// which represents a parsed tag. a tag has to start with pragma e.g. `&lt;@&gt;`.
+    /// Escapes are processed within the body of tags  and replace keys with values
+    /// </summary>
     public static IEnumerable<Tag> ParseTags(this IEnumerable<Segment> source, string tagPragma, params KeyValuePair<string, string>[] escapes)
     {
       if (source == null) yield break;
@@ -158,7 +163,7 @@ namespace Azos.Text
           foreach(var escape in escapes.Where(e => e.Key.IsNotNullOrWhiteSpace() && e.Value.IsNotNullOrWhiteSpace()))
            content = content.Replace(escape.Key, escape.Value);
 
-          var data = content.AsLaconicConfig(null, "r", ConvertErrorHandling.Throw);
+          var data = content.AsLaconicConfig(null, tagPragma, ConvertErrorHandling.Throw);
           yield return new Tag(one, data);
         }
       }
