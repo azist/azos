@@ -199,14 +199,14 @@ namespace Azos.Tests.Nub.Parsing
     [Run]
     public void ExpandHtmlTags_01()
     {
-      var got = "Hello <b><@ X{ a=123   }></b>! How are you? Thank you for you <@Y{}>!".ExpandHtmlTags((sb, tag) => {
+      var got = "Hello <b><@ X{ a=123   }></b>! How are you? Thank you for you <@Y{what='Ferrari &amp; BMW &gt;&lt; Dodge'}>!".ExpandHtmlTags((sb, tag) => {
         if (tag.Def.Name == "X") sb.Append("Murariy");
-        else if (tag.Def.Name == "Y") sb.Append("Ferarri");
+        else if (tag.Def.Name == "Y") sb.Append(tag.Def.ValOf("what"));
       }).ToString();
 
       got.See();
 
-      Aver.AreEqual("Hello <b>Murariy</b>! How are you? Thank you for you Ferarri!", got);
+      Aver.AreEqual("Hello <b>Murariy</b>! How are you? Thank you for you Ferarri & BMW >< Dodge!", got);
     }
 
   }
