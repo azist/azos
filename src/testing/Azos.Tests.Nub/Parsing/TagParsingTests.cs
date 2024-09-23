@@ -206,7 +206,7 @@ namespace Azos.Tests.Nub.Parsing
 
       got.See();
 
-      Aver.AreEqual("Hello <b>Murariy</b>! How are you? Thank you for you Ferarri & BMW >< Dodge!", got);
+      Aver.AreEqual("Hello <b>Murariy</b>! How are you? Thank you for you Ferrari & BMW >< Dodge!", got);
     }
 
   }
