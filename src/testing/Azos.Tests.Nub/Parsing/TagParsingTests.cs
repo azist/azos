@@ -61,5 +61,73 @@ namespace Azos.Tests.Nub.Parsing
       Aver.AreEqual(7, got[2].Length);
     }
 
+
+    [Run]
+    public void ParseSegments_02()
+    {
+      var got = "How is <monster>".ParseSegments().ToArray();
+
+      got.See();
+
+      Aver.AreEqual(2, got.Length);
+
+      Aver.IsFalse(got[0].IsTag);
+      Aver.AreEqual("How is ", got[0].Content);
+      Aver.AreEqual(0, got[0].IdxStart);
+      Aver.AreEqual(6, got[0].IdxEnd);
+      Aver.AreEqual(7, got[0].Length);
+
+      Aver.IsTrue(got[1].IsTag);
+      Aver.AreEqual("monster", got[1].Content);
+      Aver.AreEqual(7, got[1].IdxStart);
+      Aver.AreEqual(15, got[1].IdxEnd);
+      Aver.AreEqual(9, got[1].Length);//with < >
+    }
+
+    [Run]
+    public void ParseSegments_02_2()
+    {
+      var got = "How is <monster".ParseSegments().ToArray();
+
+      got.See();
+
+      Aver.AreEqual(2, got.Length);
+
+      Aver.IsFalse(got[0].IsTag);
+      Aver.AreEqual("How is ", got[0].Content);
+      Aver.AreEqual(0, got[0].IdxStart);
+      Aver.AreEqual(6, got[0].IdxEnd);
+      Aver.AreEqual(7, got[0].Length);
+
+      Aver.IsTrue(got[1].IsTag);
+      Aver.AreEqual("monster", got[1].Content);
+      Aver.AreEqual(7, got[1].IdxStart);
+      Aver.AreEqual(14, got[1].IdxEnd);
+      Aver.AreEqual(8, got[1].Length);//with < >
+    }
+
+    [Run]
+    public void ParseSegments_03()
+    {
+      var got = "<monster> How is".ParseSegments().ToArray();
+
+      got.See();
+
+      Aver.AreEqual(2, got.Length);
+
+      Aver.IsTrue(got[0].IsTag);
+      Aver.AreEqual("monster", got[0].Content);
+      Aver.AreEqual(0, got[0].IdxStart);
+      Aver.AreEqual(8, got[0].IdxEnd);
+      Aver.AreEqual(9, got[0].Length);//with < >
+
+      Aver.IsFalse(got[1].IsTag);
+      Aver.AreEqual(" How is", got[1].Content);
+      Aver.AreEqual(9, got[1].IdxStart);
+      Aver.AreEqual(15, got[1].IdxEnd);
+      Aver.AreEqual(7, got[1].Length);
+
+    }
+
   }
 }
