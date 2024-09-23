@@ -112,18 +112,18 @@ namespace Azos.Text
       internal Tag(Segment segment)
       {
         Segment = segment;
-        Data = null;
+        Def = null;
       }
 
       internal Tag(Segment segment, IConfigSectionNode data)
       {
         Aver.IsTrue(segment.IsTag);
         Segment = segment;
-        Data = data;
+        Def = data;
       }
 
       public readonly Segment Segment;
-      public readonly IConfigSectionNode Data;
+      public readonly IConfigSectionNode Def;
     }
 
     public static IEnumerable<Tag> ParseTags(this IEnumerable<Segment> source, string tagPragma, params KeyValuePair<string, string>[] escapes)
@@ -176,10 +176,14 @@ namespace Azos.Text
       var result = new StringBuilder(1024);
       foreach (var tag in tags)
       {
-        if (tag.Segment.IsTag && tag.Data != null)
-          fTagExpander(result, tag);
+        if (tag.Segment.IsTag){
+          if (tag.Def != null)
+            fTagExpander(result, tag);
+          else
+            result.Append($"<{tag.Segment.Content}>");
+        }
         else
-          result.Append($"<{tag.Segment.Content}>");
+          result.Append(tag.Segment.Content);
       }
 
       return result;

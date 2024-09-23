@@ -176,23 +176,37 @@ namespace Azos.Tests.Nub.Parsing
       Aver.AreEqual(0, got[0].Segment.IdxStart);
       Aver.AreEqual(5, got[0].Segment.IdxEnd);
       Aver.AreEqual(6, got[0].Segment.Length);
-      Aver.IsNull(got[0].Data);
+      Aver.IsNull(got[0].Def);
 
       Aver.IsTrue(got[1].Segment.IsTag);
       Aver.AreEqual("b", got[1].Segment.Content);
       Aver.AreEqual(6, got[1].Segment.IdxStart);
       Aver.AreEqual(8, got[1].Segment.IdxEnd);
       Aver.AreEqual(3, got[1].Segment.Length);
-      Aver.IsNull(got[1].Data);
+      Aver.IsNull(got[1].Def);
 
       Aver.IsTrue(got[2].Segment.IsTag);
       Aver.AreEqual("@ X{ a=123   }", got[2].Segment.Content);
       Aver.AreEqual(9, got[2].Segment.IdxStart);
       Aver.AreEqual(24, got[2].Segment.IdxEnd);
       Aver.AreEqual(16, got[2].Segment.Length);
-      Aver.IsNotNull(got[2].Data);
-      Aver.AreEqual("X", got[2].Data.Name);
-      Aver.AreEqual(123, got[2].Data.Of("a").ValueAsInt());
+      Aver.IsNotNull(got[2].Def);
+      Aver.AreEqual("X", got[2].Def.Name);
+      Aver.AreEqual(123, got[2].Def.Of("a").ValueAsInt());
+    }
+
+
+    [Run]
+    public void ExpandHtmlTags_01()
+    {
+      var got = "Hello <b><@ X{ a=123   }></b>! How are you? Thank you for you <@Y{}>!".ExpandHtmlTags((sb, tag) => {
+        if (tag.Def.Name == "X") sb.Append("Murariy");
+        else if (tag.Def.Name == "Y") sb.Append("Ferarri");
+      }).ToString();
+
+      got.See();
+
+      Aver.AreEqual("Hello <b>Murariy</b>! How are you? Thank you for you Ferarri!", got);
     }
 
   }
