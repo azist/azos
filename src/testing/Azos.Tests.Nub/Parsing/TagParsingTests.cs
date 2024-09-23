@@ -4,6 +4,7 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using System.Collections.Generic;
 using System.Linq;
 using Azos.Scripting;
 using Azos.Text;
@@ -126,7 +127,44 @@ namespace Azos.Tests.Nub.Parsing
       Aver.AreEqual(9, got[1].IdxStart);
       Aver.AreEqual(15, got[1].IdxEnd);
       Aver.AreEqual(7, got[1].Length);
+    }
 
+
+    [Run]
+    public void ParseTags_01()
+    {
+      var got = "Hello <b><@ X{ a=123   }></b>! How are you?".ParseSegments()
+                                                .ParseTags("@", new KeyValuePair<string, string>("&lt;", "<"),
+                                                                new KeyValuePair<string, string>("&gt;", ">"),
+                                                                new KeyValuePair<string, string>("&amp;", "&"))
+                                                .ToArray();
+
+      got.See();
+
+      Aver.AreEqual(5, got.Length);
+
+      Aver.IsFalse(got[0].Segment.IsTag);
+      Aver.AreEqual("Hello ", got[0].Segment.Content);
+      Aver.AreEqual(0, got[0].Segment.IdxStart);
+      Aver.AreEqual(5, got[0].Segment.IdxEnd);
+      Aver.AreEqual(6, got[0].Segment.Length);
+      Aver.IsNull(got[0].Data);
+
+      Aver.IsTrue(got[1].Segment.IsTag);
+      Aver.AreEqual("b", got[1].Segment.Content);
+      Aver.AreEqual(6, got[1].Segment.IdxStart);
+      Aver.AreEqual(8, got[1].Segment.IdxEnd);
+      Aver.AreEqual(3, got[1].Segment.Length);
+      Aver.IsNull(got[1].Data);
+
+      Aver.IsTrue(got[2].Segment.IsTag);
+      Aver.AreEqual("@ X{ a=123   }", got[2].Segment.Content);
+      Aver.AreEqual(9, got[2].Segment.IdxStart);
+      Aver.AreEqual(24, got[2].Segment.IdxEnd);
+      Aver.AreEqual(16, got[2].Segment.Length);
+      Aver.IsNotNull(got[2].Data);
+      Aver.AreEqual("X", got[2].Data.Name);
+      Aver.AreEqual(123, got[2].Data.Of("a").ValueAsInt());
     }
 
   }

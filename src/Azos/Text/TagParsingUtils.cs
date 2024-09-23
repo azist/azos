@@ -149,11 +149,18 @@ namespace Azos.Text
         var content = one.Content;
         content = content.Substring(tagPragma.Length);
 
-        foreach(var escape in escapes.Where(e => e.Key.IsNotNullOrWhiteSpace() && e.Value.IsNotNullOrWhiteSpace()))
-         content = content.Replace(escape.Key, escape.Value);
+        if (content.IsNullOrWhiteSpace())
+        {
+          yield return new Tag(one, Configuration.NewEmptyRoot(tagPragma));
+        }
+        else
+        {
+          foreach(var escape in escapes.Where(e => e.Key.IsNotNullOrWhiteSpace() && e.Value.IsNotNullOrWhiteSpace()))
+           content = content.Replace(escape.Key, escape.Value);
 
-        var data = content.AsLaconicConfig(null, "r", ConvertErrorHandling.Throw);
-        yield return new Tag(one, data);
+          var data = content.AsLaconicConfig(null, "r", ConvertErrorHandling.Throw);
+          yield return new Tag(one, data);
+        }
       }
     }
 
