@@ -62,6 +62,34 @@ namespace Azos.Tests.Nub.Parsing
       Aver.AreEqual(7, got[2].Length);
     }
 
+    [Run]
+    public void ParseSegments_01_2()
+    {
+      var got = "How is (monster) doing?".ParseSegments('(', ')').ToArray();
+
+      got.See();
+
+      Aver.AreEqual(3, got.Length);
+
+      Aver.IsFalse(got[0].IsTag);
+      Aver.AreEqual("How is ", got[0].Content);
+      Aver.AreEqual(0, got[0].IdxStart);
+      Aver.AreEqual(6, got[0].IdxEnd);
+      Aver.AreEqual(7, got[0].Length);
+
+      Aver.IsTrue(got[1].IsTag);
+      Aver.AreEqual("monster", got[1].Content);
+      Aver.AreEqual(7, got[1].IdxStart);
+      Aver.AreEqual(15, got[1].IdxEnd);
+      Aver.AreEqual(9, got[1].Length);//with < >
+
+      Aver.IsFalse(got[2].IsTag);
+      Aver.AreEqual(" doing?", got[2].Content);
+      Aver.AreEqual(16, got[2].IdxStart);
+      Aver.AreEqual(22, got[2].IdxEnd);
+      Aver.AreEqual(7, got[2].Length);
+    }
+
 
     [Run]
     public void ParseSegments_02()
