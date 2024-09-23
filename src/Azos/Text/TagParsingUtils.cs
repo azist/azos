@@ -40,8 +40,7 @@ namespace Azos.Text
       public readonly bool IsTag;
       public readonly int IdxStart;
       public readonly int IdxEnd;
-      public int Length => IdxEnd - IdxStart;
-
+      public int Length => 1 + IdxEnd - IdxStart;
       public readonly string Content;
     }
 
@@ -83,7 +82,7 @@ namespace Azos.Text
           {
             if (buf.Length > 0)
             {
-              yield return new Segment(false, idxs, idx, buf.ToString());
+              yield return new Segment(false, idxs, idx - 1, buf.ToString());
               buf.Clear();
             }
             isTag = true;
@@ -161,7 +160,7 @@ namespace Azos.Text
     /// <summary>
     /// Expands HTML content by invoking a function to build tag content into a string builder
     /// </summary>
-    public static StringBuilder ExpandHtmlTags(this IEnumerable<char> source, Action<Tag, StringBuilder> fTagExpander, string tagPragma = "@")
+    public static StringBuilder ExpandHtmlTags(this IEnumerable<char> source, Action<StringBuilder, Tag> fTagExpander, string tagPragma = "@")
     {
       fTagExpander.NonNull(nameof(fTagExpander));
       var spans = source.ParseSegments('<', '>');
@@ -170,8 +169,8 @@ namespace Azos.Text
       var result = new StringBuilder(1024);
       foreach (var tag in tags)
       {
-        if (tag.Segment.IsTag)
-          fTagExpander(tag, result);
+        if (tag.Segment.IsTag && tag.Data != null)
+          fTagExpander(result, tag);
         else
           result.Append($"<{tag.Segment.Content}>");
       }
