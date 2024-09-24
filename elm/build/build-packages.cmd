@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.9.3.3
-set HEADLINE=#918 Refactoring, ass config vectors
+set VER=3.9.3.4
+set HEADLINE=#918 wip
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

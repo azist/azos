@@ -283,6 +283,7 @@ namespace Azos.Sky.Messaging.Services.Server
     protected override bool DoApplicationAfterInit()
     {
       if (OplogModuleName.IsNotNullOrWhiteSpace())  m_OpLog = App.ModuleRoot.Get<ILogModule>(OplogModuleName).Log;
+      m_Handlers.ForEach(one => App.InjectInto(one));
       m_Router.Start();
       return base.DoApplicationAfterInit();
     }
