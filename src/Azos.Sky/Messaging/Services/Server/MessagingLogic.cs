@@ -93,7 +93,7 @@ namespace Azos.Sky.Messaging.Services.Server
     /// <inheritdoc/>
     public virtual async Task<string> SendAsync(MessageEnvelope envelope)
     {
-      var original = envelope.NonNull(nameof(envelope)); ;
+      var original = envelope.NonNull(nameof(envelope));
 
       try
       {
@@ -105,8 +105,7 @@ namespace Azos.Sky.Messaging.Services.Server
         envelope.Content.ArchiveId = await DoStoreMessageOnSendAsync(original, envelope).ConfigureAwait(false);
 
         //3. Route message for delivery
-        //the router implementation is 100% asynchronous by design
-        m_Router.SendMsg(envelope.Content);
+        await DoSendMessageAsync(original, envelope).ConfigureAwait(false);
 
         DoWriteOplog(original, envelope, null);
 
@@ -117,6 +116,18 @@ namespace Azos.Sky.Messaging.Services.Server
         DoWriteOplog(original, envelope, error);
         throw;
       }
+    }
+
+    /// <summary>
+    /// Override to send the actual message. In 99.9% of cases you would send the `envelope`
+    /// arg which is a processed actual message to be sent.
+    /// The original message is passed for context only (it might be needed in some complex routing)
+    /// </summary>
+    protected virtual ValueTask DoSendMessageAsync(MessageEnvelope original, MessageEnvelope envelope)
+    {
+      //the router implementation is 100% asynchronous by design
+      m_Router.SendMsg(envelope.Content);
+      return default;
     }
 
     /// <summary>
