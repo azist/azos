@@ -1,6 +1,6 @@
 @echo on
 
-set VER=3.9.3.5
+set VER=3.9.3.6
 set HEADLINE=#918 wip
 call build-all Release %VER%
 

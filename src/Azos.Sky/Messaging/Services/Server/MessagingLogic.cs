@@ -32,8 +32,14 @@ namespace Azos.Sky.Messaging.Services.Server
     private void ctor()
     {
       m_Handlers = new Registry<CommandHandler>(caseSensitive: false);
-      m_Router = new MessageDaemon(this);
+      m_Router = DoMakeRouter();
     }
+
+    /// <summary>
+    /// Override to return NULL if you do not need a default router and want to use a different sending pattern instead
+    /// such as delegation to another service
+    /// </summary>
+    protected MessageDaemon DoMakeRouter() => new MessageDaemon(this);
 
     protected override void Destructor()
     {
@@ -48,7 +54,11 @@ namespace Azos.Sky.Messaging.Services.Server
       m_Handlers.Clear();
     }
 
+    /// <summary>
+    /// m_Router may be null if it is not needed and was not allocated
+    /// </summary>
     protected MessageDaemon m_Router;
+
     protected ILog m_OpLog;
     protected Registry<CommandHandler> m_Handlers;
 
@@ -126,7 +136,7 @@ namespace Azos.Sky.Messaging.Services.Server
     protected virtual ValueTask DoSendMessageAsync(MessageEnvelope original, MessageEnvelope envelope)
     {
       //the router implementation is 100% asynchronous by design
-      m_Router.SendMsg(envelope.Content);
+      m_Router?.SendMsg(envelope.Content);
       return default;
     }
 
@@ -281,7 +291,7 @@ namespace Azos.Sky.Messaging.Services.Server
       base.DoConfigure(node);
       if (node == null) return;
 
-      m_Router.Configure(node[CONFIG_MESSAGE_ROUTER_SECTION]);
+      m_Router?.Configure(node[CONFIG_MESSAGE_ROUTER_SECTION]);
 
 
       foreach(var nh in node.ChildrenNamed(CommandHandler.CONFIG_HANDLER_SECTION))
@@ -295,13 +305,13 @@ namespace Azos.Sky.Messaging.Services.Server
     {
       if (OplogModuleName.IsNotNullOrWhiteSpace())  m_OpLog = App.ModuleRoot.Get<ILogModule>(OplogModuleName).Log;
       m_Handlers.ForEach(one => App.InjectInto(one));
-      m_Router.Start();
+      m_Router?.Start();
       return base.DoApplicationAfterInit();
     }
 
     protected override bool DoApplicationBeforeCleanup()
     {
-      m_Router.WaitForCompleteStop();
+      m_Router?.WaitForCompleteStop();
       return base.DoApplicationBeforeCleanup();
     }
 
