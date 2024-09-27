@@ -39,7 +39,7 @@ namespace Azos.Sky.Messaging.Services.Server
     /// Override to return NULL if you do not need a default router and want to use a different sending pattern instead
     /// such as delegation to another service
     /// </summary>
-    protected MessageDaemon DoMakeRouter() => new MessageDaemon(this);
+    protected virtual MessageDaemon DoMakeRouter() => new MessageDaemon(this);
 
     protected override void Destructor()
     {
