@@ -29,6 +29,10 @@ namespace Azos.Tests.Nub.Serialization
     [Field] public JsonDataMap Jdm1 { get; set; }
     [Field] public JsonDataArray Jar1 { get; set; }
 
+    [Field] public NLSMap Nls1 { get; set; }
+
+    [Field] public NLSMap? Nls2 { get; set; }
+
     [Field] public object Obj1 { get; set; }
     [Field] public object[] ObjArr1 { get; set; }
 

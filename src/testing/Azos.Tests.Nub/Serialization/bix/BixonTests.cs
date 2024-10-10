@@ -688,7 +688,7 @@ namespace Azos.Tests.Nub.Serialization
       var got = Bixon.ReadObject(r.Reader) as JsonDataMap;
       got.See(WITH_TYPES);
       Aver.IsNotNull(got);
-      Aver.AreEqual(10, got.Count);//9+bix
+      Aver.AreEqual(12, got.Count);//11+bix
       Aver.AreEqual(doc.String1, (string)got["String1"]);
     }
 
@@ -1134,6 +1134,33 @@ BIXON read 250,000 in 0.5 sec at 549,256 ops/sec
       got.See();
       Aver.IsNotNull(got);
 
+    }
+
+
+    [Run]
+    public void RootDocWithNlsMap_01()
+    {
+      using var w = new BixWriterBufferScope(1024);
+      var doc = new bxonBaseDoc()
+      {
+        String1 = "Mark Twain",
+        Int1 = 123,
+        NInt1 = 678,
+        Nls1 = new NLSMap("{ eng:{ n:'yes', d:'confirmation'} }"),
+        Nls2 = null
+      };
+
+      Bixon.WriteObject(w.Writer, doc, MARSHALLED); //marshall doc type identity
+      w.Buffer.ToHexDump().See();
+
+      using var r = new BixReaderBufferScope(w.Buffer);
+      var got = Bixon.ReadObject(r.Reader) as bxonBaseDoc;
+      doc.See(WITH_TYPES);
+      got.See(WITH_TYPES);
+      Aver.IsNotNull(got);
+      Aver.AreEqual("Mark Twain", got.String1);
+      Aver.AreEqual("yes", got.Nls1[CoreConsts.ISO_LANG_ENGLISH].Name);
+      Aver.IsNull(got.Nls2);
     }
 
   }
