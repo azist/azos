@@ -81,6 +81,7 @@ namespace Azos.Serialization.Bix
       {typeof(Guid),     (w, v) => { w.Write(TypeCode.Guid);     w.Write((Guid)v);    } },
       {typeof(GDID),     (w, v) => { w.Write(TypeCode.GDID);     w.Write((GDID)v);    } },
       {typeof(RGDID),    (w, v) => { w.Write(TypeCode.RGDID);    w.Write((RGDID)v);   } },
+      {typeof(NLSMap),   (w, v) => { w.Write(TypeCode.NLSMap);   w.Write(  (NLSMap)v);   } },
       {typeof(byte[]),   (w, v) => { w.Write(TypeCode.Buffer);   w.WriteBuffer((byte[])v);} },
     };
 
@@ -106,6 +107,7 @@ namespace Azos.Serialization.Bix
       {TypeCode.Guid,     (r, ver) =>  r.ReadGuid()     },
       {TypeCode.GDID,     (r, ver) =>  r.ReadGDID()     },
       {TypeCode.RGDID,    (r, ver) =>  r.ReadRGDID()    },
+      {TypeCode.NLSMap,   (r, ver) =>  r.ReadNLSMap()   },
       {TypeCode.Buffer,   (r, ver) =>  r.ReadBuffer()   },
     };
 
