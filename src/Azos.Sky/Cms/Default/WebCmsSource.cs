@@ -101,7 +101,7 @@ namespace Azos.Sky.Cms.Default
             var rstream = stream;
             if (compress) rstream = new GZipStream(stream, CompressionMode.Decompress, true);
 
-            content = new Content(stream);
+            content = new Content(rstream);
 
             if (compress) rstream.Dispose();
           }

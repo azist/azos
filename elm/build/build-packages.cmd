@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.9.2.1
-set HEADLINE=#917 #918
+set VER=3.9.3.7
+set HEADLINE=#918 wip
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

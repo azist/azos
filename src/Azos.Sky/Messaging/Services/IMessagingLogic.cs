@@ -6,11 +6,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 using Azos.Apps;
-using Azos.Data.Business;
+using Azos.Data;
 
 namespace Azos.Sky.Messaging.Services
 {
@@ -20,9 +19,14 @@ namespace Azos.Sky.Messaging.Services
   public interface IMessagingLogic : IModule
   {
     /// <summary>
-    /// Sends one message asynchronously optionally attaching the ad hoc properties.
+    /// Override to perform precondition validation before message envelope gets processed
+    /// </summary>
+    ValidState CheckPreconditions(MessageEnvelope envelope, ValidState state);
+
+    /// <summary>
+    /// Sends one message asynchronously. You should call `MessageEnvelope.Save()` which calls this method.
     /// Returns a unique message Id which can be used to query the message (if system supports it)
-    /// later via IMessageQueryLogic contract, or NULL if the message storage is not supported.
+    /// later via <see cref="IMessageArchiveLogic" /> contract, or NULL if the message storage is not supported.
     /// </summary>
     /// <remarks>
     /// <para>
@@ -33,7 +37,7 @@ namespace Azos.Sky.Messaging.Services
     /// Throws on validation and delivery errors
     /// </para>
     /// </remarks>
-    Task<string> SendAsync(Message msg, MessageProps props = null);
+    Task<string> SendAsync(MessageEnvelope envelope);
   }
 
   /// <summary>
@@ -50,7 +54,7 @@ namespace Azos.Sky.Messaging.Services
     /// Fetches a message by its storage id (as returned by SendAsync()) optionally fetching MessageProps.
     /// Returns NULL for messages which are not found
     /// </summary>
-    Task<(Message msg, MessageProps props)> GetMessageAsync(string msgId, bool fetchProps = false);
+    Task<MessageEnvelope> GetMessageAsync(string msgId, bool fetchProps = false);
 
     /// <summary>
     /// Fetches a specific message attachment identified by its position in the message.Attachments collection.

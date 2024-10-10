@@ -4,7 +4,6 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
 using System.Threading.Tasks;
 
 using Azos.Data.Business;
@@ -17,7 +16,8 @@ using Azos.Serialization.Bix;
 namespace Azos.Sky.Messaging.Services
 {
   /// <summary>
-  /// Embodies a communication message (such as an email) with additional properties
+  /// Embodies a communication message (such as an email) with additional properties which can be used
+  /// for optional message content derivation (e.g. template expansion) and other purposes
   /// </summary>
   [Schema(Description = "Embodies a communication message (such as an email) with additional properties")]
   [Bix("a332f054-7ef3-4d30-933f-b0aae64b2ec1")]
@@ -36,31 +36,19 @@ namespace Azos.Sky.Messaging.Services
     public Message Content { get; set; }
 
     /// <summary>
-    /// Optional message properties
+    /// Optional message config properties which can be used for message content derivation (e.g. template expansion) and other purposes
     /// </summary>
-    [Field(Description = "Optional message properties")]
-    public JsonDataMap Props { get; set; }
+    [Field(Description = "Optional message envelope config properties which can be used for message content derivation (e.g. template expansion) and other purposes")]
+    public ConfigVector Props { get; set; }
 
-    /// <summary>
-    /// Gets a constrained list of message properties - which can only be strings or integers <see cref="MessageProps"/>
-    /// </summary>
-    public MessageProps GetMessageProps() => Props != null ? new MessageProps(Props) : null;
 
     public override ValidState Validate(ValidState state, string scope = null)
     {
       state = base.Validate(state, scope);
       if (state.ShouldStop) return state;
 
-      try
-      {
-        GetMessageProps();
-      }
-      catch (Exception error)
-      {
-        state = new ValidState(state, new FieldValidationException(nameof(MessageEnvelope),
-                                                                   nameof(Props),
-                                                                   "Map contains unacceptable key/value pairs. The keys are to be 8 or less ASCII only chars, and values either string, bool, or ints/longs ", error));
-      }
+      state = m_MessagingLogic.CheckPreconditions(this, state);
+
       return state;
     }
 
@@ -76,7 +64,7 @@ namespace Azos.Sky.Messaging.Services
 
     protected override async Task<SaveResult<ChangeResult>> DoSaveAsync()
     {
-      var mid = await m_MessagingLogic.SendAsync(Content, GetMessageProps()).ConfigureAwait(false);
+      var mid = await m_MessagingLogic.SendAsync(this).ConfigureAwait(false);
 
       var change = new ChangeResult(ChangeResult.ChangeType.Inserted,
                                     affectedCount: 1,

@@ -102,6 +102,12 @@ namespace Azos.Data
         return (true, this);
       }
 
+      if (data is JsonDataMap map)
+      {
+        m_Content = map.ToJson(JsonWritingOptions.Compact);
+        return (true, this);
+      }
+
       return (false, this);
     }
 
