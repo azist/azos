@@ -1189,8 +1189,8 @@ BIXON read 250,000 in 0.5 sec at 549,256 ops/sec
       Aver.AreEqual("Mark Twain", got.String1);
       Aver.AreEqual("yes", got.Nls1[CoreConsts.ISO_LANG_ENGLISH].Name);
       Aver.IsNotNull(got.Nls2);
-      Aver.AreEqual("yah", got.Nls2.Value[CoreConsts.ISO_LANG_ENGLISH].Name);
-      Aver.AreEqual("das ist good", got.Nls2.Value[CoreConsts.ISO_LANG_ENGLISH].Description);
+      Aver.AreEqual("yah", got.Nls2.Value[CoreConsts.ISO_LANG_GERMAN].Name);
+      Aver.AreEqual("das ist good", got.Nls2.Value[CoreConsts.ISO_LANG_GERMAN].Description);
     }
 
   }
