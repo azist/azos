@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.9.3.8
-set HEADLINE=#921 bug fixes
+set VER=3.9.4.1
+set HEADLINE=#924 Slim EntityId serialization bug fix
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

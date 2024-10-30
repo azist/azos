@@ -820,5 +820,22 @@ namespace Azos.IO
       return null;
     }
 
+    public override Data.EntityId ReadEntityId()
+    {
+      var sys = ReadAtom();
+      var typ = ReadAtom();
+      var sch = ReadAtom();
+      var addr = ReadString();
+
+      return new Data.EntityId(sys, typ, sch, addr);
+    }
+
+    public override Data.EntityId? ReadNullableEntityId()
+    {
+      var has = ReadBool();
+      if (has) return ReadEntityId();
+      return null;
+    }
+
   }
 }

@@ -150,6 +150,9 @@ namespace Azos.IO
 
     public abstract Atom ReadAtom();
     public abstract Atom? ReadNullableAtom();
+
+    public abstract Data.EntityId ReadEntityId();
+    public abstract Data.EntityId? ReadNullableEntityId();
     #endregion
   }
 }
