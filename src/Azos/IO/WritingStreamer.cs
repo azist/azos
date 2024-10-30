@@ -132,6 +132,9 @@ namespace Azos.IO
     public abstract void Write(Atom value);
     public abstract void Write(Atom? value);
 
+    public abstract void Write(Data.EntityId value);
+    public abstract void Write(Data.EntityId? value);
+
     #endregion
   }
 }

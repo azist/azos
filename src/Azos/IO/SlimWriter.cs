@@ -830,5 +830,25 @@ namespace Azos.IO
       this.Write(false);
     }
 
+
+    public override void Write(Data.EntityId value)
+    {
+      this.Write(value.System);
+      this.Write(value.Type);
+      this.Write(value.Schema);
+      this.Write(value.Address);
+    }
+
+    public override void Write(Data.EntityId? value)
+    {
+      if (value.HasValue)
+      {
+        this.Write(true);
+        Write(value.Value);
+        return;
+      }
+      this.Write(false);
+    }
+
   }
 }

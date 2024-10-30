@@ -59,7 +59,7 @@ namespace Azos.Tests.Nub.Serialization
       Aver.AreNotSameRef(obj, got);
       Aver.AreEqual("a.b@c::addr", got.Eid1.AsString);
       Aver.IsNotNull(got.Eid2);//nullable
-      Aver.AreEqual("a2.b2@c2::add2r", got.Eid2.Value.AsString);
+      Aver.AreEqual("a2.b2@c2::addr2", got.Eid2.Value.AsString);
     }
 
     [Run]
@@ -85,7 +85,7 @@ namespace Azos.Tests.Nub.Serialization
       Aver.AreNotSameRef(obj, got);
       Aver.AreEqual("a.b@c::addr", got.Eid1.AsString);
       Aver.IsNotNull(got.Eid2);//nullable
-      Aver.AreEqual("a2.b2@c2::add2r", got.Eid2.Value.AsString);
+      Aver.AreEqual("a2.b2@c2::addr2", got.Eid2.Value.AsString);
 
       Aver.IsNotNull(got.Arr1);
       Aver.AreEqual("a3.b3@c3::addr3", got.Arr1[0].AsString);
@@ -120,7 +120,7 @@ namespace Azos.Tests.Nub.Serialization
       Aver.AreNotSameRef(obj, got);
       Aver.AreEqual("a.b@c::addr", got.Eid1.AsString);
       Aver.IsNotNull(got.Eid2);//nullable
-      Aver.AreEqual("a2.b2@c2::add2r", got.Eid2.Value.AsString);
+      Aver.AreEqual("a2.b2@c2::addr2", got.Eid2.Value.AsString);
 
       Aver.IsNotNull(got.Arr1);
       Aver.AreEqual("a3.b3@c3::addr3", got.Arr1[0].AsString);
