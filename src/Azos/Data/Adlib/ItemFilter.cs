@@ -14,6 +14,7 @@ using Azos.Apps.Injection;
 using Azos.Data.AST;
 using Azos.Data.Business;
 using Azos.Serialization.Bix;
+using Azos.Time;
 
 namespace Azos.Data.Adlib
 {
@@ -45,12 +46,18 @@ namespace Azos.Data.Adlib
     [Field(required: false, Description = "Optional data segment designator which you can use to sub-divide data whiting a collection")]
     public int? Segment { get; set; }
 
-
     /// <summary>
     /// Gets specific item by its GDID(within a space/collection)
     /// </summary>
     [Field(description: "Item GDID")]
     public GDID Gdid { get; set; }
+
+    /// <summary>
+    /// Optional create UTC date range filter
+    /// </summary>
+    [Field(required: false, Description = "Optional create UTC date range filter")]
+    public DateRange? CreateDateRangeUtc { get; set; }
+
 
     [Field(description: "Fetches Item tags")]
     public bool FetchTags { get; set; }
