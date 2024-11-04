@@ -176,6 +176,35 @@ namespace Azos.Data.Adlib.Server
         qry  = wq;
       }
 
+      if (filter.CreateDateRangeUtc.HasValue)
+      {
+        var range = filter.CreateDateRangeUtc.Value;
+        if (range.Start.HasValue)
+        {
+          var wq = new Query();
+          wq.Set(new BSONArrayElement("$and", new[]  // $and: [qry, {cutc: {$gte: startdate}}]
+                 {
+                   new BSONDocumentElement(qry),
+                   new BSONDocumentElement(new BSONDocument().Set(new BSONDocumentElement(FLD_CREATEUTC, new BSONDocument().Set(new BSONInt64Element("$gte", range.Start.Value.ToMillisecondsSinceUnixEpochStart())))))
+                 })
+                );
+          qry = wq;
+        }
+
+        if (range.End.HasValue)
+        {
+          var wq = new Query();
+          wq.Set(new BSONArrayElement("$and", new[]  // $and: [qry, {cutc: {$lte: enddate}}]
+                 {
+                   new BSONDocumentElement(qry),
+                   new BSONDocumentElement(new BSONDocument().Set(new BSONDocumentElement(FLD_CREATEUTC, new BSONDocument().Set(new BSONInt64Element("$lte", range.End.Value.ToMillisecondsSinceUnixEpochStart())))))
+                 })
+                );
+          qry = wq;
+        }
+
+      }
+
       qry.ProjectionSelector = selector;
       return qry;
     }
