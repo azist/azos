@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.9.4.1
-set HEADLINE=#924 Slim EntityId serialization bug fix
+set VER=3.10.0.1
+set HEADLINE=#926 Adlib CreateUtc range queries
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
