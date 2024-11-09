@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.10.0.1
-set HEADLINE=#926 Adlib CreateUtc range queries
+set VER=3.10.0.2
+set HEADLINE=Sec extensions run as impersonated
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
