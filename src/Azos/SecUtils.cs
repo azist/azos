@@ -5,13 +5,12 @@
 </FILE_LICENSE>*/
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
+
+using Azos.Apps;
 using Azos.Security;
-using Azos.Serialization.JSON;
 
 namespace Azos
 {
@@ -79,6 +78,68 @@ namespace Azos
     /// </summary>
     public static async Task<AccessLevel> GetAccessLevelAsync(this IApplication app, Permission permission, User user = null)
      => await app.NonNull(nameof(app)).SecurityManager.AuthorizeAsync(user ?? Ambient.CurrentCallUser, permission).ConfigureAwait(false);
+
+    /// <summary>
+    /// Runs a function impersonated by a user with the specified credentials.
+    /// NOTE: this is a special functionality not intended to be used in normal business applications as
+    /// security is handled by the system code and this method should be rarely used when you need to impersonate a piece of code
+    /// execution as some other user. For example, this may be needed in public services when internal logic should
+    /// run on behalf of some system-anonymous user instead
+    /// </summary>
+    public static async Task<T> CallImpersonatedAsync<T>(this ISecurityManager secman, Func<Task<T>> fBody, Credentials credentials, Func<ISession> fSessionFactory = null)
+    {
+      secman.NonNull(nameof(secman));
+      fBody.NonNull(nameof(fBody));
+      credentials.NonNull(nameof(credentials));
+
+      var user = await secman.AuthenticateAsync(credentials).ConfigureAwait(false);
+      var result = await fBody.CallImpersonatedAsync(user, fSessionFactory).ConfigureAwait(false);
+      return result;
+    }
+
+    /// <summary>
+    /// Runs a function impersonated by the specified user.
+    /// NOTE: this is a special functionality not intended to be used in normal business applications as
+    /// security is handled by the system code and this method should be rarely used when you need to impersonate a piece of code
+    /// execution as some other user. For example, this may be needed in public services when internal logic should
+    /// run on behalf of some system-anonymous user instead
+    /// </summary>
+    public static async Task<T> CallImpersonatedAsync<T>(this Func<Task<T>> fBody, User user, Func<ISession> fSessionFactory = null)
+    {
+      fBody.NonNull(nameof(fBody));
+      user.NonNull(nameof(user));
+
+      var session = (fSessionFactory?.Invoke()) ?? new BaseSession(Guid.NewGuid(), Ambient.Random.NextRandomUnsignedLong);
+      session.User = user;
+      var result = await fBody.CallInSessionAsync(session).ConfigureAwait(false);
+      return result;
+    }
+
+    /// <summary>
+    /// Runs a function impersonated by a user of the specified session.
+    /// NOTE: this is a special functionality not intended to be used in normal business applications as
+    /// security is handled by the system code and this method should be rarely used when you need to impersonate a piece of code
+    /// execution as some other user. For example, this may be needed in public services when internal logic should
+    /// run on behalf of some system-anonymous user instead
+    /// </summary>
+    public static async Task<T> CallInSessionAsync<T>(this Func<Task<T>> fBody, ISession session)
+    {
+      fBody.NonNull(nameof(fBody));
+      session.NonNull(nameof(session));
+
+      var originalSession = ExecutionContext.Session;
+      try
+      {
+        //-----
+        ExecutionContext.__SetThreadLevelSessionContext(session);
+        return await fBody().ConfigureAwait(false);
+        //-----
+      }
+      finally
+      {
+        ExecutionContext.__SetThreadLevelSessionContext(originalSession);
+      }
+    }
 
   }
 }
