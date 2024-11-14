@@ -46,7 +46,10 @@ namespace Azos.Web
                     //#874 Bixon vs Json determination
                     //20230604 DKh
                     JsonDataMap map = null;
-                    var responseMime = response.Content.Headers.ContentType.MediaType;
+                    var responseMime = response.Content?.Headers?.ContentType?.MediaType;
+
+                    //20241114 JPK GMK DKH #929
+                    if (responseMime.IsNullOrWhiteSpace()) return null;
 
                     if (responseMime.IndexOf(ContentType.JSON) >= 0)
                     {
@@ -75,7 +78,7 @@ namespace Azos.Web
 
                     return map;
                   },
-                  response => response.Content.ReadAsStringAsync(),
+                  response => response.Content?.ReadAsStringAsync(),
                   uri,
                   method,
                   body,
@@ -102,8 +105,8 @@ namespace Azos.Web
                                                         Func<object> fGetIdentityContext = null,
                                                         bool requestBixon = false)
     => CallAsync(client,
-                  response => response.Content.ReadAsByteArrayAsync(),
-                  response => response.Content.ReadAsStringAsync(),
+                  response => response.Content?.ReadAsByteArrayAsync(),
+                  response => response.Content?.ReadAsStringAsync(),
                   uri,
                   method,
                   body,
