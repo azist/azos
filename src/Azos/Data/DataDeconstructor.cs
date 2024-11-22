@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using Azos.CodeAnalysis.Laconfig;
 using Azos.CodeAnalysis.Source;
+using Azos.Text;
 
 namespace Azos.Data
 {
@@ -81,13 +82,15 @@ namespace Azos.Data
   {
     public const string DECONSTRUCT_PROPERTY = "__deconstruct";
 
-    public static bool IsPhone(this string v) => false;
-    public static bool IsEmail(this string v) => false;
-    public static bool IsZip(this string v) => false;
-    public static bool IsInteger(this string v) => false;
-    public static bool IsReal(this string v) => false;
+    public static bool IsPhone(this string v) => DataEntryUtils.CheckTelephone(v);
+    public static bool IsEmail(this string v) => DataEntryUtils.CheckEMail(v);
+    public static bool IsScreenName(this string v) => DataEntryUtils.CheckScreenName(v);
 
+    public static bool IsUsZip(this string v) => v.IsNotNullOrWhiteSpace() && v.Length == 5 && int.TryParse(v, out var iv) && iv < 99999;
+    public static bool IsInteger(this string v) => v.IsNotNullOrWhiteSpace() && int.TryParse(v, out var _);
+    public static bool IsReal(this string v) => v.IsNotNullOrWhiteSpace() && decimal.TryParse(v, out var _);
 
+    public static string NormalizePhone(this string v) => DataEntryUtils.NormalizeUSPhone(v);
 
 
     public static bool DeconstructStringData<TDoc>(this TDoc doc, string value, Func<TDoc, LaconfigToken[], bool> fBody) where TDoc : Doc
@@ -118,6 +121,19 @@ namespace Azos.Data
       if (value == null) return false;
 
       return fBody(doc, value);
+    }
+
+    public static bool DeconstructAmorphousStringData<TDoc>(this TDoc doc, Func<TDoc, LaconfigToken[], bool> fBody, string amorphousPropertyName = null) where TDoc : Doc, IAmorphousData
+    {
+      fBody.NonNull(nameof(fBody));
+      if (doc == null) return false;
+      if (!doc.AmorphousDataEnabled) return false;
+      if (!doc.AmorphousData.TryGetValue(amorphousPropertyName.Default(DECONSTRUCT_PROPERTY), out var value)) return false;
+      if (value == null) return false;
+
+      var svalue = value.AsString();
+
+      return doc.DeconstructStringData(svalue, fBody);
     }
   }
 
