@@ -25,16 +25,20 @@ namespace Azos.Data
   /// </summary>
   public abstract class DataDeconstructor<TDoc, TValue> where TDoc : Doc
   {
-    public const string DECONSTRUCT_PROPERTY = "__deconstruct";
-
-
     protected DataDeconstructor(TDoc doc)
     {
-      DataDoc = doc.NonNull(nameof(doc));
+      m_Doc = doc.NonNull(nameof(doc));
     }
 
-    protected readonly TDoc DataDoc;
+    protected readonly TDoc m_Doc;
 
+    public TDoc DataDoc => m_Doc;
+
+    /// <summary>
+    /// Deconstructs a value into this document. Returns true if value was deconstructed, or false when nothing was decosntructed
+    /// e.g., when the data was logically empty/blank.
+    /// Errors are thrown wrapped in <see cref="ValidationException"/> (e.g. invalid syntax)
+    /// </summary>
     public abstract bool Deconstruct(TValue value);
   }
 
@@ -44,45 +48,77 @@ namespace Azos.Data
   /// </summary>
   public abstract class StringDataDeconstructor<TDoc> : DataDeconstructor<TDoc, string> where TDoc : Doc
   {
-    protected StringDataDeconstructor(TDoc doc) : base(doc)
+    public StringDataDeconstructor(TDoc doc) : base(doc)
     {
     }
 
+
+    /// <inheritdoc/>
     public override bool Deconstruct(string value)
     {
       if (value.IsNullOrWhiteSpace()) return false;
-      var src = new StringSource(value);
-      var lxr = new LaconfigLexer(src);
-
-      //what about errors?
-      var tokens = lxr.ToArray();
-
-      return DoDeconstructFromTokens(tokens);
+      try
+      {
+        var src = new StringSource(value);
+        var lxr = new LaconfigLexer(src, throwErrors: true);
+        var tokens = lxr.ToArray();
+        return DoDeconstructFromTokens(tokens);
+      }
+      catch (Exception cause)
+      {
+        throw new ValidationException($"Bad `{this.GetType().DisplayNameWithExpandedGenericArgs()}` clause: {cause.ToMessageWithType()}", cause);
+      }
     }
 
     protected abstract bool DoDeconstructFromTokens(LaconfigToken[] tokens);
   }
 
+
   /// <summary>
-  /// Deconstructs typical business data like, ZIP codes, Phones, EMails, Street addresses and Names.
-  /// <inheritdoc/>
+  /// Provides handy extension methods for writing data deconstruction heuristics
   /// </summary>
-  public abstract class TypicalBusinessStringDataDeconstructor<TDoc> : StringDataDeconstructor<TDoc> where TDoc : Doc
+  public static class DataDeconstructionExtensions
   {
-    protected TypicalBusinessStringDataDeconstructor(TDoc doc) : base(doc)
+    public const string DECONSTRUCT_PROPERTY = "__deconstruct";
+
+    public static bool IsPhone(this string v) => false;
+    public static bool IsEmail(this string v) => false;
+    public static bool IsZip(this string v) => false;
+    public static bool IsInteger(this string v) => false;
+    public static bool IsReal(this string v) => false;
+
+
+
+
+    public static bool DeconstructStringData<TDoc>(this TDoc doc, string value, Func<TDoc, LaconfigToken[], bool> fBody) where TDoc : Doc
     {
+      fBody.NonNull(nameof(fBody));
+      if (doc == null) return false;
+      if (value.IsNullOrWhiteSpace()) return false;
+      try
+      {
+        var src = new StringSource(value);
+        var lxr = new LaconfigLexer(src, throwErrors: true);
+        var tokens = lxr.ToArray();
+        return fBody(doc, tokens);
+      }
+      catch (Exception cause)
+      {
+        throw new ValidationException($"Bad deconstruction clause: {cause.ToMessageWithType()}", cause);
+      }
     }
 
-    public virtual bool SenseEmail  => true;
-    public virtual bool SenseUsZip  => true;
-    public virtual bool SensePhone  => true;
-    public virtual bool SenseStreet => true;
-    public virtual bool SenseNames  => true;
 
-
-    protected override bool DoDeconstructFromTokens(LaconfigToken[] tokens)
+    public static bool DeconstructAmorphousData<TDoc>(this TDoc doc, Func<TDoc, object, bool> fBody, string amorphousPropertyName = null) where TDoc : Doc, IAmorphousData
     {
-      throw new NotImplementedException();
+      fBody.NonNull(nameof(fBody));
+      if (doc == null) return false;
+      if (!doc.AmorphousDataEnabled) return false;
+      if (!doc.AmorphousData.TryGetValue(amorphousPropertyName.Default(DECONSTRUCT_PROPERTY), out var value)) return false;
+      if (value == null) return false;
+
+      return fBody(doc, value);
     }
   }
+
 }
