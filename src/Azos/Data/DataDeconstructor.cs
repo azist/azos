@@ -25,6 +25,11 @@ namespace Azos.Data
     /// <summary> Returns true if a token value could be deemed as a telephone number </summary>
     public static bool IsPhone(this LaconfigToken t) => t != null && (t.IsLiteral || t.IsIdentifier) && t.Value.IsPhone();
 
+    /// <summary> Returns true if a string value could be deemed as a datetime value </summary>
+    public static bool IsDate(this object v) => v is DateTime || (v is string sv && DateTime.TryParse(sv, System.Globalization.CultureInfo.InvariantCulture, CoreConsts.UTC_TIMESTAMP_STYLES, out var dv));
+    /// <summary> Returns true if a token value could be deemed as a date time </summary>
+    public static bool IsDate(this LaconfigToken t) => t != null && (t.IsLiteral || t.IsIdentifier) && t.Value.IsDate();
+
 
     /// <summary> Returns true if a string value could be deemed as an email </summary>
     public static bool IsEmail(this object v) => v is string sv && DataEntryUtils.CheckEMail(sv);
@@ -35,6 +40,27 @@ namespace Azos.Data
     public static bool IsScreenName(this object v) => v is string sv && DataEntryUtils.CheckScreenName(sv);
     /// <summary> Returns true if a token value could be deemed as a screen name </summary>
     public static bool IsScreenName(this LaconfigToken t) => t != null && (t.IsLiteral || t.IsIdentifier) && t.Value.IsScreenName();
+
+
+    /// <summary> Returns true if a string value could be deemed as a Atom </summary>
+    public static bool IsAtom(this object v) => v is Atom || v is string sv && Atom.TryEncode(sv, out var atm);
+    /// <summary> Returns true if a token value could be deemed as a Atom </summary>
+    public static bool IsAtom(this LaconfigToken t) => t != null && (t.IsLiteral || t.IsIdentifier) && t.Value.IsAtom();
+
+    /// <summary> Returns true if a string value could be deemed as a GDID </summary>
+    public static bool IsGdid(this object v) => v is GDID || v is string sv && GDID.TryParse(sv, out GDID gd);
+    /// <summary> Returns true if a token value could be deemed as a GDID </summary>
+    public static bool IsGdid(this LaconfigToken t) => t != null && (t.IsLiteral || t.IsIdentifier) && t.Value.IsGdid();
+
+    /// <summary> Returns true if a string value could be deemed as a RGDID </summary>
+    public static bool IsRGdid(this object v) => v is RGDID || v is string sv && RGDID.TryParse(sv, out RGDID rgd);
+    /// <summary> Returns true if a token value could be deemed as a RGDID </summary>
+    public static bool IsRGdid(this LaconfigToken t) => t != null && (t.IsLiteral || t.IsIdentifier) && t.Value.IsRGdid();
+
+    /// <summary> Returns true if a string value could be deemed as a EntityId </summary>
+    public static bool IsEntityId(this object v) => v is EntityId || v is string sv && EntityId.TryParse(sv, out var eid);
+    /// <summary> Returns true if a token value could be deemed as a EntityId </summary>
+    public static bool IsEntityId(this LaconfigToken t) => t != null && (t.IsLiteral || t.IsIdentifier) && t.Value.IsEntityId();
 
 
     /// <summary> Returns true if a string value could be deemed as a zip code </summary>
@@ -71,6 +97,13 @@ namespace Azos.Data
 
     public static string NormalizePhone(this string v) => DataEntryUtils.NormalizeUSPhone(v);
     public static string NormalizePhone(this LaconfigToken t) => t != null && (t.IsLiteral || t.IsIdentifier) ?  DataEntryUtils.NormalizeUSPhone(t.Value.AsString()) : null;
+
+    public static DateTime NormalizeDate(this object v) => v.AsDateTime(CoreConsts.UTC_TIMESTAMP_STYLES);
+    public static DateTime NormalizeDate(this LaconfigToken t) => t != null && (t.IsLiteral || t.IsIdentifier) ? (t.Value.NormalizeDate()) : default;
+
+    /// <summary> Returns token at index with BOF/EOF bounds</summary>
+    public static LaconfigToken At(this LaconfigToken[] a, int i) => a.Length == 0 ? null : i < 0 ? a[0] : i > a.Length ? a[^1] : a[i];
+
 
     /// <summary>
     /// Deconstructs complex data vectors, such as a data filter vectors, from their simplified convoluted representations,
