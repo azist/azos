@@ -33,6 +33,82 @@ namespace Azos.Tests.Nub.DataAccess
       Aver.AreEqual("(555) 292-1030", filter.Phone);
       Aver.AreEqual(1980, filter.DOB.Year);
       Aver.AreEqual("Joseph", filter.Name);
+      Aver.AreEqual(null, filter.Email);
+      Aver.AreEqual(GDID.ZERO, filter.Id);
+    }
+
+    [Run]
+    public void Test01_1()
+    {
+      var json = new
+      {
+        __deconstruct = "'April 1 1980' leslie.benson@yahoo.com Joseph 5552921030"
+      }.ToJson();
+
+      var filter = JsonReader.ToDoc<PersonFilter>(json);
+
+      filter.See();
+      Aver.AreEqual("(555) 292-1030", filter.Phone);
+      Aver.AreEqual(1980, filter.DOB.Year);
+      Aver.AreEqual("Joseph", filter.Name);
+      Aver.AreEqual("leslie.benson@yahoo.com", filter.Email);
+      Aver.AreEqual(GDID.ZERO, filter.Id);
+    }
+
+    [Run]
+    public void Test01_2()
+    {
+      var json = new
+      {
+        __deconstruct = "'April 1 1980' 0:7:129 leslie.benson@yahoo.com Joseph 5552921030"
+      }.ToJson();
+
+      var filter = JsonReader.ToDoc<PersonFilter>(json);
+
+      filter.See();
+      Aver.AreEqual("(555) 292-1030", filter.Phone);
+      Aver.AreEqual(1980, filter.DOB.Year);
+      Aver.AreEqual("Joseph", filter.Name);
+      Aver.AreEqual("leslie.benson@yahoo.com", filter.Email);
+      Aver.AreEqual(new GDID(0, 7, 129), filter.Id);
+    }
+
+    [Run]
+    public void Test01_3()
+    {
+      var json = new
+      {
+        __deconstruct = "leslie.benson@yahoo.com           'April 1 1980'      5552921030     Joseph   0:7:129  Snake Toad Turtle"
+      }.ToJson();
+
+      var filter = JsonReader.ToDoc<PersonFilter>(json);
+
+      filter.See();
+      Aver.AreEqual("(555) 292-1030", filter.Phone);
+      Aver.AreEqual(1980, filter.DOB.Year);
+      Aver.AreEqual("Joseph", filter.Name);
+      Aver.AreEqual("leslie.benson@yahoo.com", filter.Email);
+      Aver.AreEqual(new GDID(0, 7, 129), filter.Id);
+    }
+
+    [Run]
+    public void Test01_4()
+    {
+      var json = new
+      {
+        Name = "Morrah Smith",
+        Email = "kutz@pots.com",
+        __deconstruct = "leslie.benson@yahoo.com           'April 1 1980'      5552921030     Joseph   0:7:129  Snake Toad Turtle"
+      }.ToJson();
+
+      var filter = JsonReader.ToDoc<PersonFilter>(json);
+
+      filter.See();
+      Aver.AreEqual("(555) 292-1030", filter.Phone);
+      Aver.AreEqual(1980, filter.DOB.Year);
+      Aver.AreEqual("Morrah Smith", filter.Name);
+      Aver.AreEqual("kutz@pots.com", filter.Email);
+      Aver.AreEqual(new GDID(0, 7, 129), filter.Id);
     }
 
     [Run]
@@ -109,6 +185,9 @@ namespace Azos.Tests.Nub.DataAccess
       public override bool AmorphousDataEnabled => true;
 
       [Field]
+      public GDID Id { get; set; }
+
+      [Field]
       public string Name { get; set; }
 
       [Field]
@@ -116,6 +195,9 @@ namespace Azos.Tests.Nub.DataAccess
 
       [Field]
       public DateTime DOB { get; set; }
+
+      [Field]
+      public string Email { get; set; }
 
       protected override void DoAmorphousDataAfterLoad(string targetName)
       {
@@ -125,6 +207,8 @@ namespace Azos.Tests.Nub.DataAccess
           foreach (var token in tokens) {
             if (Phone.IsNullOrWhiteSpace() && token.IsPhone()) Phone = token.NormalizePhone();
             else if (DOB == default && token.IsDate()) DOB = token.NormalizeDate();
+            else if (Email.IsNullOrWhiteSpace() && token.IsEmail()) Email = token.Value.AsString();
+            else if (Id.IsZero && token.IsGdid()) Id = token.Value.AsGDID();
             else if (Name.IsNullOrWhiteSpace()) Name = token.Value.AsString();
           }
           return true;
