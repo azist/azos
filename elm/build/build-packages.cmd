@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.10.0.2
-set HEADLINE=Sec extensions run as impersonated
+set VER=3.10.0.4
+set HEADLINE=#930 Deconstructor, SendGrid Sink
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
