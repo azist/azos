@@ -79,6 +79,7 @@ namespace Azos.Sky.Messaging.Sinks
       if (msg.Subject.IsNullOrEmpty()) return false;
       // Any overlap in to, cc, bcc address lists will be rejected by SendGrid
       if (toAddresses.Intersect(ccAddresses).Intersect(bccAddresses).Count() != 0) return false;
+      if (msg.Body.IsNullOrEmpty() && (msg.RichBody.IsNullOrEmpty() || msg.RichBodyContentType.IsNullOrEmpty())) return false;
 
       return true;
     }
@@ -89,7 +90,7 @@ namespace Azos.Sky.Messaging.Sinks
 
       var personalizations = constructPersonalizations(msg);
       var attachments = constructAttachments(msg);
-      bool contentPresent = msg.Body != null || msg.RichBody != null;
+      var fromAddress = msg.AddressFromBuilder.GetFirstOrDefaultMatchForChannels(SupportedChannelNames);
 
       if (personalizations.Count > 0)
       {
@@ -97,15 +98,15 @@ namespace Azos.Sky.Messaging.Sinks
       }
       if (msg.AddressFromBuilder.All.Any())
       {
-        emailContent.Add("from", new { email = msg.AddressFromBuilder.GetFirstOrDefaultMatchForChannels(SupportedChannelNames).Address });
+        emailContent.Add("from", new { email = fromAddress.Address, name = fromAddress.Name });
       }
       if (msg.Subject.IsNotNullOrWhiteSpace())
       {
         emailContent.Add("subject", msg.Subject);
       }
-      if (contentPresent)
+      if (msg.Body.IsNotNullOrEmpty() || (msg.RichBody.IsNotNullOrEmpty() && msg.RichBodyContentType.IsNotNullOrEmpty()))
       {
-        emailContent.Add("content", new[] { constructMessageContent(msg) });
+        emailContent.Add("content", constructMessageContent(msg));
       }
       if (msg.AddressReplyToBuilder.All.Any())
       {
@@ -175,26 +176,36 @@ namespace Azos.Sky.Messaging.Sinks
       return attachmentList.ToArray();
     }
 
-    private object constructMessageContent(Message msg)
+    private JsonDataMap[] constructMessageContent(Message msg)
     {
-      // use richbody and rich content type unless unavailable, in which case use plaintext body
-      if (msg.RichBody == null || msg.RichBodyContentType.IsNullOrWhiteSpace())
+      var bodyList = new List<JsonDataMap>();
+
+      var basicBodyMap = new JsonDataMap();
+      if (msg.Body.IsNotNullOrEmpty())
       {
-        return new { type = "text/plain", value = msg.Body };
+        basicBodyMap.Add("type", "text/plain");
+        basicBodyMap.Add("value", msg.Body);
+        bodyList.Add(basicBodyMap);
       }
-      else
+
+      var richBodyMap = new JsonDataMap();
+      if (msg.RichBody.IsNotNullOrEmpty() && msg.RichBodyContentType.IsNotNullOrEmpty())
       {
-        return new { type = msg.RichBodyContentType, value = msg.RichBody };
+        richBodyMap.Add("type", msg.RichBodyContentType);
+        richBodyMap.Add("value", msg.RichBody);
+        bodyList.Add(richBodyMap);
       }
+
+      return bodyList.ToArray();
     }
 
     private JsonDataArray constructEmailList(MessageAddressBuilder addressBuilder)
     {
-      var matches = addressBuilder.GetMatchesForChannels(SupportedChannelNames).Select(one => one.Address).ToArray();
+      var matches = addressBuilder.GetMatchesForChannels(SupportedChannelNames);
       var emails = new JsonDataArray();
       foreach (var match in matches)
       {
-        emails.Add(new { email = match });
+        emails.Add(new { email = match.Address, name = match.Name });
       }
       return emails;
     }
