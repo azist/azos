@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.10.0.4
-set HEADLINE=#930 Deconstructor, SendGrid Sink
+set VER=3.10.0.6
+set HEADLINE=ConfigVector config persistent
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

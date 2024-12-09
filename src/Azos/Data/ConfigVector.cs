@@ -18,11 +18,14 @@ namespace Azos.Data
   /// and designed for use in data document fields
   /// </summary>
   [Serializable]
-  public sealed class ConfigVector : IJsonWritable, IJsonReadable, IRequiredCheck, ILengthCheck, IValidatable
+  public sealed class ConfigVector : IJsonWritable, IJsonReadable, IRequiredCheck, ILengthCheck, IValidatable, IConfigurationPersistent
   {
     public ConfigVector(){ }
     public ConfigVector(string content) => Content = content;
     public ConfigVector(IConfigSectionNode node) => Node = node;
+
+    [ConfigCtor]
+    public ConfigVector(IConfigAttrNode node) => Content = node.NonNull(nameof(node)).Value;
 
     private string m_Content;
 
@@ -120,6 +123,15 @@ namespace Azos.Data
 
     public override string ToString() => m_Content;
 
+    public ConfigSectionNode PersistConfiguration(ConfigSectionNode parentNode, string name)
+    {
+      parentNode.NonNull(nameof(parentNode));
+      name.NonBlank(nameof(name));
+
+      parentNode.AddAttributeNode(name, m_Content);
+      return parentNode;
+    }
+
     public ValidState Validate(ValidState state, string scope = null)
     {
       if (Content.IsNotNullOrWhiteSpace())
@@ -135,6 +147,7 @@ namespace Azos.Data
       }
       return state;
     }
+
 
     public static implicit operator ConfigVector(string v) => new ConfigVector(v);
     public static implicit operator ConfigVector(ConfigSectionNode v) => new ConfigVector(v);
