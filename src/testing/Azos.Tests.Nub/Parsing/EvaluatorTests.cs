@@ -4,6 +4,8 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using Azos.Conf;
+using Azos.Data;
 using Azos.Scripting;
 using E = Azos.Text.Evaluator;
 
@@ -110,6 +112,122 @@ namespace Azos.Tests.Nub.Parsing
 
         y = "0";
         Aver.AreEqual("less:no",  e.Evaluate((ident)=>ident=="x"?x:ident=="y"?y:ident));
+    }
+
+
+
+    [Run]
+    public void Predicate_AND()
+    {
+      var e = new E("a&&b");
+
+      Aver.IsTrue(e.Evaluate(id => id == "a" ? "1" : "1").AsBool());
+      Aver.IsFalse(e.Evaluate(id => id == "a" ? "1" : "0").AsBool());
+      Aver.IsFalse(e.Evaluate(id => id == "a" ? "0" : "1").AsBool());
+      Aver.IsFalse(e.Evaluate(id => id == "a" ? "0" : "0").AsBool());
+    }
+
+    [Run]
+    public void Predicate_AND2()
+    {
+      var e = new E("a && b");
+
+      Aver.IsTrue(e.Evaluate(id => id == "a" ? "1" : "1").AsBool());
+      Aver.IsFalse(e.Evaluate(id => id == "a" ? "1" : "0").AsBool());
+      Aver.IsFalse(e.Evaluate(id => id == "a" ? "0" : "1").AsBool());
+      Aver.IsFalse(e.Evaluate(id => id == "a" ? "0" : "0").AsBool());
+    }
+
+    [Run]
+    public void Predicate_OR()
+    {
+      var e = new E("a||b");
+
+      Aver.IsTrue(e.Evaluate(id => id == "a" ? "1" : "1").AsBool());
+      Aver.IsTrue(e.Evaluate(id => id == "a" ? "1" : "0").AsBool());
+      Aver.IsTrue(e.Evaluate(id => id == "a" ? "0" : "1").AsBool());
+      Aver.IsFalse(e.Evaluate(id => id == "a" ? "0" : "0").AsBool());
+    }
+
+    [Run]
+    public void Predicate_XOR()
+    {
+      var e = new E("a^^b");
+
+      Aver.IsFalse(e.Evaluate(id => id == "a" ? "1" : "1").AsBool());
+      Aver.IsTrue(e.Evaluate(id => id == "a" ? "1" : "0").AsBool());
+      Aver.IsTrue(e.Evaluate(id => id == "a" ? "0" : "1").AsBool());
+      Aver.IsFalse(e.Evaluate(id => id == "a" ? "0" : "0").AsBool());
+    }
+
+    [Run]
+    public void Predicate_NOT()
+    {
+      var e = new E("!!a");
+
+      Aver.IsFalse(e.Evaluate(id => "1").AsBool());
+      Aver.IsTrue(e.Evaluate(id => "0").AsBool());
+    }
+
+    [Run]
+    public void Predicate_NOT2()
+    {
+      var e = new E("!!a || !!b");
+
+      Aver.IsTrue(e.Evaluate(id => id == "a" ? "0" : "0").AsBool());
+      Aver.IsTrue(e.Evaluate(id => id == "a" ? "1" : "0").AsBool());
+      Aver.IsTrue(e.Evaluate(id => id == "a" ? "0" : "1").AsBool());
+      Aver.IsFalse(e.Evaluate(id => id == "a" ? "1" : "1").AsBool());
+    }
+
+
+    [Run("t{ args{ expr='(a||b||c) && !!f' expect=false a=0 b=0 c=0 f=0}}")]
+    [Run("t{ args{ expr='(a||b||c) && !!f' expect=true a=1 b=0 c=0 f=0}}")]
+    [Run("t{ args{ expr='(a||b||c) && !!f' expect=true a=0 b=1 c=0 f=0}}")]
+    [Run("t{ args{ expr='(a||b||c) && !!f' expect=true a=0 b=0 c=1 f=0}}")]
+    [Run("t{ args{ expr='(a||b||c) && !!f' expect=false a=1 b=0 c=0 f=1}}")]
+    [Run("t{ args{ expr='(a||b||c) && !!f' expect=false a=0 b=1 c=0 f=1}}")]
+    [Run("t{ args{ expr='(a||b||c) && !!f' expect=false a=0 b=0 c=1 f=1}}")]
+
+    [Run("t{ args{ expr='!!f && (a||b||c)' expect=false a=0 b=0 c=0 f=0}}")]
+    [Run("t{ args{ expr='!!f && (a||b||c)' expect=true a=1 b=0 c=0 f=0 }}")]
+    [Run("t{ args{ expr='!!f && (a||b||c)' expect=true a=0 b=1 c=0 f=0 }}")]
+    [Run("t{ args{ expr='!!f && (a||b||c)' expect=true a=0 b=0 c=1 f=0 }}")]
+    [Run("t{ args{ expr='!!f && (a||b||c)' expect=false a=1 b=0 c=0 f=1}}")]
+    [Run("t{ args{ expr='!!f && (a||b||c)' expect=false a=0 b=1 c=0 f=1}}")]
+    [Run("t{ args{ expr='!!f && (a||b||c)' expect=false a=0 b=0 c=1 f=1}}")]
+
+    [Run("t{ args{ expr='(a|| b ||c) && !!f' expect=false a=0 b=0 c=0 f=0}}")]
+    [Run("t{ args{ expr=' (a||b||  c) && !!f' expect=true a=1 b=0 c=0 f=0}}")]
+    [Run("t{ args{ expr='(a||b||c  ) && !!f' expect=true a=0 b=1 c=0 f=0}}")]
+    [Run("t{ args{ expr='(a||b ||c) && !!f' expect=true a=0 b=0 c=1 f=0}}")]
+    [Run("t{ args{ expr='(a||b||c) && !!f' expect=false a=1 b=0 c=0 f=1}}")]
+    [Run("t{ args{ expr='(a || b ||c) && !!f' expect=false a=0 b=1 c=0 f=1}}")]
+    [Run("t{ args{ expr='( a||b||c)   &&     !!f' expect=false a=0 b=0 c=1 f=1}}")]
+
+    [Run("t{ args{ expr='!! f && (a||b||c)' expect=false a=0 b=0 c=0 f=0}}")]
+    [Run("t{ args{ expr='!!f   && (a||b||c)' expect=true a=1 b=0 c=0 f=0 }}")]
+    [Run("t{ args{ expr='!!f && (    a||b||c)' expect=true a=0 b=1 c=0 f=0 }}")]
+    [Run("t{ args{ expr='!!f && (a||b||c   )' expect=true a=0 b=0 c=1 f=0 }}")]
+    [Run("t{ args{ expr='!!f && (a|| b || c)' expect=false a=1 b=0 c=0 f=1}}")]
+    [Run("t{ args{ expr='!!f && (a    ||b||c)' expect=false a=0 b=1 c=0 f=1}}")]
+    [Run("t{ args{ expr='!! f  &&  ( a || b || c       )   ' expect=false a=0 b=0 c=1 f=1}}")]
+
+
+    [Run("t{ args{ expr='(a||b) && (c^^d) && !!e' expect=false a=0 b=0 c=0 d=0 e=0}}")]
+    [Run("t{ args{ expr='(a||b) && (c^^d) && !!e' expect=false a=1 b=0 c=0 d=0 e=0}}")]
+    [Run("t{ args{ expr='(a||b) && (c^^d) && !!e' expect=false a=1 b=0 c=1 d=0 e=1}}")]
+
+    [Run("t{ args{ expr='(a||b) && (c^^d) && !!e' expect=true a=1 b=0 c=1 d=0 e=0}}")]
+    [Run("t{ args{ expr='(a||b) && (c^^d) && !!e' expect=true a=0 b=1 c=1 d=0 e=0}}")]
+    [Run("t{ args{ expr='(a||b) && (c^^d) && !!e' expect=true a=0 b=1 c=0 d=1 e=0}}")]
+    [Run("t{ args{ expr='(a||b) && (c^^d) && !!e' expect=false a=0 b=1 c=1 d=1 e=0}}")]
+    [Run("t{ args{ expr='(a||b) && (c^^d) && !!e' expect=false a=0 b=1 c=0 d=1 e=1}}")]
+    public void Predicate_Complex(IConfigSectionNode args)
+    {
+      var e = new E(args.ValOf("expr"));
+
+      Aver.AreEqual(args.Of("expect").ValueAsBool(), e.Evaluate(id => args.ValOf(id)).AsBool());
     }
 
   }

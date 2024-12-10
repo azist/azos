@@ -512,16 +512,16 @@ namespace Azos.Text
     //===========================================================================================
     private double getVal(string val)
     {
+      if (val.IsNullOrWhiteSpace()) return 0d;
+
       string v = val.Trim();
-      if (v == "True")
-        return 1;
-      if (v == "False")
-        return 0;
-      if (v == "Pi")
-        return Math.PI;
-      if (v == "E")
-        return Math.E;
-      return Convert.ToDouble(val);
+
+      if (v == "True")  return 1;
+      if (v == "False") return 0;
+      if (v == "Pi")    return Math.PI;
+      if (v == "E")     return Math.E;
+
+      return Convert.ToDouble(v);
     }//getVal
 
     private string doEvaluate(Node node, IdentifierLookup lookup)
