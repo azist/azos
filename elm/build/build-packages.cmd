@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.10.0.6
-set HEADLINE=ConfigVector config persistent
+set VER=3.10.0.7
+set HEADLINE=Evaluator unit tests and svc update
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
