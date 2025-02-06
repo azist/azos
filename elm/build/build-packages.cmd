@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.10.0.7
-set HEADLINE=Evaluator unit tests and svc update
+set VER=3.10.0.8
+set HEADLINE=Bug fix in HourList
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

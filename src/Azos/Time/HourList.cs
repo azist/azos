@@ -50,7 +50,7 @@ namespace Azos.Time
       {
         (start.Kind == end.Kind).IsTrue("sd.kind==ed.kind");
         (start <= end).IsTrue("start<=end");
-        StartMinute = start.Minute;
+        StartMinute = (start.Hour * 60) +  start.Minute;
         DurationMinutes = (int)(end - start).TotalMinutes;
         if (StartMinute + DurationMinutes > MINUTES_PER_2DAYS) DurationMinutes = MINUTES_PER_2DAYS - StartMinute;
         checkInvariants();
