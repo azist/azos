@@ -1,13 +1,13 @@
 ﻿
 using Azos.Data;
-using Azos.Serialization.Arow;
+using Azos.Serialization.Bix;
 
 namespace Azos.Security.Tokens
 {
   /// <summary>
   /// Represents a token which is supplied to API/service provider to impersonate a user
   /// </summary>
-  [Arow("D07A9132-F914-403E-912F-1F9779AC0932")]
+  [Bix("D07A9132-F914-403E-912F-1F9779AC0932")]
   public sealed class AccessToken : RingToken
   {
     public override int TokenByteStrength => 64;

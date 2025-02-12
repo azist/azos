@@ -10,7 +10,7 @@ using System.Runtime.Serialization;
 using Azos.Data;
 using Azos.Apps;
 using Azos.Serialization.BSON;
-using Azos.Serialization.Arow;
+using Azos.Serialization.Bix;
 using Azos.Serialization.JSON;
 
 namespace Azos
@@ -112,7 +112,7 @@ namespace Azos
   /// Marshals exception details with optional stack trace and call flow capture
   /// </summary>
   [Serializable]
-  [Arow("CBE82107-8FDA-4A2C-84D2-5D953907C9A0")]
+  [Bix("CBE82107-8FDA-4A2C-84D2-5D953907C9A0")]
   public sealed class WrappedExceptionData : TypedDoc
   {
     public WrappedExceptionData(){}

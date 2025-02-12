@@ -14,7 +14,7 @@ using Azos.Conf;
 using Azos.Collections;
 using Azos.Glue.Protocol;
 using Azos.Serialization.BSON;
-using Azos.Serialization.Arow;
+using Azos.Serialization.Bix;
 
 namespace Azos.Sky.Contracts.Instrumentation
 {
@@ -38,7 +38,7 @@ namespace Azos.Sky.Contracts.Instrumentation
 
 
     [Serializable]
-    [Arow("AB76135D-C129-4254-9B78-E434C4896C19")]
+    [Bix("AB76135D-C129-4254-9B78-E434C4896C19")]
     public class ServiceClientHubRetriableCallError : ServiceClientHubErrorEvent
     {
       protected ServiceClientHubRetriableCallError(string src) : base(src) { }

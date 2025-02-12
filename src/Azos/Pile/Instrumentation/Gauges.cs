@@ -7,7 +7,7 @@
 using System;
 
 using Azos.Instrumentation;
-using Azos.Serialization.Arow;
+using Azos.Serialization.Bix;
 using Azos.Serialization.BSON;
 
 namespace Azos.Pile.Instrumentation
@@ -35,7 +35,7 @@ namespace Azos.Pile.Instrumentation
   /// Provides object count in the instance
   /// </summary>
   [Serializable]
-  [Arow("1C59B258-578C-4BD2-8B88-5DA52E8E8299")]
+  [Bix("1C59B258-578C-4BD2-8B88-5DA52E8E8299")]
   public class ObjectCount : PileLongGauge
   {
     internal ObjectCount(string src, long value) : base(src, value) { }
@@ -52,7 +52,7 @@ namespace Azos.Pile.Instrumentation
   /// Provides segment count in the instance
   /// </summary>
   [Serializable]
-  [Arow("5F643847-F558-4A0F-8F31-57E3D8101020")]
+  [Bix("5F643847-F558-4A0F-8F31-57E3D8101020")]
   public class SegmentCount : PileLongGauge
   {
     internal SegmentCount(string src, long value) : base(src, value) { }
@@ -68,7 +68,7 @@ namespace Azos.Pile.Instrumentation
   /// Number of bytes allocated by the instance from system memory
   /// </summary>
   [Serializable]
-  [Arow("9EFFAD52-6FB3-48D6-BC58-64F9C2D6D034")]
+  [Bix("9EFFAD52-6FB3-48D6-BC58-64F9C2D6D034")]
   public class AllocatedMemoryBytes : PileLongGauge
   {
     internal AllocatedMemoryBytes(string src, long value) : base(src, value) { }
@@ -85,7 +85,7 @@ namespace Azos.Pile.Instrumentation
   /// Average capacity of free memory that the system has left
   /// </summary>
   [Serializable]
-  [Arow("7E4E9689-4614-4D74-88C7-1364EE9B2FA5")]
+  [Bix("7E4E9689-4614-4D74-88C7-1364EE9B2FA5")]
   public class MemoryCapacityBytes : PileLongGauge
   {
     internal MemoryCapacityBytes(string src, long value) : base(src, value) { }
@@ -102,7 +102,7 @@ namespace Azos.Pile.Instrumentation
   /// Number of bytes allocated for object storage within AllocatedMemoryBytes
   /// </summary>
   [Serializable]
-  [Arow("035E23BA-5604-4419-AAB7-CCD54910FF0D")]
+  [Bix("035E23BA-5604-4419-AAB7-CCD54910FF0D")]
   public class UtilizedBytes : PileLongGauge
   {
     internal UtilizedBytes(string src, long value) : base(src, value) { }
@@ -119,7 +119,7 @@ namespace Azos.Pile.Instrumentation
   /// Number of extra bytes used by pile metadata currently occupied by object stored in this pile
   /// </summary>
   [Serializable]
-  [Arow("8573CF6E-9A38-40C3-A415-1213067E484B")]
+  [Bix("8573CF6E-9A38-40C3-A415-1213067E484B")]
   public class OverheadBytes : PileLongGauge
   {
     internal OverheadBytes(string src, long value) : base(src, value) { }
@@ -136,7 +136,7 @@ namespace Azos.Pile.Instrumentation
   /// Number of bytes for average object
   /// </summary>
   [Serializable]
-  [Arow("ABE80333-5A3E-4140-9FB2-384018886FED")]
+  [Bix("ABE80333-5A3E-4140-9FB2-384018886FED")]
   public class AverageObjectSizeBytes : PileLongGauge
   {
     internal AverageObjectSizeBytes(string src, long value) : base(src, value) { }
@@ -153,7 +153,7 @@ namespace Azos.Pile.Instrumentation
   /// Count of Put() calls
   /// </summary>
   [Serializable]
-  [Arow("E2769E8E-7617-4B63-8EC1-5FE586CF6947")]
+  [Bix("E2769E8E-7617-4B63-8EC1-5FE586CF6947")]
   public class PutCount : PileLongGauge
   {
     internal PutCount(string src, long value) : base(src, value) { }
@@ -169,7 +169,7 @@ namespace Azos.Pile.Instrumentation
   /// Count of Delete() calls
   /// </summary>
   [Serializable]
-  [Arow("03BB1698-DAD6-4DB8-A656-A00764BF14D6")]
+  [Bix("03BB1698-DAD6-4DB8-A656-A00764BF14D6")]
   public class DeleteCount : PileLongGauge
   {
     internal DeleteCount(string src, long value) : base(src, value) { }
@@ -186,7 +186,7 @@ namespace Azos.Pile.Instrumentation
   /// Count of Get() calls
   /// </summary>
   [Serializable]
-  [Arow("90C0560D-0F2C-44CA-9733-C9A2EC9E1AD0")]
+  [Bix("90C0560D-0F2C-44CA-9733-C9A2EC9E1AD0")]
   public class GetCount : PileLongGauge
   {
     internal GetCount(string src, long value) : base(src, value) { }
@@ -202,7 +202,7 @@ namespace Azos.Pile.Instrumentation
   /// Number of free clots(chunks) in the free list
   /// </summary>
   [Serializable]
-  [Arow("6FA6A485-C720-4DFA-B955-86044D5086DA")]
+  [Bix("6FA6A485-C720-4DFA-B955-86044D5086DA")]
   public class FreeListCapacity : PileLongGauge
   {
     internal FreeListCapacity(string src, long value) : base(src, value) { }

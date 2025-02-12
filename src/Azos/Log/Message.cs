@@ -11,7 +11,7 @@ using System.Runtime.CompilerServices;
 
 using Azos.Data;
 using Azos.Serialization.JSON;
-using Azos.Serialization.Arow;
+using Azos.Serialization.Bix;
 
 namespace Azos.Log
 {
@@ -19,7 +19,7 @@ namespace Azos.Log
   /// Represents a Log message
   /// </summary>
   [Serializable]
-  [Arow("3AD5E8E1-871C-4B8F-AE16-6D04492B17DF")]
+  [Bix("3AD5E8E1-871C-4B8F-AE16-6D04492B17DF")]
   public sealed class Message : TypedDoc, IArchiveLoggable
   {
     public Message(){ }

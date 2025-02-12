@@ -9,7 +9,7 @@ using System.Collections.Generic;
 
 using Azos.Financial;
 using Azos.Data;
-using Azos.Serialization.Arow;
+using Azos.Serialization.Bix;
 using Azos.Serialization.JSON;
 using Azos.Collections;
 using Azos.Pile;

@@ -6,7 +6,7 @@
 using System;
 
 using Azos.Instrumentation;
-using Azos.Serialization.Arow;
+using Azos.Serialization.Bix;
 using Azos.Serialization.BSON;
 
 namespace Azos.Sky.Kdb.Instrumentation
@@ -24,7 +24,7 @@ namespace Azos.Sky.Kdb.Instrumentation
   /// Provides Get hit count per table
   /// </summary>
   [Serializable]
-  [Arow("AE88CED6-308C-44FB-BB7A-1EFE16AC46A0")]
+  [Bix("AE88CED6-308C-44FB-BB7A-1EFE16AC46A0")]
   public class GetHitCount : KdbLongGauge
   {
     public GetHitCount(string tbl, long value) : base(tbl, value) { }
@@ -40,7 +40,7 @@ namespace Azos.Sky.Kdb.Instrumentation
   /// Provides Get hit from fallback set count per table
   /// </summary>
   [Serializable]
-  [Arow("A03F8D4E-8A3F-46D0-987D-C30C14F904ED")]
+  [Bix("A03F8D4E-8A3F-46D0-987D-C30C14F904ED")]
   public class GetFallbackHitCount : KdbLongGauge
   {
     public GetFallbackHitCount(string tbl, long value) : base(tbl, value) { }
@@ -56,7 +56,7 @@ namespace Azos.Sky.Kdb.Instrumentation
   /// Provides Get miss count per table
   /// </summary>
   [Serializable]
-  [Arow("5B4D906C-6AAD-42E9-A5D4-50B437543D74")]
+  [Bix("5B4D906C-6AAD-42E9-A5D4-50B437543D74")]
   public class GetMissCount : KdbLongGauge
   {
     public GetMissCount(string tbl, long value) : base(tbl, value) { }
@@ -72,7 +72,7 @@ namespace Azos.Sky.Kdb.Instrumentation
   /// Provides Get resulted in last use stamp update count per table
   /// </summary>
   [Serializable]
-  [Arow("D3C515EC-1700-407C-9A30-731D1C54BD77")]
+  [Bix("D3C515EC-1700-407C-9A30-731D1C54BD77")]
   public class GetTouchCount : KdbLongGauge
   {
     public GetTouchCount(string tbl, long value) : base(tbl, value) { }
@@ -88,7 +88,7 @@ namespace Azos.Sky.Kdb.Instrumentation
   /// Provides put count per table
   /// </summary>
   [Serializable]
-  [Arow("8D7F0F5A-8113-4079-B7E3-E00F2D9DC8CB")]
+  [Bix("8D7F0F5A-8113-4079-B7E3-E00F2D9DC8CB")]
   public class PutCount : KdbLongGauge
   {
     public PutCount(string tbl, long value) : base(tbl, value) { }
@@ -104,7 +104,7 @@ namespace Azos.Sky.Kdb.Instrumentation
   /// Provides delete hit count per table
   /// </summary>
   [Serializable]
-  [Arow("A6D1E9ED-189E-4426-AF07-8DDCDADD4075")]
+  [Bix("A6D1E9ED-189E-4426-AF07-8DDCDADD4075")]
   public class DeleteHitCount : KdbLongGauge
   {
     public DeleteHitCount(string tbl, long value) : base(tbl, value) { }
@@ -120,7 +120,7 @@ namespace Azos.Sky.Kdb.Instrumentation
   /// Provides delete fallback count per table
   /// </summary>
   [Serializable]
-  [Arow("593DD67F-40F2-4A6E-81AA-BB0EEB51216F")]
+  [Bix("593DD67F-40F2-4A6E-81AA-BB0EEB51216F")]
   public class DeleteFallbackCount : KdbLongGauge
   {
     public DeleteFallbackCount(string tbl, long value) : base(tbl, value) { }
@@ -136,7 +136,7 @@ namespace Azos.Sky.Kdb.Instrumentation
   /// Provides delete miss count per table
   /// </summary>
   [Serializable]
-  [Arow("F061A1B9-3B54-4CA0-AB7A-872DA6F27B45")]
+  [Bix("F061A1B9-3B54-4CA0-AB7A-872DA6F27B45")]
   public class DeleteMissCount : KdbLongGauge
   {
     public DeleteMissCount(string tbl, long value) : base(tbl, value) { }
@@ -152,7 +152,7 @@ namespace Azos.Sky.Kdb.Instrumentation
   /// Provides error count per table
   /// </summary>
   [Serializable]
-  [Arow("400B265C-90D2-46F6-A346-E67624AC419E")]
+  [Bix("400B265C-90D2-46F6-A346-E67624AC419E")]
   public class ErrorCount : KdbLongGauge, IErrorInstrument
   {
     public ErrorCount(string tbl, long value) : base(tbl, value) { }
@@ -168,7 +168,7 @@ namespace Azos.Sky.Kdb.Instrumentation
   /// Provides number of records expired with expiration days per table
   /// </summary>
   [Serializable]
-  [Arow("5BC901E3-D739-4505-B7B0-5F7687BCE3D0")]
+  [Bix("5BC901E3-D739-4505-B7B0-5F7687BCE3D0")]
   public class SlidingExpirationCount : KdbLongGauge
   {
     public SlidingExpirationCount(string tbl, long value) : base(tbl, value) { }
@@ -184,7 +184,7 @@ namespace Azos.Sky.Kdb.Instrumentation
   /// Provides number of records expired with absolute expiration per table
   /// </summary>
   [Serializable]
-  [Arow("27C3065E-2B53-4055-9E8C-FB617BDE3E61")]
+  [Bix("27C3065E-2B53-4055-9E8C-FB617BDE3E61")]
   public class AbsoluteExpirationCount : KdbLongGauge
   {
     public AbsoluteExpirationCount(string tbl, long value) : base(tbl, value) { }
@@ -200,7 +200,7 @@ namespace Azos.Sky.Kdb.Instrumentation
   /// Provides number of records moved from fallback to current shard set per table
   /// </summary>
   [Serializable]
-  [Arow("9D7194F0-33AF-46C3-9A37-F13C920E6B0D")]
+  [Bix("9D7194F0-33AF-46C3-9A37-F13C920E6B0D")]
   public class MigrationCount : KdbLongGauge
   {
     public MigrationCount(string tbl, long value) : base(tbl, value) { }

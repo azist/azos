@@ -7,7 +7,7 @@
 using System;
 
 using Azos.Instrumentation;
-using Azos.Serialization.Arow;
+using Azos.Serialization.Bix;
 using Azos.Serialization.BSON;
 
 namespace Azos.Log.Instrumentation
@@ -20,7 +20,7 @@ namespace Azos.Log.Instrumentation
   }
 
   [Serializable]
-  [Arow("21420BC2-A2F4-461D-A087-59F5AC4D843D")]
+  [Bix("21420BC2-A2F4-461D-A087-59F5AC4D843D")]
   public class LogMsgQueueSize : LogLongGauge, IMemoryInstrument
   {
     protected LogMsgQueueSize(string source, long value) : base(source, value) { }
@@ -44,7 +44,7 @@ namespace Azos.Log.Instrumentation
 
 
   [Serializable]
-  [Arow("E0E7D9AE-0165-4F81-95C9-113B297C625D")]
+  [Bix("E0E7D9AE-0165-4F81-95C9-113B297C625D")]
   public class LogMsgCount : LogLongGauge, IMemoryInstrument
   {
     protected LogMsgCount(string source, long value) : base(source, value) { }

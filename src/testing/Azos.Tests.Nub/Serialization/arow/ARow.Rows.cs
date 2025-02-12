@@ -13,13 +13,13 @@ using Azos.Data;
 using Azos.Financial;
 using Azos.Pile;
 using Azos.Scripting;
-using Azos.Serialization.Arow;
+using Azos.Serialization.Bix;
 using Azos.Serialization.JSON;
 
 
 namespace Azos.Tests.Nub.Serialization
 {
-  [Arow("AEAD3688-5660-4555-8379-3B6C222719A5")]
+  [Bix("AEAD3688-5660-4555-8379-3B6C222719A5")]
   public class SimplePersonRow : TypedDoc
   {
     [Field(backendName: "id",   isArow: true)]public GDID ID{get; set;}
@@ -32,7 +32,7 @@ namespace Azos.Tests.Nub.Serialization
     [Field(backendName: "slr",  isArow: true)]public double Salary{ get;set;}
   }
 
-  [Arow("3FA492CC-F5B6-4767-BE38-59482CF5155B")]
+  [Bix("3FA492CC-F5B6-4767-BE38-59482CF5155B")]
   public class SimplePersonWithEnumRow : SimplePersonRow
   {
     public enum MaritalStatus{Single, Married, Divorced, Alien}
@@ -40,14 +40,14 @@ namespace Azos.Tests.Nub.Serialization
     [Field(backendName: "mar",   isArow: true)]public MaritalStatus Married{get; set;}
   }
 
-  [Arow("B5DFC2E6-29AC-470F-A49D-800A297DAC5E")]
+  [Bix("B5DFC2E6-29AC-470F-A49D-800A297DAC5E")]
   public class SimplePersonWithByteArrayRow : SimplePersonRow
   {
     [Field(backendName: "buf", isArow: true)] public byte[] Buffer { get; set; }
   }
 
 
-  [Arow("0C0E89B9-3A01-46FD-89B2-9A7A807E0E35")]
+  [Bix("0C0E89B9-3A01-46FD-89B2-9A7A807E0E35")]
   public class FamilyRow : TypedDoc
   {
     [Field(backendName: "id",   isArow: true)] public GDID ID{get; set;}
@@ -63,7 +63,7 @@ namespace Azos.Tests.Nub.Serialization
   }
 
 
-  [Arow("8BB9F822-D704-4C0A-910C-EC67422D3B03")]
+  [Bix("8BB9F822-D704-4C0A-910C-EC67422D3B03")]
   public class AllArowTypesRow : TypedDoc
   {
     [Field(backendName: "bool1",   isArow: true)]public bool       Bool1{get; set;}
@@ -227,7 +227,7 @@ namespace Azos.Tests.Nub.Serialization
   }
 
 
-  [Arow("B44FADC1-CB11-44B7-9AA0-C90BA9643783")]
+  [Bix("B44FADC1-CB11-44B7-9AA0-C90BA9643783")]
   public class Ver1Row : AmorphousTypedDoc
   {
     [Field(backendName: "a", isArow: true)]public string A {get; set;}
@@ -239,7 +239,7 @@ namespace Azos.Tests.Nub.Serialization
     [Field(backendName: "g", isArow: true)]public List<Ver1Row> G{ get;set;}
   }
 
-  [Arow("14573619-2F21-4027-B479-2BB8C9A770FB")]
+  [Bix("14573619-2F21-4027-B479-2BB8C9A770FB")]
   public class Ver2Row : AmorphousTypedDoc
   {
     [Field(backendName: "a", isArow: true)]public string  A {get; set;}

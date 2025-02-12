@@ -158,7 +158,7 @@ namespace Azos.Serialization.Arow
       source.AppendLine("using Azos;");
       source.AppendLine("using Azos.IO;");
       source.AppendLine("using Azos.Data;");
-      source.AppendLine("using Azos.Serialization.Arow;");
+      source.AppendLine("using Azos.Serialization.Bix;");
       source.AppendLine("using AW = Azos.Serialization.Arow.Writer;");
       source.AppendLine();
     }
