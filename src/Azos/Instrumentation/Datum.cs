@@ -99,7 +99,7 @@ namespace Azos.Instrumentation
     }
 
     /// <summary>
-    /// Returns UTC time stamp when event happened. This property may be gotten only if IsAggregated==true, otherwise UTCTime value is returned
+    /// Returns UTC time stamp when event happened. This property may be gotten only if IsAggregated==true, otherwise StartUtc value is returned
     /// </summary>
     [Field, Field(isArow: true, backendName: "ets")]
     public DateTime EndUtc
@@ -129,12 +129,12 @@ namespace Azos.Instrumentation
     }
 
     /// <summary>
-    /// Indicates whether this instance represents a rollup/aggregation of multiple events
+    /// Indicates whether this instance represents a rollup/aggregation of multiple events - when count is greater than 0
     /// </summary>
     public bool IsAggregated => m_Count > 0;
 
     /// <summary>
-    /// Returns count of measurements. This property may be gotten only if IsAggregated==true, otherwise zero is returned
+    /// Returns count of measurements. This property only makes sence for aggregates
     /// </summary>
     [Field, Field(isArow: true, backendName: "cnt")]
     public long Count
@@ -222,7 +222,8 @@ namespace Azos.Instrumentation
 
     #region Public
 
-    private static FiniteSetLookup<Type, IEnumerable<Type>> s_ViewGroupInterfaces = new FiniteSetLookup<Type, IEnumerable<Type>>( tp =>{
+    private static FiniteSetLookup<Type, IEnumerable<Type>> s_ViewGroupInterfaces = new FiniteSetLookup<Type, IEnumerable<Type>>(tp =>
+    {
       var result = tp.GetInterfaces()
                      .Where(i => Attribute.IsDefined(i, typeof(InstrumentViewGroup)))
                      .ToArray();
@@ -247,7 +248,7 @@ namespace Azos.Instrumentation
 
     /// <summary>
     /// Aggregates multiple data instances (e.g.from multiple threads) into one single instance. This is the "reduce" operation which
-    /// makes aggregate instance, then concatenates all data events, them finalizes operation by calling SummarizeAggregation()
+    /// makes aggregate instance, then concatenates all data events, then finalizes operation by calling SummarizeAggregation()
     /// </summary>
     public Datum Aggregate(IEnumerable<Datum> many)
     {
