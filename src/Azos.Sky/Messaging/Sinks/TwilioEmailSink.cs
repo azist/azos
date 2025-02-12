@@ -152,9 +152,9 @@ namespace Azos.Sky.Messaging.Sinks
       {
         var attachmentMap = new JsonDataMap();
 
-        if (attachment.Content != null && attachment.Content.Length >= 1)
+        if (attachment.Content != null && attachment.Content.Length > 0)
         {
-          attachmentMap.Add("content", attachment.Content.ToWebSafeBase64());
+          attachmentMap.Add("content", Convert.ToBase64String(attachment.Content));
         }
         if (attachment.ContentType.IsNotNullOrWhiteSpace())
         {

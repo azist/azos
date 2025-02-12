@@ -7,7 +7,7 @@
 using System;
 
 using Azos.Instrumentation;
-using Azos.Serialization.Arow;
+using Azos.Serialization.Bix;
 using Azos.Serialization.BSON;
 
 namespace Azos.Sky.Messaging.Instrumentation
@@ -19,7 +19,7 @@ namespace Azos.Sky.Messaging.Instrumentation
   }
 
   [Serializable]
-  [Arow("090A8785-0764-4CBD-9B92-47D7A38C9681")]
+  [Bix("090A8785-0764-4CBD-9B92-47D7A38C9681")]
   public class MessagingSinkCount : MessagingSinkLongGauge
   {
     public MessagingSinkCount(string source, long value) : base(source, value) { }
@@ -40,7 +40,7 @@ namespace Azos.Sky.Messaging.Instrumentation
   }
 
   [Serializable]
-  [Arow("F3DC839B-0538-43AF-98DF-22935A8073B8")]
+  [Bix("F3DC839B-0538-43AF-98DF-22935A8073B8")]
   public class MessagingFallbackCount : MessagingSinkLongGauge
   {
     public MessagingFallbackCount(string source, long value) : base(source, value) { }
@@ -61,7 +61,7 @@ namespace Azos.Sky.Messaging.Instrumentation
   }
 
   [Serializable]
-  [Arow("9BB4AFCB-EC6E-4B59-807F-1F43EA371D8D")]
+  [Bix("9BB4AFCB-EC6E-4B59-807F-1F43EA371D8D")]
   public class MessagingSinkErrorCount : MessagingSinkLongGauge
   {
     protected MessagingSinkErrorCount(string source, long value) : base(source, value) { }
@@ -82,7 +82,7 @@ namespace Azos.Sky.Messaging.Instrumentation
   }
 
   [Serializable]
-  [Arow("1C1C927F-53B3-4EA3-A522-B384ACC5D0E8")]
+  [Bix("1C1C927F-53B3-4EA3-A522-B384ACC5D0E8")]
   public class MessagingFallbackErrorCount : MessagingSinkLongGauge
   {
     protected MessagingFallbackErrorCount(string source, long value) : base(source, value) { }

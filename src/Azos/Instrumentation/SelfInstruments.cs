@@ -6,7 +6,7 @@
 
 using System;
 
-using Azos.Serialization.Arow;
+using Azos.Serialization.Bix;
 
 namespace Azos.Instrumentation.Self
 {
@@ -18,7 +18,7 @@ namespace Azos.Instrumentation.Self
 
 
   [Serializable]
-  [Arow("0A2258D7-D918-434C-83A3-A229B4368450")]
+  [Bix("0A2258D7-D918-434C-83A3-A229B4368450")]
   public class RecordCount : SelfInstrumentationLongGauge, IMemoryInstrument
   {
     protected RecordCount(long value) : base(value) { }
@@ -36,7 +36,7 @@ namespace Azos.Instrumentation.Self
 
 
   [Serializable]
-  [Arow("C66CC4FD-6D35-41F2-A207-9CFACCC26B50")]
+  [Bix("C66CC4FD-6D35-41F2-A207-9CFACCC26B50")]
   public class RecordLoad : SelfInstrumentationLongGauge, IMemoryInstrument
   {
     protected RecordLoad(long value) : base(value) { }
@@ -55,7 +55,7 @@ namespace Azos.Instrumentation.Self
 
 
   [Serializable]
-  [Arow("E354C50D-BCE5-4310-B085-2A45EC23839C")]
+  [Bix("E354C50D-BCE5-4310-B085-2A45EC23839C")]
   public class ProcessingInterval : SelfInstrumentationLongGauge
   {
     protected ProcessingInterval(long value) : base(value) { }
@@ -73,7 +73,7 @@ namespace Azos.Instrumentation.Self
 
 
   [Serializable]
-  [Arow("A2FA4349-6C0C-4F62-BE58-63B2FECF8BAF")]
+  [Bix("A2FA4349-6C0C-4F62-BE58-63B2FECF8BAF")]
   public class BufferMaxAge : SelfInstrumentationLongGauge, IMemoryInstrument
   {
     protected BufferMaxAge(long value) : base(value) { }

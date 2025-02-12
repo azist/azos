@@ -7,7 +7,7 @@
 using System;
 
 using Azos.Instrumentation;
-using Azos.Serialization.Arow;
+using Azos.Serialization.Bix;
 using Azos.Serialization.BSON;
 
 namespace Azos.Platform.Instrumentation
@@ -26,7 +26,7 @@ namespace Azos.Platform.Instrumentation
 
 
   [Serializable]
-  [Arow("252559C9-65E6-4EBD-8BE4-8A063D0E3FD0")]
+  [Bix("252559C9-65E6-4EBD-8BE4-8A063D0E3FD0")]
   public class CPUUsage : OSLongGauge, ICPUInstrument
   {
     protected CPUUsage(string src, long value) : base(src, value) { }
@@ -48,7 +48,7 @@ namespace Azos.Platform.Instrumentation
   }
 
   [Serializable]
-  [Arow("4E2AEC33-36E3-4DC9-9B2C-A5703ACE5D6E")]
+  [Bix("4E2AEC33-36E3-4DC9-9B2C-A5703ACE5D6E")]
   public class RAMUsage : OSLongGauge, IMemoryInstrument
   {
     protected RAMUsage(long value) : base(null, value) { }
@@ -70,7 +70,7 @@ namespace Azos.Platform.Instrumentation
   }
 
   [Serializable]
-  [Arow("15A6B78B-1511-4C5C-92E0-87A27317C3C2")]
+  [Bix("15A6B78B-1511-4C5C-92E0-87A27317C3C2")]
   public class AvailableRAM : OSLongGauge, IMemoryInstrument
   {
     protected AvailableRAM(string src, long value) : base(src, value) { }

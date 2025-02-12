@@ -7,7 +7,7 @@
 using System;
 
 using Azos.Instrumentation;
-using Azos.Serialization.Arow;
+using Azos.Serialization.Bix;
 using Azos.Serialization.BSON;
 
 namespace Azos.Glue.Instrumentation
@@ -44,7 +44,7 @@ namespace Azos.Glue.Instrumentation
   }
 
   [Serializable]
-  [Arow("7442DC0B-FE68-4BD0-85B2-5FDF7595CC10")]
+  [Bix("7442DC0B-FE68-4BD0-85B2-5FDF7595CC10")]
   public class ServerTransportCount : ServerGauge, INetInstrument
   {
     protected ServerTransportCount(string src, long value) : base(src, value) { }
@@ -67,7 +67,7 @@ namespace Azos.Glue.Instrumentation
   }
 
   [Serializable]
-  [Arow("969497FD-C19D-47E3-8A31-1F5D79CA7608")]
+  [Bix("969497FD-C19D-47E3-8A31-1F5D79CA7608")]
   public class ServerTransportChannelCount : ServerGauge, INetInstrument
   {
     protected ServerTransportChannelCount(string src, long value) : base(src, value) { }
@@ -90,7 +90,7 @@ namespace Azos.Glue.Instrumentation
   }
 
   [Serializable]
-  [Arow("295F33BB-182F-4215-814A-9C91ED9C9633")]
+  [Bix("295F33BB-182F-4215-814A-9C91ED9C9633")]
   public class ServerBytesReceived : ServerGauge, INetInstrument
   {
     protected ServerBytesReceived(string src, long value) : base(src, value) { }
@@ -113,7 +113,7 @@ namespace Azos.Glue.Instrumentation
   }
 
   [Serializable]
-  [Arow("6DF09781-1D2B-4A95-896A-A0D22B6F5F12")]
+  [Bix("6DF09781-1D2B-4A95-896A-A0D22B6F5F12")]
   public class ServerTotalBytesReceived : ServerGauge, INetInstrument
   {
     protected ServerTotalBytesReceived(string src, long value) : base(src, value) { }
@@ -136,7 +136,7 @@ namespace Azos.Glue.Instrumentation
   }
 
   [Serializable]
-  [Arow("6F833B56-55F1-4253-A2AA-19DE720CFFE2")]
+  [Bix("6F833B56-55F1-4253-A2AA-19DE720CFFE2")]
   public class ServerBytesSent : ServerGauge, INetInstrument
   {
     protected ServerBytesSent(string src, long value) : base(src, value) { }
@@ -158,7 +158,7 @@ namespace Azos.Glue.Instrumentation
   }
 
   [Serializable]
-  [Arow("74D3E956-4689-42FD-BF5B-EFB9E6079BD0")]
+  [Bix("74D3E956-4689-42FD-BF5B-EFB9E6079BD0")]
   public class ServerTotalBytesSent : ServerGauge, INetInstrument
   {
     protected ServerTotalBytesSent(string src, long value) : base(src, value) { }
@@ -180,7 +180,7 @@ namespace Azos.Glue.Instrumentation
   }
 
   [Serializable]
-  [Arow("D9D323F5-8BB0-41C2-8EE4-8F07B45DE979")]
+  [Bix("D9D323F5-8BB0-41C2-8EE4-8F07B45DE979")]
   public class ServerMsgReceived : ServerGauge, INetInstrument
   {
     protected ServerMsgReceived(string src, long value) : base(src, value) { }
@@ -201,7 +201,7 @@ namespace Azos.Glue.Instrumentation
   }
 
   [Serializable]
-  [Arow("1A79D3F7-93E7-4CE8-9901-9A8EFC30E0B1")]
+  [Bix("1A79D3F7-93E7-4CE8-9901-9A8EFC30E0B1")]
   public class ServerTotalMsgReceived : ServerGauge, INetInstrument
   {
     protected ServerTotalMsgReceived(string src, long value) : base(src, value) { }
@@ -222,7 +222,7 @@ namespace Azos.Glue.Instrumentation
   }
 
   [Serializable]
-  [Arow("EF044B2B-82BA-4D5B-986F-3513E3DC5836")]
+  [Bix("EF044B2B-82BA-4D5B-986F-3513E3DC5836")]
   public class ServerMsgSent : ServerGauge, INetInstrument
   {
     protected ServerMsgSent(string src, long value) : base(src, value) { }
@@ -244,7 +244,7 @@ namespace Azos.Glue.Instrumentation
   }
 
   [Serializable]
-  [Arow("3E037EAF-F18E-4FCF-9DA0-83F7ABF0E68C")]
+  [Bix("3E037EAF-F18E-4FCF-9DA0-83F7ABF0E68C")]
   public class ServerTotalMsgSent : ServerGauge, INetInstrument
   {
     protected ServerTotalMsgSent(string src, long value) : base(src, value) { }
@@ -266,7 +266,7 @@ namespace Azos.Glue.Instrumentation
   }
 
   [Serializable]
-  [Arow("CFE575FA-F60E-4E49-905D-03B6DA0D50DC")]
+  [Bix("CFE575FA-F60E-4E49-905D-03B6DA0D50DC")]
   public class ServerErrors : ServerGauge, INetInstrument, IErrorInstrument
   {
     protected ServerErrors(string src, long value) : base(src, value) { }
@@ -288,7 +288,7 @@ namespace Azos.Glue.Instrumentation
   }
 
   [Serializable]
-  [Arow("{ED9536E7-C012-43DD-B3C0-4DA46D213485}")]
+  [Bix("{ED9536E7-C012-43DD-B3C0-4DA46D213485}")]
   public class ServerTotalErrors : ServerGauge, INetInstrument, IErrorInstrument
   {
     protected ServerTotalErrors(string src, long value) : base(src, value) { }
@@ -312,7 +312,7 @@ namespace Azos.Glue.Instrumentation
   //----------------------------------------------------------------------------------------
 
   [Serializable]
-  [Arow("DBA7193C-6793-4D6E-A1D1-06AF4BAF84B3")]
+  [Bix("DBA7193C-6793-4D6E-A1D1-06AF4BAF84B3")]
   public class ClientTransportCount : ClientGauge, INetInstrument
   {
     protected ClientTransportCount(string src, long value) : base(src, value) { }
@@ -335,7 +335,7 @@ namespace Azos.Glue.Instrumentation
   }
 
   [Serializable]
-  [Arow("8416B354-8A4D-4385-A2D9-9E7BB9CB4FEA")]
+  [Bix("8416B354-8A4D-4385-A2D9-9E7BB9CB4FEA")]
   public class ClientBytesReceived : ClientGauge, INetInstrument
   {
     protected ClientBytesReceived(string src, long value) : base(src, value) { }
@@ -356,7 +356,7 @@ namespace Azos.Glue.Instrumentation
   }
 
   [Serializable]
-  [Arow("15690C64-5765-48B7-9D46-7EC8B59DB5D9")]
+  [Bix("15690C64-5765-48B7-9D46-7EC8B59DB5D9")]
   public class ClientTotalBytesReceived : ClientGauge, INetInstrument
   {
     protected ClientTotalBytesReceived(string src, long value) : base(src, value) { }
@@ -377,7 +377,7 @@ namespace Azos.Glue.Instrumentation
   }
 
   [Serializable]
-  [Arow("7EFC4DA6-9107-4472-A5F1-64601FD16379")]
+  [Bix("7EFC4DA6-9107-4472-A5F1-64601FD16379")]
   public class ClientBytesSent : ClientGauge, INetInstrument
   {
     protected ClientBytesSent(string src, long value) : base(src, value) { }
@@ -400,7 +400,7 @@ namespace Azos.Glue.Instrumentation
   }
 
   [Serializable]
-  [Arow("0DA7F010-4EE9-4809-9BE8-181F028D0359")]
+  [Bix("0DA7F010-4EE9-4809-9BE8-181F028D0359")]
   public class ClientTotalBytesSent : ClientGauge, INetInstrument
   {
     protected ClientTotalBytesSent(string src, long value) : base(src, value) { }
@@ -423,7 +423,7 @@ namespace Azos.Glue.Instrumentation
   }
 
   [Serializable]
-  [Arow("C75D4C64-0AB5-4D5D-AB13-72F6A1BBC724")]
+  [Bix("C75D4C64-0AB5-4D5D-AB13-72F6A1BBC724")]
   public class ClientTimedOutCallSlotsRemoved : ClientGauge, INetInstrument
   {
     protected ClientTimedOutCallSlotsRemoved(long value) : base(null, value) { }
@@ -446,7 +446,7 @@ namespace Azos.Glue.Instrumentation
   }
 
   [Serializable]
-  [Arow("912EBD26-4032-4AFA-BA60-0815E465DF95")]
+  [Bix("912EBD26-4032-4AFA-BA60-0815E465DF95")]
   public class ClientMsgReceived : ClientGauge, INetInstrument
   {
     protected ClientMsgReceived(string src, long value) : base(src, value) { }
@@ -467,7 +467,7 @@ namespace Azos.Glue.Instrumentation
   }
 
   [Serializable]
-  [Arow("2C54E7B8-5C3F-4134-97AA-7BEAF038AD34")]
+  [Bix("2C54E7B8-5C3F-4134-97AA-7BEAF038AD34")]
   public class ClientTotalMsgReceived : ClientGauge, INetInstrument
   {
     protected ClientTotalMsgReceived(string src, long value) : base(src, value) { }
@@ -488,7 +488,7 @@ namespace Azos.Glue.Instrumentation
   }
 
   [Serializable]
-  [Arow("DD882CF1-8F45-414C-8437-B4928AACCD6D")]
+  [Bix("DD882CF1-8F45-414C-8437-B4928AACCD6D")]
   public class ClientMsgSent : ClientGauge, INetInstrument
   {
     protected ClientMsgSent(string src, long value) : base(src, value) { }
@@ -509,7 +509,7 @@ namespace Azos.Glue.Instrumentation
   }
 
   [Serializable]
-  [Arow("06A85AF1-F952-42C7-95F5-EF3C74007F4A")]
+  [Bix("06A85AF1-F952-42C7-95F5-EF3C74007F4A")]
   public class ClientTotalMsgSent : ClientGauge, INetInstrument
   {
     protected ClientTotalMsgSent(string src, long value) : base(src, value) { }
@@ -530,7 +530,7 @@ namespace Azos.Glue.Instrumentation
   }
 
   [Serializable]
-  [Arow("1D8BEDF7-2BBA-4F9B-AEBD-85C2D875FD01")]
+  [Bix("1D8BEDF7-2BBA-4F9B-AEBD-85C2D875FD01")]
   public class ClientErrors : ClientGauge, INetInstrument, IErrorInstrument
   {
     protected ClientErrors(string src, long value) : base(src, value) { }
@@ -551,7 +551,7 @@ namespace Azos.Glue.Instrumentation
   }
 
   [Serializable]
-  [Arow("BCEF3BBE-8DF4-4094-BF7D-F540CB356A47")]
+  [Bix("BCEF3BBE-8DF4-4094-BF7D-F540CB356A47")]
   public class ClientTotalErrors : ClientGauge, INetInstrument, IErrorInstrument
   {
     protected ClientTotalErrors(string src, long value) : base(src, value) { }
@@ -572,7 +572,7 @@ namespace Azos.Glue.Instrumentation
   }
 
   [Serializable]
-  [Arow("907AAFA5-5D6F-45DF-882D-4EA0CBD2B8D6")]
+  [Bix("907AAFA5-5D6F-45DF-882D-4EA0CBD2B8D6")]
   public class ClientCallRoundtripTime : ClientDoubleGauge, INetInstrument
   {
     protected ClientCallRoundtripTime(string src, double value) : base(src, value) { }

@@ -6,7 +6,7 @@
 using System;
 
 using Azos.Instrumentation;
-using Azos.Serialization.Arow;
+using Azos.Serialization.Bix;
 using Azos.Serialization.BSON;
 
 namespace Azos.Sky.Locking.Instrumentation
@@ -15,7 +15,7 @@ namespace Azos.Sky.Locking.Instrumentation
   /// Provides the count of processed server transactions
   /// </summary>
   [Serializable]
-  [Arow("3C295A45-28AC-487A-A040-D78B5D95C43D")]
+  [Bix("3C295A45-28AC-487A-A040-D78B5D95C43D")]
   public sealed class ServerLockTransactions : LockingServerGauge
   {
     internal ServerLockTransactions(string src, long value) : base(src, value) { }
@@ -31,7 +31,7 @@ namespace Azos.Sky.Locking.Instrumentation
   /// Provides the count of requests that end the session
   /// </summary>
   [Serializable]
-  [Arow("88B2ACEA-59EC-4243-B862-27F7AEE1797C")]
+  [Bix("88B2ACEA-59EC-4243-B862-27F7AEE1797C")]
   public sealed class ServerEndLockSessionCalls : LockingServerGauge
   {
     internal ServerEndLockSessionCalls(long value) : base(Datum.UNSPECIFIED_SOURCE, value) { }
@@ -47,7 +47,7 @@ namespace Azos.Sky.Locking.Instrumentation
   /// Provides the current level of trust to locking server
   /// </summary>
   [Serializable]
-  [Arow("7A0336B6-75B8-4625-BC40-9451D9411CA2")]
+  [Bix("7A0336B6-75B8-4625-BC40-9451D9411CA2")]
   public sealed class ServerTrustLevel : LockingServerDoubleGauge
   {
     internal ServerTrustLevel(double value) : base(Datum.UNSPECIFIED_SOURCE, value) { }
@@ -63,7 +63,7 @@ namespace Azos.Sky.Locking.Instrumentation
   /// Provides the current level of server calls which is considered a norm
   /// </summary>
   [Serializable]
-  [Arow("DE39EC10-C8EB-4E97-9329-5C28E7793E95")]
+  [Bix("DE39EC10-C8EB-4E97-9329-5C28E7793E95")]
   public sealed class ServerCallsNorm : LockingServerDoubleGauge
   {
     internal ServerCallsNorm(double value) : base(Datum.UNSPECIFIED_SOURCE, value) { }
@@ -79,7 +79,7 @@ namespace Azos.Sky.Locking.Instrumentation
   /// Provides the number of records that have expired
   /// </summary>
   [Serializable]
-  [Arow("A219D4B6-8CAC-4D9D-9D85-F7E00B4A4365")]
+  [Bix("A219D4B6-8CAC-4D9D-9D85-F7E00B4A4365")]
   public sealed class ServerExpiredRecords : LockingServerGauge
   {
     internal ServerExpiredRecords(long value) : base(Datum.UNSPECIFIED_SOURCE, value) { }
@@ -95,7 +95,7 @@ namespace Azos.Sky.Locking.Instrumentation
   /// Provides the number of sessions that have expired
   /// </summary>
   [Serializable]
-  [Arow("B1F5501B-C778-4583-83EA-F4EDFBF8570E")]
+  [Bix("B1F5501B-C778-4583-83EA-F4EDFBF8570E")]
   public sealed class ServerExpiredSessions : LockingServerGauge
   {
     internal ServerExpiredSessions(long value) : base(Datum.UNSPECIFIED_SOURCE, value) { }
@@ -111,7 +111,7 @@ namespace Azos.Sky.Locking.Instrumentation
   /// Provides the number of empty tables removed from the server namespaces
   /// </summary>
   [Serializable]
-  [Arow("19678A92-7F23-4FDB-95F3-DE2306063FC0")]
+  [Bix("19678A92-7F23-4FDB-95F3-DE2306063FC0")]
   public sealed class ServerRemovedEmptyTables : LockingServerGauge
   {
     internal ServerRemovedEmptyTables(long value) : base(Datum.UNSPECIFIED_SOURCE, value) { }
@@ -127,7 +127,7 @@ namespace Azos.Sky.Locking.Instrumentation
   /// Provides the count of tables per namespace
   /// </summary>
   [Serializable]
-  [Arow("3EB81D57-C9A2-4245-B6D0-70A1E795D3AE")]
+  [Bix("3EB81D57-C9A2-4245-B6D0-70A1E795D3AE")]
   public sealed class ServerNamespaceTables : LockingServerGauge
   {
     internal ServerNamespaceTables(string nsname, long value) : base(nsname, value) { }
@@ -143,7 +143,7 @@ namespace Azos.Sky.Locking.Instrumentation
   /// Provides the count of committed records  per namespace table
   /// </summary>
   [Serializable]
-  [Arow("56C447D2-D713-4D05-8F02-C448FB366174")]
+  [Bix("56C447D2-D713-4D05-8F02-C448FB366174")]
   public sealed class ServerNamespaceTableRecordCount : LockingServerGauge
   {
     internal ServerNamespaceTableRecordCount(string nsTname, long value) : base(nsTname, value) { }

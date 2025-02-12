@@ -6,7 +6,7 @@
 using System;
 
 using Azos.Instrumentation;
-using Azos.Serialization.Arow;
+using Azos.Serialization.Bix;
 using Azos.Serialization.BSON;
 
 namespace Azos.Sky.Locking.Instrumentation
@@ -17,7 +17,7 @@ namespace Azos.Sky.Locking.Instrumentation
   /// Provides the count of LockSession instances in the LockManager
   /// </summary>
   [Serializable]
-  [Arow("4258663D-21C0-48CB-9CFD-4EB335D923CC")]
+  [Bix("4258663D-21C0-48CB-9CFD-4EB335D923CC")]
   public sealed class LockSessions : LockingClientGauge
   {
     internal LockSessions(long value) : base(Datum.UNSPECIFIED_SOURCE, value) { }
@@ -34,7 +34,7 @@ namespace Azos.Sky.Locking.Instrumentation
   /// Provides the number of times that locking transactions have been requested to be executed
   /// </summary>
   [Serializable]
-  [Arow("4EF3D2B7-C4EF-4F87-985E-B3D85DDB5EA0")]
+  [Bix("4EF3D2B7-C4EF-4F87-985E-B3D85DDB5EA0")]
   public sealed class LockTransactionRequests : LockingClientGauge
   {
     internal LockTransactionRequests(string src, long value) : base(src, value) { }

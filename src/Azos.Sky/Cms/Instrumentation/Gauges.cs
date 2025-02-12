@@ -7,7 +7,7 @@
 using System;
 
 using Azos.Instrumentation;
-using Azos.Serialization.Arow;
+using Azos.Serialization.Bix;
 using Azos.Serialization.BSON;
 
 namespace Azos.Sky.Cms.Instrumentation
@@ -16,7 +16,7 @@ namespace Azos.Sky.Cms.Instrumentation
   /// How many Cms requests made
   /// </summary>
   [Serializable]
-  [Arow("ABA005FA-3BD4-4AFA-B62C-92E06DD0B82F")]
+  [Bix("ABA005FA-3BD4-4AFA-B62C-92E06DD0B82F")]
   public sealed class RequestCountGauge : LongGauge
   {
     //.ctor used by SnapshotAllLongInto()
@@ -33,7 +33,7 @@ namespace Azos.Sky.Cms.Instrumentation
   /// How many Cms requests resulted in a found content response
   /// </summary>
   [Serializable]
-  [Arow("8CE2816E-9BF5-4C24-AF35-96659957322E")]
+  [Bix("8CE2816E-9BF5-4C24-AF35-96659957322E")]
   public sealed class ResponseCountGauge : LongGauge
   {
     //.ctor used by SnapshotAllLongInto()
@@ -51,7 +51,7 @@ namespace Azos.Sky.Cms.Instrumentation
   /// Cached content record count
   /// </summary>
   [Serializable]
-  [Arow("5C0E227C-C5D3-4CC1-9CC8-A9227D747425")]
+  [Bix("5C0E227C-C5D3-4CC1-9CC8-A9227D747425")]
   public sealed class CacheRecordCountGauge : LongGauge
   {
     //.ctor used by SnapshotAllLongInto()
@@ -68,7 +68,7 @@ namespace Azos.Sky.Cms.Instrumentation
   /// Expired cache content record count
   /// </summary>
   [Serializable]
-  [Arow("A830C246-B30A-4C04-BAF6-DB013748EE0F")]
+  [Bix("A830C246-B30A-4C04-BAF6-DB013748EE0F")]
   public sealed class CacheExpiredRecordCountGauge : LongGauge
   {
     //.ctor used by SnapshotAllLongInto()
@@ -85,7 +85,7 @@ namespace Azos.Sky.Cms.Instrumentation
   /// How many times the cache was hit
   /// </summary>
   [Serializable]
-  [Arow("C7982DC1-161F-411A-B229-5A5F3D5579C3")]
+  [Bix("C7982DC1-161F-411A-B229-5A5F3D5579C3")]
   public sealed class CacheHitCountGauge : LongGauge
   {
     //.ctor used by SnapshotAllLongInto()
@@ -102,7 +102,7 @@ namespace Azos.Sky.Cms.Instrumentation
   /// How many times the cache was hit
   /// </summary>
   [Serializable]
-  [Arow("F0B27F69-E6C5-4770-9A48-2900B1E7F353")]
+  [Bix("F0B27F69-E6C5-4770-9A48-2900B1E7F353")]
   public sealed class CacheMissCountGauge : LongGauge
   {
     //.ctor used by SnapshotAllLongInto()
@@ -119,7 +119,7 @@ namespace Azos.Sky.Cms.Instrumentation
   /// Average content fetch latency
   /// </summary>
   [Serializable]
-  [Arow("63B04E33-4C1F-4C2E-855E-E0329E45B3E8")]
+  [Bix("63B04E33-4C1F-4C2E-855E-E0329E45B3E8")]
   public sealed class ContentFetchLatencyGauge : LongGauge
   {
     //.ctor used by SnapshotAllLongInto()

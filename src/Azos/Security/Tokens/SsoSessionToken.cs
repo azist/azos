@@ -5,14 +5,14 @@
 </FILE_LICENSE>*/
 
 using Azos.Data;
-using Azos.Serialization.Arow;
+using Azos.Serialization.Bix;
 
 namespace Azos.Security.Tokens
 {
   /// <summary>
   /// SSO Session ID
   /// </summary>
-  [Arow("3e74ffec-d9f5-4d26-8cee-3461b03ccd5b")]
+  [Bix("3e74ffec-d9f5-4d26-8cee-3461b03ccd5b")]
   public sealed class SsoSessionToken : RingToken
   {
     public override int TokenByteStrength => 16;

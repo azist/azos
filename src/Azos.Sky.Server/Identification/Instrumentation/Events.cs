@@ -6,7 +6,7 @@
 using System;
 
 using Azos.Instrumentation;
-using Azos.Serialization.Arow;
+using Azos.Serialization.Bix;
 using Azos.Serialization.BSON;
 
 namespace Azos.Sky.Identification.Instrumentation
@@ -47,7 +47,7 @@ namespace Azos.Sky.Identification.Instrumentation
   /// Generator requested new block allocation
   /// </summary>
   [Serializable]
-  [Arow("855252F5-A3CE-4A4A-99E1-27CE27D03C0F")]
+  [Bix("855252F5-A3CE-4A4A-99E1-27CE27D03C0F")]
   public class AllocBlockRequestedEvent : GDIDGeneratorEvent, INetInstrument
   {
     protected AllocBlockRequestedEvent(string src) : base(src) { }
@@ -70,7 +70,7 @@ namespace Azos.Sky.Identification.Instrumentation
   /// Generator requested new block allocation completely failed
   /// </summary>
   [Serializable]
-  [Arow("0F73FFA4-9FBE-42A6-BA74-595D077EC510")]
+  [Bix("0F73FFA4-9FBE-42A6-BA74-595D077EC510")]
   public class AllocBlockRequestFailureEvent : GDIDGeneratorEvent, INetInstrument, IErrorInstrument, ICatastropyInstrument
   {
     protected AllocBlockRequestFailureEvent(string src) : base(src) { }
@@ -93,7 +93,7 @@ namespace Azos.Sky.Identification.Instrumentation
   /// Generator successfully allocated new block
   /// </summary>
   [Serializable]
-  [Arow("8D129B96-C214-45B5-ACC0-B99A92021482")]
+  [Bix("8D129B96-C214-45B5-ACC0-B99A92021482")]
   public class AllocBlockSuccessEvent : GDIDGeneratorEvent, INetInstrument
   {
     protected AllocBlockSuccessEvent(string src) : base(src) { }
@@ -116,7 +116,7 @@ namespace Azos.Sky.Identification.Instrumentation
   /// Generator block allocation attempt failed
   /// </summary>
   [Serializable]
-  [Arow("6144885A-5544-4DAC-A27F-41BAF8CA4425")]
+  [Bix("6144885A-5544-4DAC-A27F-41BAF8CA4425")]
   public class AllocBlockFailureEvent : GDIDGeneratorEvent, INetInstrument, IErrorInstrument
   {
     protected AllocBlockFailureEvent(string src) : base(src) { }
@@ -139,7 +139,7 @@ namespace Azos.Sky.Identification.Instrumentation
   /// Authority received block allocation call
   /// </summary>
   [Serializable]
-  [Arow("B27465F8-6563-4ABA-B586-D006A9BA603A")]
+  [Bix("B27465F8-6563-4ABA-B586-D006A9BA603A")]
   public class AuthAllocBlockCalledEvent : GDIDAuthorityEvent, INetInstrument
   {
     protected AuthAllocBlockCalledEvent(string src) : base(src) { }
@@ -162,7 +162,7 @@ namespace Azos.Sky.Identification.Instrumentation
   /// Authority location write failed
   /// </summary>
   [Serializable]
-  [Arow("BEFDDF37-CB7D-4264-AD7E-E93E5D78A402")]
+  [Bix("BEFDDF37-CB7D-4264-AD7E-E93E5D78A402")]
   public class AuthLocationWriteFailureEvent : GDIDAuthorityEvent, IErrorInstrument
   {
     protected AuthLocationWriteFailureEvent(string location) : base(location) { }
@@ -185,7 +185,7 @@ namespace Azos.Sky.Identification.Instrumentation
   /// Authority sequence write to all locations failed
   /// </summary>
   [Serializable]
-  [Arow("6FBC9C82-9CA2-4917-B647-6B260E0797A7")]
+  [Bix("6FBC9C82-9CA2-4917-B647-6B260E0797A7")]
   public class AuthLocationWriteTotalFailureEvent : GDIDAuthorityEvent, ICatastropyInstrument, IErrorInstrument
   {
     protected AuthLocationWriteTotalFailureEvent() : base(string.Empty) { }
@@ -208,7 +208,7 @@ namespace Azos.Sky.Identification.Instrumentation
   /// Authority sequence read from location failed
   /// </summary>
   [Serializable]
-  [Arow("478B9FE8-D0BF-44BE-BA6F-05C074AC1F69")]
+  [Bix("478B9FE8-D0BF-44BE-BA6F-05C074AC1F69")]
   public class AuthLocationReadFailureEvent : GDIDAuthorityEvent, IErrorInstrument
   {
     protected AuthLocationReadFailureEvent(string location) : base(location) { }
@@ -231,7 +231,7 @@ namespace Azos.Sky.Identification.Instrumentation
   /// Authority sequence read failed for all locations
   /// </summary>
   [Serializable]
-  [Arow("7C4DEB2E-0052-4B0E-B4EE-3F7A36C3B723")]
+  [Bix("7C4DEB2E-0052-4B0E-B4EE-3F7A36C3B723")]
   public class AuthLocationReadTotalFailureEvent : GDIDAuthorityEvent, ICatastropyInstrument, IErrorInstrument
   {
     protected AuthLocationReadTotalFailureEvent() : base(string.Empty) { }
@@ -254,7 +254,7 @@ namespace Azos.Sky.Identification.Instrumentation
   /// Authority ERA promoted +1
   /// </summary>
   [Serializable]
-  [Arow("378043D3-DBD0-4628-B9B0-B1BCEF2800CB")]
+  [Bix("378043D3-DBD0-4628-B9B0-B1BCEF2800CB")]
   public class AuthEraPromotedEvent : GDIDAuthorityEvent
   {
     protected AuthEraPromotedEvent(string src) : base(src) { }

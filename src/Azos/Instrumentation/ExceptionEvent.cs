@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using Azos.Serialization.Arow;
+using Azos.Serialization.Bix;
 
 namespace Azos.Instrumentation
 {
@@ -17,7 +17,7 @@ namespace Azos.Instrumentation
   /// Represents an exception event recorded by instrumentation
   /// </summary>
   [Serializable]
-  [Arow("2A09545F-B237-4008-BEE8-26508724AB89")]
+  [Bix("2A09545F-B237-4008-BEE8-26508724AB89")]
   public class ExceptionEvent : Event, IErrorInstrument
   {
     public const string BSON_FLD_EXCEPTION_TYPE = "etp";

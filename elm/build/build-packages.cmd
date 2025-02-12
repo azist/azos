@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.10.0.8
-set HEADLINE=Bug fix in HourList
+set VER=3.10.0.9
+set HEADLINE=Twilio Attachemnt encoding
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

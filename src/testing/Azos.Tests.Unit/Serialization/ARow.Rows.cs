@@ -13,13 +13,13 @@ using Azos.Data;
 using Azos.Financial;
 using Azos.Pile;
 using Azos.Scripting;
-using Azos.Serialization.Arow;
+using Azos.Serialization.Bix;
 using Azos.Serialization.JSON;
 
 
 namespace Azos.Tests.Unit.Serialization
 {
-  [Arow("16BEB8CD-6E58-4697-B95E-F1093FBDCAF6")]
+  [Bix("16BEB8CD-6E58-4697-B95E-F1093FBDCAF6")]
   public class SimplePersonRow : TypedDoc
   {
     [Field(backendName: "id",   isArow: true)]public GDID ID{get; set;}
@@ -32,7 +32,7 @@ namespace Azos.Tests.Unit.Serialization
     [Field(backendName: "slr",  isArow: true)]public double Salary{ get;set;}
   }
 
-  [Arow("D1F4EE0A-DE9B-4577-A38B-E50A21F1DD86")]
+  [Bix("D1F4EE0A-DE9B-4577-A38B-E50A21F1DD86")]
   public class SimplePersonWithEnumRow : SimplePersonRow
   {
     public enum MaritalStatus{Single, Married, Divorced, Alien}
@@ -41,7 +41,7 @@ namespace Azos.Tests.Unit.Serialization
   }
 
 
-  [Arow("1B2D10C3-3C3A-4762-BD4C-8233426E10C0")]
+  [Bix("1B2D10C3-3C3A-4762-BD4C-8233426E10C0")]
   public class FamilyRow : TypedDoc
   {
     [Field(backendName: "id",   isArow: true)] public GDID ID{get; set;}
@@ -58,7 +58,7 @@ namespace Azos.Tests.Unit.Serialization
   }
 
 
-  [Arow("F3DB9E05-1CE8-455A-9CDC-AF9664A00997")]
+  [Bix("F3DB9E05-1CE8-455A-9CDC-AF9664A00997")]
   public class AllArowTypesRow : TypedDoc
   {
     [Field(backendName: "bool1",   isArow: true)]public bool       Bool1{get; set;}
@@ -226,7 +226,7 @@ namespace Azos.Tests.Unit.Serialization
 
   }
 
-  [Arow("6E75301A-3679-400E-9724-DF9DADC4DD31")]
+  [Bix("6E75301A-3679-400E-9724-DF9DADC4DD31")]
   public class Ver1Row : AmorphousTypedDoc
   {
     [Field(backendName: "a", isArow: true)]public string A {get; set;}
@@ -238,7 +238,7 @@ namespace Azos.Tests.Unit.Serialization
     [Field(backendName: "g", isArow: true)]public List<Ver1Row> G{ get;set;}
   }
 
-  [Arow("03D7B966-D0C9-4509-854A-8B4EDE55E5C9")]
+  [Bix("03D7B966-D0C9-4509-854A-8B4EDE55E5C9")]
   public class Ver2Row : AmorphousTypedDoc
   {
     [Field(backendName: "a", isArow: true)]public string  A {get; set;}

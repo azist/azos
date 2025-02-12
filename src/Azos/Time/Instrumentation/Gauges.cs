@@ -8,7 +8,7 @@ using System;
 
 
 using Azos.Instrumentation;
-using Azos.Serialization.Arow;
+using Azos.Serialization.Bix;
 using Azos.Serialization.BSON;
 
 namespace Azos.Time.Instrumentation
@@ -20,7 +20,7 @@ namespace Azos.Time.Instrumentation
   }
 
   [Serializable]
-  [Arow("9EF8B987-91C7-4B24-8418-07F1298F29EF")]
+  [Bix("9EF8B987-91C7-4B24-8418-07F1298F29EF")]
   public class EventCount : TimeInstrumentationLongGauge
   {
     protected EventCount(long value) : base(value) { }
@@ -42,7 +42,7 @@ namespace Azos.Time.Instrumentation
   }
 
   [Serializable]
-  [Arow("71EF5FAB-0062-4CD0-BC6F-E774ADB0AA8A")]
+  [Bix("71EF5FAB-0062-4CD0-BC6F-E774ADB0AA8A")]
   public class FiredEventCount : TimeInstrumentationLongGauge
   {
     protected FiredEventCount(long value) : base(value) { }

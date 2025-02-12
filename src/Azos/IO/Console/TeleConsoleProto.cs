@@ -5,7 +5,7 @@
 </FILE_LICENSE>*/
 
 using Azos.Data;
-using Azos.Serialization.Arow;
+using Azos.Serialization.Bix;
 using Azos.Serialization.JSON;
 using System;
 using System.Collections.Generic;
@@ -90,7 +90,7 @@ namespace Azos.IO.Console
   /// <summary>
   /// Describes a batch of TeleConsoleMsg sent to the remote port server
   /// </summary>
-  [Arow("54E28C9F-402B-4FFF-9436-87A5D98AF716")]
+  [Bix("54E28C9F-402B-4FFF-9436-87A5D98AF716")]
   public sealed class TeleConsoleMsgBatch : TypedDoc
   {
     private static readonly JsonWritingOptions JSON_OPTIONS = new JsonWritingOptions{ MemberLineBreak = false, ObjectLineBreak = false };

@@ -11,7 +11,7 @@ using System.Text;
 
 using Azos.Apps;
 using Azos.Instrumentation;
-using Azos.Serialization.Arow;
+using Azos.Serialization.Bix;
 using Azos.Serialization.BSON;
 
 namespace Azos.Glue.Instrumentation
@@ -47,7 +47,7 @@ namespace Azos.Glue.Instrumentation
   }
 
   [Serializable]
-  [Arow("4B7A0BF9-2CAF-4941-9F9B-BF4AAB58A648")]
+  [Bix("4B7A0BF9-2CAF-4941-9F9B-BF4AAB58A648")]
   public class ServerDeserializationErrorEvent : ServerTransportErrorEvent
   {
     protected ServerDeserializationErrorEvent(string src) : base(src) { }
@@ -65,7 +65,7 @@ namespace Azos.Glue.Instrumentation
   }
 
   [Serializable]
-  [Arow("1A168669-6786-4FAD-96D7-7C1947C80EC0")]
+  [Bix("1A168669-6786-4FAD-96D7-7C1947C80EC0")]
   public class ClientDeserializationErrorEvent : ClientTransportErrorEvent
   {
     protected ClientDeserializationErrorEvent(string src) : base(src) { }
@@ -82,7 +82,7 @@ namespace Azos.Glue.Instrumentation
   }
 
   [Serializable]
-  [Arow("DDBBE2D2-46C4-475D-B6A2-57E70E0D228A")]
+  [Bix("DDBBE2D2-46C4-475D-B6A2-57E70E0D228A")]
   public class ServerGotOverMaxMsgSizeErrorEvent : ServerTransportErrorEvent
   {
     protected ServerGotOverMaxMsgSizeErrorEvent(string src) : base(src) { }
@@ -99,7 +99,7 @@ namespace Azos.Glue.Instrumentation
   }
 
   [Serializable]
-  [Arow("54A4AAAE-FFEF-4F85-8952-71DC52582B2C")]
+  [Bix("54A4AAAE-FFEF-4F85-8952-71DC52582B2C")]
   public class ClientGotOverMaxMsgSizeErrorEvent : ClientTransportErrorEvent
   {
     protected ClientGotOverMaxMsgSizeErrorEvent(string src) : base(src) { }
@@ -117,7 +117,7 @@ namespace Azos.Glue.Instrumentation
   }
 
   [Serializable]
-  [Arow("AF11F455-719B-4617-BCD5-78E6298A99FF")]
+  [Bix("AF11F455-719B-4617-BCD5-78E6298A99FF")]
   public class ServerSerializedOverMaxMsgSizeErrorEvent : ServerTransportErrorEvent
   {
     protected ServerSerializedOverMaxMsgSizeErrorEvent(string src) : base(src) { }
@@ -135,7 +135,7 @@ namespace Azos.Glue.Instrumentation
   }
 
   [Serializable]
-  [Arow("B9C5AE14-F5B0-4BA0-9B30-EA04AF5CBC01")]
+  [Bix("B9C5AE14-F5B0-4BA0-9B30-EA04AF5CBC01")]
   public class ClientSerializedOverMaxMsgSizeErrorEvent : ClientTransportErrorEvent
   {
     protected ClientSerializedOverMaxMsgSizeErrorEvent(string src) : base(src) { }
@@ -152,7 +152,7 @@ namespace Azos.Glue.Instrumentation
   }
 
   [Serializable]
-  [Arow("9110677F-E84A-4445-9654-9F35F1E66FC6")]
+  [Bix("9110677F-E84A-4445-9654-9F35F1E66FC6")]
   public class ServerListenerErrorEvent : ServerTransportErrorEvent
   {
     protected ServerListenerErrorEvent(string src) : base(src) { }
@@ -169,7 +169,7 @@ namespace Azos.Glue.Instrumentation
   }
 
   [Serializable]
-  [Arow("1359F373-6ABF-4106-8AC8-F9D2DA748BD5")]
+  [Bix("1359F373-6ABF-4106-8AC8-F9D2DA748BD5")]
   public class InactiveClientTransportClosedEvent : ClientEvent, INetInstrument
   {
     protected InactiveClientTransportClosedEvent(string src) : base(src) { }
@@ -186,7 +186,7 @@ namespace Azos.Glue.Instrumentation
   }
 
   [Serializable]
-  [Arow("E10F4790-A0C5-44B4-B254-3D2BC8D0B59D")]
+  [Bix("E10F4790-A0C5-44B4-B254-3D2BC8D0B59D")]
   public class InactiveServerTransportClosedEvent : ServerEvent, INetInstrument
   {
     protected InactiveServerTransportClosedEvent(string src) : base(src) { }
@@ -203,7 +203,7 @@ namespace Azos.Glue.Instrumentation
   }
 
   [Serializable]
-  [Arow("12EE5843-FEF4-47E7-8391-E5CF8E1D9FE5")]
+  [Bix("12EE5843-FEF4-47E7-8391-E5CF8E1D9FE5")]
   public class CallSlotNotFoundErrorEvent : ClientEvent, IErrorInstrument, INetInstrument
   {
     protected CallSlotNotFoundErrorEvent() : base(Datum.UNSPECIFIED_SOURCE) { }
@@ -220,7 +220,7 @@ namespace Azos.Glue.Instrumentation
   }
 
   [Serializable]
-  [Arow("0AEAAADB-EDC4-4134-BA62-2CEB42CB056E")]
+  [Bix("0AEAAADB-EDC4-4134-BA62-2CEB42CB056E")]
   public class ClientConnectedEvent : ServerEvent, INetInstrument
   {
     protected ClientConnectedEvent(string from) : base(from ?? Datum.UNSPECIFIED_SOURCE) { }
@@ -237,7 +237,7 @@ namespace Azos.Glue.Instrumentation
   }
 
   [Serializable]
-  [Arow("345090BA-7753-4D36-9D9E-3A28ACBA6869")]
+  [Bix("345090BA-7753-4D36-9D9E-3A28ACBA6869")]
   public class ClientDisconnectedEvent : ServerEvent, INetInstrument
   {
     protected ClientDisconnectedEvent(string from) : base(from ?? Datum.UNSPECIFIED_SOURCE) { }
