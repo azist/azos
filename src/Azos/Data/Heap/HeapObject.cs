@@ -193,7 +193,22 @@ namespace Azos.Data.Heap
   [HeapSpace(area: "clinical", space: "doc")]//, ChannelName = "std")]  //16 servers 3 locations
   public class Doctor : HeapObject
   {
+    public class Incident : AmorphousTypedDoc
+    {
+      public override bool AmorphousDataEnabled => true;
+
+      [Field] public string Caption { get; set; }
+      [Field] public DateTime Utc { get; set; }
+      [Field] public int Severity { get; set; }
+      [Field] public byte[] Image { get; set; }
+    }
+
+
     [Field] public string NPI{ get; set; }
+    [Field] public string Name { get; set; }
+
+    [Field(Description = "An example of using a deferred loading with attachments")]
+    public Attached<Incident>[] Story { get; set; }
   }
 
   //todo: Query -> -->HeapRequest<--
