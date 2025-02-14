@@ -13,7 +13,9 @@ namespace Azos.Data.Heap
   /// Each distinct data heap object (an entity) has one and only one distinct/unique reference <see cref="GDID"/> Id.
   /// The Id is what defines object identity (a primary key) per object type.
   /// The ShardKey provides shard/partition routing information to locate objects.
-  /// The concept is similar to `(void*)` in C-like languages
+  /// The concept is similar to `(void*)` in C-like languages.
+  /// This struct is NOT serializable by design, as Gdids and their corresponding shard keys are stored in a separate fields,
+  ///  for example, for a customer's order id will be "(shardKey: customer.Gdid, id: orderId)"
   /// </summary>
   public struct ObjectRef : IEquatable<ObjectRef>
   {
@@ -27,6 +29,12 @@ namespace Azos.Data.Heap
     {
       Shard = shard;
       Id = id;
+    }
+
+    public ObjectRef(RGDID id)
+    {
+      Shard = new ShardKey(id.Route);
+      Id = id.Gdid;
     }
 
     /// <summary>

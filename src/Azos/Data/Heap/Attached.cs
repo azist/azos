@@ -67,6 +67,8 @@ namespace Azos.Data.Heap
       if (data is string str && Guid.TryParse(str, out var guid))
       {
         this.m_Id = guid;
+        this.m_Materialized = false;
+        this.m_Doc = null;
         return (true, this);
       }
 
@@ -77,11 +79,15 @@ namespace Azos.Data.Heap
     {
       JsonWriter.EncodeString(wri, m_Id.ToString("D", System.Globalization.CultureInfo.InvariantCulture), options);
     }
+
   }
 
+  /// <inheritdoc/>
   public sealed class Attached<T> : Attached where T : Doc
   {
     public Attached() : base() { }
-    public Attached(Guid id, Doc doc) : base(id, doc) { }
+    public Attached(Guid id, T doc) : base(id, doc) { }
+
+    public override string ToString() => $"Attached<{typeof(T).DisplayNameWithExpandedGenericArgs()}>(`{Id}`)";
   }
 }

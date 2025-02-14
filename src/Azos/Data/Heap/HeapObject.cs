@@ -204,7 +204,7 @@ namespace Azos.Data.Heap
     }
 
 
-    [Field] public string NPI{ get; set; }
+    [Field] public string NPI { get; set; }
     [Field] public string Name { get; set; }
 
     [Field(Description = "An example of using a deferred loading with attachments")]
