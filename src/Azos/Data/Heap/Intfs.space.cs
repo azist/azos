@@ -36,10 +36,19 @@ namespace Azos.Data.Heap
     /// </summary>
     HeapSpaceAttribute SpaceDefinition { get; }
 
+
+
+//caching???????????????? cancellation  ????
+
     /// <summary>
     /// Gets object of the corresponding collection type by its direct reference
     /// </summary>
     Task<HeapObject> GetObjectAsync(ObjectRef obj, INode node = null);
+
+    /// <summary>
+    /// Metrializes attached objects
+    /// </summary>
+//    Task MaterializeAttachedAsync(ObjectRef obj, Attached[] attached, INode node = null);
 
     /// <summary>
     /// Saves object into the corresponding collection type
