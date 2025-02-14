@@ -19,18 +19,27 @@ namespace Azos.Data.Heap
   /// </summary>
   public struct ObjectRef : IEquatable<ObjectRef>
   {
+    /// <summary>
+    /// Refrences an object by its Gdid using it as a shard key
+    /// </summary>
     public ObjectRef(GDID id)
     {
       Shard = new ShardKey(id);
       Id = id;
     }
 
+    /// <summary>
+    /// Refrences an object by its Gdid locatable using the specified shard key
+    /// </summary>
     public ObjectRef(ShardKey shard, GDID id)
     {
       Shard = shard;
       Id = id;
     }
 
+    /// <summary>
+    /// Refrences an object by its Gdid and shard key derived from `RGDID.Route`
+    /// </summary>
     public ObjectRef(RGDID id)
     {
       Shard = new ShardKey(id.Route);
@@ -43,7 +52,7 @@ namespace Azos.Data.Heap
     public readonly ShardKey Shard;
 
     /// <summary>
-    /// The `Id` is what defines object identity (a primary key) per object type.
+    /// The GDID `Id` is what defines object identity (a primary key) per object type.
     /// </summary>
     public readonly GDID Id;
 
@@ -54,7 +63,7 @@ namespace Azos.Data.Heap
     public bool Assigned => !Id.IsZero;
 
     public override bool Equals(object obj) => obj is ObjectRef ptr ? this.Equals(ptr) : false;
-    public bool Equals(ObjectRef other) => this.Id == other.Id && this.Shard == other.Shard;
+    public bool Equals(ObjectRef other) => this.Id.Equals(other.Id) && this.Shard.Equals(other.Shard);
     public override int GetHashCode() => Id.GetHashCode();
 
     public override string ToString() => $"Ref(`{Shard}` -> `{Id}`)";

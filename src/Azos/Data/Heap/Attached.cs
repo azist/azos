@@ -88,6 +88,12 @@ namespace Azos.Data.Heap
     public Attached() : base() { }
     public Attached(Guid id, T doc) : base(id, doc) { }
 
+    /// <summary>
+    /// Returns materialized document or null. Even when <see cref="Attached.Materialized"/> is true, this property can still be null if
+    /// nothing was materialized
+    /// </summary>
+    public new T Doc => (T)base.Doc;
+
     public override string ToString() => $"Attached<{typeof(T).DisplayNameWithExpandedGenericArgs()}>(`{Id}`)";
   }
 }
