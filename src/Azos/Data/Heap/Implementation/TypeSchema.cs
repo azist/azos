@@ -48,7 +48,7 @@ namespace Azos.Data.Heap.Implementation
           load(asm, nsPat);
         }
 
-        //Computer version digest on SORTED assembly Build infos
+        //Compute version digest on SORTED assembly Build infos
         //the operation is deferred after all assemblies finished loading
         m_Version = 0;
         foreach(var entry in m_Assemblies.OrderBy(e => e.Key)) //(deterministic order) based on Assembly FQN
@@ -112,7 +112,7 @@ namespace Azos.Data.Heap.Implementation
       }//foreach all heap Object types
 
       //Step II
-      foreach(var t in qtypes)//all HeapQuery types
+      foreach(var t in qtypes)//all HeapProc types
       {
         var atr = HeapAttribute.Lookup<HeapProcAttribute>(t);
         if (atr == null) continue;//safeguard
@@ -127,7 +127,7 @@ namespace Azos.Data.Heap.Implementation
         }
 
         if (!list.Contains(t)) list.Add(t);
-      }//foreach all heap Query types
+      }//foreach all heap Proc types
     }
 
     private IArea m_Area;
