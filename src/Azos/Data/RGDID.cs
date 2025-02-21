@@ -6,7 +6,7 @@
 
 using System;
 using System.IO;
-
+using Azos.Data.Idgen;
 using Azos.Serialization.JSON;
 
 namespace Azos.Data
@@ -20,7 +20,8 @@ namespace Azos.Data
                        IEquatable<RGDID>,
                        IJsonWritable,
                        IJsonReadable,
-                       IRequiredCheck
+                       IRequiredCheck,
+                       IDistributedStableHashProvider
   {
     public const int BYTE_SIZE = sizeof(UInt32) + GDID.BYTE_SIZE;
 
@@ -115,6 +116,8 @@ namespace Azos.Data
     public string ToHexString()  => Route.ToString("X8") + Gdid.ToHexString();
 
     public override int GetHashCode() => (int)Route ^ Gdid.GetHashCode();
+
+    public ulong GetDistributedStableHash() => Route;
 
     public override bool Equals(object obj) => obj is RGDID rgdid ? this.Equals(rgdid) : false;
     public bool          Equals(RGDID other) => (this.Route == other.Route) && (this.Gdid == other.Gdid);
@@ -212,6 +215,7 @@ namespace Azos.Data
       rgdid = new RGDID(buf);
       return true;
     }
+
   }
 
 
