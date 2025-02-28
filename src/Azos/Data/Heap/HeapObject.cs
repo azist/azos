@@ -35,23 +35,10 @@ namespace Azos.Data.Heap
     public override bool AmorphousDataEnabled => true;
 
 
-    [Field(Description = "A unique id of the object - immutable primary key aka 'heap pointer'",
-           StoreFlag = StoreFlag.LoadAndStore,
-           Key = true)]
-    public GDID Sys_Id{ get; internal set; } //all entities referencing this field should start with "G_" e.g. "G_User"
-
-    /// <summary>
-    /// The sharding key is used to locate the shard aka 'segment' of the data heap
-    /// </summary>
-    public virtual ShardKey Sys_ShardKey => new ShardKey(Sys_Id);
-
-    /// <summary>
-    /// Override to specify relative processing (e.g. replication) priority dependent on the instance.
-    /// The higher the number - the more priority is given. The default is ZERO = normal priority.
-    /// You can boost priority for objects which contain data for important/frequently used items
-    /// such as celebrity profiles etc.
-    /// </summary>
-    public virtual int Sys_Priority => 0;
+    [Field(Key = true,
+           Description = "A unique id of the object - immutable primary key aka 'heap pointer'",
+           StoreFlag = StoreFlag.LoadAndStore)]
+    public RGDID Sys_Id{ get; internal set; } //all entities referencing this field should start with "G_" e.g. "G_User"
 
     /// <summary>
     /// Latest version state: Created/Modified/Deleted
@@ -92,10 +79,11 @@ namespace Azos.Data.Heap
     public long Sys_SyncUtc { get; internal set; }
 
     /// <summary>
+    /// A system method which should NOT be called from business logic as a part of CRDT process.
     /// Called by the server node, "seals" the data version by stamping appropriate object attributes.
     /// The node calls this method when the data is SET(Updated), but typically NOT when it is synchronized/merged
-    /// unless a merge yields a brand new version of data.
-    /// You must always call the base implementation
+    /// UNLESS MERGE yields a brand NEW VERSION of data.
+    /// You must always call the base implementation.
     /// </summary>
     /// <param name="node">Node where data change takes place</param>
     /// <param name="space">Space where this object is stored</param>
