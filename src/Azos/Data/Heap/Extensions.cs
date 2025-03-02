@@ -24,8 +24,8 @@ namespace Azos.Data.Heap
        return area.GetSpace<T>();
     }
 
-    public static async Task<T> GetAsync<T>(this IHeap heap, ObjectRef obj, INode node = null) where T : HeapObject
-      => await heap.GetSpace<T>().GetAsync(obj, node).ConfigureAwait(false);
+    public static async Task<T> GetAsync<T>(this IHeap heap, RGDID id, INode node = null) where T : HeapObject
+      => await heap.GetSpace<T>().GetAsync(id, node).ConfigureAwait(false);
 
 
     public static async Task<SaveResult<ChangeResult>> SetAsync<T>(this IHeap heap,
@@ -37,11 +37,11 @@ namespace Azos.Data.Heap
 
 
     public static async Task<SaveResult<ChangeResult>> DeleteAsync<T>(this IHeap heap,
-                                                                      ObjectRef obj,
+                                                                      RGDID id,
                                                                       WriteFlags flags = WriteFlags.None,
                                                                       Guid idempotencyToken = default(Guid),
                                                                       INode node = null) where T : HeapObject
-      => await heap.GetSpace<T>().DeleteAsync(obj, flags, idempotencyToken, node).ConfigureAwait(false);
+      => await heap.GetSpace<T>().DeleteAsync(id, flags, idempotencyToken, node).ConfigureAwait(false);
 
 
     public static async Task<SaveResult<object>> ExecResultAsync(this IHeap heap, HeapRequest query, Guid idempotencyToken = default(Guid), INode node = null)

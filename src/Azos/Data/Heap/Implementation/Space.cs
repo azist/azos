@@ -21,12 +21,22 @@ namespace Azos.Data.Heap.Implementation
 
     public string Name => throw new NotImplementedException();
 
-    public Task<SaveResult<ChangeResult>> DeleteAsync(ObjectRef obj, WriteFlags flags = WriteFlags.None, Guid idempotencyToken = default(Guid), INode node = null)
+    public RGDID AllocateNewObjectAddress(uint rootObjectRoute)
     {
       throw new NotImplementedException();
     }
 
-    public Task<HeapObject> GetObjectAsync(ObjectRef obj, INode node = null)
+    public RGDID AllocateNewRootObjectAddress(int estimatedObjectGraphSize)
+    {
+      throw new NotImplementedException();
+    }
+
+    public Task<SaveResult<ChangeResult>> DeleteAsync(RGDID id, WriteFlags flags = WriteFlags.None, Guid idempotencyToken = default(Guid), INode node = null)
+    {
+      throw new NotImplementedException();
+    }
+
+    public Task<HeapObject> GetObjectAsync(RGDID id, INode node = null)
     {
       throw new NotImplementedException();
     }
@@ -39,7 +49,7 @@ namespace Azos.Data.Heap.Implementation
 
   public sealed class Space<T> : Space, ISpace<T> where T : HeapObject
   {
-    public Task<T> GetAsync(ObjectRef obj, INode node = null)
+    public Task<T> GetAsync(RGDID id, INode node = null)
     {
       throw new NotImplementedException();
     }
