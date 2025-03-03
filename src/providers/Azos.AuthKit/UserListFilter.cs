@@ -66,5 +66,38 @@ namespace Azos.AuthKit
 
     protected async override Task<SaveResult<IEnumerable<UserInfo>>> DoSaveAsync()
       => new SaveResult<IEnumerable<UserInfo>>(await m_Logic.GetUserListAsync(this).ConfigureAwait(false));
+
+    //Enable deconstruction of filter data, passed through "__deconstruct" JSON field from client
+    public override bool AmorphousDataEnabled => true;
+
+    protected override void DoAmorphousDataAfterLoad(string targetName)
+    {
+      base.DoAmorphousDataAfterLoad(targetName);
+
+      //Deconstruct convoluted string filter into structured field
+      this.DeconstructAmorphousStringData((doc, tokens) =>
+      {
+        foreach (var token in tokens)
+        {
+
+          if (token.IsGdid()) { this.Gdid = token.Value.AsGDID(GDID.ZERO); }
+          else if (token.IsGuid()) { this.Guid = token.Value.AsGUID(System.Guid.Empty); }
+          else if (token.IsDate()) { this.AsOfUtc = token.Value.AsDateTime(CoreConsts.UTC_TIMESTAMP_STYLES); }
+          else if (token.Value is string sv)
+          {
+            if (Enum.TryParse(sv, out UserStatus us))  { this.Level = us; }
+            else if (sv.IsOneOf("active", "on", "current"))   { this.Active = true; }
+            else if (sv.IsOneOf("inactive", "off", "archived")) { this.Active = false; }
+            else if (sv.IsOneOf("locked", "ban", "banned", "invalid"))   { this.Locked = true; }
+            else if (sv.IsOneOf("unlocked", "valid")) { this.Locked = false; }
+            else if (sv.IndexOf('/') >=0 ) { this.OrgUnit = sv; }
+            else if (sv.StartsWith('@') && sv.Length > 1) { this.LoginId = sv.Substring(1); }
+            else this.Name = sv;
+          }
+        }
+
+        return true;
+      });
+    }
   }
 }
