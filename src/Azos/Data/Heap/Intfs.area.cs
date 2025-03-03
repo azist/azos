@@ -101,6 +101,12 @@ namespace Azos.Data.Heap
     /// </summary>
     Client.IHttpService ServiceClient {  get; }
 
+
+    /// <summary>
+    /// Registry of spaces
+    /// </summary>
+//    IRegistry<ISpace> Spaces { get; }
+
     /// <summary>
     /// Returns a heap space for the specified object type
     /// </summary>

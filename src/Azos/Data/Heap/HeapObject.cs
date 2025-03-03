@@ -35,30 +35,19 @@ namespace Azos.Data.Heap
     public override bool AmorphousDataEnabled => true;
 
 
-    [Field(Description = "A unique id of the object - immutable primary key aka 'heap pointer'",
-           StoreFlag = StoreFlag.LoadAndStore,
-           Key = true)]
-    public GDID Sys_Id{ get; internal set; } //all entities referencing this field should start with "G_" e.g. "G_User"
-
-    /// <summary>
-    /// The sharding key is used to locate the shard aka 'segment' of the data heap
-    /// </summary>
-    public virtual ShardKey Sys_ShardKey => new ShardKey(Sys_Id);
-
-    /// <summary>
-    /// Override to specify relative processing (e.g. replication) priority dependent on the instance.
-    /// The higher the number - the more priority is given. The default is ZERO = normal priority.
-    /// You can boost priority for objects which contain data for important/frequently used items
-    /// such as celebrity profiles etc.
-    /// </summary>
-    public virtual int Sys_Priority => 0;
+    [Field(Required = true,
+           Key = true,
+           Description = "A unique id of the object - immutable primary key aka 'heap pointer'",
+           StoreFlag = StoreFlag.LoadAndStore)]
+    public RGDID Sys_Id{ get; set; } //all entities referencing this field should start with "G_" e.g. "G_User"
 
     /// <summary>
     /// Latest version state: Created/Modified/Deleted
     /// </summary>
-    [Field(Description = "Version state: Created/Modified/Deleted",
+    [Field(Required = true,
+           Description = "Version state: Created/Modified/Deleted",
            StoreFlag = StoreFlag.LoadAndStore)]
-    public State Sys_VerState { get; private set; }
+    public State Sys_VerState { get; set; }
 
     /// <summary>
     /// Latest version UTC stamped at the time of set on origin server node.
@@ -92,10 +81,11 @@ namespace Azos.Data.Heap
     public long Sys_SyncUtc { get; internal set; }
 
     /// <summary>
+    /// A system method which should NOT be called from business logic as a part of CRDT process.
     /// Called by the server node, "seals" the data version by stamping appropriate object attributes.
     /// The node calls this method when the data is SET(Updated), but typically NOT when it is synchronized/merged
-    /// unless a merge yields a brand new version of data.
-    /// You must always call the base implementation
+    /// UNLESS MERGE yields a brand NEW VERSION of data.
+    /// You must always call the base implementation.
     /// </summary>
     /// <param name="node">Node where data change takes place</param>
     /// <param name="space">Space where this object is stored</param>
@@ -128,7 +118,7 @@ namespace Azos.Data.Heap
     /// You either return null, or one of "others" OR you can return a brand new object (not this or others), in which case the system treats it a as
     /// a brand new version performing necessary version stamping via `Crdt_Set()`
     /// </returns>
-    internal HeapObject Crdt_Merge(IServerNodeContext node, ISpace space, IEnumerable<HeapObject> others)
+    internal HeapObject Crdt_Merge(IServerNodeContext node, ISpace space, HeapObject[] others)
     {
       if (others == null) return null;
       if (!others.Any()) return null;
@@ -152,7 +142,7 @@ namespace Azos.Data.Heap
     /// <param name="space">Space where this object is stored</param>
     /// <param name="others">Other versions got form other nodes</param>
     /// <returns>Object instance which results from merge or null if THIS instance already represents the latest eventual state and no changes are necessary</returns>
-    protected virtual HeapObject DoCrdt_Merge(IServerNodeContext node, ISpace space, IEnumerable<HeapObject> others)
+    protected virtual HeapObject DoCrdt_Merge(IServerNodeContext node, ISpace space, HeapObject[] others)
     {
       var result = this;
       foreach (var ver in others)
@@ -174,26 +164,28 @@ namespace Azos.Data.Heap
       base.AddJsonSerializerField(def, options, jsonMap, name, value);
     }
 
-    public override ValidState ValidateField(ValidState state, Schema.FieldDef fdef, string scope = null)
-    {
-      if (fdef.Name == nameof(Sys_Id))
-      {
-        if (Sys_VerState != State.Undefined && Sys_Id.IsZero)
-        {
-          state = new ValidState(state, new FieldValidationException(this, nameof(Sys_Id), StringConsts.CRUD_FIELD_VALUE_REQUIRED_ERROR));
-          if (state.ShouldStop) return state;
-        }
-      }
-      return base.ValidateField(state, fdef, scope);
-    }
-
   }
 
 
   [HeapSpace(area: "clinical", space: "doc")]//, ChannelName = "std")]  //16 servers 3 locations
   public class Doctor : HeapObject
   {
-    [Field] public string NPI{ get; set; }
+    public class Incident : AmorphousTypedDoc
+    {
+      public override bool AmorphousDataEnabled => true;
+
+      [Field] public string Caption { get; set; }
+      [Field] public DateTime Utc { get; set; }
+      [Field] public int Severity { get; set; }
+      [Field] public byte[] Image { get; set; }
+    }
+
+
+    [Field] public string NPI { get; set; }
+    [Field] public string Name { get; set; }
+
+    [Field(Description = "An example of using a deferred loading with attachments")]
+    public Attached<Incident>[] Story { get; set; }
   }
 
   //todo: Query -> -->HeapRequest<--

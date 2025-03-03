@@ -20,6 +20,18 @@ namespace Azos.Data
   [Serializable]
   public sealed class ConfigVector : IJsonWritable, IJsonReadable, IRequiredCheck, ILengthCheck, IValidatable, IConfigurationPersistent
   {
+    /// <summary>
+    /// Returns config content as canonical JSON
+    /// </summary>
+    public static string Canonicalize(string content)
+    {
+      if (content.IsNullOrWhiteSpace()) return null;
+      var cfg = new ConfigVector(content);
+      return cfg.Node//this may throw if content is bad
+                .ToJSONString(JsonWritingOptions.Compact);
+    }
+
+
     public ConfigVector(){ }
     public ConfigVector(string content) => Content = content;
     public ConfigVector(IConfigSectionNode node) => Node = node;
