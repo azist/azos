@@ -21,6 +21,8 @@ namespace Azos.AuthKit.Server.MySql.Queries.Admin
 
     protected override void DoBuildCommandAndParameters(MySqlCrudQueryExecutionContext context, MySqlCommand cmd, UserListFilter filter)
     {
+      context.SetState(filter);//pass filter along into doc mapping below
+
       context.BuildSelect(cmd, filter, builder =>
       {
         builder.Limit = 100; // qParams.PagingCount.LimitPagingCount()
@@ -121,9 +123,28 @@ namespace Azos.AuthKit.Server.MySql.Queries.Admin
       var verState = VersionInfo.MapCanonicalState(reader.AsStringField("VERSION_STATE"));
       if (!VersionInfo.IsExistingStateOf(verState)) return null; //deleted, skip this doc
 
+      var filter = context.GetState<UserListFilter>();
+
+      var uGdid = reader.AsGdidField("GDID");
+      var cfgProps = reader.AsStringField("PROPS");
+      var cfgRights = reader.AsStringField("RIGHTS");
+
+      if (!filter.KeepConfigVectorsAsIs)
+      {
+        if (cfgProps.IsNotNullOrWhiteSpace())
+        {
+          this.Store.DontLeak(() => { cfgProps = ConfigVector.Canonicalize(cfgProps); }, $"User `{uGdid}` corrupted PROPS", nameof(GetUserList),  Log.MessageType.CriticalAlert);
+        }
+
+        if (cfgRights.IsNotNullOrWhiteSpace())
+        {
+          this.Store.DontLeak(() => { cfgRights = ConfigVector.Canonicalize(cfgRights); }, $"User `{uGdid}` corrupted RIGHTS", nameof(GetUserList), Log.MessageType.CriticalAlert);
+        }
+      }
+
       var result = new UserInfo()
       {
-        Gdid = reader.AsGdidField("GDID"),
+        Gdid = uGdid,
         Realm = reader.AsAtomField("REALM").Value,
         Guid = reader.AsGuidField("GUID").Value,
         Name = reader.AsStringField("NAME"),
@@ -131,8 +152,8 @@ namespace Azos.AuthKit.Server.MySql.Queries.Admin
         Description = reader.AsStringField("DESCRIPTION"),
         ValidSpanUtc = new Time.DateRange(reader.AsDateTimeField("START_UTC"), reader.AsDateTimeField("END_UTC")),
         OrgUnit = reader.AsEntityIdField("ORG_UNIT"),
-        Props = reader.AsStringField("PROPS"),
-        Rights = reader.AsStringField("RIGHTS"),
+        Props = cfgProps,
+        Rights = cfgRights,
         Note = reader.AsStringField("NOTE"),
         CreateVersion = new VersionInfo
         {

@@ -59,6 +59,9 @@ namespace Azos.AuthKit
     [Field(description: "Optional tag filter expression tree which is overlaid on top of other filters supplied")]
     public Data.AST.Expression TagFilter { get; set; }
 
+    [Field(description: "When true, keeps config vector as-is as text, e.g. in Laconic format, otherwise (default) converts them to JSON")]
+    public bool KeepConfigVectorsAsIs{ get; set; }
+
     [Inject] IIdpUserCoreLogic m_Logic;
 
     protected async override Task<SaveResult<IEnumerable<UserInfo>>> DoSaveAsync()

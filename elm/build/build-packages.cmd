@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.10.0.9
-set HEADLINE=Twilio Attachemnt encoding
+set VER=3.10.0.10
+set HEADLINE=IDP Identity cfg conversion
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
