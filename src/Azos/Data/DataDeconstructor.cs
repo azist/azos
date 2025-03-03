@@ -52,6 +52,11 @@ namespace Azos.Data
     /// <summary> Returns true if a token value could be deemed as a GDID </summary>
     public static bool IsGdid(this LaconfigToken t) => t != null && (t.IsLiteral || t.IsIdentifier) && t.Value.IsGdid();
 
+    /// <summary> Returns true if a string value could be deemed as a Guid </summary>
+    public static bool IsGuid(this object v) => v is Guid || v is string sv && Guid.TryParse(sv, out Guid guid);
+    /// <summary> Returns true if a token value could be deemed as a Guid </summary>
+    public static bool IsGuid(this LaconfigToken t) => t != null && (t.IsLiteral || t.IsIdentifier) && t.Value.IsGuid();
+
     /// <summary> Returns true if a string value could be deemed as a RGDID </summary>
     public static bool IsRGdid(this object v) => v is RGDID || v is string sv && RGDID.TryParse(sv, out RGDID rgd);
     /// <summary> Returns true if a token value could be deemed as a RGDID </summary>

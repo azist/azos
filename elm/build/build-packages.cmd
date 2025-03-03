@@ -1,6 +1,6 @@
 @echo on
 
-set VER=3.10.0.10
+set VER=3.10.0.11
 set HEADLINE=IDP Identity cfg conversion
 call build-all Release %VER%
 
