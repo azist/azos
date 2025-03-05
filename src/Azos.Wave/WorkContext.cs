@@ -533,7 +533,7 @@ namespace Azos.Wave
       if (related.HasValue)
         msg.RelatedTo = related.Value;
       else
-        msg.RelatedTo = this.m_ID;
+        msg.RelatedTo = (Ambient.CurrentCallFlow?.ID) ?? this.m_ID;
 
       App.Log.Write(msg);
     }
