@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.10.0.11
-set HEADLINE=IDP Identity cfg conversion
+set VER=3.10.1.1
+set HEADLINE=OAuth tracing
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
