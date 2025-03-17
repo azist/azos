@@ -379,7 +379,7 @@ namespace Azos.Security.Services
       var isRefreshToken = grant_type.EqualsOrdSenseCase("refresh_token");
 
       if (!isAccessToken && !isRefreshToken)
-        return ReturnError("unsupported_grant_type", "Unsupported grant_type");
+        return ReturnError("unsupported_grant_type", "Unsupported grant_type", trace: "A1");
 
       var clcred = client_id.IsNotNullOrWhiteSpace() ? new IDPasswordCredentials(client_id, client_secret)
                                                      : IDPasswordCredentials.FromBasicAuth(WorkContext.Request.Headers[WebConsts.HTTP_HDR_AUTHORIZATION]);
@@ -389,11 +389,11 @@ namespace Azos.Security.Services
           clcred.ID.IsNullOrWhiteSpace() ||
           (isAccessToken && code.IsNullOrWhiteSpace()) ||
           (isRefreshToken && refresh_token.IsNullOrWhiteSpace())
-         ) return ReturnError("invalid_request", "Invalid client spec");
+         ) return ReturnError("invalid_request", "Invalid client spec", trace: "A2");
 
       //1. Check client/app credentials and get app's permissions
       var cluser = await OAuth.ClientSecurity.AuthenticateAsync(clcred).ConfigureAwait(false);
-      if (!cluser.IsAuthenticated) return GateError(ReturnError("invalid_client", "Client denied", code: 401));
+      if (!cluser.IsAuthenticated) return GateError(ReturnError("invalid_client", "Client denied", code: 401, trace: "B1"));
 
       //2. Validate the supplied client access code (token), that it exists (was issued and not expired), and it was issued for THIS client
       ClientAccessTokenBase clientToken;
@@ -411,23 +411,23 @@ namespace Azos.Security.Services
       }
 
       if (clientToken == null)
-        return GateError(ReturnError("invalid_grant", "Invalid grant", code: 403));
+        return GateError(ReturnError("invalid_grant", "Invalid grant", code: 403, trace: "C1"));
 
       //check that client_id supplied now matches the original one that was supplied during client access code issuance
       if (!clcred.ID.EqualsOrdSenseCase(clientToken.ClientId))
-        return GateError(ReturnError("invalid_grant", "Invalid grant", code: 403));
+        return GateError(ReturnError("invalid_grant", "Invalid grant", code: 403, trace: "C2"));
 
 
       //3. Check that the requested redirect_uri is indeed in the list of permitted URIs for this client
       var redirectPermission = new OAuthClientAppPermission(redirect_uri, WorkContext.EffectiveCallerIPEndPoint.Address.ToString());
       var uriAllowed = await redirectPermission.CheckAsync(OAuth.ClientSecurity, cluser).ConfigureAwait(false);
-      if (!uriAllowed) return GateError(ReturnError("invalid_grant", "Invalid grant", code: 403));
+      if (!uriAllowed) return GateError(ReturnError("invalid_grant", "Invalid grant", code: 403, trace: "D1"));
 
       //4. Fetch subject/target user
       var auth = SysAuthToken.Parse(clientToken.SubjectSysAuthToken);
       var targetUser = await App.SecurityManager.AuthenticateAsync(auth).ConfigureAwait(false); //re-authenticate the user using the original token.
       if (!targetUser.IsAuthenticated)                                    //the returned AuthToken must be logically the same as the one granted on login above
-        return ReturnError("invalid_grant", "Invalid grant", code: 403);//no need for gate, the token just got denied
+        return ReturnError("invalid_grant", "Invalid grant", code: 403, trace: "E1");//no need for gate, the token just got denied
 
       //5. Issue the API access token for this access code
       var accessToken = OAuth.TokenRing.GenerateNew<AccessToken>(OAuth.AccessTokenLifespanSec);

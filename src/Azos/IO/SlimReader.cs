@@ -827,7 +827,7 @@ namespace Azos.IO
       var sch = ReadAtom();
       var addr = ReadString();
 
-      return new Data.EntityId(sys, typ, sch, addr);
+      return new Data.EntityId(addr, sys, typ, sch);
     }
 
     public override Data.EntityId? ReadNullableEntityId()

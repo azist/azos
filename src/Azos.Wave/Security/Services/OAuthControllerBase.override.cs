@@ -222,7 +222,7 @@ namespace Azos.Security.Services
     {
     }
 
-    protected object ReturnError(string error, string error_description, string error_uri = null, int code = 400)
+    protected object ReturnError(string error, string error_description, string error_uri = null, int code = 400, string trace = null)
     {
       if (error.IsNullOrWhiteSpace())
         error_uri = "invalid_request";
@@ -241,6 +241,22 @@ namespace Azos.Security.Services
       };
       WorkContext.Response.StatusCode = code;
       WorkContext.Response.StatusDescription = "Bad request";
+
+      if (trace.IsNotNullOrWhiteSpace())
+      {
+        WorkContext.Log(Log.MessageType.Error,
+                        $"OAuth error trace",
+                        $"{this.GetType().Name}.{nameof(ReturnError)}",
+                        pars: new
+                        {
+                          e = error,
+                          d = error_description,
+                          uri = error_uri,
+                          http = code,
+                          trace = trace
+                        }.ToJson(JsonWritingOptions.CompactASCII));
+      }
+
       return new JsonResult(json, JsonWritingOptions.PrettyPrint);
     }
 
