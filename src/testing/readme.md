@@ -35,7 +35,7 @@ Run nub tests from console using the `sky` DLL. After building you will need to 
 $ ./sky trun Azos.Tests.Nub.dll
 ```
 
-> Azos is built using .NET Standard 2.1 and is cross platform by design.
+> Azos is built using .NET Standard 2.1 and is cross platform by design. The following examples use `bash`, but any appropriate CLI will work.
 
 ##### Get CLI Help
 You can get a full list of commands and syntax by executing the following command.
