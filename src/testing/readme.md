@@ -29,33 +29,25 @@ There are **three test "tiers"** used in Azos framework:
 ### Quick cheats:
 
 ##### Run Tests using CLI
-Run nub tests from console on **Linux** or **Mac** (can only use `run-core` runtime):
+Run nub tests from console using the `sky` DLL. After building you will need to navigate to the `/out/Debug/` directory, this contains the `sky` platform which is used to execute `trun` on the provided .dll, running the command below will execute all of the tests within the `Azos.Tests.Nub.dll` and output the results to the console. 
 ```bash
-~/azos/out/Debug/run-core
-$ dotnet trun.dll Azos.Tests.Nub.dll
+~/azos/out/Debug
+$ ./sky trun Azos.Tests.Nub.dll
 ```
 
-Run nub tests on **Windows** using `run-netf` or `run-core` runtimes:
-
-```batch
-C:\azos\out\Debug\run-netf> trun Azos.Tests.Nub.dll
-C:\azos\out\Debug\run-core> dotnet trun.dll Azos.Tests.Nub.dll
-```
-
-The core vs. net test runner command args syntax is the same.
+> Azos is built using .NET Standard 2.1 and is cross platform by design.
 
 ##### Get CLI Help
-
-```batch
-$ dotnet trun.dll -?
-C:\azos\out\Debug\run-netf> trun -?
-C:\azos\out\Debug\run-core> dotnet trun.dll -?
+You can get a full list of commands and syntax by executing the following command.
+```bash
+~/azos/out/Debug
+$ ./sky trun -?
 ```
 
 ##### Run Specific Tests
 Use the `-r` switch to configure test script runner with **pattern search predicate expressions**.
-Pattern expressions use `?` for a single character match and `*` for multiple char match. 
-The `~` character denotes "not"/inversion and may appear only at the very beginning of a pattern expression.
+Pattern expressions uses `?` for a single character match and `*` for multiple characters. 
+The `~` character denotes "not"/inversion and may appear ONLY appear at the start of a pattern expression.
 
 For example:
 - `*Session` will match strings ending with "Session"
@@ -78,35 +70,35 @@ If both pattern types are specified, then the system applies all `ORs` first the
 
 Search by namespace names (using OR):
 ```batch
-~/azos/out/Debug/run-core
-$ dotnet trun.dll Azos.Tests.Nub.dll -r namespaces=RunnerTests.Inject*;MyLogic.DB.*
+~/azos/out/Debug
+$ ./sky trun Azos.Tests.Nub.dll -r namespaces=RunnerTests.Inject*;MyLogic.DB.*
 ```
 
 Search by namespace names and method names:
 
 ```bash
-~/azos/out/Debug/run-core
-$ dotnet trun.dll Azos.Tests.Nub.dll -r namespaces=RunnerTests.Inject* methods=*Json_Read?-* names=case?
+~/azos/out/Debug
+$ ./sky trun Azos.Tests.Nub.dll -r namespaces=RunnerTests.Inject* methods=*Json_Read?-* names=case?
 # with AND NOT
-$ dotnet trun.dll Azos.Tests.Nub.dll -r namespaces=*Inject*;*Session*;~*Secur* methods=~*Json* 
+$ ./sky trun Azos.Tests.Nub.dll -r namespaces=*Inject*;*Session*;~*Secur* methods=~*Json*
 ```
 
 Specific method names:
 ```bash
-~/azos/out/Debug/run-core
-$ dotnet trun.dll Azos.Tests.Nub.dll -r methods=*AsJson*
+~/azos/out/Debug/
+$ ./sky trun Azos.Test.Nub.dll -r methods=*AsJson*
 ```
 
 Cases of specific category:
 ```bash
-# hub or draw categories
-$ dotnet trun.dll MyTests.dll -r categories=hub,draw
+#hub or draw categories
+$ ./sky trun MyTests.dll -r categories=hub,draw
 
 # but not i/o tests
-$ dotnet trun.dll MyTests.dll -r categories=hub,draw,~io
+$ ./sky MyTests.dll -r categories=hub,draw,~io
 
 # hub category, namespace "Serialization", any method but for the ones called "_Fail"
-$ dotnet trun.dll MyTests.dll -r categories=hub namespaces=*Serialization* methods=~*_Fail
+$ ./sky MyTests.dll -r categories=hub namespaces=*Serialization* method=~*_Fail
 ```
 
 > If categories filter is specified then it expects that category on the `[Runnable]` declaration, then if there is at least one method with `[Run]` spcifying the category then 
@@ -115,8 +107,8 @@ $ dotnet trun.dll MyTests.dll -r categories=hub namespaces=*Serialization* metho
 
 Use `names` parameter to invoke **explicitly-named test cases**:
 ```bash
-~/azos/out/Debug/run-core
-$ dotnet trun.dll MyTesting.dll -r names=MySpecialTest
+~/azos/out/Debug
+$ ./sky trun MyTesting.dll -r names=MySpecialTest
 ```
 then use of the **explicitly-named run case** in code:
 ```CSharp
@@ -134,15 +126,15 @@ public void Special()
 This is needed to see what tests will run, but don't run them. Emulation helps to identify the test
 configuration/setup issues.
 ```bash
-~/azos/out/Debug/run-core
-$ dotnet trun.dll Azos.Tests.Integration.dll -r emulate=true
+~/azos/out/Debug
+$ ./sky trun Azos.Tests.Integration.dll -r emulate=true
 ```
 
 ##### Save Results into File
 Pass `out=<file>.xml|json|laconf` specifier to the `-host` switch:
 ```bash
-~/azos/out/Debug/run-core
-$ dotnet trun.dll Azos.Tests.Integration.dll -host out="~/azos/out/results.laconf"
+~/azos/out/Debug
+$ ./sky trun Azos.Tests.Integration.dll -host out="~/azos/out/results.laconf"
 ```
 
 ##### Custom Testing Host
