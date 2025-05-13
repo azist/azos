@@ -8,8 +8,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using Azos.Conf;
 using Azos.Data;
 using Azos.Data.Idgen;
+using Azos.Serialization.Arow;
 using Azos.Serialization.Bix;
 using Azos.Serialization.JSON;
 
@@ -24,7 +26,7 @@ namespace Azos.Data.Adlib
   /// Azos uses tags in places where ad hoc properties are required.
   /// The tags are typically used for indexing and searches
   /// </summary>
-  public struct Tag : IEquatable<Tag>, IJsonReadable, IJsonWritable, IRequiredCheck, IValidatable
+  public struct Tag : IEquatable<Tag>, IJsonReadable, IJsonWritable, IRequiredCheck, IValidatable, IConfigurationPersistent
   {
     public Tag(Atom prop, string value)
     {
@@ -53,12 +55,30 @@ namespace Azos.Data.Adlib
       SValue = reader.ReadString();
       NValue = reader.ReadLong();
     }
+
+    public Tag(IConfigSectionNode cfg)
+    {
+      if (cfg == null)
+      {
+        Prop   = default;
+        SValue = default;
+        NValue = default;
+        return;
+      }
+
+      Prop = cfg.Of("p").ValueAsAtom(Atom.ZERO);
+      SValue = cfg.Of("s").ValueAsString(null);
+      NValue = cfg.Of("n").ValueAsLong(0);
+    }
+
+
     public void Write(BixWriter wri, int formatVersion = 0)
     {
       wri.Write(Prop);
       wri.Write(SValue);
       wri.Write(NValue);
     }
+
 
     private Tag(Atom prop, string svalue, long lvalue)
     {
@@ -82,21 +102,17 @@ namespace Azos.Data.Adlib
     {
       if (Prop.IsZero || !Prop.IsValid)
       {
-        state = new ValidState(state,
-                                new FieldValidationException(nameof(Tag),
-                                                             nameof(Prop),
-                                                             "Valid prop atom")
-                              );
+        state = new ValidState(state, new FieldValidationException(nameof(Tag), nameof(Prop), "Valid prop atom"));
       }
 
       if (SValue != null && SValue.Length > Constraints.MAX_TAG_SVAL_LENGTH)
       {
         state = new ValidState(state,
-                                new FieldValidationException(nameof(Tag),
-                                                             nameof(SValue),
-                                                             "SValue len exceeds max of {0}".Args(Azos.IOUtils.FormatByteSizeWithPrefix(Constraints.MAX_TAG_SVAL_LENGTH))
-                                                            )
-                              );
+                      new FieldValidationException(nameof(Tag),
+                        nameof(SValue),
+                        "SValue len exceeds max of {0}".Args(Azos.IOUtils.FormatByteSizeWithPrefix(Constraints.MAX_TAG_SVAL_LENGTH))
+                      )
+                    );
       }
       return state;
     }
@@ -130,6 +146,19 @@ namespace Azos.Data.Adlib
       return (false, null);
     }
 
+    public ConfigSectionNode PersistConfiguration(ConfigSectionNode parentNode, string name)
+    {
+      var result = parentNode.AddChildNode(name);
+
+      result.AddAttributeNode("p", this.Prop);
+
+      if (this.SValue != null)
+        result.AddAttributeNode("s", this.SValue);
+      else
+        result.AddAttributeNode("n", this.NValue);
+
+      return result;
+    }
 
     public static bool operator ==(Tag left, Tag right) => left.Equals(right);
     public static bool operator !=(Tag left, Tag right) => !left.Equals(right);
@@ -164,6 +193,7 @@ namespace Azos.Data.Adlib
       SValue = reader.ReadString();
       NValue = reader.ReadLong();
     }
+
     public void Write(BixWriter wri, int formatVersion = 0)
     {
       wri.Write(SValue);
