@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.10.2.1
-set HEADLINE=EntityId deserialization glitch fix
+set VER=3.10.2.2
+set HEADLINE=Adlib Tags config support
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
