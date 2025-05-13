@@ -99,7 +99,7 @@ namespace Azos.Data.Adlib
     {
       if (Prop.IsZero || !Prop.IsValid)
       {
-        state = new ValidState(state, new FieldValidationException(nameof(Tag), nameof(Prop), "Valid prop atom"));
+        state = new ValidState(state, new FieldValidationException(nameof(Tag), nameof(Prop), "Valid prop atom", scope));
       }
 
       if (SValue != null && SValue.Length > Constraints.MAX_TAG_SVAL_LENGTH)
@@ -107,7 +107,8 @@ namespace Azos.Data.Adlib
         state = new ValidState(state,
                       new FieldValidationException(nameof(Tag),
                         nameof(SValue),
-                        "SValue len exceeds max of {0}".Args(Azos.IOUtils.FormatByteSizeWithPrefix(Constraints.MAX_TAG_SVAL_LENGTH))
+                        "SValue len exceeds max of {0}".Args(Azos.IOUtils.FormatByteSizeWithPrefix(Constraints.MAX_TAG_SVAL_LENGTH)),
+                        scope
                       )
                     );
       }
