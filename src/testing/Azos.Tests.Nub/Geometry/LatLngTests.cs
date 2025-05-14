@@ -8,6 +8,7 @@ using Azos.Scripting;
 using Azos.Geometry;
 using Azos.Data;
 using Azos.Serialization.JSON;
+using Azos.Conf;
 
 namespace Azos.Tests.Nub.Geometry
 {
@@ -178,7 +179,7 @@ namespace Azos.Tests.Nub.Geometry
 
     class _doc : TypedDoc
     {
-      [Field] public LatLng Location { get; set; }
+      [Field, Config] public LatLng Location { get; set; }
     }
 
     [Run]
@@ -196,6 +197,7 @@ namespace Azos.Tests.Nub.Geometry
       var doc1 = new _doc { Location = new LatLng("44°13'51'', 12°32'4''") };
 
       var json = doc1.ToJson();
+      json.See();
 
       var doc2 = JsonReader.ToDoc<_doc>(json);
 
@@ -206,13 +208,26 @@ namespace Azos.Tests.Nub.Geometry
     public void Equality5_Document_Config_Roundtrip()
     {
       var doc1 = new _doc { Location = new LatLng("44°13'51'', 12°32'4''") };
+      doc1.See();
+      "{0}  {1}".SeeArgs(doc1.Location.Lat, doc1.Location.Lng);
 
       var cfg = Azos.Conf.Configuration.NewEmptyRoot();
 
       var data = doc1.PersistConfiguration(cfg, "data");
 
+      cfg.See();
+
       var doc2 = new _doc();
       doc2.Configure(data);
+      doc2.See();
+      "{0}  {1}".SeeArgs(doc2.Location.Lat, doc2.Location.Lng);
+
+      "Equals: {0}".SeeArgs(doc1.Location == doc2.Location);
+      "Equals: {0}".SeeArgs(doc1.Location.Name == doc2.Location.Name);
+      "Equals: {0}".SeeArgs(doc1.Location.Lat == doc2.Location.Lat);
+      "Equals: {0}".SeeArgs(doc1.Location.Lng == doc2.Location.Lng);
+
+      doc2.CompareTo(doc1).Differences.See();
 
       doc1.AverNoDiff(doc2);
     }
