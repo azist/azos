@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Reflection;
 using Azos.Platform;
+using Azos.Data;
 
 namespace Azos.Conf
 {
@@ -87,7 +88,12 @@ namespace Azos.Conf
     /// <summary>
     /// When true, prevents reading config value into member
     /// </summary>
-    public bool NoRead {  get; set; }
+    public bool NoRead { get; set; }
+
+    /// <summary>
+    /// Default false (use ISO8601), when true does NOT use ISO8601 convertion for dates while writing memeber values into config nodes
+    /// </summary>
+    public bool NoIso8601 { get; set; }
 
     /// <summary>
     /// Applies config values to fields/properties as specified by config attributes
@@ -107,7 +113,7 @@ namespace Azos.Conf
     {
       ConfigSectionNode result;
 
-      void doOneValue(MemberInfo mi, object v)
+      void doOneValue(MemberInfo mi, object v, bool isoDates)
       {
         if (v == null) return;
 
@@ -124,6 +130,9 @@ namespace Azos.Conf
           result.AddChildNode(vNode);
           return;
         }
+
+        //20250514 DKh
+        if (isoDates && v is DateTime dtv) v = dtv.ToString("o");//Round-trip ISO8601 Style
 
         result.AddAttributeNode(n, v);
       }
@@ -142,16 +151,19 @@ namespace Azos.Conf
         if (mattr == null) continue;
         if (mattr.Path.IsNotNullOrWhiteSpace()) continue;//can not serialize by explicit path - you need to serialize that by hand
 
+        //20250514 DKh
+        var isoDates = !mattr.NoIso8601;
+
         if (mem.MemberType == MemberTypes.Field)
         {
           var finf = (FieldInfo)mem;
           var v = finf.GetValue(entity);
-          doOneValue(finf, v);
+          doOneValue(finf, v, isoDates);
         } else if (mem.MemberType == MemberTypes.Property)
         {
           var pinf = (PropertyInfo)mem;
           var v = pinf.GetValue(entity, null);
-          doOneValue(pinf, v);
+          doOneValue(pinf, v, isoDates);
         }
       }//foreach
 
@@ -231,7 +243,7 @@ namespace Azos.Conf
               throw new ConfigException(string.Format(StringConsts.CONFIGURATION_ATTRIBUTE_MEMBER_READONLY_ERROR, etp.FullName, finf.Name));
 
             if (mnode.Exists && (mnode is IConfigSectionNode || mnode.VerbatimValue != null))
-              finf.SetValue(entity, getVal(mnode, finf.FieldType, etp.FullName, finf.Name, mattr.Verbatim));
+              finf.SetValue(entity, getVal(mnode, finf.FieldType, etp.FullName, finf.Name, mattr.Verbatim, !mattr.NoIso8601));
             else
              if (mattr.Default != null) finf.SetValue(entity, mattr.Default);
 
@@ -268,7 +280,7 @@ namespace Azos.Conf
               throw new ConfigException(string.Format(StringConsts.CONFIGURATION_ATTRIBUTE_MEMBER_READONLY_ERROR, etp.FullName, pinf.Name));
 
             if (mnode.Exists && (mnode is IConfigSectionNode || mnode.VerbatimValue != null))
-              pinf.SetValue(entity, getVal(mnode, pinf.PropertyType, etp.FullName, pinf.Name, mattr.Verbatim), null);
+              pinf.SetValue(entity, getVal(mnode, pinf.PropertyType, etp.FullName, pinf.Name, mattr.Verbatim, !mattr.NoIso8601), null);
             else
              if (mattr.Default != null) pinf.SetValue(entity, mattr.Default, null);
           }
@@ -359,7 +371,7 @@ namespace Azos.Conf
       })
     );
 
-    private static object getVal(IConfigNode node, Type type, string tname, string mname, bool verbatim)
+    private static object getVal(IConfigNode node, Type type, string tname, string mname, bool verbatim, bool isoDates)
     {
       try
       {
@@ -389,6 +401,14 @@ namespace Azos.Conf
             var got = ctor.Invoke(new []{ nodeAttr });
             return got;
           }
+        }
+
+        if (isoDates && (type == typeof(DateTime) || type == typeof(DateTime?)))
+        {
+          var val = verbatim ? node.VerbatimValue : node.Value;
+
+          return type == typeof(DateTime?) ? val.AsNullableDateTime(null, handling: ConvertErrorHandling.Throw, CoreConsts.UTC_TIMESTAMP_STYLES)
+                                           : val.AsDateTime(CoreConsts.UTC_TIMESTAMP_STYLES);
         }
 
         return node.ValueAsType(type, verbatim, strict: false);

@@ -481,17 +481,17 @@ namespace Azos.Conf
     }
 
     /// <inheritdoc/>
-    public DateTime ValueAsDateTime(DateTime dflt, bool verbatim = false)
+    public DateTime ValueAsDateTime(DateTime dflt, bool verbatim = false, System.Globalization.DateTimeStyles styles = CoreConsts.UTC_TIMESTAMP_STYLES)
     {
       var val = verbatim ? VerbatimValue : Value;
-      return val.AsDateTime(dflt);
+      return val.AsDateTime(dflt, styles);
     }
 
     /// <inheritdoc/>
-    public DateTime? ValueAsNullableDateTime(DateTime? dflt = null, bool verbatim = false)
+    public DateTime? ValueAsNullableDateTime(DateTime? dflt = null, bool verbatim = false, System.Globalization.DateTimeStyles styles = CoreConsts.UTC_TIMESTAMP_STYLES)
     {
       var val = verbatim ? VerbatimValue : Value;
-      return val.AsNullableDateTime(dflt);
+      return val.AsNullableDateTime(dflt, styles: styles);
     }
 
     /// <inheritdoc/>

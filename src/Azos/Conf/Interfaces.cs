@@ -390,7 +390,7 @@ namespace Azos.Conf
     /// The method evaluates variables embedded in the node literal value unless verbatim parameter
     /// is specified in which case the literal value is returned as-is without any evaluation
     /// </summary>
-    DateTime ValueAsDateTime(DateTime dflt, bool verbatim = false);
+    DateTime ValueAsDateTime(DateTime dflt, bool verbatim = false, System.Globalization.DateTimeStyles styles = CoreConsts.UTC_TIMESTAMP_STYLES);
 
     /// <summary>
     /// Returns node value as DateTime? performing conversion if necessary.
@@ -398,7 +398,7 @@ namespace Azos.Conf
     /// The method evaluates variables embedded in the node literal value unless verbatim parameter
     /// is specified in which case the literal value is returned as-is without any evaluation
     /// </summary>
-    DateTime? ValueAsNullableDateTime(DateTime? dflt = null, bool verbatim = false);
+    DateTime? ValueAsNullableDateTime(DateTime? dflt = null, bool verbatim = false, System.Globalization.DateTimeStyles styles = CoreConsts.UTC_TIMESTAMP_STYLES);
 
     /// <summary>
     /// Returns node value as TimeSpan performing conversion if necessary.

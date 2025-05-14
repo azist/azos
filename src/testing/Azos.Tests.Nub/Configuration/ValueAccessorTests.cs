@@ -33,6 +33,8 @@ namespace Azos.Tests.Nub.Configuration
 name
  spanning many lines'
    vDate=12/10/2014
+   vDateUtc='07/15/1980 16:34'
+   vDate8601Utc='1980-07-15T16:34:00Z'
    vGuid1='{3A7C4641-B24E-453D-9D28-93D96071B575}'
    vGuid2='3A7C4641-B24E-453D-9D28-93D96071B575'
    vGuid3='3A7C4641B24E453D9D2893D96071B575'
@@ -243,6 +245,39 @@ name
       Aver.AreEqual(2014, root.AttrByName("vDate").ValueAsDateTime(DateTime.Now).Year);
       Aver.AreEqual(12, root.AttrByName("vDate").ValueAsDateTime(DateTime.Now).Month);
     }
+
+    [Run]
+    public void DatesUtc()
+    {
+      var got = root.AttrByName("vDateUtc").ValueAsDateTime(DateTime.UtcNow);
+      got.See();
+      Aver.IsTrue(got.Kind == DateTimeKind.Utc);
+      Aver.AreEqual(1980, got.Year);
+      Aver.AreEqual(07, got.Month);
+      Aver.AreEqual(15, got.Day);
+      Aver.AreEqual(16, got.Hour);
+      Aver.AreEqual(34, got.Minute);
+    }
+
+    [Run]
+    public void Dates8601Utc()
+    {
+      var got = root.AttrByName("vDate8601Utc").ValueAsDateTime(DateTime.UtcNow);
+      got.See();
+      Aver.IsTrue(got.Kind == DateTimeKind.Utc);
+      Aver.AreEqual(1980, got.Year);
+      Aver.AreEqual(07, got.Month);
+      Aver.AreEqual(15, got.Day);
+      Aver.AreEqual(16, got.Hour);
+      Aver.AreEqual(34, got.Minute);
+
+      got = root.AttrByName("vDate8601Utc").ValueAsDateTime(DateTime.UtcNow, styles: System.Globalization.DateTimeStyles.None);
+      got.See();
+      Aver.IsTrue(got.Kind == DateTimeKind.Local);
+      Aver.AreEqual(1980, got.Year);
+      Aver.AreEqual(07, got.Month);
+    }
+
 
     [Run]
     public void Guids()
