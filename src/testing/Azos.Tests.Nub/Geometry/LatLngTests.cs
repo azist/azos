@@ -6,6 +6,9 @@
 
 using Azos.Scripting;
 using Azos.Geometry;
+using Azos.Data;
+using Azos.Serialization.JSON;
+using Azos.Conf;
 
 namespace Azos.Tests.Nub.Geometry
 {
@@ -155,5 +158,79 @@ namespace Azos.Tests.Nub.Geometry
       Conout.WriteLine(dist);
       Aver.AreEqual(16058, (int)dist);
     }
+
+    [Run]
+    public void Equality1()
+    {
+      var cle1 = new LatLng("41°29'13'', -81°38'26''");
+      var cle2 = new LatLng("41°29'13'', -81°38'26''");
+
+      Aver.AreEqual(cle1, cle2);
+    }
+
+    [Run]
+    public void Equality2()
+    {
+      var loc1 = new LatLng("44°13'51'', 12°32'4''");
+      var loc2 = new LatLng("44°13'51'', 12°32'4''");
+
+      Aver.AreEqual(loc1, loc2);
+    }
+
+    class _doc : TypedDoc
+    {
+      [Field, Config] public LatLng Location { get; set; }
+    }
+
+    [Run]
+    public void Equality3_Documents()
+    {
+      var doc1 = new _doc{Location = new LatLng("44°13'51'', 12°32'4''")};
+      var doc2 = new _doc{Location = new LatLng("44°13'51'', 12°32'4''")};
+
+      doc1.AverNoDiff(doc2);
+    }
+
+    [Run]
+    public void Equality4_Document_JSON_Roundtrip()
+    {
+      var doc1 = new _doc { Location = new LatLng("44°13'51'', 12°32'4''") };
+
+      var json = doc1.ToJson();
+      json.See();
+
+      var doc2 = JsonReader.ToDoc<_doc>(json);
+
+      doc1.AverNoDiff(doc2);
+    }
+
+    [Run]
+    public void Equality5_Document_Config_Roundtrip()
+    {
+      var doc1 = new _doc { Location = new LatLng("44°13'51'', 12°32'4''") };
+      doc1.See();
+      "{0}  {1}".SeeArgs(doc1.Location.Lat, doc1.Location.Lng);
+
+      var cfg = Azos.Conf.Configuration.NewEmptyRoot();
+
+      var data = doc1.PersistConfiguration(cfg, "data");
+
+      cfg.See();
+
+      var doc2 = new _doc();
+      doc2.Configure(data);
+      doc2.See();
+      "{0}  {1}".SeeArgs(doc2.Location.Lat, doc2.Location.Lng);
+
+      //"Equals whole: {0}".SeeArgs(doc1.Location == doc2.Location);
+      //"Equals name: {0}".SeeArgs(doc1.Location.Name == doc2.Location.Name);
+      //"Equals lat: {0}".SeeArgs(doc1.Location.Lat == doc2.Location.Lat);
+      //"Equals lng: {0}".SeeArgs(doc1.Location.Lng == doc2.Location.Lng);
+
+      doc2.CompareTo(doc1).Differences.See();
+
+      doc1.AverNoDiff(doc2);
+    }
+
   }
 }

@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.11.1.1
-set HEADLINE=Config attribute date handling
+set VER=3.11.1.2
+set HEADLINE=LatLng refactoring
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

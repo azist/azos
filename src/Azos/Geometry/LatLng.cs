@@ -43,16 +43,16 @@ namespace Azos.Geometry
       m_Name = cfg.NonNull(nameof(cfg)).ValOf("name");
       m_Lat = 0d;
       m_Lng = 0d;
-      Lat = cfg.Of("lat").ValueAsDouble();
-      Lng = cfg.Of("lng").ValueAsDouble();
+      Lat = parseDeg(cfg.Of("lat").Value);
+      Lng = parseDeg(cfg.Of("lng").Value);
     }
 
     public ConfigSectionNode PersistConfiguration(ConfigSectionNode parentNode, string name)
     {
       var result = parentNode.NonEmpty(nameof(parentNode)).AddChildNode(name);
-      result.AddAttributeNode("name", Name);
-      result.AddAttributeNode("lat", Lat);
-      result.AddAttributeNode("lng", Lng);
+      result.AddAttributeNode("name", m_Name);
+      result.AddAttributeNode("lat", ComponentToString(Lat));
+      result.AddAttributeNode("lng", ComponentToString(Lng));
       return result;
     }
 
@@ -177,6 +177,8 @@ namespace Azos.Geometry
 
     private double parseDeg(string val)
     {
+      if (val.IsNullOrWhiteSpace()) return 0d;
+
       if (val.Contains('°'))
       {
         var ideg = val.IndexOf('°');
