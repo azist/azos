@@ -151,7 +151,7 @@ namespace Azos.Geometry
     /// <summary>
     /// Converts a coordinate component (lat or lng) into standard degree/minute/second string
     /// </summary>
-    public string ComponentToString(double degVal)
+    public static string ComponentToString(double degVal)
     {
       var d = (int)degVal;
       degVal = Math.Abs(degVal-d) * 60d;
@@ -165,9 +165,18 @@ namespace Azos.Geometry
 
     public override int GetHashCode() => m_Lat.GetHashCode() ^ m_Lng.GetHashCode();
 
-    public bool Equals(LatLng other) => this.m_Lat == other.m_Lat &&
-                                        this.m_Lng == other.m_Lng &&
-                                        this.m_Name == other.m_Name;
+    /// <summary>
+    /// Performs exact double Lat/Lng pair comparison, while Equals(other) performs rounded-to-second precision comparison
+    /// </summary>
+    public bool ExactlyEquals(LatLng other) => this.m_Lat == other.m_Lat &&
+                                                this.m_Lng == other.m_Lng &&
+                                                this.m_Name == other.m_Name;
+
+    //The equality test is performed in the confines of Degree/Min/Sec precion specifier which is
+    //about 1 arcsecond (32 meters at equator) precision
+    public bool Equals(LatLng other) => this.m_Name == other.m_Name &&
+                                         ComponentToString(this.Lat) == ComponentToString(other.Lat) &&
+                                         ComponentToString(this.Lng) == ComponentToString(other.Lng);
 
     public override bool Equals(object obj) => obj is LatLng ll ? this.Equals(ll) : false;
 
@@ -234,8 +243,16 @@ namespace Azos.Geometry
 
     void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options)
     {
-      JsonWriter.WriteMap(wri, nestingLevel, options, new DictionaryEntry("name", m_Name),
-                                                      new DictionaryEntry("location", "{0}, {1}".Args(ComponentToString(Lat), ComponentToString(Lng))));
+      if (options.Purpose == JsonSerializationPurpose.Marshalling)
+      {
+        JsonWriter.WriteMap(wri, nestingLevel, options, new DictionaryEntry("name", m_Name),
+                                                        new DictionaryEntry("location", "{0:R}, {1:R}".Args(Lat, Lng)));
+      }
+      else
+      {
+        JsonWriter.WriteMap(wri, nestingLevel, options, new DictionaryEntry("name", m_Name),
+                                                        new DictionaryEntry("location", "{0}, {1}".Args(ComponentToString(Lat), ComponentToString(Lng))));
+      }
     }
 
 

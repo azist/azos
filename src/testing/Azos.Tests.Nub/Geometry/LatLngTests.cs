@@ -192,7 +192,7 @@ namespace Azos.Tests.Nub.Geometry
     }
 
     [Run]
-    public void Equality4_Document_JSON_Roundtrip()
+    public void Equality4_Document_JSON_Roundtrip01()
     {
       var doc1 = new _doc { Location = new LatLng("44°13'51'', 12°32'4''") };
 
@@ -200,6 +200,36 @@ namespace Azos.Tests.Nub.Geometry
       json.See();
 
       var doc2 = JsonReader.ToDoc<_doc>(json);
+
+      doc1.AverNoDiff(doc2);
+    }
+
+    [Run]
+    public void Equality4_Document_JSON_Roundtrip02()
+    {
+      var doc1 = new _doc { Location = new LatLng("44.23091016, 12.5345640") };
+
+      var json = doc1.ToJson();
+      json.See();
+
+      var doc2 = JsonReader.ToDoc<_doc>(json);
+
+      //doc2.CompareTo(doc1).Differences.See();
+
+      doc1.AverNoDiff(doc2);
+    }
+
+    [Run]
+    public void Equality4_Document_JSON_Roundtrip03_Marshalling()
+    {
+      var doc1 = new _doc { Location = new LatLng("44.23091016, 12.5345640") };
+
+      var json = doc1.ToJson(new JsonWritingOptions(JsonWritingOptions.PrettyPrintRowsAsMap){ Purpose = JsonSerializationPurpose.Marshalling});
+      json.See();
+
+      var doc2 = JsonReader.ToDoc<_doc>(json);
+
+      //doc2.CompareTo(doc1).Differences.See();
 
       doc1.AverNoDiff(doc2);
     }
@@ -227,7 +257,7 @@ namespace Azos.Tests.Nub.Geometry
       //"Equals lat: {0}".SeeArgs(doc1.Location.Lat == doc2.Location.Lat);
       //"Equals lng: {0}".SeeArgs(doc1.Location.Lng == doc2.Location.Lng);
 
-      doc2.CompareTo(doc1).Differences.See();
+     // doc2.CompareTo(doc1).Differences.See();
 
       doc1.AverNoDiff(doc2);
     }
