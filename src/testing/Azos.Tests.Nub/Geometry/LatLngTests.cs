@@ -222,10 +222,10 @@ namespace Azos.Tests.Nub.Geometry
       doc2.See();
       "{0}  {1}".SeeArgs(doc2.Location.Lat, doc2.Location.Lng);
 
-      "Equals: {0}".SeeArgs(doc1.Location == doc2.Location);
-      "Equals: {0}".SeeArgs(doc1.Location.Name == doc2.Location.Name);
-      "Equals: {0}".SeeArgs(doc1.Location.Lat == doc2.Location.Lat);
-      "Equals: {0}".SeeArgs(doc1.Location.Lng == doc2.Location.Lng);
+      //"Equals whole: {0}".SeeArgs(doc1.Location == doc2.Location);
+      //"Equals name: {0}".SeeArgs(doc1.Location.Name == doc2.Location.Name);
+      //"Equals lat: {0}".SeeArgs(doc1.Location.Lat == doc2.Location.Lat);
+      //"Equals lng: {0}".SeeArgs(doc1.Location.Lng == doc2.Location.Lng);
 
       doc2.CompareTo(doc1).Differences.See();
 
