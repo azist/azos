@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.10.2.2
-set HEADLINE=Adlib Tags config support
+set VER=3.11.1.1
+set HEADLINE=Config attribute date handling
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
