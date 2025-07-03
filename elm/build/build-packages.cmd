@@ -1,6 +1,6 @@
 @echo on
 
-set VER=3.2.1.1
+set VER=3.20.1.1
 set HEADLINE=#954 Daemon.CancellationToken
 call build-all Release %VER%
 
