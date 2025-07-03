@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.11.1.3
-set HEADLINE=LatLng refactoring, precision
+set VER=3.2.1.1
+set HEADLINE=#954 Daemon.CancellationToken
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
