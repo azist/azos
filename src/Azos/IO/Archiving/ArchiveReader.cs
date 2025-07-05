@@ -70,7 +70,7 @@ namespace Azos.IO.Archiving
     }
 
     /// <summary>
-    /// This method is an performance optimization technique which reduces the memory pressure caused by extra
+    /// This method is a performance optimization technique which reduces the memory pressure caused by extra
     /// Page instance allocation. Recycles the page instance with the reader so it can reuse the existing page
     /// instance instead of allocating a new one. WARNING: Special care should be taken while calling this method
     /// from a parallel/multi-threaded code to make sure that no other asynchronous call flow happens with the

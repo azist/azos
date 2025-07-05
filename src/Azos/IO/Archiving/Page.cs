@@ -37,8 +37,8 @@ namespace Azos.IO.Archiving
     /// </summary>
     public Page(int defaultCapacity)
     {
-      m_Raw = new MemoryStream(m_DefaultCapacity);
       AdjustDefaultCapacity(defaultCapacity);
+      m_Raw = new MemoryStream(m_DefaultCapacity);
     }
 
     /*
