@@ -78,7 +78,7 @@ namespace Azos.Sky.Chronicle
       return base.DoApplicationAfterInit();
     }
 
-    private int m_CallClock;
+    private int m_CallClock = (int)(DateTime.UtcNow.Ticks & 0xff);//avoid determinism on the first call so all messages do not always end-up in shard zero
     private ShardKey nextShard() =>  new ShardKey((uint)System.Threading.Interlocked.Increment(ref m_CallClock));
 
     public async Task WriteAsync(LogBatch data)
