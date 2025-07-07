@@ -14,25 +14,41 @@ using Azos.Data.AST;
 using Azos.Data.Business;
 using Azos.Serialization.Bix;
 using Azos.Serialization.JSON;
-using Azos.Time;
 
 namespace Azos.Sky.Chronicle
 {
   [Bix("5843A744-54CF-4E22-99CF-A91F0C2CE08C")]
-  [Schema(Description = "Provides model for filtering instrumentation chronicles")]
+  [Schema(Description = "Provides model for filtering instrumentation chronicles - time series data")]
   public sealed class InstrumentationChronicleFilter : FilterModel<IEnumerable<JsonDataMap>>
   {
-    [Field(isArow: true, backendName: "gdid", description: "Measurement datum GDID to fetch a specific measurement or ZERO")]
-    public GDID Gdid { get; set; }
+    [Field(required: true, description: "Instrumentation fetch starting from UTC point in time. It is always required")]
+    public DateTime StartUtc { get; set; }
 
-    [Field(isArow: true, backendName: "tps", description: "An array of instrument type IDs")]
-    public Guid[] InstrumentTypes {  get; set;}
+    [Field(required: true, description: "Instrumentation fetch time range length in seconds")]
+    public int RangeLengthSec{ get; set; }
 
-    [Field(isArow: true, backendName: "utcr", description: "Log message start/end date UTC time range")]
-    public DateRange? TimeRange { get; set; }
+    [Field(required: false, description: "Optional GDID unique id as of which to start scrolling time series data after StartUtc")]
+    public GDID StartGdid { get; set; }
 
+    [Field(required: false, maxLength: 32, description: "Optional disjunction of host names to consider")]
+    public string[] HostNames { get; set; }
 
-    [Field(isArow: true, backendName: "af", description: "Advanced filter, which can be used for filter by archive dimensions")]
+    [Field(required: false, maxLength: 32, description: "Optional disjunction of instrument namespaces hashes. Every instrument belongs to one and only one namespace at a time")]
+    public ulong[] NamespaceHashes { get; set; }
+
+    [Field(required: false, maxLength: 0xff, description: "Optional instrument type ID disjunction")]
+    public Guid[] InstrumentTypes { get; set;}
+
+    [Field(required: false, maxLength: 0xff, description: "Optional app id disjunction")]
+    public Atom[] AppTypes { get; set; }
+
+    [Field(required: false, description: "Optional lower limit for RefValue")]
+    public double? MinRefValue { get; set; }
+
+    [Field(required: false, description: "Optional high limit for RefValue")]
+    public double? MaxRefValue { get; set; }
+
+    [Field(required: false, description: "Optional advanced filter expression tree")]
     public Expression AdvancedFilter{  get; set;}
 
     [Inject] IInstrumentationChronicle m_Chronicle;
