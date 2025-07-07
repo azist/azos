@@ -17,10 +17,15 @@ using Azos.Serialization.JSON;
 
 namespace Azos.Sky.Chronicle
 {
-  [Bix("5843A744-54CF-4E22-99CF-A91F0C2CE08C")]
-  [Schema(Description = "Provides model for filtering instrumentation chronicles - time series data")]
+  /// <summary>
+  /// Provides model for filtering and retrieving time series data from instrumentation chronicles
+  /// </summary>
+  [Bix("5843a744-54cf-4e22-99cf-a91f0c2ce08c")]
+  [Schema(Description = "Provides model for filtering and retrieving time series data from instrumentation chronicles")]
   public sealed class InstrumentationChronicleFilter : FilterModel<IEnumerable<JsonDataMap>>
   {
+    public const int TERM_DISJUNCTION_MAX_LEN = 128;
+
     [Field(required: true, description: "Instrumentation fetch starting from UTC point in time. It is always required")]
     public DateTime StartUtc { get; set; }
 
@@ -30,16 +35,16 @@ namespace Azos.Sky.Chronicle
     [Field(required: false, description: "Optional GDID unique id as of which to start scrolling time series data after StartUtc")]
     public GDID StartGdid { get; set; }
 
-    [Field(required: false, maxLength: 32, description: "Optional disjunction of host names to consider")]
+    [Field(required: false, maxLength: TERM_DISJUNCTION_MAX_LEN, description: "Optional disjunction of host names to consider")]
     public string[] HostNames { get; set; }
 
-    [Field(required: false, maxLength: 32, description: "Optional disjunction of instrument namespaces hashes. Every instrument belongs to one and only one namespace at a time")]
+    [Field(required: false, maxLength: TERM_DISJUNCTION_MAX_LEN, description: "Optional disjunction of instrument namespaces hashes. Every instrument belongs to one and only one namespace at a time")]
     public ulong[] NamespaceHashes { get; set; }
 
-    [Field(required: false, maxLength: 0xff, description: "Optional instrument type ID disjunction")]
+    [Field(required: false, maxLength: TERM_DISJUNCTION_MAX_LEN, description: "Optional instrument type ID disjunction")]
     public Guid[] InstrumentTypes { get; set;}
 
-    [Field(required: false, maxLength: 0xff, description: "Optional app id disjunction")]
+    [Field(required: false, maxLength: TERM_DISJUNCTION_MAX_LEN, description: "Optional app id disjunction")]
     public Atom[] AppTypes { get; set; }
 
     [Field(required: false, description: "Optional lower limit for RefValue")]

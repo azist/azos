@@ -23,9 +23,46 @@ namespace Azos.Instrumentation
   {
     #region CONST
 
+    public const string PROP_NS   = "_ns";
+    public const string PROP_NAME = "_nm";
+    public const string PROP_REF  = "_rf";
+
     public const string UNSPECIFIED_SOURCE = "*";
 
     #endregion
+
+    #region Static Name Hashing Canonical model
+    /// <summary>
+    /// Obtains a canonical hash for a Datum instance type, which is used to group data by namespace
+    /// </summary>
+    public static ulong GetTypeNamespaceHash(Datum d) => GetTypeNamespaceHash(d.NonNull(nameof(d)).GetType());
+
+    /// <summary>
+    /// Obtains a canonical hash for a Datum instance type, which is used to group data by datum name
+    /// </summary>
+    public static ulong GetTypeNameHash(Datum d) => GetTypeNameHash(d.NonNull(nameof(d)).GetType());
+
+    /// <summary>
+    /// Obtains a canonical hash for a type, which is used to group data by namespace
+    /// </summary>
+    public static ulong GetTypeNamespaceHash(Type t) => GetIdHash(t.NonNull(nameof(t)).Namespace);
+
+    /// <summary>
+    /// Obtains a canonical hash for a type, which is used to group data by type name
+    /// </summary>
+    public static ulong GetTypeNameHash(Type t) => GetIdHash(t.NonNull(nameof(t)).Name);
+
+    /// <summary>
+    /// Provides a canonical implementation of a 64 bit hash function used on Datum identifiers: class names and namespaces.
+    /// The canonical implementation uses FNV1A64 hash sop you can match this in non-Azos Unistack implementations like Python, Node, Java et al.
+    /// </summary>
+    /// <remarks>
+    /// The hashes are stored in time-series database instead of copious strings like "MySystem.Intrumentation.Business.Transaction",
+    /// you can then filter by namespace and instrument name hashes as they are much more compact and efficient.
+    /// </remarks>
+    public static ulong GetIdHash(string id) => ShardKey.ForString(id);
+    #endregion
+
 
     #region .ctor
 
@@ -315,12 +352,25 @@ namespace Azos.Instrumentation
     protected virtual void AggregateEvent(Datum dat) { }
     protected virtual void SummarizeAggregation() { }
 
+    //static cache of hashed namespace and name per Datum type
+    private static readonly FiniteSetLookup<Type, (ulong, ulong)> NSCACHE = new FiniteSetLookup<Type, (ulong, ulong)>(tp =>
+    {
+      var nsHash = GetTypeNamespaceHash(tp);
+      var nameHash = GetTypeNameHash(tp);
+      return (nsHash, nameHash);
+    });
+
     protected override void AddJsonSerializerField(Schema.FieldDef def, JsonWritingOptions options, Dictionary<string, object> jsonMap, string name, object value)
     {
       if (def?.Order == 0)
       {
         Serialization.Bix.BixJsonHandler.EmitJsonBixDiscriminator(this, jsonMap);
-        jsonMap["ref"] = this.RefValue;
+
+        var (nsT, nameT) = NSCACHE[GetType()];
+        jsonMap[PROP_NS] = nsT;
+        jsonMap[PROP_NAME] = nameT;
+
+        jsonMap[PROP_REF] = RefValue;
       }
 
       base.AddJsonSerializerField(def, options, jsonMap, name, value);
