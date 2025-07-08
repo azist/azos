@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.20.1.1
-set HEADLINE=#954 Daemon.CancellationToken
+set VER=3.20.2.1
+set HEADLINE=Message validation
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR

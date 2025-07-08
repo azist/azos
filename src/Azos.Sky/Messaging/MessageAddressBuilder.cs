@@ -25,15 +25,19 @@ namespace Azos.Sky.Messaging
   /// <summary>
   /// Facilitates the conversion of config into stream of Addressee entries
   /// </summary>
-  public sealed class MessageAddressBuilder : IEnumerable<MessageAddressBuilder.Addressee>
+  public sealed class MessageAddressBuilder : IEnumerable<MessageAddressBuilder.Addressee> , IValidatable
   {
     /// <summary>
     /// Provides data for an addressee:
     ///   {Name, Channel, Address (per channel)}, example {"Frank Borland", "UrgentSMTP", "frankb@xyz.com"}.
     /// Note: The format of channel address string depends on the channel which this addressee points to
     /// </summary>
-    public struct Addressee : IJsonWritable, IJsonReadable
+    public struct Addressee : IJsonWritable, IJsonReadable, IValidatable
     {
+      // this is used for general limit to avoid buffer overruns
+      // the true length is up to channel provider
+      public const int MAX_SPECIFIER_LEN = 1024;
+
       public const string JSON_NAME = "n";
       public const string JSON_CHANNEL = "c";
       public const string JSON_ADDRESS = "a";
@@ -64,6 +68,28 @@ namespace Azos.Sky.Messaging
       public (bool match, IJsonReadable self) ReadAsJson(object data, bool fromUI, JsonReader.DocReadOptions? options)
         => data is JsonDataMap map ? (true, Addressee.From(map))
                                    : (false, this);
+
+      public ValidState Validate(ValidState state, string scope = null)
+      {
+        ValidState check(ValidState state, string value, string field)
+        {
+          if (value.IsNullOrWhiteSpace())
+            state = new ValidState(state, new FieldValidationException(nameof(Addressee), field, "Value required", scope));
+          else
+          {
+            if (value.Length > MAX_SPECIFIER_LEN)
+              state = new ValidState(state, new FieldValidationException(nameof(Addressee), field, $"Value length exceeds {MAX_SPECIFIER_LEN}", scope));
+          }
+
+          return state;
+        }
+
+        state = check(state, Name, nameof(Name));
+        state = check(state, Channel, nameof(Channel));
+        state = check(state, Address, nameof(Address));
+
+        return state;
+      }
     }
 
     public MessageAddressBuilder(string name, string channelName, string channelAddress)
@@ -149,5 +175,18 @@ namespace Azos.Sky.Messaging
 
     public IEnumerator<Addressee> GetEnumerator() => m_Data.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => m_Data.GetEnumerator();
+
+    public ValidState Validate(ValidState state, string scope = null)
+    {
+      int i = 0;
+      foreach(var one in m_Data)
+      {
+        state = one.Validate(state, $"{scope.Default(nameof(MessageAddressBuilder))}[{i}]");
+        if (state.ShouldStop) return state;
+        i++;
+      }
+
+      return state;
+    }
   }
 }
