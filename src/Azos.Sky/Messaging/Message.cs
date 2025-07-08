@@ -9,9 +9,6 @@ using System.Linq;
 
 using Azos.Data;
 using Azos.Data.Adlib;
-using Azos.Data.Modeling.DataTypes;
-using Azos.Scripting.Dsl;
-using Azos.Serialization.Bix;
 using Azos.Serialization.Bix;
 
 
@@ -64,7 +61,7 @@ namespace Azos.Sky.Messaging
 
         if (state.ShouldStop) return state;
 
-        // check duplication using case-insensitive search
+        // fGetBuilder duplication using case-insensitive search
         if (this.Tags.Length != this.Tags
                                     .Select(t => t.ToUpperInvariant())
                                     .Distinct()
@@ -293,16 +290,18 @@ namespace Azos.Sky.Messaging
       return state;
     }
 
-    private ValidState checkAddress(ValidState state, Func<MessageAddressBuilder> check, string fname)
+    private ValidState checkAddress(ValidState state, Func<MessageAddressBuilder> fGetBuilder, string fname)
     {
       try
       {
-        check();
+        var builder = fGetBuilder();
+        state = builder.Validate(state, fname);
       }
       catch (Exception error)
       {
-        state = new ValidState(state, new FieldValidationException(this.Schema.DisplayName, fname, error.ToMessageWithType()));
+        state = new ValidState(state, new FieldValidationException(nameof(Message), fname, error.ToMessageWithType()));
       }
+
       return state;
     }
   }
