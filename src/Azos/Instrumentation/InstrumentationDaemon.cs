@@ -236,7 +236,7 @@ namespace Azos.Instrumentation
       if (srcBucketed.DefaultDatum == null)
         srcBucketed.DefaultDatum = datum;
 
-      var bag = srcBucketed.GetOrAdd(datum.Source, (src) => new DatumBag());
+      var bag = srcBucketed.GetOrAdd(new HASKey(datum.Host, datum.App, datum.Source), (src) => new DatumBag());
 
       bag.Add(datum);
       Interlocked.Increment(ref m_RecordCount);
@@ -345,7 +345,7 @@ namespace Azos.Instrumentation
     /// Enumerates sources per Datum type ever recorded by the instance. This property may be used to build
     ///  UIs for instrumentation, i.e. datum type tree. Returned data is NOT ORDERED
     /// </summary>
-    public IEnumerable<string> GetDatumTypeSources(Type datumType, out Datum defaultInstance)
+    public IEnumerable<HASKey> GetDatumTypeSources(Type datumType, out Datum defaultInstance)
     {
       var tBucketed = m_TypeBucketed;
       if (datumType != null && tBucketed != null)
@@ -358,7 +358,7 @@ namespace Azos.Instrumentation
         }
       }
       defaultInstance = null;
-      return Enumerable.Empty<string>();
+      return Enumerable.Empty<HASKey>();
     }
 
     #endregion
@@ -689,7 +689,7 @@ namespace Azos.Instrumentation
   /// <summary>
   /// Internal concurrent dictionary used for instrumentation data aggregation
   /// </summary>
-  internal class SrcBucketedData : ConcurrentDictionary<string, DatumBag>
+  internal class SrcBucketedData : ConcurrentDictionary<HASKey, DatumBag>
   {
     internal Datum DefaultDatum;
   }
