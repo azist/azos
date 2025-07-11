@@ -25,6 +25,8 @@ namespace Azos.Instrumentation
       var msg = new Message
       {
         Type = MessageType.PerformanceInstrumentation,
+        App = datum.App,
+        Host = datum.Host,
         Topic = CoreConsts.INSTRUMENTATION_TOPIC,
         From = datum.GetType().FullName,
         Text = datum.ToString()

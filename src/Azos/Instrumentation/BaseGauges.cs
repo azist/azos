@@ -40,7 +40,7 @@ namespace Azos.Instrumentation
     [NonSerialized]
     private long m_Sum;
 
-    protected override void AggregateEvent(Datum dat)
+    protected override void AggregateOne(Datum dat)
     {
       var dg = dat as LongGauge;
       if (dg == null) return;
@@ -82,7 +82,7 @@ namespace Azos.Instrumentation
     [NonSerialized]
     private double m_Sum;
 
-    protected override void AggregateEvent(Datum dat)
+    protected override void AggregateOne(Datum dat)
     {
       var dg = dat as DoubleGauge;
       if (dg == null) return;
@@ -125,7 +125,7 @@ namespace Azos.Instrumentation
     [NonSerialized]
     private decimal m_Sum;
 
-    protected override void AggregateEvent(Datum dat)
+    protected override void AggregateOne(Datum dat)
     {
       var dg = dat as DecimalGauge;
       if (dg == null) return;
@@ -189,7 +189,7 @@ namespace Azos.Instrumentation
     [NonSerialized]
     private Amount m_Sum;
 
-    protected override void AggregateEvent(Datum dat)
+    protected override void AggregateOne(Datum dat)
     {
       var dg = dat as AmountGauge;
       if (dg == null) return;

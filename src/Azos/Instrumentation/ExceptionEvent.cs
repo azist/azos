@@ -63,7 +63,7 @@ namespace Azos.Instrumentation
 
     protected override Datum MakeAggregateInstance() { return new ExceptionEvent() { m_Errors = new Dictionary<string, int>() }; }
 
-    protected override void AggregateEvent(Datum evt)
+    protected override void AggregateOne(Datum evt)
     {
       var eevt = evt as ExceptionEvent;
       if (eevt == null) return;

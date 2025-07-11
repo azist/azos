@@ -285,7 +285,9 @@ namespace Azos.Instrumentation
 
     /// <summary>
     /// Aggregates multiple data instances (e.g.from multiple threads) into one single instance. This is the "reduce" operation which
-    /// makes aggregate instance, then concatenates all data events, then finalizes operation by calling SummarizeAggregation()
+    /// makes aggregate instance, then concatenates all data events, then finalizes operation by calling SummarizeAggregation().
+    /// Warning: This method does not check for type compatibility, so it is up to the caller to ensure that all datum instances are of the same type
+    /// and of the same app and host
     /// </summary>
     public Datum Aggregate(IEnumerable<Datum> many)
     {
@@ -296,14 +298,18 @@ namespace Azos.Instrumentation
       var cnt = 0;
 
       var result = MakeAggregateInstance();
+      result.m_App = m_App;
+      result.m_Host = m_Host;
 
       foreach (var e in many)
       {
+        Aver.IsTrue(e.m_App == m_App && e.m_Host.EqualsOrdSenseCase(m_Host),
+                    "Datum instances have the same App and Host as the aggregate instance");
         cnt++;
         if (e.StartUtc < start) start = e.StartUtc;
         if (e.StartUtc > end) end = e.StartUtc;
 
-        result.AggregateEvent(e);
+        result.AggregateOne(e);
       }
 
       result.m_Count = cnt;
@@ -349,7 +355,7 @@ namespace Azos.Instrumentation
     #region Protected
 
     protected abstract Datum MakeAggregateInstance();
-    protected virtual void AggregateEvent(Datum dat) { }
+    protected virtual void AggregateOne(Datum dat) { }
     protected virtual void SummarizeAggregation() { }
 
     //static cache of hashed namespace and name per Datum type
