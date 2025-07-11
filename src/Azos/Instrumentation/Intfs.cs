@@ -127,13 +127,15 @@ namespace Azos.Instrumentation
   {
     public HASKey(string host, Atom app, string source)
     {
-      this.Host = host;
-      this.App = app;
-      this.Source = source;
+      this.Host = host.Default(Datum.UNSPECIFIED_HOST);
+      this.App = app.IsZero ? Datum.UNSPECIFIED_APP : app;
+      this.Source = source.Default(Datum.UNSPECIFIED_SOURCE);
     }
     public readonly string Host;
     public readonly Atom App;
     public readonly string Source;
+
+    public bool IsAssigned => Host != null;
 
     public bool Equals(HASKey other) => this.App == other.App && this.Host.EqualsOrdSenseCase(other.Host) && this.Source.EqualsOrdSenseCase(other.Source);
     public override bool Equals(object obj) => obj is HASKey has ? this.Equals(has) : false;

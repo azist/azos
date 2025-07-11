@@ -200,6 +200,18 @@ namespace Azos.Instrumentation
     }
 
     /// <summary>
+    /// When true auto generates a summary datum instances with App=UNSPECIFIED_APP for each datum recorded
+    /// </summary>
+    [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
+    public bool AutoAppSummaries  { get; set; }
+
+    /// <summary>
+    /// When true auto generates a summary datum instances with Host=UNSPECIFIED_HOST for each datum recorded
+    /// </summary>
+    [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
+    public bool AutoHostSummaries { get; set; }
+
+    /// <summary>
     /// Enumerates distinct types of Datum ever recorded in the instance. This property may be used to build
     ///  UIs for instrumentation, i.e. datum type tree. Returned data is NOT ORDERED
     /// </summary>
@@ -224,11 +236,40 @@ namespace Azos.Instrumentation
     {
       if (Status != DaemonStatus.Active) return;
       if (datum == null) return;
+      if (Overflown) return;
 
       datum.InitDefaultFields(App);
 
-      if (Overflown) return;
+      recordOne(datum);
 
+      if (AutoAppSummaries)
+      {
+//todo:  Add Datum.AutoAppSummaries: bool
+        if (datum.App != Datum.UNSPECIFIED_APP)
+        {
+          var noApp = datum.Clone();
+          noApp.Source = null;
+          noApp.App = Datum.UNSPECIFIED_APP;
+          recordOne(noApp);
+        }
+      }
+
+      if (AutoHostSummaries)
+      {
+//todo:  Add Datum.AutoHostSummaries: bool
+        if (datum.Host.IsNotNullOrWhiteSpace() && !datum.Host.EqualsOrdIgnoreCase(Datum.UNSPECIFIED_HOST))
+        {
+          var noHost = datum.Clone();
+          noHost.Source = null;
+          noHost.App = Datum.UNSPECIFIED_APP;
+          noHost.Host = Datum.UNSPECIFIED_HOST;
+          recordOne(noHost);
+        }
+      }
+    }
+
+    public void recordOne(Datum datum)
+    {
       var t = datum.GetType();
 
       var srcBucketed = m_TypeBucketed.GetOrAdd(t, (tp) => new SrcBucketedData());
@@ -573,13 +614,14 @@ namespace Azos.Instrumentation
       try
       {
         var ctxBatch = m_Provider.BeforeBatch();
-        foreach (var tvp in m_TypeBucketed)
+        foreach (var tvp in m_TypeBucketed) // TYPE LOOP =================== TYPE ==================== TYPE LOOP
         {
           if (!Running) break;
           try
           {
             var ctxType = m_Provider.BeforeType(tvp.Key, ctxBatch);
-            foreach (var svp in tvp.Value)
+            //------------------------------------------------------
+            foreach (var svp in tvp.Value)//HAS loop
             {
               if (!Running) break;
 
@@ -591,7 +633,7 @@ namespace Azos.Instrumentation
 
                 try
                 {
-                  var lst = new List<Datum>();
+                  var lst = new List<Datum>(512);
                   Datum elm;
                   while (bag.TryTake(out elm))
                   {
@@ -599,6 +641,7 @@ namespace Azos.Instrumentation
                     Interlocked.Decrement(ref m_RecordCount);
                   }
 
+                  lst.Sort((a, b) => a.StartUtc.CompareTo(b.StartUtc));
                   aggregated = datum.Aggregate(lst);
                 }
                 catch (Exception error)
@@ -625,9 +668,9 @@ namespace Azos.Instrumentation
                 if (aggregated != null) bufferResult(aggregated);
 
               }//if
-            }
-            m_Provider.AfterType(tvp.Key, ctxBatch, ctxType);
+            }//HAS LOOP ------------------
 
+            m_Provider.AfterType(tvp.Key, ctxBatch, ctxType);
           }
           catch (Exception error)
           {

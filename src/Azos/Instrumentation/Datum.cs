@@ -28,6 +28,8 @@ namespace Azos.Instrumentation
     public const string PROP_REF  = "_rf";
 
     public const string UNSPECIFIED_SOURCE = "*";
+    public const string UNSPECIFIED_HOST = "*";
+    public static readonly Atom UNSPECIFIED_APP = Atom.Encode("-");
 
     #endregion
 
@@ -152,7 +154,7 @@ namespace Azos.Instrumentation
     public Atom App
     {
       get => m_App;
-      protected set => m_App = value;
+      protected internal set => m_App = value;
     }
 
     /// <summary>
@@ -162,7 +164,7 @@ namespace Azos.Instrumentation
     public string Host
     {
       get => m_Host;
-      protected set => m_Host = value;
+      protected internal set => m_Host = value;
     }
 
     /// <summary>
@@ -187,7 +189,7 @@ namespace Azos.Instrumentation
     public virtual string Source
     {
       get  => m_Source ?? UNSPECIFIED_SOURCE;
-      protected set => m_Source = value;
+      protected internal set => m_Source = value;
     }
 
     /// <summary>
@@ -298,8 +300,8 @@ namespace Azos.Instrumentation
       var cnt = 0;
 
       var result = MakeAggregateInstance();
-      result.m_App = m_App;
       result.m_Host = m_Host;
+      result.m_App = m_App;
 
       foreach (var e in many)
       {

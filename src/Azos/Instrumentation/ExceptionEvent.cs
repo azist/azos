@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
+using Azos.Data;
 using Azos.Serialization.Bix;
 
 namespace Azos.Instrumentation
@@ -20,8 +20,6 @@ namespace Azos.Instrumentation
   [Bix("2A09545F-B237-4008-BEE8-26508724AB89")]
   public class ExceptionEvent : Event, IErrorInstrument
   {
-    public const string BSON_FLD_EXCEPTION_TYPE = "etp";
-
     /// <summary>
     /// Create event from exception instance
     /// </summary>
@@ -48,15 +46,15 @@ namespace Azos.Instrumentation
 
     private ExceptionEvent() {}
 
-    protected ExceptionEvent(Exception error) : base() { m_ExceptionType = error.GetType().FullName; }
+    protected ExceptionEvent(Exception error) : base() { ExceptionType = error.GetType().FullName; }
 
-    protected ExceptionEvent(string source, Exception error) : base(source) { m_ExceptionType = error.GetType().FullName; }
+    protected ExceptionEvent(string source, Exception error) : base(source) { ExceptionType = error.GetType().FullName; }
 
-    protected ExceptionEvent(string source, Exception error, DateTime utcTime) : base(source, utcTime) { m_ExceptionType = error.GetType().FullName; }
+    protected ExceptionEvent(string source, Exception error, DateTime utcTime) : base(source, utcTime) { ExceptionType = error.GetType().FullName; }
 
-    private string m_ExceptionType;
 
-    public string ExceptionType => m_ExceptionType;
+    [Field]
+    public string ExceptionType { get; set;}
 
     [NonSerialized]
     private Dictionary<string, int> m_Errors;
@@ -68,10 +66,10 @@ namespace Azos.Instrumentation
       var eevt = evt as ExceptionEvent;
       if (eevt == null) return;
 
-      if (m_Errors.ContainsKey(eevt.m_ExceptionType))
-        m_Errors[eevt.m_ExceptionType] += 1;
+      if (m_Errors.ContainsKey(eevt.ExceptionType))
+        m_Errors[eevt.ExceptionType] += 1;
       else
-        m_Errors.Add(eevt.m_ExceptionType, 1);
+        m_Errors.Add(eevt.ExceptionType, 1);
     }
 
     protected override void SummarizeAggregation()
@@ -84,10 +82,10 @@ namespace Azos.Instrumentation
         sb.Append(", ");
       }
 
-      m_ExceptionType = sb.ToString();
+      ExceptionType = sb.ToString();
     }
 
-    public override string ToString() => base.ToString() + " " + (m_ExceptionType ?? string.Empty);
+    public override string ToString() => base.ToString() + " " + (ExceptionType ?? string.Empty);
 
   }
 }
