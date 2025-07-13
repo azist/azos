@@ -183,12 +183,12 @@ namespace Azos.Instrumentation
     }
 
     /// <summary>
-    /// Returns datum source. Data are rolled-up by type of recorded datum instances and source
+    /// Returns datum source. Data are rolled-up by type of recorded datum instances, host, app, and then source
     /// </summary>
     [Field, Field(isArow: true, backendName: "src")]
     public virtual string Source
     {
-      get  => m_Source ?? UNSPECIFIED_SOURCE;
+      get  => m_Source.Default(UNSPECIFIED_SOURCE);
       protected internal set => m_Source = value;
     }
 

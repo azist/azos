@@ -200,18 +200,6 @@ namespace Azos.Instrumentation
     }
 
     /// <summary>
-    /// When true auto generates a summary datum instances with App=UNSPECIFIED_APP for each datum recorded
-    /// </summary>
-    [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
-    public bool AutoAppSummaries  { get; set; }
-
-    /// <summary>
-    /// When true auto generates a summary datum instances with Host=UNSPECIFIED_HOST for each datum recorded
-    /// </summary>
-    [Config, ExternalParameter(CoreConsts.EXT_PARAM_GROUP_INSTRUMENTATION)]
-    public bool AutoHostSummaries { get; set; }
-
-    /// <summary>
     /// Enumerates distinct types of Datum ever recorded in the instance. This property may be used to build
     ///  UIs for instrumentation, i.e. datum type tree. Returned data is NOT ORDERED
     /// </summary>
@@ -240,36 +228,6 @@ namespace Azos.Instrumentation
 
       datum.InitDefaultFields(App);
 
-      recordOne(datum);
-
-      if (AutoAppSummaries)
-      {
-//todo:  Add Datum.AutoAppSummaries: bool
-        if (datum.App != Datum.UNSPECIFIED_APP)
-        {
-          var noApp = datum.Clone();
-          noApp.Source = null;
-          noApp.App = Datum.UNSPECIFIED_APP;
-          recordOne(noApp);
-        }
-      }
-
-      if (AutoHostSummaries)
-      {
-//todo:  Add Datum.AutoHostSummaries: bool
-        if (datum.Host.IsNotNullOrWhiteSpace() && !datum.Host.EqualsOrdIgnoreCase(Datum.UNSPECIFIED_HOST))
-        {
-          var noHost = datum.Clone();
-          noHost.Source = null;
-          noHost.App = Datum.UNSPECIFIED_APP;
-          noHost.Host = Datum.UNSPECIFIED_HOST;
-          recordOne(noHost);
-        }
-      }
-    }
-
-    public void recordOne(Datum datum)
-    {
       var t = datum.GetType();
 
       var srcBucketed = m_TypeBucketed.GetOrAdd(t, (tp) => new SrcBucketedData());
