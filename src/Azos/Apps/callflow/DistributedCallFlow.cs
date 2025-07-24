@@ -302,6 +302,44 @@ namespace Azos.Apps
       }
     }
 
+    /// <summary>
+    /// Executes a synchronous code block in a `DistributedCallFlow` scope.
+    /// The block captures the current call flow at entry and guarantees to revert it back regardless of `body()` call outcome (e.g. if it fails with exception).
+    /// If the current flow is already distributed, then it is continued as-if via a passing through process port/boundary adding a `CodeCallFlow` step
+    /// with the supplied properties.
+    /// If the current flow is not distributed, then a new distributed call flow is started with the existing flow as its first step.
+    /// At the block exit the flow object is restored to the instance captured at the block entrance.
+    /// </summary>
+    public static TResult ExecuteBlock<TResult>(IApplication app, Func<DistributedCallFlow, TResult> body, string description, Guid? guid = null, string directorName = null, string callerAgent = null, string callerPort = null)
+    {
+      app.NonNull(nameof(app));
+      body.NonNull(nameof(app));
+      callerAgent = callerAgent.Default(System.Reflection.Assembly.GetCallingAssembly().GetName().Name);
+
+      var original = ExecutionContext.CallFlow;
+      try
+      {
+        DistributedCallFlow newFlow;
+
+        if (original is DistributedCallFlow dcf)
+        {
+          var hdr = dcf.ToHeaderValue();
+          ExecutionContext.__SetThreadLevelCallContext(null);
+          newFlow = Continue(app, hdr, guid, directorName, callerAgent, callerPort);
+        }
+        else
+        {
+          newFlow = Start(app, description, guid, directorName, callerAgent, callerPort);
+        }
+
+        return body(newFlow);//do not .ConfigureAwait(false);
+      }
+      finally
+      {
+        ExecutionContext.__SetThreadLevelCallContext(original);
+      }
+    }
+
     private bool m_WasLogged;
     private string m_Description;
     private List<Step> m_List = new List<Step>();

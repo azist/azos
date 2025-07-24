@@ -491,7 +491,7 @@ namespace Azos.Instrumentation
             if (m_SelfInstrumented)
               instrumentSelf();
 
-            write();
+            write(); //write in loop while daemon is running
 
             if (m_OSInstrumentationIntervalMS <= 0)
               m_Trigger.WaitOne(m_ProcessingIntervalMS);
@@ -515,7 +515,7 @@ namespace Azos.Instrumentation
 
         }//while
 
-        write();
+        write();  //write the remainder of data
       }
       catch (Exception e)
       {

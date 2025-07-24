@@ -12,6 +12,9 @@ using Azos.Log;
 using Azos.Conf;
 using Azos.Apps;
 using Azos.Instrumentation;
+using System.Threading.Tasks;
+using Azos.Data;
+using Azos.Serialization.JSON;
 
 namespace Azos.Sky.Messaging
 {
@@ -228,7 +231,7 @@ namespace Azos.Sky.Messaging
             count /= 2;
           }
 
-          m_Trigger.WaitOne(1000);
+          m_Trigger.WaitOne(1000.ChangeByRndPct(0.2f));
 
           var now = App.TimeSource.UTCNow;
           if (InstrumentationEnabled && (now - lastInstr).TotalMilliseconds > INSTRUMENTATION_GRANULARITY_MS)
@@ -267,26 +270,52 @@ namespace Azos.Sky.Messaging
           break;
         }
 
-        var sent = false;
-        try
+
+        DistributedCallFlow dcf = null;
+        if (msg.CallFlowHeader.IsNotNullOrWhiteSpace())
         {
-          statSend();
-          sent = m_Sink.SendMsg(msg);
-        }
-        catch (Exception error)
-        {
-          statSendError();
-          var et = error.ToMessageWithType();
-          WriteLog(MessageType.Error, nameof(write), "{0}.Write(msg) leaked {1}".Args(m_Sink.GetType().FullName, et), error);
+          //Continue the call flow stored in a message
+          dcf = DistributedCallFlow.Continue(App, msg.CallFlowHeader, msg.Id);
         }
 
-        if (!sent) writeFallback(msg);
+        try
+        {
+          var sent = false;
+
+          try
+          {
+            statSend();
+            sent = m_Sink.SendMsg(msg);
+          }
+          catch (Exception error)
+          {
+            statSendError();
+            var et = error.ToMessageWithType();
+            WriteLog(MessageType.Error,
+                     nameof(write),
+                     "{0}.Write(msg) leaked {1}".Args(m_Sink.GetType().FullName, et),
+                     error,
+                     pars: new {
+                       id = msg.Id,
+                       sub = msg.Subject.TakeFirstChars(48, ".."),
+                       dcf = dcf
+                     }.ToJson(JsonWritingOptions.CompactRowsAsMap),
+                     related: dcf?.ID
+                    );
+          }
+
+          if (!sent) writeFallback(msg, dcf);
+        }
+        finally
+        {
+          Apps.ExecutionContext.__SetThreadLevelCallContext(null);
+        }
 
         processed++;
       }
     }
 
-    private void writeFallback(Message msg)
+    private void writeFallback(Message msg, DistributedCallFlow dcf)
     {
       try
       {
@@ -297,7 +326,17 @@ namespace Azos.Sky.Messaging
       {
         statFallbackError();
         var et = error.ToMessageWithType();
-        WriteLog(MessageType.Error, nameof(writeFallback), "{0}.Write(msg) leaked {1}".Args(m_FallbackSink.GetType().FullName, et), error);
+        WriteLog(MessageType.Error,
+                 nameof(writeFallback),
+                 "{0}.Write(msg) leaked {1}".Args(m_FallbackSink.GetType().FullName, et),
+                  error,
+                  pars: new {
+                    id = msg.Id,
+                    sub = msg.Subject.TakeFirstChars(48, ".."),
+                    dcf = dcf
+                  }.ToJson(JsonWritingOptions.CompactRowsAsMap),
+                  related: dcf?.ID
+                 );
       }
     }
 

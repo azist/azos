@@ -6,7 +6,7 @@
 
 using System;
 using System.Linq;
-
+using Azos.Apps;
 using Azos.Data;
 using Azos.Data.Adlib;
 using Azos.Serialization.Bix;
@@ -162,6 +162,11 @@ namespace Azos.Sky.Messaging
     [Field(backendName: "id", isArow: true)]
     public Guid  Id { get; private set;}
 
+    /// <summary>
+    /// Header Data for a distributed call flow through which this message originated in the system (optional)
+    /// </summary>
+    [Field(backendName: "cfhdr", isArow: true)]
+    public string CallFlowHeader { get; set; }
 
     /// <summary>
     /// Optional data tags which can be used for message archive search if supported
