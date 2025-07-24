@@ -275,7 +275,17 @@ namespace Azos.Sky.Messaging
         if (msg.CallFlowHeader.IsNotNullOrWhiteSpace())
         {
           //Continue the call flow stored in a message
-          dcf = DistributedCallFlow.Continue(App, msg.CallFlowHeader, msg.Id);
+          try
+          {
+            dcf = DistributedCallFlow.Continue(App, msg.CallFlowHeader, msg.Id);
+          }
+          catch (Exception error)
+          {
+            WriteLog(MessageType.Critical,
+                     nameof(write),
+                     "Corrupted msg callflow hdr: {0}: {1}".Args(msg.Id, error.ToMessageWithType()),
+                     error, related: msg.Id);
+          }
         }
 
         try
