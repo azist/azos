@@ -4,6 +4,9 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using System;
+using Azos.Conf;
+using Azos.Data;
 using Azos.Scripting;
 using Azos.Serialization.JSON;
 using Azos.Standards;
@@ -211,6 +214,35 @@ namespace Azos.Tests.Nub.Standards
       Aver.AreEqual(Distance.Parse("  15.8     Cm   ").Value.Value, 15.8m);
       Aver.IsTrue(Distance.Parse("15.8 MM").Value.Unit == Distance.UnitType.Millimeter);
       Aver.AreEqual(Distance.Parse("15.8 mM").Value.Value, 15.8m);
+
+
+      Aver.AreEqual(Math.Round(Distance.Parse("10.5 mile").Value.Value, 4), 10.5m);
+      Aver.IsTrue(Distance.Parse("10.5 mile").Value.Unit == Distance.UnitType.Mile);
+
+      Aver.AreEqual(Math.Round(Distance.Parse("10.5 mi").Value.Value, 4), 10.5m);
+      Aver.IsTrue(Distance.Parse("10.5 mi").Value.Unit == Distance.UnitType.Mile);
+
+      Aver.AreEqual(Math.Round(Distance.Parse("10.5 nmi").Value.Value, 4), 10.5m);
+      Aver.IsTrue(Distance.Parse("10.5 nmi").Value.Unit == Distance.UnitType.NauticalMile);
+
+      Aver.AreEqual(Math.Round(Distance.Parse("10.5 nmile").Value.Value, 4), 10.5m);
+      Aver.IsTrue(Distance.Parse("10.5 nmile").Value.Unit == Distance.UnitType.NauticalMile);
+
+
+      Aver.AreEqual(Distance.Parse("10.5km").Value.Value, 10.5m);
+      Aver.IsTrue(Distance.Parse("10.5km").Value.Unit == Distance.UnitType.Kilometer);
+
+      Aver.AreEqual(Distance.Parse("10.5Km").Value.Value, 10.5m);
+      Aver.IsTrue(Distance.Parse("10.5Km").Value.Unit == Distance.UnitType.Kilometer);
+
+      Aver.AreEqual(Distance.Parse("10.5  km").Value.Value, 10.5m);
+      Aver.IsTrue(Distance.Parse("10.5  km").Value.Unit == Distance.UnitType.Kilometer);
+
+      Aver.AreEqual(Distance.Parse("  10.5  KM  ").Value.Value, 10.5m);
+      Aver.IsTrue(Distance.Parse("  10.5  KM  ").Value.Unit == Distance.UnitType.Kilometer);
+
+      Aver.AreEqual(Distance.Parse("10.5kilometer").Value.Value, 10.5m);
+      Aver.IsTrue(Distance.Parse("10.5kilometer").Value.Unit == Distance.UnitType.Kilometer);
     }
 
     [Run]
@@ -281,7 +313,7 @@ namespace Azos.Tests.Nub.Standards
     }
 
     [Run]
-    public void JSON()
+    public void JSON01()
     {
       var d1 = new Distance(3.25m, Distance.UnitType.Yard);
       var json = d1.ToJson();
@@ -292,6 +324,81 @@ namespace Azos.Tests.Nub.Standards
       Aver.IsTrue(got.match);
       Aver.IsTrue(d1 == (Distance)got.self);
     }
+
+    [Run]
+    public void JSON02()
+    {
+      var d1 = new Distance(125.7m, Distance.UnitType.NauticalMile);
+      var json = d1.ToJson();
+      json.See();
+      var map = json.JsonToDataObject() as JsonDataMap;
+      var d2 = new Distance();
+      var got = ((IJsonReadable)d2).ReadAsJson(map, false, null);
+      Aver.IsTrue(got.match);
+
+      Aver.AreEqual(125.7m, Math.Round(((Distance)got.self).Value, 4));
+    }
+
+    [Run]
+    public void JSON03()
+    {
+      var d1 = new Distance(10m, Distance.UnitType.Foot) + new Distance(3m/8m, Distance.UnitType.Inch);
+      var json = d1.ToJson();
+      json.See();
+      var map = json.JsonToDataObject() as JsonDataMap;
+      var d2 = new Distance();
+      var got = ((IJsonReadable)d2).ReadAsJson(map, false, null);
+      Aver.IsTrue(got.match);
+      //10 foot 3/8 inch = 3057.525 mm
+      Aver.AreEqual(3057.525m, Math.Round(((Distance)got.self).Convert(Distance.UnitType.Millimeter).Value, 4));
+    }
+
+
+    class AllDoc : TypedDoc
+    {
+      [Field, Config] public Distance microns { get; set; }
+      [Field, Config] public Distance millimeters { get; set; }
+      [Field, Config] public Distance centimeters { get; set; }
+      [Field, Config] public Distance meters { get; set; }
+      [Field, Config] public Distance kilometers { get; set; }
+      [Field, Config] public Distance inches { get; set; }
+      [Field, Config] public Distance yards { get; set; }
+      [Field, Config] public Distance feet { get; set; }
+      [Field, Config] public Distance miles { get; set; }
+      [Field, Config] public Distance nauticalMiles { get; set; }
+    }
+
+
+    [Run]
+    public void JSON04_All()
+    {
+      var d1 = new AllDoc{
+        microns = new Distance(1500, Distance.UnitType.Micron),
+        millimeters = new Distance(1.5m, Distance.UnitType.Millimeter),
+        centimeters = new Distance(0.15m, Distance.UnitType.Centimeter),
+        meters = new Distance(0.0015m, Distance.UnitType.Meter),
+        kilometers = new Distance(0.0000015m, Distance.UnitType.Kilometer),
+        inches = new Distance(0.05905511811023622047244094488189m, Distance.UnitType.Inch),
+        yards = new Distance(0.00164062499999999999999999999999m, Distance.UnitType.Yard),
+        feet = new Distance(0.00492125984251968503937007874016m, Distance.UnitType.Foot),
+        miles = new Distance(0.00000093205679199999999999999999999m, Distance.UnitType.Mile),
+        nauticalMiles = new Distance(0.00000081279999999999999999999999m, Distance.UnitType.NauticalMile)
+      };
+
+      var json = d1.ToJson();
+      json.See();
+
+      var d2 = JsonReader.ToDoc<AllDoc>(json);
+      d2.See();
+      d1.AverNoDiff(d2);
+
+
+      var cfg = Conf.Configuration.NewEmptyRoot("test");
+      var node = d2.PersistConfiguration(cfg, "data");
+      node.ToLaconicString().See();
+
+    }
+
 
     [Run]
     public void Operators()

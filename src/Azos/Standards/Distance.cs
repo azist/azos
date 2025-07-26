@@ -100,6 +100,7 @@ namespace Azos.Standards
 
     };
 
+    public const int DEFAULT_PRECISION = 4;
 
     public const decimal MICRON_IN_MILLIMETER =     1_000;
     public const decimal MICRON_IN_CENTIMETER =    10_000;
@@ -282,7 +283,7 @@ namespace Azos.Standards
 
     public override int GetHashCode() => ValueInMicrons.GetHashCode();
 
-    public override string ToString() => $"{Value} {ShortUnitName}";
+    public override string ToString() => $"{Math.Round(Value, DEFAULT_PRECISION)} {ShortUnitName}";
 
     public int CompareTo(Distance other) => ValueInMicrons.CompareTo(other.ValueInMicrons);
     public int CompareTo(object obj) => obj is Distance other ? this.CompareTo(other) : 0;
@@ -290,8 +291,8 @@ namespace Azos.Standards
     void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options)
     {
       //todo: this may need to be sensitive per API pragma: e.g. return canonical distance vs units
-      JsonWriter.WriteMap(wri, nestingLevel, options, new DictionaryEntry("u", Unit),
-                                                      new DictionaryEntry("v", Value),
+      JsonWriter.WriteMap(wri, nestingLevel, options, new DictionaryEntry("u", GetUnitName(Unit, true)),
+                                                      new DictionaryEntry("v", Math.Round(Value, DEFAULT_PRECISION)),
                                                       new DictionaryEntry("r", ValueInMicrons));//raw value in Microns
     }
 
