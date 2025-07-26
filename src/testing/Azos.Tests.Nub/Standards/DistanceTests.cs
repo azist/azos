@@ -28,9 +28,9 @@ namespace Azos.Tests.Nub.Standards
       Aver.AreEqual(100m, Distance.MicronToUnit(1_000_000, Distance.UnitType.Centimeter));
       Aver.AreEqual(1000m, Distance.MicronToUnit(1_000_000, Distance.UnitType.Millimeter));
       Aver.AreEqual(1000000m, Distance.MicronToUnit(1_000_000, Distance.UnitType.Micron));
-      Aver.AreEqual(39.370m, Distance.MicronToUnit(1_000_000, Distance.UnitType.Inch));
-      Aver.AreEqual(1.094m, Distance.MicronToUnit(1_000_000, Distance.UnitType.Yard));
-      Aver.AreEqual(3.281m, Distance.MicronToUnit(1_000_000, Distance.UnitType.Foot));
+      Aver.AreEqual(39.370078740157480314960629921m, Distance.MicronToUnit(1_000_000, Distance.UnitType.Inch));
+      Aver.AreEqual(1.0936132983377077865266841645m, Distance.MicronToUnit(1_000_000, Distance.UnitType.Yard));
+      Aver.AreEqual(3.2808398950131233595800524934m, Distance.MicronToUnit(1_000_000, Distance.UnitType.Foot));
     }
 
     [Run]
@@ -192,6 +192,12 @@ namespace Azos.Tests.Nub.Standards
     {
       Distance d1 = new Distance(3.12m, Distance.UnitType.Meter);
       Aver.AreEqual(d1.Convert(Distance.UnitType.Centimeter).Value, 312);
+      Aver.AreEqual(d1.Convert(Distance.UnitType.Kilometer).Value, 0.00312m);
+      Aver.AreEqual(d1.Convert(Distance.UnitType.Mile).Value, 0.0019386781197804819852063947m);
+      Aver.AreEqual(d1.Convert(Distance.UnitType.NauticalMile).Value, 0.001684665226661056402753462m);
+      Aver.AreEqual(d1.Convert(Distance.UnitType.Yard).Value, 3.4120734908136482939632545932m);
+      Aver.AreEqual(d1.Convert(Distance.UnitType.Foot).Value, 10.23622047244094488188976378m);
+      Aver.AreEqual(d1.Convert(Distance.UnitType.Inch).Value, 122.83464566929133858267716535m);
     }
 
     [Run]

@@ -53,6 +53,13 @@ namespace Azos.Standards
   /// however it is not suitable for microscopic applications such as silicon lithography, microscopy, etc. as it does not provide
   /// resolution beyond 1/1000 of a millimeter
   /// </summary>
+  /// <remarks>
+  /// The `Distance` structure efficiently stores value as uniform microns in an 8-byte long int field with a sign.
+  /// Most distances needed in civilian construction industry are less than 50 feet, which is 15.24 meters or 15,240,000 microns.
+  /// 15 million micron value can be represented with 24 bits using varbit encoding, with extra varbit prefix included the value is typically
+  /// 4 bytes of wire/storage data for the aforementioned values. The mathematics is performed on LONG values using 32/64 bit direct CPU registers
+  /// avoiding any heap allocations, thus making this structure efficient for data storage, transmission and calculations/processing.
+  /// </remarks>
   public struct Distance : IMeasure, IEquatable<Distance>, IComparable, IComparable<Distance>, IJsonWritable, IJsonReadable, IRequiredCheck
   {
     /// <summary>
