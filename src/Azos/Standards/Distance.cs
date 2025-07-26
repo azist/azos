@@ -16,26 +16,63 @@ using Azos.Serialization.JSON;
 namespace Azos.Standards
 {
   /// <summary>
-  /// Represents length distance with unit type.
-  /// Used for part/product/item measurement in manufacturing, eCommerce etc.
-  /// The structure stores data with 1 micron (1e-6 of a meter) resolution
+  /// Marker interface for units of measure such as:  Distance, Weight, Area, Volume, Time, and Temperature.
+  /// Measures used to store, transmit and process data, such as product/item measurements in eCommerce, manufacturing, logistics etc.
+  /// A typical use case is Bill of Materials (BOM) used in product manufacturing, product catalog/CPQ (Configure, Price, Quote),
+  /// inventory/warehouse management and shipping systems. <br/><br/>
+  /// Please note: the 3d modeling and other software may use different units, such as `double` or `float` for performance.
+  /// The `IMeasure` interface is primarily built for accurate data storage, transmission and processing where maximum data veracity
+  /// is required. When you need to work with other systems, such as 3d modeling, you may want to use `double` or `float` types as required, however
+  /// the data conversion should be applied POST LOGICAL/BUSINESS PROCESSING which is based on `decimal` type in IMeasure interface
   /// </summary>
-  public struct Distance : IEquatable<Distance>, IComparable<Distance>, IJsonWritable, IJsonReadable
+  public interface IMeasure
+  {
+    /// <summary>
+    /// Measured value expressed in the unit of measure.
+    /// The system purposely uses decimal and not double to avoid precision issues when multiple measurements need to be processed.
+    /// The behavior is akin to how money is handled in the system, where precision is critical, because we
+    /// may need to tally up many measurements and we do not want to lose precision.
+    /// </summary>
+    decimal Value { get; }
+
+    /// <summary> Unit name string (e.g. "meter", "C" etc.)</summary>
+    string UnitName {  get; }
+  }
+
+
+  //Need to implement IComparable so that value can be compared to FIELD.MIn/Max
+  //Field MIN/MAX equip with some property like Min="$$$Distance=5 mm" Max="$$$Distance=120 inch"
+  //Serialize both V and RAW in microns
+  //Implement IRequired/IsAssigned (when UOM is Unknown, then IsAssigned is false)
+
+  /// <summary>
+  /// Represents length/distance along with its measurement unit type.
+  /// Used for part/product/item measurement in manufacturing, eCommerce etc.
+  /// The structure stores data with 1 micron (1e-6 of a meter) resolution.
+  /// It is suitable for 99.9% of use cases in manufacturing, eCommerce, logistics, shipping etc.
+  /// however it is not suitable for microscopic applications such as silicon lithography, microscopy, etc. as it does not provide
+  /// resolution beyond 1/1000 of a millimeter
+  /// </summary>
+  public struct Distance : IMeasure, IEquatable<Distance>, IComparable, IComparable<Distance>, IJsonWritable, IJsonReadable, IRequiredCheck
   {
     /// <summary>
     /// Supported distance unit types:
     /// </summary>
-    public enum UnitType
+    public enum UnitType : byte
     {
       Undefined = 0,
       Micrometer = 1,  µm = Micrometer, mcr = Micrometer, Micron = Micrometer,
       Millimeter = 2,  mm = Millimeter,
       Centimeter = 3,  cm = Centimeter,
       Meter = 4,       m   = Meter,
+      Kilometer = 5,   km = Kilometer,
 
-      Inch  = 5, @in = Inch,
-      Foot  = 6, ft  = Foot,
-      Yard  = 7, yd  = Yard
+      //Non Metric units
+      Inch = 100, @in = Inch,
+      Foot  = 101, ft  = Foot,
+      Yard  = 102, yd  = Yard,
+      Mile  = 103, mi  = Mile,
+      NauticalMile = 104, nmi = NauticalMile, nm = NauticalMile
     }
 
     public static string GetUnitName(UnitType unit, bool useShort = true)
@@ -47,22 +84,26 @@ namespace Azos.Standards
       {UnitType.Millimeter, ("mm", "millimeter")},
       {UnitType.Centimeter, ("cm", "centimeter")},
       {UnitType.Meter,      ("m",  "meter")},
+      {UnitType.Kilometer,  ("km", "kilometer")},
       {UnitType.Inch,       ("in", "inch")},
       {UnitType.Foot,       ("ft", "foot")},
       {UnitType.Yard,       ("yd", "yard")},
+      {UnitType.Mile,       ("mi", "mile")},
+      {UnitType.NauticalMile,  ("nmi", "nmile")},
+
     };
 
-
-
-    public const int VALUE_PRECISION = 3;
 
     public const decimal MICRON_IN_MILLIMETER =     1_000;
     public const decimal MICRON_IN_CENTIMETER =    10_000;
     public const decimal MICRON_IN_METER      = 1_000_000;
+    public const decimal MICRON_IN_KILOMETER = 1_000 * MICRON_IN_METER;
 
     public const decimal MICRON_IN_INCH =  25_400;
     public const decimal MICRON_IN_FOOT = 304_800;
     public const decimal MICRON_IN_YARD = 914_400;
+    public const decimal MICRON_IN_MILE = 5_280 * MICRON_IN_FOOT;
+    public const decimal MICRON_IN_NAUTICAL_MILE = 6_076.115486m * MICRON_IN_FOOT;
 
     /// <summary>
     /// Converts a value expressed in the specified distance units into normalized micron long value
@@ -71,13 +112,16 @@ namespace Azos.Standards
     {
       switch (unit)
       {
-        case UnitType.Micron:     return (long)value;
-        case UnitType.Millimeter: return (long)(value * MICRON_IN_MILLIMETER);
-        case UnitType.Centimeter: return (long)(value * MICRON_IN_CENTIMETER);
-        case UnitType.Meter:      return (long)(value * MICRON_IN_METER);
-        case UnitType.Inch:       return (long)(value * MICRON_IN_INCH);
-        case UnitType.Foot:       return (long)(value * MICRON_IN_FOOT);
-        case UnitType.Yard:       return (long)(value * MICRON_IN_YARD);
+        case UnitType.Micron:       return (long)value;
+        case UnitType.Millimeter:   return (long)(value * MICRON_IN_MILLIMETER);
+        case UnitType.Centimeter:   return (long)(value * MICRON_IN_CENTIMETER);
+        case UnitType.Meter:        return (long)(value * MICRON_IN_METER);
+        case UnitType.Kilometer:    return (long)(value * MICRON_IN_KILOMETER);
+        case UnitType.Inch:         return (long)(value * MICRON_IN_INCH);
+        case UnitType.Foot:         return (long)(value * MICRON_IN_FOOT);
+        case UnitType.Yard:         return (long)(value * MICRON_IN_YARD);
+        case UnitType.Mile:         return (long)(value * MICRON_IN_MILE);
+        case UnitType.NauticalMile: return (long)(value * MICRON_IN_NAUTICAL_MILE);
         default: throw new AzosException(StringConsts.STANDARDS_DISTANCE_UNIT_TYPE_ERROR.Args(unit));
       }
     }
@@ -89,18 +133,19 @@ namespace Azos.Standards
     {
       switch (unit)
       {
-        case UnitType.Micron: return value;
-        case UnitType.Millimeter: return Math.Round(value / MICRON_IN_MILLIMETER, VALUE_PRECISION);
-        case UnitType.Centimeter: return Math.Round(value / MICRON_IN_CENTIMETER, VALUE_PRECISION);
-        case UnitType.Meter:      return Math.Round(value / MICRON_IN_METER, VALUE_PRECISION);
-        case UnitType.Inch:       return Math.Round(value / MICRON_IN_INCH, VALUE_PRECISION);
-        case UnitType.Foot:       return Math.Round(value / MICRON_IN_FOOT, VALUE_PRECISION);
-        case UnitType.Yard:       return Math.Round(value / MICRON_IN_YARD, VALUE_PRECISION);
+        case UnitType.Micron:       return value;
+        case UnitType.Millimeter:   return value / MICRON_IN_MILLIMETER;
+        case UnitType.Centimeter:   return value / MICRON_IN_CENTIMETER;
+        case UnitType.Meter:        return value / MICRON_IN_METER;
+        case UnitType.Kilometer:    return value / MICRON_IN_KILOMETER;
+        case UnitType.Inch:         return value / MICRON_IN_INCH;
+        case UnitType.Foot:         return value / MICRON_IN_FOOT;
+        case UnitType.Yard:         return value / MICRON_IN_YARD;
+        case UnitType.Mile:         return value / MICRON_IN_MILE;
+        case UnitType.NauticalMile: return value / MICRON_IN_NAUTICAL_MILE;
         default: throw new AzosException(StringConsts.STANDARDS_DISTANCE_UNIT_TYPE_ERROR.Args(unit));
       }
     }
-
-
 
     /// <summary>
     /// Creates an instance from the serialized value expressed in microns (e.g. stored in db as long)
@@ -109,7 +154,6 @@ namespace Azos.Standards
     {
       Unit = unit;
       ValueInMicrons = micronValue;
-      Value = MicronToUnit(micronValue, unit);
     }
 
     /// <summary>
@@ -118,19 +162,20 @@ namespace Azos.Standards
     public Distance(decimal value, UnitType unit)
     {
       Unit = unit;
-      Value = value;
       ValueInMicrons = UnitToMicron(value, unit);
     }
 
     /// <summary>
-    /// Normalized distance value expressed in whole microns
+    /// Normalized distance value expressed in whole microns.
+    /// The maximum precision supported by this type is 1 micron which is 1 millions of a meter or 1 thousands of a millimeter
     /// </summary>
     public readonly long ValueInMicrons;
 
     /// <summary>
     /// Calculated value expressed in fractional units of distance
     /// </summary>
-    public readonly decimal Value;
+    public decimal Value => MicronToUnit(ValueInMicrons, Unit);
+    decimal IMeasure.Value => Value;
 
     /// <summary>
     /// Units of distance measurement
@@ -138,9 +183,16 @@ namespace Azos.Standards
     public readonly UnitType Unit;
 
     /// <summary>
+    /// Returns true if this instance has a valid unit assigned, i.e. Unit is not Undefined
+    /// </summary>
+    public bool IsAssigned => Unit != UnitType.Undefined;
+    bool IRequiredCheck.CheckRequired(string targetName) => IsAssigned;
+
+    /// <summary>
     /// Provides unit name a s short string
     /// </summary>
     public string ShortUnitName => GetUnitName(Unit, true);
+    string IMeasure.UnitName => ShortUnitName;
 
     /// <summary>
     /// Provides unit name as long string
@@ -158,12 +210,19 @@ namespace Azos.Standards
     public Distance Convert(UnitType toUnit) => Unit == toUnit ? this : new Distance(toUnit, ValueInMicrons);
 
 
+
+    /// <summary>
+    /// Parses the string value into Distance or throws if value is bad
+    /// </summary>
     public static Distance? Parse(string val)
     {
       if (TryParse(val, out var result)) return result;
       throw new AzosException(StringConsts.ARGUMENT_ERROR + "Unparsable(`{0}`)".Args(val));
     }
 
+    /// <summary>
+    /// Tries to parse the value returning true and the parsed value on success or false/null on failure
+    /// </summary>
     public static bool TryParse(string val, out Distance? result)
     {
       result = null;
@@ -189,6 +248,7 @@ namespace Azos.Standards
           {
             return false;
           }
+
           result = new Distance(dval, unit);
           return true;
         }
@@ -202,6 +262,11 @@ namespace Azos.Standards
     public bool IsEquivalent(Distance other) => this.ValueInMicrons == other.ValueInMicrons;
 
     /// <summary>
+    /// Returns true if two distances are within the specified tolerance absolute distance, e.g. "-10in is within 25in of +15in", however "-10in is not within 5in of +15in"
+    /// </summary>
+    public bool IsWithin(Distance other, Distance tolerance) => Math.Abs(this.ValueInMicrons - other.ValueInMicrons) <= Math.Abs(tolerance.ValueInMicrons);
+
+    /// <summary>
     /// Returns true if both values represent the same distance in the same units
     /// </summary>
     public bool Equals(Distance other) => this.Unit == other.Unit && this.ValueInMicrons == other.ValueInMicrons;
@@ -210,14 +275,17 @@ namespace Azos.Standards
 
     public override int GetHashCode() => ValueInMicrons.GetHashCode();
 
-    public override string ToString() => "{0} {1}".Args(Value, ShortUnitName);
+    public override string ToString() => $"{Value} {ShortUnitName}";
 
     public int CompareTo(Distance other) => ValueInMicrons.CompareTo(other.ValueInMicrons);
+    public int CompareTo(object obj) => obj is Distance other ? this.CompareTo(other) : 0;
 
     void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options)
     {
       //todo: this may need to be sensitive per API pragma: e.g. return canonical distance vs units
-      JsonWriter.WriteMap(wri, nestingLevel, options, new DictionaryEntry("u", Unit), new DictionaryEntry("v", Value));
+      JsonWriter.WriteMap(wri, nestingLevel, options, new DictionaryEntry("u", Unit),
+                                                      new DictionaryEntry("v", Value),
+                                                      new DictionaryEntry("r", ValueInMicrons));//raw value in Microns
     }
 
     (bool match, IJsonReadable self) IJsonReadable.ReadAsJson(object data, bool fromUI, JsonReader.DocReadOptions? options)
@@ -226,23 +294,43 @@ namespace Azos.Standards
       {
         try
         {
-          return (true, new Distance(map["v"].AsDecimal(handling: ConvertErrorHandling.Throw),
-                                     map["u"].AsEnum(UnitType.Undefined, handling: ConvertErrorHandling.Throw)));
+          var result = map.ContainsKey("r") //prioritize RAW value as it is the most precise and fast
+                         ? new Distance(map["u"].AsEnum(UnitType.Undefined, handling: ConvertErrorHandling.Throw),
+                                        map["r"].AsLong(handling: ConvertErrorHandling.Throw))
+                         : new Distance(map["v"].AsDecimal(handling: ConvertErrorHandling.Throw),
+                                        map["u"].AsEnum(UnitType.Undefined, handling: ConvertErrorHandling.Throw));
+
+          return (true, result);
         }
         catch {}
       }
+
       return (false, null);
     }
 
+
     public static Distance operator +(Distance a, Distance b) => new Distance(a.Unit, a.ValueInMicrons + b.ValueInMicrons);
     public static Distance operator -(Distance a, Distance b) => new Distance(a.Unit, a.ValueInMicrons - b.ValueInMicrons);
-    public static Distance operator *(Distance a, Distance b) => new Distance(a.Unit, a.ValueInMicrons * b.ValueInMicrons);
-    public static Distance operator /(Distance a, Distance b) => new Distance(a.Unit, a.ValueInMicrons / b.ValueInMicrons);
-    public static Distance operator %(Distance a, Distance b) => new Distance(a.Unit, a.ValueInMicrons % b.ValueInMicrons);
+
+    public static decimal operator /(Distance a, Distance b) => (decimal)a.ValueInMicrons / (decimal)b.ValueInMicrons;
+    public static Distance operator %(Distance a, Distance b) => new Distance(b.Unit, a.ValueInMicrons % b.ValueInMicrons);
+
+    public static Distance operator *(Distance a, long b) => new Distance(a.Unit, a.ValueInMicrons * b);
+    public static Distance operator *(long a, Distance b) => new Distance(b.Unit, a * b.ValueInMicrons);
+    public static Distance operator /(Distance a, long b) => new Distance(a.Unit, a.ValueInMicrons / b);
 
     public static Distance operator *(Distance a, double b) => new Distance(a.Unit, (long)(a.ValueInMicrons * b));
     public static Distance operator *(double a, Distance b) => new Distance(b.Unit, (long)(a * b.ValueInMicrons));
     public static Distance operator /(Distance a, double b) => new Distance(a.Unit, (long)(a.ValueInMicrons / b));
+
+    public static Distance operator *(Distance a, float b) => new Distance(a.Unit, (long)(a.ValueInMicrons * b));
+    public static Distance operator *(float a, Distance b) => new Distance(b.Unit, (long)(a * b.ValueInMicrons));
+    public static Distance operator /(Distance a, float b) => new Distance(a.Unit, (long)(a.ValueInMicrons / b));
+
+    public static Distance operator *(Distance a, decimal b) => new Distance(a.Unit, (long)(a.ValueInMicrons * b));
+    public static Distance operator *(decimal a, Distance b) => new Distance(b.Unit, (long)(a * b.ValueInMicrons));
+    public static Distance operator /(Distance a, decimal b) => new Distance(a.Unit, (long)(a.ValueInMicrons / b));
+
 
     public static bool operator ==(Distance a, Distance b) => a.Equals(b);
     public static bool operator !=(Distance a, Distance b) => !a.Equals(b);
