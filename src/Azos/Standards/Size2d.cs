@@ -8,10 +8,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+
 using Azos.Conf;
 using Azos.Data;
-using Azos.Data.AST;
-using Azos.Scripting.Dsl;
 using Azos.Serialization.JSON;
 
 namespace Azos.Standards
@@ -148,6 +147,12 @@ namespace Azos.Standards
     /// </summary>
     public bool IsWithin(Size2d other, Size2d tolerance)
       => this.Width.IsWithin(other.Width, tolerance.Width) && this.Height.IsWithin(other.Height, tolerance.Height);
+
+    /// <summary>
+    /// Returns true if both components of this sizes are within the specified fixed tolerance, absolute distance e.g. "-10in is within 25in of +15in", however "-10in is not within 5in of +15in"
+    /// </summary>
+    public bool IsWithin(Size2d other, Distance tolerance)
+      => this.Width.IsWithin(other.Width, tolerance) && this.Height.IsWithin(other.Height, tolerance);
 
 
     /// <summary>
