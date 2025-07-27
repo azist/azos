@@ -460,7 +460,7 @@ namespace Azos.Tests.Nub.Standards
 
 
     [Run]
-    public void Operators()
+    public void Operators_01()
     {
       Distance d1 = new Distance(35, Distance.UnitType.Meter);
       Distance d2 = new Distance(1200, Distance.UnitType.Millimeter);
@@ -476,6 +476,83 @@ namespace Azos.Tests.Nub.Standards
       Aver.IsTrue(d1 != d2);
       Aver.IsTrue(d1 >= d2);
       Aver.IsTrue(d1 > d2);
+    }
+
+    [Run]
+    public void Operators_02()
+    {
+      Distance d1 = new Distance(20, Distance.UnitType.Meter);
+      Distance d2 = new Distance(2, Distance.UnitType.Meter);
+      Aver.AreEqual(10m, d1 / d2);
+    }
+
+    [Run]
+    public void Operators_03()
+    {
+      Distance d1 = new Distance(20, Distance.UnitType.Meter);
+      Distance d2 = new Distance(1, Distance.UnitType.Yard);
+      var v = d1 % d2;
+      Aver.IsTrue(v.Unit == Distance.UnitType.Yard);
+      Aver.IsTrue(new Distance(20m % 0.9144m, Distance.UnitType.Meter).IsEquivalent(v));
+    }
+
+    [Run]
+    public void Operators_04_conversion()
+    {
+      Distance d1 = "20m";
+
+      Aver.IsTrue(d1.Unit == Distance.UnitType.Meter);
+      Aver.AreEqual(20m, d1.Value);
+
+      string s1 = d1;
+      Aver.AreEqual("20 m", s1);
+
+      Distance d2 = (Distance)37_000_000L;
+      long l = (long)d2;
+      Aver.IsTrue(d2.Unit == Distance.UnitType.Micron);
+      Aver.AreEqual(37_000_000m, d2.Value);
+      Aver.AreEqual(37_000_000L, l);
+    }
+
+    [Run]
+    public void Operators_05_combined()
+    {
+      Distance d1 = "20m";
+      Distance d2 = d1 + "-15cm";
+
+      Aver.IsTrue(d1.Unit == Distance.UnitType.Meter);
+      Aver.AreEqual(20m, d1.Value);
+
+      Aver.IsTrue(d2.Unit == Distance.UnitType.Meter);
+      Aver.AreEqual(20m, d1.Value);
+
+      string s1 = d1;
+      Aver.AreEqual("20 m", s1);
+
+      string s2 = d2;
+      Aver.AreEqual("19.85 m", s2);
+
+      Aver.IsFalse(d1 == d2);
+      Aver.IsFalse(d1.IsEquivalent(d2));
+      Aver.IsTrue(d1.IsWithin(d2, "10in"));
+      Aver.IsTrue(d1.IsWithin(d2, "-10in"));
+
+      Aver.IsFalse(d1.IsWithin(d2, "1 in"));
+      Aver.IsFalse(d1.IsWithin(d2, "-1 in"));
+
+
+      Distance wall = "10foot".ComposeDistance($"{3 / 8m}inch");//long suffixes
+      Distance window = 2m.In(Distance.UnitType.Foot) + $"{1 / 4m}in";//short suffixes
+
+      var windowCount = Math.Truncate(wall / window);
+
+      Aver.AreEqual(4m, windowCount);//4 windows fit in this wall
+
+      Aver.AreEqual(10.03125m, wall.ValueIn(Distance.UnitType.Foot));//  3/8 = 0.375 inch = 0.03125 foot
+      Aver.AreEqual(24.25m, window.ValueIn(Distance.UnitType.Inch));// 2 feet 1/4 inch = 24.25 inches
+
+      // 4 windows, 24.25 inches each, can fit in the 10.03125 foot wide wall
+      "{0} windows, {1} inches each, can fit in {2} foot wide wall".SeeArgs(windowCount, window.ValueIn(Distance.UnitType.Inch), wall.Value);
     }
 
 

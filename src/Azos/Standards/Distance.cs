@@ -22,16 +22,26 @@ namespace Azos.Standards
   /// The structure stores data with 1 micron (1e-6 of a meter) resolution.
   /// It is suitable for 99.9% of use cases in manufacturing, eCommerce, logistics, shipping etc.
   /// however it is not suitable for microscopic applications such as silicon lithography, microscopy, etc. as it does not provide
-  /// resolution beyond 1/1000 of a millimeter
+  /// resolution beyond 1/1000 of a millimeter (1 micrometer aka "micron")
   /// </summary>
   /// <remarks>
   /// The `Distance` structure efficiently stores value as uniform microns in an 8-byte long int field with a sign.
   /// Most distances needed in civilian construction industry are less than 50 feet, which is 15.24 meters or 15,240,000 microns.
-  /// 15 million micron value can be represented with 24 bits using varbit encoding, with extra varbit prefix included the value is typically
-  /// 4 bytes of wire/storage data for the aforementioned values. The mathematics is performed on LONG values using 32/64 bit direct CPU registers
+  /// 15 million micron value can be represented with 24 bits using varbit encoding, with the extra varbit prefix included, the value typically takes
+  /// 4 bytes of wire/storage data for the aforementioned distances. The mathematics is performed on LONG values using 32/64 bit direct CPU registers
   /// avoiding any heap allocations, thus making this structure efficient for data storage, transmission and calculations/processing.
+  /// <br/>
+  /// `Distance` implements all standard system functions: JSON and Configuration serialization, data validation:
+  ///   range comparison (for min/max checking) and required value checking
   /// </remarks>
-  public struct Distance : IScalarMeasure, IEquatable<Distance>, IComparable, IComparable<Distance>, IJsonWritable, IJsonReadable, IRequiredCheck, IConfigurationPersistent
+  public readonly struct Distance : IScalarMeasure,
+                                     IEquatable<Distance>,
+                                     IComparable,
+                                     IComparable<Distance>,
+                                     IJsonWritable,
+                                     IJsonReadable,
+                                     IRequiredCheck,
+                                     IConfigurationPersistent
   {
     /// <summary>
     /// Supported distance unit types:
@@ -144,6 +154,27 @@ namespace Azos.Standards
       ValueInMicrons = UnitToMicron(value, unit);
     }
 
+    public Distance(JsonDataMap map)
+    {
+      if (map == null || map.Count == 0)
+      {
+        Unit = default;
+        ValueInMicrons = default;
+        return;
+      }
+
+      if (map.ContainsKey("r")) //prioritize RAW parsed as it is the most precise and fast
+      {
+        Unit = map["u"].AsEnum(UnitType.Undefined, handling: ConvertErrorHandling.Throw);
+        ValueInMicrons = map["r"].AsLong(handling: ConvertErrorHandling.Throw);
+      }
+      else
+      {
+        Unit = map["u"].AsEnum(UnitType.Undefined, handling: ConvertErrorHandling.Throw);
+        ValueInMicrons = UnitToMicron(map["v"].AsDecimal(handling: ConvertErrorHandling.Throw), Unit);
+      }
+    }
+
     [ConfigCtor]
     public Distance(IConfigAttrNode cfg)
     {
@@ -220,11 +251,11 @@ namespace Azos.Standards
     public static Distance? Parse(string val)
     {
       if (TryParse(val, out var result)) return result;
-      throw new AzosException(StringConsts.ARGUMENT_ERROR + "Unparsable(`{0}`)".Args(val));
+      throw new AzosException(StringConsts.ARGUMENT_ERROR + "Unparsable Distance(`{0}`)".Args(val));
     }
 
     /// <summary>
-    /// Tries to parse the parsed returning true and the parsed parsed on success or false/null on failure
+    /// Tries to parse the parsed returning true and the parsed on success or false/null on failure
     /// </summary>
     public static bool TryParse(string val, out Distance? result)
     {
@@ -303,21 +334,7 @@ namespace Azos.Standards
 
     (bool match, IJsonReadable self) IJsonReadable.ReadAsJson(object data, bool fromUI, JsonReader.DocReadOptions? options)
     {
-      if (data is JsonDataMap map)
-      {
-        try
-        {
-          var result = map.ContainsKey("r") //prioritize RAW parsed as it is the most precise and fast
-                         ? new Distance(map["u"].AsEnum(UnitType.Undefined, handling: ConvertErrorHandling.Throw),
-                                        map["r"].AsLong(handling: ConvertErrorHandling.Throw))
-                         : new Distance(map["v"].AsDecimal(handling: ConvertErrorHandling.Throw),
-                                        map["u"].AsEnum(UnitType.Undefined, handling: ConvertErrorHandling.Throw));
-
-          return (true, result);
-        }
-        catch {}
-      }
-
+      if (data is JsonDataMap map)  return (true, new Distance(map));
       return (false, null);
     }
 
