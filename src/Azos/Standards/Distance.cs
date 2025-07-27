@@ -9,44 +9,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+
 using Azos.Conf;
 using Azos.Data;
-using Azos.Data.AST;
-using Azos.Scripting.Dsl;
 using Azos.Serialization.JSON;
 
 namespace Azos.Standards
 {
-  /// <summary>
-  /// Marker interface for units of measure such as:  Distance, Weight, Area, Volume, Time, and Temperature.
-  /// Measures used to store, transmit and process data, such as product/item measurements in eCommerce, manufacturing, logistics etc.
-  /// A typical use case is Bill of Materials (BOM) used in product manufacturing, product catalog/CPQ (Configure, Price, Quote),
-  /// inventory/warehouse management and shipping systems. <br/><br/>
-  /// Please note: the 3d modeling and other software may use different units, such as `double` or `float` for performance.
-  /// The `IMeasure` interface is primarily built for accurate data storage, transmission and processing where maximum data veracity
-  /// is required. When you need to work with other systems, such as 3d modeling, you may want to use `double` or `float` types as required, however
-  /// the data conversion should be applied POST LOGICAL/BUSINESS PROCESSING which is based on `decimal` type in IMeasure interface
-  /// </summary>
-  public interface IMeasure
-  {
-    /// <summary>
-    /// Measured parsed expressed in the unit of measure.
-    /// The system purposely uses decimal and not double to avoid precision issues when multiple measurements need to be processed.
-    /// The behavior is akin to how money is handled in the system, where precision is critical, because we
-    /// may need to tally up many measurements and we do not want to lose precision.
-    /// </summary>
-    decimal Value { get; }
-
-    /// <summary> Unit name string (e.g. "meter", "C" etc.)</summary>
-    string UnitName {  get; }
-  }
-
-
-  //Need to implement IComparable so that parsed can be compared to FIELD.MIn/Max
-  //Field MIN/MAX equip with some property like Min="$$$Distance=5 mm" Max="$$$Distance=120 inch"
-  //Serialize both V and RAW in microns
-  //Implement IRequired/IsAssigned (when UOM is Unknown, then IsAssigned is false)
-
   /// <summary>
   /// Represents length/distance along with its measurement unit type.
   /// Used for part/product/item measurement in manufacturing, eCommerce etc.
@@ -62,7 +31,7 @@ namespace Azos.Standards
   /// 4 bytes of wire/storage data for the aforementioned values. The mathematics is performed on LONG values using 32/64 bit direct CPU registers
   /// avoiding any heap allocations, thus making this structure efficient for data storage, transmission and calculations/processing.
   /// </remarks>
-  public struct Distance : IMeasure, IEquatable<Distance>, IComparable, IComparable<Distance>, IJsonWritable, IJsonReadable, IRequiredCheck, IConfigurationPersistent
+  public struct Distance : IScalarMeasure, IEquatable<Distance>, IComparable, IComparable<Distance>, IJsonWritable, IJsonReadable, IRequiredCheck, IConfigurationPersistent
   {
     /// <summary>
     /// Supported distance unit types:
@@ -209,7 +178,7 @@ namespace Azos.Standards
     /// Calculated parsed expressed in fractional units of distance
     /// </summary>
     public decimal Value => MicronToUnit(ValueInMicrons, Unit);
-    decimal IMeasure.Value => Value;
+    decimal IScalarMeasure.Value => Value;
 
     /// <summary>
     /// Units of distance measurement
@@ -226,7 +195,7 @@ namespace Azos.Standards
     /// Provides unit name a s short string
     /// </summary>
     public string ShortUnitName => GetUnitName(Unit, true);
-    string IMeasure.UnitName => ShortUnitName;
+    string IScalarMeasure.UnitName => ShortUnitName;
 
     /// <summary>
     /// Provides unit name as long string
