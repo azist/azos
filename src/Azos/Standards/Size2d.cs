@@ -187,5 +187,39 @@ namespace Azos.Standards
       return (false, null);
     }
 
+    public static Size2d operator +(Size2d a, Size2d b) => new Size2d(a.Width + b.Width, a.Height + b.Height);
+    public static Size2d operator -(Size2d a, Size2d b) => new Size2d(a.Width - b.Width, a.Height - b.Height);
+
+    public static decimal operator /(Size2d a, Size2d b) => a.AreaInMicrons / b.AreaInMicrons;
+    public static decimal operator %(Size2d a, Size2d b) => a.AreaInMicrons % b.AreaInMicrons;
+
+
+    public static Size2d operator *(Size2d a, long b) => new Size2d(a.Width * b, a.Height * b);
+    public static Size2d operator *(long a, Size2d b) => new Size2d(a * b.Width, a * b.Height);
+    public static Size2d operator /(Size2d a, long b) => new Size2d(a.Width / b, a.Height / b);
+
+    public static Size2d operator *(Size2d a, double b) => new Size2d(a.Width * b, a.Height * b);
+    public static Size2d operator *(double a, Size2d b) => new Size2d(a * b.Width, a * b.Height);
+    public static Size2d operator /(Size2d a, double b) => new Size2d(a.Width / b, a.Height / b);
+
+    public static Size2d operator *(Size2d a, float b) => new Size2d(a.Width * b, a.Height * b);
+    public static Size2d operator *(float a, Size2d b) => new Size2d(a * b.Width, a * b.Height);
+    public static Size2d operator /(Size2d a, float b) => new Size2d(a.Width / b, a.Height / b);
+
+    public static Size2d operator *(Size2d a, decimal b) => new Size2d(a.Width * b, a.Height * b);
+    public static Size2d operator *(decimal a, Size2d b) => new Size2d(a * b.Width, a * b.Height);
+    public static Size2d operator /(Size2d a, decimal b) => new Size2d(a.Width / b, a.Height / b);
+
+
+    public static implicit operator Size2d(string value) => Size2d.Parse(value) ?? default;
+    public static implicit operator string(Size2d value) => value.ToString();
+
+    public static bool operator ==(Size2d a, Size2d b) => a.Equals(b);
+    public static bool operator !=(Size2d a, Size2d b) => !a.Equals(b);
+    public static bool operator >=(Size2d a, Size2d b) => a.AreaInMicrons >= b.AreaInMicrons;
+    public static bool operator <=(Size2d a, Size2d b) => a.AreaInMicrons <= b.AreaInMicrons;
+    public static bool operator >(Size2d a, Size2d b) => a.AreaInMicrons > b.AreaInMicrons;
+    public static bool operator <(Size2d a, Size2d b) => a.AreaInMicrons < b.AreaInMicrons;
+
   }
 }
