@@ -154,6 +154,27 @@ namespace Azos.Standards
       ValueInMicrons = UnitToMicron(value, unit);
     }
 
+    public Distance(JsonDataMap map)
+    {
+      if (map == null || map.Count == 0)
+      {
+        Unit = default;
+        ValueInMicrons = default;
+        return;
+      }
+
+      if (map.ContainsKey("r")) //prioritize RAW parsed as it is the most precise and fast
+      {
+        Unit = map["u"].AsEnum(UnitType.Undefined, handling: ConvertErrorHandling.Throw);
+        ValueInMicrons = map["r"].AsLong(handling: ConvertErrorHandling.Throw);
+      }
+      else
+      {
+        Unit = map["u"].AsEnum(UnitType.Undefined, handling: ConvertErrorHandling.Throw);
+        ValueInMicrons = UnitToMicron(map["v"].AsDecimal(handling: ConvertErrorHandling.Throw), Unit);
+      }
+    }
+
     [ConfigCtor]
     public Distance(IConfigAttrNode cfg)
     {
@@ -230,11 +251,11 @@ namespace Azos.Standards
     public static Distance? Parse(string val)
     {
       if (TryParse(val, out var result)) return result;
-      throw new AzosException(StringConsts.ARGUMENT_ERROR + "Unparsable(`{0}`)".Args(val));
+      throw new AzosException(StringConsts.ARGUMENT_ERROR + "Unparsable Distance(`{0}`)".Args(val));
     }
 
     /// <summary>
-    /// Tries to parse the parsed returning true and the parsed parsed on success or false/null on failure
+    /// Tries to parse the parsed returning true and the parsed on success or false/null on failure
     /// </summary>
     public static bool TryParse(string val, out Distance? result)
     {
@@ -313,21 +334,7 @@ namespace Azos.Standards
 
     (bool match, IJsonReadable self) IJsonReadable.ReadAsJson(object data, bool fromUI, JsonReader.DocReadOptions? options)
     {
-      if (data is JsonDataMap map)
-      {
-        try
-        {
-          var result = map.ContainsKey("r") //prioritize RAW parsed as it is the most precise and fast
-                         ? new Distance(map["u"].AsEnum(UnitType.Undefined, handling: ConvertErrorHandling.Throw),
-                                        map["r"].AsLong(handling: ConvertErrorHandling.Throw))
-                         : new Distance(map["v"].AsDecimal(handling: ConvertErrorHandling.Throw),
-                                        map["u"].AsEnum(UnitType.Undefined, handling: ConvertErrorHandling.Throw));
-
-          return (true, result);
-        }
-        catch {}
-      }
-
+      if (data is JsonDataMap map)  return (true, new Distance(map));
       return (false, null);
     }
 

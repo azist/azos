@@ -43,16 +43,25 @@ namespace Azos.Standards
   }
 
   /// <summary>
+  /// Info object describing a single component of a composite measure, a tuple of `(name: str, value: IMeasure)`
+  /// </summary>
+  public readonly struct MeasureComponent
+  {
+    public MeasureComponent(string n, IMeasure v) { Name = n; Value = v; }
+    public readonly string Name;
+    public readonly IMeasure Value;
+  }
+
+  /// <summary>
   /// <inheritdoc cref="IMeasure"/> <br/><br/>
   /// ICompositeMeasure interface is used for complex (composite) measures that consist of multiple measures, such as product dimensions (width x height x depth).
   /// </summary>
   public interface ICompositeMeasure : IMeasure
   {
     /// <summary>
-    /// Values of the composite measure is a collection key value pairs: measure name and measure value.
+    /// Component values of the composite measure is a collection key value tuples: `(measure_name, measure_value)`.
     /// </summary>
-    IEnumerable<KeyValuePair<string, IMeasure>> Values { get; }
+    IEnumerable<MeasureComponent> Components { get; }
   }
-
 
 }
