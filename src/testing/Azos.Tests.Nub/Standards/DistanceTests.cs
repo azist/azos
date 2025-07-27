@@ -4,6 +4,9 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
+using System;
+using Azos.Conf;
+using Azos.Data;
 using Azos.Scripting;
 using Azos.Serialization.JSON;
 using Azos.Standards;
@@ -28,9 +31,9 @@ namespace Azos.Tests.Nub.Standards
       Aver.AreEqual(100m, Distance.MicronToUnit(1_000_000, Distance.UnitType.Centimeter));
       Aver.AreEqual(1000m, Distance.MicronToUnit(1_000_000, Distance.UnitType.Millimeter));
       Aver.AreEqual(1000000m, Distance.MicronToUnit(1_000_000, Distance.UnitType.Micron));
-      Aver.AreEqual(39.370m, Distance.MicronToUnit(1_000_000, Distance.UnitType.Inch));
-      Aver.AreEqual(1.094m, Distance.MicronToUnit(1_000_000, Distance.UnitType.Yard));
-      Aver.AreEqual(3.281m, Distance.MicronToUnit(1_000_000, Distance.UnitType.Foot));
+      Aver.AreEqual(39.370078740157480314960629921m, Distance.MicronToUnit(1_000_000, Distance.UnitType.Inch));
+      Aver.AreEqual(1.0936132983377077865266841645m, Distance.MicronToUnit(1_000_000, Distance.UnitType.Yard));
+      Aver.AreEqual(3.2808398950131233595800524934m, Distance.MicronToUnit(1_000_000, Distance.UnitType.Foot));
     }
 
     [Run]
@@ -182,7 +185,8 @@ namespace Azos.Tests.Nub.Standards
       Aver.IsFalse(Distance.TryParse("5 .cm", out var result1));
       Aver.IsFalse(Distance.TryParse("cm 5", out var result2));
       Aver.IsFalse(Distance.TryParse("cm", out var result3));
-      Aver.IsFalse(Distance.TryParse("5", out var result4));
+
+      Aver.IsTrue(Distance.TryParse("5", out var result4));//microns
     }
 
 
@@ -192,10 +196,16 @@ namespace Azos.Tests.Nub.Standards
     {
       Distance d1 = new Distance(3.12m, Distance.UnitType.Meter);
       Aver.AreEqual(d1.Convert(Distance.UnitType.Centimeter).Value, 312);
+      Aver.AreEqual(d1.Convert(Distance.UnitType.Kilometer).Value, 0.00312m);
+      Aver.AreEqual(d1.Convert(Distance.UnitType.Mile).Value, 0.0019386781197804819852063947m);
+      Aver.AreEqual(d1.Convert(Distance.UnitType.NauticalMile).Value, 0.001684665226661056402753462m);
+      Aver.AreEqual(d1.Convert(Distance.UnitType.Yard).Value, 3.4120734908136482939632545932m);
+      Aver.AreEqual(d1.Convert(Distance.UnitType.Foot).Value, 10.23622047244094488188976378m);
+      Aver.AreEqual(d1.Convert(Distance.UnitType.Inch).Value, 122.83464566929133858267716535m);
     }
 
     [Run]
-    public void Parse()
+    public void Parse01()
     {
       Aver.IsTrue(Distance.Parse(" ") == null);
       Aver.IsTrue(Distance.Parse(null) == null);
@@ -205,6 +215,73 @@ namespace Azos.Tests.Nub.Standards
       Aver.AreEqual(Distance.Parse("  15.8     Cm   ").Value.Value, 15.8m);
       Aver.IsTrue(Distance.Parse("15.8 MM").Value.Unit == Distance.UnitType.Millimeter);
       Aver.AreEqual(Distance.Parse("15.8 mM").Value.Value, 15.8m);
+
+
+      Aver.AreEqual(Math.Round(Distance.Parse("10.5 mile").Value.Value, 4), 10.5m);
+      Aver.IsTrue(Distance.Parse("10.5 mile").Value.Unit == Distance.UnitType.Mile);
+
+      Aver.AreEqual(Math.Round(Distance.Parse("10.5 mi").Value.Value, 4), 10.5m);
+      Aver.IsTrue(Distance.Parse("10.5 mi").Value.Unit == Distance.UnitType.Mile);
+
+      Aver.AreEqual(Math.Round(Distance.Parse("10.5 nmi").Value.Value, 4), 10.5m);
+      Aver.IsTrue(Distance.Parse("10.5 nmi").Value.Unit == Distance.UnitType.NauticalMile);
+
+      Aver.AreEqual(Math.Round(Distance.Parse("10.5 nmile").Value.Value, 4), 10.5m);
+      Aver.IsTrue(Distance.Parse("10.5 nmile").Value.Unit == Distance.UnitType.NauticalMile);
+
+
+      Aver.AreEqual(Distance.Parse("10.5km").Value.Value, 10.5m);
+      Aver.IsTrue(Distance.Parse("10.5km").Value.Unit == Distance.UnitType.Kilometer);
+
+      Aver.AreEqual(Distance.Parse("10.5Km").Value.Value, 10.5m);
+      Aver.IsTrue(Distance.Parse("10.5Km").Value.Unit == Distance.UnitType.Kilometer);
+
+      Aver.AreEqual(Distance.Parse("10.5  km").Value.Value, 10.5m);
+      Aver.IsTrue(Distance.Parse("10.5  km").Value.Unit == Distance.UnitType.Kilometer);
+
+      Aver.AreEqual(Distance.Parse("  10.5  KM  ").Value.Value, 10.5m);
+      Aver.IsTrue(Distance.Parse("  10.5  KM  ").Value.Unit == Distance.UnitType.Kilometer);
+
+      Aver.AreEqual(Distance.Parse("10.5kilometer").Value.Value, 10.5m);
+      Aver.IsTrue(Distance.Parse("10.5kilometer").Value.Unit == Distance.UnitType.Kilometer);
+    }
+
+
+    [Run]
+    public void Parse02()
+    {
+      Aver.IsTrue(Distance.Parse("1").Value.Unit == Distance.UnitType.Micron);
+      Aver.IsTrue(Distance.Parse("1").Value.Value == 1m);
+
+      Aver.IsTrue(Distance.Parse(" 1").Value.Unit == Distance.UnitType.Micron);
+      Aver.IsTrue(Distance.Parse(" 1").Value.Value == 1m);
+
+      Aver.IsTrue(Distance.Parse("1 ").Value.Unit == Distance.UnitType.Micron);
+      Aver.IsTrue(Distance.Parse("1 ").Value.Value == 1m);
+
+      Aver.IsTrue(Distance.Parse(" 1 ").Value.Unit == Distance.UnitType.Micron);
+      Aver.IsTrue(Distance.Parse(" 1 ").Value.Value == 1m);
+
+      Aver.IsTrue(Distance.Parse(" 1 m  ").Value.Unit == Distance.UnitType.Meter);
+      Aver.IsTrue(Distance.Parse(" 1 m  ").Value.Value == 1m);
+
+      Aver.IsTrue(Distance.Parse("1m").Value.Unit == Distance.UnitType.Meter);
+      Aver.IsTrue(Distance.Parse("1m").Value.Value == 1m);
+
+      Aver.IsTrue(Distance.Parse("1 m").Value.Unit == Distance.UnitType.Meter);
+      Aver.IsTrue(Distance.Parse("1 m").Value.Value == 1m);
+
+      Aver.IsTrue(Distance.Parse("1meter").Value.Unit == Distance.UnitType.Meter);
+      Aver.IsTrue(Distance.Parse("1meter").Value.Value == 1m);
+
+      Aver.IsTrue(Distance.Parse("1 meter").Value.Unit == Distance.UnitType.Meter);
+      Aver.IsTrue(Distance.Parse("1 meter").Value.Value == 1m);
+
+      Aver.IsTrue(Distance.Parse("1 meter ").Value.Unit == Distance.UnitType.Meter);
+      Aver.IsTrue(Distance.Parse("1 meter ").Value.Value == 1m);
+
+      Aver.IsTrue(Distance.Parse("-1 meter ").Value.Unit == Distance.UnitType.Meter);
+      Aver.IsTrue(Distance.Parse("-1 meter ").Value.Value == -1m);
     }
 
     [Run]
@@ -275,7 +352,7 @@ namespace Azos.Tests.Nub.Standards
     }
 
     [Run]
-    public void JSON()
+    public void JSON01()
     {
       var d1 = new Distance(3.25m, Distance.UnitType.Yard);
       var json = d1.ToJson();
@@ -286,6 +363,101 @@ namespace Azos.Tests.Nub.Standards
       Aver.IsTrue(got.match);
       Aver.IsTrue(d1 == (Distance)got.self);
     }
+
+    [Run]
+    public void JSON02()
+    {
+      var d1 = new Distance(125.7m, Distance.UnitType.NauticalMile);
+      var json = d1.ToJson();
+      json.See();
+      var map = json.JsonToDataObject() as JsonDataMap;
+      var d2 = new Distance();
+      var got = ((IJsonReadable)d2).ReadAsJson(map, false, null);
+      Aver.IsTrue(got.match);
+
+      Aver.AreEqual(125.7m, Math.Round(((Distance)got.self).Value, 4));
+    }
+
+    [Run]
+    public void JSON03()
+    {
+      var d1 = new Distance(10m, Distance.UnitType.Foot) + new Distance(3m/8m, Distance.UnitType.Inch);
+      var json = d1.ToJson();
+      json.See();
+      var map = json.JsonToDataObject() as JsonDataMap;
+      var d2 = new Distance();
+      var got = ((IJsonReadable)d2).ReadAsJson(map, false, null);
+      Aver.IsTrue(got.match);
+      //10 foot 3/8 inch = 3057.525 mm
+      Aver.AreEqual(3057.525m, Math.Round(((Distance)got.self).Convert(Distance.UnitType.Millimeter).Value, 4));
+    }
+
+
+    class AllDoc : TypedDoc
+    {
+      [Field, Config] public Distance microns { get; set; }
+      [Field, Config] public Distance millimeters { get; set; }
+      [Field, Config] public Distance centimeters { get; set; }
+      [Field, Config] public Distance meters { get; set; }
+      [Field, Config] public Distance kilometers { get; set; }
+      [Field, Config] public Distance inches { get; set; }
+      [Field, Config] public Distance yards { get; set; }
+      [Field, Config] public Distance feet { get; set; }
+      [Field, Config] public Distance miles { get; set; }
+      [Field, Config] public Distance nauticalMiles { get; set; }
+
+      [Field, Config] public Distance AnotherDistance { get; set; }
+
+    }
+
+
+    [Run]
+    public void JSON_CONFIG_All()
+    {
+      var d1 = new AllDoc
+      {
+        microns = new Distance(1_000_000, Distance.UnitType.Micron),
+        millimeters = new Distance(1000, Distance.UnitType.Millimeter),
+        centimeters = new Distance(100, Distance.UnitType.Centimeter),
+        meters = new Distance(1, Distance.UnitType.Meter),
+        kilometers = new Distance(0.001m, Distance.UnitType.Kilometer),
+        inches = new Distance(39.370078740157480314960629921m, Distance.UnitType.Inch),
+        yards = new Distance(1.0936132983377077865266841645m, Distance.UnitType.Yard),
+        feet = new Distance(3.2808398950131233595800524934m, Distance.UnitType.Foot),
+        miles = new Distance(0.0019386781197804819852063947m, Distance.UnitType.Mile),
+        nauticalMiles = new Distance(0.001684665226661056402753462m, Distance.UnitType.NauticalMile),
+        AnotherDistance = default(Distance)
+      };
+
+      var json = d1.ToJson();
+      json.See();
+
+      var d2 = JsonReader.ToDoc<AllDoc>(json);
+      d2.See();
+      d1.AverNoDiff(d2);
+
+
+      var cfg = Conf.Configuration.NewEmptyRoot("test");
+      var node = d2.PersistConfiguration(cfg, "data");
+      node.ToLaconicString().See();
+
+      var d3 = new AllDoc();
+      d3.Configure(node);
+      d3.See();
+
+      Aver.AreEqual(d1.microns, d3.microns);
+      Aver.AreEqual(d1.millimeters, d3.millimeters);
+      Aver.AreEqual(d1.centimeters, d3.centimeters);
+      Aver.AreEqual(d1.meters, d3.meters);
+      Aver.AreEqual(d1.kilometers, d3.kilometers);
+
+      Aver.AreEqual(Math.Round(d1.inches.Value, 2), Math.Round(d3.inches.Value, 2));
+      Aver.AreEqual(Math.Round(d1.feet.Value, 2), Math.Round(d3.feet.Value, 2));
+
+
+
+    }
+
 
     [Run]
     public void Operators()
@@ -305,6 +477,136 @@ namespace Azos.Tests.Nub.Standards
       Aver.IsTrue(d1 >= d2);
       Aver.IsTrue(d1 > d2);
     }
+
+
+    class ProductDims : TypedDoc
+    {
+      [Field(required: true, min: "1mm", max: "10m")] public Distance Width  { get; set; }
+      [Field(required: true, min: "2in", max: "8ft")] public Distance Height { get; set; }
+    }
+
+    [Run]
+    public void Validate_RoundtripJson()
+    {
+      var d1 = new ProductDims
+      {
+        Width = new Distance(5, Distance.UnitType.Millimeter),
+        Height = new Distance(3, Distance.UnitType.Inch)
+      };
+
+      var json = d1.ToJson();
+
+      json.See();
+
+      var d2 = JsonReader.ToDoc<ProductDims>(json);
+      d1.AverNoDiff(d2);
+      Aver.AreEqual(d1.Width, d2.Width);
+      Aver.AreEqual(d1.Height, d2.Height);
+    }
+
+    [Run]
+    public void Validate_Req()
+    {
+      var d = new ProductDims
+      {
+      };
+
+      var valError = d.Validate();
+      Aver.IsNotNull(valError);
+      valError.SeeError();
+
+      d = new ProductDims
+      {
+        Width = new Distance(5, Distance.UnitType.Millimeter),
+        Height = new Distance(3, Distance.UnitType.Inch)
+      };
+      valError = d.Validate();
+      Aver.IsNull(valError);
+    }
+
+    [Run]
+    public void Validate_MinMax_01()
+    {
+      var d = new ProductDims
+      {
+        Width = new Distance(5, Distance.UnitType.Millimeter),
+        Height = new Distance(3, Distance.UnitType.Inch)
+      };
+
+      var valError = d.Validate();
+      Aver.IsNull(valError);
+    }
+
+    [Run]
+    public void Validate_MinMax_02()
+    {
+      var d = new ProductDims
+      {
+        Width = new Distance(0.5m, Distance.UnitType.Millimeter),//too small
+        Height = new Distance(3, Distance.UnitType.Inch)
+      };
+
+      var valError = d.Validate();
+      Aver.IsNotNull(valError);
+      Aver.IsTrue(valError is FieldValidationException);
+      Aver.AreEqual("Width", ((FieldValidationException)valError).FieldName);
+      Aver.IsTrue(valError.Message.Contains("below the"));
+      valError.SeeError();
+    }
+
+    [Run]
+    public void Validate_MinMax_03()
+    {
+      var d = new ProductDims
+      {
+        Width = new Distance(11.2m, Distance.UnitType.Meter),//too large
+        Height = new Distance(3, Distance.UnitType.Inch)
+      };
+
+      var valError = d.Validate();
+      Aver.IsNotNull(valError);
+      Aver.IsTrue(valError is FieldValidationException);
+      Aver.AreEqual("Width", ((FieldValidationException)valError).FieldName);
+      Aver.IsTrue(valError.Message.Contains("above the"));
+      valError.SeeError();
+
+    }
+
+
+    [Run]
+    public void Validate_MinMax_04()
+    {
+      var d = new ProductDims
+      {
+        Width = new Distance(10m, Distance.UnitType.Millimeter),
+        Height = new Distance(0.1m, Distance.UnitType.Inch) //too small
+      };
+
+      var valError = d.Validate();
+      Aver.IsNotNull(valError);
+      Aver.IsTrue(valError is FieldValidationException);
+      Aver.AreEqual("Height", ((FieldValidationException)valError).FieldName);
+      Aver.IsTrue(valError.Message.Contains("below the"));
+      valError.SeeError();
+    }
+
+    [Run]
+    public void Validate_MinMax_05()
+    {
+      var d = new ProductDims
+      {
+        Width = new Distance(10m, Distance.UnitType.Millimeter),
+        Height = new Distance(3000m, Distance.UnitType.Inch) //too large
+      };
+
+      var valError = d.Validate();
+      Aver.IsNotNull(valError);
+      Aver.IsTrue(valError is FieldValidationException);
+      Aver.AreEqual("Height", ((FieldValidationException)valError).FieldName);
+      Aver.IsTrue(valError.Message.Contains("above the"));
+      valError.SeeError();
+    }
+
 
   }
 }

@@ -66,21 +66,31 @@ namespace Azos.Sky.Messaging
       if (!Running) return false;
       if (!Filter(msg)) return false;
 
-      var sent = DoSendMsg(msg);
-      if (!sent && ErrorHandlingMode == SendMessageErrorHandling.Throw)
-        throw new SkyException(StringConsts.SENDING_MESSAGE_HAS_NOT_SUCCEEDED.Args(Name));
+      return DistributedCallFlow.ExecuteBlock<bool>(App, inner =>
+      {
+        var sent = DoSendMsg(msg);
+        if (!sent && ErrorHandlingMode == SendMessageErrorHandling.Throw)
+          throw new SkyException(StringConsts.SENDING_MESSAGE_HAS_NOT_SUCCEEDED.Args(Name));
 
-      return sent;
+        return sent;
+      },
+      description: "Message delivery",
+      guid: msg.Id,
+      callerAgent: App.AppId.Value,
+      callerPort: $"Sink/{GetType().DisplayNameWithExpandedGenericArgs()}(`{Name}`)"
+      );
     }
 
     /// <summary>
     /// Override to perform message filtering. This is called by `SendMsg(msg)`.
     /// Return true if this sink can process the message in principle.
-    /// The default implementation matches sink on the channel specified in "TO" address
+    /// The default implementation matches sink on the channel specified in "TO/CC/BCC" addresses
     /// </summary>
     protected virtual bool Filter(Message msg)
     {
-      return msg.AddressToBuilder.MatchNamedChannel(this.SupportedChannelNames); //why does this not match on CC or BCC??
+      return msg.AddressToBuilder.MatchNamedChannel(this.SupportedChannelNames) ||
+             msg.AddressCCBuilder.MatchNamedChannel(this.SupportedChannelNames) ||
+             msg.AddressBCCBuilder.MatchNamedChannel(this.SupportedChannelNames);
     }
 
     /// <summary>

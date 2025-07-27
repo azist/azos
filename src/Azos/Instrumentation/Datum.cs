@@ -28,6 +28,8 @@ namespace Azos.Instrumentation
     public const string PROP_REF  = "_rf";
 
     public const string UNSPECIFIED_SOURCE = "*";
+    public const string UNSPECIFIED_HOST = "*";
+    public static readonly Atom UNSPECIFIED_APP = Atom.Encode("-");
 
     #endregion
 
@@ -152,7 +154,7 @@ namespace Azos.Instrumentation
     public Atom App
     {
       get => m_App;
-      protected set => m_App = value;
+      protected internal set => m_App = value;
     }
 
     /// <summary>
@@ -162,7 +164,7 @@ namespace Azos.Instrumentation
     public string Host
     {
       get => m_Host;
-      protected set => m_Host = value;
+      protected internal set => m_Host = value;
     }
 
     /// <summary>
@@ -181,13 +183,13 @@ namespace Azos.Instrumentation
     }
 
     /// <summary>
-    /// Returns datum source. Data are rolled-up by type of recorded datum instances and source
+    /// Returns datum source. Data are rolled-up by type of recorded datum instances, host, app, and then source
     /// </summary>
     [Field, Field(isArow: true, backendName: "src")]
     public virtual string Source
     {
-      get  => m_Source ?? UNSPECIFIED_SOURCE;
-      protected set => m_Source = value;
+      get  => m_Source.Default(UNSPECIFIED_SOURCE);
+      protected internal set => m_Source = value;
     }
 
     /// <summary>
@@ -285,7 +287,9 @@ namespace Azos.Instrumentation
 
     /// <summary>
     /// Aggregates multiple data instances (e.g.from multiple threads) into one single instance. This is the "reduce" operation which
-    /// makes aggregate instance, then concatenates all data events, then finalizes operation by calling SummarizeAggregation()
+    /// makes aggregate instance, then concatenates all data events, then finalizes operation by calling SummarizeAggregation().
+    /// Warning: This method does not check for type compatibility, so it is up to the caller to ensure that all datum instances are of the same type
+    /// and of the same app and host
     /// </summary>
     public Datum Aggregate(IEnumerable<Datum> many)
     {
@@ -296,14 +300,18 @@ namespace Azos.Instrumentation
       var cnt = 0;
 
       var result = MakeAggregateInstance();
+      result.m_Host = m_Host;
+      result.m_App = m_App;
 
       foreach (var e in many)
       {
+        Aver.IsTrue(e.m_App == m_App && e.m_Host.EqualsOrdSenseCase(m_Host),
+                    "Datum instances have the same App and Host as the aggregate instance");
         cnt++;
         if (e.StartUtc < start) start = e.StartUtc;
         if (e.StartUtc > end) end = e.StartUtc;
 
-        result.AggregateEvent(e);
+        result.AggregateOne(e);
       }
 
       result.m_Count = cnt;
@@ -349,7 +357,7 @@ namespace Azos.Instrumentation
     #region Protected
 
     protected abstract Datum MakeAggregateInstance();
-    protected virtual void AggregateEvent(Datum dat) { }
+    protected virtual void AggregateOne(Datum dat) { }
     protected virtual void SummarizeAggregation() { }
 
     //static cache of hashed namespace and name per Datum type
