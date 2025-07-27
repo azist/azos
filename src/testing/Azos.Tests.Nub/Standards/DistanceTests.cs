@@ -253,6 +253,18 @@ namespace Azos.Tests.Nub.Standards
       Aver.IsTrue(Distance.Parse("1").Value.Unit == Distance.UnitType.Micron);
       Aver.IsTrue(Distance.Parse("1").Value.Value == 1m);
 
+      Aver.IsTrue(Distance.Parse(" 1").Value.Unit == Distance.UnitType.Micron);
+      Aver.IsTrue(Distance.Parse(" 1").Value.Value == 1m);
+
+      Aver.IsTrue(Distance.Parse("1 ").Value.Unit == Distance.UnitType.Micron);
+      Aver.IsTrue(Distance.Parse("1 ").Value.Value == 1m);
+
+      Aver.IsTrue(Distance.Parse(" 1 ").Value.Unit == Distance.UnitType.Micron);
+      Aver.IsTrue(Distance.Parse(" 1 ").Value.Value == 1m);
+
+      Aver.IsTrue(Distance.Parse(" 1 m  ").Value.Unit == Distance.UnitType.Meter);
+      Aver.IsTrue(Distance.Parse(" 1 m  ").Value.Value == 1m);
+
       Aver.IsTrue(Distance.Parse("1m").Value.Unit == Distance.UnitType.Meter);
       Aver.IsTrue(Distance.Parse("1m").Value.Value == 1m);
 
@@ -264,6 +276,12 @@ namespace Azos.Tests.Nub.Standards
 
       Aver.IsTrue(Distance.Parse("1 meter").Value.Unit == Distance.UnitType.Meter);
       Aver.IsTrue(Distance.Parse("1 meter").Value.Value == 1m);
+
+      Aver.IsTrue(Distance.Parse("1 meter ").Value.Unit == Distance.UnitType.Meter);
+      Aver.IsTrue(Distance.Parse("1 meter ").Value.Value == 1m);
+
+      Aver.IsTrue(Distance.Parse("-1 meter ").Value.Unit == Distance.UnitType.Meter);
+      Aver.IsTrue(Distance.Parse("-1 meter ").Value.Value == -1m);
     }
 
     [Run]
@@ -459,6 +477,136 @@ namespace Azos.Tests.Nub.Standards
       Aver.IsTrue(d1 >= d2);
       Aver.IsTrue(d1 > d2);
     }
+
+
+    class ProductDims : TypedDoc
+    {
+      [Field(required: true, min: "1mm", max: "10m")] public Distance Width  { get; set; }
+      [Field(required: true, min: "2in", max: "8ft")] public Distance Height { get; set; }
+    }
+
+    [Run]
+    public void Validate_RoundtripJson()
+    {
+      var d1 = new ProductDims
+      {
+        Width = new Distance(5, Distance.UnitType.Millimeter),
+        Height = new Distance(3, Distance.UnitType.Inch)
+      };
+
+      var json = d1.ToJson();
+
+      json.See();
+
+      var d2 = JsonReader.ToDoc<ProductDims>(json);
+      d1.AverNoDiff(d2);
+      Aver.AreEqual(d1.Width, d2.Width);
+      Aver.AreEqual(d1.Height, d2.Height);
+    }
+
+    [Run]
+    public void Validate_Req()
+    {
+      var d = new ProductDims
+      {
+      };
+
+      var valError = d.Validate();
+      Aver.IsNotNull(valError);
+      valError.SeeError();
+
+      d = new ProductDims
+      {
+        Width = new Distance(5, Distance.UnitType.Millimeter),
+        Height = new Distance(3, Distance.UnitType.Inch)
+      };
+      valError = d.Validate();
+      Aver.IsNull(valError);
+    }
+
+    [Run]
+    public void Validate_MinMax_01()
+    {
+      var d = new ProductDims
+      {
+        Width = new Distance(5, Distance.UnitType.Millimeter),
+        Height = new Distance(3, Distance.UnitType.Inch)
+      };
+
+      var valError = d.Validate();
+      Aver.IsNull(valError);
+    }
+
+    [Run]
+    public void Validate_MinMax_02()
+    {
+      var d = new ProductDims
+      {
+        Width = new Distance(0.5m, Distance.UnitType.Millimeter),//too small
+        Height = new Distance(3, Distance.UnitType.Inch)
+      };
+
+      var valError = d.Validate();
+      Aver.IsNotNull(valError);
+      Aver.IsTrue(valError is FieldValidationException);
+      Aver.AreEqual("Width", ((FieldValidationException)valError).FieldName);
+      Aver.IsTrue(valError.Message.Contains("below the"));
+      valError.SeeError();
+    }
+
+    [Run]
+    public void Validate_MinMax_03()
+    {
+      var d = new ProductDims
+      {
+        Width = new Distance(11.2m, Distance.UnitType.Meter),//too large
+        Height = new Distance(3, Distance.UnitType.Inch)
+      };
+
+      var valError = d.Validate();
+      Aver.IsNotNull(valError);
+      Aver.IsTrue(valError is FieldValidationException);
+      Aver.AreEqual("Width", ((FieldValidationException)valError).FieldName);
+      Aver.IsTrue(valError.Message.Contains("above the"));
+      valError.SeeError();
+
+    }
+
+
+    [Run]
+    public void Validate_MinMax_04()
+    {
+      var d = new ProductDims
+      {
+        Width = new Distance(10m, Distance.UnitType.Millimeter),
+        Height = new Distance(0.1m, Distance.UnitType.Inch) //too small
+      };
+
+      var valError = d.Validate();
+      Aver.IsNotNull(valError);
+      Aver.IsTrue(valError is FieldValidationException);
+      Aver.AreEqual("Height", ((FieldValidationException)valError).FieldName);
+      Aver.IsTrue(valError.Message.Contains("below the"));
+      valError.SeeError();
+    }
+
+    [Run]
+    public void Validate_MinMax_05()
+    {
+      var d = new ProductDims
+      {
+        Width = new Distance(10m, Distance.UnitType.Millimeter),
+        Height = new Distance(3000m, Distance.UnitType.Inch) //too large
+      };
+
+      var valError = d.Validate();
+      Aver.IsNotNull(valError);
+      Aver.IsTrue(valError is FieldValidationException);
+      Aver.AreEqual("Height", ((FieldValidationException)valError).FieldName);
+      Aver.IsTrue(valError.Message.Contains("above the"));
+      valError.SeeError();
+    }
+
 
   }
 }
