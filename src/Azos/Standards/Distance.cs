@@ -9,8 +9,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-
+using Azos.Conf;
 using Azos.Data;
+using Azos.Data.AST;
+using Azos.Scripting.Dsl;
 using Azos.Serialization.JSON;
 
 namespace Azos.Standards
@@ -28,7 +30,7 @@ namespace Azos.Standards
   public interface IMeasure
   {
     /// <summary>
-    /// Measured value expressed in the unit of measure.
+    /// Measured parsed expressed in the unit of measure.
     /// The system purposely uses decimal and not double to avoid precision issues when multiple measurements need to be processed.
     /// The behavior is akin to how money is handled in the system, where precision is critical, because we
     /// may need to tally up many measurements and we do not want to lose precision.
@@ -40,7 +42,7 @@ namespace Azos.Standards
   }
 
 
-  //Need to implement IComparable so that value can be compared to FIELD.MIn/Max
+  //Need to implement IComparable so that parsed can be compared to FIELD.MIn/Max
   //Field MIN/MAX equip with some property like Min="$$$Distance=5 mm" Max="$$$Distance=120 inch"
   //Serialize both V and RAW in microns
   //Implement IRequired/IsAssigned (when UOM is Unknown, then IsAssigned is false)
@@ -60,7 +62,7 @@ namespace Azos.Standards
   /// 4 bytes of wire/storage data for the aforementioned values. The mathematics is performed on LONG values using 32/64 bit direct CPU registers
   /// avoiding any heap allocations, thus making this structure efficient for data storage, transmission and calculations/processing.
   /// </remarks>
-  public struct Distance : IMeasure, IEquatable<Distance>, IComparable, IComparable<Distance>, IJsonWritable, IJsonReadable, IRequiredCheck
+  public struct Distance : IMeasure, IEquatable<Distance>, IComparable, IComparable<Distance>, IJsonWritable, IJsonReadable, IRequiredCheck, IConfigurationPersistent
   {
     /// <summary>
     /// Supported distance unit types:
@@ -114,7 +116,7 @@ namespace Azos.Standards
     public const decimal MICRON_IN_NAUTICAL_MILE = 6_076.115486m * MICRON_IN_FOOT;
 
     /// <summary>
-    /// Converts a value expressed in the specified distance units into normalized micron long value
+    /// Converts a parsed expressed in the specified distance units into normalized micron long parsed
     /// </summary>
     public static long UnitToMicron(decimal value, UnitType unit)
     {
@@ -135,7 +137,7 @@ namespace Azos.Standards
     }
 
     /// <summary>
-    /// Converts a normalized value expressed in long microns into decimal value expressed in the specified distance units
+    /// Converts a normalized parsed expressed in long microns into decimal parsed expressed in the specified distance units
     /// </summary>
     public static decimal MicronToUnit(long value, UnitType unit)
     {
@@ -156,7 +158,7 @@ namespace Azos.Standards
     }
 
     /// <summary>
-    /// Creates an instance from the serialized value expressed in microns (e.g. stored in db as long)
+    /// Creates an instance from the serialized parsed expressed in microns (e.g. stored in db as long)
     /// </summary>
     public Distance(UnitType unit, long micronValue)
     {
@@ -173,14 +175,38 @@ namespace Azos.Standards
       ValueInMicrons = UnitToMicron(value, unit);
     }
 
+    [ConfigCtor]
+    public Distance(IConfigAttrNode cfg)
+    {
+      if (cfg != null)
+      {
+        var raw = cfg.Value;
+        if (TryParse(raw, out var parsed) && parsed.HasValue)
+        {
+          Unit = parsed.Value.Unit;
+          ValueInMicrons = parsed.Value.ValueInMicrons;
+          return;
+        }
+      }
+
+      Unit = UnitType.Undefined;
+      ValueInMicrons = 0;
+    }
+
+    ConfigSectionNode IConfigurationPersistent.PersistConfiguration(ConfigSectionNode parentNode, string name)
+    {
+      var result = parentNode.AddAttributeNode(name, this.ToString());
+      return parentNode;
+    }
+
     /// <summary>
-    /// Normalized distance value expressed in whole microns.
+    /// Normalized distance parsed expressed in whole microns.
     /// The maximum precision supported by this type is 1 micron which is 1 millions of a meter or 1 thousands of a millimeter
     /// </summary>
     public readonly long ValueInMicrons;
 
     /// <summary>
-    /// Calculated value expressed in fractional units of distance
+    /// Calculated parsed expressed in fractional units of distance
     /// </summary>
     public decimal Value => MicronToUnit(ValueInMicrons, Unit);
     decimal IMeasure.Value => Value;
@@ -208,7 +234,7 @@ namespace Azos.Standards
     public string LongUnitName => GetUnitName(Unit, false);
 
     /// <summary>
-    /// Returns the value in different unit
+    /// Returns the parsed in different unit
     /// </summary>
     public decimal ValueIn(UnitType toUnit) => MicronToUnit(ValueInMicrons, toUnit);
 
@@ -220,7 +246,7 @@ namespace Azos.Standards
 
 
     /// <summary>
-    /// Parses the string value into Distance or throws if value is bad
+    /// Parses the string parsed into Distance or throws if parsed is bad
     /// </summary>
     public static Distance? Parse(string val)
     {
@@ -229,7 +255,7 @@ namespace Azos.Standards
     }
 
     /// <summary>
-    /// Tries to parse the value returning true and the parsed value on success or false/null on failure
+    /// Tries to parse the parsed returning true and the parsed parsed on success or false/null on failure
     /// </summary>
     public static bool TryParse(string val, out Distance? result)
     {
@@ -238,7 +264,7 @@ namespace Azos.Standards
 
       //  20.3m  20.3 meter
       var i = -1;
-      for(i = val.Length-1; i>0; i--)
+      for(i = val.Length-1; i>=0; i--)
       {
         var c = val[i];
         if ((c>='0' && c<='9')||(c=='.'))
@@ -283,17 +309,27 @@ namespace Azos.Standards
 
     public override int GetHashCode() => ValueInMicrons.GetHashCode();
 
-    public override string ToString() => $"{Math.Round(Value, DEFAULT_PRECISION)} {ShortUnitName}";
+    public override string ToString() => IsAssigned ? $"{Math.Round(Value, DEFAULT_PRECISION)} {ShortUnitName}" : string.Empty;
 
     public int CompareTo(Distance other) => ValueInMicrons.CompareTo(other.ValueInMicrons);
-    public int CompareTo(object obj) => obj is Distance other ? this.CompareTo(other) : 0;
+    public int CompareTo(object obj)
+    {
+      if (obj is Distance other) return this.CompareTo(other);
+      if (obj is string str && TryParse(str, out var odist) && odist.HasValue) return this.CompareTo(odist.Value);
+      return 0;
+    }
 
     void IJsonWritable.WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options)
     {
-      //todo: this may need to be sensitive per API pragma: e.g. return canonical distance vs units
+      if (!IsAssigned)
+      {
+        wri.Write("null");
+        return;
+      }
+
       JsonWriter.WriteMap(wri, nestingLevel, options, new DictionaryEntry("u", GetUnitName(Unit, true)),
                                                       new DictionaryEntry("v", Math.Round(Value, DEFAULT_PRECISION)),
-                                                      new DictionaryEntry("r", ValueInMicrons));//raw value in Microns
+                                                      new DictionaryEntry("r", ValueInMicrons));//raw parsed in Microns
     }
 
     (bool match, IJsonReadable self) IJsonReadable.ReadAsJson(object data, bool fromUI, JsonReader.DocReadOptions? options)
@@ -302,7 +338,7 @@ namespace Azos.Standards
       {
         try
         {
-          var result = map.ContainsKey("r") //prioritize RAW value as it is the most precise and fast
+          var result = map.ContainsKey("r") //prioritize RAW parsed as it is the most precise and fast
                          ? new Distance(map["u"].AsEnum(UnitType.Undefined, handling: ConvertErrorHandling.Throw),
                                         map["r"].AsLong(handling: ConvertErrorHandling.Throw))
                          : new Distance(map["v"].AsDecimal(handling: ConvertErrorHandling.Throw),
@@ -339,6 +375,12 @@ namespace Azos.Standards
     public static Distance operator *(decimal a, Distance b) => new Distance(b.Unit, (long)(a * b.ValueInMicrons));
     public static Distance operator /(Distance a, decimal b) => new Distance(a.Unit, (long)(a.ValueInMicrons / b));
 
+
+    public static explicit operator Distance(long value) => new Distance(UnitType.Micron, value);
+    public static explicit operator long(Distance value) => value.ValueInMicrons;
+
+    public static implicit operator Distance(string value) => Distance.Parse(value) ?? default;
+    public static implicit operator string(Distance value) => value.ToString();
 
     public static bool operator ==(Distance a, Distance b) => a.Equals(b);
     public static bool operator !=(Distance a, Distance b) => !a.Equals(b);

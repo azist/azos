@@ -185,7 +185,8 @@ namespace Azos.Tests.Nub.Standards
       Aver.IsFalse(Distance.TryParse("5 .cm", out var result1));
       Aver.IsFalse(Distance.TryParse("cm 5", out var result2));
       Aver.IsFalse(Distance.TryParse("cm", out var result3));
-      Aver.IsFalse(Distance.TryParse("5", out var result4));
+
+      Aver.IsTrue(Distance.TryParse("5", out var result4));//microns
     }
 
 
@@ -204,7 +205,7 @@ namespace Azos.Tests.Nub.Standards
     }
 
     [Run]
-    public void Parse()
+    public void Parse01()
     {
       Aver.IsTrue(Distance.Parse(" ") == null);
       Aver.IsTrue(Distance.Parse(null) == null);
@@ -243,6 +244,26 @@ namespace Azos.Tests.Nub.Standards
 
       Aver.AreEqual(Distance.Parse("10.5kilometer").Value.Value, 10.5m);
       Aver.IsTrue(Distance.Parse("10.5kilometer").Value.Unit == Distance.UnitType.Kilometer);
+    }
+
+
+    [Run]
+    public void Parse02()
+    {
+      Aver.IsTrue(Distance.Parse("1").Value.Unit == Distance.UnitType.Micron);
+      Aver.IsTrue(Distance.Parse("1").Value.Value == 1m);
+
+      Aver.IsTrue(Distance.Parse("1m").Value.Unit == Distance.UnitType.Meter);
+      Aver.IsTrue(Distance.Parse("1m").Value.Value == 1m);
+
+      Aver.IsTrue(Distance.Parse("1 m").Value.Unit == Distance.UnitType.Meter);
+      Aver.IsTrue(Distance.Parse("1 m").Value.Value == 1m);
+
+      Aver.IsTrue(Distance.Parse("1meter").Value.Unit == Distance.UnitType.Meter);
+      Aver.IsTrue(Distance.Parse("1meter").Value.Value == 1m);
+
+      Aver.IsTrue(Distance.Parse("1 meter").Value.Unit == Distance.UnitType.Meter);
+      Aver.IsTrue(Distance.Parse("1 meter").Value.Value == 1m);
     }
 
     [Run]
@@ -366,23 +387,28 @@ namespace Azos.Tests.Nub.Standards
       [Field, Config] public Distance feet { get; set; }
       [Field, Config] public Distance miles { get; set; }
       [Field, Config] public Distance nauticalMiles { get; set; }
+
+      [Field, Config] public Distance AnotherDistance { get; set; }
+
     }
 
 
     [Run]
-    public void JSON04_All()
+    public void JSON_CONFIG_All()
     {
-      var d1 = new AllDoc{
-        microns = new Distance(1500, Distance.UnitType.Micron),
-        millimeters = new Distance(1.5m, Distance.UnitType.Millimeter),
-        centimeters = new Distance(0.15m, Distance.UnitType.Centimeter),
-        meters = new Distance(0.0015m, Distance.UnitType.Meter),
-        kilometers = new Distance(0.0000015m, Distance.UnitType.Kilometer),
-        inches = new Distance(0.05905511811023622047244094488189m, Distance.UnitType.Inch),
-        yards = new Distance(0.00164062499999999999999999999999m, Distance.UnitType.Yard),
-        feet = new Distance(0.00492125984251968503937007874016m, Distance.UnitType.Foot),
-        miles = new Distance(0.00000093205679199999999999999999999m, Distance.UnitType.Mile),
-        nauticalMiles = new Distance(0.00000081279999999999999999999999m, Distance.UnitType.NauticalMile)
+      var d1 = new AllDoc
+      {
+        microns = new Distance(1_000_000, Distance.UnitType.Micron),
+        millimeters = new Distance(1000, Distance.UnitType.Millimeter),
+        centimeters = new Distance(100, Distance.UnitType.Centimeter),
+        meters = new Distance(1, Distance.UnitType.Meter),
+        kilometers = new Distance(0.001m, Distance.UnitType.Kilometer),
+        inches = new Distance(39.370078740157480314960629921m, Distance.UnitType.Inch),
+        yards = new Distance(1.0936132983377077865266841645m, Distance.UnitType.Yard),
+        feet = new Distance(3.2808398950131233595800524934m, Distance.UnitType.Foot),
+        miles = new Distance(0.0019386781197804819852063947m, Distance.UnitType.Mile),
+        nauticalMiles = new Distance(0.001684665226661056402753462m, Distance.UnitType.NauticalMile),
+        AnotherDistance = default(Distance)
       };
 
       var json = d1.ToJson();
@@ -396,6 +422,21 @@ namespace Azos.Tests.Nub.Standards
       var cfg = Conf.Configuration.NewEmptyRoot("test");
       var node = d2.PersistConfiguration(cfg, "data");
       node.ToLaconicString().See();
+
+      var d3 = new AllDoc();
+      d3.Configure(node);
+      d3.See();
+
+      Aver.AreEqual(d1.microns, d3.microns);
+      Aver.AreEqual(d1.millimeters, d3.millimeters);
+      Aver.AreEqual(d1.centimeters, d3.centimeters);
+      Aver.AreEqual(d1.meters, d3.meters);
+      Aver.AreEqual(d1.kilometers, d3.kilometers);
+
+      Aver.AreEqual(Math.Round(d1.inches.Value, 2), Math.Round(d3.inches.Value, 2));
+      Aver.AreEqual(Math.Round(d1.feet.Value, 2), Math.Round(d3.feet.Value, 2));
+
+
 
     }
 
