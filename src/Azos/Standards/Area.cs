@@ -30,7 +30,7 @@ namespace Azos.Standards
   /// For reference, the area of the largest building in the world in 2025, the New Century Global Center in Chengdu, China, is
   /// about 1.7 million square meters = 18.3 million square feet.
   /// </summary>
-  public readonly struct Area : IScalarMeasure
+  public readonly struct Area : IScalarMeasure //, IFormattable
   {
 
     //WIP TBD

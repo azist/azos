@@ -42,6 +42,7 @@ namespace Azos.Standards
                                      IJsonReadable,
                                      IRequiredCheck,
                                      IConfigurationPersistent
+                                     //, IFormattable
   {
     /// <summary>
     /// Supported distance unit types:
