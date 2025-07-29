@@ -36,6 +36,13 @@ namespace Azos.Tests.Nub.Standards
 
     // ......
 
+
+    [Run("a='2ft' b='2ft' c='609600'")]
+    public void TestArea(string a, string b, string c)
+    {
+      Aver.AreEqual(c.AsLong(), ((Distance)a * ((Distance)b)).ValueInMicrons);
+    }
+
     //IsWithin()..
 
     //toString
