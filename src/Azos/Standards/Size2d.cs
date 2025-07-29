@@ -19,17 +19,16 @@ namespace Azos.Standards
   /// Size of objects in 2 dimensions: width and height
   /// </summary>
   public readonly struct Size2d : ICompositeMeasure,
-                                    IEquatable<Size2d>,
-                                    IComparable,
-                                    IComparable<Size2d>,
-                                    IJsonWritable,
-                                    IJsonReadable,
-                                    IRequiredCheck,
-                                    IConfigurationPersistent
+                                   IEquatable<Size2d>,
+                                   IComparable,
+                                   IComparable<Size2d>,
+                                   IJsonWritable,
+                                   IJsonReadable,
+                                   IRequiredCheck,
+                                   IConfigurationPersistent,
+                                   IFormattable
   {
-    /// <summary>
-    /// Creates size object from 2 distances
-    /// </summary>
+    /// <summary> Creates size object from 2 distances </summary>
     public Size2d(Distance w, Distance h)
     {
       Width = w;
@@ -156,15 +155,22 @@ namespace Azos.Standards
 
 
     /// <summary>
-    /// Returns true if both values represent the same distance in the same units
+    /// Returns true if both values represent the same width and height distances in the same respective units
     /// </summary>
     public bool Equals(Size2d other) => this.Width.Equals(other.Width) && this.Height.Equals(other.Height);
 
-    public override bool Equals(Object obj) => obj is Size2d other ? this.Equals(other) : false;
+    public override bool Equals(object obj) => obj is Size2d other ? this.Equals(other) : false;
 
     public override int GetHashCode() => Width.GetHashCode() ^ Height.GetHashCode();
 
     public override string ToString() => IsAssigned ? $"{Width} x {Height}" : string.Empty;
+
+    /// <summary>
+    /// Converts value to string using format specifier: "L:N" or "S:N" where L is long unit name, S is short unit name
+    /// and N is the number of decimal places to round to. For example: "L:3" = use long unit name with 3 decimal places "15.205 kilometer x 5.01 kilometer"
+    /// </summary>
+    public string ToString(string format, IFormatProvider formatProvider)
+      => IsAssigned ? $"{Width.ToString(format, formatProvider)} x {Height.ToString(format, formatProvider)}" : string.Empty;
 
     public int CompareTo(Size2d other) => AreaInMicrons.CompareTo(other.AreaInMicrons);
     public int CompareTo(object obj)
@@ -191,6 +197,7 @@ namespace Azos.Standards
       if (data is JsonDataMap map) return (true, new Size2d(map));
       return (false, null);
     }
+
 
     public static Size2d operator +(Size2d a, Size2d b) => new Size2d(a.Width + b.Width, a.Height + b.Height);
     public static Size2d operator -(Size2d a, Size2d b) => new Size2d(a.Width - b.Width, a.Height - b.Height);

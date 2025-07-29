@@ -41,8 +41,8 @@ namespace Azos.Standards
                                      IJsonWritable,
                                      IJsonReadable,
                                      IRequiredCheck,
-                                     IConfigurationPersistent
-                                     //, IFormattable
+                                     IConfigurationPersistent,
+                                     IFormattable
   {
     /// <summary>
     /// Supported distance unit types:
@@ -83,6 +83,7 @@ namespace Azos.Standards
     };
 
     public const int DEFAULT_PRECISION = 4;
+    public const int MAX_PRECISION = 15;
 
     public const decimal MICRON_IN_MILLIMETER =     1_000;
     public const decimal MICRON_IN_CENTIMETER =    10_000;
@@ -306,11 +307,28 @@ namespace Azos.Standards
     /// </summary>
     public bool Equals(Distance other) => this.Unit == other.Unit && this.ValueInMicrons == other.ValueInMicrons;
 
-    public override bool Equals(Object obj) => obj is Distance other ? this.Equals(other) : false;
+    public override bool Equals(object obj) => obj is Distance other ? this.Equals(other) : false;
 
     public override int GetHashCode() => ValueInMicrons.GetHashCode();
 
     public override string ToString() => IsAssigned ? $"{Math.Round(Value, DEFAULT_PRECISION)} {ShortUnitName}" : string.Empty;
+
+    /// <summary>
+    /// Converts value to string using format specifier: "L:N" or "S:N" where L is long unit name, S is short unit name
+    /// and N is the number of decimal places to round to. For example: "L:3" = use long unit name with 3 decimal places "15.205 kilometer"
+    /// </summary>
+    public string ToString(string format, IFormatProvider formatProvider)
+    {
+      if (!IsAssigned) return string.Empty;
+
+      if (format.IsNullOrWhiteSpace()) return ToString();
+
+      var kvp = format.SplitKVP(':'); //  L:7    S:10
+      var longUnit = kvp.Key.EqualsOrdIgnoreCase("L");
+      var precision = kvp.Value.AsInt(DEFAULT_PRECISION).KeepBetween(0, MAX_PRECISION);
+      return $"{Math.Round(Value, precision)} {(longUnit ? LongUnitName : ShortUnitName)}";
+    }
+
 
     public int CompareTo(Distance other) => ValueInMicrons.CompareTo(other.ValueInMicrons);
     public int CompareTo(object obj)

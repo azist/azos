@@ -4,19 +4,19 @@
  * See the LICENSE file in the project root for more information.
 </FILE_LICENSE>*/
 
-using System;
-using System.Collections.Generic;
 
 namespace Azos.Standards
 {
+  /// <summary>
+  /// Various extensions for working with measures
+  /// </summary>
   public static class MeasureExtensions
   {
-    public static Distance ComposeDistance(this string a, string b) => (Distance)a + (Distance)b;
+    public static Distance ComposeDistance(this string a, string b)   => (Distance)a + (Distance)b;
     public static Distance In(this decimal v, Distance.UnitType unit) => new Distance(v, unit);
-    public static Distance In(this double v, Distance.UnitType unit) => new Distance((decimal)v, unit);
-    public static Distance In(this float v, Distance.UnitType unit) => new Distance((decimal)v, unit);
-    public static Distance In(this int v, Distance.UnitType unit) => new Distance((decimal)v, unit);
-    public static Distance In(this long v, Distance.UnitType unit) => new Distance(unit, v);
+    public static Distance In(this double v, Distance.UnitType unit)  => new Distance((decimal)v, unit);
+    public static Distance In(this float v, Distance.UnitType unit)   => new Distance((decimal)v, unit);
+    public static Distance In(this int v, Distance.UnitType unit)     => new Distance((decimal)v, unit);
+    public static Distance In(this long v, Distance.UnitType unit)    => new Distance(unit, v);
   }
-
 }
