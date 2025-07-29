@@ -69,16 +69,16 @@ namespace Azos.Standards
 
     private static readonly Dictionary<UnitType, (string s, string l)> UNIT_NAMES =  new Dictionary<UnitType, (string, string)>
     {
-      {UnitType.Micron,     ("µm", "micron")},
-      {UnitType.Millimeter, ("mm", "millimeter")},
-      {UnitType.Centimeter, ("cm", "centimeter")},
-      {UnitType.Meter,      ("m",  "meter")},
-      {UnitType.Kilometer,  ("km", "kilometer")},
-      {UnitType.Inch,       ("in", "inch")},
-      {UnitType.Foot,       ("ft", "foot")},
-      {UnitType.Yard,       ("yd", "yard")},
-      {UnitType.Mile,       ("mi", "mile")},
-      {UnitType.NauticalMile,  ("nmi", "nmile")},
+      {UnitType.Micron,       ("µm", "micron")},
+      {UnitType.Millimeter,   ("mm", "millimeter")},
+      {UnitType.Centimeter,   ("cm", "centimeter")},
+      {UnitType.Meter,        ("m",  "meter")},
+      {UnitType.Kilometer,    ("km", "kilometer")},
+      {UnitType.Inch,         ("in", "inch")},
+      {UnitType.Foot,         ("ft", "foot")},
+      {UnitType.Yard,         ("yd", "yard")},
+      {UnitType.Mile,         ("mi", "mile")},
+      {UnitType.NauticalMile, ("nmi", "nmile")},
 
     };
 
