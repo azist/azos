@@ -43,7 +43,7 @@ namespace Azos.Data.Adlib
     /// <summary>
     /// Optional data segment designator which you can use to sub-divide data whiting a collection
     /// </summary>
-    [Field(required: false, Description = "Optional data segment designator which you can use to sub-divide data whiting a collection")]
+    [Field(required: false, Description = "Optional data segment designator which you can use to sub-divide data within a collection")]
     public int? Segment { get; set; }
 
     /// <summary>

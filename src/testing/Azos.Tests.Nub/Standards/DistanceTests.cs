@@ -558,7 +558,10 @@ namespace Azos.Tests.Nub.Standards
 
     class ProductDims : TypedDoc
     {
-      [Field(required: true, min: "1mm", max: "10m")] public Distance Width  { get; set; }
+      [Field(required: true, min: "1mm", max: "10m")]
+      [Field(targetName: "carrots", required: true, min: "5mm", max: "15m")]
+      public Distance Width  { get; set; }
+
       [Field(required: true, min: "2in", max: "8ft")] public Distance Height { get; set; }
     }
 
@@ -682,6 +685,17 @@ namespace Azos.Tests.Nub.Standards
       Aver.AreEqual("Height", ((FieldValidationException)valError).FieldName);
       Aver.IsTrue(valError.Message.Contains("above the"));
       valError.SeeError();
+    }
+
+
+    [Run]
+    public void ToString_Format()
+    {
+      Distance d = "9.1234567 km";
+
+      Aver.AreEqual("9.1235 km", d.ToString("", null));
+      Aver.AreEqual("9.1 kilometer", d.ToString("L:1", null));
+      Aver.AreEqual("9.123457 km", d.ToString("S:6", null));
     }
 
 
