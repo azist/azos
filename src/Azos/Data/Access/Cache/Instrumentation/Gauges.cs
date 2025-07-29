@@ -219,7 +219,7 @@ namespace Azos.Data.Access.Cache.Instrumentation
 
 
   /// <summary>
-  /// How many times a call to Put() resulted in relacement of existing item by key without collision
+  /// How many times a call to Put() resulted in replacement of existing item by key without collision
   /// </summary>
   [Serializable]
   [Bix("2480354B-2F73-4C2A-80D7-28AE300C5BA1")]
@@ -227,7 +227,7 @@ namespace Azos.Data.Access.Cache.Instrumentation
   {
     internal PutReplaceCount(string src, long value) : base(src, value) { }
 
-    public override string Description => "How many times a call to Put() resulted in relacement of existing item by key without collision";
+    public override string Description => "How many times a call to Put() resulted in replacement of existing item by key without collision";
 
     public override string ValueUnitName => CoreConsts.UNIT_NAME_TIME;
 

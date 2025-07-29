@@ -85,10 +85,10 @@ namespace Azos.Instrumentation
       //does nothing
     }
 
-    public IEnumerable<string> GetDatumTypeSources(Type datumType, out Datum defaultInstance)
+    public IEnumerable<HASKey> GetDatumTypeSources(Type datumType, out Datum defaultInstance)
     {
       defaultInstance = null;
-      return Enumerable.Empty<string>();
+      return Enumerable.Empty<HASKey>();
     }
 
     public void Configure(Conf.IConfigSectionNode node)

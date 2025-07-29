@@ -5,10 +5,12 @@
 </FILE_LICENSE>*/
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
-
+using System.IO;
 using Azos.Apps;
 using Azos.Conf;
+using Azos.Serialization.JSON;
 using Azos.Time;
 
 namespace Azos.Instrumentation
@@ -72,7 +74,7 @@ namespace Azos.Instrumentation
     ///  UIs for instrumentation, i.e. datum type tree. Returned data is NOT ORDERED.
     ///  Returns default instance so caller may get default description/unit name
     /// </summary>
-    IEnumerable<string> GetDatumTypeSources(Type datumType, out Datum defaultInstance);
+    IEnumerable<HASKey> GetDatumTypeSources(Type datumType, out Datum defaultInstance);
 
     /// <summary>
     /// Records instrumentation datum
@@ -116,6 +118,35 @@ namespace Azos.Instrumentation
     /// Turns on/off instrumentation
     /// </summary>
     bool InstrumentationEnabled { get; set; }
+  }
+
+  /// <summary>
+  /// Acts as a grouping key, a tuple of (host,app,source)
+  /// </summary>
+  public struct HASKey : IEquatable<HASKey>, IJsonWritable
+  {
+    public HASKey(string host, Atom app, string source)
+    {
+      this.Host = host.Default(Datum.UNSPECIFIED_HOST);
+      this.App = app.IsZero ? Datum.UNSPECIFIED_APP : app;
+      this.Source = source.Default(Datum.UNSPECIFIED_SOURCE);
+    }
+    public readonly string Host;
+    public readonly Atom App;
+    public readonly string Source;
+
+    public bool IsAssigned => Host != null;
+
+    public bool Equals(HASKey other) => this.App == other.App && this.Host.EqualsOrdSenseCase(other.Host) && this.Source.EqualsOrdSenseCase(other.Source);
+    public override bool Equals(object obj) => obj is HASKey has ? this.Equals(has) : false;
+    public override int GetHashCode() => (Host != null ? Host.GetHashCode() : 0) ^
+                                          (Source != null ? Source.GetHashCode() : 0) ^
+                                          App.GetHashCode();
+
+    public void WriteAsJson(TextWriter wri, int nestingLevel, JsonWritingOptions options = null)
+      => JsonWriter.WriteMap(wri, nestingLevel, options, new DictionaryEntry("h", Host),
+                                                         new DictionaryEntry("a", App),
+                                                         new DictionaryEntry("s", Source));
   }
 
 }

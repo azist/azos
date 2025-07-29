@@ -24,7 +24,7 @@ namespace Azos.Platform
   /// <typeparam name="TValue">Type of value to map to key</typeparam>
   /// <remarks>
   /// This is an advanced class which should rarely be used by business app developers.
-  /// This is a high performance data structure is optimized specifically for read-heavy storage of the LIMITED set of system (e.g. Types)
+  /// This is a high performance data structure which is optimized specifically for read-heavy storage of a LIMITED set of system (e.g. Types)
   /// objects with a maximum object count hard limit set to 512K.
   /// DO NOT store business data which changes or has high value variability.
   /// </remarks>

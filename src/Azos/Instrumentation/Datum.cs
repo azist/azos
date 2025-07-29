@@ -23,9 +23,48 @@ namespace Azos.Instrumentation
   {
     #region CONST
 
+    public const string PROP_NS   = "_ns";
+    public const string PROP_NAME = "_nm";
+    public const string PROP_REF  = "_rf";
+
     public const string UNSPECIFIED_SOURCE = "*";
+    public const string UNSPECIFIED_HOST = "*";
+    public static readonly Atom UNSPECIFIED_APP = Atom.Encode("-");
 
     #endregion
+
+    #region Static Name Hashing Canonical model
+    /// <summary>
+    /// Obtains a canonical hash for a Datum instance type, which is used to group data by namespace
+    /// </summary>
+    public static ulong GetTypeNamespaceHash(Datum d) => GetTypeNamespaceHash(d.NonNull(nameof(d)).GetType());
+
+    /// <summary>
+    /// Obtains a canonical hash for a Datum instance type, which is used to group data by datum name
+    /// </summary>
+    public static ulong GetTypeNameHash(Datum d) => GetTypeNameHash(d.NonNull(nameof(d)).GetType());
+
+    /// <summary>
+    /// Obtains a canonical hash for a type, which is used to group data by namespace
+    /// </summary>
+    public static ulong GetTypeNamespaceHash(Type t) => GetIdHash(t.NonNull(nameof(t)).Namespace);
+
+    /// <summary>
+    /// Obtains a canonical hash for a type, which is used to group data by type name
+    /// </summary>
+    public static ulong GetTypeNameHash(Type t) => GetIdHash(t.NonNull(nameof(t)).Name);
+
+    /// <summary>
+    /// Provides a canonical implementation of a 64 bit hash function used on Datum identifiers: class names and namespaces.
+    /// The canonical implementation uses FNV1A64 hash sop you can match this in non-Azos Unistack implementations like Python, Node, Java et al.
+    /// </summary>
+    /// <remarks>
+    /// The hashes are stored in time-series database instead of copious strings like "MySystem.Intrumentation.Business.Transaction",
+    /// you can then filter by namespace and instrument name hashes as they are much more compact and efficient.
+    /// </remarks>
+    public static ulong GetIdHash(string id) => ShardKey.ForString(id);
+    #endregion
+
 
     #region .ctor
 
@@ -115,7 +154,7 @@ namespace Azos.Instrumentation
     public Atom App
     {
       get => m_App;
-      protected set => m_App = value;
+      protected internal set => m_App = value;
     }
 
     /// <summary>
@@ -125,7 +164,7 @@ namespace Azos.Instrumentation
     public string Host
     {
       get => m_Host;
-      protected set => m_Host = value;
+      protected internal set => m_Host = value;
     }
 
     /// <summary>
@@ -144,13 +183,13 @@ namespace Azos.Instrumentation
     }
 
     /// <summary>
-    /// Returns datum source. Data are rolled-up by type of recorded datum instances and source
+    /// Returns datum source. Data are rolled-up by type of recorded datum instances, host, app, and then source
     /// </summary>
     [Field, Field(isArow: true, backendName: "src")]
     public virtual string Source
     {
-      get  => m_Source ?? UNSPECIFIED_SOURCE;
-      protected set => m_Source = value;
+      get  => m_Source.Default(UNSPECIFIED_SOURCE);
+      protected internal set => m_Source = value;
     }
 
     /// <summary>
@@ -248,7 +287,9 @@ namespace Azos.Instrumentation
 
     /// <summary>
     /// Aggregates multiple data instances (e.g.from multiple threads) into one single instance. This is the "reduce" operation which
-    /// makes aggregate instance, then concatenates all data events, then finalizes operation by calling SummarizeAggregation()
+    /// makes aggregate instance, then concatenates all data events, then finalizes operation by calling SummarizeAggregation().
+    /// Warning: This method does not check for type compatibility, so it is up to the caller to ensure that all datum instances are of the same type
+    /// and of the same app and host
     /// </summary>
     public Datum Aggregate(IEnumerable<Datum> many)
     {
@@ -259,14 +300,18 @@ namespace Azos.Instrumentation
       var cnt = 0;
 
       var result = MakeAggregateInstance();
+      result.m_Host = m_Host;
+      result.m_App = m_App;
 
       foreach (var e in many)
       {
+        Aver.IsTrue(e.m_App == m_App && e.m_Host.EqualsOrdSenseCase(m_Host),
+                    "Datum instances have the same App and Host as the aggregate instance");
         cnt++;
         if (e.StartUtc < start) start = e.StartUtc;
         if (e.StartUtc > end) end = e.StartUtc;
 
-        result.AggregateEvent(e);
+        result.AggregateOne(e);
       }
 
       result.m_Count = cnt;
@@ -312,15 +357,28 @@ namespace Azos.Instrumentation
     #region Protected
 
     protected abstract Datum MakeAggregateInstance();
-    protected virtual void AggregateEvent(Datum dat) { }
+    protected virtual void AggregateOne(Datum dat) { }
     protected virtual void SummarizeAggregation() { }
+
+    //static cache of hashed namespace and name per Datum type
+    private static readonly FiniteSetLookup<Type, (ulong, ulong)> NSCACHE = new FiniteSetLookup<Type, (ulong, ulong)>(tp =>
+    {
+      var nsHash = GetTypeNamespaceHash(tp);
+      var nameHash = GetTypeNameHash(tp);
+      return (nsHash, nameHash);
+    });
 
     protected override void AddJsonSerializerField(Schema.FieldDef def, JsonWritingOptions options, Dictionary<string, object> jsonMap, string name, object value)
     {
       if (def?.Order == 0)
       {
         Serialization.Bix.BixJsonHandler.EmitJsonBixDiscriminator(this, jsonMap);
-        jsonMap["ref"] = this.RefValue;
+
+        var (nsT, nameT) = NSCACHE[GetType()];
+        jsonMap[PROP_NS] = nsT;
+        jsonMap[PROP_NAME] = nameT;
+
+        jsonMap[PROP_REF] = RefValue;
       }
 
       base.AddJsonSerializerField(def, options, jsonMap, name, value);

@@ -224,10 +224,9 @@ namespace Azos.Instrumentation
     {
       if (Status != DaemonStatus.Active) return;
       if (datum == null) return;
+      if (Overflown) return;
 
       datum.InitDefaultFields(App);
-
-      if (Overflown) return;
 
       var t = datum.GetType();
 
@@ -236,7 +235,7 @@ namespace Azos.Instrumentation
       if (srcBucketed.DefaultDatum == null)
         srcBucketed.DefaultDatum = datum;
 
-      var bag = srcBucketed.GetOrAdd(datum.Source, (src) => new DatumBag());
+      var bag = srcBucketed.GetOrAdd(new HASKey(datum.Host, datum.App, datum.Source), (src) => new DatumBag());
 
       bag.Add(datum);
       Interlocked.Increment(ref m_RecordCount);
@@ -345,7 +344,7 @@ namespace Azos.Instrumentation
     /// Enumerates sources per Datum type ever recorded by the instance. This property may be used to build
     ///  UIs for instrumentation, i.e. datum type tree. Returned data is NOT ORDERED
     /// </summary>
-    public IEnumerable<string> GetDatumTypeSources(Type datumType, out Datum defaultInstance)
+    public IEnumerable<HASKey> GetDatumTypeSources(Type datumType, out Datum defaultInstance)
     {
       var tBucketed = m_TypeBucketed;
       if (datumType != null && tBucketed != null)
@@ -358,7 +357,7 @@ namespace Azos.Instrumentation
         }
       }
       defaultInstance = null;
-      return Enumerable.Empty<string>();
+      return Enumerable.Empty<HASKey>();
     }
 
     #endregion
@@ -492,7 +491,7 @@ namespace Azos.Instrumentation
             if (m_SelfInstrumented)
               instrumentSelf();
 
-            write();
+            write(); //write in loop while daemon is running
 
             if (m_OSInstrumentationIntervalMS <= 0)
               m_Trigger.WaitOne(m_ProcessingIntervalMS);
@@ -516,7 +515,7 @@ namespace Azos.Instrumentation
 
         }//while
 
-        write();
+        write();  //write the remainder of data
       }
       catch (Exception e)
       {
@@ -573,13 +572,14 @@ namespace Azos.Instrumentation
       try
       {
         var ctxBatch = m_Provider.BeforeBatch();
-        foreach (var tvp in m_TypeBucketed)
+        foreach (var tvp in m_TypeBucketed) // TYPE LOOP =================== TYPE ==================== TYPE LOOP
         {
           if (!Running) break;
           try
           {
             var ctxType = m_Provider.BeforeType(tvp.Key, ctxBatch);
-            foreach (var svp in tvp.Value)
+            //------------------------------------------------------
+            foreach (var svp in tvp.Value)//HAS loop
             {
               if (!Running) break;
 
@@ -591,7 +591,7 @@ namespace Azos.Instrumentation
 
                 try
                 {
-                  var lst = new List<Datum>();
+                  var lst = new List<Datum>(512);
                   Datum elm;
                   while (bag.TryTake(out elm))
                   {
@@ -599,6 +599,7 @@ namespace Azos.Instrumentation
                     Interlocked.Decrement(ref m_RecordCount);
                   }
 
+                  lst.Sort((a, b) => a.StartUtc.CompareTo(b.StartUtc));
                   aggregated = datum.Aggregate(lst);
                 }
                 catch (Exception error)
@@ -625,9 +626,9 @@ namespace Azos.Instrumentation
                 if (aggregated != null) bufferResult(aggregated);
 
               }//if
-            }
-            m_Provider.AfterType(tvp.Key, ctxBatch, ctxType);
+            }//HAS LOOP ------------------
 
+            m_Provider.AfterType(tvp.Key, ctxBatch, ctxType);
           }
           catch (Exception error)
           {
@@ -689,7 +690,7 @@ namespace Azos.Instrumentation
   /// <summary>
   /// Internal concurrent dictionary used for instrumentation data aggregation
   /// </summary>
-  internal class SrcBucketedData : ConcurrentDictionary<string, DatumBag>
+  internal class SrcBucketedData : ConcurrentDictionary<HASKey, DatumBag>
   {
     internal Datum DefaultDatum;
   }

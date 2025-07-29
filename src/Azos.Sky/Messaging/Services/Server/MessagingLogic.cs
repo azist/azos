@@ -107,6 +107,15 @@ namespace Azos.Sky.Messaging.Services.Server
 
       try
       {
+        //0. Capture DCF 20250723 DKh #959
+        if (ExecutionContext.CallFlow is DistributedCallFlow dcf)
+        {
+          if (original.Content != null && original.Content.CallFlowHeader.IsNullOrWhiteSpace())
+          {
+            original.Content.CallFlowHeader = dcf.ToHeaderValue();
+          }
+        }
+
         //1. Process message, e.g. expand templates. The new message is returned
         envelope = await DoProcessMessageAsync(original).ConfigureAwait(false);
 

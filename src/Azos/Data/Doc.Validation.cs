@@ -318,9 +318,12 @@ namespace Azos.Data
         {
             var tval = val.GetType();
 
-            bound = Convert.ChangeType(bound, tval) as IComparable;
+            //The conversion of the bound may not be required, there is no way to know in general
+            //if the target type is capable of comparison with the bound type
+            // so we try to convert the type, if it fails we proceed with unconverted bound
+            try { bound = Convert.ChangeType(bound, tval) as IComparable; } catch {  }
 
-            if (val.CompareTo(bound)<0)
+            if (val.CompareTo(bound) < 0)
                 return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_MIN_BOUND_ERROR, scope);
         }
       }
@@ -332,9 +335,12 @@ namespace Azos.Data
         {
             var tval = val.GetType();
 
-            bound = Convert.ChangeType(bound, tval) as IComparable;
+            //The conversion of the bound may not be required, there is no way to know in general
+            //if the target type is capable of comparison with the bound type
+            // so we try to convert the type, if it fails we proceed with unconverted bound
+            try { bound = Convert.ChangeType(bound, tval) as IComparable; } catch {  }
 
-            if (val.CompareTo(bound)>0)
+            if (val.CompareTo(bound) > 0)
                 return new FieldValidationException(Schema.DisplayName, fdef.Name, StringConsts.CRUD_FIELD_VALUE_MAX_BOUND_ERROR, scope);
         }
       }

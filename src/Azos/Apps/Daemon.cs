@@ -7,7 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
-
+using System.Threading;
 using Azos.Conf;
 using Azos.Time;
 
@@ -49,6 +49,7 @@ namespace Azos.Apps
 
     private object m_StatusLock = new object();
     private volatile DaemonStatus m_Status;
+    private CancellationTokenSource m_CancellationTokenSource;
 
     private volatile bool m_PendingWaitingStop;
 
@@ -96,6 +97,27 @@ namespace Azos.Apps
       {
         var status = m_Status;
         return !Disposed && (status == DaemonStatus.Active || status == DaemonStatus.Starting);
+      }
+    }
+
+    /// <summary>
+    /// Returns `CancellationToken` which gets "set" (as canceled) when this daemon is NOT Running, such as when it is stopping
+    /// or stopped or has not started yet. You may think of this property as a complementary to `Running` property.
+    /// WARNING: The token is only "unset" (not canceled) when it is obtained from a Running daemon at the time of token access.
+    /// So, for example: if this daemon is NOT running at the time of getting a token, the token will be pre-canceled on get
+    /// and there is no way to "activate" a `CancellationToken` by Microsoft design. This is not a problem and works as expected -
+    /// when you call APIs that expect CancellationToken you get it from this property. As soon as Daemon begins to stop (e.g. SignalStop)
+    /// all of the "unset" cancellation token instances get canceled and APIs get notified that the their internal operation should be canceled.
+    /// </summary>
+    public CancellationToken CancellationToken
+    {
+      get
+      {
+        if (!Running) return new CancellationToken(true);//already canceled
+
+        var cts = this.m_CancellationTokenSource;
+        if (cts == null) return new CancellationToken(true);//already canceled
+        return cts.Token;
       }
     }
 
@@ -171,18 +193,20 @@ namespace Azos.Apps
       {
         if (m_Status == DaemonStatus.Inactive)
         {
-            m_Status = DaemonStatus.Starting;
-            try
-            {
-              Behavior.ApplyBehaviorAttributes(this);
-              DoStart();
-              m_Status = DaemonStatus.Active;
-            }
-            catch
-            {
-              m_Status = DaemonStatus.Inactive;
-              throw;
-            }
+          m_Status = DaemonStatus.Starting;
+          try
+          {
+            m_CancellationTokenSource = new CancellationTokenSource();
+            Behavior.ApplyBehaviorAttributes(this);
+            DoStart();
+            m_Status = DaemonStatus.Active;
+          }
+          catch
+          {
+            m_Status = DaemonStatus.Inactive;
+            DisposeAndNull(ref m_CancellationTokenSource);
+            throw;
+          }
         }
       }
     }
@@ -197,6 +221,8 @@ namespace Azos.Apps
         if (m_Status == DaemonStatus.Active)
         {
           m_Status = DaemonStatus.Stopping;
+          var cts = m_CancellationTokenSource;
+          if (cts != null) this.DontLeak(() => cts.Cancel(throwOnFirstException: false), "leaked","SignalStop.cts.cancel()", Log.MessageType.CatastrophicError);
           DoSignalStop();
         }
       }
@@ -226,23 +252,24 @@ namespace Azos.Apps
     {
       lock (m_StatusLock)
       {
-          if (m_Status == DaemonStatus.Inactive) return;
+        if (m_Status == DaemonStatus.Inactive) return;
 
-          if (m_Status != DaemonStatus.Stopping) SignalStop();
+        if (m_Status != DaemonStatus.Stopping) SignalStop();
 
-          if (m_PendingWaitingStop) throw new AzosException(StringConsts.DAEMON_INVALID_STATE + "{0}.{1}".Args(Name,"WaitForCompleteStop() already blocked"));
+        if (m_PendingWaitingStop) throw new AzosException(StringConsts.DAEMON_INVALID_STATE + "{0}.{1}".Args(Name,"WaitForCompleteStop() already blocked"));
 
-          m_PendingWaitingStop = true;
-          try
-          {
-            DoWaitForCompleteStop();
-          }
-          finally
-          {
-            m_PendingWaitingStop = false;
-          }
+        m_PendingWaitingStop = true;
+        try
+        {
+          DoWaitForCompleteStop();
+        }
+        finally
+        {
+          m_PendingWaitingStop = false;
+          DisposeAndNull(ref m_CancellationTokenSource);
+        }
 
-          m_Status = DaemonStatus.Inactive;
+        m_Status = DaemonStatus.Inactive;
       }
     }
 
