@@ -33,6 +33,15 @@ namespace Azos.Standards
   public readonly struct Area : IScalarMeasure //, IFormattable
   {
 
+    /// <summary>
+    /// Creates an instance from the specified square microns value
+    /// </summary>
+    public Area(Distance.UnitType unit, long sqMicronValue)
+    {
+      Unit = unit;
+      ValueInSquareMicrons = sqMicronValue;
+    }
+
     //WIP TBD
 
     /// <summary>
@@ -41,7 +50,7 @@ namespace Azos.Standards
     /// hence the largest are representable is about 9.2 sq km or 99M sq ft which is enough for 99.9% of business use cases such as
     /// construction, engineering, logistics, shipping, etc.
     /// </summary>
-    public readonly long ValueInMicronsSquared;
+    public readonly long ValueInSquareMicrons;
 
     /// <summary>
     /// Units of distance measurement, which is squared for area, e.g. "meter squared", "foot squared", etc.

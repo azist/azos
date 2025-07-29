@@ -361,7 +361,8 @@ namespace Azos.Standards
     public static Distance operator +(Distance a, Distance b) => new Distance(a.Unit, a.ValueInMicrons + b.ValueInMicrons);
     public static Distance operator -(Distance a, Distance b) => new Distance(a.Unit, a.ValueInMicrons - b.ValueInMicrons);
 
-    public static decimal operator /(Distance a, Distance b) => (decimal)a.ValueInMicrons / (decimal)b.ValueInMicrons;
+    public static Area     operator *(Distance a, Distance b) => new Area(a.Unit, a.ValueInMicrons * b.ValueInMicrons);
+    public static decimal  operator /(Distance a, Distance b) => (decimal)a.ValueInMicrons / (decimal)b.ValueInMicrons;
     public static Distance operator %(Distance a, Distance b) => new Distance(b.Unit, a.ValueInMicrons % b.ValueInMicrons);
 
     public static Distance operator *(Distance a, long b) => new Distance(a.Unit, a.ValueInMicrons * b);
