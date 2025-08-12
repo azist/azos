@@ -58,6 +58,22 @@ namespace Azos.Tests.Nub.Standards
     [Run("a='35mm' b='6' c='5833'")]
     public void Divide(string a, string b, string c) => Aver.AreEqual((((Distance)a) / b.AsDecimal()).ValueInMicrons, c.AsLong());
 
+    [Run("a='2m' b='3m' c='2000000'")]
+    [Run("a='5.5ft' b='1in' c='0'")]
+    [Run("a='5.5ft' b='-1in' c='0'")]
+    [Run("a='2.8m' b='18in' c='56800'")]
+    public void Modulo(string a, string b, string c) => Aver.AreEqual(((Distance)a % (Distance)b).ValueInMicrons, c.AsLong());
+
+    [Run("a='15in' b='-10in' c='25in'")]
+    [Run("a='1yd' b='1m' c='9.8cm'")]
+    [Run("a='0.63km' b='0.12573482mi' c='427.6495m'")]
+    // This specific test is ensuring that nautical miles are within 1 micon precision, which accounts for the fact that 1 nautical mile does not convert to microns evenly
+    [Run("a='1nmi' b='0.9999999999282937365062217018nmi' c='1µm'")]
+    public void IsWithin(string a, string b, string c) => Aver.IsTrue(((Distance)a).IsWithin((Distance)b, (Distance)c));
+
+    //[Run("a='5m' b='5'")]
+    //public void ToString(string a, string b) => Aver.AreEqual(b, ((Distance)a).ToString());
+
     //[Run("a='2ft' b='2ft' c='609600'")]
     //public void TestArea(string a, string b, string c)
     //{
