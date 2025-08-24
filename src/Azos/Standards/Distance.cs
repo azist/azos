@@ -69,16 +69,16 @@ namespace Azos.Standards
 
     private static readonly Dictionary<UnitType, (string s, string l)> UNIT_NAMES =  new Dictionary<UnitType, (string, string)>
     {
-      {UnitType.Micron,     ("µm", "micron")},
-      {UnitType.Millimeter, ("mm", "millimeter")},
-      {UnitType.Centimeter, ("cm", "centimeter")},
-      {UnitType.Meter,      ("m",  "meter")},
-      {UnitType.Kilometer,  ("km", "kilometer")},
-      {UnitType.Inch,       ("in", "inch")},
-      {UnitType.Foot,       ("ft", "foot")},
-      {UnitType.Yard,       ("yd", "yard")},
-      {UnitType.Mile,       ("mi", "mile")},
-      {UnitType.NauticalMile,  ("nmi", "nmile")},
+      {UnitType.Micron,       ("µm", "micron")},
+      {UnitType.Millimeter,   ("mm", "millimeter")},
+      {UnitType.Centimeter,   ("cm", "centimeter")},
+      {UnitType.Meter,        ("m",  "meter")},
+      {UnitType.Kilometer,    ("km", "kilometer")},
+      {UnitType.Inch,         ("in", "inch")},
+      {UnitType.Foot,         ("ft", "foot")},
+      {UnitType.Yard,         ("yd", "yard")},
+      {UnitType.Mile,         ("mi", "mile")},
+      {UnitType.NauticalMile, ("nmi", "nmile")},
 
     };
 
@@ -361,8 +361,9 @@ namespace Azos.Standards
     public static Distance operator +(Distance a, Distance b) => new Distance(a.Unit, a.ValueInMicrons + b.ValueInMicrons);
     public static Distance operator -(Distance a, Distance b) => new Distance(a.Unit, a.ValueInMicrons - b.ValueInMicrons);
 
-    public static Area     operator *(Distance a, Distance b) => new Area(a.Unit, a.ValueInMicrons * b.ValueInMicrons);
-    public static decimal  operator /(Distance a, Distance b) => (decimal)a.ValueInMicrons / (decimal)b.ValueInMicrons;
+    // This needs to return Area not Distance, as multiplying two distances results in an area
+    //public static Distance operator *(Distance a, Distance b) => new Distance(a.Unit, a.ValueInMicrons * b.ValueInMicrons);
+    public static decimal operator /(Distance a, Distance b) => (decimal)a.ValueInMicrons / (decimal)b.ValueInMicrons;
     public static Distance operator %(Distance a, Distance b) => new Distance(b.Unit, a.ValueInMicrons % b.ValueInMicrons);
 
     public static Distance operator *(Distance a, long b) => new Distance(a.Unit, a.ValueInMicrons * b);

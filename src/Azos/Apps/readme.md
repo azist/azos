@@ -51,7 +51,7 @@ If no specific file found, then an empty config node is allocated in memory as `
 
 
 ### App Chassis Nesting
-An application chassis may support a concept of nesting - an ability to allocate and the deallocate an 
+An application chassis may support a concept of nesting - an ability to allocate and deallocate an 
 inner application scope within another. This feature is needed in many cases. 
 
 Take **unit testing as an example** of nesting app chassis.

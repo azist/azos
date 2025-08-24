@@ -23,7 +23,7 @@ Laconic format is somewhat similar to [HOCON](https://en.wikipedia.org/wiki/HOCO
 This is the **default choice for writing config files** as it is the simplest format that has the following pros:
 
 - Terse format (e.g. XML is much more verbose, so is JSON)
-- Optional quotes, both single and dbl
+- Optional quotes, both single and double
 - Line comments
 - Block comments
 - Verbatim strings + strings escapes a-la C# (e.g. `"\n\rFunny: \u3748\u2423"` )
