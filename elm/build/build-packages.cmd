@@ -1,7 +1,7 @@
 @echo on
 
-set VER=3.20.2.1
-set HEADLINE=Message validation
+set VER=5.0.1.1
+set HEADLINE=#971
 call build-all Release %VER%
 
 if errorlevel 1 goto BUILD_ERROR
