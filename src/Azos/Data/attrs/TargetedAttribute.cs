@@ -214,10 +214,11 @@ namespace Azos.Data
 
       var docName = tDoc.NonNull(nameof(tDoc)).FullName;
 
-      if (resContent == null && useDefaultName)
+      if (resContent == null && useDefaultName) //try probing for local file first. We MAY NOT use
       {
-        res = "{0}.laconf".Args(docName);
+        res = "{0}.laconf".Args(tDoc.Name);//Fix for #971  was "docName" until 20250927 DKh
         resContent = tDoc.GetText(res);
+        docName = tDoc.Name; //do not use full node name either, since the file name already has it
       }
 
       resContent.NonBlank("Resource `{0}` referenced by {1}.{2}.{3}".Args(res, docName, entity, name));
