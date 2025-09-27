@@ -58,6 +58,31 @@ namespace Azos.Tests.Nub.DataAccess
       Aver.AreEqual("Apple", schema["Name"].Attrs.First().ParseValueList()["A"].AsString());
       Aver.AreEqual("Book", schema["Name"].Attrs.First().ParseValueList()["B"].AsString());
     }
+
+    [Run]
+    public void Case_4()
+    {
+      var schema = Schema.GetForTypedDoc(typeof(custom.TestDataDocD));
+
+      var satr = schema.SchemaAttrs.First();
+      Aver.AreEqual("Schema-level description is here", satr.Description);
+      Aver.AreEqual(1, satr.Metadata.Of("a").ValueAsInt());
+      Aver.AreEqual(2, satr.Metadata.Of("b").ValueAsInt());
+      Aver.AreEqual(3, satr.Metadata["sub"].Of("c").ValueAsInt());
+
+      var fatr = schema["Name"].Attrs.First();
+      Aver.AreEqual("My long description", fatr.Description);
+      Aver.AreEqual("PineApple", fatr.ParseValueList()["A"].AsString());
+      Aver.AreEqual("Book", fatr.ParseValueList()["B"].AsString());
+      Aver.AreEqual(1, fatr.Metadata["a"].Of("v").ValueAsInt());
+      Aver.AreEqual(2, fatr.Metadata["b"].Of("v").ValueAsInt());
+      Aver.AreEqual(3, fatr.Metadata["c"].Of("v").ValueAsInt());
+      Aver.AreEqual(-249, fatr.Metadata["c"]["another"].Of("v").ValueAsInt());
+
+
+
+      Aver.AreEqual("Description of field", schema["Field"].Attrs.First().Description);
+    }
   }
 
 
@@ -83,6 +108,19 @@ namespace Azos.Tests.Nub.DataAccess
   {
     [Field(typeof(TestDataDocA))]
     public string Name { get; set; }
+  }
+
+  namespace custom//for resource path testing
+  {
+      [Schema(Description = "./", MetadataContent = "./")]
+      public class TestDataDocD : TypedDoc
+      {
+        [Field(description: "./", valueList: "./", metadata: "./")]
+        public string Name { get; set; }
+
+        [Field(description: "./")]
+        public int Field { get; set; }
+      }
   }
 
 }

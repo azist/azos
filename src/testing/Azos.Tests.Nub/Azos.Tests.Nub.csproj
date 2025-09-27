@@ -27,6 +27,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="DataAccess\custom\aaa.laconf" />
+    <EmbeddedResource Include="DataAccess\custom\TestDataDocD.laconf" />
     <EmbeddedResource Include="DataAccess\schemas.laconf" />
     <EmbeddedResource Include="ScriptingAndTesting\Data\schemas.laconf" />
     <EmbeddedResource Include="Serialization\json\bad-json-body.txt" />
