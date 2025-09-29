@@ -217,6 +217,11 @@ namespace Azos.Data
       if (first!=null) Batch.Add(first);
     }
 
+    public ValidationBatchException(IEnumerable<Exception> errors) : base("Error Batch")
+    {
+      Batch = errors.NonNull(nameof(errors)).Where(one => one != null).ToList();
+    }
+
     private ValidationBatchException(SerializationInfo info, StreamingContext context) : base(info, context)
     {
       Batch = (List<Exception>)info.GetValue(BATCH_FLD_NAME, typeof(List<Exception>));

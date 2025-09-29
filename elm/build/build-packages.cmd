@@ -1,6 +1,6 @@
 @echo on
 
-set VER=5.0.1.1
+set VER=5.0.1.2
 set HEADLINE=#971
 call build-all Release %VER%
 
