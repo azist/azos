@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using Azos.Time;
 
 using Azos.Apps;
+using Azos.Pile.Instrumentation;
 
 namespace Azos
 {
@@ -110,6 +111,14 @@ namespace Azos
     /// Returns true after Dispose() was called to indicate that application is shutting down
     /// </summary>
     bool ShutdownStarted { get;}
+
+
+    //20251004 DKh#978
+    /// <summary>
+    /// Returns cancellation token that is canceled when application shutdown starts.
+    /// You can get this token to pass into various async operations that support cancellation
+    /// </summary>
+    System.Threading.CancellationToken ShutdownToken { get; }
 
     /// <summary>
     /// References application dependency injector which injects app-context rooted dependencies into

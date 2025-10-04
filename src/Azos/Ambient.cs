@@ -5,7 +5,6 @@
 </FILE_LICENSE>*/
 
 using System;
-
 using Azos.Apps;
 
 namespace Azos
@@ -103,6 +102,19 @@ namespace Azos
 
       s_ProcessName = name;
     }
+
+    /// <summary>
+    /// Shortcut access to  ExecutionContext.Application.ShutdownToken.
+    /// <br/><br/>
+    /// WARNING: LEGACY 3rd PARTY APP USE only: using this property in business code is a bad practice because it creates
+    /// a hard dependency on the most current application chassis instance.
+    /// This property is provided ONLY for legacy 3rd party apps which do not use DI and have no other way of getting notified
+    /// of global application object shutdown.
+    /// <br/>
+    /// Any new project development should rely on DI and IApplication service injected into your code instead of this static property
+    /// <see cref="IApplication.ShutdownToken"/>"/>
+    /// </summary>
+    public static System.Threading.CancellationToken LegacyApplicationShutdownToken => ExecutionContext.Application.ShutdownToken;
 
     /// <summary>
     /// Shortcut access to  ExecutionContext.Application.TimeSource.UTCNow;

@@ -16,6 +16,7 @@ using Azos.Apps.Volatile;
 using Azos.Glue;
 using Azos.Security;
 using Azos.Time;
+using System.Threading;
 
 namespace Azos.Apps
 {
@@ -124,6 +125,8 @@ namespace Azos.Apps
     public DateTime StartTime => m_StartTime;
 
     public bool Active => false;//20140128 DKh was true before
+
+    public CancellationToken  ShutdownToken => new CancellationToken(true);
 
     public IApplicationRealm Realm => m_Realm;
 
