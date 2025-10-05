@@ -315,7 +315,7 @@ namespace Azos.Apps
 
 
     //20251003 #978 DKh Added CancellationToken support
-    /// <summary> Returns CancekllationToken that is cancelled when app shutdown starts </summary>
+    /// <summary> Returns CancellationToken that is cancelled when app shutdown or stopping starts </summary>
     public CancellationToken ShutdownToken => (m_ShutdownTokenSource?.Token) ?? new CancellationToken(canceled: true);
 
     /// <summary>

@@ -74,18 +74,25 @@ namespace Azos.Tests.Nub.Application
     {
       using(var app = new AzosApplication(null))
       {
+        var shutdownToken = app.ShutdownToken;
         Aver.IsTrue(app.Active);
         Aver.IsFalse(app.Stopping);
         Aver.IsFalse(app.ShutdownStarted);
         Aver.IsFalse(app.WaitForStopOrShutdown(10));
+        Aver.IsFalse(shutdownToken.IsCancellationRequested);
 
-        Task.Delay(2_000).ContinueWith(_ => app.Stop());
+        Task.Delay(2_000).ContinueWith(_ => {
+          Aver.IsFalse(shutdownToken.IsCancellationRequested);
+          app.Stop();
+          Aver.IsTrue(shutdownToken.IsCancellationRequested);
+        });
 
         int i = 1;
         while(!app.WaitForStopOrShutdown(100)) i++;
 
         "Took: {0}".SeeArgs(i);
         Aver.IsTrue( i >= 18 && i < 26);
+        Aver.IsTrue(shutdownToken.IsCancellationRequested);
       }
     }
   }

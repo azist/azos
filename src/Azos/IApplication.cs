@@ -114,7 +114,7 @@ namespace Azos
 
     //20251004 DKh#978
     /// <summary>
-    /// Returns cancellation token that is canceled when application shutdown starts.
+    /// Returns cancellation token that is canceled when application shutdown due to dispose or "stop()" starts.
     /// You can get this token to pass into various async operations that support cancellation
     /// </summary>
     System.Threading.CancellationToken ShutdownToken { get; }
