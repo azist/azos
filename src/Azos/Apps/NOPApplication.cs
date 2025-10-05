@@ -126,7 +126,7 @@ namespace Azos.Apps
 
     public bool Active => false;//20140128 DKh was true before
 
-    public CancellationToken  ShutdownToken => new CancellationToken(true);
+    public CancellationToken  ShutdownToken => new CancellationToken(false);
 
     public IApplicationRealm Realm => m_Realm;
 

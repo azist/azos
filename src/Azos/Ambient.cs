@@ -114,6 +114,9 @@ namespace Azos
     /// Any new project development should rely on DI and IApplication service injected into your code instead of this static property
     /// <see cref="IApplication.ShutdownToken"/>"/>
     /// </summary>
+    [Obsolete("WARNING: LEGACY 3rd PARTY APP USE only: using this property in business code is a bad practice because " +
+              "it creates a hard dependency on the most current application chassis instance." +
+              "Any new project development should rely on DI and IApplication service injected into your code instead of this static property")]
     public static System.Threading.CancellationToken LegacyApplicationShutdownToken => ExecutionContext.Application.ShutdownToken;
 
     /// <summary>

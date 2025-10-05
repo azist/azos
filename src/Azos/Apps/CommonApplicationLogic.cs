@@ -167,7 +167,10 @@ namespace Azos.Apps
 
       base.Destructor();
       DisposeAndNull(ref m_ShutdownEvent);
-      DisposeAndNull(ref m_ShutdownTokenSource);
+      //20251005 DKh do not dispose the CTS - it may be used post factum
+      //It really does not leak any resources as the process is shutting down anyway
+      //and the CTS doe snot have any finalizers
+      ////DisposeAndNull(ref m_ShutdownTokenSource);
     }
 
     #endregion
@@ -664,13 +667,13 @@ namespace Azos.Apps
       var cts = m_ShutdownTokenSource;
       if (cts != null)
       {
-        m_ShutdownTokenSource.Cancel(false);
+        try { m_ShutdownTokenSource.Cancel(false); } catch { /* nothing you can do anyway as the process is tearing */ }
       }
 
       var wait = m_ShutdownEvent;
       if (wait != null)
       {
-        if (!wait.IsSet) wait.Set();
+        try { if (!wait.IsSet) wait.Set(); } catch { /* nothing you can do anyway as the process is tearing  */ }
       }
     }
 
