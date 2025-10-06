@@ -5,14 +5,21 @@
 </FILE_LICENSE>*/
 
 using System;
-
 using Azos.Apps;
 
 namespace Azos
 {
   /// <summary>
   /// Provides access to ambient context such as CurrentCallSession/User information.
-  /// The ambient context flows through async call chains
+  /// The ambient context flows through async call chains.
+  /// This class is mostly used for system components and frameworks that need ambient context - e.g. passing <see cref="ISession"/> and <see cref="ICallFlow"/>
+  /// into inner functions which do not have these parameters in their signature.
+  /// <br/>
+  /// <br/>
+  /// Typical business app code should NOT use this class directly, instead it should rely on DI (Dependency Injection).
+  /// <br/>
+  /// <br/>
+  /// Another use case is legacy 3rd party apps where DI is not possible due to existing architecture.
   /// </summary>
   public static class Ambient
   {
@@ -103,6 +110,24 @@ namespace Azos
 
       s_ProcessName = name;
     }
+
+    /// <summary>
+    /// Shortcut access to  ExecutionContext.Application.ShutdownToken.
+    /// You MUST store the returned token in your own variable at your scope entrance and NOT re-query the token because app context may change.
+    /// This method should only be used in LEGACY 3rd PARTY APP where DI is not possible!!!
+    /// <br/><br/>
+    /// WARNING: LEGACY 3rd PARTY APP USE only: using this property in business code is a bad practice because it creates
+    /// a hard dependency on the most current application chassis instance AT THE TIME of obtaining the token.
+    /// This property is provided ONLY for legacy 3rd party apps which do not use DI and have no other way of getting notified
+    /// of global application object shutdown.
+    /// <br/>
+    /// Any new project development should rely on DI and IApplication service injected into your code instead of this static property
+    /// <see cref="IApplication.ShutdownToken"/>"/>
+    /// </summary>
+    [Obsolete("WARNING: LEGACY 3rd PARTY APP USE only: using this property in business code is a bad practice because " +
+              "it creates a hard dependency on the most current application chassis instance AT THE TIME of obtaining the token." +
+              "Any new project development should rely on DI and IApplication service injected into your code instead of this static property")]
+    public static System.Threading.CancellationToken LegacyApplicationShutdownToken => ExecutionContext.Application.ShutdownToken;
 
     /// <summary>
     /// Shortcut access to  ExecutionContext.Application.TimeSource.UTCNow;

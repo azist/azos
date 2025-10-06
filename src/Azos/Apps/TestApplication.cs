@@ -17,6 +17,7 @@ using Azos.Glue;
 using Azos.Instrumentation;
 using Azos.Log;
 using Azos.Security;
+using System.Threading;
 
 namespace Azos.Apps
 {
@@ -96,6 +97,8 @@ namespace Azos.Apps
     public virtual bool Stopping { get; set; }
 
     public virtual bool ShutdownStarted { get; set; }
+
+    public virtual System.Threading.CancellationToken ShutdownToken => CancellationToken.None;
 
     public virtual Log.ILog Log { get; set; }
 

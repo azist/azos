@@ -167,6 +167,10 @@ namespace Azos.Apps
 
       base.Destructor();
       DisposeAndNull(ref m_ShutdownEvent);
+      //20251005 DKh do not dispose the CTS - it may be used post factum
+      //It really does not leak any resources as the process is shutting down anyway
+      //and the CTS doe snot have any finalizers
+      ////DisposeAndNull(ref m_ShutdownTokenSource);
     }
 
     #endregion
@@ -184,6 +188,7 @@ namespace Azos.Apps
     private bool m_AllowNesting;
 
     private ManualResetEventSlim m_ShutdownEvent = new ManualResetEventSlim(false, spinCount: 2);
+    private CancellationTokenSource m_ShutdownTokenSource = new CancellationTokenSource();
     private volatile bool m_ShutdownStarted;
     private volatile bool m_Stopping;
 
@@ -307,6 +312,11 @@ namespace Azos.Apps
 
     /// <summary> Returns true to indicate that Dispose() has been called and shutdown has started</summary>
     public bool ShutdownStarted => m_ShutdownStarted;
+
+
+    //20251003 #978 DKh Added CancellationToken support
+    /// <summary> Returns CancellationToken that is cancelled when app shutdown or stopping starts </summary>
+    public CancellationToken ShutdownToken => (m_ShutdownTokenSource?.Token) ?? new CancellationToken(canceled: true);
 
     /// <summary>
     /// Returns an accessor to the application surrounding environment (realm) in which app gets executed.
@@ -650,14 +660,20 @@ namespace Azos.Apps
     }
 
     /// <summary>
-    /// Sets shutdown event wait handle
+    /// Sets shutdown event wait handle and CTS cancellation to notify waiters that shutdown or stop is pending
     /// </summary>
     protected void NotifyPendingStopOrShutdown()
     {
+      var cts = m_ShutdownTokenSource;
+      if (cts != null)
+      {
+        try { m_ShutdownTokenSource.Cancel(false); } catch { /* nothing you can do anyway as the process is tearing */ }
+      }
+
       var wait = m_ShutdownEvent;
       if (wait != null)
       {
-        if (!wait.IsSet) wait.Set();
+        try { if (!wait.IsSet) wait.Set(); } catch { /* nothing you can do anyway as the process is tearing  */ }
       }
     }
 

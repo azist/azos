@@ -111,6 +111,14 @@ namespace Azos
     /// </summary>
     bool ShutdownStarted { get;}
 
+
+    //20251004 DKh#978
+    /// <summary>
+    /// Returns cancellation token that is canceled when application shutdown due to dispose or "stop()" starts.
+    /// You can get this token to pass into various async operations that support cancellation
+    /// </summary>
+    System.Threading.CancellationToken ShutdownToken { get; }
+
     /// <summary>
     /// References application dependency injector which injects app-context rooted dependencies into
     /// objects. The frameworks calls this service automatically for most places (Mvc models/views/controllers, Glue servers)
