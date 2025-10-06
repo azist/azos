@@ -15,6 +15,24 @@ namespace Azos.Apps
   public static class AppBuilderPatternExtensions
   {
 
+    public static IAzosAppChassisBuilder AddModule<T>(this IAzosAppChassisBuilder builder, string name, IConfigSectionNode details = null) where T : IModule
+    {
+      var root = builder.NonNull(nameof(builder)).AppConfigRoot;
+      var modules = root[CommonApplicationLogic.CONFIG_MODULES_SECTION];
+      if (!modules.Exists)
+      {
+        modules = root.AddChildNode(CommonApplicationLogic.CONFIG_MODULES_SECTION);
+      }
+
+      var module = modules.AddChildNode(CommonApplicationLogic.CONFIG_MODULE_SECTION);
+      module.AddAttributeNode(Configuration.CONFIG_NAME_ATTR, name.NonBlank(nameof(name)));
+      module.AddAttributeNode(FactoryUtils.CONFIG_TYPE_ATTR, typeof(T).AssemblyQualifiedName);
+      if (details != null && details.Exists) module.OverrideBy(details);
+
+      return builder;
+    }
+
+
     /// <summary>
     /// Adds console logging
     /// </summary>
