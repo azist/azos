@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
+using AsyncKeyedLock;
 using Azos.Data;
 using Azos.Serialization.JSON;
 
@@ -259,8 +260,7 @@ namespace Azos
       }
     }
 
-    //intern pool for speed
-    private static object s_Lock = new object();
+    private static AsyncKeyedLocker<ulong> s_InternLocker = new();
     private static volatile Dictionary<ulong, string> s_Cache = new Dictionary<ulong, string>();
 
     /// <summary>
@@ -279,14 +279,10 @@ namespace Azos
         if (s_Cache.Count >= MAX_CACHE_SIZE) return getValue();//do not cache #917
 
         //the creation of new Atoms is slow
-        lock(s_Lock)
+        using (s_InternLocker.Lock(ID))
         {
           if (s_Cache.TryGetValue(ID, out value)) return value;
-          var dict = new Dictionary<ulong, string>(s_Cache);
-          value = getValue();
-          dict[ID] = value;
-          System.Threading.Thread.MemoryBarrier();
-          s_Cache = dict; //atomic swap
+          s_Cache[ID] = getValue();
         }
 
         return value;
